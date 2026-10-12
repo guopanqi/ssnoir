@@ -1,37 +1,65 @@
 {
   "schema": "ssnoir.autonomous-pattern-memory/v1",
-  "updated": "2026-10-11",
-  "batch": "R97b",
-  "rounds": 1,
-  "totalArchivedRounds": 47,
+  "updated": "2026-10-12",
+  "batch": "R103-R105",
+  "rounds": 3,
+  "totalArchivedRounds": 50,
   "objective": "Keep an honest research candidate quality gate: 20 different sources is not 20 human-validated attractive games; continue autonomously with direct causal ablations",
   "method": {
     "sourceScripts": [
-      "tools/content-validator/experiments/r97b_delayed_seal_simple_rule.py"
+      "tools/content-validator/experiments/r103_pressure_trigger_source.py",
+      "tools/content-validator/experiments/r104_exit_commitment_boundaries.py",
+      "tools/content-validator/experiments/r105_ambient_vs_paid_information.py"
     ],
-    "run": "38136045724",
-    "scope": "Exact Fraction strong comprehensible threshold action rule vs full optimal; fifteen reduced public deadline cases; NOT native P20 or human play",
-    "human": "No new feedback or Debug candidates"
+    "run": "38189900854",
+    "scope": "Three mathematically independent exact-Fraction studies in separate parallel GitHub Actions jobs; no C#/Scheme or blind human evidence",
+    "human": "Feedback inbox unchanged, Debug allowlist unchanged"
   },
   "results": [
     {
-      "id": "R97b",
-      "name": "解释性晚封门规则的最强反证",
-      "status": "保留可学的条件性改路为基础关系，复杂规划优势被反证为0",
+      "id": "R103",
+      "name": "同事件频率的进展/失败压力来源",
+      "status": "保留为触发源组合材料，无额外人类试玩请求",
       "evidence": {
-        "goalRange": [
-          8,
-          12
-        ],
-        "composureRange": [
-          3,
-          5
-        ],
-        "totalScenarios": 15,
-        "allAdaptiveAboveSimpleGaps": 0,
-        "baseGoal10Composure4": 0.740504973
+        "triggerProbabilityPerWork": "1/3 each",
+        "penalty1": {
+          "successUtility": 3.308641975,
+          "failureUtility": 3.382716049,
+          "successStrictRepairVisits": 0.222222222,
+          "failureStrictRepairVisits": 0.481481481
+        },
+        "penalty2": {
+          "successAdaptiveAboveThreshold": 0,
+          "failureAdaptiveAboveThreshold": 0
+        }
       },
-      "lesson": "在第二回合最后一手，若进度余量不超过第三回合最多两次说服可得的4且冷静≥2就封门；其他时刻说服，封后留两行动修梯。在所测十五条件全部达到自由最优，不能把R97路径转向解释成数学复杂性。"
+      "lesson": "同频率触发源与进度相关性不同，影响修补选择；惩罚变大后简明阈值覆盖复杂性"
+    },
+    {
+      "id": "R104",
+      "name": "封门补救净容量",
+      "status": "原规则保持；补救成本过高时延长期限没有独立价值",
+      "evidence": {
+        "goal": 10,
+        "composure": 4,
+        "repair3Extra1Gain": 0,
+        "repair2Extra1Gain": 0.028806584,
+        "repair3Extra2Gain": 0.001642704
+      },
+      "lesson": "不能只统计延长回合，必须扣除关闭出口带来的修理债务；R97b简单口诀在部分变体不再足够"
+    },
+    {
+      "id": "R105",
+      "name": "自然线索能否替代专门探查",
+      "status": "有条件独立信息价值，保留信息预算边界",
+      "evidence": {
+        "sites2NaturalHalfQueryGain": 0,
+        "sites3NaturalHalfQueryGain": 0.074074074,
+        "sites4NaturalQuarterQueryGain": 0.222222222,
+        "sites5NaturalQuarterQueryGain": 0.483333333,
+        "sites4PerfectNaturalQueryGain": 0
+      },
+      "lesson": "专门探查价值取决于地点候选数与普通行动自然线索；两地点或自然信息完美时新增探查是多余选项"
     }
   ],
   "crossRoundMemory": [
@@ -51,7 +79,10 @@
     "R98强响应式阈值族40条在R95非线性且衰减2压缩模型中逐初始手牌择最优可完全达到自由DP（额外0）；单一全局阈值仍落后0.010491684。不得把R95相对固定动作脚本的0.03117增量冒充新颖复杂决策。",
     "R97 exact paper: goal10 initial composure4, two rounds open vs three with seal at cost1+ladder2; no seal0.711698, forced opening seal0.636338, optional seal0.740505. 9.6879% optimal path probability strictly seals, all round2. The value is delayed irrevocable commitment, not extra state/automatic window.",
     "R102-paper single-round four dice: nonlinear expected progress opt12.54235 vs one fixed-threshold12.54097, 0.011% relative difference; do not generalize to 3-turn native P10 completion. Parallel contributor's R102_native_threshold_sweep.py targets distinct native three-round evidence; retain suffix '-paper' to prevent collision.",
-    "R97b strong base: one explainable second-round-last-action seal rule reaches exact free DP in 15 goal8-12 / initial composure3-5 cases. Genuine 9.6879% strictly beneficial switch does NOT imply algorithmic complexity; it can be learned as a public deadline threshold. Need UX/native semantics separately."
+    "R97b strong base: one explainable second-round-last-action seal rule reaches exact free DP in 15 goal8-12 / initial composure3-5 cases. Genuine 9.6879% strictly beneficial switch does NOT imply algorithmic complexity; it can be learned as a public deadline threshold. Need UX/native semantics separately.",
+    "R103 exact paper: success-trigger and bad-outcome-triggered pressure share 1/3 nominal chance but differ in optimal repairs due progress correlation; penalty 2 threshold heuristic fully explains both. Do not confuse same event frequency with matched experiential difficulty.",
+    "R104 exact paper: seal requires 3 ladder repairs and only +1 round -> independent gain zero; 2 repairs +1 round -> +0.0288066; count net actions after side effects. Some stronger extensions weakly escape R97b one-line rule.",
+    "R105 paper with ordinary clue chance: K2 sites always probe feature gain zero; K3 q=.5 +0.07407, K4 q=.25 +0.22222; q=1 free natural clue kills paid probe gain. Need strong priority 'try one location then ask' before promotion."
   ],
   "history": [
     {
@@ -819,34 +850,90 @@
       ],
       "record": "docs/实验/机制研究/批次/R97-R102-延后封门与单回合边界/研究记录.md",
       "note": "Supplement to R97; its strict second-round switches require no extra DP beyond one human-legible conditional rule."
+    },
+    {
+      "batch": "R103-R105",
+      "rounds": 3,
+      "method": {
+        "sourceScripts": [
+          "tools/content-validator/experiments/r103_pressure_trigger_source.py",
+          "tools/content-validator/experiments/r104_exit_commitment_boundaries.py",
+          "tools/content-validator/experiments/r105_ambient_vs_paid_information.py"
+        ],
+        "run": "38189900854",
+        "scope": "Three mathematically independent exact-Fraction studies in separate parallel GitHub Actions jobs; no C#/Scheme or blind human evidence",
+        "human": "Feedback inbox unchanged, Debug allowlist unchanged"
+      },
+      "results": [
+        {
+          "id": "R103",
+          "name": "同事件频率的进展/失败压力来源",
+          "status": "保留为触发源组合材料，无额外人类试玩请求",
+          "evidence": {
+            "triggerProbabilityPerWork": "1/3 each",
+            "penalty1": {
+              "successUtility": 3.308641975,
+              "failureUtility": 3.382716049,
+              "successStrictRepairVisits": 0.222222222,
+              "failureStrictRepairVisits": 0.481481481
+            },
+            "penalty2": {
+              "successAdaptiveAboveThreshold": 0,
+              "failureAdaptiveAboveThreshold": 0
+            }
+          },
+          "lesson": "同频率触发源与进度相关性不同，影响修补选择；惩罚变大后简明阈值覆盖复杂性"
+        },
+        {
+          "id": "R104",
+          "name": "封门补救净容量",
+          "status": "原规则保持；补救成本过高时延长期限没有独立价值",
+          "evidence": {
+            "goal": 10,
+            "composure": 4,
+            "repair3Extra1Gain": 0,
+            "repair2Extra1Gain": 0.028806584,
+            "repair3Extra2Gain": 0.001642704
+          },
+          "lesson": "不能只统计延长回合，必须扣除关闭出口带来的修理债务；R97b简单口诀在部分变体不再足够"
+        },
+        {
+          "id": "R105",
+          "name": "自然线索能否替代专门探查",
+          "status": "有条件独立信息价值，保留信息预算边界",
+          "evidence": {
+            "sites2NaturalHalfQueryGain": 0,
+            "sites3NaturalHalfQueryGain": 0.074074074,
+            "sites4NaturalQuarterQueryGain": 0.222222222,
+            "sites5NaturalQuarterQueryGain": 0.483333333,
+            "sites4PerfectNaturalQueryGain": 0
+          },
+          "lesson": "专门探查价值取决于地点候选数与普通行动自然线索；两地点或自然信息完美时新增探查是多余选项"
+        }
+      ],
+      "record": "docs/实验/机制研究/批次/R103-R105-并行因果研究/研究记录.md"
     }
   ],
   "frontier": [
     {
-      "id": "R97-communication",
+      "id": "R106",
       "priority": 1,
-      "question": "玩家在知道救人、两种出口和倒计时后能否自然理解简单封门截止判断？",
-      "method": "先在独立纸面情景中尝试无提示阅读与表述，不修改原版P20；真正的体验归真人",
-      "humanGate": true
+      "question": "成功生问题与失败生问题，在同一正式骰池和公开里程碑下仍改变修补/推进的正常路径吗？",
+      "method": "与R37实际Scheme校准；公平锁定触发分布、代价、剩余行动；优先强阈值支配反证",
+      "humanGate": false
     },
     {
-      "id": "R102-paper-followup",
+      "id": "R107",
       "priority": 2,
-      "question": "真正三回合下是否有一颗骰在进度与储备之间产生无法用单回合阈值解释的取舍？",
-      "method": "优先复核已在仓库的r101_p10_native_three_rounds.py和r102_native_threshold_sweep.py证据，避免重复实现；保持数学/原生区分",
+      "question": "封门后剩余净行动容量能否让玩家一眼看懂何时改道，还是只是算钟表？",
+      "method": "先验证净容量支配边界再考虑独立原生版本；禁止改写P20原始反馈",
       "humanGate": false
     },
     {
-      "id": "R99-R102-consolidation",
+      "id": "R108",
       "priority": 3,
-      "question": "并行R99-R102结论是否冲突或重复？",
-      "method": "按提交和CI核对后整理研究记忆，别自动把场景送Debug",
-      "humanGate": false
-    },
-    {
-      "id": "P10-native-counterfactual",
-      "question": "能否在正式P10同公开状态下找到严格适合低储备提前兑现、另一个状态严格适合等待到阈值4的决策？",
-      "method": "共享随机抽样或精确条件概率，不能把同seed不同行动脚本的结果当成同roll配对；若没有应降级P10的自主择时声明",
+      "question": "R105主动探查的收益是否被'先搜一个地点，若未找到再探查'等强简单规则覆盖？",
+      "method": "单一可解释规则逐初始公开状态对照与禁用专门探查消融",
       "humanGate": false
     }
   ],
