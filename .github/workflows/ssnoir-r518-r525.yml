@@ -1,0 +1,52 @@
+name: SSNoir R518-R525 Success-Failure Pressure Correlation
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r518-r525.yml'
+      - 'tools/content-validator/experiments/r518_r525_pressure_success_failure.py'
+      - 'docs/实验/机制研究/批次/R518-R525-成功与失败的同边际压力/**'
+permissions:
+  contents: read
+jobs:
+  exact:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Compare correlated triggers, 729 prewritten scripts and the same threshold
+        run: |
+          set -euo pipefail
+          python3 -m py_compile tools/content-validator/experiments/r518_r525_pressure_success_failure.py
+          python3 tools/content-validator/experiments/r518_r525_pressure_success_failure.py > /tmp/r518.json
+          python3 - <<'PY'
+          import json
+          d=json.load(open('/tmp/r518.json'))
+          assert d['R518_correlated_vs_anticorrelated_exact']['success_burden']=='31/4'
+          assert d['R518_correlated_vs_anticorrelated_exact']['failure_burden']=='29/4'
+          assert d['R519_strong_729_public_fixed_scripts']['scripts_each']==729
+          assert d['R519_strong_729_public_fixed_scripts']['success_burden']=='23/4'
+          assert d['R519_strong_729_public_fixed_scripts']['failure_burden']=='25/4'
+          assert d['R520_universal_pressure_threshold']['success_burden']=='31/4'
+          assert d['R520_universal_pressure_threshold']['failure_burden']=='29/4'
+          assert d['R521_vent_forbidden']=={'success_burden':'15/4','failure_burden':'5'}
+          assert d['R524_pressure_unbounded']=={'success_burden':'9','failure_burden':'9'}
+          print('Matched marginal hazard, opposite correlation, same optimal threshold')
+          PY
+      - name: Keep abstract research and human-playtest admission intact
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/validate_abstract_research_scope.py
+          python3 tools/content-validator/experiments/validate_mechanism_portfolio.py
+          python3 tools/content-validator/experiments/validate_debug_playtests.py
+          python3 tools/content-validator/experiments/build_mechanism_atlas.py --check
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-r518-r525-pressure
+          path: /tmp/r518.json
+          retention-days: 21
