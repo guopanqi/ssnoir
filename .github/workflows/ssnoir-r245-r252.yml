@@ -1,0 +1,53 @@
+name: SSNoir R245-R252 Observation Changes Target
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r245-r252.yml'
+      - 'tools/content-validator/experiments/r245_r252_observation_changes_target.py'
+      - 'docs/实验/机制研究/批次/R245-R252-观察改变对象/研究记录.md'
+permissions:
+  contents: read
+jobs:
+  exact:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Public-belief policy versus independent observable forward rollout
+        run: |
+          set -euo pipefail
+          python3 -m py_compile tools/content-validator/experiments/r245_r252_observation_changes_target.py
+          python3 tools/content-validator/experiments/r245_r252_observation_changes_target.py | tee /tmp/r245-r252.json
+          python3 - <<'PY'
+          import json
+          v=json.load(open('/tmp/r245-r252.json'))
+          assert v["R245_probe_does_not_move_target"]["optimal"]=="4"
+          assert v["R246_rare_post_observation_flip"]["optimal"]=="15/4"
+          assert v["R247_boundary_equal_attack"]["optimal"]=="7/2"
+          assert v["R249_uninformative_probe"]["optimal"]=="7/2"
+          assert v["R250_certain_flip_after_probe"]["optimal"]=="4"
+          print("Observation intervention, complete beliefs, and independent rule pass")
+          PY
+      - name: Scope, previous experiments and curated-portfolio regression
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/r228_r235_dynamic_operator_order.py >/tmp/r228-r235.json
+          python3 tools/content-validator/experiments/r236_r244_opponent_belief.py >/tmp/r236-r244.json
+          python3 tools/content-validator/experiments/validate_abstract_research_scope.py
+          python3 tools/content-validator/experiments/validate_mechanism_portfolio.py
+          python3 tools/content-validator/experiments/validate_debug_playtests.py
+          python3 tools/content-validator/experiments/build_mechanism_atlas.py --check
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-r245-r252-observation-intervention
+          path: |
+            /tmp/r245-r252.json
+            /tmp/r236-r244.json
+            /tmp/r228-r235.json
+          retention-days: 21
