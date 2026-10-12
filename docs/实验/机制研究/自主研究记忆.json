@@ -1,29 +1,27 @@
 {
   "schema": "ssnoir.autonomous-pattern-memory/v1",
   "updated": "2026-10-12",
-  "batch": "S3-剧情并发与东西路线双审查",
+  "batch": "S3-W-原生金牌烟守恒与正常世界前半段",
   "rounds": 2,
   "totalArchivedRounds": 69,
   "objective": "Keep an honest research candidate quality gate: 20 different sources is not 20 human-validated attractive games; continue autonomously with direct causal ablations",
   "method": {
-    "stage": "S3-II / S3-III / S3-IV",
-    "baselineMain": "79c6f946c2248393123191a60155b8e7f04f553b",
-    "paperScripts": [
-      "tools/content-validator/experiments/s3_second_section_attention.py",
-      "tools/content-validator/experiments/s3_arrival_deadline_counterfactual.py",
-      "tools/content-validator/experiments/s3_real_warren_routes.py"
+    "stage": "S3-W1-W5",
+    "sourceBase": "505c1e5eead3b239cdef65979b5cb5004ca41049",
+    "scripts": [
+      "tools/content-validator/experiments/s3_gold_cigarette_native.py",
+      "tools/content-validator/experiments/s3_world_entry_probe.py",
+      "tools/content-validator/experiments/s3_world_cigarette_route.py",
+      "tools/content-validator/experiments/s3_one_item_option_bound.py"
     ],
-    "CI": [
-      "38200800446",
-      "38201263351"
+    "nativeRuns": [
+      "38205724249",
+      "38206113163"
     ],
-    "sources": [
-      "docs/章节内容手稿/第一章.md",
-      "docs/人物手稿/艾迪.md",
-      "UnityClient/Assets/Resources/Content/scenes/world/艾迪.scm",
-      "UnityClient/Assets/Resources/Content/scenes/world/三封信.scm"
-    ],
-    "scope": "Two distinct exact Fraction paper studies, not the same official runtime; author knows hidden scripted conclusions. S3 no new native or human validation, no Debug modification."
+    "scope": "one native Lyon item proof via documented --item fixture + strict replay; separate virgin original world 30 legal actions acquisition through counter consumption; symbolic abstract opportunity model; NOT full single-save from East counter through alley or human player",
+    "human": "No new user feedback: only R37/R50/R54 still in inbox",
+    "debug": "unchanged",
+    "counting": "technical audit, does not add independent pattern rounds"
   },
   "results": [
     {
@@ -103,7 +101,8 @@
     "S3 source precedence correction: current UnityClient/Assets/Resources/Content/scenes/world/三封信.scm implements Section 2 as solo old-street progress6, then Nightingale joins next day, then east entry4+gallery4 meets Frank and west stairs4+barricade die+bridge4 reveals Ryan. The dock Ryan investigation is stage after third letter, NOT parallel second-section dock witnesses as older first chapter.md outline says. The first S3 conditional D+O+L+E model is a hypothetical outline, NOT a real game model; its results must not be used to certify live route decisions.",
     "S3 urgency result: Eddie scene real source side-story-open? #f (not yet active), but author staging says player entering tavern triggers same-night response; cannot show hidden event as global deadline. Exact synthetic effect E>D on normal model paths 13/27 weighted visits but disappears at reward1; simple fixed baseline gap only77/4374. Nightingale tomorrow-help was known to author oracle before solo failure, not to player; never call it publicly learnable DP.",
     "S3 actual live route paper: 16-action post-Nightingale oracle approx fully explained by fixed West-first; DP153393848/43046721 vs fixed West153392248/43046721 (difference1600/43046721), no-East-close and full-preserve-East-progress ablations 0 root gain. This DOES NOT vindicate lost interim East effort: code prior porch4 then West8 then soloFrank6 =18 vs West8+Frank8 =16 progress points, though actual odds/composure and cigarette shortcut omitted. Player doesn't know West=Ryan/East=Frank, so oracle route order does not represent blind play. Source-only facts + math, no S3 native or human.",
-    "S3 source-only item audit 2026-10-12: 三封信.scm grants single 半包「老金牌」香烟 after chase if '拿到线索'. East counter requires req-item1 and instantly advances East Gallery2, notes item kept by shop. Later encounters/巷子.scm node-cigs requires exactly same item and advances Lyon2, card usable once. These are two real authored choices but cost consumption and mutual exclusion not pair-validated in a C#+Scheme runtime session; future usefulness is hidden to novice. Do not treat source evidence as native success, do not merge with older west-first paper excluding item."
+    "S3 source-only item audit 2026-10-12: 三封信.scm grants single 半包「老金牌」香烟 after chase if '拿到线索'. East counter requires req-item1 and instantly advances East Gallery2, notes item kept by shop. Later encounters/巷子.scm node-cigs requires exactly same item and advances Lyon2, card usable once. These are two real authored choices but cost consumption and mutual exclusion not pair-validated in a C#+Scheme runtime session; future usefulness is hidden to novice. Do not treat source evidence as native success, do not merge with older west-first paper excluding item.",
+    "S3-W: Actual unchanged C#+Scheme encounters/巷子 with --item 0/1: absent packet card visible but no legal operation, present packet legal and execution consumes inventory1→0. 6/7-step transcripts replayed strictly (GitHub Actions 38205724249). Separately a virgin world session seed19 growth4 no injected items traversed 30 real legal actions and naturally acquired unique cigarette in first chase and expended it at official old-street EAST counter (inventory1→0), native CI 38206113163. These are TWO native sessions, NOT a continuous original world through later alley. Simple Fraction 2-stage e>=q*l policy, deletion/2-copy/perfect-info ablations are abstract toy not official probabilities or human enjoyment. Current source only has two usages, future use initially unknown to player."
   ],
   "history": [
     {
@@ -1489,31 +1488,31 @@
   ],
   "frontier": [
     {
-      "id": "S3-实物守恒原生",
+      "id": "S3-W-同存档后半段",
       "priority": 1,
-      "question": "金牌烟真的在老街柜台消费后不可用于莱恩交锋吗？",
-      "method": "在最新正式世界入口和已解锁的两个阶段分别审查物品栏变化与req-item操作显隐；不可伪造场景状态或修改第一章引擎，要带上场景/seed/版本及使用条件，必要时保留尚未验证状态。",
+      "question": "30步真实世界柜台消耗烟盒后，能否在同一剧情存档继续西侧认出莱恩→经理第二封信→三日等待→《巷子》观察该卡存在却无合法物品投入？",
+      "method": "复用工具 s3_world_cigarette_route.py 合法路线已通前半段，从当前阶段继续原生操作；不要篡改story-stage、物品或调试入口。若无法自然完成，保留最后公开状态及首个具体阻塞。另一原版《巷子》0/1份带严格回放已独立通过，不能冒充同存档贯通。",
       "humanGate": false
     },
     {
-      "id": "S3-玩家知识与误解",
+      "id": "S3-W-无物证反事实",
       "priority": 2,
-      "question": "玩家在东、西两条未知结局路线和唯一物证之间作出选择时，是否充分理解失去什么而不必预知后续？",
-      "method": "只审当前可见动作字幕、对话与无提示审阅稿，给出最低所需公开信息；不强迫透露莱恩交锋未来结局，等待独立真人审阅反馈。",
+      "question": "正常第一封信追逐跟丢、未得到烟盒时，老街调查和莱恩交锋是否仍可推进，而不是必须用物证？",
+      "method": "先源码路径确认无烟照常推进第二节与两条主线；成本若已由无烟原版莱恩会话证明可继续，不要重复强跑胜率。关注人类是否认为物证必需。",
+      "humanGate": false
+    },
+    {
+      "id": "S3-W-公开信息",
+      "priority": 3,
+      "question": "在东侧柜台交出物证时，玩家实际知道失去的是哪一种未来可能，而不是被迫先知莱恩的交锋？",
+      "method": "检查已公开的字幕/邮件和无提示情景，不提前透出西路=莱恩，真人反馈异步。",
       "humanGate": true
     },
     {
-      "id": "S3-路线跨序体验",
-      "priority": 3,
-      "question": "西侧揭晓后东侧同行动作消失、改成独走弗兰克时，已投入的门廊/回廊进度与夜莺关系是否被公平兑现？",
-      "method": "核对源代码与真实4骰/多日正式世界可达路径，区分叙事失去与计算沉没成本，不把原始数学禁关闭根部零收益当成年轻读者没损失。",
-      "humanGate": false
-    },
-    {
-      "id": "S3-其它独立问题",
+      "id": "S3-其它关系",
       "priority": 4,
-      "question": "如果当前支线等待重新排布，应转向什么不依赖启用隐藏任务的决策关系？",
-      "method": "从正式开放第二节的东/西空间进度、物证跨场景与人物失利感受切入；真人意见异步，不做付费workflow和Debug新入口。",
+      "question": "转向现行开放老街中‘角色协助解决无法独闯的障碍’、东/西线部分进度消失与玩家不知道目的地的问题，哪一项具有独立的内容价值？",
+      "method": "别再刷已知参数。审可见状态与人物戏因果，若强简单流程已经解释就记录边界，必要时原生验证而非新feature。",
       "humanGate": false
     }
   ],
@@ -1554,6 +1553,18 @@
       "evidence": "docs/实验/机制研究/批次/S3-正式老街东西路线/唯一烟盒跨阶段用途审查.md",
       "scope": "official Scheme source cross-reference only; no new native item consumption or human choice evidence",
       "lesson": "Exact one item 半包「老金牌」香烟 is visibly surrendered at East counter for +2 gallery, later encounter 巷子.scm req-item same item grants +2 Lyon progress, one use in fight. Do not assume consumed semantics without actual native before/after item; East first spend changes future availability; future payoff not publicly known; prior S3 west-first paper omitted item."
+    },
+    {
+      "id": "S3-W-item-contract-native",
+      "date": "2026-10-12",
+      "name": "唯一金牌烟两原生会话与跨场景物品守恒",
+      "scope": "original 30-step world naturally earned and spent packet at counter; separate 0/1 native Lyon encounters strict replay. Not continuous world into alley nor human",
+      "evidence": [
+        "https://github.com/guopanqi/ssnoir/actions/runs/38206113163",
+        "https://github.com/guopanqi/ssnoir/actions/runs/38205724249"
+      ],
+      "record": "docs/实验/机制研究/批次/S3-W-物品守恒原生/研究记录.md",
+      "lesson": "Both original content action uses are real and cost same resource. A missing item may leave a visible but unexecutable card; player cannot know future opportunity when choosing counter."
     }
   ],
   "parallelBatches": [
