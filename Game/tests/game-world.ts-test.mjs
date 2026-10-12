@@ -35,8 +35,10 @@ test("original chapter-one world.scm loads on the new LIPS runtime and materiali
   assert.ok(root.children.length>0,"world should expose places or story nodes");
   const dossier=convertDossier(await vm.evaluate("(get-dossier)"));
   assert.ok(Array.isArray(dossier),"original authored dossier must be convertible");
-  // On day one, BEFORE Neil accepts Nightingale's commission, the authored
-  // module intentionally exposes no dossier. Entries appear after "有人敲门".
-  assert.equal(dossier.length,0,"no commission dossier before the authored opening");
+  // The optional city dossier may appear before the three-letters commission;
+  // this isn't evidence that the commission was already accepted. Main-quest
+  // dossier ownership remains with story-stage >= 1 in the original Scheme.
+  assert.equal(await vm.evaluateNumber("(three-letters 'story-stage)"),0);
+  assert.ok(dossier.every(entry=>entry.id!=="勒索信"),"unaccepted ransom story is not yet a dossier");
   assert.ok(dossier.every(entry=>entry.id&&Array.isArray(entry.steps)&&Array.isArray(entry.clocks)));
 });

@@ -79,3 +79,7 @@ The original clickable preview evaluated the entire original `get-render-data` t
 ## Main game presentation / QA separation (2026-10-12)
 
 The public client previously showed a large technical foundation counter unrelated to the story. The normal Pixi overlay now foregrounds the original city, Neil, authored destinations, dossier, real day, cash and available action dice; action/roll/location rows display their authored titles and semantic categories. The independent Scheme smoke button is available only behind `?foundation-debug=1` (Web) or `__SSNOIR_FOUNDATION_DEBUG__` (mock Mini Game host). Platform regression screenshots still exercise the button in explicit QA mode. The scene is still prototype art, not final noir visual acceptance.
+
+## Content change reconciliation (2026-10-12)
+
+The original three-letters prologue was extended: an optional `醉酒的尼尔` opener at the old-street tavern precedes the obligatory `有人敲门` on day 3, and the chapter-one ransom dossier is hidden until the commission while independent city dossier entries may still appear. Old tests assuming door/day-one rest blocking or an empty entire dossier were stale. World save tests that mutate the day directly must explicitly run the authored rest-blocker derivation before taking a snapshot, to compare consistent states. Runtime content is authoritative; these tests were adjusted to match the new authored sequence rather than changing the story to fit old tests.

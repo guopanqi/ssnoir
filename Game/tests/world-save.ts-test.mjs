@@ -27,6 +27,9 @@ test("unedited module world-save/world-load! roundtrip retains day and native re
  const original=await makeWorld();
  await original.session.evaluate("(set! world-day 6)");
  original.state.setGlobal("世界日",6);
+ // Directly advancing world-day in a test bypasses authored on-turn-end.
+ // Rebuild *derived* rest blockers as the actual content's day boundary does.
+ await original.session.evaluate("(three-letters 'sync-blockers!)");
  await original.session.evaluate('(add-item! "金钱" 22)');
  original.state.team.grantSupport("林");
  const protagonist=original.state.team.require("player");
