@@ -1,0 +1,43 @@
+name: SSNoir S3-W 金牌烟原生守恒
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-s3-cigarette-native.yml'
+      - 'tools/content-validator/experiments/s3_gold_cigarette_native.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  official-lyon-item-action:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - uses: actions/setup-dotnet@v4
+        with: {dotnet-version: '9.0.x'}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - name: 构建游戏正式 C#+Scheme 内容校验器
+        run: dotnet build tools/content-validator/SSNoir.ContentValidator.csproj -nologo -v q
+      - name: 原版莱恩交锋无烟、有一份烟的逐手证据
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/s3_gold_cigarette_native.py /tmp/s3-cigarette-native.json
+          python3 - <<'PY'
+          import json
+          x=json.load(open('/tmp/s3-cigarette-native.json'))['controls']
+          assert not x['unowned']['usable_before']
+          assert x['owned']['before_count']==1
+          assert x['owned']['after_count']==0
+          assert not x['owned']['item_can_be_spent_again']
+          print('正式交锋：无物品禁用，持有物品可用并消费一次（测试夹具，不是全世界贯通）')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-s3-W-原版莱恩交锋物品前后
+          path: /tmp/s3-cigarette-native.json
+          if-no-files-found: ignore
+          retention-days: 90
