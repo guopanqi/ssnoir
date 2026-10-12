@@ -1,0 +1,47 @@
+name: SSNoir R204-R211 Composed Operator
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r204-r211.yml'
+      - 'tools/content-validator/experiments/r204_r211_composed_operator.py'
+      - 'docs/实验/机制研究/批次/R204-R211-双槽操作组合/研究记录.md'
+permissions:
+  contents: read
+jobs:
+  exact:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Independent complete fixed schedules and reachable strict action witnesses
+        run: |
+          set -euo pipefail
+          python3 -m py_compile tools/content-validator/experiments/r204_r211_composed_operator.py
+          python3 tools/content-validator/experiments/r204_r211_composed_operator.py | tee /tmp/r204-r211.json
+          python3 - <<'PY'
+          import json
+          j=json.load(open('/tmp/r204-r211.json'))
+          assert j["R204_constructed_filter_and_router"]["optimal"]=="95/16"
+          assert j["R205_independent_fixed_schedule"]=="19/4"
+          assert j["R209_best_readable_threshold_family"]["best_value"]=="23/4"
+          assert {w["strict_best"] for w in j["R208_normal_public_optimal_path"]}=={"K","P","R"}
+          print("Independent finite truth, strict observable path, and simple-policy check succeeded")
+          PY
+      - name: Scope, portfolio, Debug and atlas regressions
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/validate_abstract_research_scope.py
+          python3 tools/content-validator/experiments/validate_mechanism_portfolio.py
+          python3 tools/content-validator/experiments/validate_debug_playtests.py
+          python3 tools/content-validator/experiments/build_mechanism_atlas.py --check
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-r204-r211-composed-operator
+          path: /tmp/r204-r211.json
+          retention-days: 21
