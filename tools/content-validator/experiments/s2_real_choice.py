@@ -15,6 +15,7 @@ G=((0,F(1,3)),(1,F(1,3)),(2,F(1,3)))
 def model(B=F(3,2),C=F(2),side=True,gate=True,closure=True,urgent=True,
           report_paths=True):
  def acts(a,b,c,secured,n):
+  if n==0:return ()
   x=[]
   if not secured:x += ["查信"] if a<2 else ["截信"]
   if b<2 and (not urgent or n>3):x+=["帮艾迪"]
