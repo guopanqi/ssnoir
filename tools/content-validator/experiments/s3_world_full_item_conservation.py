@@ -154,22 +154,20 @@ def run():
                 # the theatre place; otherwise backtracking would lose focus.
                 if obs["Focus"]!="经理":
                     obs=move_to(p,obs,"剧院",history)
-                if get(obs,"action","见剧院的经理"):
+                if get(obs,"action","报告莱恩身份"):
+                    obs=perform(p,obs,"报告莱恩身份",history)
+                    stage="wait_alley"
+                elif get(obs,"action","见剧院的经理"):
                     obs=perform(p,obs,"见剧院的经理",history)
                     stage="west_street"
                 elif get(obs,"navigate","经理"):
                     obs=choose_action(p,obs,get(obs,"navigate","经理"),history)
-                elif obs["WorldDay"]<7:
+                elif obs["WorldDay"]<=17:
+                    # Name has been obtained; official "离开老街后谈起莱恩"
+                    # runs on end-day, only afterwards is reporting legal.
                     obs=end(p,obs,history)
                 else:
-                    # The encounter's author may require a separate report.
-                    candidate=next((o for o in obs["Operations"] if o["Kind"]=="action" and
-                                "莱恩" in (o.get("Card") or "")),None)
-                    if candidate:
-                        obs=choose_action(p,obs,candidate,history)
-                        stage="west_street"
-                    else:
-                        stage="wait_alley"
+                    raise RuntimeError("No '报告莱恩身份' was public before day17")
                 continue
             if stage=="wait_alley":
                 if obs["WorldDay"]>25:
@@ -224,7 +222,7 @@ def run():
     return {"status":status,"item_naturally_acquired":cig_obtained,
          "counter_spent":counter_spent,"native_steps":history,
          "last_public_observation":last,"obstacles":obstacles,
-         "milestones":[h for h in history if h.get("card") in ("带她穿过东侧门廊","把烟盒给柜台后的人看","陪她上西侧楼梯","跟横椅子的人说","硬挤过去","跟她走上层桥廊","见剧院的经理","今晚去货栈后面")][-38:],
+         "milestones":[h for h in history if h.get("card") in ("带她穿过东侧门廊","把烟盒给柜台后的人看","陪她上西侧楼梯","跟横椅子的人说","硬挤过去","跟她走上层桥廊","见剧院的经理","报告莱恩身份","今晚去货栈后面")][-38:],
          "settings":{"entry":"world","seed":19,"growth":4,"items":{}},
          "scope":"real world legal operations; author-guided target action, not human or full alley continuation"}
 def main():
