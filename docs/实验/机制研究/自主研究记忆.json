@@ -3,70 +3,74 @@
   "updated": "2026-10-12",
   "batch": "S2-D-R122-R124",
   "rounds": 3,
-  "totalArchivedRounds": 67,
+  "totalArchivedRounds": 70,
   "objective": "Keep an honest research candidate quality gate: 20 different sources is not 20 human-validated attractive games; continue autonomously with direct causal ablations",
   "method": {
     "sourceScripts": [
       "tools/content-validator/experiments/s2_true_choice_audit.py",
       "tools/content-validator/experiments/s2_independent_choice_review.py",
-      "tools/content-validator/experiments/s2_true_choice_native.py"
+      "tools/content-validator/experiments/s2_true_choice_native.py",
+      "tools/content-validator/experiments/s2_real_choice.py"
     ],
-    "paperRun": "38196667906",
-    "independentRun": "38196553197",
+    "paperRun": "38196203976",
+    "independentPaperRun": "38196553197",
     "nativeRun": "38196499781",
-    "scope": "S2-D: distinct Fraction 7-action core, independent duplicate-implementation review, and separately executed isolated deterministic-progress official C#+Scheme action semantics",
-    "human": "Only prior R37/R50/R54 feedback; new S2-D paper not tested by a human; no Debug expansion"
+    "negativeControlRun": "38196667906",
+    "scope": "S2-D 7-action paper + independent Fraction reimplementation + C# Scheme functional contract; separate 6-action no-main-deadline negative model; no human experience",
+    "human": "Feedback inbox R37/R50/R54 checked; no additional feedback or curated debug addition."
   },
   "results": [
     {
       "id": "R122",
-      "name": "揭示后把提交变成独立可选承诺",
-      "status": "经独立Fraction数学验证及隔离C#+Scheme技术因果验证，保留为可读决策结构；尚无真人体验",
+      "name": "调查揭示与交信收束分离：新消息后有两个真正可行动目标",
+      "status": "完成纸面公平语义与隔离原生功能见证；尚无人类玩后评价",
+      "evidenceTier": "exact Fraction paper + distinct C# Scheme semantics",
       "evidence": {
-        "full": "6598/2187",
-        "firstChoiceProbability": "1/3",
-        "strictFirstLead": "1/9",
-        "strictFirstSubmit": "2/9",
-        "paperOnly": true,
-        "isolatedNativeSemantic": true
+        "original": "R119同一动作线索出现又关闭",
+        "newRule": "查信进度2只公开路线，交付信件另消耗一次行动；递信追查仍可做",
+        "choiceWitness": "独立正式会话揭示后同屏沿线追查/交付信件/帮艾迪，执行任一均引发对应后果",
+        "nativeRun": "38196499781"
       },
-      "lesson": "调查达到2进度只揭示C，之后主动花骰交信才关闭未完成C；没有同动作开关门，两个方向均有现实兑付可能。模型7动作第一天4手，原生固定+1不等价数学随机流。"
+      "lesson": "把叙事发现和不可逆提交拆成明确的两个动作；不能将点击新按钮冒称心理学上的决策。"
     },
     {
       "id": "R123",
-      "name": "线索关闭、任务前置及公开交付期限消融",
-      "status": "同一七行动分布与收益下，C有独立贡献，交付截止约束让关门存在真实机会成本",
+      "name": "三目标七行动的可解释策略与四项直接消融",
+      "status": "严格双向选择与机制因果成立；强公开口诀达到自由DP，额外复杂度未被证明",
+      "evidenceTier": "independently reimplemented exact Fraction",
       "evidence": {
+        "model": "two days, first day 4 actions, A/B deadline day1, C continues day2",
+        "BReward": "2",
+        "free": "6598/2187",
+        "bestFixed": "6526/2187",
+        "bestFixedGap": "8/243",
+        "bestPublic": "6598/2187",
+        "bestPublicGap": "0",
         "disableLead": "206/81",
         "allowLeadAfterSubmit": "970/243",
-        "removeLetterDeadline": "3430/729",
-        "full": "6598/2187",
-        "CIndependentValue": "1036/2187",
-        "closureOpportunityCost": "2132/2187"
+        "noLetterDeadline": "3430/729",
+        "strictLeadExpectedVisits": "1/9",
+        "strictSubmitExpectedVisits": "8/27",
+        "firstBothAvailableProbability": "1/3",
+        "firstStrictLeadProbability": "1/9",
+        "firstStrictSubmitProbability": "2/9",
+        "paperCI": "38196203976",
+        "independentCI": "38196553197"
       },
-      "lesson": "“关掉C”并不自动有独立意义：同期六行动且无交信截止的对照中，玩家可先查完C再交信，关门边际0，已在本批另档负例。"
+      "lesson": "首次揭示概率与所有访问期望次数严格区分；公开时长差异使同类状态严格优先追查或交信。不追加复杂策略。"
     },
     {
       "id": "R124",
-      "name": "正常最优路径两种严格选择、强简明策略与独立复核",
-      "status": "核心代表值下公开阈值族追平完整DP；首次选择概率与重复访问次数已独立拆开",
+      "name": "新线索后两分支与日界的正式原生验证",
+      "status": "独立Scheme源驱动真实C#会话已成功，验证选择存在与因果终局；没有数学骰池分布等价和真人反馈",
+      "evidenceTier": "C# ContentValidator + Scheme scripted technical witness",
       "evidence": {
-        "optimal": "6598/2187",
-        "bestPublicGap": "0",
-        "firstRevealProbability": "1/3",
-        "firstStrictFollow": "1/9",
-        "firstStrictSubmit": "2/9",
-        "repeatedStrictSubmitExpectedVisits": "8/27",
-        "stateWith5Actions": {
-          "follow": "14/3",
-          "submit": "4"
-        },
-        "stateWith4Actions": {
-          "follow": "314/81",
-          "submit": "4"
-        }
+        "scene": "UnityClient/Assets/Resources/Content/scenes/encounters/研究·线索两选.scm",
+        "native": "tools/content-validator/experiments/s2_true_choice_native.py",
+        "nativeRun": "38196499781",
+        "scope": "进入后查信两手公开追踪/交信两卡，追线后仍能交，交后追踪关闭，跨日艾迪/交信到期；真实每骰保证推进1，与纸面0/1/2等概率不同"
       },
-      "lesson": "首次遭遇时严格追查和严格交信两类判断都真实可达，但数学策略复杂性为0。8/27是重复访问期望，不是有8/27真人或局数。"
+      "lesson": "原生证明项目支持分开揭示/主动交信，不证明动作价值、骰子概率等价、玩家心理。隔离未进Debug。"
     }
   ],
   "crossRoundMemory": [
@@ -103,7 +107,10 @@
     "S2-D native scene 研究·线索两选 + scripted s2_true_choice_native.py, Actions 38196499781 success: inquiry reaches 2, actor sees 交付信件 and 沿线追查 in same public session, pursuing changes trace clock, choosing submit removes unfinished trace, end-turn expires day1. This is proof of native technical causality, NOT paper 0/1/2 exact parity or blind human understanding. User feedback R37 liked goal-created problems, R50 objected ambiguous objective, R54 reported no viable remaining switch.",
     "R122–R124: Normal optimal first revelation chance 1/3; strict lead 1/9 vs strict submit 2/9. Expected repeat strict submit visits 8/27 is NOT first-visit probability. Independent Fraction blackbox script reproduced full6598/2187 vs no lead206/81, no close970/243, no first-day letter deadline3430/729.",
     "R122–R124 official isolated Scheme session run 38196499781 proved both legal native actions after clue reveal, follow -> keep deliver, deliver -> close C, day boundary expiration. Native fixed +1 per die is NOT Fraction 0/1/2 gameplay parity; no new human test. Same model with letter delivery allowed day2 had closure marginal0 because actions commute, so the public deadline is a causal precondition.",
-    "S2-D早期以响应式双选项单独计数的先导记录已合并R122–R124，改为零新增轮而保留历史证据身份，防止交错会话重复归档。"
+    "S2-D早期以响应式双选项单独计数的先导记录已合并R122–R124，改为零新增轮而保留历史证据身份，防止交错会话重复归档。",
+    "S2-D R122/R123: investigating A only REVEALS C at progress2; handing letter separately costs one die/day1 and irreversibly closes unfinished C. With first-day A/B deadline and 7 paper actions, first actual A-vs-C public choice occurs with probability1/3 under tie-broken optimal paths. At first choice strict lead probability1/9, strict submit2/9; repeated submit-state visits8/27 are NOT probability of players making that decision. Full6598/2187, best public heuristic exactly full, so do not claim complexity beyond a human-legible choice.",
+    "S2-D negative control: if main letter can also be submitted day2, six-action model shows no-close and closure policies BOTH 896/243; the option 'submit closes C' does nothing without a non-commutable submission deadline. Under seven-action day1 main submission deadline, closure has positive mathematical effect (remove closure -> 970/243). Attribution requires timing, not a decorative closure flag.",
+    "S2-D native C# Scheme run38196499781 passed scoped scene research/研究·线索两选: clue and submit are separate actual die actions, clue and submit coexist, trace maintains submit, commit closes trace, and B/submit expire after day1. Native scripted +1 per die is NOT paper uniform 0/1/2 and NOT human UX. No Debug allowlist changes."
   ],
   "history": [
     {
@@ -1393,29 +1400,109 @@
         }
       ],
       "record": "docs/实验/机制研究/批次/S2-D-玩家真选择与原生审查/研究记录.md"
+    },
+    {
+      "batch": "S2-D-R122-R124",
+      "rounds": 3,
+      "method": {
+        "sourceScripts": [
+          "tools/content-validator/experiments/s2_true_choice_audit.py",
+          "tools/content-validator/experiments/s2_independent_choice_review.py",
+          "tools/content-validator/experiments/s2_true_choice_native.py",
+          "tools/content-validator/experiments/s2_real_choice.py"
+        ],
+        "paperRun": "38196203976",
+        "independentPaperRun": "38196553197",
+        "nativeRun": "38196499781",
+        "negativeControlRun": "38196667906",
+        "scope": "S2-D 7-action paper + independent Fraction reimplementation + C# Scheme functional contract; separate 6-action no-main-deadline negative model; no human experience",
+        "human": "Feedback inbox R37/R50/R54 checked; no additional feedback or curated debug addition."
+      },
+      "results": [
+        {
+          "id": "R122",
+          "name": "调查揭示与交信收束分离：新消息后有两个真正可行动目标",
+          "status": "完成纸面公平语义与隔离原生功能见证；尚无人类玩后评价",
+          "evidenceTier": "exact Fraction paper + distinct C# Scheme semantics",
+          "evidence": {
+            "original": "R119同一动作线索出现又关闭",
+            "newRule": "查信进度2只公开路线，交付信件另消耗一次行动；递信追查仍可做",
+            "choiceWitness": "独立正式会话揭示后同屏沿线追查/交付信件/帮艾迪，执行任一均引发对应后果",
+            "nativeRun": "38196499781"
+          },
+          "lesson": "把叙事发现和不可逆提交拆成明确的两个动作；不能将点击新按钮冒称心理学上的决策。"
+        },
+        {
+          "id": "R123",
+          "name": "三目标七行动的可解释策略与四项直接消融",
+          "status": "严格双向选择与机制因果成立；强公开口诀达到自由DP，额外复杂度未被证明",
+          "evidenceTier": "independently reimplemented exact Fraction",
+          "evidence": {
+            "model": "two days, first day 4 actions, A/B deadline day1, C continues day2",
+            "BReward": "2",
+            "free": "6598/2187",
+            "bestFixed": "6526/2187",
+            "bestFixedGap": "8/243",
+            "bestPublic": "6598/2187",
+            "bestPublicGap": "0",
+            "disableLead": "206/81",
+            "allowLeadAfterSubmit": "970/243",
+            "noLetterDeadline": "3430/729",
+            "strictLeadExpectedVisits": "1/9",
+            "strictSubmitExpectedVisits": "8/27",
+            "firstBothAvailableProbability": "1/3",
+            "firstStrictLeadProbability": "1/9",
+            "firstStrictSubmitProbability": "2/9",
+            "paperCI": "38196203976",
+            "independentCI": "38196553197"
+          },
+          "lesson": "首次揭示概率与所有访问期望次数严格区分；公开时长差异使同类状态严格优先追查或交信。不追加复杂策略。"
+        },
+        {
+          "id": "R124",
+          "name": "新线索后两分支与日界的正式原生验证",
+          "status": "独立Scheme源驱动真实C#会话已成功，验证选择存在与因果终局；没有数学骰池分布等价和真人反馈",
+          "evidenceTier": "C# ContentValidator + Scheme scripted technical witness",
+          "evidence": {
+            "scene": "UnityClient/Assets/Resources/Content/scenes/encounters/研究·线索两选.scm",
+            "native": "tools/content-validator/experiments/s2_true_choice_native.py",
+            "nativeRun": "38196499781",
+            "scope": "进入后查信两手公开追踪/交信两卡，追线后仍能交，交后追踪关闭，跨日艾迪/交信到期；真实每骰保证推进1，与纸面0/1/2等概率不同"
+          },
+          "lesson": "原生证明项目支持分开揭示/主动交信，不证明动作价值、骰子概率等价、玩家心理。隔离未进Debug。"
+        }
+      ],
+      "record": "docs/实验/机制研究/批次/S2-D-玩家真选择与原生审查/研究记录.md"
     }
   ],
   "frontier": [
     {
-      "id": "S2-E-1",
+      "id": "S3-A",
       "priority": 1,
-      "question": "第一次听到线索后，设计者是否真正理解交信、追查与艾迪请求的不同后果并感到值得在意？",
-      "method": "使用批次的无提示纸面情境（不提前示范最优口诀），只请求一轮普通话反思；保留其原文与版本SHA；现有模型禁止写人类已验证",
+      "question": "读者不看数学值，能否自己解释交信、追查与艾迪请求各自的期限、后果以及为何同一线索出现后会换决定？",
+      "method": "使用S2-D无提示纸面情境；研究者先自行审查信息显隐和事件时机并改稿，保留异步真人审核。不得泄露阈值作为引导。",
       "humanGate": true
     },
     {
-      "id": "S2-E-2",
+      "id": "S3-B",
       "priority": 2,
-      "question": "原生4骰/回合×2与纸面7行动分布不同，首演前真实人数/行动力下，这种选择是否仍有真实容量而不退化成唯一出路？",
-      "method": "优先以真实客户端骰池、剧情明确交付期限、可见线索与替代事件做一个隔离对照；只调查真实容量/时序，不为测试改动旧P08/P20",
+      "question": "隔离原生场景的真实骰子结果与纸面简化差异，会不会导致真实玩家在不必要的时候没有任何可行动作？",
+      "method": "只复核原生Scene实际可点选择、不同骰面与第二天行动边界，优先规则与表达校准；不改引擎、原P08、既有正典。",
       "humanGate": false
     },
     {
-      "id": "S2-E-3",
+      "id": "S3-C",
       "priority": 3,
-      "question": "如何把同样的两选项决策放回SSNoir第一章人物动机，避免纯粹算天数和进度？",
-      "method": "内容作者审读夜莺、艾迪、莱恩既定手稿；重视表现、遗憾与信息迟到；不把纸面人物映射当正式正典提交",
+      "question": "故事后果是否能通过几句简洁的节点结果表达成真正的取舍，而不仅是提前算收益？",
+      "method": "以夜莺信／艾迪请求／递信人线索三条独立心理动机写1页非正典原型；先由角色和事件语义审阅，再按一项必要原生证明取舍。",
       "humanGate": false
+    },
+    {
+      "id": "S3-D",
+      "priority": 4,
+      "question": "面对真实人类反馈，哪些4条最简语法值得进入第一章，哪些仅作档案？",
+      "method": "反馈异步；结合R37/R50/R54和新的无提示体验，删除冗余UI信息和虚假机制作概念，而非凑满20个认证模式。",
+      "humanGate": true
     }
   ],
   "policy": "Continue without user feedback; distinguish native mechanism function, feature ablation, strong simple policy, actual voluntary decision, and eventual human appeal. Do not auto-add candidates to Debug.",
