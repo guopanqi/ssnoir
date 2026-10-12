@@ -1,80 +1,60 @@
 {
   "schema": "ssnoir.autonomous-pattern-memory/v1",
   "updated": "2026-10-12",
-  "batch": "S2-R119-R121",
-  "rounds": 3,
-  "totalArchivedRounds": 64,
+  "batch": "S2-D-响应式双选项与原生",
+  "rounds": 1,
+  "totalArchivedRounds": 65,
   "objective": "Keep an honest research candidate quality gate: 20 different sources is not 20 human-validated attractive games; continue autonomously with direct causal ablations",
   "method": {
     "sourceScripts": [
-      "tools/content-validator/experiments/s2_microcity_attention.py",
-      "tools/content-validator/experiments/s2_fair_revelation.py"
+      "tools/content-validator/experiments/s2_true_choice_audit.py",
+      "tools/content-validator/experiments/s2_true_choice_native.py"
     ],
-    "run": "38195479798",
-    "scope": "Three exact Fraction paper audits of 2-day 3-objective micro-city scenario, strong public policies, same-action opportunity fairness. Mathematical only, not canonical story, native C# Scheme, or human experience",
-    "human": "No new human feedback. Do not add any Debug entrances.",
-    "stagePlan": "docs/实验/机制研究/S2-多事件注意力网络阶段计划.md"
+    "officialScene": "UnityClient/Assets/Resources/Content/scenes/encounters/研究·线索两选.scm",
+    "paperRun": "38196203976",
+    "nativeRun": "38196499781",
+    "researchScope": "7 actions, two dates, first-date letter-submit and fighter-help deadlines; paper independent Fraction plus native deterministic progress semantic demonstration",
+    "human": "R37, R50, R54 reviewed; NO new blind human play; curated Debug unchanged"
   },
   "results": [
     {
-      "id": "R119",
-      "name": "两天三件事的统一目标网络与简单固定顺序反证",
-      "status": "单一纸面情境已跑通，但存在同动作开启关闭线索的严重语义缺陷，禁止直接上架",
+      "id": "S2-D-响应式双选项",
+      "name": "线索揭示与交信分两次行动，严格交信/追线索双向选择",
+      "status": "数学＋正式C# Scheme因果验证通过，真人理解/具体剧情尚未验证；不晋升Debug",
       "evidence": {
-        "days": 2,
-        "actionsPerDay": 3,
-        "AReward": "2",
-        "BReward": "3/2",
-        "CReward": "2",
-        "dynamic": "2359/729",
-        "bestFixedPriority": "4475/1458",
-        "difference": "1/6",
-        "CAddedGain": "563/1458",
-        "CCloseCost": "235/729",
-        "strictVsFixedExpectedVisits": "79/243"
-      },
-      "lesson": "有条件选择能改变行动，但奖励差不是人类可玩性；A可从1跃迁3，C刚开放就自动关闭，尚未给出可操作机会。"
-    },
-    {
-      "id": "R120",
-      "name": "更强公开规则能否解释三目标纸面网络的动态规划",
-      "status": "核心B=3/2及B=2的动态复杂增量完全被简单条件规则解释，保留基础语法",
-      "evidence": {
-        "BRewardOneAndHalf": {
-          "free": "2359/729",
-          "strongPublic": "2359/729",
-          "gap": "0"
+        "paper": {
+          "rewardA": "2",
+          "rewardB": "2",
+          "rewardC": "2",
+          "n": 7,
+          "firstDayActions": 4,
+          "optimal": "6598/2187",
+          "strongFixedPriority": "6526/2187",
+          "strongPublicPolicy": "6598/2187",
+          "simpleGap": "0",
+          "normalPathBothAvailableExpectedVisits": "11/27",
+          "strictChooseLeadVisits": "1/9",
+          "strictChooseSubmitVisits": "8/27",
+          "disableLead": "206/81",
+          "disableClosure": "970/243"
         },
-        "BRewardTwo": {
-          "gap": "0"
+        "native": {
+          "scene": "研究·线索两选",
+          "tool": "SSNoir.ContentValidator --session",
+          "run": "38196499781",
+          "observed": [
+            "real choice revealed at inquiry2",
+            "trace action advances",
+            "submit removes unfinished trace",
+            "day-boundary closes first-day actions"
+          ],
+          "notEquivalent": "Actual native guaranteed +1, paper uses 0/1/2 uniform, no probability parity"
         },
-        "BRewardOne": {
-          "unexplained": "38/243"
+        "human": {
+          "newFeedback": false
         }
       },
-      "lesson": "玩家无需计算DP，只需可理解的期限、已有进度、线索是否开放；固定顺序差1/6不能证明丰富策略。"
-    },
-    {
-      "id": "R121",
-      "name": "同动作开放和关闭线索的可响应性修复",
-      "status": "数学公平性修复增加机会，但没有证明有两条实质替代行动；仍不能晋升原生试玩",
-      "evidence": {
-        "BRewardOneAndHalf": {
-          "old": "2359/729",
-          "oneActionGrace": "2447/729",
-          "gain": "88/729",
-          "strongPublicGap": "0",
-          "graceWindowExpectedVisits": "44/243",
-          "strictChooseCWithAlternative": "0"
-        },
-        "BRewardOne": {
-          "gain": "106/729"
-        },
-        "BRewardTwo": {
-          "gain": "86/729"
-        }
-      },
-      "lesson": "新增一次可响应窗口提升代理收益，不等于提供需要玩家思考的选择；许多窗口C是唯一可行动的事。人物/场景语义仍要人工审阅。"
+      "lesson": "Stop converting revealed clue into a forced extra action. A genuinely distinct, die-costly submit makes two viable courses in the same public scene. Normal-path strict opposite actions exist under time conditions, but a legible public rule still matches unrestricted DP; desired depth is understandable fate choices not artificial optimality gap."
     }
   ],
   "crossRoundMemory": [
@@ -106,7 +86,9 @@
     "S2-C R117 disproves R115 strategy complexity: 5-clause legible heuristic attains full 9/4 when side bonus=1 and full 11/4 when bonus=3/2; original 1/8 or 3/16 gaps were weak-baseline artifacts. Novel functionality may still be a simple meaningful player grammar.",
     "S2-C R118 explicit paid partial progress persistence across days is beneficial only for constrained reward configurations (A2/B1 gain1/27; A3/B1 gain1/9); not equivalent to automatic free save or prior R05 no-cost native reset contrast.",
     "S2-D R119 combined two-day A letter/B fighter/C messenger lead network yields 2359/729 vs strongest of six fixed priority 4475/1458 (gap1/6), but R120 strongest public reactive thresholds EXACTLY match free at B=3/2 or2. Stop claiming mathematical dynamic bonus is strategy complexity.",
-    "S2-D R119 action jump A progress1->3 illegally unlocks and closes C in same action; R121 next-action grace raises base utility to2447/729 but has zero strictly optimal C-vs-other visits in grace states, often only C legal. Extra button/turn != choice; need real alternative with tradeoff BEFORE native/debug."
+    "S2-D R119 action jump A progress1->3 illegally unlocks and closes C in same action; R121 next-action grace raises base utility to2447/729 but has zero strictly optimal C-vs-other visits in grace states, often only C legal. Extra button/turn != choice; need real alternative with tradeoff BEFORE native/debug.",
+    "S2-D 2026-10-12: two *different* 3-objective models coexisted on main. The 7-action (4+3) model s2_true_choice_audit.py has FIRST-DAY deadline on submit and help, yielding strict optimal lead+submit alternatives under realistic n; core values6598/2187, no-lead206/81, no-close970/243. Best PUBLIC heuristic matches DP: no need to invent strategic complexity. A separate s2_real_choice.py 6-action model has no first-day submit deadline, so closure may add 0; treat as distinct negative control and do not merge values, state masses, or R labels.",
+    "S2-D native scene 研究·线索两选 + scripted s2_true_choice_native.py, Actions 38196499781 success: inquiry reaches 2, actor sees 交付信件 and 沿线追查 in same public session, pursuing changes trace clock, choosing submit removes unfinished trace, end-turn expires day1. This is proof of native technical causality, NOT paper 0/1/2 exact parity or blind human understanding. User feedback R37 liked goal-created problems, R50 objected ambiguous objective, R54 reported no viable remaining switch."
   ],
   "history": [
     {
@@ -1269,29 +1251,87 @@
         }
       ],
       "record": "docs/实验/机制研究/批次/S2-D-R119-R120-三目标城市纸面场景/研究记录.md"
+    },
+    {
+      "batch": "S2-D-响应式双选项与原生",
+      "rounds": 1,
+      "method": {
+        "sourceScripts": [
+          "tools/content-validator/experiments/s2_true_choice_audit.py",
+          "tools/content-validator/experiments/s2_true_choice_native.py"
+        ],
+        "officialScene": "UnityClient/Assets/Resources/Content/scenes/encounters/研究·线索两选.scm",
+        "paperRun": "38196203976",
+        "nativeRun": "38196499781",
+        "researchScope": "7 actions, two dates, first-date letter-submit and fighter-help deadlines; paper independent Fraction plus native deterministic progress semantic demonstration",
+        "human": "R37, R50, R54 reviewed; NO new blind human play; curated Debug unchanged"
+      },
+      "results": [
+        {
+          "id": "S2-D-响应式双选项",
+          "name": "线索揭示与交信分两次行动，严格交信/追线索双向选择",
+          "status": "数学＋正式C# Scheme因果验证通过，真人理解/具体剧情尚未验证；不晋升Debug",
+          "evidence": {
+            "paper": {
+              "rewardA": "2",
+              "rewardB": "2",
+              "rewardC": "2",
+              "n": 7,
+              "firstDayActions": 4,
+              "optimal": "6598/2187",
+              "strongFixedPriority": "6526/2187",
+              "strongPublicPolicy": "6598/2187",
+              "simpleGap": "0",
+              "normalPathBothAvailableExpectedVisits": "11/27",
+              "strictChooseLeadVisits": "1/9",
+              "strictChooseSubmitVisits": "8/27",
+              "disableLead": "206/81",
+              "disableClosure": "970/243"
+            },
+            "native": {
+              "scene": "研究·线索两选",
+              "tool": "SSNoir.ContentValidator --session",
+              "run": "38196499781",
+              "observed": [
+                "real choice revealed at inquiry2",
+                "trace action advances",
+                "submit removes unfinished trace",
+                "day-boundary closes first-day actions"
+              ],
+              "notEquivalent": "Actual native guaranteed +1, paper uses 0/1/2 uniform, no probability parity"
+            },
+            "human": {
+              "newFeedback": false
+            }
+          },
+          "lesson": "Stop converting revealed clue into a forced extra action. A genuinely distinct, die-costly submit makes two viable courses in the same public scene. Normal-path strict opposite actions exist under time conditions, but a legible public rule still matches unrestricted DP; desired depth is understandable fate choices not artificial optimality gap."
+        }
+      ],
+      "record": "docs/实验/机制研究/批次/S2-D-玩家真选择与原生审查/研究记录.md",
+      "note": "Counted as one grouped decision-grammar research, not 3 numerical rounds; separate concurrent six-action R122/123 negative control must not be double-counted or mixed."
     }
   ],
   "frontier": [
     {
-      "id": "S2-D-fair-choice",
+      "id": "S2-D-human-meaning",
       "priority": 1,
-      "question": "让玩家得到新线索后，在其他至少一项同样可行的紧迫事之间有真正选择，该如何保持游戏规则简洁？",
-      "method": "从三目标微型纸面削减/调整事件顺序，而不是继续扫数值；先要求至少一例正常可达公开状态下两条严格有条件优先路径；保留R119/R121作语义反证",
-      "humanGate": false
-    },
-    {
-      "id": "S2-D-native",
-      "priority": 2,
-      "question": "能否在最小隔离C#+Scheme场景验证揭示、玩家响应、跨日期限与终局关闭语义？",
-      "method": "先修复纸面选择权，然后只在独立新场景内核对关键动作序列与内容指纹；不修改P08/P20或调试白名单",
-      "humanGate": false
-    },
-    {
-      "id": "S2-D-communication",
-      "priority": 3,
-      "question": "真人是否能不看最优口诀理解夜莺信、艾迪请求与递信者线索之间的优先取舍？",
-      "method": "只邀请一次最小试玩/无提示纸面阅读，现有数学不能替代人对情节和情感的解释",
+      "question": "已具备技术可选分支，但人在不看数学最优的情况下能否理解何时交信、为什么错过递信人和艾迪重要？",
+      "method": "阅读批次/S2-D-玩家真选择与原生审查/无提示纸面情境.md；真人反馈通过现有inbox异步收集；不得把数学最优解提前给审阅者",
       "humanGate": true
+    },
+    {
+      "id": "S2-next-content-evidence",
+      "priority": 2,
+      "question": "正式原生场景保证可点两选项，但固定+1玩法与纸面三档随机不一致；是否需要以第一章真实情境承接这些选择？",
+      "method": "在真实内容创作前先由作者决定夜莺/艾迪任务是否真的同时有效；如果要正式移植需单独保留当前源SHA、逐手测试新场景和多个后果，不修改已有P08、P20和Debug",
+      "humanGate": false
+    },
+    {
+      "id": "S2-negative-reconciliation",
+      "priority": 3,
+      "question": "独立六行动无交信期限模型的C关闭价值为何为0，相比七行动第一天限期模型怎样触发？",
+      "method": "统一只对比各自正确实验ID与行动容量，先判净能力再看最高效用；当前无需再扫奖励表",
+      "humanGate": false
     }
   ],
   "policy": "Continue without user feedback; distinguish native mechanism function, feature ablation, strong simple policy, actual voluntary decision, and eventual human appeal. Do not auto-add candidates to Debug.",
