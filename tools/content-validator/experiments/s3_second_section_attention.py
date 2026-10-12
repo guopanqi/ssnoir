@@ -96,12 +96,14 @@ def study(eddie=True,solo_gate=True,eddie_expires=True,joint=True,
     expected_visible_two=F(0)
     expected_strict_eddie=F(0)
     expected_strict_solo=F(0)
+    strict_eddie_over_dock=F(0)
+    strict_dock_over_eddie=F(0)
     expected_both_main=F(0)
     expected_eddie=F(0)
     normal_states={}
     # Gather distinct public states under ONE deterministic tie-broken optimal policy.
     def forward(s,mass):
-        nonlocal expected_strict_vs_fixed,expected_visible_two,expected_strict_eddie,expected_strict_solo,expected_both_main,expected_eddie
+        nonlocal expected_strict_vs_fixed,expected_visible_two,expected_strict_eddie,expected_strict_solo,strict_eddie_over_dock,strict_dock_over_eddie,expected_both_main,expected_eddie
         opts=allowed(s)
         if not opts:
             if s[0]==2 and s[2]==2: expected_both_main+=mass
@@ -120,6 +122,8 @@ def study(eddie=True,solo_gate=True,eddie_expires=True,joint=True,
                     "optimal":chosen,"fixed":alternate,"Q":{k:str(v) for k,v in q.items()}})
         if "E" in q and "O" in q and q["E"]>q["O"] and chosen=="E":expected_strict_eddie+=mass
         if "E" in q and "O" in q and q["O"]>q["E"] and chosen=="O":expected_strict_solo+=mass
+        if "E" in q and "D" in q and q["E"]>q["D"] and chosen=="E":strict_eddie_over_dock+=mass
+        if "E" in q and "D" in q and q["D"]>q["E"] and chosen=="D":strict_dock_over_eddie+=mass
         for p,ss in advance(s,chosen):
             forward(ss,mass*p)
     forward(ROOT,F(1))
@@ -128,13 +132,17 @@ def study(eddie=True,solo_gate=True,eddie_expires=True,joint=True,
         "gap_to_fixed":str(optimal-fixed[0]),
         "strong_day_specific":str(per_day[0]),"gap_to_day_specific":str(optimal-per_day[0]),
         "day_specific_priorities":[list(per_day[1]),list(per_day[2])],
-        "best_public_rule":str(best_heuristic[0]),"gap_to_public":str(optimal-best_heuristic[0]),
+        "best_tested_public_heuristic":str(best_heuristic[0]),
+        "best_legible_including_fixed":str(max(best_heuristic[0],fixed[0],per_day[0])),
+        "gap_to_strongest_legible":str(optimal-max(best_heuristic[0],fixed[0],per_day[0])),
         "rule_parameters":{"solo_cutoff":best_heuristic[1][0],"eddie_cutoff":best_heuristic[1][1],
            "continue_started_eddie":best_heuristic[1][2],"finish_dock_first_when_started":best_heuristic[1][3]},
         "normal_optimal_expected_visits_with_multiple_actions":str(expected_visible_two),
         "strict_departure_from_strong_fixed_expected_visits":str(expected_strict_vs_fixed),
         "strict_eddie_over_solo_expected_visits":str(expected_strict_eddie),
         "strict_solo_over_eddie_expected_visits":str(expected_strict_solo),
+        "strict_eddie_over_dock_expected_visits":str(strict_eddie_over_dock),
+        "strict_dock_over_eddie_expected_visits":str(strict_dock_over_eddie),
         "probability_joint_dock_and_help":str(expected_both_main),
         "probability_completed_eddie":str(expected_eddie),
         "normal_public_state_count":len(normal_states),
