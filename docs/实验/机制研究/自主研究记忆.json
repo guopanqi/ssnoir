@@ -1,74 +1,66 @@
 {
   "schema": "ssnoir.autonomous-pattern-memory/v1",
   "updated": "2026-10-12",
-  "batch": "S2-D-R122-R124",
-  "rounds": 3,
-  "totalArchivedRounds": 67,
+  "batch": "S3-剧情并发与东西路线双审查",
+  "rounds": 2,
+  "totalArchivedRounds": 69,
   "objective": "Keep an honest research candidate quality gate: 20 different sources is not 20 human-validated attractive games; continue autonomously with direct causal ablations",
   "method": {
-    "sourceScripts": [
-      "tools/content-validator/experiments/s2_true_choice_audit.py",
-      "tools/content-validator/experiments/s2_independent_choice_review.py",
-      "tools/content-validator/experiments/s2_true_choice_native.py",
-      "tools/content-validator/experiments/s2_real_choice.py"
+    "stage": "S3-II / S3-III / S3-IV",
+    "baselineMain": "79c6f946c2248393123191a60155b8e7f04f553b",
+    "paperScripts": [
+      "tools/content-validator/experiments/s3_second_section_attention.py",
+      "tools/content-validator/experiments/s3_arrival_deadline_counterfactual.py",
+      "tools/content-validator/experiments/s3_real_warren_routes.py"
     ],
-    "paperRun": "38196203976",
-    "independentPaperRun": "38196553197",
-    "nativeRun": "38196499781",
-    "negativeControlRun": "38196667906",
-    "scope": "S2-D 7-action paper + independent Fraction reimplementation + C# Scheme functional contract; separate 6-action no-main-deadline negative model; no human experience",
-    "human": "Feedback inbox R37/R50/R54 checked; no additional feedback or curated debug addition."
+    "CI": [
+      "38200800446",
+      "38201263351"
+    ],
+    "sources": [
+      "docs/章节内容手稿/第一章.md",
+      "docs/人物手稿/艾迪.md",
+      "UnityClient/Assets/Resources/Content/scenes/world/艾迪.scm",
+      "UnityClient/Assets/Resources/Content/scenes/world/三封信.scm"
+    ],
+    "scope": "Two distinct exact Fraction paper studies, not the same official runtime; author knows hidden scripted conclusions. S3 no new native or human validation, no Debug modification."
   },
   "results": [
     {
-      "id": "R122",
-      "name": "揭示后把提交变成独立可选承诺",
-      "status": "经独立Fraction数学验证及隔离C#+Scheme技术因果验证，保留为可读决策结构；尚无真人体验",
+      "id": "S3-已见临时机会",
+      "name": "玩家抵达酒馆后才发现艾迪危急，已知期限对码头目标的改投",
+      "status": "抽象条件数学有效；本章正式第二节‘码头调查D’并未在当前运行内容开放，本模型不能迁移为当前场景认证",
       "evidence": {
-        "full": "6598/2187",
-        "firstChoiceProbability": "1/3",
-        "strictFirstLead": "1/9",
-        "strictFirstSubmit": "2/9",
-        "paperOnly": true,
-        "isolatedNativeSemantic": true
+        "free": "67667/13122",
+        "bestFixed": "33718/6561",
+        "gap": "77/4374",
+        "strictEddyVsDockExpectedVisits": "13/27",
+        "strictDockVsEddyExpectedVisits": "25/27",
+        "deadlineRemoved": "37285/6561",
+        "strictDeadlineReversalExpectedVisits": "13/27",
+        "eddieRewardOneEFirstVisits": "0",
+        "eddieRewardTwoEFirstVisits": "29/27",
+        "CI": "38200800446"
       },
-      "lesson": "调查达到2进度只揭示C，之后主动花骰交信才关闭未完成C；没有同动作开关门，两个方向均有现实兑付可能。模型7动作第一天4手，原生固定+1不等价数学随机流。"
+      "lesson": "仅玩家亲眼看见后才形成当晚回应窗口。仅在奖额与时间约束匹配时会打断持续目标；奖励1时E→D无严格逆转。老街次日陪同信息是作者上帝视角；正式艾迪全局入口#f。旧手稿模型不等于最新三封信源码。"
     },
     {
-      "id": "R123",
-      "name": "线索关闭、任务前置及公开交付期限消融",
-      "status": "同一七行动分布与收益下，C有独立贡献，交付截止约束让关门存在真实机会成本",
+      "id": "S3-正式东／西路线",
+      "name": "西侧揭晓莱恩关闭东侧同行路线与部分进度的去向",
+      "status": "按正式场景时钟长度冻结的独立纸面负例：最佳固定先西几乎达到自由最优，两种保存/关门消融根值均零；无新增原生真人",
       "evidence": {
-        "disableLead": "206/81",
-        "allowLeadAfterSubmit": "970/243",
-        "removeLetterDeadline": "3430/729",
-        "full": "6598/2187",
-        "CIndependentValue": "1036/2187",
-        "closureOpportunityCost": "2132/2187"
+        "free": "153393848/43046721",
+        "fixedWestFirst": "153392248/43046721",
+        "fixedEastFirst": "121713752/43046721",
+        "gap": "1600/43046721",
+        "strictDepartureExpectedVisits": "24401/14348907",
+        "strictEastBeforeWestExpectedVisits": "1721/1594323",
+        "noEastClosure": "153393848/43046721",
+        "fullPartialPreservation": "153393848/43046721",
+        "noWestBarricade": "170091232/43046721",
+        "CI": "38201263351"
       },
-      "lesson": "“关掉C”并不自动有独立意义：同期六行动且无交信截止的对照中，玩家可先查完C再交信，关门边际0，已在本批另档负例。"
-    },
-    {
-      "id": "R124",
-      "name": "正常最优路径两种严格选择、强简明策略与独立复核",
-      "status": "核心代表值下公开阈值族追平完整DP；首次选择概率与重复访问次数已独立拆开",
-      "evidence": {
-        "optimal": "6598/2187",
-        "bestPublicGap": "0",
-        "firstRevealProbability": "1/3",
-        "firstStrictFollow": "1/9",
-        "firstStrictSubmit": "2/9",
-        "repeatedStrictSubmitExpectedVisits": "8/27",
-        "stateWith5Actions": {
-          "follow": "14/3",
-          "submit": "4"
-        },
-        "stateWith4Actions": {
-          "follow": "314/81",
-          "submit": "4"
-        }
-      },
-      "lesson": "首次遭遇时严格追查和严格交信两类判断都真实可达，但数学策略复杂性为0。8/27是重复访问期望，不是有8/27真人或局数。"
+      "lesson": "西侧桥廊得到莱恩后东侧同行卡立即关闭，没完成的东侧探索未完整携带；但原始最优几乎根本不投入东侧，关闭/保留对照的0不代表真人不会觉得浪费。真正玩家不知道东西路线的作者答案，首要价值在人物场景与信任。"
     }
   ],
   "crossRoundMemory": [
@@ -107,7 +99,10 @@
     "R122–R124 official isolated Scheme session run 38196499781 proved both legal native actions after clue reveal, follow -> keep deliver, deliver -> close C, day boundary expiration. Native fixed +1 per die is NOT Fraction 0/1/2 gameplay parity; no new human test. Same model with letter delivery allowed day2 had closure marginal0 because actions commute, so the public deadline is a causal precondition.",
     "S2-D早期以响应式双选项单独计数的先导记录已合并R122–R124，改为零新增轮而保留历史证据身份，防止交错会话重复归档。",
     "S3-B actual native capacity witness: with the ORIGINAL official four dice in one day and deterministic+1 isolated Scheme, scripts s2_choice_capacity_native.py confirm (i) 2 investigate+1 submit completes delivery and closes lead, (ii) 2 investigate+2 trace reaches C2/2 but letter expires at next day, (iii) 2 fighter-help+2 investigate completes fighter but letter cannot be submitted. Native CI run 38196963068 success. This proves DIFFERENT REACHABLE CONSEQUENCES using real 4-die expenditure, not paper 7-action RNG parity or emotional human meaning. No new game feature/Debug.",
-    "S3-C source-alignment audit: actual authored First Chapter, Nightingale manuscript and Author Truth show first ransom handoff/tracking attempt produces Golden-Brand cigarette clue AFTER delivery/escape; Eddie opens chiefly during second section. Therefore paper S2-D assumption 'submitting letter closes investigation' and coincident same-evening Eddie urgency are NOT grounded in canon. Do not migrate the validated isolated scene verbatim; prefer second section dock witnesses / old street / Eddie or fourth section Ryan trail / theatre security / rehearsal, and only assert opportunity-closing edge when authors write a credible loss mechanism. See 批次/S3-C-正典对照与情境因果/研究记录.md."
+    "S3-C source-alignment audit: actual authored First Chapter, Nightingale manuscript and Author Truth show first ransom handoff/tracking attempt produces Golden-Brand cigarette clue AFTER delivery/escape; Eddie opens chiefly during second section. Therefore paper S2-D assumption 'submitting letter closes investigation' and coincident same-evening Eddie urgency are NOT grounded in canon. Do not migrate the validated isolated scene verbatim; prefer second section dock witnesses / old street / Eddie or fourth section Ryan trail / theatre security / rehearsal, and only assert opportunity-closing edge when authors write a credible loss mechanism. See 批次/S3-C-正典对照与情境因果/研究记录.md.",
+    "S3 source precedence correction: current UnityClient/Assets/Resources/Content/scenes/world/三封信.scm implements Section 2 as solo old-street progress6, then Nightingale joins next day, then east entry4+gallery4 meets Frank and west stairs4+barricade die+bridge4 reveals Ryan. The dock Ryan investigation is stage after third letter, NOT parallel second-section dock witnesses as older first chapter.md outline says. The first S3 conditional D+O+L+E model is a hypothetical outline, NOT a real game model; its results must not be used to certify live route decisions.",
+    "S3 urgency result: Eddie scene real source side-story-open? #f (not yet active), but author staging says player entering tavern triggers same-night response; cannot show hidden event as global deadline. Exact synthetic effect E>D on normal model paths 13/27 weighted visits but disappears at reward1; simple fixed baseline gap only77/4374. Nightingale tomorrow-help was known to author oracle before solo failure, not to player; never call it publicly learnable DP.",
+    "S3 actual live route paper: 16-action post-Nightingale oracle approx fully explained by fixed West-first; DP153393848/43046721 vs fixed West153392248/43046721 (difference1600/43046721), no-East-close and full-preserve-East-progress ablations 0 root gain. This DOES NOT vindicate lost interim East effort: code prior porch4 then West8 then soloFrank6 =18 vs West8+Frank8 =16 progress points, though actual odds/composure and cigarette shortcut omitted. Player doesn't know West=Ryan/East=Frank, so oracle route order does not represent blind play. Source-only facts + math, no S3 native or human."
   ],
   "history": [
     {
@@ -1397,35 +1392,127 @@
         }
       ],
       "record": "docs/实验/机制研究/批次/S2-D-玩家真选择与原生审查/研究记录.md"
+    },
+    {
+      "batch": "S3-已见临时机会",
+      "rounds": 1,
+      "method": {
+        "stage": "S3-II / S3-III / S3-IV",
+        "baselineMain": "79c6f946c2248393123191a60155b8e7f04f553b",
+        "paperScripts": [
+          "tools/content-validator/experiments/s3_second_section_attention.py",
+          "tools/content-validator/experiments/s3_arrival_deadline_counterfactual.py",
+          "tools/content-validator/experiments/s3_real_warren_routes.py"
+        ],
+        "CI": [
+          "38200800446",
+          "38201263351"
+        ],
+        "sources": [
+          "docs/章节内容手稿/第一章.md",
+          "docs/人物手稿/艾迪.md",
+          "UnityClient/Assets/Resources/Content/scenes/world/艾迪.scm",
+          "UnityClient/Assets/Resources/Content/scenes/world/三封信.scm"
+        ],
+        "scope": "Two distinct exact Fraction paper studies, not the same official runtime; author knows hidden scripted conclusions. S3 no new native or human validation, no Debug modification.",
+        "paperRun": "38200800446"
+      },
+      "results": [
+        {
+          "id": "S3-已见临时机会",
+          "name": "玩家抵达酒馆后才发现艾迪危急，已知期限对码头目标的改投",
+          "status": "抽象条件数学有效；本章正式第二节‘码头调查D’并未在当前运行内容开放，本模型不能迁移为当前场景认证",
+          "evidence": {
+            "free": "67667/13122",
+            "bestFixed": "33718/6561",
+            "gap": "77/4374",
+            "strictEddyVsDockExpectedVisits": "13/27",
+            "strictDockVsEddyExpectedVisits": "25/27",
+            "deadlineRemoved": "37285/6561",
+            "strictDeadlineReversalExpectedVisits": "13/27",
+            "eddieRewardOneEFirstVisits": "0",
+            "eddieRewardTwoEFirstVisits": "29/27",
+            "CI": "38200800446"
+          },
+          "lesson": "仅玩家亲眼看见后才形成当晚回应窗口。仅在奖额与时间约束匹配时会打断持续目标；奖励1时E→D无严格逆转。老街次日陪同信息是作者上帝视角；正式艾迪全局入口#f。旧手稿模型不等于最新三封信源码。"
+        }
+      ],
+      "record": "docs/实验/机制研究/批次/S3-第一章第二节并发与条件事件/研究记录.md"
+    },
+    {
+      "batch": "S3-正式东／西路线",
+      "rounds": 1,
+      "method": {
+        "stage": "S3-II / S3-III / S3-IV",
+        "baselineMain": "79c6f946c2248393123191a60155b8e7f04f553b",
+        "paperScripts": [
+          "tools/content-validator/experiments/s3_second_section_attention.py",
+          "tools/content-validator/experiments/s3_arrival_deadline_counterfactual.py",
+          "tools/content-validator/experiments/s3_real_warren_routes.py"
+        ],
+        "CI": [
+          "38200800446",
+          "38201263351"
+        ],
+        "sources": [
+          "docs/章节内容手稿/第一章.md",
+          "docs/人物手稿/艾迪.md",
+          "UnityClient/Assets/Resources/Content/scenes/world/艾迪.scm",
+          "UnityClient/Assets/Resources/Content/scenes/world/三封信.scm"
+        ],
+        "scope": "Two distinct exact Fraction paper studies, not the same official runtime; author knows hidden scripted conclusions. S3 no new native or human validation, no Debug modification.",
+        "paperRun": "38201263351"
+      },
+      "results": [
+        {
+          "id": "S3-正式东／西路线",
+          "name": "西侧揭晓莱恩关闭东侧同行路线与部分进度的去向",
+          "status": "按正式场景时钟长度冻结的独立纸面负例：最佳固定先西几乎达到自由最优，两种保存/关门消融根值均零；无新增原生真人",
+          "evidence": {
+            "free": "153393848/43046721",
+            "fixedWestFirst": "153392248/43046721",
+            "fixedEastFirst": "121713752/43046721",
+            "gap": "1600/43046721",
+            "strictDepartureExpectedVisits": "24401/14348907",
+            "strictEastBeforeWestExpectedVisits": "1721/1594323",
+            "noEastClosure": "153393848/43046721",
+            "fullPartialPreservation": "153393848/43046721",
+            "noWestBarricade": "170091232/43046721",
+            "CI": "38201263351"
+          },
+          "lesson": "西侧桥廊得到莱恩后东侧同行卡立即关闭，没完成的东侧探索未完整携带；但原始最优几乎根本不投入东侧，关闭/保留对照的0不代表真人不会觉得浪费。真正玩家不知道东西路线的作者答案，首要价值在人物场景与信任。"
+        }
+      ],
+      "record": "docs/实验/机制研究/批次/S3-正式老街东西路线/研究记录.md"
     }
   ],
   "frontier": [
     {
-      "id": "S3-A",
+      "id": "S3-下一关-实物信息",
       "priority": 1,
-      "question": "读者不看数学值，能否自己解释交信、追查与艾迪请求各自的期限、后果以及为何同一线索出现后会换决定？",
-      "method": "使用S2-D无提示纸面情境；研究者先自行审查信息显隐和事件时机并改稿，保留异步真人审核。不得泄露阈值作为引导。",
-      "humanGate": true
+      "question": "现行第二节交出唯一半包金牌烟在东侧回廊加2进度，但之后哪些官方动作/人物对白真实需要保留烟盒？",
+      "method": "以唯一正式场景源码搜跨模块物品读取与消耗；列出不交/交的事件指纹、公开提示和后果，先证明确实有后续外部选项再研究有限成本。不要仅凭注释补出不存在的后果。",
+      "humanGate": false
     },
     {
-      "id": "S3-B",
+      "id": "S3-下一关-分支可见性",
       "priority": 2,
-      "question": "隔离原生场景的真实骰子结果与纸面简化差异，会不会导致真实玩家在不必要的时候没有任何可行动作？",
-      "method": "只复核原生Scene实际可点选择、不同骰面与第二天行动边界，优先规则与表达校准；不改引擎、原P08、既有正典。",
+      "question": "在不知道东侧遇弗兰克、西侧揭莱恩的情况下，玩家看到什么公开信息，为什么会选择进入哪条路线？",
+      "method": "对照当前4张路线卡和伴随对白的公开来源，找信息泄漏、内容因果与中途半成品是否明确可读；如有必要才做正式C#+Scheme世界会话，不编造章节导航。",
       "humanGate": false
     },
     {
-      "id": "S3-C",
+      "id": "S3-下一关-正式后果",
       "priority": 3,
-      "question": "如何在第一章第二节真实同时开放的码头见证人、老街调查与艾迪事件中，找到自然、可理解的行动竞争？",
-      "method": "先用第一章.md和夜莺故事线.md冻结当时信息与并行时序。只有存在可信故事因果时才使用完成A关闭C；不复刻纸面交信锁掉线索。真正剧本变更仍需作者创作判断。",
+      "question": "西侧揭晓莱恩后东侧路线卡立即消失，是否导致实际同伴离队前‘她已经走了’说明与可见状态相悖？",
+      "method": "先静态检查世界结束日规则和渲染，若能无侵入构建已配置的第一章Session则实测；如无法自然进入，记录无原生证据，绝不注入调试作弊。",
       "humanGate": false
     },
     {
-      "id": "S3-D",
+      "id": "S3-真人",
       "priority": 4,
-      "question": "面对真实人类反馈，哪些4条最简语法值得进入第一章，哪些仅作档案？",
-      "method": "反馈异步；结合R37/R50/R54和新的无提示体验，删除冗余UI信息和虚假机制作概念，而非凑满20个认证模式。",
+      "question": "无提示读者会理解物证交换、东西路线次序和失去同行经历，而不是凭作者隐藏答案找捷径吗？",
+      "method": "阅读 批次/S3-正式老街东西路线/无提示东西路线情境.md；真实反馈异步，无反馈时继续独立源调查。",
       "humanGate": true
     }
   ],
