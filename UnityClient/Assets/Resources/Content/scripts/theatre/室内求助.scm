@@ -93,23 +93,24 @@
     (theatre-image "夜莺" "夜莺位置" "Portraits/Neon/夜莺_低头" 0 0 308 308 "吊灯光")
     'brightness 1.5))
 
-  ;; 线条大衣与收拢的雨伞：只表达挂着、取下，不叠到人物身上。
+  ;; 小手包挂在架上，收拢的伞靠墙落地；都保持轻巧的线条轮廓。
   (线 "衣帽架杆" "房间" "#7F95C4" 5 '((470 790) (470 470)) .9)
   (线 "衣帽架底" "房间" "#7F95C4" 5 '((424 790) (516 790)) 1)
   (线 "衣帽架钩" "房间" "#7F95C4" 3.5
     '((436 546) (470 500) (504 546) (470 500) (470 560) (440 602) (470 560) (500 602)) 1.1)
-  (加入 (theatre-group "架上大衣" "房间" 440 550))
-  (加入 (theatre-line "大衣轮廓" "架上大衣" "#9FB4E0" 2
-    '((0 0) (-16 10) (-35 18) (-47 76) (-32 82) (-21 44)
-      (-26 172) (28 172) (23 44) (35 82) (49 76) (37 18) (17 10) (0 0))))
-  (加入 (theatre-line "大衣翻领" "架上大衣" "#7F95C4" 1.5
-    '((-16 10) (-8 40) (0 27) (9 40) (17 10))))
-  (加入 (theatre-line "大衣门襟" "架上大衣" "#7F95C4" 1.5 '((0 27) (0 169))))
-  (加入 (theatre-group "架上雨伞" "房间" 510 568))
-  (加入 (theatre-line "雨伞轮廓" "架上雨伞" "#9FB4E0" 2
-    '((0 0) (10 -9) (19 -5) (20 5) (14 10) (7 8) (7 24)
-      (16 151) (6 181) (-4 151) (7 24))))
-  (加入 (theatre-line "雨伞折线" "架上雨伞" "#7F95C4" 1.5 '((7 24) (6 181))))
+  (加入 (theatre-group "架上手包" "房间" 440 585))
+  (加入 (theatre-line "手包轮廓" "架上手包" "#7F95C4" 1.5
+    '((-18 0) (18 0) (21 30) (-21 30) (-18 0))))
+  (加入 (theatre-line "手包提手" "架上手包" "#7F95C4" 1.5
+    '((-11 0) (-8 -14) (0 -20) (8 -14) (11 0))))
+  (加入 (theatre-line "手包翻盖" "架上手包" "#7F95C4" 1
+    '((-18 3) (0 13) (18 3))))
+  (加入 (theatre-group "墙边雨伞" "房间" 520 790))
+  (加入 (theatre-line "雨伞轮廓" "墙边雨伞" "#7F95C4" 1.5
+    '((0 0) (4 -23) (-20 -152) (-26 -161) (-35 -161) (-39 -154)
+      (-35 -146) (-29 -146) (-26 -151) (-20 -152) (-6 -25) (0 0))))
+  (加入 (theatre-line "雨伞折线" "墙边雨伞" "#7F95C4" 1
+    '((-20 -152) (0 0))))
   ;; 根分组就是镜头：道具、人物与灯一起推近，字幕保持原位置。
   (set! 图形 (cons (theatre-group "镜头" "" 0 0)
     (map (lambda (object)
@@ -184,7 +185,7 @@
             (theatre-image-to "夜莺" "Portraits/Neon/夜莺_背身")
             (theatre-during (走 "夜莺位置" 420 1.5 1.7)
               (theatre-tween "夜莺位置" 'scale-x -1 .7))
-            ;; 站在架前背身取衣；轮廓离开挂钩，淡出代表拿到手里。
+            ;; 站在架前背身取包；轮廓离开挂钩，淡出代表拿到手里。
             (theatre-during (theatre-wait 1.1)
               (theatre-sequence
                 (theatre-tween "夜莺位置" 'rotation 5 .3 'smooth)
@@ -193,13 +194,13 @@
               (theatre-sequence
                 (theatre-wait .35)
                 (theatre-parallel
-                  (theatre-tween "架上大衣" 'x 424 .65 'smooth)
-                  (theatre-tween "架上大衣" 'y 570 .65 'smooth)
-                  (theatre-tween "架上大衣" 'opacity 0 .65))))
+                  (theatre-tween "架上手包" 'x 424 .65 'smooth)
+                  (theatre-tween "架上手包" 'y 602 .65 'smooth)
+                  (theatre-tween "架上手包" 'opacity 0 .65))))
             (theatre-during (theatre-wait .7)
               (theatre-tween "夜莺位置" 'rotation 4 .3 'smooth)
-              (theatre-tween "架上雨伞" 'x 490 .7 'smooth)
-              (theatre-tween "架上雨伞" 'y 580 .7 'smooth)))
+              (theatre-tween "墙边雨伞" 'x 490 .7 'smooth)
+              (theatre-tween "墙边雨伞" 'y 760 .7 'smooth)))
           (镜头 1.03 800 576 3))
         (theatre-during
           (theatre-sequence
@@ -207,8 +208,8 @@
             (theatre-during (说 "尼尔" 990 "演出还有多久？" 1.185)
               (theatre-sequence
                 (theatre-parallel
-                  (theatre-tween "架上雨伞" 'opacity 0 .45)
-                  (theatre-tween "架上雨伞" 'x 470 .45 'smooth)
+                  (theatre-tween "墙边雨伞" 'opacity 0 .45)
+                  (theatre-tween "墙边雨伞" 'x 470 .45 'smooth)
                   (theatre-tween "夜莺位置" 'rotation 0 .45 'smooth))
                 (theatre-wait .15)
                 (theatre-image-to "夜莺" "Portraits/Neon/夜莺_低头")
