@@ -1,0 +1,48 @@
+name: SSNoir R253-R260 Irreversible Checkpoint
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r253-r260.yml'
+      - 'tools/content-validator/experiments/r253_r260_irreversible_checkpoint.py'
+      - 'docs/实验/机制研究/批次/R253-R260-不可逆中间成果/研究记录.md'
+permissions:
+  contents: read
+jobs:
+  exact:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Exact intermediate checkpoint versus open-loop and independent contingent policies
+        run: |
+          set -euo pipefail
+          python3 -m py_compile tools/content-validator/experiments/r253_r260_irreversible_checkpoint.py
+          python3 tools/content-validator/experiments/r253_r260_irreversible_checkpoint.py | tee /tmp/r253-r260.json
+          python3 - <<'PY'
+          import json
+          d=json.load(open('/tmp/r253-r260.json'))
+          assert d['R253_optimum']=='3/2'
+          assert d['R254_best_fixed']['value']=='1'
+          assert d['R255_all_contingent_strategies']['value']=='3/2'
+          assert d['R257_disable_midpoint_reward']['full']=='1'
+          assert d['R258_oracle_reveal_before_first']=='2'
+          print('Independent 12 contingent scripts and checkpoint ablation passed')
+          PY
+      - name: Research scope and curated access
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/validate_abstract_research_scope.py
+          python3 tools/content-validator/experiments/validate_mechanism_portfolio.py
+          python3 tools/content-validator/experiments/validate_debug_playtests.py
+          python3 tools/content-validator/experiments/build_mechanism_atlas.py --check
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-r253-r260-checkpoint
+          path: /tmp/r253-r260.json
+          retention-days: 21
