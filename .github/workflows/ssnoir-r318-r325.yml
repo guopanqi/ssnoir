@@ -1,0 +1,54 @@
+name: SSNoir R318-R325 Bilateral Response Continuations
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r318-r325.yml'
+      - 'tools/content-validator/experiments/r318_r325_bilateral_reply.py'
+      - 'docs/实验/机制研究/批次/R318-R325-双继续回应与协议选择/研究记录.md'
+permissions:
+  contents: read
+jobs:
+  exact:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Complete response policies and independent stagewise evaluation
+        run: |
+          set -euo pipefail
+          python3 -m py_compile tools/content-validator/experiments/r318_r325_bilateral_reply.py
+          python3 tools/content-validator/experiments/r318_r325_bilateral_reply.py | tee /tmp/r318-r325.json
+          python3 - <<'PY'
+          import json
+          x=json.load(open('/tmp/r318-r325.json'))
+          assert x['R318_player_goal_A_full_branching']['full']=='8/3'
+          assert x['R319_player_goal_B_reverse_preference']['full']=='8/3'
+          assert x['R318_player_goal_A_full_branching']['best_response_blind']=='2'
+          assert x['R322_no_actionable_counter']['full']=='2'
+          assert x['R323_only_two_responder_types']['full']=='5/2'
+          assert x['R324_flexible_responder_twice_likely']['full']=='11/4'
+          print('All exact continuing reply, responder type and no-counter ablation checks passed')
+          PY
+      - name: Research scope and portfolio regressions
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/r302_r309_decision_relevant_tests.py >/tmp/r302-r309.json
+          python3 tools/content-validator/experiments/r310_r317_spatial_information.py >/tmp/r310-r317.json
+          python3 tools/content-validator/experiments/validate_abstract_research_scope.py
+          python3 tools/content-validator/experiments/validate_mechanism_portfolio.py
+          python3 tools/content-validator/experiments/validate_debug_playtests.py
+          python3 tools/content-validator/experiments/build_mechanism_atlas.py --check
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-r318-r325-bilateral-replies
+          path: |
+            /tmp/r318-r325.json
+            /tmp/r302-r309.json
+            /tmp/r310-r317.json
+          retention-days: 21
