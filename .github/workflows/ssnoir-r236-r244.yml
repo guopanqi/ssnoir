@@ -1,0 +1,48 @@
+name: SSNoir R236-R244 Belief-Safe Responsive Opponent
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r236-r244.yml'
+      - 'tools/content-validator/experiments/r236_r244_opponent_belief.py'
+      - 'docs/实验/机制研究/批次/R236-R244-隐藏对手规则可学性/研究记录.md'
+permissions:
+  contents: read
+jobs:
+  exact:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Full belief DP, independent public-readable rollout and fixed-plan enumeration
+        run: |
+          set -euo pipefail
+          python3 -m py_compile tools/content-validator/experiments/r236_r244_opponent_belief.py
+          python3 tools/content-validator/experiments/r236_r244_opponent_belief.py | tee /tmp/r236-r244.json
+          python3 - <<'PY'
+          import json
+          j=json.load(open('/tmp/r236-r244.json'))
+          assert j['R236_stable_hidden_rule']['full_belief_optimum']=='7/2'
+          assert j['R237_random_switch']['full_belief_optimum']=='11/4'
+          assert j['R238_react_to_player_success']['full_belief_optimum']=='11/4'
+          assert j['R239_opponent_memory_erased']['full_belief_optimum']=='2'
+          assert j['R240_probe_dominated'].startswith('Probe')
+          print('Exact belief, publicly observed policies, probes and controls all pass')
+          PY
+      - name: Research scope, manual selection and atlas
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/validate_abstract_research_scope.py
+          python3 tools/content-validator/experiments/validate_mechanism_portfolio.py
+          python3 tools/content-validator/experiments/validate_debug_playtests.py
+          python3 tools/content-validator/experiments/build_mechanism_atlas.py --check
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-r236-r244-adaptive-opponent
+          path: /tmp/r236-r244.json
+          retention-days: 21
