@@ -1,0 +1,45 @@
+name: SSNoir R109 Optional Discovery Closure
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r109.yml'
+      - 'tools/content-validator/experiments/r109_option_closure.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  exact-counterfactual:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - name: Evaluate R109 under both end-of-primary semantics
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/r109_option_closure.py > /tmp/r109.json
+          python3 - <<'PY'
+          import json
+          from fractions import Fraction as F
+          j=json.load(open('/tmp/r109.json'))
+          assert len(j['cases'])==5
+          r=j['cases'][0]
+          assert r['cases']['independent']['optimal']=='133/54'
+          assert r['cases']['closed']['optimal']=='1049/432'
+          assert r['cases']['closed']['without_probe']=='121/54'
+          assert r['cases']['closed']['independent_probe_value']=='3/16'
+          assert r['cases']['closed']['best_simple']['unexplained_gap']=='0'
+          assert r['strict_opposite_action_visits']=='1/2'
+          ex=r['example_strict_reversal']
+          assert ex['state']=='(1, 4, False, 3)'
+          assert ex['probability_path_mass']=='1/4'
+          assert ex['closure_best']=='probe' and ex['independent_best']=='work'
+          print('R109 closed/open normal-path strict reversal and direct action ablation verified')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ssnoir-r109-exact-paper-evidence
+          path: /tmp/r109.json
+          retention-days: 90
