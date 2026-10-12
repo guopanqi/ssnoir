@@ -4,6 +4,7 @@ import {readFileSync,readdirSync} from "node:fs";
 import {join} from "node:path";
 import {GameSceneDirector} from "../src/runtime/scene-director.ts";
 import {WorldSaveController} from "../src/runtime/world-save.ts";
+import {WorldTurnController} from "../src/runtime/world-turn.ts";
 import {parseTheatre} from "../src/runtime/theatre-contract.ts";
 const base="../UnityClient/Assets/Resources/Content",sources={};
 function collect(dir){for(const item of readdirSync(join(base,dir),{withFileTypes:true})){
@@ -16,19 +17,39 @@ const std=readFileSync("node_modules/lips/dist/std.xcb");
 const build=()=>GameSceneDirector.create(sources,std,()=>0.45);
 function flatten(node){return [node,...node.children.flatMap(flatten)];}
 
-test("original chapter opening: door → real theatre/dialogue → 20 gold → authored save/load",async()=>{
+test("original chapter prologue: tavern → two nights → door → 20 gold → save/load",async()=>{
   const d=await build();
   const world=await d.render();
-  const opening=flatten(world).find(n=>n.name==="有人敲门");
-  assert.ok(opening,"actual world must contain the original scripted door action");
+  // Current authored prologue starts at the tavern. The door does not
+  // appear until day three; this timeline is intentional story design.
+  const opening=flatten(world).find(n=>n.name==="醉酒的尼尔");
+  assert.ok(opening,"authored prologue must offer Neil's tavern opening");
   assert.equal(opening.resolve?.kind,"instant");
   assert.equal(opening.requires.length,0);
   assert.equal(d.state.getItemCount("金钱"),15);
-  const place=world.children.find(x=>x.isPlace&&flatten(x).some(n=>n.name==="有人敲门"));
-  assert.ok(place,"door must belong to an enterable original place");
+  assert.equal(flatten(world).some(n=>n.name==="有人敲门"),false,
+    "nightingale cannot appear before the authored rainy-night day");
+  const tavern=world.children.find(x=>x.isPlace&&flatten(x).some(n=>n.name==="醉酒的尼尔"));
+  assert.ok(tavern,"opening must live at the old-street tavern");
+  await d.worldActions.enterPlace(tavern.name);
+  await d.flush();
+  await d.worldActions.performSlots("醉酒的尼尔",[]);
+  await d.flush();
+  const openingEvents=d.state.takeStoryEvents();
+  assert.ok(openingEvents.length>0,"drunken prologue must produce its authored scenes");
+  const turn=new WorldTurnController(d.state,d.world);
+  assert.equal((await turn.endDay(()=>0.45)).after,2);
+  assert.equal((await turn.endDay(()=>0.45)).after,3);
+  await d.worldActions.prepare();
+  const current=d.worldActions.getPreparedRoot();
+  assert.ok(current,"world tree must update on the rainy visit day");
+  const door=flatten(current).find(n=>n.name==="有人敲门");
+  assert.ok(door,"nightingale must knock at Neil's door on day three");
+  assert.equal(door.resolve?.kind,"instant");
+  const place=current.children.find(x=>x.isPlace&&flatten(x).some(n=>n.name==="有人敲门"));
+  assert.ok(place,"nightingale door must belong to Neil's home");
   await d.worldActions.enterPlace(place.name);
   await d.flush();
-  await d.worldActions.prepare();
   const result=await d.worldActions.performSlots("有人敲门",[]);
   await d.flush();
   assert.equal(result.name,"有人敲门");
