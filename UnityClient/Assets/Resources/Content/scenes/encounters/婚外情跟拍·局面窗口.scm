@@ -1,0 +1,139 @@
+;; 窗口对照实验：同桌两轮、离席一轮，循环；仅关闭离席时的照片行动。
+;; 独立原型：寻找 → 照片/身份并行 → 一次怀疑危机。
+;; 未接入委托报酬；回传成果档位与实际进度。无额外时间期限。
+(define finished? #f)
+(define meeting? #f)
+(define window-turn 0) ; 0、1同桌；2离席
+(define (woman-away?) (= window-turn 2))
+(define crisis-called? #f)
+(define crisis? #f)
+(define finding (make-clock "找到丈夫" 6 'gauge "满6发现会面；敏锐辨认或见识判断去向。"))
+(define photos (make-clock "可靠照片" 8 'gauge "满8取得照片成果；可以收手，也可继续查身份。"))
+(define identity (make-clock "女子身份" 12 'gauge "4获姓氏、8获工作地点、12核实本人；两种办法用不同技能。"))
+(define alertness (make-clock "对象警觉" 8 'gauge "满8暴露；到4首次触发怀疑危机。"))
+(define disguise (make-clock "摆脱注意" 6 'gauge "好2中1；满6危机解除，警觉减2。未解除每回合警觉加1。"))
+(define (result-tier)
+  (cond ((and (photos 'full?) (identity 'full?)) '照片与身份)
+        ((identity 'full?) '身份) ((photos 'full?) '照片) (else '无成果)))
+(define (finish! reason)
+  (if finished? (error "双目标跟拍：重复结算") #t)
+  (set! finished? #t)
+  (spotlight! "委托取证结束"
+    (string-append (if (equal? reason '暴露) "他发现了你。" "你收起相机离开。")
+      (cond ((equal? (result-tier) '照片与身份) "照片和身份均已核实，可结算最高档报酬。")
+            ((equal? (result-tier) '身份) "身份已核实，可结算较高报酬。")
+            ((equal? (result-tier) '照片) "可靠照片已取得，可结算基础报酬。")
+            (else "没有完成取证，无法领取报酬。"))))
+  (end-encounter (list reason (result-tier) (photos 'current) (identity 'current))))
+(define (check!)
+  ;; 警觉填满优先结算；既有成果保留。双目标均满则无需多一次离场点击。
+  (cond ((alertness 'full?) (finish! '暴露))
+        ((and (photos 'full?) (identity 'full?)) (finish! '完成)) (else #f)))
+(define (identity-progress! n)
+  (let ((before (identity 'current)))
+    (identity 'advance! n)
+    (if (and (< before 4) (>= (identity 'current) 4))
+      (play-dialogue! (line "世界" "服务员称她哈珀小姐。她似乎常来这里。")) #f)
+    (if (and (< before 8) (>= (identity 'current) 8))
+      (play-dialogue! (line "世界" "她在梅森百货工作。姓氏和工作地点都对上了。")) #f)
+    (if (and (< before 12) (identity 'full?))
+      (play-dialogue! (line "世界" "停车侍者认得她：伊芙琳·哈珀，梅森百货的职员。")) #f)))
+(define (progress! goal n)
+  (cond ((eq? goal '找人)
+         (finding 'advance! n)
+         (if (and (finding 'full?) (not meeting?))
+           (begin (set! meeting? #t)
+             (play-dialogue!
+               (line "世界" "丈夫走进饭店，与窗边的女人坐在一起。")
+               (line "世界" "你可以拍照交差，也可以查清她的身份。"))) #f))
+        ((eq? goal '照片) (photos 'advance! n))
+        ((eq? goal '身份) (identity-progress! n))
+        ((eq? goal '掩饰)
+         (disguise 'advance! n)
+         (if (disguise 'full?)
+           (begin (set! crisis? #f) (alertness 'advance! -2)
+             (play-dialogue! (line "世界" "男人看了一会儿，没有发现相机，回到桌边。"))) #f))
+        (else (error "双目标跟拍：未知目标"))))
+(define (resolve! goal risky? grade)
+  (cond ((eq? grade '坏)
+         (spend-composure! (if risky? 2 1))
+         (alertness 'advance! (if risky? 2 1)))
+        ((eq? grade '中)
+         (progress! goal (if risky? 2 1))
+         (if risky? (alertness 'advance! 1) #f))
+        (else (progress! goal (if risky? 3 2))))
+  (if (and crisis? (not (eq? goal '掩饰))) (alertness 'advance! 1) #f)
+  (check!))
+(define (action-node title subtitle skill goal risky?)
+  (node title :subtitle subtitle :tags (list (if risky? "高风险" "低风险"))
+    :requires (list (req-die))
+    :resolve (roll skill
+      (outcome (lambda () (resolve! goal risky? '坏)))
+      (outcome (lambda () (resolve! goal risky? '中)))
+      (outcome (lambda () (resolve! goal risky? '好))))))
+(define-opponent-rule "女子离席与返回"
+  (lambda () (and (not finished?) meeting?))
+  (lambda ()
+    (set! window-turn (modulo (+ window-turn 1) 3))
+    (cond ((woman-away?)
+           (play-bubble! (line "世界" "女人拿起手袋离席。暂时拍不到两人的关系。")))
+          ((= window-turn 0)
+           (play-bubble! (line "世界" "女人回到桌边。你又可以拍摄两人。")))
+          (else #f))))
+(define-opponent-rule "男人继续查看"
+  (lambda () (and (not finished?) crisis?))
+  (lambda () (alertness 'advance! 1) (check!)))
+(define-opponent-rule "男人起疑"
+  (lambda () (and (not finished?) (not crisis-called?) (>= (alertness 'current) 4)))
+  (lambda ()
+    (set! crisis-called? #t) (set! crisis? #t)
+    (play-dialogue!
+      (line "世界" "男人离开座位，走到门口，朝你这边看。")
+      (line "世界" "他还没确定。掩饰能让他回去，继续取证会增加警觉。"))))
+(define (identity-nodes)
+  (let ((stage (cond ((< (identity 'current) 4) 0) ((< (identity 'current) 8) 1) (else 2))))
+    (list
+      (action-node
+        (cond ((= stage 0) "留意称呼") ((= stage 1) "留意随身物") (else "核对去向"))
+        (cond ((= stage 0) "留意服务员怎样称呼她") ((= stage 1) "从她随身纸袋辨认工作地点")
+              (else "依据姓氏和工作地点，核对接送与去向"))
+        (if (= stage 0) 'sharpness 'knowledge) '身份 #f)
+      (action-node
+        (cond ((= stage 0) "打听熟客") ((= stage 1) "询问工作") (else "询问侍者"))
+        "靠近向员工打听；进展快，但易引起注意"
+        'social '身份 #t))))
+(define (on-encounter-enter)
+  (play-dialogue!
+    (line "世界" "妻子给了你丈夫的照片。先在人群中找到他。")
+    (line "世界" "照片可以交差，查清女子身份的报酬更高。")))
+(define (on-encounter-collapse)
+  (collapse-result (list '倒下 (result-tier) (photos 'current) (identity 'current))))
+(define (get-render-data)
+  (container "跟拍窗口实验"
+    (append
+      (clock-nodes (alertness 'render-data))
+      (list (note-node "标注：取证场面" "此刻的场面"
+        (cond (crisis? "男人正在门口查看你；继续调查每次额外警觉1，回合末也加1。")
+              (meeting? "两人在窗边用餐。照片满8可收手；身份满12报酬更高。")
+              (else "丈夫还在人群中。先辨认面孔或推断去向。"))))
+      (if meeting?
+        (list (note-node "标注：女子位置" "拍摄窗口"
+          (if (woman-away?) "女子暂时离席，照片行动关闭；下回合返回。照片进度保留。"
+            (if (= window-turn 0) "两人同桌，可拍照；下一回合仍在，之后离席一轮。"
+              "两人仍同桌，可拍照；下回合女子离席一轮。")))) '())
+      (if meeting?
+        (append
+          (clock-nodes (photos 'render-data) (identity 'render-data))
+          (if (or (photos 'full?) (woman-away?)) '()
+            (list (action-node "隔街拍摄" "隔街取景；好2、中1，坏扣冷静1和警觉1" 'sharpness '照片 #f)
+                  (action-node "靠窗取景" "穿过人流稳住相机；好3、中2并增加警觉1" 'violence '照片 #t)))
+          (if (identity 'full?) '() (identity-nodes))
+          (if (or (photos 'full?) (identity 'full?))
+            (list (instant-action "收手离开" (lambda () (finish! '收手)))) '()))
+        (append (clock-nodes (finding 'render-data))
+          (list (action-node "人群辨认" "根据照片寻找面孔；好2、中1" 'sharpness '找人 #f)
+                (action-node "判断去向" "提前靠近入口核对；好3、中2并增加警觉1" 'knowledge '找人 #t))))
+      (if crisis?
+        (append (clock-nodes (disguise 'render-data))
+          (list (action-node "假装等人" "与门房攀谈；好2、中1，坏扣冷静1和警觉1" 'social '掩饰 #f)
+                (action-node "借街景遮掩" "收起相机退到报摊；好2、中1" 'knowledge '掩饰 #f))) '()))))
