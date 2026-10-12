@@ -102,7 +102,8 @@
     "S3-C source-alignment audit: actual authored First Chapter, Nightingale manuscript and Author Truth show first ransom handoff/tracking attempt produces Golden-Brand cigarette clue AFTER delivery/escape; Eddie opens chiefly during second section. Therefore paper S2-D assumption 'submitting letter closes investigation' and coincident same-evening Eddie urgency are NOT grounded in canon. Do not migrate the validated isolated scene verbatim; prefer second section dock witnesses / old street / Eddie or fourth section Ryan trail / theatre security / rehearsal, and only assert opportunity-closing edge when authors write a credible loss mechanism. See 批次/S3-C-正典对照与情境因果/研究记录.md.",
     "S3 source precedence correction: current UnityClient/Assets/Resources/Content/scenes/world/三封信.scm implements Section 2 as solo old-street progress6, then Nightingale joins next day, then east entry4+gallery4 meets Frank and west stairs4+barricade die+bridge4 reveals Ryan. The dock Ryan investigation is stage after third letter, NOT parallel second-section dock witnesses as older first chapter.md outline says. The first S3 conditional D+O+L+E model is a hypothetical outline, NOT a real game model; its results must not be used to certify live route decisions.",
     "S3 urgency result: Eddie scene real source side-story-open? #f (not yet active), but author staging says player entering tavern triggers same-night response; cannot show hidden event as global deadline. Exact synthetic effect E>D on normal model paths 13/27 weighted visits but disappears at reward1; simple fixed baseline gap only77/4374. Nightingale tomorrow-help was known to author oracle before solo failure, not to player; never call it publicly learnable DP.",
-    "S3 actual live route paper: 16-action post-Nightingale oracle approx fully explained by fixed West-first; DP153393848/43046721 vs fixed West153392248/43046721 (difference1600/43046721), no-East-close and full-preserve-East-progress ablations 0 root gain. This DOES NOT vindicate lost interim East effort: code prior porch4 then West8 then soloFrank6 =18 vs West8+Frank8 =16 progress points, though actual odds/composure and cigarette shortcut omitted. Player doesn't know West=Ryan/East=Frank, so oracle route order does not represent blind play. Source-only facts + math, no S3 native or human."
+    "S3 actual live route paper: 16-action post-Nightingale oracle approx fully explained by fixed West-first; DP153393848/43046721 vs fixed West153392248/43046721 (difference1600/43046721), no-East-close and full-preserve-East-progress ablations 0 root gain. This DOES NOT vindicate lost interim East effort: code prior porch4 then West8 then soloFrank6 =18 vs West8+Frank8 =16 progress points, though actual odds/composure and cigarette shortcut omitted. Player doesn't know West=Ryan/East=Frank, so oracle route order does not represent blind play. Source-only facts + math, no S3 native or human.",
+    "S3 source-only item audit 2026-10-12: 三封信.scm grants single 半包「老金牌」香烟 after chase if '拿到线索'. East counter requires req-item1 and instantly advances East Gallery2, notes item kept by shop. Later encounters/巷子.scm node-cigs requires exactly same item and advances Lyon2, card usable once. These are two real authored choices but cost consumption and mutual exclusion not pair-validated in a C#+Scheme runtime session; future usefulness is hidden to novice. Do not treat source evidence as native success, do not merge with older west-first paper excluding item."
   ],
   "history": [
     {
@@ -1488,32 +1489,32 @@
   ],
   "frontier": [
     {
-      "id": "S3-下一关-实物信息",
+      "id": "S3-实物守恒原生",
       "priority": 1,
-      "question": "现行第二节交出唯一半包金牌烟在东侧回廊加2进度，但之后哪些官方动作/人物对白真实需要保留烟盒？",
-      "method": "以唯一正式场景源码搜跨模块物品读取与消耗；列出不交/交的事件指纹、公开提示和后果，先证明确实有后续外部选项再研究有限成本。不要仅凭注释补出不存在的后果。",
+      "question": "金牌烟真的在老街柜台消费后不可用于莱恩交锋吗？",
+      "method": "在最新正式世界入口和已解锁的两个阶段分别审查物品栏变化与req-item操作显隐；不可伪造场景状态或修改第一章引擎，要带上场景/seed/版本及使用条件，必要时保留尚未验证状态。",
       "humanGate": false
     },
     {
-      "id": "S3-下一关-分支可见性",
+      "id": "S3-玩家知识与误解",
       "priority": 2,
-      "question": "在不知道东侧遇弗兰克、西侧揭莱恩的情况下，玩家看到什么公开信息，为什么会选择进入哪条路线？",
-      "method": "对照当前4张路线卡和伴随对白的公开来源，找信息泄漏、内容因果与中途半成品是否明确可读；如有必要才做正式C#+Scheme世界会话，不编造章节导航。",
-      "humanGate": false
-    },
-    {
-      "id": "S3-下一关-正式后果",
-      "priority": 3,
-      "question": "西侧揭晓莱恩后东侧路线卡立即消失，是否导致实际同伴离队前‘她已经走了’说明与可见状态相悖？",
-      "method": "先静态检查世界结束日规则和渲染，若能无侵入构建已配置的第一章Session则实测；如无法自然进入，记录无原生证据，绝不注入调试作弊。",
-      "humanGate": false
-    },
-    {
-      "id": "S3-真人",
-      "priority": 4,
-      "question": "无提示读者会理解物证交换、东西路线次序和失去同行经历，而不是凭作者隐藏答案找捷径吗？",
-      "method": "阅读 批次/S3-正式老街东西路线/无提示东西路线情境.md；真实反馈异步，无反馈时继续独立源调查。",
+      "question": "玩家在东、西两条未知结局路线和唯一物证之间作出选择时，是否充分理解失去什么而不必预知后续？",
+      "method": "只审当前可见动作字幕、对话与无提示审阅稿，给出最低所需公开信息；不强迫透露莱恩交锋未来结局，等待独立真人审阅反馈。",
       "humanGate": true
+    },
+    {
+      "id": "S3-路线跨序体验",
+      "priority": 3,
+      "question": "西侧揭晓后东侧同行动作消失、改成独走弗兰克时，已投入的门廊/回廊进度与夜莺关系是否被公平兑现？",
+      "method": "核对源代码与真实4骰/多日正式世界可达路径，区分叙事失去与计算沉没成本，不把原始数学禁关闭根部零收益当成年轻读者没损失。",
+      "humanGate": false
+    },
+    {
+      "id": "S3-其它独立问题",
+      "priority": 4,
+      "question": "如果当前支线等待重新排布，应转向什么不依赖启用隐藏任务的决策关系？",
+      "method": "从正式开放第二节的东/西空间进度、物证跨场景与人物失利感受切入；真人意见异步，不做付费workflow和Debug新入口。",
+      "humanGate": false
     }
   ],
   "policy": "Continue without user feedback; distinguish native mechanism function, feature ablation, strong simple policy, actual voluntary decision, and eventual human appeal. Do not auto-add candidates to Debug.",
@@ -1545,6 +1546,14 @@
       "scope": "source-based semantic audit, NOT native/human result",
       "evidence": "docs/实验/机制研究/批次/S3-C-正典对照与情境因果/研究记录.md",
       "lesson": "First letter handoff generates followup smoking clue; Eddie optional character line appears mainly in second section. No reason to use paper closing condition as real first-chapter plot truth."
+    },
+    {
+      "id": "S3-单份烟盒两次实质用途",
+      "name": "东侧无骰推进与后期莱恩交锋中的同名物证选项",
+      "date": "2026-10-12",
+      "evidence": "docs/实验/机制研究/批次/S3-正式老街东西路线/唯一烟盒跨阶段用途审查.md",
+      "scope": "official Scheme source cross-reference only; no new native item consumption or human choice evidence",
+      "lesson": "Exact one item 半包「老金牌」香烟 is visibly surrendered at East counter for +2 gallery, later encounter 巷子.scm req-item same item grants +2 Lyon progress, one use in fight. Do not assume consumed semantics without actual native before/after item; East first spend changes future availability; future payoff not publicly known; prior S3 west-first paper omitted item."
     }
   ],
   "parallelBatches": [
