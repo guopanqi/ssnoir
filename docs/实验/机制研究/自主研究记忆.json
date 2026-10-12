@@ -1,58 +1,69 @@
 {
   "schema": "ssnoir.autonomous-pattern-memory/v1",
   "updated": "2026-10-12",
-  "batch": "S3-X-单份烟盒双路径原生反证",
+  "batch": "S3-Y-未知答案信息与实际同行时序",
   "rounds": 0,
   "totalArchivedRounds": 69,
   "objective": "Keep an honest research candidate quality gate: 20 different sources is not 20 human-validated attractive games; continue autonomously with direct causal ablations",
   "method": {
-    "phase": "S3-X/X1-X4",
-    "nativeNoFixture": true,
-    "seed": 19,
-    "growth": 4,
-    "sourceScripts": [
-      "tools/content-validator/experiments/s3_world_full_item_conservation.py",
-      "tools/content-validator/experiments/s3_world_keep_cigarette.py",
-      "tools/content-validator/experiments/s3_world_without_cigarette.py"
+    "phase": "Y1-Y4",
+    "baseline": "68b24d4a8661bd5be2794d399b5de24899bc0624",
+    "staticPrograms": [
+      "tools/content-validator/experiments/s3_y_visible_option_audit.py",
+      "tools/content-validator/experiments/s3_y_route_consequence_contract.py"
     ],
-    "CI": "38209239103",
-    "preservedEarlierCI": "38206878433",
-    "review": "docs/实验/机制研究/批次/S3-X-跨阶段物证选择/公开信息与简单策略复核.md",
-    "scope": "Three separate real world legal author-directed routes, retained and no-cig strict replay success; W4 threshold is synthetic math; no human."
+    "fullOriginalWorldPrograms": [
+      "tools/content-validator/experiments/s3_y_west_reveal_native.py",
+      "tools/content-validator/experiments/s3_y_solo_companion_native.py"
+    ],
+    "ciSource": "38213836376",
+    "ciNative": "38214574855",
+    "evidence": "source contracts + simple Fraction conditional counterexamples + same-original-world day9 real actor choice with strict native replay",
+    "notEvidence": "no new human data; no real skill distribution fitting; no new formal mode or Debug candidate"
   },
   "results": [
     {
-      "id": "S3-X-three-native-fates",
-      "name": "唯一金牌烟三条真正可达的世界路线：先交、后用、从未得到",
-      "status": "原版世界C#+Scheme已可验证不同后果与严格重放；不是盲玩也没有真实胜率或真人体验",
+      "id": "S3-Y-公开信息与交锋风险",
+      "name": "东/西入口未知终点，唯一烟盒的公开现在收益、隐藏未来收益和无烟稳险替代动作",
+      "status": "正式Scheme静态合同＋独立Fraction条件例证通过；旧S3-X资源守恒不重复计数，无人类验证",
       "evidence": {
-        "counterFirst": {
-          "steps": 65,
-          "inventoryAfterCounter": 0,
-          "lyonItemActionLegal": false,
-          "CI": "38206878433"
-        },
-        "keepForLyon": {
-          "steps": 65,
-          "counterOptionDeclined": true,
-          "lyonItemActionLegal": true,
-          "lyonItemExecuted": true,
-          "itemBefore": 1,
-          "itemAfter": 0,
-          "CI": "38209239103"
-        },
-        "neverObtained": {
-          "steps": 71,
-          "noItemInjected": true,
-          "itemFromChase": false,
-          "lyonItemActionLegal": false,
-          "alternateOriginalActionExecuted": true,
-          "CI": "38209239103"
-        },
-        "paperRule": "use_now iff e >= q*l, exact for toy not canonical",
-        "humanFeedbackForThisScenario": false
+        "sourceRun": "38213836376",
+        "eastEntry": "social",
+        "westEntry": "knowledge",
+        "eastPrize": "弗兰克",
+        "westPrize": "莱恩",
+        "counterNow": "+2 East Gallery, 1 cigarette, 0 dice",
+        "LyonLater": "+2 first-form, 1 cigarette, 0 dice",
+        "lowRisk": "knowledge bad -1 composure, medium +1, high +2",
+        "highRisk": "social bad -2 composure and crowd+1, medium +2, high +3",
+        "hypotheticalTwoRemaining": {
+          "letters": "1/3",
+          "herNow": "2/3",
+          "packet": "1"
+        }
       },
-      "lesson": "Three routes are actually reachable in original world; same seed differs in action/RNG consumption; no-cig route has a legal non-item Lyon action, not guaranteed same success. Future use unknown at counter, narrative fairness cannot be inferred from simulator."
+      "lesson": "正式后用途未提前公布、东西结局未提前公布；不把作者e>=q*l或均匀赔率当玩家实际知道的最优解。不存在必须复杂计算的新模式。"
+    },
+    {
+      "id": "S3-Y-西线后弗兰克与夜莺行动者冲突",
+      "name": "莱恩身份揭晓后弗兰克仍可结识，但文本称夜莺已走而她仍在队伍且可真正投入骰子",
+      "status": "源合同＋正式原版42步世界回放＋额外一手夜莺实际合法行动均验证；未改正典，内容缺陷待作者决定意图",
+      "evidence": {
+        "sourceRun": "38213836376",
+        "nativeRun": "38214574855",
+        "worldSeed": 19,
+        "worldGrowth": 4,
+        "observedWorldDay": 9,
+        "stepsToReveal": 42,
+        "soloCardVisible": true,
+        "nightingaleStillActor": true,
+        "nightingaleRemainingDie": 3,
+        "nightingaleUsedOnSoloCard": true,
+        "dieAfter": 0,
+        "sameDay": true,
+        "strictReplay": true
+      },
+      "lesson": "不是永久错过弗兰克，只有同行调查路径关闭。'她已经走了'与可用夜莺骰存在实测冲突。不能只修文案或提前清同伴而不核对次日对白。"
     }
   ],
   "crossRoundMemory": [
@@ -98,7 +109,9 @@
     "S3 source-only item audit 2026-10-12: 三封信.scm grants single 半包「老金牌」香烟 after chase if '拿到线索'. East counter requires req-item1 and instantly advances East Gallery2, notes item kept by shop. Later encounters/巷子.scm node-cigs requires exactly same item and advances Lyon2, card usable once. These are two real authored choices but cost consumption and mutual exclusion not pair-validated in a C#+Scheme runtime session; future usefulness is hidden to novice. Do not treat source evidence as native success, do not merge with older west-first paper excluding item.",
     "S3-W: Actual unchanged C#+Scheme encounters/巷子 with --item 0/1: absent packet card visible but no legal operation, present packet legal and execution consumes inventory1→0. 6/7-step transcripts replayed strictly (GitHub Actions 38205724249). Separately a virgin world session seed19 growth4 no injected items traversed 30 real legal actions and naturally acquired unique cigarette in first chase and expended it at official old-street EAST counter (inventory1→0), native CI 38206113163. These are TWO native sessions, NOT a continuous original world through later alley. Simple Fraction 2-stage e>=q*l policy, deletion/2-copy/perfect-info ablations are abstract toy not official probabilities or human enjoyment. Current source only has two usages, future use initially unknown to player.",
     "S3-X (2026-10-12): S3-W 65-step original world early counter consumes 1->0 and makes Lyon item card unexecutable, strict replay CI38206878433. S3-X second ORIGINAL world seed19 growth4 declines East counter, carries item to Lyon and executes original smoke-card consuming1->0, 65-step strict replay. Third ORIGINAL world legally ends chase instead of recovering clue, gets 0 cigarette, reaches Lyon and executes original non-item dialog action, 71-step replay CI38209239103. All routes author-guided and use different random streams, not blind human or paired success-rate data. No feature/Debug changes.",
-    "S3-X knowledge: East counter subtitle explicitly says it takes the unique physical cigarette and grants East Gallery2 for no die. At that time Ryan's eventual smoke-card is secret; strongest two-period public synthetic rule e>=q*l (W4 already verified) saturates optimal. Good research question is whether retaining recognizable physical evidence feels reasonable and whether later regret is fair, not inventing extra DP complexity. Human feedback from this scenario absent."
+    "S3-X knowledge: East counter subtitle explicitly says it takes the unique physical cigarette and grants East Gallery2 for no die. At that time Ryan's eventual smoke-card is secret; strongest two-period public synthetic rule e>=q*l (W4 already verified) saturates optimal. Good research question is whether retaining recognizable physical evidence feels reasonable and whether later regret is fair, not inventing extra DP complexity. Human feedback from this scenario absent.",
+    "S3-Y actual official world day9 seed19 growth4: natural 42-action West reveal immediately shows solo Frank card with subtitle '她已经走了' while Nightingale remains in Actors with dice[3]. Original legal action '自己走东侧那条回廊： 夜莺[0]=3' executed and consumed that die without day rollover, native strict replay CI38214574855. This is player-facing narrative/action-contract discrepancy, not just static. Do not silently move her dismissal: dialogue is deferred end-day in 三封信.scm and may depend on sequence.",
+    "S3-Y: source contract distinguishes under-informed choices: East entrance social vs West knowledge are public but East=Frank West=Ryan are hidden. Cigs counter public gain EastGallery2 and irreversible item cost; later Lyon form1 +2 without die hidden at counter. Without packet native options: letters knowledge bad composure-1, mid1 good2; her-now social bad composure-2 + crowd pressure1, mid2 good3. Fraction equal-prob one-stage sample is NOT live skills. Frank remains meetable after West via solo card, guided scenes instead lost. No new mathematical complexity or human fun established."
   ],
   "history": [
     {
@@ -1540,31 +1553,31 @@
   ],
   "frontier": [
     {
-      "id": "S3-Y-新玩家知识与人物",
+      "id": "S3-Z-剧情行动一致性",
       "priority": 1,
-      "question": "不知道东/西路线目的地以及莱恩未来用法时，玩家为何在现在保留证物、进入哪条老街路线？",
-      "method": "从正式第一章可见卡与角色对白做无提示时点矩阵；严禁先泄露西侧=莱恩、后来烟盒可用。先完成人物动机/因果静态审查，有原生独立问题才运行。",
+      "question": "夜莺在西侧查出莱恩后何时真正离开？当前卡写'她已经走了'且夜莺骰能完成'独自调查'，哪种时序符合后续路灯下对白？",
+      "method": "以S3-Y Day9 原生42步+夜莺真实出手Strict Replay为事实基线，先审离街场景和一次日终真会话的区别，再由作者决定同伴离队时点或相应行动方式；避免直接提前dismiss导致剧情失败。",
       "humanGate": false
     },
     {
-      "id": "S3-Y-无烟后果兑现",
+      "id": "S3-Z-未知路线反馈",
       "priority": 2,
-      "question": "无烟正式会话已能在莱恩第二幕执行一次非物证行动；不同人物反馈与失败后果是否真的可辨，而非纯+2进度差？",
-      "method": "以当前71步原生记录为起点审查两个合法普通动作风险/冷静/群众；不预设同一seed共用随机骰，也不声称无烟可在全部参数下通关。",
+      "question": "东/西初见只公开 social/knowledge 与建筑生活提示，何时真正向玩家反馈正在认识谁，何时路线变为沉没成本？",
+      "method": "逐段取已实现的progress4触发对白/西侧堵路，区分中途公开提示与作者隐藏目的地；若需证明同屏两路线真实合法，复用无作弊原版世界 Session 而非计算作者路线最优。",
       "humanGate": false
     },
     {
-      "id": "S3-Y-错过的同行场景",
+      "id": "S3-Z-正式无烟终局",
       "priority": 3,
-      "question": "西侧揭晓莱恩后东侧夜莺同行卡消失，先前东线进度变成独自寻找弗兰克的6/8格转换是否让玩家理解？",
-      "method": "以正式三封信.scm可见卡和日终离队时点建立玩家不知道终点的静态时间线，若真实会话原生显示冲突再审UI/语义，不改正典制造新功能。",
+      "question": "不同烟盒历史是否只改变行动风险和耗骰，还是影响莱恩交出铁盒、弗兰克态度等正式人物结局？",
+      "method": "先静态核对 Lyon 多形态与完成口径；旧S3-X无烟只做过一手，若判断必要再从原生会话推进到终局并严格回放，不能从零物品可操作推出同胜率。",
       "humanGate": false
     },
     {
-      "id": "S3-用户异步审阅",
+      "id": "S3-Z-真人反馈",
       "priority": 4,
-      "question": "不看任何未来奖励和西侧答案的读者如何评价烟盒‘现在交换’与‘留在自己口袋里’？",
-      "method": "阅读S3-W无提示情景和S3-X公开信息矩阵，收集真实反馈inbox；不将等待反馈作为其它研究停止条件。",
+      "question": "玩家不知未来莱恩会认烟盒时，是否仍觉得保留有意义，是否感到过桥后人物同行被剥夺是可理解的遗憾？",
+      "method": "使用现有 S3-W无提示情景与S3-正式老街东西路线稿，不能提前公布隐藏答案；inbox继续异步收集。",
       "humanGate": true
     }
   ],
@@ -1628,6 +1641,18 @@
       ],
       "scope": "Original world seed19 growth4, no injected item/story flags, three separately author-guided paths; native semantics only, same seed not identical per-action randomness",
       "lesson": "Held item is usable and consumed in Lyon; spent item is not usable; never obtained reaches Lyon and executes a different action. Strong simple toy strategy has no new complexity and hidden future cannot be player-plan prerequisite."
+    },
+    {
+      "id": "S3-Y-actor-story-timing",
+      "date": "2026-10-12",
+      "name": "身份揭晓后仍可用夜莺骰做名为独自的调查",
+      "scope": "original C#+Scheme world seed19/growth4, day9 reveal (42 actions) then legal nightingale die, strict replay; not human",
+      "evidence": [
+        "https://github.com/guopanqi/ssnoir/actions/runs/38214203272",
+        "https://github.com/guopanqi/ssnoir/actions/runs/38214574855"
+      ],
+      "lesson": "Solo Frank card says 夜莺已走 and is active while Nightingale Actor is present and can legally perform it. Need author resolve departure narrative and allowed die, rather than patch UI label only.",
+      "record": "docs/实验/机制研究/批次/S3-Y-玩家知识与人物后果/研究记录.md"
     }
   ],
   "parallelBatches": [
