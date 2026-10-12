@@ -1,0 +1,50 @@
+name: SSNoir R149-R156 Autonomous City Agendas
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r149-r156.yml'
+      - 'tools/content-validator/experiments/r149_r156_autonomous_city_agendas.py'
+      - 'docs/实验/机制研究/批次/R149-R156-城市人物自主议程/研究记录.md'
+permissions:
+  contents: read
+jobs:
+  exact-paper:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Exact public knowledge, exhaustive contingent policies and Pareto endings
+        run: |
+          set -euo pipefail
+          python3 -m py_compile tools/content-validator/experiments/r149_r156_autonomous_city_agendas.py
+          python3 tools/content-validator/experiments/r149_r156_autonomous_city_agendas.py | tee /tmp/r149-r156.json
+          python3 - <<'PY'
+          import json
+          j=json.load(open('/tmp/r149-r156.json'))
+          assert j['R149_R150']['root']=='7/2'
+          assert j['R151_reveal_delayed']['timely_information_gain']=='1/2'
+          assert j['R154_unproductive_venue']['hold_removed']=='7/2'
+          assert j['R155_information_early']['early_vs_after_first_gain']=='0'
+          print('Exact paper and independent open-loop policies pass')
+          PY
+      - name: Previous research and admission regression
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/r131_r143_information_and_ally.py >/tmp/r131-r143.json
+          python3 tools/content-validator/experiments/r144_r148_directing_ally.py >/tmp/r144-r148.json
+          python3 tools/content-validator/experiments/validate_mechanism_portfolio.py
+          python3 tools/content-validator/experiments/validate_debug_playtests.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-r149-r156-city-agendas
+          path: |
+            /tmp/r149-r156.json
+            /tmp/r131-r143.json
+            /tmp/r144-r148.json
+          retention-days: 21
