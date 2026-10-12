@@ -13,7 +13,7 @@ from probe_four_scenario_causality import ROOT,CMD,recv,finish
 ITEM="半包「老金牌」香烟"
 ENTRY="encounters/巷子"
 SEED=19
-GROWTH=10
+GROWTH=4
 
 def action(p,obs,op,reason="S3-W 原生装备守恒"):
     p.stdin.write(json.dumps({"command":"act","version":obs["Version"],
@@ -97,7 +97,10 @@ def test_with_fixture(qty):
                 "trust":next((c["Current"] for c in obs.get("Clocks",[])
                                if c["Label"]=="弗兰克的判断"),None),
                 "inventory":inventory(obs)})
-            obs=action(p,obs,chosen)
+            try:
+                obs=action(p,obs,chosen)
+            except Exception as exc:
+                raise AssertionError(f"Native action error after {len(history)} commands: {history[-12:]}: {exc}") from exc
             if obs.get("Scene")!=ENTRY:
                 raise AssertionError("Left original encounter before Lyon phase: "+str(history[-12:]))
         raise AssertionError("Could not reach original Lyon phase in 110 genuine operations "+str(history[-15:]))
