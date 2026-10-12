@@ -1,0 +1,51 @@
+name: SSNoir R166-R173 Interdependent City Agenda Cascade
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r166-r173.yml'
+      - 'tools/content-validator/experiments/r166_r173_city_cascade_network.py'
+      - 'docs/实验/机制研究/批次/R166-R173-人物议程连锁/研究记录.md'
+permissions:
+  contents: read
+jobs:
+  exact-graph:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Two automatic event chains and independently enumerated outcomes
+        run: |
+          set -euo pipefail
+          python3 -m py_compile tools/content-validator/experiments/r166_r173_city_cascade_network.py
+          python3 tools/content-validator/experiments/r166_r173_city_cascade_network.py | tee /tmp/r166-r173.json
+          python3 - <<'PY'
+          import json
+          j=json.load(open('/tmp/r166-r173.json'))
+          assert j['R166_two_actor_cascade']['unique_endings']==13
+          assert j['R166_two_actor_cascade']['legal_sequences']==837
+          assert len(j['R172_multiobjective_frontier'])==4
+          assert j['R168_no_second_actor']['unique_endings']==5
+          assert j['R170_late_reaction']['unique_endings']==9
+          print('Two actor cascade exact graph checks succeeded')
+          PY
+      - name: Earlier city agenda and target topology regression
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/r149_r156_autonomous_city_agendas.py >/tmp/r149-r156.json
+          python3 tools/content-validator/experiments/r157_r165_event_generated_targets.py >/tmp/r157-r165.json
+          python3 tools/content-validator/experiments/validate_mechanism_portfolio.py
+          python3 tools/content-validator/experiments/validate_debug_playtests.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-r166-r173-cascading-city-events
+          path: |
+            /tmp/r166-r173.json
+            /tmp/r157-r165.json
+            /tmp/r149-r156.json
+          retention-days: 21
