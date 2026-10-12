@@ -1,0 +1,39 @@
+name: SSNoir Abstract Research Scope
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-abstract-research-scope.yml'
+      - 'tools/content-validator/experiments/validate_abstract_research_scope.py'
+      - 'docs/实验/机制研究/README.md'
+      - 'docs/实验/机制研究/研究定位与评价.md'
+      - 'docs/实验/机制研究/实验结构与维护契约.md'
+      - 'docs/实验/机制研究/研究约定.md'
+      - 'docs/实验/机制研究/研究队列.md'
+      - 'docs/实验/机制研究/当前状态.md'
+      - 'docs/实验/机制研究/自主研究记忆.json'
+      - 'docs/实验/机制研究/抽象探索地图-20261012校准.md'
+      - 'docs/实验/机制研究/归档/2026-10-12-方向校准前/**'
+      - 'docs/实验/机制研究/模式库.json'
+      - 'docs/实验/机制研究/试玩任务.json'
+      - 'docs/实验/机制研究/研究总览.html'
+      - 'skills/research-mechanisms/SKILL.md'
+permissions:
+  contents: read
+jobs:
+  research-scope:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Confirm abstract scope, preserved historical evidence and curated access
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/validate_abstract_research_scope.py
+          python3 tools/content-validator/experiments/validate_mechanism_portfolio.py
+          python3 tools/content-validator/experiments/validate_debug_playtests.py
+          python3 tools/content-validator/experiments/build_mechanism_atlas.py --check
