@@ -1,34 +1,46 @@
 {
   "schema": "ssnoir.autonomous-pattern-memory/v1",
   "updated": "2026-10-12",
-  "batch": "R108",
+  "batch": "R109",
   "rounds": 1,
-  "totalArchivedRounds": 51,
+  "totalArchivedRounds": 52,
   "objective": "Keep an honest research candidate quality gate: 20 different sources is not 20 human-validated attractive games; continue autonomously with direct causal ablations",
   "method": {
     "sourceScripts": [
-      "tools/content-validator/experiments/r108_audit.py"
+      "tools/content-validator/experiments/r109_option_closure.py"
     ],
-    "run": "Pending GitHub Actions ssnoir-r108",
-    "scope": "One independent exact Fraction paper model, 16 K/q conditions; uploaded evidence locally reproduced byte-for-byte; no native C#/Scheme or human experiment",
-    "human": "No new feedback and no change to curated Debug"
+    "run": "SSNoir R109 Optional Discovery Closure",
+    "scope": "4-action exact Fraction counterfactual, isolated objective-end rule changed, compared adaptive dynamic vs strongest public thresholds and disabled probe",
+    "human": "No new human or C# Scheme evidence; Debug unchanged"
   },
   "results": [
     {
-      "id": "R108",
-      "name": "自然线索与专门探查的强简单策略反证",
-      "status": "独立因果有效、复杂策略不成立；纸面基础材料，不晋升 Debug",
+      "id": "R109",
+      "name": "主目标完成关闭副线：关注点严格反转",
+      "status": "具可解释的主线/副线注意力关系；强简单阈值已达最优，暂不晋升Debug",
       "evidence": {
         "sites": 4,
         "naturalClueChance": "1/4",
-        "withProbe": "133/54",
-        "withoutProbe": "121/54",
-        "probeMarginal": "2/9",
-        "bestSimple": "133/54",
-        "freeAboveSimple": "0",
-        "cases": 16
+        "optionalReward": 2,
+        "independentOpenUtility": "133/54",
+        "earlyClosureUtility": "1049/432",
+        "earlyClosureMinusOpen": "-5/144",
+        "earlyClosureNoProbe": "121/54",
+        "probeGainWithClosure": "3/16",
+        "strongSimpleGap": "0",
+        "strictNormalPathExample": {
+          "state": "(1,4,False,3)",
+          "mass": "1/4",
+          "withoutClosureBest": "work",
+          "withClosureBest": "probe",
+          "withoutClosureWork": "29/12",
+          "withoutClosureProbe": "7/3",
+          "withClosureWork": "7/4",
+          "withClosureProbe": "7/3"
+        },
+        "expectedStrictOppositeVisits": "1/2"
       },
-      "lesson": "自然线索和主动购买信息构成可辨识的行动取舍，但'前两手工作、必要时探查，否则探索'即可达到自由最优。P08正式规则仅2地点、好档探查，不等价 R108 模型；别把已验证数学误认成正式内容或新增复杂策略。"
+      "lesson": "普通工作仍可免费自然找到线索，但早期完成主目标关闭副线会严格逆转同一公开状态下最优动作（work→probe），证明条件性的注意力重新分配；不过最强人类可解释简单规则仍完全最优，不能冒称复杂策略。独立纸面，不等价P08原生两处搜索。"
     }
   ],
   "crossRoundMemory": [
@@ -52,7 +64,8 @@
     "R103 exact paper: success-trigger and bad-outcome-triggered pressure share 1/3 nominal chance but differ in optimal repairs due progress correlation; penalty 2 threshold heuristic fully explains both. Do not confuse same event frequency with matched experiential difficulty.",
     "R104 exact paper: seal requires 3 ladder repairs and only +1 round -> independent gain zero; 2 repairs +1 round -> +0.0288066; count net actions after side effects. Some stronger extensions weakly escape R97b one-line rule.",
     "R105 paper with ordinary clue chance: K2 sites always probe feature gain zero; K3 q=.5 +0.07407, K4 q=.25 +0.22222; q=1 free natural clue kills paid probe gain. Need strong priority 'try one location then ask' before promotion.",
-    "R108 exact paper recovered from another ChatGPT conversation's failed GitHub submission: 16 K=2..5 q=0,1/4,1/2,1; K4/q1/4 free133/54 vs no probe121/54, strong simple133/54. P08 original 2 sites 3-search-progress each, skill-roll clue and 1 cycle, not same rules. Recovery used main compare-and-swap not old R83 branch."
+    "R108 exact paper recovered from another ChatGPT conversation's failed GitHub submission: 16 K=2..5 q=0,1/4,1/2,1; K4/q1/4 free133/54 vs no probe121/54, strong simple133/54. P08 original 2 sites 3-search-progress each, skill-roll clue and 1 cycle, not same rules. Recovery used main compare-and-swap not old R83 branch.",
+    "R109: direct immediate primary-completion closure makes side quest fail; at same publicly reachable (progress1, sites4, side unresolved,3 actions) standard R108 prefers work29/12 to probe7/3; closed model prefers probe7/3 to work7/4, state probability 1/4 on optimal path. Overall open133/54, closed1049/432 (loss5/144), closure probe ablation3/16, best simple rule fully explains. Conditional attention switch not strategic complexity."
   ],
   "history": [
     {
@@ -914,28 +927,71 @@
       ],
       "record": "docs/实验/机制研究/批次/R108-自然线索与专门探查/研究记录.md",
       "note": "Uploaded prior work independently replayed and stored on main"
+    },
+    {
+      "batch": "R109",
+      "rounds": 1,
+      "method": {
+        "sourceScripts": [
+          "tools/content-validator/experiments/r109_option_closure.py"
+        ],
+        "run": "SSNoir R109 Optional Discovery Closure",
+        "scope": "4-action exact Fraction counterfactual, isolated objective-end rule changed, compared adaptive dynamic vs strongest public thresholds and disabled probe",
+        "human": "No new human or C# Scheme evidence; Debug unchanged"
+      },
+      "results": [
+        {
+          "id": "R109",
+          "name": "主目标完成关闭副线：关注点严格反转",
+          "status": "具可解释的主线/副线注意力关系；强简单阈值已达最优，暂不晋升Debug",
+          "evidence": {
+            "sites": 4,
+            "naturalClueChance": "1/4",
+            "optionalReward": 2,
+            "independentOpenUtility": "133/54",
+            "earlyClosureUtility": "1049/432",
+            "earlyClosureMinusOpen": "-5/144",
+            "earlyClosureNoProbe": "121/54",
+            "probeGainWithClosure": "3/16",
+            "strongSimpleGap": "0",
+            "strictNormalPathExample": {
+              "state": "(1,4,False,3)",
+              "mass": "1/4",
+              "withoutClosureBest": "work",
+              "withClosureBest": "probe",
+              "withoutClosureWork": "29/12",
+              "withoutClosureProbe": "7/3",
+              "withClosureWork": "7/4",
+              "withClosureProbe": "7/3"
+            },
+            "expectedStrictOppositeVisits": "1/2"
+          },
+          "lesson": "普通工作仍可免费自然找到线索，但早期完成主目标关闭副线会严格逆转同一公开状态下最优动作（work→probe），证明条件性的注意力重新分配；不过最强人类可解释简单规则仍完全最优，不能冒称复杂策略。独立纸面，不等价P08原生两处搜索。"
+        }
+      ],
+      "record": "docs/实验/机制研究/批次/R109-主目标关闭副线/研究记录.md"
     }
   ],
   "frontier": [
     {
-      "id": "R109",
+      "id": "R110",
       "priority": 1,
-      "question": "当主目标完成会立即终止其他行动时，自然线索与专门调查是否产生真实的注意力权衡？",
-      "method": "对照R108主线完成不关门与独立主线关门；全自由vs强简明规则；关闭主动探查作消融，不追求数值扫参",
+      "question": "主目标会关闭副线的信息，若直到中途才公开，能否促使有意义的重新规划，而不是开局选一条固定口诀？",
+      "method": "只在公开触发时点变奏，保留R109收益与骰概率；直接比较始终公开与中途揭示、强条件式计划；注意先验可读性与证据来源",
       "humanGate": false
     },
     {
       "id": "R106",
-      "priority": 1,
-      "question": "成功生问题与失败生问题，在同一正式骰池和公开里程碑下仍改变修补/推进的正常路径吗？",
-      "method": "与R37实际Scheme校准；公平锁定触发分布、代价、剩余行动；优先强阈值支配反证",
+      "priority": 2,
+      "question": "成功触发问题与失败触发问题的差异，在正式骰池和可观测心理负担下是否仍有意义？",
+      "method": "原生真实R37规则对照，不重复局部参数扫",
       "humanGate": false
     },
     {
       "id": "R107",
-      "priority": 2,
-      "question": "封门后剩余净行动容量能否让玩家一眼看懂何时改道，还是只是算钟表？",
-      "method": "先验证净容量支配边界再考虑独立原生版本；禁止改写P20原始反馈",
+      "priority": 3,
+      "question": "扣除修梯债务后，是否仍存在玩家可读的严格晚改道？",
+      "method": "先净行动容量支配，然后真实原生及人类情景",
       "humanGate": false
     }
   ],
