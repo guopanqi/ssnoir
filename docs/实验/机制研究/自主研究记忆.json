@@ -1,17 +1,17 @@
 {
   "schema": "ssnoir.autonomous-pattern-memory/v1",
   "updated": "2026-10-12",
-  "batch": "R125–R127 空间换路与证人连带强反证",
+  "batch": "R128–R130 人际关系伤害与错位时间窗",
   "rounds": 3,
-  "totalArchivedRounds": 72,
+  "totalArchivedRounds": 75,
   "objective": "Keep an honest research candidate quality gate: 20 different sources is not 20 human-validated attractive games; continue autonomously with direct causal ablations",
   "method": {
-    "stage": "A证据审计 / B最小模型 / C强简单策略及消融 / D归档",
-    "baselineMain": "29e243b7c9e3cb2c0321a846cbd305472f8a4d4b",
-    "paperScript": "tools/content-validator/experiments/r125_r127_spatial_social_audit.py",
-    "workflow": ".github/workflows/ssnoir-r125-r127.yml",
-    "evidence": "only exact Fraction paper, no official native or human",
-    "canonicalUnchanged": true,
+    "stage": "R128–R130/new minimal social relationship counterexample",
+    "baselineMain": "fbf914d6243651f07e8ba847edb71ce54d4be877",
+    "paperScript": "tools/content-validator/experiments/r128_r130_social_deadline.py",
+    "workflow": ".github/workflows/ssnoir-r128-r130.yml",
+    "evidence": "exact Fraction only; not native, not human",
+    "noCanonicalChange": true,
     "debugEntriesUnchanged": 3
   },
   "results": [
@@ -116,6 +116,41 @@
         "disableCoercion": "9/4"
       },
       "lesson": "不能把可触发的关系惩罚冒充最优路径必然考虑的人物冲突。"
+    },
+    {
+      "id": "R128",
+      "name": "短暂接触窗口下逼问一人损害另一人的合作",
+      "status": "严格可达双向取舍，保留时序与关系的组合潜力，不晋升独立精选",
+      "evidence": {
+        "value": "19/4",
+        "fixedAlwaysCoerceA": "9/2",
+        "fixedAlwaysContactB": "9/2",
+        "strictEachBranchMass": "1/4"
+      },
+      "lesson": "只有A最后逼问窗早于B后续接触时，双方选择才不仅是先询问全部人。"
+    },
+    {
+      "id": "R129",
+      "name": "关闭强制逼问对另一人合作资格的惩罚",
+      "status": "新增规则确有独立影响但带来机会损失而非收益或乐趣证明",
+      "evidence": {
+        "withCollateral": "19/4",
+        "withoutCollateral": "21/4",
+        "cost": "1/2"
+      },
+      "lesson": "删除社会关系负担提高预期成果；反事实量化损失，不把降低成功率宣传为机制质量。"
+    },
+    {
+      "id": "R130",
+      "name": "把A最后逼问窗口延长到次行动",
+      "status": "人际连带惩罚重新对最优无影响；组合对时序脆弱",
+      "evidence": {
+        "longerAWindow": "43/8",
+        "withoutCollateral": "43/8",
+        "increment": "0",
+        "strongPublicPolicy": "拒绝后先接触B"
+      },
+      "lesson": "角色时间表而非增加骰子/参数，是连带关系能否成为真实权衡的关键。"
     }
   ],
   "crossRoundMemory": [
@@ -165,7 +200,8 @@
     "S3-Y actual official world day9 seed19 growth4: natural 42-action West reveal immediately shows solo Frank card with subtitle '她已经走了' while Nightingale remains in Actors with dice[3]. Original legal action '自己走东侧那条回廊： 夜莺[0]=3' executed and consumed that die without day rollover, native strict replay CI38214574855. This is player-facing narrative/action-contract discrepancy, not just static. Do not silently move her dismissal: dialogue is deferred end-day in 三封信.scm and may depend on sequence.",
     "S3-Y: source contract distinguishes under-informed choices: East entrance social vs West knowledge are public but East=Frank West=Ryan are hidden. Cigs counter public gain EastGallery2 and irreversible item cost; later Lyon form1 +2 without die hidden at counter. Without packet native options: letters knowledge bad composure-1, mid1 good2; her-now social bad composure-2 + crowd pressure1, mid2 good3. Fraction equal-prob one-stage sample is NOT live skills. Frank remains meetable after West via solo card, guided scenes instead lost. No new mathematical complexity or human fun established.",
     "S3-Z source/native: official world seed19 growth4 West bridge reveals Ryan on day9 after 42 authorized actions. Solo Frank operation is already available with Nightingale's die and caption '她已经走了'. One real public end-turn day9->day10 changes actor names ['尼尔','夜莺'] -> ['尼尔'], replay CI38215151932 successful. This precisely locates mismatch before day-end. Any future fix must respect the deferred dialogue and player action economy; no code patch yet.",
-    "R125–R127: 位置+期限有正常可达严格转换但被两条公开阈值完全压缩；证人逼问的连带关门有演示效果而强策略根值边际0。精确 Fraction 纸面证据，未加精选/Debug/原生/真人。接续 R128 先做真实时间可达性与双消融，再决定是否独立。"
+    "R125–R127: 位置+期限有正常可达严格转换但被两条公开阈值完全压缩；证人逼问的连带关门有演示效果而强策略根值边际0。精确 Fraction 纸面证据，未加精选/Debug/原生/真人。接续 R128 先做真实时间可达性与双消融，再决定是否独立。",
+    "R128–R130（纸面）：R127零价值人际惩罚只有在A逼问窗口短于B可接触窗口时才形成真实两路取舍；free19/4 > 两固定9/2，关闭惩罚21/4；延长A一手则惩罚边际0，两版本同43/8。强公开规则可完全解释，数学并非真人有趣。无正式角色/Debug修改。"
   ],
   "history": [
     {
@@ -1653,6 +1689,53 @@
         }
       ],
       "record": "docs/实验/机制研究/批次/R125-R127-空间与证人连带/研究记录.md"
+    },
+    {
+      "batch": "R128–R130-人物关系与期限",
+      "rounds": 3,
+      "method": {
+        "source": "3-turn finite exact Fraction, chance tier hidden until t1",
+        "CIWorkflow": "ssnoir-r128-r130.yml",
+        "noCanonicalChange": true
+      },
+      "results": [
+        {
+          "id": "R128",
+          "name": "短暂接触窗口下逼问一人损害另一人的合作",
+          "status": "严格可达双向取舍，保留时序与关系的组合潜力，不晋升独立精选",
+          "evidence": {
+            "value": "19/4",
+            "fixedAlwaysCoerceA": "9/2",
+            "fixedAlwaysContactB": "9/2",
+            "strictEachBranchMass": "1/4"
+          },
+          "lesson": "只有A最后逼问窗早于B后续接触时，双方选择才不仅是先询问全部人。"
+        },
+        {
+          "id": "R129",
+          "name": "关闭强制逼问对另一人合作资格的惩罚",
+          "status": "新增规则确有独立影响但带来机会损失而非收益或乐趣证明",
+          "evidence": {
+            "withCollateral": "19/4",
+            "withoutCollateral": "21/4",
+            "cost": "1/2"
+          },
+          "lesson": "删除社会关系负担提高预期成果；反事实量化损失，不把降低成功率宣传为机制质量。"
+        },
+        {
+          "id": "R130",
+          "name": "把A最后逼问窗口延长到次行动",
+          "status": "人际连带惩罚重新对最优无影响；组合对时序脆弱",
+          "evidence": {
+            "longerAWindow": "43/8",
+            "withoutCollateral": "43/8",
+            "increment": "0",
+            "strongPublicPolicy": "拒绝后先接触B"
+          },
+          "lesson": "角色时间表而非增加骰子/参数，是连带关系能否成为真实权衡的关键。"
+        }
+      ],
+      "record": "docs/实验/机制研究/批次/R128-R130-人物关系与期限/研究记录.md"
     }
   ],
   "frontier": [
@@ -1689,6 +1772,13 @@
       "priority": 5,
       "question": "公开期限和证人合作连带何时产生不能被先询问所有人解释的真实选择？",
       "method": "先与既有R112/P17/P18/P20辨同构；固定三手容量、明确人物证词后果；独立关闭期限/关闭封锁并与最强可解释先问策略对照，缺有效因果即停止",
+      "humanGate": false
+    },
+    {
+      "id": "R131-人际损失与时序可读性",
+      "priority": 6,
+      "question": "新人能否理解什么时候可接触哪位证人以及逼问A会如何得罪尚未联系的B？",
+      "method": "先做无剧透公开信息四拍、事件与关系的最低提示，挑战固定A/B和R130先B后A；没有故事授权只做纸面，不自动创建Debug",
       "humanGate": false
     }
   ],
@@ -1794,6 +1884,21 @@
       },
       "lesson": "修复失效验证并不修正剧情；显式保留已知不一致状态",
       "record": "docs/实验/机制研究/批次/S3-Z-离队时序与独自行动/研究记录.md"
+    },
+    {
+      "id": "R128-R130-social-collateral-window",
+      "date": "2026-10-12",
+      "name": "短暂资格窗口内人际影响的严格双向动作、关闭关系/开放窗口双消融",
+      "scope": "paper exact only; not SSNoir C#+Scheme or user",
+      "evidence": {
+        "adaptive": "19/4",
+        "fixed": "9/2",
+        "disableCollateral": "21/4",
+        "openWindow": "43/8",
+        "openWindowDisableCollateral": "43/8"
+      },
+      "lesson": "关系后果可以真正改变决策，但单个错位窗口修订就使其归零；保留情景组合而不计新精选",
+      "record": "docs/实验/机制研究/批次/R128-R130-人物关系与期限/研究记录.md"
     }
   ],
   "parallelBatches": [

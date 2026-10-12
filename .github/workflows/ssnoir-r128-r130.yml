@@ -1,0 +1,35 @@
+name: SSNoir R128-R130 Social Window Falsification
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r128-r130.yml'
+      - 'tools/content-validator/experiments/r128_r130_social_deadline.py'
+      - 'docs/实验/机制研究/批次/R128-R130-人物关系与期限/研究记录.md'
+permissions:
+  contents: read
+jobs:
+  exact-paper:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Rational dynamic decisions and independent causal ablations
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/r128_r130_social_deadline.py | tee /tmp/r128-r130.json
+          python3 -m py_compile tools/content-validator/experiments/r128_r130_social_deadline.py
+      - name: Portfolio and fail-closed Debug remain valid
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/validate_mechanism_portfolio.py
+          python3 tools/content-validator/experiments/validate_debug_playtests.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-r128-r130-exact-paper
+          path: /tmp/r128-r130.json
+          retention-days: 21
