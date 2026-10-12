@@ -31,3 +31,4 @@
 ## 验证清单（改动后）
 1. `node build.mjs --check`；2. `test_play.py … full` 无 JS 错误；3. 对改动的章节跑 `sheet`/`realtime_capture` 看图；4. 提交 `src/` 与 `dist/`；5. 如需更新在线版，用 Artifact 工具对上面 README 的 URL 重新发布 `dist` 文件。
 - 立绘做不出密集剧烈的动作：醉步/奔跑等循环动作用“少量整张姿势 + 整体缓慢摆动（`swy`/`swy2`/`bnc` 类）+ 连续位移”表现，不要高频切换姿势（见 07-tavern-exit.js）。
+- 长对话不要让两人干站着：用舞台调度制造空间感与关系气氛——走位远近（靠近=压力/关心，转身走开=回避）、道具动作（衣帽架挂取帽包伞、首饰摊桌、饭菜冒热气、点烟）、镜头缓推/拉远 `dolly(scale,x%,y%,ms)`（对 #bg/#fg 缩放，章节结束自动复位）、灯光明暗 `lamp()`、环境声（`rainS` 窗外雨、`ticks` 钟表滴答、雾笛）、`sigh(id)` 原地叹气、`at(ms,fn)` 在台词进行中不阻塞地触发动作。台词文字不得增删。示例见 `chapters/02-indoor-plea.js`。

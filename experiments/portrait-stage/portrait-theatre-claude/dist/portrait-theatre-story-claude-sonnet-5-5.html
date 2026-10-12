@@ -218,7 +218,13 @@ const POSES={};
 const pose=(id,p,o={})=>{G[id].classList.add('snap');P(id,{ll:0,lr:0,al:0,ar:0,b:0,h:0,look:0,d:0,...(typeof p=='string'?POSES[p]:p),...o})};
 const bob=(id,on)=>G[id].classList.toggle('bnc',on);
 const mv=(id,x,y,ms,ease='linear',s)=>{G[id].style.transitionTimingFunction=ease;P(id,{x,y,d:ms,...(s?{s}:{})})};
-function H(k){const w=ms=>sleep(ms,k);
+/* 舞台调度助手：镜头缓推/拉远（对 #bg/#fg 同步缩放，字幕不动） */
+const dolly=(s=1,x=50,y=60,ms=4000)=>{for(const q of['#bg','#fg']){const e=$(q);e.style.transformOrigin=`${x}% ${y}%`;e.style.transition=ms?`transform ${ms}ms ease-in-out`:'none';e.style.transform=s==1?'':`scale(${s})`}};
+function H(k){const w=ms=>sleep(ms,k);/* at(ms,fn)：不阻塞地在台词进行中触发动作；sigh：原地叹气（头低、微前倾、气声）；ticks：钟表滴答 */
+const at=(ms,fn)=>setTimeout(()=>{if(k===gen)fn()},ms);
+const sigh=async(id,ms=1500)=>{P(id,{h:14,b:6,d:900});bs(.5,.07,700);tn(190,.7,'sine',.02);await w(ms*.6);P(id,{h:3,b:0,d:900});await w(ms*.4)};
+const ticks=(n,gap=900)=>{for(let i=0;i<n;i++)at(i*gap,()=>tn(i%2?1500:1250,.03,'square',.025))};
+
 const say=async(who,text,o)=>{if(k!==gen)throw 0;const n=NM[who];cap.innerHTML=`<b style="color:${n[1]}">${n[0]}${o==1?'（电铃）':o==2?'（独白）':''}</b>`+(o==2?'<em>':'')+[...text].map((ch,i)=>`<span style="animation-delay:${i*48}ms">${ch}</span>`).join('')+(o==2?'</em>':'');const dur=450+text.length*105;
 if(o==1){op('#sg',1);$('#vr').classList.add('on');$('#nw').classList.add('lit');const iv=setInterval(()=>op('#sg',Math.random()>.5?1:.55),160);try{await w(dur)}finally{clearInterval(iv);op('#sg',0);$('#vr').classList.remove('on')}}
 else if(o==2){await w(dur+600)}
@@ -226,7 +232,7 @@ else{const g=G[who];sp(1,g.st.x,.55,.13,'#9db0e0');setIx(g.st.x);g.classList.add
 const go=(id,x,ms,o={})=>{P(id,{x,d:ms,cl:{wk:1},...o});steps(ms);setTimeout(()=>{if(k===gen)P(id,{cl:{wk:0}})},ms)};
 const fl=async()=>{for(const v of[.15,1,.3,.9,.5,1]){lamp(v);zap();await w(110)}};
 const nar=async(t,ms)=>{cap.innerHTML='<em>'+t+'</em>';await w(ms??700+t.length*85)};
-return{w,say,go,fl,nar,n:t=>say('nl',t),y:t=>say('ny',t),f:t=>say('fr',t),m:t=>say('mg',t),b:t=>say('bn',t),l:t=>say('ld',t),mono:t=>say('nl',t,2)}}
+return{w,say,go,fl,nar,at,sigh,ticks,n:t=>say('nl',t),y:t=>say('ny',t),f:t=>say('fr',t),m:t=>say('mg',t),b:t=>say('bn',t),l:t=>say('ld',t),mono:t=>say('nl',t,2)}}
 /* rain */
 const cv=$('#rain'),cx=cv.getContext('2d'),dr=Array.from({length:260},()=>({x:Math.random()*960,y:Math.random()*540,v:14+Math.random()*10,l:10+Math.random()*14}));cx.strokeStyle='rgba(150,185,235,.4)';
 (function lp(){requestAnimationFrame(lp);cx.clearRect(0,0,960,540);if(!rainI)return;const n=Math.floor(dr.length*rainI);cx.beginPath();for(let i=0;i<n;i++){const d=dr[i];if(!paused){d.y+=d.v;d.x-=2;if(d.y>540){d.y=-20;d.x=Math.random()*980}}cx.moveTo(d.x,d.y);cx.lineTo(d.x-2,d.y+d.l)}cx.stroke()})();
@@ -243,7 +249,12 @@ const ALLEY=GROUND+LL('M340 60V790','',.2,2.5,'#cfe0ff')+LL('M1260 60V790','',.3
 const SIGN=LL('M800 790V360','',1,3,'#e6eeff')+LL('M800 372h-150l-28 22 28 22h150z','s',1.3,2,'#cfe0ff')+LL('M800 430h150l28 22-28 22h-150z','s',1.5,2,'#cfe0ff')+LL('M800 490h-120l-24 20 24 20h120z','s',1.7,2,'#9fb4e0');
 let bulbs='';for(let x=620;x<=980;x+=45)bulbs+=`<circle class="mb" style="transition:opacity .4s" cx="${x}" cy="210" r="7" fill="#f3d08a"/><circle class="mb" style="transition:opacity .4s" cx="${x}" cy="540" r="7" fill="#f3d08a"/>`;for(let y=255;y<=510;y+=45)bulbs+=`<circle class="mb" style="transition:opacity .4s" cx="620" cy="${y}" r="7" fill="#f3d08a"/><circle class="mb" style="transition:opacity .4s" cx="980" cy="${y}" r="7" fill="#f3d08a"/>`;
 let ft='';for(let x=300;x<=1300;x+=70)ft+=`<circle class="ft" cx="${x}" cy="796" r="7" fill="#f3d08a" opacity=".12" style="transition:opacity .5s"/>`;
-const SETS={room:()=>GROUND+HANG(800,610)+TABLE(660,280),
+/* 衣帽架：尼尔房间的固定家具；帽子/包/伞三件挂件默认隐藏，由章节按需显示（夜莺进门挂上、离开取走） */
+const RACK=(x=470)=>LL(`M${x} 790V260`,'',.9,5,'#7f95c4')+LL(`M${x-46} 790h92`,'',1,5,'#7f95c4')+LL(`M${x} 290L${x-34} 336M${x} 290L${x+34} 336M${x} 350L${x-30} 392M${x} 350L${x+30} 392`,'',1.1,3.5,'#7f95c4')
++`<g id="rkh" style="opacity:0;transition:opacity .3s"><ellipse cx="${x-34}" cy="334" rx="34" ry="9" fill="#6e1f2d" stroke="#2b0b11"/><polygon points="${x-58},334 ${x-40},300 ${x-20},300 ${x-8},334" fill="#8a2b3a"/></g>`
++`<g id="rkb" style="opacity:0;transition:opacity .3s"><rect x="${x+14}" y="352" width="46" height="58" rx="8" fill="#7a4e34" stroke="#3a2518"/><polyline points="${x+24},352 ${x+36},326 ${x+50},352" fill="none" stroke="#7a4e34" stroke-width="5"/></g>`
++`<g id="rku" style="opacity:0;transition:opacity .3s"><line x1="${x+50}" y1="790" x2="${x+38}" y2="470" stroke="#2d3f55" stroke-width="7" stroke-linecap="round"/><polyline points="${x+38},470 ${x+26},452 ${x+14},462" fill="none" stroke="#2d3f55" stroke-width="7" stroke-linecap="round"/></g>`;
+const SETS={room:()=>GROUND+HANG(800,610)+TABLE(660,280)+RACK(470),
 bridge:()=>{let p='';for(let x=200;x<=1400;x+=80)p+=LL(`M${x} 700V790`,'',.8+Math.abs(x-800)/900,2,'#9fb4e0');return masked(LL('M0 790H1600','',0,1.5,'#5a6f9c')+LL('M180 700H1420','',.4,3,'#cfe0ff')+LL('M180 730H1420','',.6,1.5,'#7f95c4')+p)},
 alley:()=>ALLEY,sign:()=>ALLEY+SIGN,
 frank:()=>GROUND+HANG(800,690)+RR(1380,470,130,320,'s door',1.4,2.5,'#e9eef8')+RR(1394,486,50,120,'door',1.7,1.5)+RR(1450,486,44,120,'door',1.7,1.5),
@@ -295,6 +306,7 @@ const BOXES='<g id="bx" style="opacity:0;transition:opacity .8s"><g transform="t
 const LETTER='<g id="lt" style="transition:transform .8s,opacity .4s;opacity:0" transform="translate(1120 600)"><rect x="-28" y="-18" width="56" height="38" fill="#e8e2d2" stroke="#8a8372"/><path d="M-28 -18L0 6L28 -18" fill="none" stroke="#8a8372"/></g>';
 const FRONT='<path d="M560 690H1040V790H560Z" fill="#07080c" stroke="#9fb4e0" stroke-width="2.5"/><path d="M560 690H1040" stroke="#f0f4ff" stroke-width="3.5"/>';
 SETS.pubdoor=()=>GROUND+RR(360,300,460,490,'s',.6,2.5,'#7f95c4')+RR(540,470,150,320,'s door',1.2,2.5,'#e9eef8')+'<rect id="pdl" x="548" y="478" width="134" height="304" fill="#f2c36e" opacity="0" style="transition:opacity .6s"/>'+RR(500,774,210,16,'s',1.6,2,'#9fb4e0')+'<g class="neon" style="filter:drop-shadow(0 0 8px #ff5a6a)">'+LL('M565 370H665L615 436Z','',1.4,2.5,'#ff5a6a')+LL('M615 436V486M588 488H642','',1.6,2.5,'#ff5a6a')+LL('M600 392H632','',1.7,2,'#ff8a96')+'</g>';
+const FOOD='<g id="fd" style="opacity:0;transition:opacity .5s"><rect x="728" y="568" width="58" height="42" rx="6" fill="#07080c" stroke="#d9b98a" stroke-width="3"/><line x1="720" y1="568" x2="794" y2="568" stroke="#d9b98a" stroke-width="3"/><g class="st"><path d="M740 556q-8 -14 0 -28t0 -28"/><path d="M758 556q-8 -14 0 -28t0 -28"/><path d="M776 556q-8 -14 0 -28t0 -28"/></g></g>';
 /* chapters */
 const C1=Object.assign({t:'<h1>片段一 · 雨夜求助</h1><p>格兰德酒店门前</p>',o:'920px 610px',bg:'#070a12',set:'#hotel',i:['20%','52%'],
 ini(){P('ny',{d:0,x:-200,s:.54,hat:1,umo:1})},
@@ -338,44 +350,57 @@ await w(800);await fl();lamp(1);await w(2200);lamp(.6)}},{n:'隐瞒莱恩后的�
 const SC=[
 C1,
 {n:'室内求助',sub:'尼尔的房间 · 夜莺把一切摊在桌上',sh:'求助',pos:[1060,720],bg:'#0b0907',set:'#set3',i:['34%','62%'],mk:()=>SETS.room(),
-ini(){$('#props').innerHTML=PHOTO;P('nl',{d:0,show:1,x:1040,f:1,s:.56,face:'n',ar:55,al:-55});P('ny',{d:0,x:-160,s:.56,bag:1,umc:1,face:'sad'})},
-async run(k,{w,go,fl,n,y,mono}){
-await w(500);await fl();lamp(1);await w(600);
-P('ny',{show:1,d:0});go('ny',560,2800);await w(3000);
+ini(){$('#props').innerHTML=PHOTO;P('nl',{d:0,show:1,x:1040,f:1,s:.56,face:'n',ar:55,al:-55});P('ny',{d:0,x:-160,s:.56,hat:1,bag:1,umc:1,face:'sad'})},
+async run(k,{w,go,fl,n,y,mono,at,sigh,ticks}){
+await w(500);await fl();lamp(1);rainS(.1,1800);await w(600);
+/* 进门：先走到衣帽架前，把帽子、包、伞一件件挂上；再走向桌子 */
+P('ny',{show:1,d:0});go('ny',400,2200);await w(2400);
+P('ny',{f:0,ar:-90});await w(500);P('ny',{hat:0,ar:145});op('#rkh',1);await w(700);
+P('ny',{ar:-72});await w(500);P('ny',{bag:0,ar:0});op('#rkb',1);await w(600);
+P('ny',{ar:-60});await w(400);P('ny',{umc:0,ar:0});op('#rku',1);await w(700);
+dolly(1.06,58,64,26000);
+go('ny',560,1600);await w(1800);
 P('ny',{ar:-75});await w(700);op('#ph',1);P('ny',{ar:30,al:-30});await w(600);
 P('nl',{ar:0,al:0,face:'wry'});await n('这张照片，嗯，是有些出格，但也没什么特别的，你为什么这么紧张？');
-P('ny',{face:'sad',h:4});await y('他手上也许不止这一张，这种照片对普通人来说没什么，可我过些天有一场演出，这是我第一场大型的演出，这肯定会毁了我的');
-light();P('nl',{face:'n'});await n('会不会是一个恶作剧，有些小混混会四处搜集照片，然后写一堆这样的信，如果恰巧有人有一些不愿意别人知道的故事的话');
+P('ny',{face:'sad',h:4});go('ny',610,900);await y('他手上也许不止这一张，这种照片对普通人来说没什么，可我过些天有一场演出，这是我第一场大型的演出，这肯定会毁了我的');
+light();P('nl',{face:'n'});at(1500,()=>{lamp(.7);at(700,()=>lamp(1))});await n('会不会是一个恶作剧，有些小混混会四处搜集照片，然后写一堆这样的信，如果恰巧有人有一些不愿意别人知道的故事的话');
 P('ny',{h:9});await w(500);await y('唉，但我这次真的不能冒险，万一他真的有些什么……');P('ny',{h:3});
 await n('你能想到，你身边有什么人会干这种事吗？');
-cc();P('ny',{h:10,look:6,face:'sad'});await w(2400);await y('……没有，我和他们很久都不联系了');P('ny',{look:0,h:3});
+/* 被问到旧识，她转身背对，走开两步 */
+cc();P('ny',{f:1,h:10,look:6,face:'sad'});go('ny',540,1300);ticks(3,800);await w(2400);await y('……没有，我和他们很久都不联系了');P('ny',{f:0,look:0,h:3});go('ny',590,900);
 await n('他们？');await y('过去的邻居和朋友什么的，不会是他们');
 await n('报警呢？');await y('不行，我经理会知道的，最好也别让他知道');
-P('nl',{cg:0});await w(300);light();await n('还有一个方法，他要得不算多，不是什么大钱，把钱给他也许他就不会再纠缠了。');
+P('nl',{cg:0});await w(300);light();go('nl',990,1200);await n('还有一个方法，他要得不算多，不是什么大钱，把钱给他也许他就不会再纠缠了。');
 P('ny',{face:'wry',h:-3});await y('你不是一个侦探吗？');
 await n('我很少见到要这么少的勒索，让我来办也要付给我钱，恐怕未必划算');
-await n('但是话说回来，拿到钱他也未必肯停手，那我们就必须弄清楚他是谁了');
-cc();P('ny',{ar:-72,face:'sad',h:6});await w(700);op('#jw',1);[1500,1900,2300,1700].forEach((f,i)=>tn(f,.12,'triangle',.05,i*.08));P('ny',{ar:0});await w(1200);
-await y('说实话，我把首饰也当了，也凑不够他信里要的钱。我其实根本就没办法');
+P('nl',{h:4});await n('但是话说回来，拿到钱他也未必肯停手，那我们就必须弄清楚他是谁了');
+/* 她把当掉首饰后剩下的东西摊在桌上 */
+cc();P('ny',{ar:-72,face:'sad',h:6});go('ny',640,700);await w(700);op('#jw',1);[1500,1900,2300,1700].forEach((f,i)=>tn(f,.12,'triangle',.05,i*.08));P('ny',{ar:0});await w(1200);
+lamp(.8);await y('说实话，我把首饰也当了，也凑不够他信里要的钱。我其实根本就没办法');
 await n('那我的报酬呢？你准备怎么付我的报酬？');
-P('ny',{h:8});await w(1700);await y('演出之后可以吗？经理说过些天会有一场大型的演出，应该会有些钱。虽然之前很多次小一些的演出，他也没给过我什么钱');
-P('ny',{f:1,back:1,h:8,cl:{sob:1}});await y('当时他说会有些钱的，但是也没给');await y('这次机会很重要，我不愿意错过');
+P('ny',{h:8});go('ny',570,900);await w(1700);await y('演出之后可以吗？经理说过些天会有一场大型的演出，应该会有些钱。虽然之前很多次小一些的演出，他也没给过我什么钱');
+P('ny',{f:1,back:1,h:8,cl:{sob:1}});dolly(1.1,52,64,6000);await y('当时他说会有些钱的，但是也没给');await y('这次机会很重要，我不愿意错过');
 cc();P('nl',{face:'n'});await w(2600);
+/* 她擦掉眼泪，收起首饰，走去衣帽架 */
 P('ny',{f:0,back:0,face:'sad',ar:145,cl:{sob:0}});await w(900);P('ny',{ar:0,h:0});await y('我明白，确实太麻烦你了');
-op('#jw',0);P('ny',{ar:-72});await w(700);P('ny',{ar:145,hat:1});await w(900);P('ny',{ar:0});
+op('#jw',0);lamp(1);dolly(1.03,50,64,3000);P('ny',{f:1,face:'sad'});go('ny',420,1500);await w(1700);
+P('ny',{f:0,ar:-60});await w(500);op('#rku',0);P('ny',{umc:1,ar:0});await w(500);
+P('ny',{ar:-72});await w(500);op('#rkb',0);P('ny',{bag:1,ar:0});await w(500);
+P('ny',{ar:-90});await w(500);op('#rkh',0);P('ny',{hat:1,ar:145});await w(700);P('ny',{ar:0});await w(400);
+await sigh('ny',1800);
 await y('谢谢你，尼尔先生');
-cc();P('ny',{f:1,face:'n'});go('ny',330,2200);await w(2400);
+cc();P('ny',{f:1,face:'n'});go('ny',330,1200);await w(1400);dolly(1,50,62,3000);
 await n('演出还有多久？');P('ny',{h:-3});await y('就这两周了。');
-P('ny',{f:0,d:500});P('nl',{face:'hard',ar:0});await n('我们得先想办法凑够赎金，只要他来拿钱，我有办法弄明白他是谁');
+P('ny',{f:0,d:500});P('nl',{face:'hard',ar:0});go('nl',960,1400);await n('我们得先想办法凑够赎金，只要他来拿钱，我有办法弄明白他是谁');
 cc();await w(900);P('ny',{face:'sad',tr:1,ar:145,h:0});pad();sp(1,330,1.1,.26,'#ffd9a0');await w(3800);
-lamp(.45);P('nl',{face:'n',h:4});await mono('我自己也没想明白，为什么我会接下这个赔钱的生意，但这是这几个月难得的委托。我打算从哪里凑些钱，不过，我是不会乖乖把钱送给这个杂种的。');
+lamp(.45);P('nl',{face:'n',h:4});dolly(1.06,70,64,9000);await mono('我自己也没想明白，为什么我会接下这个赔钱的生意，但这是这几个月难得的委托。我打算从哪里凑些钱，不过，我是不会乖乖把钱送给这个杂种的。');
 await w(900)}},
 {n:'邮箱',sub:'街角 · 赎金投递（对白为我拟写）',sh:'邮箱',pos:[1000,230],bg:'#07090e',set:'#set3',lx:1250,i:['38%','66%'],mk:()=>SETS.street(),
 ini(){$('#props').innerHTML=LETTER+EP;$('#front').innerHTML=BENCH+NEWSP;mvl(600,620,0);P('ny',{d:0,x:-160,s:.56,face:'sad',ar:30,al:-30});P('nl',{d:0,x:1760,s:.56,f:1,face:'hard'})},
-async run(k,{w,go,n,y,nar}){
+async run(k,{w,go,n,y,nar,at,ticks}){
 await w(400);os('.lb',1);os('.lh',.35);sp(2,1250,1.1,.14,'#f3d08a');
 P('ny',{show:1,d:0});go('ny',560,2800);P('nl',{show:1,d:0});go('nl',840,3000);crowd(3,-1);await w(3300);
-mvl(612,640,1);await y('就是这里。');await n('东西都在里面了？');await y('都在。……尼尔，你确定这样能行？');
+dolly(1.05,56,70,18000);mvl(612,640,1);await y('就是这里。');await n('东西都在里面了？');await y('都在。……尼尔，你确定这样能行？');
 await n('我不确定。但他得自己来拿，只要他来拿钱，我有办法弄明白他是谁。');await y('那我现在就投进去？');
 await n('投吧。然后别回头，直接走。');await y('你呢？');await n('我去对面买份报纸。');
 cc();go('ny',575,900);mvl(616,630,1);await w(1100);
@@ -386,7 +411,7 @@ P('ny',{f:1,h:0,face:'n'});go('ny',-200,4200);await w(2400);
 P('nl',{f:0,h:0,face:'hard'});go('nl',1070,3000);await w(3200);P('nl',{f:1});await w(500);
 P('nl',{y:830,b:-4,d:700});await w(900);op('#np',1);$('#np').style.transform='translate(0,0)';
 await nar('（尼尔在邮箱斜对面的报摊坐下，用报纸挡住眼睛，假装在看报纸。）',2800);
-$('#ey').style.transform='translateX(-3px)';crowd(8,-1);await w(2400);$('#ey').style.transform='translate(-3px,1px)';await w(2600);
+$('#ey').style.transform='translateX(-3px)';crowd(8,-1);dolly(1.1,70,76,9000);ticks(6,800);await w(2400);$('#ey').style.transform='translate(-3px,1px)';await w(2600);
 $('#ey').style.transform='translateX(-3px)';await w(2400)}},
 {n:'追逐',sub:'街角 · 有人碰了那个信封',sh:'追逐',pos:[1230,250],bg:'#07090e',set:'#set3',lx:1250,i:['44%','72%'],mk:()=>SETS.chase(),
 ini(){$('#props').innerHTML='<g id="sl"></g>'+LETTER+EP+'<g id="fxg"></g><g id="crt" style="opacity:0"><rect x="-30" y="-48" width="60" height="48" fill="#07080c" stroke="#cfe0ff" stroke-width="2.5"/><line x1="-30" y1="-48" x2="30" y2="0" stroke="#7f95c4" stroke-width="2"/><line x1="30" y1="-48" x2="-30" y2="0" stroke="#7f95c4" stroke-width="2"/></g>';
@@ -486,24 +511,24 @@ P('nl',{show:0});$('#ff').style.opacity=.15;await w(150);$('#ff').style.opacity=
 await w(2200);going=false;cancelAnimationFrame(raf)}},
 {n:'烟盒',sub:'追丢之后 · 桥边',sh:'烟盒',pos:[1190,520],bg:'#06080d',set:'#set3',i:['34%','62%'],mk:()=>SETS.bridge(),
 ini(){P('nl',{d:0,x:-150,s:.56,b:8,h:5,face:'hard'});P('ny',{d:0,x:1130,s:.56,f:1,face:'sad',ar:30,al:-30})},
-async run(k,{w,go,n,y}){
-await w(600);P('nl',{show:1,d:0});go('nl',470,1800);P('ny',{show:1,d:0});await w(2000);
-P('nl',{ar:-50});await n('我没追到他，该死，在路口的时候突然窜出一辆摩托，我把它跟丢了');P('nl',{ar:0});
-P('ny',{x:1090,h:4});await y('你人没事儿就好');
+async run(k,{w,go,n,y,at,sigh}){
+await w(600);P('nl',{show:1,d:0});go('nl',470,1800);P('ny',{show:1,d:0});await w(2000);at(1500,()=>tn(98,2.4,'sine',.04));dolly(1.05,60,66,22000);
+P('nl',{b:16,h:12,ar:-30,face:'hard'});bs(.5,.08,900);await w(900);bs(.5,.08,900);await w(900);P('nl',{b:8,h:5,ar:-50});await n('我没追到他，该死，在路口的时候突然窜出一辆摩托，我把它跟丢了');P('nl',{ar:0});
+P('ny',{h:4});go('ny',930,1300);await y('你人没事儿就好');
 P('nl',{ar:-70,b:3,face:'n'});await w(400);pk(588,612,.01,0,0,10);await w(100);pk(588,612,.22,1,0,500);await n('我拿到了这个');
 pk(800,380,1.1,1,-5,1000);sp(1,800,.8,.3,'#ffcf8a');sp(2,1130,.8,.05);P('nl',{ar:0});P('ny',{face:'shock',h:0});await w(1700);
 gh(1070,470,.38,.4);await w(500);gh(1070,470,.38,0);await w(300);gh(1070,470,.38,.3);await w(400);gh(1070,470,.38,0);
-await y('这是……他的？');
+go('ny',830,900);await y('这是……他的？');
 await n('追的时候从他身上掉下来的，“金牌”香烟');
 pk(800,380,1.25,1,-9,300);P('ny',{face:'sad'});await n('烟盒经常塞在口袋里，都被挤变形了，一定是经常进行大幅度的活动；');
 P('ny',{face:'wry',h:-5});pk(800,380,1.1,1,-5,300);await y('然后呢？大侦探？还有什么');
 pk(588,612,.01,0,0,700);P('nl',{face:'hard',h:3,ar:-40});
-await n('没了，我没什么能想到的。他从街道的桥上跳下去，应该对这一带很熟，我准备去问问。');P('nl',{ar:0});
-P('ny',{face:'shock',x:1150,h:0});await y('老街？');await n('对');
-P('ny',{ar:55,al:-55,face:'hard'});await y('我可不回去');
-P('nl',{face:'wry',h:-4,x:520});await n('我没说要带上你……你不喜欢那里？');
-P('ny',{face:'hard',h:9,x:1170});await y('我花了很久才从里面走出来，我不回去');
-await w(2400)}},
+light();await n('没了，我没什么能想到的。他从街道的桥上跳下去，应该对这一带很熟，我准备去问问。');P('nl',{ar:0});
+P('ny',{face:'shock',h:0});go('ny',900,500);await y('老街？');await n('对');
+P('ny',{f:0,back:1,ar:55,al:-55,face:'hard'});go('ny',1150,1600);dolly(1,50,66,4000);await y('我可不回去');
+go('nl',600,1200);P('nl',{face:'wry',h:-4});await n('我没说要带上你……你不喜欢那里？');
+P('ny',{face:'hard',h:9});go('ny',1230,900);await y('我花了很久才从里面走出来，我不回去');
+tn(98,2.4,'sine',.04);await sigh('nl',1800);await w(1200)}},
 {n:'独闯老街',sub:'老街 · 没有人愿意开口',sh:'独探',pos:[300,200],bg:'#080a0e',set:'#set3',i:['38%','66%'],mk:()=>SETS.alley(),
 ini(){P('nl',{d:0,x:-150,s:.56,face:'hard'});P('v1',{d:0,x:1000,s:.54,f:1});P('wk',{d:0,x:1200,s:.52,f:1});P('v2',{d:0,x:1320,s:.34,f:1})},
 async run(k,{w,go,fl,nar}){
@@ -569,17 +594,17 @@ pose('ld','shake',{f:1,face:'hard'});await w(1800);
 pose('ld','crossed',{f:1,face:'n'});await w(1400);P('ld',{show:0,d:700});await w(800)}},
 {n:'第二天',sub:'尼尔的房间 · 独自探索失败后',sh:'次日',pos:[1330,700],bg:'#0b0907',set:'#set3',i:['34%','62%'],mk:()=>SETS.room(),
 ini(){P('nl',{d:0,show:1,x:1040,f:1,s:.56,face:'hard',h:6});P('ny',{d:0,x:-160,s:.56,face:'n'})},
-async run(k,{w,go,fl,n,y,nar}){
-await w(500);await fl();lamp(1);await w(500);
-P('ny',{show:1,d:0});go('ny',560,2600);await w(2900);
-await y('他们没告诉你怎么走？');P('nl',{h:0});await n('差不多');
+async run(k,{w,go,fl,n,y,nar,at,sigh,ticks}){
+await w(500);await fl();lamp(.85);rainS(.08,1800);P('nl',{b:8,h:12});await w(500);
+P('ny',{show:1,d:0});go('ny',560,2600);await w(2900);dolly(1.05,58,64,24000);
+await y('他们没告诉你怎么走？');P('nl',{h:0,b:3});await n('差不多');
 await y('打听到什么消息了？');await n('毫无进展，他们好像早就知道我要问什么一样');
-P('ny',{face:'smile'});await y('你穿成这样，一眼就看出你是外面的，没把你裤子扒了已经算客气的了。');
-P('nl',{face:'wry',h:4});await w(1800);
-P('ny',{face:'n'});await y('明天我带你进去');P('nl',{h:0,face:'n'});await n('你不是不想回去吗');
-cc();P('ny',{face:'sad',h:8});await w(2600);P('ny',{h:0});
+P('ny',{face:'smile'});go('ny',690,1200);await y('你穿成这样，一眼就看出你是外面的，没把你裤子扒了已经算客气的了。');
+P('nl',{face:'wry',h:4});light();go('ny',600,900);await w(1800);
+P('ny',{face:'n'});go('ny',650,900);await y('明天我带你进去');P('nl',{h:0,face:'n'});await n('你不是不想回去吗');
+cc();P('ny',{face:'sad',h:8});ticks(4,800);lamp(.65);await w(2600);P('ny',{h:0});
 await y('我不想回去，特别不想。可是，什么时候也不能都只让你去。');
-await w(2200)}},
+dolly(1.1,52,64,6000);await w(900);await sigh('nl',1600);lamp(.85);await w(1200)}},
 {n:'巷口',sub:'老街 · 听到“莱恩”这个名字',sh:'巷口',pos:[560,190],bg:'#080a0e',set:'#set3',i:['34%','62%'],mk:()=>SETS.sign(),
 ini(){P('nl',{d:0,x:-150,s:.56,face:'n'});P('ny',{d:0,x:1760,s:.56,f:1,face:'n'});P('v1',{d:0,x:1430,s:.54,f:1})},
 async run(k,{w,go,fl,n,y,nar}){
@@ -594,41 +619,41 @@ cc();P('nl',{f:1,face:'n',h:5});go('nl',-200,4200);await w(2400);P('ny',{f:1,h:0
 C7,
 {n:'弗兰克的桌子',sub:'老街 · 一拳之后',sh:'弗兰克',pos:[170,640],bg:'#0c0808',set:'#set3',i:['30%','60%'],mk:()=>SETS.frank(),
 ini(){$('#front').innerHTML=FRONT;$('#front').style.opacity=0;P('nl',{d:0,x:-150,s:.56,face:'hard'});P('fr',{d:0,x:800,y:880,s:.6,f:1,face:'hard',cg:1});P('wk',{d:0,x:1300,s:.52,f:1,face:'n'})},
-async run(k,{w,go,fl,f,n,nar}){
+async run(k,{w,go,fl,f,n,nar,at,ticks}){
 await w(400);P('nl',{show:1,d:0});go('nl',500,2400);await w(2600);
 bs(.4,1,300);tn(60,.4,'sine',.5);fxf('brightness(4)',60);await w(120);fxf('brightness(0)',100);await w(300);
 P('nl',{x:440,b:-12,h:16,face:'n',d:0});$('#front').style.opacity=1;P('fr',{show:1,d:0});P('wk',{show:1,d:0});blinds(1);
 await nar('（一个街角，突然你被一拳打晕了。……醒来的时候，你看到了弗兰克，和他的那张桌子。）',3200);
-fxf('blur(14px) brightness(.35)',10);await w(60);fxf('none',2800);await w(2800);P('nl',{b:-4,h:6});
-await f('你在找什么？');P('nl',{b:0,h:0,face:'hard'});await n('找你');
-P('fr',{ar:-62});await w(500);bs(.06,.5,500);P('fr',{ar:-45});await w(400);bs(.06,.5,500);P('fr',{ar:-62});
-await f('你想知道什么？');
+fxf('blur(14px) brightness(.35)',10);await w(60);fxf('none',2800);await w(2800);P('nl',{b:-4,h:6,ar:-80});tn(80,.2,'sine',.1);await w(900);P('nl',{ar:0});dolly(1.06,60,66,30000);
+await f('你在找什么？');P('nl',{b:0,h:0,face:'hard'});go('nl',500,800);await n('找你');
+P('fr',{ar:-62});await w(500);bs(.06,.5,500);P('fr',{ar:-45});await w(400);bs(.06,.5,500);P('fr',{ar:-62});ticks(3,700);
+P('fr',{b:-6});await f('你想知道什么？');P('fr',{b:0});
 await n('莱恩勒索一个女孩儿，她委托我来处理这件事');
 P('fr',{face:'hard',h:3});await w(900);go('wk',1150,900,{f:1});P('wk',{h:-4});await w(1100);P('wk',{f:0});go('wk',1700,1400);await w(1500);
-await f('有什么依据吗？');
+P('fr',{b:-8,h:3});go('nl',470,600);await f('有什么依据吗？');P('fr',{b:0});
 await n('我拿到了他身上的烟，在我的口袋里');
 P('fr',{h:5});go('wk',500,2600,{f:1,show:1});await w(2700);pk(470,640,.22,1,0,10);await w(300);pk(540,610,.22,1,0,400);await w(500);go('wk',1060,2400);pk(940,672,.3,1,0,2400);await w(2600);
 await f('我也会抽这种烟');gh(1000,672,.3,.9);
 await n('那么也可能是你');
 P('fr',{face:'smile',cl:{tk:1}});await w(1800);P('fr',{cl:{tk:0}});
 go('wk',1240,1200);await w(1400);P('wk',{cl:{tk:1}});await w(1600);P('wk',{cl:{tk:0}});
-P('fr',{face:'n',h:0});await f('看来你说的有些道理，我们来谈谈这件事');
+P('fr',{face:'n',h:0});dolly(1,50,66,4000);lamp(1);await f('看来你说的有些道理，我们来谈谈这件事');
 cc();await w(1600);await nar('（此后进入和莱恩的交锋：和弗兰克谈判 → 教训莱恩 · 见游戏）',3200)}},
 {n:'平静',sub:'尼尔的房间 · 事情终于过去之后的第二天晚上',sh:'平静',pos:[700,740],bg:'#0b0907',set:'#set3',i:['34%','62%'],mk:()=>SETS.room(),
-ini(){$('#props').innerHTML=BOXES;P('nl',{d:0,show:1,x:1040,f:1,s:.56,face:'n',b:3,h:5});P('ny',{d:0,x:-160,s:.56,face:'n'})},
-async run(k,{w,go,fl,n,y,nar}){
-await w(400);await fl();lamp(.8);await nar('（一切都很平静，尼尔又回到日常的生活中，第二天晚上。）',2600);
+ini(){$('#props').innerHTML=BOXES+FOOD;P('nl',{d:0,show:1,x:1040,f:1,s:.56,face:'n',b:3,h:5});P('ny',{d:0,x:-160,s:.56,face:'n'})},
+async run(k,{w,go,fl,n,y,nar,at,sigh,ticks}){
+await w(400);await fl();lamp(.8);rainS(.07,1800);await nar('（一切都很平静，尼尔又回到日常的生活中，第二天晚上。）',2600);
 P('ny',{show:1,d:0});go('ny',560,2600);await w(2900);
 await y('我想请你吃顿饭。');P('nl',{h:0,face:'wry'});await n('今晚……可能不行，搬了一下午的箱子。');
 cc();P('ny',{face:'n',h:-3});await w(2200);
 await y('那你家里有什么？');cap.innerHTML='<b style="color:#f0cf8a">尼 尔</b><span style="opacity:1">……</span>';P('nl',{face:'n',h:8});await w(2800);
 P('ny',{face:'smile',h:0});await y('你对这顿饭最好期待低一点。');
 cc();P('ny',{f:1});go('ny',-160,2200);await w(2400);P('ny',{show:0,d:300});await w(1600);
-P('ny',{f:0,x:-160,d:0});P('ny',{show:1,d:0});go('ny',560,2400);op('#bx',1);lamp(1);await w(3000);
-P('nl',{h:0,face:'n',b:0});P('ny',{face:'n'});await w(1400);
-await y('你为什么想当侦探？');await n('小时候书看多了。');
+P('ny',{f:0,x:-160,d:0});P('ny',{show:1,d:0});go('ny',560,2400);op('#bx',1);lamp(1);P('ny',{ar:-30});await w(2600);op('#fd',1);tn(600,.1,'triangle',.04);P('ny',{ar:0});await w(500);dolly(1.05,56,64,24000);
+P('nl',{h:0,face:'n',b:0,ar:-70});await w(500);P('nl',{ar:0,face:'smile'});P('ny',{face:'n'});await w(900);P('nl',{face:'n'});
+await y('你为什么想当侦探？');P('nl',{ar:-70});await w(300);P('nl',{ar:0});await n('小时候书看多了。');
 P('ny',{face:'n',h:-2});await y('我是认真的。');
-cc();P('nl',{face:'n',h:8});await w(4200);lamp(.7);await w(1200)}},
+cc();P('nl',{face:'n',h:8});ticks(5,900);dolly(1.1,58,64,6000);await w(4200);lamp(.7);await w(1200)}},
 {n:'经理 · 电话',sub:'尼尔回到公寓 · 经理和装电话的工人已经在等他',sh:'电话',pos:[1180,805],bg:'#0b0907',set:'#set3',i:['30%','60%'],mk:()=>SETS.phone(),
 ini(){P('nl',{d:0,x:-150,s:.56,face:'n'});P('mg',{d:0,x:900,s:.58,f:1,face:'n'});P('wk',{d:0,x:1440,s:.5,f:1,b:10,ar:-50})},
 async run(k,{w,go,fl,n,m}){
@@ -647,51 +672,51 @@ P('wk',{b:0});$('#cb').style.strokeDashoffset=0;P('nl',{h:-4,b:0,face:'wry'});aw
 await w(3200)}},
 {n:'剧院 · 信',sub:'化妆室 · 第三封信',sh:'第三封信',pos:[1350,200],bg:'#0a0810',set:'#set3',i:['34%','62%'],mk:()=>SETS.dress(),
 ini(){$('#props').innerHTML=LETTER;P('ny',{d:0,x:700,s:.56,face:'sad',h:6});P('nl',{d:0,x:1760,s:.56,f:1,face:'n'})},
-async run(k,{w,go,n,y,mono,nar}){
+async run(k,{w,go,n,y,mono,nar,at,sigh,ticks,fl}){
 await w(500);os('.lh',.16);P('ny',{show:1,d:600});mvl(1120,598,1);await w(1000);
 await nar('（在剧院里你见到了夜莺，她在房间里反复走来走去。）',1800);
 P('ny',{f:1});go('ny',520,1500);await w(1700);P('ny',{f:0});go('ny',900,1700);await w(1900);P('ny',{f:1});go('ny',560,1600);await w(1800);
 P('nl',{show:1,d:0});go('nl',1300,2400);await w(2000);P('ny',{f:0});go('ny',940,1000);await w(1100);
 await y('尼尔！');await n('把那封信拿给我');
 go('nl',1300,10);mvl(1120,598,0);P('ny',{ar:-72,face:'sad'});await w(700);P('nl',{ar:-72});mvl(1200,560,1);await w(900);P('ny',{ar:0});P('nl',{ar:0,face:'n'});mvl(1300,640,1);await w(900);
-await n('冷静点，你是什么时候收到这封信的');
+dolly(1.05,62,64,14000);go('nl',1190,900);await n('冷静点，你是什么时候收到这封信的');
 await y('我在化妆室看到它的，我中午刚排练完。');
 await n('还是莱恩？');
 P('ny',{h:8,face:'sad'});await w(1400);
 await y('还能是别人吗？但我总觉得莱恩做不出这种事来的');
-P('nl',{face:'hard',h:0});await n('人是会变的。');
-mbs(3);P('ny',{ar:145,h:10});await y('他就是要毁了我的一切…………');
-P('ny',{ar:0,h:0});await n('你还要上台吗？如果真的有危险的话');
+P('nl',{face:'hard',h:0});go('nl',1280,900);await n('人是会变的。');
+mbs(3);P('ny',{ar:145,h:10});at(900,()=>{lamp(.3);at(500,()=>lamp(1))});dolly(1.1,58,64,5000);await y('他就是要毁了我的一切…………');
+P('ny',{ar:0,h:0});dolly(1.04,62,64,5000);go('nl',1130,1100);await n('你还要上台吗？如果真的有危险的话');
 P('ny',{face:'n',h:-2});await y('……我不能放弃这次机会，这是我的梦想，我一直都想登上更大的舞台');
 P('ny',{f:1,face:'sad'});await y('但是……');go('ny',640,1400);await w(1500);P('ny',{f:0});go('ny',900,1400);await w(1500);
 await y('尼尔，你会有办法的对吗？你总是有办法的');
-P('nl',{face:'n',h:3});await n('我会试试');
+P('nl',{face:'n',h:3});go('nl',1050,1000);await n('我会试试');
 P('ny',{face:'smile',h:0});await y('你真好，尼尔');
 P('nl',{face:'hard',h:5});await n('这是我的工作，处理麻烦是我的工作，这件事情是我没有处理好，我会去找到他的。');
-cc();mbs(2);os('.lh',.08);await mono('莱恩，我会找到你的。');await w(900)}},
+cc();mbs(2);os('.lh',.08);dolly(1.1,70,64,5000);await mono('莱恩，我会找到你的。');dolly(1,50,64,3000);await w(900)}},
 {n:'贝恩斯',sub:'老街 · 莱恩消失之后',sh:'质问',pos:[800,170],bg:'#0d0809',set:'#set3',i:['34%','62%'],mk:()=>SETS.tavern(),
 ini(){P('bn',{d:0,x:600,s:.58,f:0,face:'hard'});P('fr',{d:0,x:1000,s:.6,f:1,face:'hard'});P('nl',{d:0,x:1800,s:.56,f:1,face:'hard'});P('v1',{d:0,x:1470,s:.54,f:1})},
-async run(k,{w,go,fl,f,b,n,nar}){
+async run(k,{w,go,fl,f,b,n,nar,at,sigh,ticks}){
 await w(500);sp(2,800,1.5,.16,'#ff7a8a');P('bn',{show:1,d:600});P('fr',{show:1,d:600});await w(1200);
-await b('你就什么也不知道？');await f('我很少见他');
+dolly(1.05,66,66,20000);go('bn',640,900);await b('你就什么也不知道？');await f('我很少见他');
 await b('这事儿跟你脱不了关系');await f('这就是你们站在老街的理由？');
 P('v1',{show:1,d:300});P('nl',{show:1,d:0});go('nl',1180,2800);await w(1300);P('v1',{ar:-70});await w(900);P('v1',{ar:0});await w(800);
 await f('这件事');cc();P('fr',{f:0,face:'hard'});await w(700);
 P('nl',{ar:-78,b:6});await w(500);P('fr',{x:970,b:-6,d:300});bs(.1,.5,400);await w(700);
 await nar('（尼尔上来揪住衣领、逼近质问。弗兰克生气了。）',1700);
 go('bn',1070,900);P('nl',{x:1220,ar:0,b:0,d:400});P('fr',{x:900,b:0});await w(1100);
-await n('莱恩呢？');
+dolly(1.1,60,66,3500);await n('莱恩呢？');
 await f('莱恩，莱恩，你们都要找这个莱恩');
 await b('莱恩消失了，几天前，我已经派了警察在找他，没什么消息');
 await f('你觉得我在藏着他？我比你们还急，这个王八蛋');
 await b('这场演出没这么简单，有谁？贝城的很多人都在看着这场演出。弗兰克，要是你的人，这里的人出了事，惹恼了那些人，你也不会好受');
-cc();P('fr',{f:1,face:'hard'});go('fr',-200,3400);await w(2600);
+cc();P('fr',{f:1,face:'hard'});go('fr',-200,3400);dolly(1.02,50,66,4000);await w(2600);
 P('nl',{face:'wry',h:0});await n('你不觉得他藏着莱恩？');P('bn',{f:1,d:400});
 await b('我搜过了，没有');
 await b('他一直不希望我们插手老街的事情，可是前提是他管好自己的人');
 await b('你去看过他家里了吗？有些线索，我助手在那儿他会告诉你');
 P('nl',{face:'hard'});await n('我去看看');
-cc();await w(1500)}},
+cc();dolly(1,50,66,3000);await w(1500)}},
 {n:'莱恩的家',sub:'莱恩的住处 · 很多碎片',sh:'莱恩家',pos:[120,200],bg:'#090a0d',set:'#set3',i:['34%','62%'],mk:()=>SETS.home(),
 ini(){P('nl',{d:0,x:-150,s:.56,face:'hard'});P('wk',{d:0,x:1320,s:.52,f:1,face:'n'})},
 async run(k,{w,go,fl,nar}){
@@ -728,44 +753,44 @@ P('nl',{face:'wry',h:3});await sir(2);
 P('bn2',{ar:145});note('不处置，转而打电话',280,300,0);await sir(4);P('bn2',{ar:0});sp(1,300,1,0);sp(2,1300,1,0);await w(800)}},
 {n:'经理 · 解雇',sub:'剧院 · 经理找尼尔谈调查进展',sh:'解雇',pos:[1100,90],bg:'#1b1015',set:'#set3',lx:690,i:['30%','60%'],mk:()=>SETS.poster(),
 ini(){$('#props').innerHTML=PADP;P('mg',{d:0,x:540,s:.58,f:0,face:'smile'});P('nl',{d:0,x:1050,s:.56,f:1,face:'n',h:3})},
-async run(k,{w,go,fl,n,m}){
+async run(k,{w,go,fl,n,m,at,sigh,ticks}){
 await w(500);sp(2,690,1.3,.2,'#e0bd70');P('mg',{show:1,d:600});P('nl',{show:1,d:600});await w(1200);
 go('mg',620,900);await m('尼尔，我们必须得好好谈谈了。');cc();await w(1800);
-P('mg',{ar:-35,al:30});await m('到目前为止已经有几天了，事情有什么重要的进展吗？');cc();P('nl',{h:8});await w(2300);
+dolly(1.04,64,66,40000);P('mg',{ar:-35,al:30});await m('到目前为止已经有几天了，事情有什么重要的进展吗？');cc();P('nl',{h:8});await w(2300);
 P('mg',{ar:-30,al:30});await m('我只针对事情，不针对人。这是一份工作，我们每个人都在自己的岗位上，为这件事出一份力。');
 P('mg',{ar:42,al:0});P('nl',{h:12,b:-3});await m('就拿我来说，我每天都在为赞助和演出奔走，如果我没能做得很好，我自己就不配呆在这个岗位上，我就要开除我自己。');
-cc();await w(1500);P('mg',{ar:-30,al:30});go('mg',670,700);await m('如果我们不能为这件事情的解决作出贡献，那我们在这儿不是浪费时间吗？');
+cc();ticks(3,800);lamp(.75);await w(1500);P('mg',{ar:-30,al:30});go('mg',670,700);await m('如果我们不能为这件事情的解决作出贡献，那我们在这儿不是浪费时间吗？');
 cc();P('nl',{h:16,b:-5,face:'sad'});await w(2000);
-P('mg',{face:'smile',h:-4,ar:-30,al:30});await m('尼尔，我其实很不情愿，但是这件事情你可以先放一放了，我可能会找一个更老练的侦探。但也别那么绝情，别断了联系。');
+P('mg',{face:'smile',h:-4,ar:-30,al:30});go('mg',720,900);await m('尼尔，我其实很不情愿，但是这件事情你可以先放一放了，我可能会找一个更老练的侦探。但也别那么绝情，别断了联系。');
 cc();P('mg',{ar:0,al:0,h:0});P('nl',{face:'hard'});await w(2400);
 P('nl',{ar:-70,b:0,h:6,face:'n',x:900});mvp(790,470,1);await w(900);P('mg',{ar:-62,x:640});await w(700);mvp(740,470,0);await w(600);P('nl',{ar:0});P('mg',{ar:0});await w(900);
-P('nl',{f:0,face:'n',h:6});go('nl',1500,3600);await w(1200);op('#dl2',.9);$('#lf2').style.transform='scaleX(.1)';await w(2000);P('nl',{show:0,d:500});await w(900);
+dolly(1,50,66,3500);P('nl',{f:0,face:'n',h:6});go('nl',1500,3600);await w(1200);op('#dl2',.9);$('#lf2').style.transform='scaleX(.1)';await w(2000);P('nl',{show:0,d:500});await w(900);
 $('#lf2').style.transitionDuration='.1s';$('#lf2').style.transform='scaleX(1)';op('#dl2',0);slam();$('#stage').classList.add('shk');setTimeout(()=>$('#stage').classList.remove('shk'),450);
 await w(1400);P('mg',{face:'n',h:-5});await w(1300);P('mg',{h:0,face:'smile'});await w(2000)}},
 {n:'彩排',sub:'空剧院 · 梦想最后一次纯粹的样子',sh:'彩排',pos:[1500,600],bg:'#07060a',set:'#set3',i:['40%','70%'],mk:()=>SETS.stage(),
 ini(){P('ny',{d:0,x:800,s:.62,face:'n',h:-3});P('nl',{d:0,x:1800,s:.56,f:1,face:'n'})},
-async run(k,{w,go,fl,n,y,nar}){
+async run(k,{w,go,fl,n,y,nar,at,sigh,ticks}){
 await w(600);os('.cone',.5);os('.lh',.4);sp(2,800,1.4,.3,'#f3d08a');P('ny',{show:1,d:1200});await w(2000);
 await y('再来一次。');await w(500);piano();
 for(let i=0;i<6;i++){whisp('♪',700+Math.random()*200,450-Math.random()*60,i*.55);whisp('♫',900+Math.random()*120,420,i*.55+.3)}
 P('ny',{face:'smile',h:-6,cl:{tk:1}});await w(3800);P('ny',{cl:{tk:0},h:0});await w(1000);
 P('nl',{show:1,d:0});go('nl',1330,3000);await w(3200);P('ny',{face:'shock',f:0});await w(700);
-await y('你什么时候来的？');P('nl',{face:'n'});await n('第二遍的时候');
-P('ny',{face:'n'});await y('我是不是唱得很差');
+dolly(1.04,60,66,26000);await y('你什么时候来的？');P('nl',{face:'n'});await n('第二遍的时候');
+P('ny',{face:'n'});go('ny',760,900);await y('我是不是唱得很差');
 await n('有一点。');P('ny',{face:'hard'});await w(1400);
-P('nl',{face:'smile'});await n('但是比第二遍好多了。');
+P('nl',{face:'smile'});go('nl',1230,1100);await n('但是比第二遍好多了。');
 P('ny',{face:'smile',h:-4});await w(900);P('ny',{f:1,face:'n'});await w(900);
 await y('但我喜欢这个地方，站在这里的时候，会觉得什么事情都可以发生。');
-P('ny',{f:0,face:'smile'});await y('我在上面的时候看起来怎么样');
-P('nl',{face:'n',h:2});await w(1200);await n('很漂亮');
+P('ny',{f:0,face:'smile'});go('ny',640,1500);await y('我在上面的时候看起来怎么样');
+P('nl',{face:'n',h:2});dolly(1.09,58,66,6000);await w(1200);await n('很漂亮');
 document.querySelectorAll('.ft').forEach((e,i)=>setTimeout(()=>{e.style.opacity=.95},i*140));pad();sp(2,800,1.7,.42,'#ffd9a0');
 await w(2600);P('ny',{face:'smile',tr:1,h:0});await y('这是我一直以来的梦想，尼尔，谢谢你');
-cc();await w(4200)}},
+cc();dolly(1,50,66,5000);await w(4200)}},
 ];
 SC.forEach((s,i)=>{s.o=s.pos[0]+'px '+s.pos[1]+'px';s.num=['一','二','三','四','五','六','七','八','九','十','十一','十二','十三','十四','十五','十六','十七','十八','十九','二十','二十一'][i]});
 /* world markers */
 (function(){let h='';SC.forEach((s,i)=>{const[x,y]=s.pos;h+=`<rect x="${x-34}" y="${y-48}" width="68" height="92" fill="#05070e"/><g class="mkr" data-i="${i}"><g filter="url(#glow)"><rect x="${x-12}" y="${y-22}" width="24" height="30" fill="#0b0f1c" stroke="#ffd98a" stroke-width="2.5"/><rect x="${x-18}" y="${y+6}" width="36" height="8" fill="#0b0f1c" stroke="#ffd98a" stroke-width="2"/></g><circle class="pl" cx="${x}" cy="${y-6}" r="30"/><circle cx="${x}" cy="${y-6}" r="40" fill="rgba(0,0,0,0)" style="pointer-events:all"/><text x="${x}" y="${y-32}" text-anchor="middle" font-size="17" letter-spacing="2" fill="#ffd98a" opacity=".9" font-family="serif">${s.num} ${s.sh}</text></g>`});$('#hm')&&$('#hm').remove();$('#world').insertAdjacentHTML('beforeend',h)})();
-function reset(){const W=$('#world'),stg=$('#stage');W.style.cssText='transition:none;transform:scale(1);filter:none;opacity:1';
+function reset(){dolly(1,50,60,0);const W=$('#world'),stg=$('#stage');W.style.cssText='transition:none;transform:scale(1);filter:none;opacity:1';
 document.querySelectorAll('.set').forEach(s=>{s.style.transition='none';s.setAttribute('class','set');s.style.opacity=0});void W.offsetWidth;W.style.cssText='';document.querySelectorAll('.set').forEach(s=>s.style.transition='');
 $('#set3').innerHTML='';$('#props').innerHTML='';$('#front').innerHTML='';$('#front').style.opacity=1;fxf('none',0);pk(0,0,.01,0,0,10);gh(1000,670,.3,0);
 $('#leaf').style.transform='';for(const s of['#bt','#sg','#dl'])op(s,0);$('#nw').classList.remove('lit');$('#vr').classList.remove('on');$('#fx').classList.remove('rn');
@@ -779,7 +804,7 @@ SET=$(S.set);if(S.mk)SET.innerHTML=S.mk();SET.dataset.lx=S.lx||800;S.ini();W.sty
 $('#title').innerHTML=`<h1>${S.num} · ${S.n}</h1><p>${S.sub}</p>`;await w(400);$('#title').classList.add('on');await w(3200);$('#title').classList.remove('on');await w(600);
 whoosh();W.style.transform='scale(7.2)';W.style.filter='blur(6px) brightness(1.4)';W.style.opacity=0;
 await w(2200);SET.style.opacity=1;SET.classList.add('on');stg.style.background=S.bg;await w(2700);SET.classList.add('f');
-await S.run(k,h);
+await S.run(k,h);dolly(1,50,60,900);
 SET.style.opacity=0;$('#front').style.opacity=0;op('#pack',0);op('#gh',0);rainI=0;rainS(0);cc();$('#props').innerHTML='';await w(900);
 W.style.transition='transform 3.8s cubic-bezier(.65,0,.25,1),filter 3.8s,opacity 1.4s';W.style.transform='scale(1)';W.style.filter='none';W.style.opacity=1;stg.style.background='#05070e';whoosh();await w(4000)}
 async function play(i,seq){ai();if(AC.state==='suspended')AC.resume();const k=++gen;if(paused)tgl(true);$('#pp').disabled=$('#rp').disabled=false;
