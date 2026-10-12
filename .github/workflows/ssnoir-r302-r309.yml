@@ -1,0 +1,48 @@
+name: SSNoir R302-R309 Decision-Relevant Diagnosis
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r302-r309.yml'
+      - 'tools/content-validator/experiments/r302_r309_decision_relevant_tests.py'
+      - 'docs/实验/机制研究/批次/R302-R309-只识别足以行动的信息/研究记录.md'
+permissions:
+  contents: read
+jobs:
+  exact:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Cost-aware question policies, early stopping, exact independent trace
+        run: |
+          set -euo pipefail
+          python3 -m py_compile tools/content-validator/experiments/r302_r309_decision_relevant_tests.py
+          python3 tools/content-validator/experiments/r302_r309_decision_relevant_tests.py | tee /tmp/r302-r309.json
+          python3 - <<'PY'
+          import json
+          v=json.load(open('/tmp/r302-r309.json'))
+          assert v['R302_action_equivalence_three_decisions']['full_adaptive']=='13/16'
+          assert v['R305_strong_fixed_order_conditional_stop']=='13/16'
+          assert v['R303_direct_strategy_independent_trace']['expected_tests']=='3/2'
+          assert v['R307_four_distinct_actions']['precommit_questions_with_answer_based_stop']=='9/16'
+          assert v['R307_four_distinct_actions']['full_adaptive']=='3/4'
+          print('All conditions, strongest precommitted questions and independent traces passed')
+          PY
+      - name: Scope, portfolio and manual Debug selection
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/validate_abstract_research_scope.py
+          python3 tools/content-validator/experiments/validate_mechanism_portfolio.py
+          python3 tools/content-validator/experiments/validate_debug_playtests.py
+          python3 tools/content-validator/experiments/build_mechanism_atlas.py --check
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-r302-r309-diagnostic
+          path: /tmp/r302-r309.json
+          retention-days: 21
