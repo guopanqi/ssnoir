@@ -5,6 +5,7 @@ on:
     paths:
       - '.github/workflows/ssnoir-s3-y-native-reveal.yml'
       - 'tools/content-validator/experiments/s3_y_west_reveal_native.py'
+      - 'tools/content-validator/experiments/s3_y_solo_companion_native.py'
       - 'tools/content-validator/experiments/s3_world_full_item_conservation.py'
   workflow_dispatch:
 permissions:
@@ -41,6 +42,20 @@ jobs:
         run: |
           set -euo pipefail
           dotnet run --no-build --project tools/content-validator/SSNoir.ContentValidator.csproj -- --replay /tmp/s3-y-west-identity-native.json
+      - name: 同一日的夜莺骰实测‘独自’调查
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/s3_y_solo_companion_native.py /tmp/s3-y-solo-native.json
+          python3 - <<'PY'
+          import json
+          x=json.load(open('/tmp/s3-y-solo-native.json'))
+          assert x['native_check']['same_world_day']
+          assert x['research']['nightingale_solo_executed']
+          assert '夜莺' in x['native_check']['action_label']
+          print('S3-Y-SOLO-NATIVE-RESULT '+json.dumps(x['native_check'],ensure_ascii=False))
+          PY
+          dotnet run --no-build --project tools/content-validator/SSNoir.ContentValidator.csproj -- --replay /tmp/s3-y-west-identity-use-nightingale.json
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -48,5 +63,7 @@ jobs:
           path: |
             /tmp/s3-y-native-reveal.json
             /tmp/s3-y-west-identity-native.json
+            /tmp/s3-y-solo-native.json
+            /tmp/s3-y-west-identity-use-nightingale.json
           if-no-files-found: ignore
           retention-days: 90
