@@ -1,7 +1,7 @@
 {
   "schema": "ssnoir.autonomous-pattern-memory/v1",
   "updated": "2026-10-12",
-  "batch": "S3-Y-未知答案信息与实际同行时序",
+  "batch": "S3-Y完成＋S3-Z离队时序原生补证",
   "rounds": 0,
   "totalArchivedRounds": 69,
   "objective": "Keep an honest research candidate quality gate: 20 different sources is not 20 human-validated attractive games; continue autonomously with direct causal ablations",
@@ -19,7 +19,8 @@
     "ciSource": "38213836376",
     "ciNative": "38214574855",
     "evidence": "source contracts + simple Fraction conditional counterexamples + same-original-world day9 real actor choice with strict native replay",
-    "notEvidence": "no new human data; no real skill distribution fitting; no new formal mode or Debug candidate"
+    "notEvidence": "no new human data; no real skill distribution fitting; no new formal mode or Debug candidate",
+    "nextDayRun": "38215151932"
   },
   "results": [
     {
@@ -64,6 +65,27 @@
         "strictReplay": true
       },
       "lesson": "不是永久错过弗兰克，只有同行调查路径关闭。'她已经走了'与可用夜莺骰存在实测冲突。不能只修文案或提前清同伴而不核对次日对白。"
+    },
+    {
+      "id": "S3-Z-夜莺日终离队边界",
+      "name": "莱恩名字公开当天夜莺仍可参与独行任务，次日才真正退队",
+      "status": "C#+Scheme完整世界 day9→10 一次真实end-turn严格回放完成；确认人物-行动契约时间错位；不擅改正典",
+      "evidence": {
+        "revealNative": "38214574855",
+        "endDayNative": "38215151932",
+        "dayBefore": 9,
+        "dayAfter": 10,
+        "actorNamesBefore": [
+          "尼尔",
+          "夜莺"
+        ],
+        "actorNamesAfter": [
+          "尼尔"
+        ],
+        "nightingaleDieCanBeUsedOnSoloCard": true,
+        "strictReplay": true
+      },
+      "lesson": "卡称她已经离开时能消耗她的骰；正常日终夜莺才移除。应以剧情意图决定是否延迟独自调查或调整角色行动契约，不能只改字幕或硬搬离队。"
     }
   ],
   "crossRoundMemory": [
@@ -111,7 +133,8 @@
     "S3-X (2026-10-12): S3-W 65-step original world early counter consumes 1->0 and makes Lyon item card unexecutable, strict replay CI38206878433. S3-X second ORIGINAL world seed19 growth4 declines East counter, carries item to Lyon and executes original smoke-card consuming1->0, 65-step strict replay. Third ORIGINAL world legally ends chase instead of recovering clue, gets 0 cigarette, reaches Lyon and executes original non-item dialog action, 71-step replay CI38209239103. All routes author-guided and use different random streams, not blind human or paired success-rate data. No feature/Debug changes.",
     "S3-X knowledge: East counter subtitle explicitly says it takes the unique physical cigarette and grants East Gallery2 for no die. At that time Ryan's eventual smoke-card is secret; strongest two-period public synthetic rule e>=q*l (W4 already verified) saturates optimal. Good research question is whether retaining recognizable physical evidence feels reasonable and whether later regret is fair, not inventing extra DP complexity. Human feedback from this scenario absent.",
     "S3-Y actual official world day9 seed19 growth4: natural 42-action West reveal immediately shows solo Frank card with subtitle '她已经走了' while Nightingale remains in Actors with dice[3]. Original legal action '自己走东侧那条回廊： 夜莺[0]=3' executed and consumed that die without day rollover, native strict replay CI38214574855. This is player-facing narrative/action-contract discrepancy, not just static. Do not silently move her dismissal: dialogue is deferred end-day in 三封信.scm and may depend on sequence.",
-    "S3-Y: source contract distinguishes under-informed choices: East entrance social vs West knowledge are public but East=Frank West=Ryan are hidden. Cigs counter public gain EastGallery2 and irreversible item cost; later Lyon form1 +2 without die hidden at counter. Without packet native options: letters knowledge bad composure-1, mid1 good2; her-now social bad composure-2 + crowd pressure1, mid2 good3. Fraction equal-prob one-stage sample is NOT live skills. Frank remains meetable after West via solo card, guided scenes instead lost. No new mathematical complexity or human fun established."
+    "S3-Y: source contract distinguishes under-informed choices: East entrance social vs West knowledge are public but East=Frank West=Ryan are hidden. Cigs counter public gain EastGallery2 and irreversible item cost; later Lyon form1 +2 without die hidden at counter. Without packet native options: letters knowledge bad composure-1, mid1 good2; her-now social bad composure-2 + crowd pressure1, mid2 good3. Fraction equal-prob one-stage sample is NOT live skills. Frank remains meetable after West via solo card, guided scenes instead lost. No new mathematical complexity or human fun established.",
+    "S3-Z source/native: official world seed19 growth4 West bridge reveals Ryan on day9 after 42 authorized actions. Solo Frank operation is already available with Nightingale's die and caption '她已经走了'. One real public end-turn day9->day10 changes actor names ['尼尔','夜莺'] -> ['尼尔'], replay CI38215151932 successful. This precisely locates mismatch before day-end. Any future fix must respect the deferred dialogue and player action economy; no code patch yet."
   ],
   "history": [
     {
@@ -1553,31 +1576,31 @@
   ],
   "frontier": [
     {
-      "id": "S3-Z-剧情行动一致性",
+      "id": "S3-Z-修复验收前的时序契约",
       "priority": 1,
-      "question": "夜莺在西侧查出莱恩后何时真正离开？当前卡写'她已经走了'且夜莺骰能完成'独自调查'，哪种时序符合后续路灯下对白？",
-      "method": "以S3-Y Day9 原生42步+夜莺真实出手Strict Replay为事实基线，先审离街场景和一次日终真会话的区别，再由作者决定同伴离队时点或相应行动方式；避免直接提前dismiss导致剧情失败。",
+      "question": "夜莺应在桥廊揭出莱恩当场离开、路灯下对白后离开，还是次日日终才离开？现行solo任务为什么提前开放并允许她出手？",
+      "method": "以3个已严格原生回放的实况为约束：day9得到名字、day9夜莺可真实掷3点solo行动、day10才移除Actor；核对路灯下剧场触发与章节日终，提出一个全系统一致的变更选项及回归路径，不擅自改正典。",
       "humanGate": false
     },
     {
-      "id": "S3-Z-未知路线反馈",
+      "id": "S3-Z-失去同行的体验",
       "priority": 2,
-      "question": "东/西初见只公开 social/knowledge 与建筑生活提示，何时真正向玩家反馈正在认识谁，何时路线变为沉没成本？",
-      "method": "逐段取已实现的progress4触发对白/西侧堵路，区分中途公开提示与作者隐藏目的地；若需证明同屏两路线真实合法，复用无作弊原版世界 Session 而非计算作者路线最优。",
+      "question": "到莱恩名字这一刻，玩家是否真正知道‘东侧与她同行’的机会关闭，以及仍可独自结识弗兰克？",
+      "method": "结合正式卡首次展示和路灯下对白先后，审明示与误解风险；不要用作者最优西路当玩家知识。",
       "humanGate": false
     },
     {
-      "id": "S3-Z-正式无烟终局",
+      "id": "S3-Z-无烟交锋的不同风险",
       "priority": 3,
-      "question": "不同烟盒历史是否只改变行动风险和耗骰，还是影响莱恩交出铁盒、弗兰克态度等正式人物结局？",
-      "method": "先静态核对 Lyon 多形态与完成口径；旧S3-X无烟只做过一手，若判断必要再从原生会话推进到终局并严格回放，不能从零物品可操作推出同胜率。",
+      "question": "无烟路线是否在整个莱恩事件中出现不同的消耗/失败演出，而不只是多花骰子？",
+      "method": "根据正式三形态与老街压力审查可达成功/失败，必要时扩展S3-X原生会话到终局并严格复放；不重做物品守恒。",
       "humanGate": false
     },
     {
-      "id": "S3-Z-真人反馈",
+      "id": "S3-Z-真人理解",
       "priority": 4,
-      "question": "玩家不知未来莱恩会认烟盒时，是否仍觉得保留有意义，是否感到过桥后人物同行被剥夺是可理解的遗憾？",
-      "method": "使用现有 S3-W无提示情景与S3-正式老街东西路线稿，不能提前公布隐藏答案；inbox继续异步收集。",
+      "question": "无提示新人是否理解‘当前放弃证据换店主消息’和‘叫出莱恩名字后夜莺的退场’？",
+      "method": "使用S3-W无提示烟盒与S3-东/西路线阅读情境，不暴露莱恩的预知烟盒用途；反馈异步。",
       "humanGate": true
     }
   ],
@@ -1649,9 +1672,10 @@
       "scope": "original C#+Scheme world seed19/growth4, day9 reveal (42 actions) then legal nightingale die, strict replay; not human",
       "evidence": [
         "https://github.com/guopanqi/ssnoir/actions/runs/38214203272",
-        "https://github.com/guopanqi/ssnoir/actions/runs/38214574855"
+        "https://github.com/guopanqi/ssnoir/actions/runs/38214574855",
+        "https://github.com/guopanqi/ssnoir/actions/runs/38215151932"
       ],
-      "lesson": "Solo Frank card says 夜莺已走 and is active while Nightingale Actor is present and can legally perform it. Need author resolve departure narrative and allowed die, rather than patch UI label only.",
+      "lesson": "Day9 actor Nightingale can execute solo Frank, end-turn day9→10 removes her; this is an actual authored state/actor contradiction. Need decide intended departure timing before any content correction; all three tested sessions are real, not human.",
       "record": "docs/实验/机制研究/批次/S3-Y-玩家知识与人物后果/研究记录.md"
     }
   ],
