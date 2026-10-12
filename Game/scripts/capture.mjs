@@ -32,7 +32,7 @@ try {
       if (msg.type() === "error") errors.push("console: " + msg.text());
     });
     try {
-      await page.goto("http://127.0.0.1:4173/", { waitUntil: "networkidle" });
+      await page.goto("http://127.0.0.1:4173/?foundation-debug=1", { waitUntil: "networkidle" });
       await page.waitForFunction(() => window.__SSNOIR_FOUNDATION__?.getSchemeValue() === 1 &&
         window.__SSNOIR_FOUNDATION__?.getMoney() === 15, null, { timeout: 20000 });
 

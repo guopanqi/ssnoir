@@ -56,12 +56,13 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
   three.setPixelRatio(1);
 
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x111217);
+  scene.background = new THREE.Color(0x080b0f);
+  scene.fog=new THREE.FogExp2(0x080b0f,0.045);
   const camera = new THREE.PerspectiveCamera(42, options.width / options.height, 0.1, 100);
   camera.position.set(7, 7, 12);
   camera.lookAt(0, 1, 0);
 
-  const blocks = new THREE.MeshLambertMaterial({ color: 0x252c36 });
+  const blocks = new THREE.MeshLambertMaterial({ color: 0x222731 });
   for (let i = 0; i < 8; i++) {
     const height = 2 + (i % 4) * 1.15;
     const building = new THREE.Mesh(new THREE.BoxGeometry(1.3, height, 1.6), blocks);
@@ -75,8 +76,8 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
   street.rotation.x = -Math.PI / 2;
   street.position.y = -0.04;
   scene.add(street);
-  scene.add(new THREE.AmbientLight(0xbfc8df, 1.8));
-  const lamp = new THREE.DirectionalLight(0xffd8a6, 3.2);
+  scene.add(new THREE.AmbientLight(0xbfc8df, 1.12));
+  const lamp = new THREE.DirectionalLight(0xffe6b6, 2.55);
   lamp.position.set(-3, 9, 4);
   scene.add(lamp);
 
@@ -94,50 +95,55 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
     clearBeforeRender: false
   });
   const stage = new Container();
-  stage.addChild(new Graphics().roundRect(30, 350, 370, 190, 12)
-    .fill({ color: 0x171b24, alpha: 0.94 })
-    .stroke({ color: 0x9b9fa7, width: 1 }));
-
-  const title = new Text({
-    text: "SSNoir / 技术底座",
-    style: { fontFamily: "sans-serif", fontSize: 26, fill: 0xf3eee3 }
-  });
-  title.position.set(52, 375);
-  stage.addChild(title);
-
-  const counterText = new Text({
-    text: "Scheme: 启动中",
-    style: { fontFamily: "sans-serif", fontSize: 18, fill: 0xd6c6aa }
-  });
-  counterText.position.set(52, 423);
-  stage.addChild(counterText);
-
-  const button = new Graphics()
-    .roundRect(BUTTON.x, BUTTON.y, BUTTON.width, BUTTON.height, 8)
-    .fill(0xe8d6ae)
-    .stroke({ color: 0xfff5d8, width: 1 });
-  // UI input is normalized by each host and dispatched through activateAt().
-  button.eventMode = "none";
-  stage.addChild(button);
-  const label = new Text({
-    text: "执行 Scheme 计数",
-    style: { fontFamily: "sans-serif", fontSize: 17, fill: 0x1b1e24 }
-  });
-  label.position.set(65, 472);
-  stage.addChild(label);
+  const search=(globalThis as {location?:{search?:string}}).location?.search??"";
+  const qaMode=/(?:^|[?&])foundation-debug=1(?:&|$)/.test(search)||
+    Boolean((globalThis as {__SSNOIR_FOUNDATION_DEBUG__?:boolean}).__SSNOIR_FOUNDATION_DEBUG__);
+  const ivory=0xf0e9dd,brass=0xc4ad86,muted=0x9eaaac;
+  const letter="Songti SC, Noto Serif CJK SC, serif";
+  stage.addChild(new Graphics().roundRect(22,343,394,209,4)
+    .fill({color:0x0c1117,alpha:0.94}).stroke({color:0x787268,width:1}));
+  stage.addChild(new Graphics().rect(45,367,56,2).fill(brass));
+  const title=new Text({text:"贝尔维尔",style:{fontFamily:letter,fontSize:33,fill:ivory}});
+  title.position.set(45,380);stage.addChild(title);
+  const byline=new Text({text:"尼尔 · 私人侦探",style:{fontFamily:"sans-serif",fontSize:14,fill:brass}});
+  byline.position.set(47,424);stage.addChild(byline);
+  const counterText=new Text({text:"一座城，三封信。",style:{
+    fontFamily:"sans-serif",fontSize:16,fill:ivory}});
+  counterText.position.set(47,453);stage.addChild(counterText);
+  const hudLead=new Text({text:"夜莺剧院 · 老街 · 码头",style:{
+    fontFamily:"sans-serif",fontSize:14,fill:muted,wordWrap:true,wordWrapWidth:337}});
+  hudLead.position.set(47,486);stage.addChild(hudLead);
+  // Phase 1 counter is a QA instrument, not a player-facing game mechanic.
+  const debugHud=new Container();debugHud.visible=qaMode;
+  debugHud.addChild(new Graphics().roundRect(22,343,394,209,4)
+    .fill({color:0x131821,alpha:0.98}).stroke({color:brass,width:1}));
+  const debugTitle=new Text({text:"运行时检查 / FOUNDATION",style:{
+    fontFamily:"sans-serif",fontSize:20,fill:ivory}});
+  debugTitle.position.set(49,370);debugHud.addChild(debugTitle);
+  const debugCounter=new Text({text:"Scheme：启动中",style:{
+    fontFamily:"sans-serif",fontSize:17,fill:brass}});
+  debugCounter.position.set(51,422);debugHud.addChild(debugCounter);
+  const button=new Graphics().roundRect(BUTTON.x,BUTTON.y,BUTTON.width,BUTTON.height,7)
+    .fill(0xe6d4ac).stroke({color:ivory,width:1});
+  button.eventMode="none";debugHud.addChild(button);
+  const label=new Text({text:"执行 Scheme 计数",style:{
+    fontFamily:"sans-serif",fontSize:17,fill:0x18191d}});
+  label.position.set(65,472);debugHud.addChild(label);
+  stage.addChild(debugHud);
 
   // Authored world pane: one shared Pixi renderer across browser and Mini Games.
   // The opening state comes from the ORIGINAL world.scm, not from hardcoded places.
   const worldPanel=new Container();
-  const wx=450,wy=34,panelWidth=375;
-  worldPanel.addChild(new Graphics().roundRect(wx,wy,panelWidth,408,9)
-    .fill({color:0x14171e,alpha:0.92}).stroke({color:0x626771,width:1}));
+  const wx=440,wy=27,panelWidth=550;
+  worldPanel.addChild(new Graphics().roundRect(wx,wy,panelWidth,412,5)
+    .fill({color:0x0c1117,alpha:0.94}).stroke({color:0x676969,width:1}));
   const worldHeading=new Text({
-    text:"贝尔维尔 / 城市",style:{fontFamily:"sans-serif",fontSize:23,fill:0xe5dac5}
+    text:"城市 / 去向",style:{fontFamily:letter,fontSize:25,fill:ivory}
   });
   worldHeading.position.set(wx+20,wy+18);worldPanel.addChild(worldHeading);
   const worldStatus=new Text({
-    text:"正在读取原版世界…",style:{fontFamily:"sans-serif",fontSize:15,fill:0xaeb7c1}
+    text:"正在读取贝尔维尔…",style:{fontFamily:"sans-serif",fontSize:14,fill:muted,
+      wordWrap:true,wordWrapWidth:panelWidth-40}
   });
   worldStatus.position.set(wx+20,wy+57);worldPanel.addChild(worldStatus);
   const worldButtons: Array<{name:string;x:number;y:number;width:number;height:number}>=[];
@@ -145,7 +151,7 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
   // Controls operate on the same original Scheme game state, not the legacy
   // foundation counter. End-day uses on-turn-end/on-turn-start from world.scm.
   const previewControls=[
-    {id:"day",label:"结束回合 / 天",x:wx+18},
+    {id:"day",label:"度过一天",x:wx+18},
     {id:"save",label:"保存",x:wx+137},
     {id:"load",label:"读档",x:wx+256}
   ];
@@ -194,15 +200,29 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
     const visible=displayedNames.slice(listPage*7,(listPage+1)*7);
     for(let i=0;i<visible.length;i++){
       const name=visible[i],x=wx+18,y=wy+92+i*42,width=panelWidth-36,height=35;
-      const shownName=name==="__dossier"?"卷宗 · 委托 / 进度":
-        name.startsWith("__dossier-entry:")?"◆ "+name.slice("__dossier-entry:".length):
-        name.startsWith("__dossier-row:")?dossierRowDetails[Number(name.slice("__dossier-row:".length))]??name:name;
-      worldRows.addChild(new Graphics().roundRect(x,y,width,height,5)
-        .fill({color:0x292f37}).stroke({color:0x565b64,width:1}));
-      const row=new Text({text:shownName,style:{fontFamily:"sans-serif",fontSize:16,fill:0xf0e8dc,
-      wordWrap:false}});
-      row.position.set(x+10,y+7);worldRows.addChild(row);
-      worldButtons.push({name,x,y,width,height});
+      const candidate=(currentContainer?.children??authoredWorld?.root.children??[])
+        .find(n=>n.name===name);
+      const shownName=name==="__dossier"?"卷宗 · 线索与委托":
+        name.startsWith("__dossier-entry:")?"◇ "+name.slice("__dossier-entry:".length):
+        name.startsWith("__dossier-row:")?dossierRowDetails[Number(name.slice("__dossier-row:".length))]??name:
+        (candidate?.isPlace?"▸  ":candidate?.resolve?.kind==="roll"?"◆  ":
+        candidate?.children.length?"◇  ":"·  ")+(candidate?.title??name);
+      const disabled=candidate?.disabled??false;
+      worldRows.addChild(new Graphics().roundRect(x,y,width,height,3)
+        .fill({color:disabled?0x12181b:0x1d262c})
+        .stroke({color:disabled?0x33393d:0x465057,width:1}));
+      const row=new Text({text:shownName,style:{fontFamily:"sans-serif",
+        fontSize:16,fill:disabled?0x65727a:ivory,wordWrap:false}});
+      row.position.set(x+12,y+7);worldRows.addChild(row);
+      if(candidate){
+        const kind=candidate.isPlace?"地点":candidate.resolve?.kind==="roll"?"检定":
+          candidate.resolve?.kind==="instant"?"行动":candidate.children.length?"调查":"记录";
+        const tag=new Text({text:kind,style:{fontFamily:"sans-serif",
+          fontSize:12,fill:disabled?0x6f7478:brass}});
+        tag.anchor.set(1,0);tag.position.set(x+width-12,y+11);
+        worldRows.addChild(tag);
+      }
+      if(!disabled)      worldButtons.push({name,x,y,width,height});
     }
     if(hasBack){
       worldButtons.unshift({name:"__back",x:wx+panelWidth-114,y:wy+17,width:100,height:30});
@@ -228,6 +248,14 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
   const renderPlaces=(names:string[],atPlace=false)=>{
     displayedNames=names;listPage=0;hasBack=atPlace;drawRows();
   };
+  const updateHud=(subtitle:string)=>{
+    if(!authoredWorld)return;
+    const team=authoredWorld.state.team.roster().filter(actor=>actor.status==="active");
+    const dice=team.reduce((n,actor)=>n+authoredWorld!.state.team.dice(actor.id).length,0);
+    counterText.text="第 "+authoredWorld.state.getGlobal("世界日")+" 日  ·  金钱 "+
+      authoredWorld.state.getItemCount("金钱")+"  ·  行动 "+dice;
+    hudLead.text=subtitle;
+  };
   const showRoot=()=>{
     if(!authoredWorld)return;
     selectedPlace="";currentContainer=null;pendingRoll=null;navigationStack.length=0;
@@ -239,6 +267,8 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
     // Story nodes at world root are not places; hiding them would make
     // first-chapter authored objectives impossible to reach from the map.
     renderPlaces([...authoredWorld.root.children.filter(n=>!n.disabled).map(n=>n.name),"__dossier"]);
+    updateHud(activeClock?activeClock.displayLabel+"  "+activeClock.current+"/"+activeClock.max:
+      "码头、剧院与老街；每件事都有自己的时限。");
   };
   const showDossierIndex=()=>{
     dossierMode="index";selectedDossier=null;dossierRowDetails=[];
@@ -264,6 +294,7 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
     worldHeading.text="场景 / "+node.name;
     worldStatus.text=node.subtitle||"查看行动，或返回上一级";
     renderPlaces(node.children.map(n=>n.name),true);
+    updateHud(node.subtitle||node.title);
   };
   // Keep foundation startup independent of a content load failure.
   void createWorldHostRuntime().then(async worldHost=>{
@@ -326,8 +357,15 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
     worldStatus.text="行动："+result.name+" · "+
       (result.outcome??"完成")+" · 金钱："+authoredWorld.state.getItemCount("金钱");
   };
+  let navigating=false;
   const visitWorld=(name:string)=>{
+    if(navigating)return;
+    navigating=true;
+    const previousStatus=worldStatus.text;
+    if(!name.startsWith("__"))worldStatus.text="正在进入 · "+name.slice(0,32);
     worldQueue=worldQueue.then(async()=>{
+      // Present the busy state before costly authored tree evaluation begins.
+      await new Promise<void>(done=>options.animationFrame(()=>done()));
       if(!authoredWorld)return;
       if(name==="__prev"||name==="__next"){
         listPage+=name==="__next"?1:-1;
@@ -423,6 +461,9 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
       pendingRoll=null;chosenDice=[];
       worldStatus.text="行动失败："+String(error).slice(0,42);
       console.error("[SSNoir] authored-world action",error);options.onError?.(error);
+    }).finally(()=>{
+      navigating=false;
+      if(worldStatus.text.startsWith("正在进入 · "))worldStatus.text=previousStatus;
     });
   };
 
@@ -546,7 +587,7 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
       // Initial counter display is not a paid action; start cash stays 15.
       if (next > 1) await gameplay.session.evaluate('(add-item! "金钱" 1)');
       count = next;
-      counterText.text = "Scheme 计算结果：" + count +
+      debugCounter.text = "Scheme 计算结果：" + count +
         " · 金钱：" + gameplay.state.getItemCount("金钱");
     });
     return actionQueue;
@@ -638,7 +679,7 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
     }
     const hit=worldButtons.find(b=>xx>=b.x&&xx<=b.x+b.width&&yy>=b.y&&yy<=b.y+b.height);
     if(hit){visitWorld(hit.name);return true;}
-    if (xx >= BUTTON.x && xx <= BUTTON.x + BUTTON.width &&
+    if (qaMode && xx >= BUTTON.x && xx <= BUTTON.x + BUTTON.width &&
         yy >= BUTTON.y && yy <= BUTTON.y + BUTTON.height) {
       void increment().catch(error => options.onError?.(error));
       return true;

@@ -41,6 +41,7 @@ try {
     // Official converter prepends GameGlobal.fetch = undefined; a TapTap
     // compatibility host exposes GameGlobal and can route wx APIs.
     window.GameGlobal = window;
+    window.__SSNOIR_FOUNDATION_DEBUG__ = true;
     let canvasCount = 0;
     window.__wxCanvasUsage = { screen: 0, secondary: 0, offscreen: 0 };
     const wxMock = {
