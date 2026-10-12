@@ -1,0 +1,46 @@
+name: SSNoir S2-D 可响应线索研究验证
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-s2-true-choice.yml'
+      - 'tools/content-validator/experiments/s2_true_choice_audit.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  independent-paper-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 逐状态精确审查 R122-R124
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/s2_true_choice_audit.py > /tmp/s2-true-choice.json
+          python3 - <<'PY'
+          import json
+          from fractions import Fraction as F
+          r=json.load(open('/tmp/s2-true-choice.json'))
+          assert len(r['rows'])==4
+          x=next(row for row in r['rows'] if row['fighter_reward']=='2')
+          assert x['optimal']=='6598/2187'
+          assert F(x['probability_any_strict_lead'])>0
+          assert F(x['probability_any_strict_submit'])>0
+          assert F(x['best_public_rule']['gap'])==0
+          assert F(r['ablations']['disable_closure'])>F(x['optimal'])
+          assert F(r['ablations']['disable_lead'])<F(x['optimal'])
+          assert 'lead' in x['strict_examples'] and 'submit' in x['strict_examples']
+          print('严格可达双动作、正反选择、简单策略和直接消融均通过：数学证据')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ssnoir-s2-真实选择-精确数据
+          path: /tmp/s2-true-choice.json
+          retention-days: 90
