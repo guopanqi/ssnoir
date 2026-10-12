@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""S2-D R122/R123: reveal-before-commit, three meaningful actions.
+"""S2-D independent negative control: reveal-before-commit with NO main deadline.
 Exact Fraction synthetic paper; not original R119, C#+Scheme, or human play.
 A: search 0/1/2 to clue threshold 2, then a guaranteed die-costly 'secure'.
 B: help 0/1/2 to 2, available only day 1 (first three of six actions).
@@ -86,7 +86,7 @@ def model(B=F(3,2),C=F(2),side=True,gate=True,closure=True,urgent=True,
    traverse(aa,bb,cc,ss,nn,mass*p,seen)
  traverse(0,0,0,False,6,F(1),False)
  assert free>=best_fixed[0] and free>=best_simple[0]
- assert first_m>0 and any(x>0 for x in strict.values()),strict\n # A conditional third action is required ONLY in the core B=3/2 case;\n # changing its reward can legitimately remove the first-day help priority.
+ assert first_m>0 and any(x>0 for x in strict.values()),strict\n # The third strict choice is expected only in the core B=3/2 case;\n # changing its reward can legitimately remove the first-day help priority.
  return {"B_reward":str(B),"C_reward":str(C),"optimal":str(free),
   "fixed_priority":{"value":str(best_fixed[0]),"order":best_fixed[1],
                     "gap":str(free-best_fixed[0])},
@@ -113,7 +113,7 @@ def main():
  assert F(base["first_strict_public_choice_probabilities"]["追线索"])>0
  assert F(base["first_strict_public_choice_probabilities"]["截信"])>0
  assert F(base["first_strict_public_choice_probabilities"]["帮艾迪"])>0
- print(json.dumps({"batch":"S2-D-R122-R123","source_type":"Exact Fraction paper only",
+ print(json.dumps({"batch":"S2-D-nonurgent-closure-negative-control","source_type":"Exact Fraction paper only",
   "rules":"Reveal at progress2; finishing main letter costs a NEW die and closes clue, not same-action reveal+close",
   "rows":rows,"core_ablations":{"remove_side_C":str(off),"open_C_immediately":str(ungated),
    "remove_C_closure":str(no_closure),"remove_B_day1_deadline":str(no_deadline),
