@@ -44,7 +44,7 @@ def perform(p,obs,card,history):
     return choose_action(p,obs,op,history)
 def end(p,obs,history):
     return choose_action(p,obs,get(obs,"end-turn"),history)
-def run(spend_counter=True, let_chase_escape=False, stop_after_west_identity=False, execute_nightingale_solo=False, end_day_after_west=False):
+def run(spend_counter=True, let_chase_escape=False, stop_after_west_identity=False, execute_nightingale_solo=False, end_day_after_west=False, probe_next_day_solo=False):
     p=Popen(CMD+["--session","world","--seed","19","--growth","4"],
        cwd=ROOT,stdin=PIPE,stdout=PIPE,stderr=PIPE,text=True)
     obs=recv(p);history=[];stage="wait_commission";cig_obtained=False;counter_spent=False;obstacles=[]
@@ -192,6 +192,8 @@ def run(spend_counter=True, let_chase_escape=False, stop_after_west_identity=Fal
                                    "clocks_before":before_clocks,"clocks_after":obs.get("Clocks",[]),
                                    "legal_original_engine_action_executed":True}
                             next_day_result=None
+                            if probe_next_day_solo:
+                                assert end_day_after_west and not execute_nightingale_solo
                             if end_day_after_west:
                                 assert not execute_nightingale_solo
                                 before_actors=obs["Actors"]
@@ -207,7 +209,32 @@ def run(spend_counter=True, let_chase_escape=False, stop_after_west_identity=Fal
                                         "subtitle":c.get("Subtitle")}
                                         for c in obs.get("Cards",[])],
                                 }
-                            transcript_path=("/tmp/s3-z-warren-next-day-native.json"
+                                if probe_next_day_solo:
+                                    # Stay in real unmodified world. Travel back
+                                    # to the old street via public place operations.
+                                    obs=move_to(p,obs,"码头居民区",history)
+                                    found=[op for op in obs["Operations"]
+                                      if op.get("Kind")=="action"
+                                      and op.get("Card")=="自己走东侧那条回廊"]
+                                    assert found,[(op.get("Kind"),op.get("Card")) for op in obs["Operations"]]
+                                    assert all("夜莺" not in str(op.get("Label","")) for op in found),found
+                                    nil_op=next((op for op in found
+                                       if "尼尔" in str(op.get("Label",""))),None)
+                                    assert nil_op is not None,found
+                                    before_actor_snapshot=obs["Actors"]
+                                    before_clocks=obs.get("Clocks",[])
+                                    day_after_turn=obs["WorldDay"]
+                                    obs=choose_action(p,obs,nil_op,history)
+                                    next_day_result["solo_next_day"]={
+                                        "legal_original_niil_operation":nil_op,
+                                        "before_actors":before_actor_snapshot,
+                                        "after_actors":obs["Actors"],
+                                        "clocks_before":before_clocks,
+                                        "clocks_after":obs.get("Clocks",[]),
+                                        "world_day_before":day_after_turn,
+                                        "world_day_after":obs["WorldDay"]}
+                            transcript_path=("/tmp/s3-aa-warren-next-day-solo-native.json"
+                                  if probe_next_day_solo else "/tmp/s3-z-warren-next-day-native.json"
                                   if end_day_after_west else
                                   "/tmp/s3-y-west-identity-use-nightingale.json"
                                   if execute_nightingale_solo else "/tmp/s3-y-west-identity-native.json")
