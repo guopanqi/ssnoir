@@ -1,0 +1,60 @@
+name: SSNoir R406-R421 Independent Agency and Late Sensor Rules
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r406-r421.yml'
+      - 'tools/content-validator/experiments/r406_r413_online_other.py'
+      - 'tools/content-validator/experiments/r414_r421_late_sensor.py'
+      - 'docs/实验/机制研究/批次/R406-R421-他者在线博弈与迟到传感规则/**'
+permissions:
+  contents: read
+jobs:
+  exact:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify frozen models and counterfactuals
+        run: |
+          set -euo pipefail
+          python3 -m py_compile tools/content-validator/experiments/r406_r413_online_other.py tools/content-validator/experiments/r414_r421_late_sensor.py
+          python3 tools/content-validator/experiments/r406_r413_online_other.py > /tmp/r406-r413.json
+          python3 tools/content-validator/experiments/r414_r421_late_sensor.py > /tmp/r414-r421.json
+          python3 - <<'PY'
+          import json
+          a=json.load(open('/tmp/r406-r413.json'))
+          b=json.load(open('/tmp/r414-r421.json'))
+          r=a['R407_R413_public_type_cases']
+          assert r['hostile']['B']['online_player']=='3/2'
+          assert r['friendly']['A']['committed_best']=='11/4'
+          s=b['results']
+          assert s['R414_eight_turn_full_late'][0]=='21/4'
+          assert s['R416_early_only_sensor'][0]=='4'
+          assert s['R420_max_one_edit'][0]=='21/4'
+          assert s['R421_three_phase_transfer']['2'][0]=='49/8'
+          print('16 frozen checks supported; neither mathematical advantage equals human enjoyment')
+          PY
+      - name: Research scope and prior counterexample regressions
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/r390_r397_strategic_veto.py > /tmp/r390-r397.json
+          python3 tools/content-validator/experiments/r398_r405_script_capacity.py > /tmp/r398-r405.json
+          python3 tools/content-validator/experiments/validate_abstract_research_scope.py
+          python3 tools/content-validator/experiments/validate_mechanism_portfolio.py
+          python3 tools/content-validator/experiments/validate_debug_playtests.py
+          python3 tools/content-validator/experiments/build_mechanism_atlas.py --check
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-r406-r421-exact-results
+          path: |
+            /tmp/r406-r413.json
+            /tmp/r414-r421.json
+            /tmp/r390-r397.json
+            /tmp/r398-r405.json
+          retention-days: 21
