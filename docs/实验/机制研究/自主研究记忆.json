@@ -1,9 +1,9 @@
 {
   "schema": "ssnoir.autonomous-pattern-memory/v1",
   "updated": "2026-10-12",
-  "batch": "方向校准：回到抽象决策关系与实质性玩法新颖性",
-  "rounds": 0,
-  "totalArchivedRounds": 118,
+  "batch": "R174–R203 横向抽象玩法：动作互馈、保留与兑现、资源配置、可编辑规则反证",
+  "rounds": 30,
+  "totalArchivedRounds": 148,
   "objective": "长期自主探索具有实质差异的抽象玩法形态，尤其是玩家实际反复作出的有意义的行动、资源分配和状态依赖判断。20是价值目标，不是轮数或历史候选池数量。",
   "policy": "首选无剧情的玩家心理循环、同构/简单策略反证及跨机制族发散。叙事、香烟、人物、S3世界排错不再是机制默认方向。数学、原生、真人分层；异步反馈不阻塞。不得自动新增Debug或精选。",
   "scope": {
@@ -68,6 +68,34 @@
       "kind": "unproven-independent",
       "question": "外源事件改变未来行动集合，是否超出简单解锁目标/期限组合？",
       "source": "R131–R173"
+    },
+    {
+      "family": "two-way-production-feedback",
+      "kind": "known-combination",
+      "question": "操作A给B创造产能、B给A创造产能，随机失败后如何改变顺序？",
+      "source": "R174–R179",
+      "summary": "随机5手647/80对固定303/40；确定成功时无动态差。接近P02/R50。"
+    },
+    {
+      "family": "stake-protect-cash",
+      "kind": "existing-combination",
+      "question": "何时增加未保存储备、购买保险、立即兑现？",
+      "source": "R180–R185",
+      "summary": "G/S/P完整2523/1024，去保险2457/1024；与P09/P10同构。"
+    },
+    {
+      "family": "durable-vs-reset-with-quality",
+      "kind": "known-combination",
+      "question": "公开当前质量如何在跨期保留A与每期清零B间重新分配？",
+      "source": "R188–R193",
+      "summary": "11/2 vs固定9/2; 只看当前质量19/4；允许未完成B跨期保留零增量。"
+    },
+    {
+      "family": "select-or-edit-operation-policy",
+      "kind": "falsified-independent",
+      "question": "编辑行为规则会不会产生反复重新构造规则的玩法？",
+      "source": "R186/R194–R203",
+      "summary": "固定WWEW、预选T与失配即编辑均解释各自实验最优；新增编辑动词还未证明新玩法活动。"
     }
   ],
   "failedExplanations": [
@@ -75,36 +103,32 @@
     "终局Pareto向量变多、自动开新故事线，并不能独立证明新玩法",
     "数学自由策略胜过固定策略，不必然比最强可解释条件规则更有体验价值",
     "免费额外进度、强制期限与外部行动反馈，应分开证明归因",
-    "成功率、实验轮数、CI记录数量、状态树复杂度均不是创新或趣味指标"
+    "成功率、实验轮数、CI记录数量、状态树复杂度均不是创新或趣味指标",
+    "动作名字改为EDIT或玩家反复执行编辑，不等于规则编排玩法；须证实玩家能创造和修订输入—输出函数，不能被初始T或‘失配即切’口诀完全解释。",
+    "周期末半成品清零规则在R188冻结模型下根值没有独立贡献；不可把跨目标自适应增益全归因于清零。"
   ],
   "frontier": [
     {
-      "id": "ABSTRACT-A",
-      "question": "两种动作互相改变后续价值，如何形成不同于ABAB交替的持续判断？",
-      "family": "action-interdependency",
-      "method": "去名最小循环+固定交换策略+原有动作回声和压力关系同构对照"
+      "id": "COMPOSE-OPERATIONS",
+      "family": "new-action-grammar",
+      "question": "能否从基本操作自行组装输入到输出的行为函数，在后续反馈后真正需要修订？",
+      "method": "先设计可读1-2动作构造，排除WWEW/T/失配编辑口诀，避免复杂化求解器证明新颖。"
     },
     {
-      "id": "ABSTRACT-B",
-      "question": "可跨周期保留但易损失的成果，如何改变积累、保护与兑现的时间分配？",
-      "family": "accumulate-and-cashout",
-      "method": "先比既有分段兑现/P05/R17，再证伪固定阈值"
+      "id": "RESOURCE-REASSIGN-OPERATORS",
+      "family": "ownership-and-capacity",
+      "question": "某资源可推进当前目标或改变下一轮资源归属的合法操作时，是否比P02/P04/P13多了新判断？",
+      "method": "先廉价行为同构、固定投资序反证，再做公开反馈与真可达状态测试。"
     },
     {
-      "id": "ABSTRACT-C",
-      "question": "不同持久性资源是否使跨目标投入与改道形成真正有意义的选择？",
-      "family": "multi-target-and-durable-resource",
-      "method": "P02/P04/期限的强简单基线；从可达分配和反馈解释价值"
-    },
-    {
-      "id": "ABSTRACT-D",
-      "question": "完成一个局部循环后，玩家实际可做的动作类型能否改变，而非只增加一条进度目标？",
-      "family": "phase-changes-action-language",
-      "method": "对照固定+1解锁、R113/R157–R173；失败即归并"
+      "id": "LEARNABLE-ADVERSARIAL-REACTION",
+      "family": "adversarial-feedback",
+      "question": "从对手反应推断其可改变的策略，会不会产生可学而非随机加压的循环？",
+      "method": "先对照R51/P16/R82正常路径，严禁偷用隐藏答案；低成本机制卡优先。"
     }
   ],
   "method": {
-    "next": "跨至少两个心理循环写最小机制卡；在写具体故事/正式游戏场景之前先明确抽象判断及退化反例。",
+    "next": "先对‘创造/组合规则’和‘改变资源归属合法性’分别写无剧情机制卡，最便宜支配反证后才写计算/可玩原型。",
     "admissions": "candidate/curated only after novelty and play-test gates; never automatically to Debug",
     "feedback": "human asynchronous",
     "code": "tools/content-validator/experiments/",
@@ -117,9 +141,34 @@
       "rounds": 0,
       "source": "developer/user direction correction",
       "note": "Reclassified S3 canon and recent character-story chains as non-default; preserved originals without deleting evidence."
+    },
+    {
+      "batch": "R174–R187-横向抽象机制",
+      "rounds": 14,
+      "record": "docs/实验/机制研究/批次/R174-R187-横向抽象机制/研究记录.md",
+      "script": "tools/content-validator/experiments/r174_r187_horizontal_abstract.py",
+      "workflow": ".github/workflows/ssnoir-r174-r187.yml",
+      "conclusion": "互馈生产随机时反馈有正价值、确定增产固定序全最优；储备保险独立边际极小；固定动作目标改写唯一最佳WWEW，负例。没有新精选。"
+    },
+    {
+      "batch": "R188–R197-资源与规则",
+      "rounds": 10,
+      "record": "docs/实验/机制研究/批次/R188-R197-跨周期资源与规则编排/研究记录.md",
+      "script": "tools/content-validator/experiments/r188_r197_allocation_and_policy.py",
+      "workflow": ".github/workflows/ssnoir-r188-r197.yml",
+      "conclusion": "资源质量即时公开的跨周期A/B分配最优11/2，固定9/2，仅当前质量规则19/4；B半成品跨期零边际；自动规则T独胜，规则编辑税无根收益。"
+    },
+    {
+      "batch": "R198–R203-重复编辑规则",
+      "rounds": 6,
+      "record": "docs/实验/机制研究/批次/R198-R203-规则编辑的退化/研究记录.md",
+      "script": "tools/content-validator/experiments/r198_r203_rule_switching.py",
+      "workflow": ".github/workflows/ssnoir-r198-r203.yml",
+      "conclusion": "Markov持续外部要求下，6手动态编辑规则确能提升收益，但一条匹配执行/不匹配编辑/最后不编辑的口诀精确全最优；属切换成本/持续性，不是独立自编程序。"
     }
   ],
   "crossRoundMemory": [
+    "R174–R203 抽象横向研究：30编号=四类循环的检查与阴性反证，不是30个新游戏。状态互馈随机有边际但确定性固定序最优；赌积累的保险小增益；跨期资源A/B有真实资源质量依赖但清零消融零；规则编辑有动作却被WWEW、T或‘不匹配就编辑’简单口诀完整解释。下一研究改为可自组的操作函数，不继续扫数值。",
     "历史原始批次、阴性对照和全部先前机读记录已原样转存。当前记忆以新会话最需要的前沿与失败解释为主；不要从历史 S/R 编号续出剧情任务。"
   ],
   "focusedAudits": [],
