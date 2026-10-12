@@ -11,6 +11,8 @@ namespace SSNoir.IMGUI
     {
         public sealed class Bubble
         {
+            // Stable identity for the layout lifetime of this particular utterance.
+            public long LayoutId;
             public DialogueLine Line = null!;
             public bool AllowsRemoteParticipants;
             // 普通 play-bubble! 锚定失败时，画面会降级为场外卡并发一次内容警告。
@@ -32,6 +34,7 @@ namespace SSNoir.IMGUI
         private int _index;
         private float _timer;
         private bool _suspended;
+        private long _nextLayoutId;
 
         public BanterPlayer(DialogueVoicePlayer? voice) => _voice = voice;
 
@@ -62,6 +65,7 @@ namespace SSNoir.IMGUI
                 longest = Mathf.Max(longest, dwell);
                 _visible.Add(new Bubble
                 {
+                    LayoutId = ++_nextLayoutId,
                     Line = line,
                     AllowsRemoteParticipants = false,
                     PreferCardAnchor = true,
@@ -137,6 +141,7 @@ namespace SSNoir.IMGUI
             _timer = dwell;
             _visible.Add(new Bubble
             {
+                LayoutId = ++_nextLayoutId,
                 Line = line,
                 AllowsRemoteParticipants = _current.AllowsRemoteParticipants,
                 Remaining = dwell + OverlapSeconds,

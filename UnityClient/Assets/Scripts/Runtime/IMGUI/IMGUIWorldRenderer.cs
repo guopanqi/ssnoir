@@ -33,8 +33,10 @@ namespace SSNoir.IMGUI
         private readonly Dictionary<string, Vector2> _cardCenters = new Dictionary<string, Vector2>();
         // 见 DrawCards 里 RegisterWorldPoint 的注释。
         private const float BanterHeadHeight = 1.6f;
-        // One cache: each label's offset from its CURRENT projected anchor.
-        private readonly Dictionary<string, Vector2> _labelOffsets = new();
+        // An authored label owns one stable attachment offset. Only structural
+        // layout changes can invalidate it; camera drag never chooses a new side.
+        private readonly WorldLabelLayout.PlacementState _labelPlacements = new();
+        private readonly WorldLabelLayout.PlacementState _banterPlacements = new();
         private WorldLabelLayout.Space? _worldLabelSpace;
         private readonly HashSet<string> _reportedLabelOverflow = new();
         private SSNoirVirtualCameraConfig? _actionLayoutCamera;
@@ -1478,6 +1480,9 @@ namespace SSNoir.IMGUI
             var nodes = new List<GameNode>(_gameManager.VisibleNodes);
             if (_activeAutoAction?.AutoActionNode != null)
                 nodes.Add(_activeAutoAction.AutoActionNode);
+            // Screen culling is not content removal: remember a label's side
+            // when its anchor leaves the camera and later returns.
+            _labelPlacements.KeepOnly(nodes.Select(n => n.Name));
             var focusedName = _gameManager.FocusedNodeName;
             // All projected labels use one anchor-local layout, independent of camera mode.
             // 世界投射层跟着换镜一起显形：新那一镜露出多少，这一层就画多浓（见下面
@@ -1539,7 +1544,7 @@ namespace SSNoir.IMGUI
                     var viewPos = cam.WorldToViewportPoint(anchor.transform.position);
                     float padding = 0.05f;
                     bool layoutFixed = node.IsContainer;
-                    bool cachedAction = !layoutFixed && _labelOffsets.ContainsKey(node.Name);
+                    bool cachedAction = !layoutFixed && _labelPlacements.Contains(node.Name);
                     bool waitForLanding = !layoutFixed && !cachedAction
                         && layoutTravelling;
                     // The visible edge is the last valid anchor region. Off-screen nodes
@@ -1629,7 +1634,6 @@ namespace SSNoir.IMGUI
             foreach (var key in keysToRemove)
             {
                 _cardCenters.Remove(key);
-                _labelOffsets.Remove(key);
             }
 
             // Create layout records for projected cards
@@ -1667,12 +1671,10 @@ namespace SSNoir.IMGUI
                 Vector2 targetCenter;
                 if (isAction)
                 {
-                    // Both Pan and Orbit use the same anchor-local space solver.
-                    targetCenter = actionMode == CameraDragMode.Pan
-                        ? new Vector2(anchorX, anchorY - cardHeight / 2f - 18f)
-                        : new Vector2(
-                            anchorX + (anchorX < UIScale.SafeArea.center.x ? -1f : 1f) * (cardWidth / 2f + 20f),
-                            anchorY);
+                    // No screen-midpoint heuristic: an object's label never
+                    // chooses left/right according to where the camera has moved.
+                    targetCenter = WorldLabelLayout.PreferredActionCenter(
+                        virtualAnchor, new Vector2(cardWidth, cardHeight));
                 }
                 else if (isAnnotation)
                 {
@@ -1707,21 +1709,19 @@ namespace SSNoir.IMGUI
             // One occupied space for places, actions, annotations and later dialogue.
             var keepOut = BuildWorldLabelSpace(protectedAnchors);
             _worldLabelSpace = keepOut;
-            foreach (var layout in layouts
-                .OrderBy(l => l.Node.IsContainer ? 0 : l.IsAnnotation ? 2 : 1)
-                .ThenBy(l => l.DeclarationOrder))
-            {
-                Vector2? previous = _labelOffsets.TryGetValue(layout.Key, out var offset)
-                    ? layout.AnchorPos + offset
-                    : (Vector2?)null;
-                var kind = layout.IsAnnotation ? WorldLabelLayout.Kind.Annotation
+            var requests = layouts.Select(layout => new WorldLabelLayout.Request(
+                layout.Key,
+                layout.IsAnnotation ? WorldLabelLayout.Kind.Annotation
                     : layout.Node.IsContainer ? WorldLabelLayout.Kind.Location
-                    : WorldLabelLayout.Kind.Action;
-                Rect placed = keepOut.Place(
-                    layout.Key, kind, layout.AnchorPos, layout.TargetCenter, previous,
-                    new Vector2(layout.Width, layout.Height));
-                layout.CurrentCenter = placed.center;
-                _labelOffsets[layout.Key] = placed.center - layout.AnchorPos;
+                    : WorldLabelLayout.Kind.Action,
+                layout.AnchorPos, layout.TargetCenter,
+                new Vector2(layout.Width, layout.Height), layout.DeclarationOrder)).ToList();
+            // Existing cards reserve their remembered positions first; only new
+            // cards are placed into the remaining space. Pan and Orbit are identical.
+            var placements = _labelPlacements.Arrange(keepOut, requests);
+            foreach (var layout in layouts)
+            {
+                layout.CurrentCenter = placements[layout.Key].center;
                 _cardCenters[layout.Key] = layout.CurrentCenter;
             }
             foreach (var key in keepOut.Overflow)
@@ -2090,7 +2090,8 @@ namespace SSNoir.IMGUI
             _actionLayoutMode = mode;
             _actionLayoutSafeArea = UIScale.SafeArea;
             _hasActionLayoutContext = true;
-            _labelOffsets.Clear();
+            _labelPlacements.Clear();
+            _banterPlacements.Clear();
         }
 
         private static Vector2 ViewportDirection(Vector3 viewportPosition)
@@ -2873,13 +2874,16 @@ namespace SSNoir.IMGUI
         private void DrawBanterOverlay()
         {
             if (_banterPlayer.Visible.Count == 0)
+            {
+                _banterPlacements.Clear();
                 return;
+            }
             DialogueBubbleDrawer.DrawBanter(
                 _banterPlayer,
                 _dialogueAnchors,
                 _gameManager,
                 speaker => ReportRemoteFallback("play-bubble!", speaker),
-                _worldLabelSpace);
+                _worldLabelSpace, _banterPlacements);
         }
 
         // 阻塞：立绘舞台覆盖世界；Say 拍全屏左键推进（打字中补全，否则下一句），无字动作拍吞掉点击自动播完，后方控件由 IsInputLocked 显式禁用。

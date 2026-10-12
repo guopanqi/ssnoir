@@ -15,6 +15,130 @@ namespace SSNoir.IMGUI
         public enum Kind { Location, Action, Annotation, Bubble }
         public enum ZoneKind { Hard, Soft }
 
+        // Preferred side is a property of label type, never the anchor's current
+        // side of the screen. An action starts above its world subject.
+        public static Vector2 PreferredActionCenter(Vector2 anchor, Vector2 size)
+            => new Vector2(anchor.x, anchor.y - size.y / 2f - 18f);
+
+        /// <summary>Measured label request. The caller supplies content, not a placement policy.</summary>
+        public readonly struct Request
+        {
+            public readonly string Key;
+            public readonly Kind Kind;
+            public readonly Vector2 Anchor;
+            public readonly Vector2 Preferred;
+            public readonly Vector2 Size;
+            public readonly int Order;
+
+            public Request(string key, Kind kind, Vector2 anchor, Vector2 preferred,
+                Vector2 size, int order = 0)
+            {
+                Key = key;
+                Kind = kind;
+                Anchor = anchor;
+                Preferred = preferred;
+                Size = size;
+                Order = order;
+            }
+        }
+
+        /// <summary>
+        /// Layout memory belongs to an authored scene, not to a camera frame.
+        /// When the camera moves, only the projected anchor changes; its label offset
+        /// is immutable until the content dimensions or layout context changes.
+        /// A label may leave the viewport instead of flipping to the other side.
+        /// </summary>
+        public sealed class PlacementState
+        {
+            private readonly struct Entry
+            {
+                public readonly Vector2 Offset;
+                public readonly Vector2 Size;
+                public Entry(Vector2 offset, Vector2 size) { Offset = offset; Size = size; }
+            }
+
+            private readonly Dictionary<string, Entry> _entries = new();
+
+            public bool Contains(string key) => _entries.ContainsKey(key);
+            public void Clear() => _entries.Clear();
+
+            /// <summary>Forget removed authored nodes, not nodes merely outside the camera.</summary>
+            public void KeepOnly(IEnumerable<string> liveKeys)
+            {
+                var live = new HashSet<string>(liveKeys);
+                var removed = new List<string>();
+                foreach (var key in _entries.Keys)
+                    if (!live.Contains(key)) removed.Add(key);
+                foreach (var key in removed) _entries.Remove(key);
+            }
+
+            /// <summary>
+            /// First reserve all remembered placements, then solve genuinely new/changed
+            /// labels. Existing labels never flip side because a newcomer, viewport edge
+            /// or transient HUD happens to pass through their screen rectangle.
+            /// </summary>
+            public Dictionary<string, Rect> Arrange(Space space, IReadOnlyList<Request> requests)
+            {
+                var ordered = new List<Request>(requests);
+                ordered.Sort((a, b) =>
+                {
+                    int kind = a.Kind.CompareTo(b.Kind);
+                    if (kind != 0) return kind;
+                    int order = a.Order.CompareTo(b.Order);
+                    return order != 0 ? order : string.CompareOrdinal(a.Key, b.Key);
+                });
+
+                var result = new Dictionary<string, Rect>(ordered.Count);
+                var identities = new HashSet<string>();
+                foreach (var request in ordered)
+                {
+                    if (!identities.Add(request.Key))
+                        throw new ArgumentException("Duplicate label key: " + request.Key);
+                    if (!TryRemember(request, out var rect)) continue;
+                    space.Reserve(rect, ZoneKind.Hard);
+                    result.Add(request.Key, rect);
+                }
+                foreach (var request in ordered)
+                {
+                    if (result.ContainsKey(request.Key)) continue;
+                    result.Add(request.Key, SolveNew(space, request));
+                }
+                return result;
+            }
+
+            // Banter enters after world cards and uses the exact same placement rules.
+            public Rect Place(Space space, in Request request)
+            {
+                if (TryRemember(request, out var rect))
+                {
+                    space.Reserve(rect, ZoneKind.Hard);
+                    return rect;
+                }
+                return SolveNew(space, request);
+            }
+
+            private bool TryRemember(in Request request, out Rect rect)
+            {
+                if (_entries.TryGetValue(request.Key, out var entry)
+                    && Mathf.Approximately(entry.Size.x, request.Size.x)
+                    && Mathf.Approximately(entry.Size.y, request.Size.y))
+                {
+                    rect = Space.At(request.Anchor + entry.Offset, request.Size);
+                    return true; // No screen-edge clamp, no collision-driven side switch.
+                }
+                rect = default;
+                return false;
+            }
+
+            private Rect SolveNew(Space space, in Request request)
+            {
+                Rect rect = space.Place(request.Key, request.Kind, request.Anchor,
+                    request.Preferred, request.Size);
+                _entries[request.Key] = new Entry(rect.center - request.Anchor, request.Size);
+                return rect;
+            }
+        }
+
         public sealed class Space
         {
             private const float Edge = 8f;
@@ -42,25 +166,15 @@ namespace SSNoir.IMGUI
 
             public IReadOnlyCollection<string> Overflow => _overflow;
 
-            // The previous center is relative to the CURRENT projected anchor,
-            // never an absolute screen or world position from a different camera frame.
+            // Called only for a new label, a measured-size change or a scene reset.
+            // A moving camera must never trigger this search for an existing label.
             public Rect Place(string key, Kind kind, Vector2 anchor, Vector2 preferred,
-                Vector2? previous, Vector2 size)
+                Vector2 size)
             {
                 if (size.x <= 0f || size.y <= 0f)
                     throw new ArgumentException("World label must have positive measured dimensions: " + key);
 
                 float maxReach = Reach(kind);
-                if (previous.HasValue)
-                {
-                    Rect retained = At(previous.Value, size);
-                    if (Fits(retained) && !retained.Contains(anchor)
-                        && DistanceToEdge(anchor, retained) <= maxReach)
-                    {
-                        Reserve(retained, ZoneKind.Hard);
-                        return retained;
-                    }
-                }
 
                 // A deterministic finite set: preferred, anchor-relative positions, and
                 // obstacle edges. Never scan the entire viewport to "find any empty spot".
@@ -143,7 +257,7 @@ namespace SSNoir.IMGUI
                 _ => throw new ArgumentOutOfRangeException(nameof(kind))
             };
 
-            private static Rect At(Vector2 center, Vector2 size)
+            internal static Rect At(Vector2 center, Vector2 size)
                 => new Rect(center.x - size.x / 2f, center.y - size.y / 2f, size.x, size.y);
 
             private Vector2 ClampCenter(Vector2 center, Vector2 size)
