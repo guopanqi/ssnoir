@@ -1,0 +1,54 @@
+name: SSNoir R470-R477 Shared Premise Audit and Rebase
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r470-r477.yml'
+      - 'tools/content-validator/experiments/r470_r477_shared_premise.py'
+      - 'docs/实验/机制研究/批次/R470-R477-共同前提与逆向修复/**'
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Exact state recursion vs independent full scripts and branch witness
+        run: |
+          set -euo pipefail
+          python3 -m py_compile tools/content-validator/experiments/r470_r477_shared_premise.py
+          python3 tools/content-validator/experiments/r470_r477_shared_premise.py > /tmp/r470.json
+          python3 - <<'PY'
+          import json
+          x=json.load(open('/tmp/r470.json'))
+          assert x['R471_full_adaptive']=='9/2'
+          assert x['R472_no_audit']=='3'
+          assert x['R473_no_rebase']=='7/2'
+          assert x['R474_all_81_legal_fixed_scripts']['best']=='4'
+          assert x['R474_all_81_legal_fixed_scripts']['count']==81
+          assert x['R475_no_early_window']=='3'
+          assert x['R476_smaller_early_window']=='7/2'
+          assert [x['R477_independent_constructive_witness']['conditional'][i][0] for i in 'AB']==[5,4]
+          print('R470-R477 all exact and independent branch checks pass')
+          PY
+      - name: Existing experiment scope and white-list admission regressions
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/r454_r461_report_verification.py > /tmp/r454.json
+          python3 tools/content-validator/experiments/validate_abstract_research_scope.py
+          python3 tools/content-validator/experiments/validate_mechanism_portfolio.py
+          python3 tools/content-validator/experiments/validate_debug_playtests.py
+          python3 tools/content-validator/experiments/build_mechanism_atlas.py --check
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-r470-r477-shared-premise
+          path: |
+            /tmp/r470.json
+            /tmp/r454.json
+          retention-days: 21
