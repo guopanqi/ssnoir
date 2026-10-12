@@ -44,7 +44,7 @@ def perform(p,obs,card,history):
     return choose_action(p,obs,op,history)
 def end(p,obs,history):
     return choose_action(p,obs,get(obs,"end-turn"),history)
-def run():
+def run(spend_counter=True):
     p=Popen(CMD+["--session","world","--seed","19","--growth","4"],
        cwd=ROOT,stdin=PIPE,stdout=PIPE,stderr=PIPE,text=True)
     obs=recv(p);history=[];stage="wait_commission";cig_obtained=False;counter_spent=False;obstacles=[]
@@ -113,6 +113,11 @@ def run():
                 continue
             if stage=="east_entry":
                 obs=move_to(p,obs,"码头居民区",history)
+                if not spend_counter and get(obs,"action",TARGET):
+                    assert obs["Inventory"].get(ITEM,0)==1,obs["Inventory"]
+                    # Declining an offered choice is not an engine state edit.
+                    stage="west_street"
+                    continue
                 if get(obs,"action",TARGET):
                     before=obs["Inventory"].get(ITEM,0)
                     obs=perform(p,obs,TARGET,history)
@@ -185,6 +190,30 @@ def run():
                 cards={c["Name"] for c in obs["Cards"]}
                 if "把烟盒扔到桌上" in cards:
                     legal=bool(get(obs,"action","把烟盒扔到桌上"))
+                    if not spend_counter:
+                        assert not counter_spent and cig_obtained
+                        assert obs["Inventory"].get(ITEM,0)==1 and legal
+                        before_clocks=obs.get("Clocks",[])
+                        obs=perform(p,obs,"把烟盒扔到桌上",history)
+                        assert obs["Inventory"].get(ITEM,0)==0
+                        after_clocks=obs.get("Clocks",[])
+                        transcript_path="/tmp/s3-w-retained-world-to-lyon.json"
+                        p.stdin.write(json.dumps({"command":"save","path":transcript_path},ensure_ascii=False)+"\n")
+                        p.stdin.flush()
+                        msg=json.loads(p.stdout.readline())
+                        assert msg.get("type")=="saved",msg
+                        return {"status":"same_original_world_saved_for_lyon_spent",
+                            "transcript":transcript_path,
+                            "item_naturally_acquired":cig_obtained,"counter_spent":False,
+                            "counter_option_declined":True,
+                            "lyon_card_visible":True,"lyon_item_action_legal":True,
+                            "lyon_item_executed":True,
+                            "lyon_inventory_before":1,"lyon_inventory_after":0,
+                            "lyon_clock_before":before_clocks,"lyon_clock_after":after_clocks,
+                            "native_steps":history,
+                            "settings":{"entry":"world","seed":19,"growth":4,"items":{}},
+                            "obstacles":[],
+                            "scope":"one original world new save; no counter use, real Lyon item consumption, not human"}
                     assert counter_spent and obs["Inventory"].get(ITEM,0)==0
                     assert not legal,(obs["Inventory"],obs["Operations"])
                     transcript_path="/tmp/s3-w-same-world-to-lyon.json"
