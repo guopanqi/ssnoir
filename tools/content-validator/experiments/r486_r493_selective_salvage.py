@@ -24,9 +24,27 @@ def value(bonus=3,wx=3,wy=2,audit=True,patch=True,known=False):
     if known:return (v(0,0,0,False,False,'A')+v(0,0,0,False,False,'B'))/2
     return v(0,0,0,False,False,None)
 
+def replay(theta):
+    nx=ny=0
+    px=py=False
+    audited=False
+    for action in ('MAKE-X','MAKE-Y','AUDIT','PATCH-WRONG'):
+        if action=='MAKE-X':nx+=3
+        elif action=='MAKE-Y':ny+=1
+        elif action=='AUDIT':audited=True
+        else:
+            assert audited
+            if theta=='A':py=True
+            else:px=True
+    x=nx if theta=='A' or px else 0
+    y=ny if theta=='B' or py else 0
+    return F(x+y+3*bool(x and y))
+
 def run():
+    witness={th:replay(th) for th in 'AB'}
+    assert witness=={'A':F(7),'B':F(7)}
     r={'R486_terminal_dependency':{'theta_A':3,'theta_B':1},
-       'R487_full':value(),'R488_fixed_recipe':{'A':F(7),'B':F(7)},
+       'R487_full':value(),'R488_fixed_recipe':witness,
        'R489_no_audit':value(audit=False),
        'R490_no_patch':value(patch=False),
        'R491_no_complement_bonus':value(bonus=0),
