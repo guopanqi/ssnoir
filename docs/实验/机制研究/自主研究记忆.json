@@ -1,26 +1,18 @@
 {
   "schema": "ssnoir.autonomous-pattern-memory/v1",
   "updated": "2026-10-12",
-  "batch": "S3-Y完成＋S3-Z离队时序原生补证",
-  "rounds": 0,
-  "totalArchivedRounds": 69,
+  "batch": "R125–R127 空间换路与证人连带强反证",
+  "rounds": 3,
+  "totalArchivedRounds": 72,
   "objective": "Keep an honest research candidate quality gate: 20 different sources is not 20 human-validated attractive games; continue autonomously with direct causal ablations",
   "method": {
-    "phase": "Y1-Y4",
-    "baseline": "68b24d4a8661bd5be2794d399b5de24899bc0624",
-    "staticPrograms": [
-      "tools/content-validator/experiments/s3_y_visible_option_audit.py",
-      "tools/content-validator/experiments/s3_y_route_consequence_contract.py"
-    ],
-    "fullOriginalWorldPrograms": [
-      "tools/content-validator/experiments/s3_y_west_reveal_native.py",
-      "tools/content-validator/experiments/s3_y_solo_companion_native.py"
-    ],
-    "ciSource": "38213836376",
-    "ciNative": "38214574855",
-    "evidence": "source contracts + simple Fraction conditional counterexamples + same-original-world day9 real actor choice with strict native replay",
-    "notEvidence": "no new human data; no real skill distribution fitting; no new formal mode or Debug candidate",
-    "nextDayRun": "38215151932"
+    "stage": "A证据审计 / B最小模型 / C强简单策略及消融 / D归档",
+    "baselineMain": "29e243b7c9e3cb2c0321a846cbd305472f8a4d4b",
+    "paperScript": "tools/content-validator/experiments/r125_r127_spatial_social_audit.py",
+    "workflow": ".github/workflows/ssnoir-r125-r127.yml",
+    "evidence": "only exact Fraction paper, no official native or human",
+    "canonicalUnchanged": true,
+    "debugEntriesUnchanged": 3
   },
   "results": [
     {
@@ -86,6 +78,44 @@
         "strictReplay": true
       },
       "lesson": "卡称她已经离开时能消耗她的骰；正常日终夜莺才移除。应以剧情意图决定是否延迟独自调查或调整角色行动契约，不能只改字幕或硬搬离队。"
+    },
+    {
+      "id": "R125",
+      "name": "空间位置与东区期限下的真实改投",
+      "status": "低容量无优势；七行动仅相对固定切换多3/32，暂为已有容量/期限的组合实例",
+      "evidence": {
+        "lowCapacity": "11/8=best single site",
+        "sevenFree": "15/8",
+        "sevenBestTimedCut": "57/32",
+        "increment": "3/32",
+        "strictReachableWitness": "t=3,E progress 0 switch is 1 vs work 3/4; with E progress 1 work 7/4 vs switch 1"
+      },
+      "lesson": "位置转换确实消耗行动，但数学差距不等于新高阶机制。"
+    },
+    {
+      "id": "R126",
+      "name": "公开双阈值压缩空间DP",
+      "status": "否定复杂规划必要性，不入精选",
+      "evidence": {
+        "twoCuts": "3,7",
+        "value": "15/8",
+        "fullDP": "15/8",
+        "sameDeadlinesBestTimed": "69/32",
+        "sameDeadlinesFull": "69/32"
+      },
+      "lesson": "玩家只需要时间和本地进度的可解释规则；结果依赖行动容量。"
+    },
+    {
+      "id": "R127",
+      "name": "证人逼问对他人合作资格的连带后果",
+      "status": "关闭新增连带规则对最优根值贡献零；淘汰当前独立结构",
+      "evidence": {
+        "free": "17/4",
+        "askBothFirst": "17/4",
+        "disableCollateral": "17/4",
+        "disableCoercion": "9/4"
+      },
+      "lesson": "不能把可触发的关系惩罚冒充最优路径必然考虑的人物冲突。"
     }
   ],
   "crossRoundMemory": [
@@ -134,7 +164,8 @@
     "S3-X knowledge: East counter subtitle explicitly says it takes the unique physical cigarette and grants East Gallery2 for no die. At that time Ryan's eventual smoke-card is secret; strongest two-period public synthetic rule e>=q*l (W4 already verified) saturates optimal. Good research question is whether retaining recognizable physical evidence feels reasonable and whether later regret is fair, not inventing extra DP complexity. Human feedback from this scenario absent.",
     "S3-Y actual official world day9 seed19 growth4: natural 42-action West reveal immediately shows solo Frank card with subtitle '她已经走了' while Nightingale remains in Actors with dice[3]. Original legal action '自己走东侧那条回廊： 夜莺[0]=3' executed and consumed that die without day rollover, native strict replay CI38214574855. This is player-facing narrative/action-contract discrepancy, not just static. Do not silently move her dismissal: dialogue is deferred end-day in 三封信.scm and may depend on sequence.",
     "S3-Y: source contract distinguishes under-informed choices: East entrance social vs West knowledge are public but East=Frank West=Ryan are hidden. Cigs counter public gain EastGallery2 and irreversible item cost; later Lyon form1 +2 without die hidden at counter. Without packet native options: letters knowledge bad composure-1, mid1 good2; her-now social bad composure-2 + crowd pressure1, mid2 good3. Fraction equal-prob one-stage sample is NOT live skills. Frank remains meetable after West via solo card, guided scenes instead lost. No new mathematical complexity or human fun established.",
-    "S3-Z source/native: official world seed19 growth4 West bridge reveals Ryan on day9 after 42 authorized actions. Solo Frank operation is already available with Nightingale's die and caption '她已经走了'. One real public end-turn day9->day10 changes actor names ['尼尔','夜莺'] -> ['尼尔'], replay CI38215151932 successful. This precisely locates mismatch before day-end. Any future fix must respect the deferred dialogue and player action economy; no code patch yet."
+    "S3-Z source/native: official world seed19 growth4 West bridge reveals Ryan on day9 after 42 authorized actions. Solo Frank operation is already available with Nightingale's die and caption '她已经走了'. One real public end-turn day9->day10 changes actor names ['尼尔','夜莺'] -> ['尼尔'], replay CI38215151932 successful. This precisely locates mismatch before day-end. Any future fix must respect the deferred dialogue and player action economy; no code patch yet.",
+    "R125–R127: 位置+期限有正常可达严格转换但被两条公开阈值完全压缩；证人逼问的连带关门有演示效果而强策略根值边际0。精确 Fraction 纸面证据，未加精选/Debug/原生/真人。接续 R128 先做真实时间可达性与双消融，再决定是否独立。"
   ],
   "history": [
     {
@@ -1572,6 +1603,56 @@
       ],
       "record": "docs/实验/机制研究/批次/S3-X-跨阶段物证选择/研究记录.md",
       "note": "Technical continuation from W1–W5, no new abstract pattern or R-round count; avoid duplication."
+    },
+    {
+      "batch": "R125–R127-空间与证人连带",
+      "rounds": 3,
+      "method": {
+        "source": "exact finite Fraction Python",
+        "CIWorkflow": "ssnoir-r125-r127.yml",
+        "noCanonicalChange": true
+      },
+      "results": [
+        {
+          "id": "R125",
+          "name": "空间位置与东区期限下的真实改投",
+          "status": "低容量无优势；七行动仅相对固定切换多3/32，暂为已有容量/期限的组合实例",
+          "evidence": {
+            "lowCapacity": "11/8=best single site",
+            "sevenFree": "15/8",
+            "sevenBestTimedCut": "57/32",
+            "increment": "3/32",
+            "strictReachableWitness": "t=3,E progress 0 switch is 1 vs work 3/4; with E progress 1 work 7/4 vs switch 1"
+          },
+          "lesson": "位置转换确实消耗行动，但数学差距不等于新高阶机制。"
+        },
+        {
+          "id": "R126",
+          "name": "公开双阈值压缩空间DP",
+          "status": "否定复杂规划必要性，不入精选",
+          "evidence": {
+            "twoCuts": "3,7",
+            "value": "15/8",
+            "fullDP": "15/8",
+            "sameDeadlinesBestTimed": "69/32",
+            "sameDeadlinesFull": "69/32"
+          },
+          "lesson": "玩家只需要时间和本地进度的可解释规则；结果依赖行动容量。"
+        },
+        {
+          "id": "R127",
+          "name": "证人逼问对他人合作资格的连带后果",
+          "status": "关闭新增连带规则对最优根值贡献零；淘汰当前独立结构",
+          "evidence": {
+            "free": "17/4",
+            "askBothFirst": "17/4",
+            "disableCollateral": "17/4",
+            "disableCoercion": "9/4"
+          },
+          "lesson": "不能把可触发的关系惩罚冒充最优路径必然考虑的人物冲突。"
+        }
+      ],
+      "record": "docs/实验/机制研究/批次/R125-R127-空间与证人连带/研究记录.md"
     }
   ],
   "frontier": [
@@ -1602,6 +1683,13 @@
       "question": "无提示新人是否理解‘当前放弃证据换店主消息’和‘叫出莱恩名字后夜莺的退场’？",
       "method": "使用S3-W无提示烟盒与S3-东/西路线阅读情境，不暴露莱恩的预知烟盒用途；反馈异步。",
       "humanGate": true
+    },
+    {
+      "id": "R128-人物反应真实时间窗",
+      "priority": 5,
+      "question": "公开期限和证人合作连带何时产生不能被先询问所有人解释的真实选择？",
+      "method": "先与既有R112/P17/P18/P20辨同构；固定三手容量、明确人物证词后果；独立关闭期限/关闭封锁并与最强可解释先问策略对照，缺有效因果即停止",
+      "humanGate": false
     }
   ],
   "policy": "Continue without user feedback; distinguish native mechanism function, feature ablation, strong simple policy, actual voluntary decision, and eventual human appeal. Do not auto-add candidates to Debug.",
@@ -1677,6 +1765,21 @@
       ],
       "lesson": "Day9 actor Nightingale can execute solo Frank, end-turn day9→10 removes her; this is an actual authored state/actor contradiction. Need decide intended departure timing before any content correction; all three tested sessions are real, not human.",
       "record": "docs/实验/机制研究/批次/S3-Y-玩家知识与人物后果/研究记录.md"
+    },
+    {
+      "id": "R125-R127-spatial-social-causal",
+      "date": "2026-10-12",
+      "name": "空间阈值与人物连带关系两种新假设的强策略消融",
+      "scope": "three new exact paper rounds, no native/human",
+      "evidence": {
+        "spatialAdaptive": "15/8",
+        "bestFixed": "57/32",
+        "strongPublic": "15/8",
+        "collateralFree": "17/4",
+        "collateralAblated": "17/4"
+      },
+      "lesson": "记录严格可达转向，同时对复杂性和新增规则本身做独立归因",
+      "record": "docs/实验/机制研究/批次/R125-R127-空间与证人连带/研究记录.md"
     }
   ],
   "parallelBatches": [

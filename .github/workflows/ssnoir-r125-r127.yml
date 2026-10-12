@@ -1,0 +1,35 @@
+name: SSNoir R125-R127 Paper Falsification
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r125-r127.yml'
+      - 'tools/content-validator/experiments/r125_r127_spatial_social_audit.py'
+      - 'docs/实验/机制研究/批次/R125-R127-空间与证人连带/研究记录.md'
+permissions:
+  contents: read
+jobs:
+  exact-paper:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Exact Fraction strategy and ablation tests
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/r125_r127_spatial_social_audit.py | tee /tmp/r125-r127.json
+          python3 -m py_compile tools/content-validator/experiments/r125_r127_spatial_social_audit.py
+      - name: Audit selected portfolio and Debug admission
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/validate_mechanism_portfolio.py
+          python3 tools/content-validator/experiments/validate_debug_playtests.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-r125-r127-exact-paper
+          path: /tmp/r125-r127.json
+          retention-days: 21
