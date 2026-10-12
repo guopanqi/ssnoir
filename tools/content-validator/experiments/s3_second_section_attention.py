@@ -11,6 +11,9 @@ which *never itself yields key evidence*, L Nightingale accompanies next day
 only if O completed (L progress2), and E optional Eddie response progress2
 only after witnessed bar encounter and before that evening ends.
 This progress2 for E is a mathematical cost PROXY, not Eddie's real encounter.
+The optimal solver is an AUTHOR-OMNISCIENT upper bound: before solo failure,
+the PLAYER cannot know Nightingale will offer to come tomorrow. Neither the
+optimal policy nor offline-tuned heuristics are human information evidence.
 Two main leads D+L are combined to identify Ryan in this hypothetical horizon.
 Actual dates/progress/rewards are NOT given by the chapter manuscript.
 """
@@ -171,6 +174,7 @@ def main():
         "source_boundary":{"nightingale_next_day":True,"eddie_global_world_entry_currently_disabled":True,
           "eddie_unobserved_event_has_no_public_clock":True,
           "solo_exploration_never_directly_identifies_ryan":True},
+        "information_warning":"Author oracle knows scripted next-day Nightingale help from start; player cannot know it before solo failure. Offline-selected simple rules are not empirical human strategies.",
         "evidence_identity":"PAPER math only; no native S3 execution, no human play"};
     payload=json.dumps(results,ensure_ascii=False,indent=2)+"\n"
     if len(sys.argv)>1:Path(sys.argv[1]).write_text(payload,encoding="utf8")
