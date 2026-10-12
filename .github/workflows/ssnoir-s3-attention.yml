@@ -1,0 +1,47 @@
+name: SSNoir S3 第二节并发关注关系
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-s3-attention.yml'
+      - 'tools/content-validator/experiments/s3_second_section_attention.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  s3-source-constrained-paper:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - name: 精确计算、最强公开规则、正常路径与四项反事实
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/s3_second_section_attention.py /tmp/s3-section2.json
+          python3 - <<'PY'
+          from fractions import Fraction as F
+          import json
+          r=json.load(open('/tmp/s3-section2.json'))
+          c=r['core']
+          assert c['normal_public_state_count'] > 8
+          assert F(c['optimal']) >= F(c['strong_global']) >= 0
+          assert F(c['optimal']) >= F(c['strong_day_specific'])
+          assert F(c['optimal']) >= F(c['best_public_rule'])
+          assert F(c['normal_optimal_expected_visits_with_multiple_actions']) > 0
+          a=r['ablations']
+          assert F(a['disable_eddie']) <= F(c['optimal'])
+          assert F(a['remove_solo_first_gate']) >= F(c['optimal'])
+          assert F(a['remove_observed_eddie_same_evening_deadline']) >= F(c['optimal'])
+          assert F(a['remove_two_lead_convergence_reward']) <= F(c['optimal'])
+          assert r['source_boundary']['eddie_unobserved_event_has_no_public_clock']
+          print('S3纸面：期限和并发、最强简单规则、正常可达轨迹及四项消融通过')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ssnoir-s3-第二节并发纸面审查
+          path: /tmp/s3-section2.json
+          retention-days: 90
