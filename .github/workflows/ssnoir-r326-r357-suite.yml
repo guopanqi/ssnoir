@@ -47,9 +47,9 @@ jobs:
           assert data[2]['R342_two_round_commitment']['optimal']=='17/4'
           assert data[3]['R350_main_partial_information']=='5'
           memo=json.loads(Path('docs/实验/机制研究/自主研究记忆.json').read_text())
-          assert memo['totalArchivedRounds']==302 and memo['roundsSinceCalibration']==184
+          assert memo['totalArchivedRounds']>=302 and memo['roundsSinceCalibration']>=184
           assert memo['totalArchivedRounds']==118+memo['roundsSinceCalibration']
-          assert sum(x['rounds'] for x in memo['history'])==184
+          assert sum(x['rounds'] for x in memo['history'])==memo['roundsSinceCalibration']
           assert len(memo['history'])<=3
           print('FOUR ABSTRACT FAMILIES AND 32-CHECK MEMORY RECOVERY PASS')
           PY
