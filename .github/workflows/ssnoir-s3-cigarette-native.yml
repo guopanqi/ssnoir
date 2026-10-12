@@ -7,6 +7,7 @@ on:
       - 'tools/content-validator/experiments/s3_gold_cigarette_native.py'
       - 'tools/content-validator/experiments/s3_one_item_option_bound.py'
       - 'tools/content-validator/experiments/s3_world_entry_probe.py'
+      - 'tools/content-validator/experiments/s3_world_cigarette_route.py'
   workflow_dispatch:
 permissions:
   contents: read
@@ -105,5 +106,41 @@ jobs:
         with:
           name: ssnoir-s3-W-正式世界自然入口调查
           path: /tmp/s3-world-entry.json
+          if-no-files-found: ignore
+          retention-days: 90
+  bounded-natural-world-counter:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - uses: actions/setup-dotnet@v4
+        with: {dotnet-version: '9.0.x'}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: dotnet build tools/content-validator/SSNoir.ContentValidator.csproj -nologo -v q
+      - name: 无伪造物品或主线阶段的原始世界正常路径检查
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/s3_world_cigarette_route.py /tmp/s3-natural-route.json
+          python3 - <<'PY'
+          import json
+          x=json.load(open('/tmp/s3-natural-route.json'))
+          assert x['settings']['items']=={}
+          assert x['native_steps']
+          print('S3-NATURAL-WORLD',x['status'],'native_steps',len(x['native_steps']),
+            'got_cigarette',x['item_naturally_acquired'],
+            'counter_spent',x['counter_spent'])
+          if 'last_public_observation' in x:
+              print('LAST-OBS',json.dumps(x['last_public_observation'],ensure_ascii=False))
+          if x['obstacles']:
+              print('BLOCKER',json.dumps(x['obstacles'],ensure_ascii=False))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-s3-W-从新档到柜台的有界真实行动记录
+          path: /tmp/s3-natural-route.json
           if-no-files-found: ignore
           retention-days: 90
