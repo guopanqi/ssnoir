@@ -44,7 +44,7 @@ def perform(p,obs,card,history):
     return choose_action(p,obs,op,history)
 def end(p,obs,history):
     return choose_action(p,obs,get(obs,"end-turn"),history)
-def run(spend_counter=True):
+def run(spend_counter=True, let_chase_escape=False):
     p=Popen(CMD+["--session","world","--seed","19","--growth","4"],
        cwd=ROOT,stdin=PIPE,stdout=PIPE,stderr=PIPE,text=True)
     obs=recv(p);history=[];stage="wait_commission";cig_obtained=False;counter_spent=False;obstacles=[]
@@ -69,6 +69,14 @@ def run(spend_counter=True):
                     else:obs=end(p,obs,history)
                 continue
             if stage=="mail_encounter":
+                if let_chase_escape and obs["IsInEncounter"]:
+                    # Valid public end-turns instead of a chase-item fixture.
+                    # If the actual session requires a mandatory response this
+                    # route fails with its real public state (no state mutation).
+                    op=get(obs,"end-turn")
+                    if not op:raise RuntimeError("Cannot decline chase using a public end-turn")
+                    obs=choose_action(p,obs,op,history)
+                    continue
                 if not obs["IsInEncounter"]:
                     cig_obtained=obs["Inventory"].get(ITEM,0)==1
                     stage="post_chase_home"
@@ -107,6 +115,8 @@ def run(spend_counter=True):
                 obs=move_to(p,obs,"码头居民区",history)
                 if get(obs,"action","独自在老街打听"):
                     obs=perform(p,obs,"独自在老街打听",history)
+                elif let_chase_escape and get(obs,"action","陪她上西侧楼梯"):
+                    stage="west_street"
                 elif get(obs,"action","带她穿过东侧门廊"):
                     stage="east_entry"
                 else:obs=end(p,obs,history)
@@ -190,6 +200,22 @@ def run(spend_counter=True):
                 cards={c["Name"] for c in obs["Cards"]}
                 if "把烟盒扔到桌上" in cards:
                     legal=bool(get(obs,"action","把烟盒扔到桌上"))
+                    if let_chase_escape:
+                        assert not cig_obtained
+                        assert obs["Inventory"].get(ITEM,0)==0 and not legal
+                        transcript_path="/tmp/s3-x-no-cigarette-world-to-lyon.json"
+                        p.stdin.write(json.dumps({"command":"save","path":transcript_path},ensure_ascii=False)+"\n")
+                        p.stdin.flush()
+                        msg=json.loads(p.stdout.readline())
+                        assert msg.get("type")=="saved",msg
+                        return {"status":"same_original_world_no_cigarette_reached_lyon",
+                            "transcript":transcript_path,
+                            "item_naturally_acquired":False,"counter_spent":False,
+                            "lyon_card_visible":True,"lyon_item_action_legal":False,
+                            "lyon_inventory":0,"native_steps":history,
+                            "settings":{"entry":"world","seed":19,"growth":4,"items":{}},
+                            "obstacles":[],
+                            "scope":"real end-turns in first chase, original west inquiry and Lyon; no item fixtures, not proven equal story outcome or human"}
                     if not spend_counter:
                         assert not counter_spent and cig_obtained
                         assert obs["Inventory"].get(ITEM,0)==1 and legal
