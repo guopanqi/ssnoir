@@ -1,0 +1,44 @@
+name: SSNoir R108 Exact Paper Audit
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r108.yml'
+      - 'tools/content-validator/experiments/r108_audit.py'
+      - 'docs/实验/机制研究/批次/R108-自然线索与专门探查/r108_results.json'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  exact-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Replay 16 Fraction cases and compare uploaded evidence byte-for-byte
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/r108_audit.py > /tmp/r108_reproduced.json
+          cmp -s /tmp/r108_reproduced.json docs/实验/机制研究/批次/R108-自然线索与专门探查/r108_results.json
+          python3 - <<'PY'
+          import json
+          from fractions import Fraction as F
+          report=json.load(open('/tmp/r108_reproduced.json'))
+          assert len(report['rows']) == 16
+          core=next(x for x in report['rows'] if x['K']==4 and x['q']=='1/4')
+          assert F(core['free']) == F(133,54)
+          assert F(core['disabled_probe']) == F(121,54)
+          assert F(core['marginal_probe']) == F(2,9)
+          assert F(core['best_simple']['gap']) == 0
+          assert all(F(r['marginal_probe'])==0 for r in report['rows'] if r['K']==2 or r['q']=='1')
+          print('R108: 16 Fraction cases match submitted JSON; core ablation and simple-policy bound passed')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ssnoir-r108-math-reproduced
+          path: /tmp/r108_reproduced.json
+          retention-days: 90
