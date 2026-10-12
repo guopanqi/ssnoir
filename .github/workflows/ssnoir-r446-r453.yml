@@ -1,0 +1,48 @@
+name: SSNoir R446-R453 Authorship vs Rule Menus
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r446-r453.yml'
+      - 'tools/content-validator/experiments/r446_r453_rule_authoring_menu.py'
+      - 'docs/实验/机制研究/批次/R446-R453-规则编写与预设覆盖/**'
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Enumerate all 256 target tapes and compare three controllers
+        run: |
+          set -euo pipefail
+          python3 -m py_compile tools/content-validator/experiments/r446_r453_rule_authoring_menu.py
+          python3 tools/content-validator/experiments/r446_r453_rule_authoring_menu.py >/tmp/r446.json
+          python3 - <<'PY'
+          import json
+          x=json.load(open('/tmp/r446.json'))
+          assert x['R446_all_target_tapes']==256
+          assert x['R447_full_menu_dominance_violations']==0
+          assert x['R448_author_vs_four_menu_counts']=={'author_beats_four':48,'four_beats_author':120,'tie':88}
+          assert x['R449_author_example_XXAA']==['11/4','5/2','11/4']
+          assert x['R452_full_menu_strictly_better']=={'full16_over_author':120,'full16_over_four':48}
+          print('Complete expression menu dominates editing; small catalogue sometimes leaves gaps')
+          PY
+      - name: Verify research scope and Debug separation
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/validate_abstract_research_scope.py
+          python3 tools/content-validator/experiments/validate_mechanism_portfolio.py
+          python3 tools/content-validator/experiments/validate_debug_playtests.py
+          python3 tools/content-validator/experiments/build_mechanism_atlas.py --check
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-r446-r453-menu-audit
+          path: /tmp/r446.json
+          retention-days: 21
