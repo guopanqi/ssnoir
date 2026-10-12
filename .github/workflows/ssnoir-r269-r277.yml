@@ -1,0 +1,54 @@
+name: SSNoir R269-R277 Adaptive Diagnostic Questions
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r269-r277.yml'
+      - 'tools/content-validator/experiments/r269_r277_adaptive_diagnosis.py'
+      - 'docs/实验/机制研究/批次/R269-R277-适应性诊断提问/研究记录.md'
+permissions:
+  contents: read
+jobs:
+  exact:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Complete two-question policies and independent belief partition solver
+        run: |
+          set -euo pipefail
+          python3 -m py_compile tools/content-validator/experiments/r269_r277_adaptive_diagnosis.py
+          python3 tools/content-validator/experiments/r269_r277_adaptive_diagnosis.py | tee /tmp/r269-r277.json
+          python3 - <<'PY'
+          import json
+          d=json.load(open('/tmp/r269-r277.json'))
+          assert d["R269_no_noise_adaptive"]=="1"
+          assert d["R270_best_two_fixed_queries"]=="3/4"
+          assert d["R271_contingent_query_plan"]==["ACB"]
+          assert d["R273_noisy_tenth"]["adaptive"]=="81/100"
+          assert d["R273_noisy_tenth"]["fixed"]=="63/100"
+          assert d["R274_all_questions_pure_noise"]["adaptive"]=="1/4"
+          print("Twenty-seven explicit policies match independent two-stage belief DP")
+          PY
+      - name: Existing two batches, scope and curated portfolio
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/r253_r260_irreversible_checkpoint.py >/tmp/r253-r260.json
+          python3 tools/content-validator/experiments/r261_r268_signal_credibility.py >/tmp/r261-r268.json
+          python3 tools/content-validator/experiments/validate_abstract_research_scope.py
+          python3 tools/content-validator/experiments/validate_mechanism_portfolio.py
+          python3 tools/content-validator/experiments/validate_debug_playtests.py
+          python3 tools/content-validator/experiments/build_mechanism_atlas.py --check
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-r269-r277-adaptive-questions
+          path: |
+            /tmp/r269-r277.json
+            /tmp/r253-r260.json
+            /tmp/r261-r268.json
+          retention-days: 21
