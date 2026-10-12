@@ -1,5 +1,5 @@
 ;; 独立深入交涉：A→A1→加工结果；B→B1→订单结果。
-;; 每层4格，每完成一层使另一整条路线难度-1，最多-2。
+;; 每层4格，每完成一层使另一整条路线准备值+1，最多+2（降低难度）。
 ;; 未接入城市或实际线索物品，不获取原始底片。
 (define finished? #f)
 (define paper (make-clock "A：辨认相纸" 4 'gauge "满4找到相纸批次，开放设备比对；订单路线难度降低1。"))
@@ -61,7 +61,7 @@
     :resolve (roll skill
       (lambda ()
         (let ((help (if (member? stage '(A A1)) (b-help) (a-help))))
-          (if (> help 0) (list (modifier (- 0 help)
+          (if (> help 0) (list (modifier help
             (if (member? stage '(A A1)) "订单依据" "加工依据"))) '())))
       (outcome (lambda () (resolve! stage direct? '坏)))
       (outcome (lambda () (resolve! stage direct? '中)))
