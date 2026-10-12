@@ -19,7 +19,6 @@ namespace SSNoir.IMGUI
         private static bool _theatreExpanded = false;
         private static bool _researchExpanded = false;
         private static readonly List<SceneItem> _scenes = new List<SceneItem>();
-        private static readonly List<CutsceneSequence> _sequences = new List<CutsceneSequence>();
         private static float _scrollOffset;
         private static bool _scrollDragActive;
         private static float _scrollDragLastY;
@@ -42,23 +41,30 @@ namespace SSNoir.IMGUI
 
         private static readonly ChapterJump[] ChapterJumps =
         {
-            new ChapterJump { Label = "线绘舞台试演：雨夜来访", Code = "(three-letters 'debug-theatre-rainy-door!)" },
-            new ChapterJump { Label = "线绘舞台试演：路灯下", Code = "(begin (load-file \"scripts/theatre/路灯下.scm\") (路灯下-试演!))" },
-            new ChapterJump { Label = "线绘舞台试演：室内求助", Code = "(begin (load-file \"scripts/theatre/室内求助.scm\") (室内求助-演出))" },
-            new ChapterJump { Label = "线绘舞台试演：第二天", Code = "(begin (load-file \"scripts/theatre/第二天.scm\") (第二天-演出))" },
-            new ChapterJump { Label = "线绘舞台试演：平静", Code = "(begin (load-file \"scripts/theatre/平静.scm\") (平静-演出))" },
-            new ChapterJump { Label = "线绘舞台试演：烟盒", Code = "(begin (load-file \"scripts/theatre/烟盒.scm\") (烟盒-演出))" },
-            new ChapterJump { Label = "线绘舞台试演：弗兰克的桌子", Code = "(begin (load-file \"scripts/theatre/弗兰克的桌子.scm\") (弗兰克的桌子-演出))" },
-            new ChapterJump { Label = "线绘舞台试演：独闯老街", Code = "(begin (load-file \"scripts/theatre/独闯老街.scm\") (独闯老街-演出))" },
-            new ChapterJump { Label = "线绘舞台试演：巷口", Code = "(begin (load-file \"scripts/theatre/巷口.scm\") (巷口-演出))" },
-            new ChapterJump { Label = "线绘舞台试演：贝恩斯", Code = "(begin (load-file \"scripts/theatre/贝恩斯.scm\") (贝恩斯-演出))" },
-            new ChapterJump { Label = "线绘舞台试演：老街被介入", Code = "(begin (load-file \"scripts/theatre/老街被介入.scm\") (老街被介入-演出))" },
-            new ChapterJump { Label = "线绘舞台试演：经理电话", Code = "(begin (load-file \"scripts/theatre/经理电话.scm\") (经理电话-演出))" },
-            new ChapterJump { Label = "线绘舞台试演：解雇", Code = "(begin (load-file \"scripts/theatre/解雇.scm\") (解雇-演出))" },
-            new ChapterJump { Label = "线绘舞台试演：剧院来信", Code = "(begin (load-file \"scripts/theatre/剧院来信.scm\") (剧院来信-演出))" },
-            new ChapterJump { Label = "线绘舞台试演：莱恩的家", Code = "(begin (load-file \"scripts/theatre/莱恩的家.scm\") (莱恩的家-演出))" },
-            new ChapterJump { Label = "线绘舞台试演：剧院安全", Code = "(begin (load-file \"scripts/theatre/剧院安全.scm\") (剧院安全-演出))" },
-            new ChapterJump { Label = "线绘舞台试演：彩排", Code = "(begin (load-file \"scripts/theatre/彩排.scm\") (彩排-演出))" },
+            new ChapterJump { Label = "剧场试演：酒馆出门", Code = "(begin (load-file \"scripts/theatre/序章开场.scm\") (序章-酒馆出门))" },
+            new ChapterJump { Label = "剧场试演：房东催租", Code = "(begin (load-file \"scripts/theatre/序章开场.scm\") (序章-房东催租))" },
+
+            new ChapterJump { Label = "剧场试演：雨夜来访", Code = "(begin (load-file \"scripts/theatre/雨夜来访.scm\") (雨夜来访-演出))" },
+            new ChapterJump { Label = "剧场试演：路灯下", Code = "(begin (load-file \"scripts/theatre/路灯下.scm\") (路灯下-试演!))" },
+            new ChapterJump { Label = "剧场试演：室内求助", Code = "(begin (load-file \"scripts/theatre/室内求助.scm\") (室内求助-演出))" },
+            new ChapterJump { Label = "剧场试演：第二天", Code = "(begin (load-file \"scripts/theatre/第二天.scm\") (第二天-演出))" },
+            new ChapterJump { Label = "剧场试演：邮箱相见：足额", Code = "(begin (load-file \"scripts/theatre/邮箱相见.scm\") (邮箱相见-演出 '足额))" },
+            new ChapterJump { Label = "剧场试演：邮箱相见：她补", Code = "(begin (load-file \"scripts/theatre/邮箱相见.scm\") (邮箱相见-演出 '她补))" },
+            new ChapterJump { Label = "剧场试演：邮箱相见：塞报纸", Code = "(begin (load-file \"scripts/theatre/邮箱相见.scm\") (邮箱相见-演出 '塞报纸))" },
+            new ChapterJump { Label = "剧场试演：勒索追逐", Code = "(begin (load-file \"scripts/theatre/勒索追逐.scm\") (勒索追逐-演出))" },
+            new ChapterJump { Label = "剧场试演：平静", Code = "(begin (load-file \"scripts/theatre/平静.scm\") (平静-演出))" },
+            new ChapterJump { Label = "剧场试演：烟盒", Code = "(begin (load-file \"scripts/theatre/烟盒.scm\") (烟盒-演出))" },
+            new ChapterJump { Label = "剧场试演：弗兰克的桌子", Code = "(begin (load-file \"scripts/theatre/弗兰克的桌子.scm\") (弗兰克的桌子-演出))" },
+            new ChapterJump { Label = "剧场试演：独闯老街", Code = "(begin (load-file \"scripts/theatre/独闯老街.scm\") (独闯老街-演出))" },
+            new ChapterJump { Label = "剧场试演：巷口", Code = "(begin (load-file \"scripts/theatre/巷口.scm\") (巷口-演出))" },
+            new ChapterJump { Label = "剧场试演：贝恩斯", Code = "(begin (load-file \"scripts/theatre/贝恩斯.scm\") (贝恩斯-演出))" },
+            new ChapterJump { Label = "剧场试演：老街被介入", Code = "(begin (load-file \"scripts/theatre/老街被介入.scm\") (老街被介入-演出))" },
+            new ChapterJump { Label = "剧场试演：经理电话", Code = "(begin (load-file \"scripts/theatre/经理电话.scm\") (经理电话-演出))" },
+            new ChapterJump { Label = "剧场试演：解雇", Code = "(begin (load-file \"scripts/theatre/解雇.scm\") (解雇-演出))" },
+            new ChapterJump { Label = "剧场试演：剧院来信", Code = "(begin (load-file \"scripts/theatre/剧院来信.scm\") (剧院来信-演出))" },
+            new ChapterJump { Label = "剧场试演：莱恩的家", Code = "(begin (load-file \"scripts/theatre/莱恩的家.scm\") (莱恩的家-演出))" },
+            new ChapterJump { Label = "剧场试演：剧院安全", Code = "(begin (load-file \"scripts/theatre/剧院安全.scm\") (剧院安全-演出))" },
+            new ChapterJump { Label = "剧场试演：彩排", Code = "(begin (load-file \"scripts/theatre/彩排.scm\") (彩排-演出))" },
             new ChapterJump
             {
                 Label = "第一章：大船靠岸（再进码头）",
@@ -95,7 +101,7 @@ namespace SSNoir.IMGUI
                 Label = "对白试演：初到码头居民区",
                 Code = "(three-letters 'debug-stage-resident-arrival!)"
             },
-            // 下面三个是审核期临时入口，审完删。
+            // 保留正式对白的独立试演入口。
             new ChapterJump { Label = "舞台试演：开场委托", Code = "(three-letters 'debug-stage-commission!)" },
             new ChapterJump { Label = "舞台试演：她不取消", Code = "(three-letters 'debug-stage-refusal!)" },
             new ChapterJump { Label = "舞台试演：尾声", Code = "(three-letters 'debug-stage-closing!)" },
@@ -160,10 +166,6 @@ namespace SSNoir.IMGUI
         {
             float y = 8f + 20f + SaveManager.SlotCount * 28f;
             y += 6f + 20f + ItemH; // 雨雪预览标题与天气按钮
-            y += 6f + 20f; // 镜头测试标题与第一行
-            y += ItemH; // 过场截图行
-            y += 6f + 22f; // 过场测试标题及列表起点
-            y += Mathf.Max(_sequences.Count, 1) * ItemH;
             y += 6f + 22f + ChapterRowCount() * ItemH; // 章节跳转（剧场试演折叠）
             y += 6f + 22f + ItemH; // 资源调试
             y += 6f + 4f + ItemH * 0.5f; // 场景标题及列表起点
@@ -171,8 +173,9 @@ namespace SSNoir.IMGUI
             return y + 8f;
         }
 
-        // “线绘舞台试演”开头的跳转收进二级菜单，按前缀自动归组，加新试演不用改这里。
-        private static bool IsTheatreJump(string label) => label.StartsWith("线绘舞台试演");
+        // 剧场与对白试演统一收进折叠菜单。
+        private static bool IsTheatreJump(string label) =>
+            label.StartsWith("剧场试演") || label.StartsWith("舞台试演") || label.StartsWith("对白试演");
 
         private static int TheatreJumpCount()
         {
@@ -337,109 +340,15 @@ namespace SSNoir.IMGUI
                 curY += 28f;
             }
 
-            // Camera animation test mode
-            float sepY = curY + 6f;
-            IMGUIStyles.DrawLine(new Vector2(panelX + 8, sepY), new Vector2(panelX + panelW - 8, sepY),
-                new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.25f), 1f);
-            IMGUIStyles.DrawLabel(new Rect(panelX + 8, sepY + 2f, panelW, 18f), "镜头测试", mutedStyle);
-
-            float cameraRowY = sepY + 20f;
-            var cameraLabelStyle = new GUIStyle(labelStyle)
-            {
-                alignment = TextAnchor.MiddleLeft,
-                normal = { textColor = IMGUIStyles.TextPrimary }
-            };
-
-            // 过场首帧截图：渲的是纯世界，这个面板开着也不会进画面，所以就放在这儿点。
-            float captureRowY = cameraRowY;
-            IMGUIStyles.DrawLabel(new Rect(panelX + 8f, captureRowY + 2f, 120f, 22f),
-                "过场截图", cameraLabelStyle);
-
-            var captureStyle = new GUIStyle(labelStyle)
-            {
-                normal = { textColor = CinematicCapture.IsCapturing ? IMGUIStyles.TextDisabled : IMGUIStyles.TextSecondary }
-            };
-            var captureBorder = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.40f);
-            var captureFill = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.08f);
-
-            if (IMGUIButton.Draw(new Rect(panelX + panelW - 8f - 132f, captureRowY + 2f, 64f, 22f),
-                    "1080p", contentUi, captureBorder, captureFill, captureStyle, !CinematicCapture.IsCapturing))
-            {
-                CinematicCapture.Capture(gameManager, 1080);
-            }
-
-            if (IMGUIButton.Draw(new Rect(panelX + panelW - 8f - 64f, captureRowY + 2f, 64f, 22f),
-                    "4K", contentUi, captureBorder, captureFill, captureStyle, !CinematicCapture.IsCapturing))
-            {
-                CinematicCapture.Capture(gameManager, 2160);
-            }
-
-            // 过场测试：列出场景里所有 CutsceneSequence，点一个就走完整套流程
-            // （推第一镜 → 压黑边 → 逐镜放片子 → 收黑边 → 镜头回来）。
-            float cutsceneSepY = captureRowY + itemH + 6f;
-            IMGUIStyles.DrawLine(new Vector2(panelX + 8, cutsceneSepY), new Vector2(panelX + panelW - 8, cutsceneSepY),
-                new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.25f), 1f);
-            IMGUIStyles.DrawLabel(new Rect(panelX + 8, cutsceneSepY + 2f, panelW, 18f), "过场测试（只播放，不进入交锋）", mutedStyle);
-
-            float cutsceneListY = cutsceneSepY + 22f;
-
-            if (_sequences.Count == 0)
-            {
-                IMGUIStyles.DrawLabel(new Rect(panelX + 12f, cutsceneListY + 2f, panelW - 16f, itemH),
-                    "（场景里没有 CutsceneSequence）", mutedStyle);
-                cutsceneListY += itemH;
-            }
-            else
-            {
-                for (int i = 0; i < _sequences.Count; i++)
-                {
-                    var sequence = _sequences[i];
-                    var rowRect = new Rect(panelX + 4f, cutsceneListY + i * itemH, panelW - 8f, itemH - 2f);
-
-                    // 场景切换后列表里的引用会失效，但面板可能还开着。
-                    if (sequence == null)
-                        continue;
-
-                    bool hovered = contentUi.CanHover(rowRect);
-                    if (hovered)
-                    {
-                        GUI.color = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.08f);
-                        GUI.DrawTexture(rowRect, Texture2D.whiteTexture);
-                        GUI.color = Color.white;
-                    }
-
-                    var rowStyle = new GUIStyle(labelStyle)
-                    {
-                        alignment = TextAnchor.MiddleLeft,
-                        normal = { textColor = hovered ? IMGUIStyles.TextPrimary : IMGUIStyles.TextSecondary }
-                    };
-                    IMGUIStyles.DrawLabel(new Rect(rowRect.x + 10, rowRect.y + 4, rowRect.width - 46f, rowRect.height),
-                        sequence.DisplayName, rowStyle);
-
-                    // 标镜头数：一眼看出这场是单镜还是多镜，也能立刻发现"列表忘了填"。
-                    int shotCount = 0;
-                    foreach (var _ in sequence.ValidShots())
-                        shotCount++;
-                    IMGUIStyles.DrawLabel(new Rect(rowRect.xMax - 52f, rowRect.y + 4, 48f, rowRect.height),
-                        shotCount == 0 ? "空" : $"{shotCount} 镜", mutedStyle);
-
-                    if (contentUi.WasTapped(rowRect))
-                    {
-                        gameManager.Cutscene.Play(sequence);
-                        _isOpen = false;
-                        Event.current.Use();
-                        return;
-                    }
-                }
-
-                cutsceneListY += _sequences.Count * itemH;
-            }
+            var leftLabelStyle = new GUIStyle(labelStyle) { alignment = TextAnchor.MiddleLeft };
+            float sectionEndY = curY;
+            float sepY;
 
             // 章节跳转
-            float chapterSepY = cutsceneListY + 6f;
+            float chapterSepY = sectionEndY + 6f;
             IMGUIStyles.DrawLine(new Vector2(panelX + 8, chapterSepY), new Vector2(panelX + panelW - 8, chapterSepY),
                 new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.25f), 1f);
-            IMGUIStyles.DrawLabel(new Rect(panelX + 8, chapterSepY + 2f, panelW, 18f), "章节跳转（调试）", mutedStyle);
+            IMGUIStyles.DrawLabel(new Rect(panelX + 8, chapterSepY + 2f, panelW, 18f), "剧情测试", mutedStyle);
 
             float chapterY = chapterSepY + 22f;
             foreach (var jump in ChapterJumps)
@@ -456,11 +365,11 @@ namespace SSNoir.IMGUI
                 chapterY += itemH;
             }
             {
-                // 线绘试演二级菜单：点一下展开/收起，子项缩进。
+                // 剧场试演二级菜单：点一下展开/收起，子项缩进。
                 int theatreCount = TheatreJumpCount();
                 var groupRect = new Rect(panelX + 4f, chapterY, panelW - 8f, itemH - 2f);
                 if (DrawTapRow(contentUi, groupRect,
-                        $"线绘舞台试演（{theatreCount}）" + (_theatreExpanded ? " ▾" : " ▸"), labelStyle))
+                        $"剧场试演（{theatreCount}）" + (_theatreExpanded ? " ▾" : " ▸"), labelStyle))
                 {
                     _theatreExpanded = !_theatreExpanded;
                     Event.current.Use();
@@ -483,17 +392,17 @@ namespace SSNoir.IMGUI
                     }
                 }
             }
-            cutsceneListY = chapterY;
+            sectionEndY = chapterY;
 
             // 资源调试
-            float resourceSepY = cutsceneListY + 6f;
+            float resourceSepY = sectionEndY + 6f;
             IMGUIStyles.DrawLine(new Vector2(panelX + 8, resourceSepY), new Vector2(panelX + panelW - 8, resourceSepY),
                 new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.25f), 1f);
             IMGUIStyles.DrawLabel(new Rect(panelX + 8, resourceSepY + 2f, panelW, 18f), "资源调试", mutedStyle);
 
             float resourceRowY = resourceSepY + 22f;
             IMGUIStyles.DrawLabel(new Rect(panelX + 8f, resourceRowY + 2f, 120f, 22f),
-                "金钱", cameraLabelStyle);
+                "金钱", leftLabelStyle);
             var resourceBorder = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.40f);
             var resourceFill = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.08f);
             if (IMGUIButton.Draw(new Rect(panelX + panelW - 8f - 76f, resourceRowY + 2f, 76f, 22f),
@@ -502,10 +411,10 @@ namespace SSNoir.IMGUI
                 gameManager.AddDebugMoney(100);
             }
 
-            cutsceneListY = resourceRowY + itemH;
+            sectionEndY = resourceRowY + itemH;
 
             // Scene switch section
-            sepY = cutsceneListY + 6f;
+            sepY = sectionEndY + 6f;
             IMGUIStyles.DrawLine(new Vector2(panelX + 8, sepY), new Vector2(panelX + panelW - 8, sepY),
                 new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.25f), 1f);
             IMGUIStyles.DrawLabel(new Rect(panelX + 8, sepY + 2f, panelW, 18f), "交锋测试（直接进入）", mutedStyle);
@@ -678,11 +587,6 @@ namespace SSNoir.IMGUI
 
         private static void LoadScenes(SSNoirGameManager gameManager)
         {
-            // 过场清单每次开面板重扫：配好一场戏，关开一次面板就能试，不用重进 Play 模式。
-            // 这一步是要反复跑的，能省一次重进就省一次。
-            _sequences.Clear();
-            _sequences.AddRange(Object.FindObjectsOfType<CutsceneSequence>(true));
-
             _scenes.Clear();
             _scenes.Add(new SceneItem { Name = "--- 世界 ---", IsHeader = true });
             _scenes.Add(new SceneItem { Name = "world", SceneName = "world" });
