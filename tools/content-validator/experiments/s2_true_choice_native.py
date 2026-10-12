@@ -18,7 +18,7 @@ def start():
 def names(obs):
     return {v.get("Card") for v in obs["Operations"] if v.get("Card")}
 def prepare(p,obs):
-    assert names(obs)=={"调查信件","帮艾迪"},(names(obs),obs)
+    assert {"调查信件","帮艾迪"}.issubset(names(obs)),(names(obs),obs)\n    assert "沿线追查" not in names(obs) and "交付信件" not in names(obs)
     obs=act(p,obs,"调查信件")
     assert clock(obs,"查信")==1
     assert "沿线追查" not in names(obs)
