@@ -1,0 +1,53 @@
+name: SSNoir R342-R349 Conditional Commitment and Renegotiation
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r342-r349.yml'
+      - 'tools/content-validator/experiments/r342_r349_renegotiation.py'
+      - 'docs/实验/机制研究/批次/R342-R349-承诺与再次协商/研究记录.md'
+permissions:
+  contents: read
+jobs:
+  exact:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Enumerate hidden counterpart types and future demand, all reply trees
+        run: |
+          set -euo pipefail
+          python3 -m py_compile tools/content-validator/experiments/r342_r349_renegotiation.py
+          python3 tools/content-validator/experiments/r342_r349_renegotiation.py | tee /tmp/r342-r349.json
+          python3 - <<'PY'
+          import json
+          v=json.load(open('/tmp/r342-r349.json'))
+          assert v["R342_two_round_commitment"]["optimal"]=="17/4"
+          assert v["R344_readable_defer_endorse_accept_counter"]=="17/4"
+          assert v["R345_remove_renegotiation"]["optimal"]=="25/6"
+          assert v["R346_make_future_demand_independent_of_response"]["optimal"]=="4"
+          assert v["R348_strong_blind_reply_baseline"]=="25/6"
+          print("All continuing replies, rights, break/honor and independent-demand controls passed")
+          PY
+      - name: Existing two batches, scope and whitelist
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/r326_r333_action_seals_evidence.py >/tmp/r326-r333.json
+          python3 tools/content-validator/experiments/r334_r341_position_action_rights.py >/tmp/r334-r341.json
+          python3 tools/content-validator/experiments/validate_abstract_research_scope.py
+          python3 tools/content-validator/experiments/validate_mechanism_portfolio.py
+          python3 tools/content-validator/experiments/validate_debug_playtests.py
+          python3 tools/content-validator/experiments/build_mechanism_atlas.py --check
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-r342-r349-contracts
+          path: |
+            /tmp/r342-r349.json
+            /tmp/r326-r333.json
+            /tmp/r334-r341.json
+          retention-days: 21
