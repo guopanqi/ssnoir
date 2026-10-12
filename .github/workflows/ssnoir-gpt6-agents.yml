@@ -21,6 +21,17 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+      - name: Check official Agents SDK without invoking a model
+        run: |
+          python3 -m pip install openai-agents
+          python3 - <<'PY'
+          from agents import Agent, Runner, function_tool
+          for name in ('pressure', 'route', 'information'):
+              agent = Agent(name=name, model='gpt-6-astra', instructions='read-only smoke')
+              assert agent.model == 'gpt-6-astra'
+          assert callable(Runner.run)
+          print('3 official GPT-6 Astra SDK agent configurations constructed; no API calls')
+          PY
       - name: Validate runtime without making API calls
         run: |
           python3 -m py_compile tools/mechanism-agents/runner.py tools/mechanism-agents/verify.py
