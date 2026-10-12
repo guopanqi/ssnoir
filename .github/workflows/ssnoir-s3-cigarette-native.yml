@@ -179,10 +179,21 @@ jobs:
           if x.get('milestones'):
               print('MILESTONES',json.dumps(x['milestones'],ensure_ascii=False))
           PY
+      - name: 同存档65步若走通则验证完整正式回放指纹
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -f /tmp/s3-w-same-world-to-lyon.json ]]; then
+            dotnet run --no-build --project tools/content-validator/SSNoir.ContentValidator.csproj -- --replay /tmp/s3-w-same-world-to-lyon.json
+          else
+            echo '此情形未贯通；保留原始世界阻塞记录，不把未跑的回放标记成通过'
+          fi
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: ssnoir-s3-W-同一世界归档到莱恩进场
-          path: /tmp/s3-full-world.json
+          path: |
+            /tmp/s3-full-world.json
+            /tmp/s3-w-same-world-to-lyon.json
           if-no-files-found: ignore
           retention-days: 90
