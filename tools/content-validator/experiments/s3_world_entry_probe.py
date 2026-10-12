@@ -28,10 +28,10 @@ def audit():
         for i in range(18):
             ops=o["Operations"]
             acts=[x for x in ops if x["Kind"]=="action"]
-            commission=next((x for x in acts if "她" in (x.get("Card") or "") or "开门" in (x.get("Card") or "") or "接" in (x.get("Card") or "")),None)
+            commission=next((x for x in acts if x.get("Card") in ("有人敲门","她来看你")),None)
             if commission:
                 chosen=commission
-            elif o["WorldDay"]<=3:
+            elif o["WorldDay"]<=4:
                 # No story-forcing: rest until the visitor shows up, look at home only.
                 chosen=next((x for x in ops if x["Kind"]=="enter-place" and x.get("Card")=="家"),None) \
                   or next((x for x in ops if x["Kind"]=="end-turn"),None)
