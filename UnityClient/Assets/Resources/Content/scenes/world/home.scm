@@ -315,7 +315,7 @@
     ;; ── 交易 / 布置 / 升级 ──────────────────────────
     (define (node-pay-rent)
       (node "补交房租"
-        :anchor "门口"
+        :anchor "床边"
         :requires (list (req-item "金钱" rent-amount))
         :resolve (instant
           (outcome (lambda ()
@@ -339,14 +339,14 @@
     (define (rent-status-node)
       (cond
         (evicted?
-         (node "标注：房租" :anchor "门口" :resolve
+         (node "标注：房租" :anchor "床边" :resolve
            (note "房门已锁"
              (string-append "欠下的 " (number->string rent-amount) " 块补清，"
                             "房东才会重新开门。"))))
         (overdue?
-         (node "标注：房租" :anchor "门口" :resolve (clock (grace-clk 'render-data))))
+         (node "标注：房租" :anchor "床边" :resolve (clock (grace-clk 'render-data))))
         (else
-         (node "标注：房租" :anchor "门口" :resolve (clock (rent-clk 'render-data))))))
+         (node "标注：房租" :anchor "床边" :resolve (clock (rent-clk 'render-data))))))
 
     (define (rent-nodes)
       (append
@@ -392,7 +392,7 @@
 
     (define (node-buy-apartment)
       (node "买下公寓"
-        :anchor "门口"
+        :anchor "床边"
         :subtitle "有个自己的家，不再交房租，也能睡得更安稳"
         :requires (list (req-item "金钱" apartment-price))
         :resolve (instant
@@ -472,18 +472,18 @@
     ;;
     ;;   家（世界层地点，家.blend：锚点 床边 / 窗台 / 门口）
     ;;   ├ 故事投射卡
-    ;;   ├ 租屋 …………………………… 门卡挂「门口」；点进去穿门，进 Stage 租屋（郊野那排的独立 Prefab）
+    ;;   ├ 租屋 …………………………… 门卡挂「床边」（301 窗）；点进去穿门，进 Stage 租屋（郊野那排的独立 Prefab）
     ;;   │  ├ 标注：屋里 …………… 什么都没添时的唯一一条
     ;;   │  ├ 浇水 / 唱片机 / 放唱片 … 买回来才有；龟背竹和唱片机的模型按 presence 契约随这些卡出现
     ;;   │  ├ 用药 / 养伤 ……………… 租屋-床边
     ;;   │  ├ 电话 …………………………… 租屋-门（线从楼道接进来）
     ;;   │  └ 添置家具 …………………… 租屋-书桌；买的卡都在这儿，不挂到要买的东西头上
-    ;;   ├ 房租标注 / 补交 …………… 家的第一层
-    ;;   ├ 买下公寓 …………………… 家的第一层（门口）
+    ;;   ├ 房租标注 / 补交 …………… 家的第一层，挂 301 窗
+    ;;   ├ 买下公寓 …………………… 家的第一层（301 窗）
     ;;   └ 睡觉
     ;;
     ;; Stage 的身份是节点名（Anchor_租屋 挂着 Portal），:anchor 只说门卡挂在家的哪儿——
-    ;; 门卡得在门外看得见，门后的空间却在郊野，两者不可能是同一个锚点。交锋根容器名就是场景名，同一条规则。
+    ;; 门卡挂 301 窗，在楼外看得见，门后的空间却在郊野，两者不可能是同一个锚点。交锋根容器名就是场景名，同一条规则。
     ;; 穿门一次约两秒，所以睡觉、房租这些每天点的留在门外。
     ;; 被锁在门外时没有 租屋：只剩楼下门厅（用随身的药）、补交房租、蜷缩在门口。
     ;; 买下公寓后暂时仍走进同一间（公寓自己的 Stage 还没做；做了以后门卡按 residence 换名字）。
@@ -518,7 +518,7 @@
         (order-nodes)))
 
     (define (node-room)
-      (node "租屋" :title (tr "房间" "Room") :anchor "门口" :children (room-nodes)))
+      (node "租屋" :title (tr "房间" "Room") :anchor "床边" :children (room-nodes)))
 
     ;; 被锁在门外时剩下的公共空间：楼下门厅。库存里的药是随身的，门锁住不该把它一起锁掉。
     (define (node-entry-hall)
@@ -557,8 +557,7 @@
                    (evicted? "凑齐四十块，回家补交房租。")
                    (overdue? "房租已经到期，凑齐四十块后回家补交。")
                    ((rent-money-ready?) "四十块房租已备齐。留住这笔钱，到期房东会来收。")
-                   (#t (string-append "去码头搬运，或在酒馆当服务员。房租："
-                           (number->string (item-count "金钱")) "/40 块。")))
+                   (#t "去做点零工，凑够房租。"))
                  :where (if (or overdue? evicted?) "家" "")
                  :clocks (cond (evicted? '())
                                (overdue? (list (grace-clk 'render-data)))

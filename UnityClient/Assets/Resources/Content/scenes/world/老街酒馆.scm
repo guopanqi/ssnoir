@@ -169,37 +169,13 @@
             (line "世界" "靠窗那桌把三块工牌排在杯子旁边。")
             (line "世界" "“今天只点了两个班。”")
             (line "世界" "“第三个人呢？”")
-            (line "世界" "“第三个人在这儿喝酒。”"))
-          (echo
-            (line "世界" "吧台尽头有人把硬币按面值排成一行，数到第三遍。")
-            (line "世界" "“房东周五来。”")
-            (line "世界" "“那你还差一杯的钱。”"))
-          (echo
-            (line "世界" "门口的雨衣滴了一地水，没人去擦。")
-            (line "世界" "“早班船没进港。”")
-            (line "世界" "“那就没人付晚上的账。”")))
+            (line "世界" "“第三个人在这儿喝酒。”")))
         (list 2
-          (echo
-            (line "世界" "两个剧院杂工在吧台边分一盘冷肉。")
-            (line "世界" "“散场以后，台上比街上还黑。”")
-            (line "世界" "“所以我从不等谢幕。”"))
           (echo
             (line "世界" "有人把一张撕过的戏票夹在杯垫下面。")
             (line "世界" "“前排的票。她只坐了一幕。”")
-            (line "世界" "“那一幕值这个价。”"))
-          (echo
-            (line "世界" "角落那桌压低了嗓子，杯子却越推越响。")
-            (line "世界" "“警察局今晚多点了两个人。”")
-            (line "世界" "“多两个人，少两条街。”")))
+            (line "世界" "“那一幕值这个价。”")))
         (list 3
-          (echo
-            (line "世界" "一张培训通知在桌上传了半圈。")
-            (line "世界" "“会开机器的留下。”")
-            (line "世界" "“谁教机器认得我们？”"))
-          (echo
-            (line "世界" "一个人把工具袋放在椅子上，像给它也点了一杯。")
-            (line "世界" "“新港那边按小时算，不按班。”")
-            (line "世界" "“按小时，他们就能把小时切得更薄。”"))
           (echo
             (line "世界" "吧台上摆着一份晚报，港口那一版被人折成了正面。")
             (line "世界" "“照片里没有一个人。”")
@@ -718,11 +694,13 @@
              (set! ruth-stage (assoc-get data "ruth-stage" 0))
              (ruth-quota 'load! (assoc-get data "ruth-quota" 0))
              ;; 旧档只有三个「听过没」的布尔；折成每桶一条已用的回声。
+             ;; 回声池从每桶三条砍到一条：旧档里记的 1/2 号序号已不存在，丢掉（最多重听一次保留曲目），不断档。
              (tavern-echoes 'load!
-               (assoc-get data "echoes"
-                 (list (list 1 (if (assoc-get data "early-talk-seen?" #f) (list 0) '()))
-                       (list 2 (if (assoc-get data "late-talk-seen?" #f) (list 0) '()))
-                       (list 3 (if (assoc-get data "chapter2-talk-seen?" #f) (list 0) '())))))
+               (map (lambda (b) (list (car b) (filter (lambda (i) (= i 0)) (cadr b))))
+                 (assoc-get data "echoes"
+                   (list (list 1 (if (assoc-get data "early-talk-seen?" #f) (list 0) '()))
+                         (list 2 (if (assoc-get data "late-talk-seen?" #f) (list 0) '()))
+                         (list 3 (if (assoc-get data "chapter2-talk-seen?" #f) (list 0) '()))))))
              (let ((saved (assoc-get data "regulars" '())))
                (map (lambda (r)
                       (let ((d (assoc-get saved (r 'name) #f)))
