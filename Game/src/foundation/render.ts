@@ -35,7 +35,7 @@ export interface FoundationSession {
   getMoney(): number;
   getRenderDiagnostics(): Record<string, boolean>;
   getStageAssetDiagnostics(): {loaded:number;pending:number;errors:string[]};
-  getGamePreviewStatus(): {loaded:boolean;mode:string;day:string;entries:number;places:number;money:number;restores:number;storyKind:string;stageBeat:number};
+  getGamePreviewStatus(): {loaded:boolean;mode:string;day:string;entries:number;places:number;money:number;restores:number;storyKind:string;stageBeat:number;view:string;navigationMs:number|null;materializations:number|null;busy:boolean};
   resize(width: number, height: number): void;
   pause(): void;
   resume(): void;
@@ -730,7 +730,11 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
       money:authoredWorld?.state.getItemCount("金钱")??0,
       restores:restoredGames,
       storyKind:playback.current?.kind??"",
-      stageBeat:activeStage?.beatIndex??-1
+      stageBeat:activeStage?.beatIndex??-1,
+      view:currentContainer?.name??"",
+      navigationMs:authoredWorld?.lastNavigation?.durationMs??null,
+      materializations:authoredWorld?.lastNavigation?.materializations??null,
+      busy:navigating
     }),
     getStageAssetDiagnostics:()=>stageImages.diagnostics(),
     getRenderDiagnostics: () => ({

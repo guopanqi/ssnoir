@@ -99,6 +99,37 @@ try {
       await context.close();
     }
   }
+  // Player-facing game screenshot and actual pointer-to-world-place latency
+  // regression. The platform QA counter is intentionally absent here.
+  const gameContext=await browser.newContext({viewport:{width:1024,height:576}});
+  try{
+    const page=await gameContext.newPage();
+    const browserErrors=[];
+    page.on("pageerror",error=>browserErrors.push(String(error)));
+    page.on("console",msg=>{if(msg.type()==="error")browserErrors.push(msg.text());});
+    await page.goto("http://127.0.0.1:4173/",{waitUntil:"networkidle"});
+    await page.waitForFunction(()=>window.__SSNOIR_PREVIEW__?.getStatus().loaded===true,
+      null,{timeout:60000});
+    mkdirSync("artifacts",{recursive:true});
+    await page.screenshot({path:"artifacts/ssnoir-game-city.png"});
+    // In the original script this is Neil's home, first authored map row.
+    await page.mouse.click(491,137);
+    await page.waitForFunction(()=>{
+      const status=window.__SSNOIR_PREVIEW__?.getStatus();
+      return status&&status.navigationMs!==null&&!status.busy;
+    },null,{timeout:60000});
+    const nav=await page.evaluate(()=>window.__SSNOIR_PREVIEW__.getStatus());
+    if(nav.materializations>2)
+      throw new Error("World place entry rematerialized too often: "+JSON.stringify(nav));
+    if(!nav.view)
+      throw new Error("Entered city place but no scene is displayed: "+JSON.stringify(nav));
+    await page.screenshot({path:"artifacts/ssnoir-game-entered-place.png"});
+    if(browserErrors.length)throw new Error(browserErrors.join("\\n"));
+    console.log("PASS: player world place navigation, "+nav.navigationMs+
+      " ms; "+nav.materializations+" authored tree materializations");
+  } finally {
+    await gameContext.close();
+  }
   // Golden browser capture through the SAME original Frank Scheme content,
   // LIPS native bridge, StagePlayback and shared Pixi renderer as Mini Games.
   const context=await browser.newContext({viewport:{width:1024,height:576}});

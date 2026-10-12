@@ -83,3 +83,7 @@ The public client previously showed a large technical foundation counter unrelat
 ## Content change reconciliation (2026-10-12)
 
 The original three-letters prologue was extended: an optional `醉酒的尼尔` opener at the old-street tavern precedes the obligatory `有人敲门` on day 3, and the chapter-one ransom dossier is hidden until the commission while independent city dossier entries may still appear. Old tests assuming door/day-one rest blocking or an empty entire dossier were stale. World save tests that mutate the day directly must explicitly run the authored rest-blocker derivation before taking a snapshot, to compare consistent states. Runtime content is authoritative; these tests were adjusted to match the new authored sequence rather than changing the story to fit old tests.
+
+## Player-facing browser performance gate (2026-10-12)
+
+The Playwright capture now has a separate **normal mode** path, not the old foundation-debug test. It captures city and entered-place screenshots, performs an actual pointer click on the first authored location, waits for the game view to update, and rejects navigation requiring more than two complete authored tree materializations. It emits measured navigation milliseconds in CI for future regression trends. This tests the interactive path and the story UI, not only a state snapshot; mobile and native-device timings remain separate gates.
