@@ -27,9 +27,20 @@ def choices(faults,demand=None,cost=1,allow_repair=True,mode='graph'):
     legal=('KEEP','X','Y') if allow_repair else ('KEEP',)
     options=[]
     for act in legal:
-        nxt,paid=setup(faults,act,cost,mode)
-        payoff=(stage2(nxt,demand) if demand else
-                sum((stage2(nxt,q) for q in DEMANDS),F(0))/2)-paid
+        if mode=='flat':
+            # Independently enumerate the enabled task MENU directly,
+            # without calling graph fault-transition or stage2().
+            enabled={task for task,i in [('X',0),('Y',1)] if not faults[i]}
+            if act!='KEEP':enabled.add(act)
+            def flat_final(q):
+                return max((F(4 if task==q else 1) for task in enabled),default=F(0))
+            payoff=(flat_final(demand) if demand else
+                    sum((flat_final(q) for q in DEMANDS),F(0))/2)
+            payoff-=F(cost if act!='KEEP' else 0)
+        else:
+            nxt,paid=setup(faults,act,cost,mode)
+            payoff=(stage2(nxt,demand) if demand else
+                    sum((stage2(nxt,q) for q in DEMANDS),F(0))/2)-paid
         options.append((act,payoff))
     top=max(v for a,v in options)
     return top,tuple(a for a,v in options if v==top)
