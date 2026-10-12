@@ -6,6 +6,7 @@ on:
       - '.github/workflows/ssnoir-s3-x-evidence.yml'
       - 'tools/content-validator/experiments/s3_world_full_item_conservation.py'
       - 'tools/content-validator/experiments/s3_world_keep_cigarette.py'
+      - 'tools/content-validator/experiments/s3_world_without_cigarette.py'
   workflow_dispatch:
 permissions:
   contents: read
@@ -54,5 +55,50 @@ jobs:
           path: |
             /tmp/s3-x-keep.json
             /tmp/s3-w-retained-world-to-lyon.json
+          if-no-files-found: ignore
+          retention-days: 90
+  original-world-no-cigarette-control:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 编译现有原生执行器
+        run: dotnet build tools/content-validator/SSNoir.ContentValidator.csproj -nologo -v q
+      - name: 正常第一封信追逐不取物证的后续路线
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/s3_world_without_cigarette.py /tmp/s3-x-no-item.json
+          python3 - <<'PY'
+          import json
+          x=json.load(open('/tmp/s3-x-no-item.json'))
+          assert x['settings']['items']=={}
+          print('S3-X-NO-ITEM',x['status'],'operations',len(x['native_steps']),
+                'item_acquired',x['item_naturally_acquired'])
+          if x.get('obstacles'):print('BLOCKERS',json.dumps(x['obstacles'],ensure_ascii=False))
+          if x.get('last_public_observation'):print('LAST',json.dumps(x['last_public_observation'],ensure_ascii=False))
+          PY
+      - name: 无烟原生已走通时严格回放
+        run: |
+          if [ -f /tmp/s3-x-no-cigarette-world-to-lyon.json ]; then
+            dotnet run --no-build --project tools/content-validator/SSNoir.ContentValidator.csproj -- --replay /tmp/s3-x-no-cigarette-world-to-lyon.json
+          else
+            echo '正常无物证路径未贯通，本次只存真实阻塞记录'
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-s3-x-原生无烟路线上下文
+          path: |
+            /tmp/s3-x-no-item.json
+            /tmp/s3-x-no-cigarette-world-to-lyon.json
           if-no-files-found: ignore
           retention-days: 90
