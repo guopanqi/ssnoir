@@ -68,10 +68,8 @@ def audit():
     no_restore=optimal(allow_restore=False)
     no_feedback=optimal(observe=False)
     assert no_restore==no_feedback==4                  # R497 R498
-    known_theta=sum(optimal(initial=(('A',0,1),('A',1,1))) if t=='A'
-                    else optimal(initial=(('B',0,1),('B',1,1))) for t in ()) if False else (
-        optimal(initial=(('A',0,1),('A',1,1)))
-        +optimal(initial=(('B',0,1),('B',1,1))))/2
+    known_theta=(optimal(initial=(('A',0,1),('A',1,1)))
+                 +optimal(initial=(('B',0,1),('B',1,1))))/2
     assert known_theta==6                             # R499
     known_energy=(optimal(initial=(('A',0,1),('B',0,1)))
                   +optimal(initial=(('A',1,1),('B',1,1))))/2
