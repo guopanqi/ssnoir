@@ -135,6 +135,41 @@ def simple_visible_policy(p=F(1,2)):
         states=dict(next_states)
     return sum(m*reward(a,b) for (a,b),m in states.items()),path
 
+def independent_strict_branch_witnesses():
+    """Separate 1/2-step finite tree, without belief-state DP or strategy cache.
+
+    Show BOTH alternatives are legal at each visited state and how much
+    switching buys, on the chosen optimal policy's actual two branches.
+    These are expected path probabilities, not human play frequencies.
+    """
+    def update(a,b,action,helper):
+        return (min(3,a+int(action=="A")+int(helper=="A")),
+                min(2,b+int(action=="B")+int(helper=="B")))
+    def utility(a,b): return F(2*int(a==3)+2*int(b==2))
+    def last(a,b,action):
+        return sum((utility(*update(a,b,action,h)) for h in ("A","B")), F(0))/2
+    def middle(a,b,action):
+        return sum((max(last(*update(a,b,action,h),next_action)
+                        for next_action in ("A","B"))
+                    for h in ("A","B")),F(0))/2
+    rows={}
+    for turn,a,b,q,preferred in (
+        (1,2,0,middle,"B"),
+        (1,1,1,middle,"A"),
+        (2,2,2,last,"A"),
+        (2,3,1,last,"B")):
+        A,B=q(a,b,"A"),q(a,b,"B")
+        assert (A>B and preferred=="A") or (B>A and preferred=="B")
+        rows[f"t{turn}_A{a}_B{b}"]={
+            "choose_A_value":A,"choose_B_value":B,
+            "strict_choice":preferred,"path_mass":F(1,2),
+            "strict_gap":abs(A-B)}
+    assert rows["t1_A2_B0"]["strict_gap"]==F(1,2)
+    assert rows["t1_A1_B1"]["strict_gap"]==F(1,2)
+    assert rows["t2_A2_B2"]["strict_gap"]==1
+    assert rows["t2_A3_B1"]["strict_gap"]==1
+    return rows
+
 def two_helper_turns(p=F(1,2)):
     """Separate DP for helper only acting during first two player turns."""
     @lru_cache(None)
@@ -172,6 +207,7 @@ def audit():
     assert data["1/2"]["full"]==4 and data["1/2"]["none"]==F(7,2)
     # Minimal observable policy and normal-path branch masses.
     value,path=simple_visible_policy()
+    witnesses=independent_strict_branch_witnesses()
     assert value==4
     assert [x["path_mass"] for x in path if x["turn"]==1]==[F(1,2),F(1,2)]
     # Independent exhaustive verifier checks "only completed" information.
@@ -193,6 +229,7 @@ def audit():
                    helper_target_choices="independent A/B", completed_persist=True),
         by_probability=data),
       "R135_independent_policy_enumeration":"2^7/2^4/2^3 exact policies; equality for all three p",
+      "R136_independent_strict_reachable_witnesses":witnesses,
       "R136_public_simple_rule":dict(value=value,normal_path=path),
       "R139_ablation":fixed_helper,
       "R140_adaptive_minus_best_fixed":F(4)-F(7,2),

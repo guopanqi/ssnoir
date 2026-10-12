@@ -2353,6 +2353,36 @@
       },
       "lesson": "控制另一人的政策可能只是在看不见其进度时购买确定性；可学固定阈值已充分解释。",
       "record": "docs/实验/机制研究/批次/R144-R148-指挥自主同伴/研究记录.md"
+    },
+    {
+      "id": "R136-independent-reachable-strict-witness",
+      "date": "2026-10-12",
+      "name": "选定最优政策真实访问节点的严格优选转向，独立最后1/2手枚举",
+      "scope": "Exact Fraction local Q values and forward masses, no new numbered model, native or human",
+      "evidence": {
+        "t1_A2_B0": {
+          "A": "7/2",
+          "B": "4",
+          "mass": "1/2"
+        },
+        "t1_A1_B1": {
+          "A": "4",
+          "B": "7/2",
+          "mass": "1/2"
+        },
+        "t2_A2_B2": {
+          "A": "4",
+          "B": "3",
+          "mass": "1/2"
+        },
+        "t2_A3_B1": {
+          "A": "3",
+          "B": "4",
+          "mass": "1/2"
+        }
+      },
+      "lesson": "严格临场分歧需要显示合法替代动作的反事实值及正常路径概率，不等于数学root策略差或人为采样。",
+      "record": "docs/实验/机制研究/批次/R131-R143-信息和自主同伴/研究记录.md"
     }
   ],
   "parallelBatches": [
