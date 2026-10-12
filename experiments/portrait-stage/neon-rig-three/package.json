@@ -1,0 +1,1 @@
+{"private":true,"name":"ssnoir-neon-rig-three","version":"0.1.0","type":"module","scripts":{"test":"node --test test.mjs","serve":"python3 -m http.server 5189"},"description":"Standalone formal Neon-path skeletal theatre experiment"}

@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#080a0e">
+<title>SSNoir / NEON Puppet Theatre</title>
+<link rel="stylesheet" href="./style.css">
+</head>
+<body>
+<main class="shell">
+<header class="masthead">
+  <div class="mark"><span class="mono">SS / N</span><span class="vertical"></span><span>PORTRAIT THEATRE / EXPERIMENT 01</span></div>
+  <div class="serial">LINE-RIG STUDY <span>2026.10</span></div>
+</header>
+<section class="introduction">
+  <div>
+    <div class="eyebrow">FORMAL PORTRAIT ASSETS · THREE.JS</div>
+    <h1>描线人物，<em>像木偶一样表演。</em></h1>
+  </div>
+  <p>不是重画人物。直接读取游戏正式 Neon 描线路径，自动估计身体关节，用空间权重让原有线条随着动作弯曲。</p>
+</section>
+<section class="frame" aria-label="Three.js 骨骼剧场演出">
+  <canvas id="stage-canvas" aria-label="黑色电影描线剧场"></canvas>
+  <div class="frame-top"><span class="frame-no">N° 01 <span class="line">/</span> KINEMATIC STUDY</span><span class="record"><i></i> LIVE GEOMETRY</span></div>
+  <div class="frame-bottom">
+    <div class="stage-title" id="scene-title">酒馆外 · 醉步</div>
+    <div class="beat" id="beat" aria-live="off">灯光逐渐亮起</div>
+  </div>
+  <div id="error" role="alert" hidden></div>
+</section>
+<section class="console" aria-label="控制台">
+  <div class="transport">
+    <div class="scene-pick">
+      <label for="scene">演出</label>
+      <select id="scene">
+        <option value="drunk">01 — 酒馆醉步</option>
+        <option value="chase">02 — 街角追逐</option>
+      </select>
+    </div>
+    <div class="actions">
+      <button id="play" type="button">暂停</button>
+      <button id="replay" type="button">从头重播</button>
+    </div>
+    <span id="time" class="clock" aria-label="时间">00:00 / 00:21</span>
+  </div>
+  <input id="scrub" type="range" min="0" max="21" step=".01" value="0" aria-label="拖动演出时间线">
+  <div class="settings">
+    <fieldset class="switches">
+      <legend>对照实验</legend>
+      <label><input id="rig" type="checkbox" checked><span>关节驱动</span></label>
+      <label><input id="keyposes" type="checkbox" checked><span>使用已有姿势资产</span></label>
+      <label><input id="joints" type="checkbox"><span>显示自动关节点</span></label>
+    </fieldset>
+    <div class="speed"><label for="speed">速度</label><select id="speed"><option value=".5">0.5×</option><option value="1" selected>1×</option><option value="1.5">1.5×</option><option value="2">2×</option></select></div>
+  </div>
+</section>
+<div class="understage">
+  <p id="scene-description">同一套尼尔描线；比较静态姿势与自动权重关节驱动。</p>
+  <p>关节来自人物轮廓的比例估计，并非经过美术校对的骨骼。按 <kbd>空格</kbd> 播放 / 暂停，<kbd>←</kbd><kbd>→</kbd> 逐格观察。</p>
+</div>
+<footer><span>STUDY / NOT A PRODUCTION RIG</span><span>SSNOIR · 线条、节奏、距离</span></footer>
+</main>
+<script type="module" src="./main.js"></script>
+</body>
+</html>

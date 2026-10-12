@@ -1,0 +1,58 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600&display=swap');
+:root {color-scheme:dark;--bg:#080a0e;--card:#101419;--text:#deddd7;--muted:#849098;--line:#293139;--gold:#d2bc8c}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+body{margin:0;color:var(--text);background:radial-gradient(ellipse at 30% -20%,#1a1d22 0%,#080a0e 54%);font:14px/1.6 'Noto Sans SC',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-width:310px}
+button,select,input{font:inherit}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+.shell{width:min(96vw,1380px);margin:0 auto;padding:25px 0 36px}
+.masthead,.mark,.serial,.introduction,.frame-top,.transport,.settings,.understage,footer{display:flex;align-items:center;justify-content:space-between}
+.masthead{color:#98a1aa;font-size:10px;letter-spacing:.18em;border-bottom:1px solid #313338;padding-bottom:20px;gap:20px}
+.mark{justify-content:flex-start;gap:17px}.mono{color:#e5e3da;font:bold 16px/1 Georgia,serif;letter-spacing:.03em}.vertical{display:block;height:18px;width:1px;background:#73716c}.serial span{margin-left:14px;color:#bba982}
+.introduction{gap:28px;padding:25px 0 24px;align-items:flex-end}
+.eyebrow{color:var(--gold);font:10px/1.2 ui-monospace,Menlo,monospace;letter-spacing:.22em;margin-bottom:12px}
+h1{font-size:clamp(21px,2.8vw,33px);font-weight:500;letter-spacing:-.035em;line-height:1.25;margin:0}
+h1 em{font-style:normal;color:var(--gold)}
+.introduction p{color:#929da5;font-size:12px;line-height:1.75;max-width:375px;margin:0}
+.frame{width:100%;position:relative;aspect-ratio:16/9;background:#080a0e;overflow:hidden;border:1px solid #39414a;box-shadow:0 17px 80px #000b}
+.frame:before{position:absolute;inset:0;content:"";z-index:2;pointer-events:none;background:radial-gradient(ellipse at 50% 38%,transparent 42%,#0009 100%);}
+.frame:after{position:absolute;inset:0;z-index:2;content:"";pointer-events:none;background:repeating-linear-gradient(180deg,transparent 0,transparent 3px,#fff .15px,transparent 4px);opacity:.055;}
+#stage-canvas{width:100%;height:100%;display:block}
+.frame-top,.frame-bottom{position:absolute;left:0;right:0;z-index:3;pointer-events:none;padding:27px 30px}
+.frame-top{top:0;font:10px ui-monospace,Menlo,monospace;letter-spacing:.18em;color:#858e99}
+.line{padding:0 7px;color:#4d535c}.record{color:#b1b1ac;display:flex;align-items:center;gap:10px}.record i{display:inline-block;width:6px;height:6px;border-radius:100%;background:#bda174;box-shadow:0 0 8px #bda17466}
+.frame-bottom{bottom:0;display:flex;align-items:flex-end;justify-content:space-between;gap:20px}
+.stage-title{font:24px/1.35 Georgia,'Noto Sans SC',serif;color:#eee7d6;text-shadow:0 1px 12px #000}
+.beat{text-align:right;max-width:46%;font-size:12px;letter-spacing:.07em;color:#d2d4d3;text-shadow:0 2px 9px #000}
+#error{position:absolute;z-index:8;inset:20%;background:#151719ef;border:1px solid #826567;color:#f1d2c3;padding:30px;text-align:center;white-space:pre-wrap}
+#error[hidden]{display:none}
+.console{border:1px solid var(--line);border-top:0;background:#11151a;padding:19px 24px 17px}
+.transport{gap:16px}.scene-pick,.actions,.speed{display:flex;gap:11px;align-items:center}.scene-pick label,.speed label{color:#96a0aa;font-size:11px;letter-spacing:.1em}
+select{min-height:36px;border:1px solid #343e48;background:#171d22;color:#dfe3e4;padding:6px 27px 6px 10px;border-radius:2px}
+button{border:1px solid #3b4750;background:#1b2229;color:#d6dadd;padding:8px 17px;min-height:36px;cursor:pointer;border-radius:2px}
+button:hover{background:#29343d;border-color:#7e8c91}#play{background:#d2bc8c;color:#171a1d;border-color:#d2bc8c;min-width:70px}#play:hover{background:#ecdcaf}
+.clock{color:#b3b7b5;font:12px ui-monospace,Menlo,monospace;white-space:nowrap}
+#scrub{width:100%;display:block;accent-color:#c6b184;cursor:pointer;margin:18px 0 20px;height:4px}
+.settings{gap:24px;border-top:1px solid #263039;padding-top:16px;align-items:center}
+.switches{border:0;margin:0;padding:0;display:flex;align-items:center;flex-wrap:wrap;gap:20px}
+.switches legend{float:left;margin-right:20px;color:#9ca5a9;font-size:11px;line-height:22px}
+.switches label{display:flex;align-items:center;white-space:nowrap;color:#c7ccce;font-size:12px;gap:8px;cursor:pointer}
+.switches input{accent-color:#d2bc8c;width:15px;height:15px}
+.understage{align-items:flex-start;gap:20px;padding:16px 0 22px;border-bottom:1px solid #293139}
+.understage p{max-width:49%;margin:0;color:#879299;font-size:11px;line-height:1.8}
+kbd{font:11px ui-monospace,monospace;padding:2px 5px;border:1px solid #454a51;border-radius:2px;color:#aeb6b9;margin:0 2px}
+footer{font:10px ui-monospace,Menlo,monospace;letter-spacing:.16em;color:#656f78;margin-top:22px;gap:20px}
+@media(max-width:720px){
+ .shell{width:100%;padding:12px 10px 26px}
+ .masthead{padding:10px 3px 14px;font-size:9px}.serial{display:none}
+ .introduction{padding:20px 3px 16px;display:block}
+ .introduction p{margin-top:12px;max-width:none}
+ .frame-top,.frame-bottom{padding:12px}
+ .frame-top{font-size:8px}.stage-title{font-size:15px}.beat{font-size:10px;max-width:55%}
+ .console{padding:13px 12px}.transport{flex-wrap:wrap;justify-content:space-between}
+ .scene-pick{order:0;flex:1}.scene-pick select{width:100%;font-size:12px}
+ .actions{order:2;width:100%}.clock{order:1;font-size:10px}
+ .settings{flex-wrap:wrap;gap:10px}.switches{gap:10px 14px}.switches legend{float:none;width:100%;line-height:1}
+ .understage{display:block;padding:12px 3px}.understage p{max-width:none;margin-bottom:5px}
+}
+@media(prefers-reduced-motion:reduce){button{scroll-behavior:auto}}
