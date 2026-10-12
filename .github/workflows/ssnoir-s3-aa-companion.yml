@@ -1,0 +1,63 @@
+name: SSNoir S3-AA 人物离队与独自行动态
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-s3-aa-companion.yml'
+      - 'tools/content-validator/experiments/s3_aa_next_day_solo_native.py'
+      - 'tools/content-validator/experiments/s3_world_full_item_conservation.py'
+      - 'tools/content-validator/experiments/s3_aa_companion_contract.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - name: 角色离队/剧场/行动开启的独立源合同核验
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/s3_aa_companion_contract.py /tmp/s3-aa-source.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ssnoir-s3-aa-离队源合同
+          path: /tmp/s3-aa-source.json
+  day10-neil-real-action:
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 编译现有正式会话执行器
+        run: dotnet build tools/content-validator/SSNoir.ContentValidator.csproj -nologo -v q
+      - name: 官方世界自然推进并执行次日尼尔骰
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/s3_aa_next_day_solo_native.py /tmp/s3-aa-day10.json
+          python3 - <<'PY'
+          import json
+          x=json.load(open('/tmp/s3-aa-day10.json'))
+          e=x['aa_evidence']
+          assert e['day9_reveal_then_public_end_turn'] and e['same_day_action']
+          assert e['day10_actual_actor']=='尼尔'
+          assert '夜莺' not in e['day10_actor_list']
+          print('S3-AA原生：日9揭晓，日10离队后尼尔合法投独行卡')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-s3-aa-次日独行原生结果
+          path: /tmp/s3-aa-day10.json
+          if-no-files-found: ignore
