@@ -33,7 +33,7 @@ export function sampleScene(scene,time){
     angles.shinR=-.12*Math.max(0,-step)*speed;
     angles.coatL=.05*wave(t*2.18-.6)*speed;
     angles.coatR=-.07*wave(t*2.18-1)*speed;
-    bob=-8*speed*Math.abs(step);
+    bob=(28-3*Math.abs(step))*speed;
     const br=smooth(6.7,7.6,t)*(1-smooth(9.7,10.5,t));
     angles.torso+=.20*br;angles.head-=.14*br;angles.armUpperR-=1.17*br;angles.armLowerR-=.25*br;
     angles.thighR+=.22*br;angles.shinR-=.18*br;
