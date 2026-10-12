@@ -80,23 +80,28 @@ def study(no_closure=False,full_preserve=False,remove_barrier=False,include_path
     witnesses=[]
     best_fixed=(fixed_east,"east-first") if fixed_east>=fixed_west else (fixed_west,"west-first")
     best_order=(["EastPorch","EastGallery","WestStairs","Barrier","WestBridge","SoloFrank"] if best_fixed[1]=="east-first" else tie_order)
-    def forward(s,mass):
-        nonlocal mass_early_east,mass_early_west,both_available,strict_vs_best
-        q=Q(s)
-        if not q:return
-        best=max(q.values())
-        action=next(x for x in tie_order if x in q and q[x]==best)
-        fb=next(x for x in best_order if x in q)
-        if "EastPorch" in q and "WestStairs" in q:
-            both_available+=mass
-            if q["EastPorch"]>q["WestStairs"] and action=="EastPorch":mass_early_east+=mass
-            if q["WestStairs"]>q["EastPorch"] and action=="WestStairs":mass_early_west+=mass
-        if action!=fb and q[action]>q[fb]:
-            strict_vs_best+=mass
-            if len(witnesses)<5:witnesses.append({"state":list(s),"one_history_mass":str(mass),
-                "optimal":action,"fixed":fb,"Q":{k:str(v) for k,v in q.items()}})
-        for p,t in transitions(s,action):forward(t,mass*p)
-    forward(ROOT,F(1))
+    # Aggregate equivalent public states before the next action. Raw
+    # branching would enumerate 3**16 histories, which is unnecessary.
+    frontier={ROOT:F(1)}
+    for remaining in range(ROOT[-1],0,-1):
+        following={}
+        for s,mass in frontier.items():
+            q=Q(s)
+            if not q:continue
+            best=max(q.values())
+            action=next(x for x in tie_order if x in q and q[x]==best)
+            fb=next(x for x in best_order if x in q)
+            if "EastPorch" in q and "WestStairs" in q:
+                both_available+=mass
+                if q["EastPorch"]>q["WestStairs"] and action=="EastPorch":mass_early_east+=mass
+                if q["WestStairs"]>q["EastPorch"] and action=="WestStairs":mass_early_west+=mass
+            if action!=fb and q[action]>q[fb]:
+                strict_vs_best+=mass
+                if len(witnesses)<5:witnesses.append({"state":list(s),"aggregated_state_mass":str(mass),
+                    "optimal":action,"fixed":fb,"Q":{k:str(v) for k,v in q.items()}})
+            for p,t in transitions(s,action):
+                following[t]=following.get(t,F(0))+mass*p
+        frontier=following
     result.update({"fixed_east_first":str(fixed_east),"fixed_west_first":str(fixed_west),
         "best_fixed_order":best_fixed[1],"gap_to_best_fixed":str(V(ROOT)-best_fixed[0]),
         "both_entry_routes_legal_expected_visits":str(both_available),
