@@ -1,0 +1,48 @@
+name: SSNoir S3 正式老街东／西路线数学反证
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-s3-warren.yml'
+      - 'tools/content-validator/experiments/s3_real_warren_routes.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  east-west-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - name: 反证真实东／西路线顺序成本、进度保留和最优路径
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/s3_real_warren_routes.py /tmp/s3-warren.json
+          python3 - <<'PY'
+          import json
+          from fractions import Fraction as F
+          data=json.load(open('/tmp/s3-warren.json'))
+          x=data['core']
+          assert F(x['optimal'])>=max(F(x['fixed_east_first']),F(x['fixed_west_first']))
+          assert F(data['ablations']['do_not_close_east_after_ryan']['optimal'])>=F(x['optimal'])
+          assert F(data['ablations']['preserve_all_east_partial_progress_in_solo_search']['optimal'])>=F(x['optimal'])
+          assert F(data['ablations']['remove_west_stairs_barricade']['optimal'])>=F(x['optimal'])
+          assert data['deterministic_work_cost_witnesses']['east_porch_full_then_west_then_frank_solo']==18
+          assert data['deterministic_work_cost_witnesses']['west_full_then_frank_solo']==16
+          summary={'optimal':x['optimal'],'east_first':x['fixed_east_first'],'west_first':x['fixed_west_first'],
+             'fixed_gap':x['gap_to_best_fixed'],'strict_switch':x['strict_switch_vs_best_fixed_expected_visits'],
+             'strict_east':x['strict_east_before_west_expected_visits'],
+             'strict_west':x['strict_west_before_east_expected_visits'],
+             'witnesses':x['normal_witnesses'][:3],
+             'ablations':data['ablations']}
+          print('S3-WARREN '+json.dumps(summary,ensure_ascii=False))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ssnoir-s3-老街东／西路线精确模型
+          path: /tmp/s3-warren.json
+          retention-days: 90
