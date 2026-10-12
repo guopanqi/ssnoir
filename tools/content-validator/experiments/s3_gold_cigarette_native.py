@@ -34,6 +34,14 @@ def inventory(obs):
 def name_cards(obs):
     return {x.get("Name",x.get("Title","")) for x in obs.get("Cards",[])}
 
+def save_transcript(p,qty):
+    path=f"/tmp/s3-w-lyon-item-{qty}.json"
+    p.stdin.write(json.dumps({"command":"save","path":path})+"\n")
+    p.stdin.flush()
+    msg=json.loads(p.stdout.readline())
+    assert msg.get("type")=="saved",(path,msg)
+    return path
+
 def test_with_fixture(qty):
     p=Popen(CMD+["--session",ENTRY,"--seed",str(SEED),"--growth",str(GROWTH),
                  "--item",f"{ITEM}={qty}"],cwd=ROOT,stdin=PIPE,stdout=PIPE,stderr=PIPE,text=True)
@@ -62,12 +70,14 @@ def test_with_fixture(qty):
                       "usable_before":True,"before_count":before_count,"after_count":after_count,
                       "original_lyon_item_action_executed":True,
                       "item_can_be_spent_again":False,
+                      "transcript":save_transcript(p,qty),
                       "steps_to_phase2":len(history),"history":history}
                 return {"fixture_qty":qty,"initial_inventory":qty,
                     "phase2_reached_in_original_encounter":True,
                     "card_present_before":True,"usable_before":False,
                     "before_count":before_count,"after_count":inventory(obs),
                     "original_lyon_item_action_executed":False,
+                    "transcript":save_transcript(p,qty),
                     "steps_to_phase2":len(history),"history":history}
             focus=obs.get("Focus","")
             # Current root shows the three employer question containers and
