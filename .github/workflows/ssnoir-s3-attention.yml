@@ -5,6 +5,7 @@ on:
     paths:
       - '.github/workflows/ssnoir-s3-attention.yml'
       - 'tools/content-validator/experiments/s3_second_section_attention.py'
+      - 'tools/content-validator/experiments/s3_arrival_deadline_counterfactual.py'
   workflow_dispatch:
 permissions:
   contents: read
@@ -46,4 +47,30 @@ jobs:
         with:
           name: ssnoir-s3-第二节并发纸面审查
           path: /tmp/s3-section2.json
+          retention-days: 90
+  s3-visible-eddie-deadline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - name: 独立同状态仅更改艾迪期限的前向选择反证
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/s3_arrival_deadline_counterfactual.py /tmp/s3-deadline.json
+          python3 - <<'PY'
+          import json
+          from fractions import Fraction as F
+          x=json.load(open('/tmp/s3-deadline.json'))
+          assert F(x['remove_only_seen_eddie_deadline'])>=F(x['full_optimal'])
+          assert F(x['both_eddie_dock_legal_expected_visits'])>0
+          print('S3-DEADLINE '+json.dumps(x,ensure_ascii=False))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ssnoir-s3-艾迪到场触发期限反证
+          path: /tmp/s3-deadline.json
           retention-days: 90
