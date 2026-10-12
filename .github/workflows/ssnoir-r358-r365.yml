@@ -1,0 +1,49 @@
+name: SSNoir R358-R365 Delegated Decisions
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r358-r365.yml'
+      - 'tools/content-validator/experiments/r358_r365_delegation.py'
+      - 'docs/实验/机制研究/批次/R358-R365-独立目标与委托决策权/研究记录.md'
+permissions:
+  contents: read
+jobs:
+  exact:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Exhaustive independent event tapes and public-belief controller
+        run: |
+          set -euo pipefail
+          python3 -m py_compile tools/content-validator/experiments/r358_r365_delegation.py
+          python3 tools/content-validator/experiments/r358_r365_delegation.py | tee /tmp/r358-r365.json
+          python3 - <<'PY'
+          import json
+          v=json.load(open('/tmp/r358-r365.json'))
+          assert v['R358_belief_DP']=='37/16'
+          assert v['R361_all_27_nonadaptive_schedules']['best']=='9/4'
+          assert v['R362_independent_public_rule']=='37/16'
+          assert v['R363_oracle_hidden_relationship']=='19/8'
+          assert v['R364_partner_relation_resets_every_turn']=='9/4'
+          assert v['R360_reachable_divergence_same_public_task']['each_probability']=='1/2'
+          print('Delegation hidden-goal and independent plan regressions pass')
+          PY
+      - name: Scope/portfolio/Debug contracts
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/validate_abstract_research_scope.py
+          python3 tools/content-validator/experiments/validate_mechanism_portfolio.py
+          python3 tools/content-validator/experiments/validate_debug_playtests.py
+          python3 tools/content-validator/experiments/build_mechanism_atlas.py --check
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-r358-r365-delegation
+          path: /tmp/r358-r365.json
+          retention-days: 21
