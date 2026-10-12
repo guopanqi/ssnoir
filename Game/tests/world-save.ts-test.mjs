@@ -57,6 +57,11 @@ test("unedited module world-save/world-load! roundtrip retains day and native re
  const again=await WorldSaveController.restore(parsed,makeWorld);
  assert.equal(again.state.getItemCount("金钱"),37);
  assert.equal(await again.session.evaluateNumber("world-day"),6);
+ // Tampering the native day while preserving all authored module data must
+ // never return a seemingly valid save with contradictory story deadlines.
+ const mismatched=structuredClone(parsed);
+ mismatched.state.globals["世界日"]=9;
+ await assert.rejects(WorldSaveController.restore(mismatched,makeWorld),/calendar mismatch/);
 });
 test("bad save inputs rejected before altering an existing game",async()=>{
  const value=await makeWorld();

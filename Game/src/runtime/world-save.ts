@@ -81,6 +81,15 @@ export class WorldSaveController {
     // the saved datum and never evaluates a procedure or authored game action.
     const literal=JSON.stringify(data.worldDatum);
     await fresh.session.evaluate('(world-load! (read (open-input-string '+literal+')))');
+    // world-load! owns the authored calendar, while the typed save also
+    // carries its public global. Reject divergence instead of silently
+    // accepting a world whose daily deadlines disagree with the native UI.
+    const nativeDay=fresh.state.getGlobal("世界日");
+    const authoredDay=await fresh.session.evaluateNumber("world-day");
+    if(typeof nativeDay!=="number"||!Number.isSafeInteger(nativeDay)||nativeDay<1||
+       !Number.isSafeInteger(authoredDay)||authoredDay!==nativeDay){
+      throw new Error("save calendar mismatch between authored world and native state");
+    }
     return {...fresh,settings};
   }
 }
