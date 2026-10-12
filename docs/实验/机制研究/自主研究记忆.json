@@ -1,9 +1,9 @@
 {
   "schema": "ssnoir.autonomous-pattern-memory/v1",
   "updated": "2026-10-12",
-  "batch": "R174–R203 横向抽象玩法：动作互馈、保留与兑现、资源配置、可编辑规则反证",
-  "rounds": 30,
-  "totalArchivedRounds": 148,
+  "batch": "R204–R211 双槽操作组合：构造输入判据与产出路由的规则",
+  "rounds": 8,
+  "totalArchivedRounds": 156,
   "objective": "长期自主探索具有实质差异的抽象玩法形态，尤其是玩家实际反复作出的有意义的行动、资源分配和状态依赖判断。20是价值目标，不是轮数或历史候选池数量。",
   "policy": "首选无剧情的玩家心理循环、同构/简单策略反证及跨机制族发散。叙事、香烟、人物、S3世界排错不再是机制默认方向。数学、原生、真人分层；异步反馈不阻塞。不得自动新增Debug或精选。",
   "scope": {
@@ -96,6 +96,13 @@
       "question": "编辑行为规则会不会产生反复重新构造规则的玩法？",
       "source": "R186/R194–R203",
       "summary": "固定WWEW、预选T与失配即编辑均解释各自实验最优；新增编辑动词还未证明新玩法活动。"
+    },
+    {
+      "family": "composable-input-and-output-rule",
+      "kind": "original-composition-unvalidated",
+      "question": "玩家分别编辑输入处理判据和输出路由，使每一手自动执行的操作成为可组合函数吗？",
+      "source": "R204–R211",
+      "summary": "全反馈95/16，最强固定19/4；两操作槽禁用分别5或4；正常路径有P/R/K三种严格选择，但25种简明阈值规则最好23/4，距全策略仅3/16。不自动晋升。"
     }
   ],
   "failedExplanations": [
@@ -109,22 +116,28 @@
   ],
   "frontier": [
     {
-      "id": "COMPOSE-OPERATIONS",
-      "family": "new-action-grammar",
-      "question": "能否从基本操作自行组装输入到输出的行为函数，在后续反馈后真正需要修订？",
-      "method": "先设计可读1-2动作构造，排除WWEW/T/失配编辑口诀，避免复杂化求解器证明新颖。"
+      "id": "COMPOSE-EXPLANATION",
+      "family": "composable-rule-authoring",
+      "question": "双槽操作是否让玩家感觉在设计一种操作方式，而不仅根据进度切换阈值？",
+      "method": "先比单槽、强简明规则与正常玩家能否从选择前提示预测筛掉低质量输入；先用静态可复现反馈模板，真人异步。"
     },
     {
-      "id": "RESOURCE-REASSIGN-OPERATORS",
-      "family": "ownership-and-capacity",
-      "question": "某资源可推进当前目标或改变下一轮资源归属的合法操作时，是否比P02/P04/P13多了新判断？",
-      "method": "先廉价行为同构、固定投资序反证，再做公开反馈与真可达状态测试。"
+      "id": "RESOURCE-RIGHTS",
+      "family": "binding-ownership",
+      "question": "将资源类别重新绑定未来目标是否产生主动再配置，而不是‘完成一项就切换’？",
+      "method": "固定公开类型、延迟兑现与绑定成本；和P04能力分配/P13生产性投资、最强目标完成后改绑口诀比较。"
     },
     {
-      "id": "LEARNABLE-ADVERSARIAL-REACTION",
+      "id": "NONCOMMUTING-TOOLS",
+      "family": "operator-order",
+      "question": "相同操作集合改变顺序是否能产生可重复的组合推理，而不是普通资源数量分配？",
+      "method": "冻结A/B有限操作各一次，改变作用顺序并检查同一库存的可达输出，公开目标时间和强口诀反证。"
+    },
+    {
+      "id": "LEARNABLE-OPPOSITION",
       "family": "adversarial-feedback",
-      "question": "从对手反应推断其可改变的策略，会不会产生可学而非随机加压的循环？",
-      "method": "先对照R51/P16/R82正常路径，严禁偷用隐藏答案；低成本机制卡优先。"
+      "question": "对手策略可辨识且会适应时，实际玩家操作超出固定诱敌与概率信息购买的边界在哪里？",
+      "method": "对照R51/P16/R82；不从动作结果泄漏隐藏规则，先最小状态和固定策略比较。"
     }
   ],
   "method": {
@@ -143,35 +156,31 @@
       "note": "Reclassified S3 canon and recent character-story chains as non-default; preserved originals without deleting evidence."
     },
     {
-      "batch": "R174–R187-横向抽象机制",
-      "rounds": 14,
-      "record": "docs/实验/机制研究/批次/R174-R187-横向抽象机制/研究记录.md",
-      "script": "tools/content-validator/experiments/r174_r187_horizontal_abstract.py",
-      "workflow": ".github/workflows/ssnoir-r174-r187.yml",
-      "conclusion": "互馈生产随机时反馈有正价值、确定增产固定序全最优；储备保险独立边际极小；固定动作目标改写唯一最佳WWEW，负例。没有新精选。"
+      "batch": "R174–R203 横向抽象四类机制",
+      "rounds": 30,
+      "records": [
+        "docs/实验/机制研究/批次/R174-R187-横向抽象机制/研究记录.md",
+        "docs/实验/机制研究/批次/R188-R197-跨周期资源与规则编排/研究记录.md",
+        "docs/实验/机制研究/批次/R198-R203-规则编辑的退化/研究记录.md"
+      ],
+      "summary": "动作互馈、存货保险、跨期资源质量和操作规则编辑的可学习策略/反证；详细数值见原始三批及原脚本。"
     },
     {
-      "batch": "R188–R197-资源与规则",
-      "rounds": 10,
-      "record": "docs/实验/机制研究/批次/R188-R197-跨周期资源与规则编排/研究记录.md",
-      "script": "tools/content-validator/experiments/r188_r197_allocation_and_policy.py",
-      "workflow": ".github/workflows/ssnoir-r188-r197.yml",
-      "conclusion": "资源质量即时公开的跨周期A/B分配最优11/2，固定9/2，仅当前质量规则19/4；B半成品跨期零边际；自动规则T独胜，规则编辑税无根收益。"
-    },
-    {
-      "batch": "R198–R203-重复编辑规则",
-      "rounds": 6,
-      "record": "docs/实验/机制研究/批次/R198-R203-规则编辑的退化/研究记录.md",
-      "script": "tools/content-validator/experiments/r198_r203_rule_switching.py",
-      "workflow": ".github/workflows/ssnoir-r198-r203.yml",
-      "conclusion": "Markov持续外部要求下，6手动态编辑规则确能提升收益，但一条匹配执行/不匹配编辑/最后不编辑的口诀精确全最优；属切换成本/持续性，不是独立自编程序。"
+      "batch": "R204–R211 双槽操作组合",
+      "rounds": 8,
+      "record": "docs/实验/机制研究/批次/R204-R211-双槽操作组合/研究记录.md",
+      "script": "tools/content-validator/experiments/r204_r211_composed_operator.py",
+      "workflow": ".github/workflows/ssnoir-r204-r211.yml",
+      "summary": "输入精挑/广泛与输出A/B两可编辑槽，最优95/16、固定19/4；最强简明阈值23/4，说明可组合但仍不能称新独立玩法。"
     }
   ],
   "crossRoundMemory": [
+    "R204–R211首次合成可独立编辑的输入判据P与路由R，正常公开反馈路径P/K/R三类严格决策，最高95/16、固定19/4，但三条件阈值23/4已很接近。与P04/P13/R50相邻、无人体验、不能直接晋升。模型CI范围校验旧版本将累计轮次固定118是错误的长期约束；改为统计方向校准以来真实累计且引用归档，维护精简记忆。",
     "R174–R203 抽象横向研究：30编号=四类循环的检查与阴性反证，不是30个新游戏。状态互馈随机有边际但确定性固定序最优；赌积累的保险小增益；跨期资源A/B有真实资源质量依赖但清零消融零；规则编辑有动作却被WWEW、T或‘不匹配就编辑’简单口诀完整解释。下一研究改为可自组的操作函数，不继续扫数值。",
     "历史原始批次、阴性对照和全部先前机读记录已原样转存。当前记忆以新会话最需要的前沿与失败解释为主；不要从历史 S/R 编号续出剧情任务。"
   ],
   "focusedAudits": [],
   "parallelBatches": [],
-  "fullHistoryPath": "docs/实验/机制研究/归档/2026-10-12-方向校准前/自主研究记忆.json"
+  "fullHistoryPath": "docs/实验/机制研究/归档/2026-10-12-方向校准前/自主研究记忆.json",
+  "roundsSinceCalibration": 38
 }

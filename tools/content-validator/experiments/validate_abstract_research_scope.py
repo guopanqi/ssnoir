@@ -37,11 +37,21 @@ def main():
     memo=json.loads(read(BASE/"自主研究记忆.json"))
     old=json.loads(read(ARCH/"自主研究记忆.json"))
     assert memo["schema"]==old["schema"]
-    assert memo["totalArchivedRounds"]==old["totalArchivedRounds"],"do not erase rounds or increment for cleaning"
+    assert isinstance(memo.get("roundsSinceCalibration"),int) and memo["roundsSinceCalibration"]>=0
+    assert memo["totalArchivedRounds"]==old["totalArchivedRounds"]+memo["roundsSinceCalibration"],(
+       "rounds cannot change without explicit post-calibration research count")
     assert len(memo["frontier"])>=3
     assert len(read(BASE/"自主研究记忆.json"))<len(read(ARCH/"自主研究记忆.json"))/5
-    assert all(entry["id"].startswith("ABSTRACT-") for entry in memo["frontier"])
-    assert len(memo["history"])<=3,"new active memory must not become a chronological scrapbook"
+    frontier=memo["frontier"]
+    assert len({entry["id"] for entry in frontier})==len(frontier)
+    for entry in frontier:
+        assert all(entry.get(key) for key in ("id","family","question"))
+        assert not any(k in (entry["id"]+" "+entry["question"]) for k in ("S3-","夜莺","香烟","莱恩","下一个NPC"))
+    assert len(memo["history"])<=3,"compact past batches into a durable grouped summary"
+    for entry in memo["history"][1:]:
+        records=entry.get("records") or ([entry["record"]] if "record" in entry else [])
+        assert records and entry["rounds"]>0,"real experiments need archived evidence"
+        assert all((ROOT/path).is_file() for path in records),"archived batch records must exist"
 
     library=json.loads(read(BASE/"模式库.json"))
     tasks=json.loads(read(BASE/"试玩任务.json"))

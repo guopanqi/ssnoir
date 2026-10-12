@@ -6,6 +6,8 @@ on:
     paths:
       - '.github/workflows/ssnoir-r204-r211.yml'
       - 'tools/content-validator/experiments/r204_r211_composed_operator.py'
+      - 'tools/content-validator/experiments/validate_abstract_research_scope.py'
+      - 'docs/实验/机制研究/自主研究记忆.json'
       - 'docs/实验/机制研究/批次/R204-R211-双槽操作组合/研究记录.md'
 permissions:
   contents: read
