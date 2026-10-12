@@ -104,7 +104,7 @@ rect(newspaper,-.51,-.31,1.02,.62,0xbfc2c5,.75);
 for(let j=0;j<4;j++)wire(newspaper,[[-.35,.16-j*.12],[.33,.16-j*.12]],0xbfc2c5,.46);
 const doorGlow=fill(venue,-3.91,-.33,1.65,4.1,0xb29256,.10);
 // Local immutable snapshots of the Unity Neon paths: no game runtime dependency.
-const sources=['尼尔','尼尔_醉站','尼尔_醉行','尼尔_靠墙','码头工人','码头工人_奔跑','黑影'];
+const sources=['尼尔','尼尔_醉站','尼尔_醉行','尼尔_扶墙','尼尔_逼近','码头工人','码头工人_奔跑','黑影'];
 const sourceStore={};
 async function loadAssets() {
   await Promise.all(sources.map(async key=>{

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {getAutoBind} from './rig.js';
 import {SCENES,sampleScene} from './scenes.js';
-const names=['尼尔','尼尔_醉站','尼尔_醉行','尼尔_靠墙','码头工人','码头工人_奔跑','黑影'];
+const names=['尼尔','尼尔_醉站','尼尔_醉行','尼尔_扶墙','尼尔_逼近','码头工人','码头工人_奔跑','黑影'];
 const model={};
 for(const name of names)model[name]=JSON.parse(readFileSync(new URL('./data/'+name+'.neon.json',import.meta.url),'utf8'));
 
@@ -42,11 +42,18 @@ test('the two stories retain essential readable beats',()=>{
   assert.match(sampleScene('chase',2).beat,/信封/);
   assert.match(sampleScene('chase',20).beat,/巷子/);
   assert.match(sampleScene('chase',21).beat,/喘了/);
-  assert.ok(sampleScene('drunk',10).neil.source.includes('靠墙'));
+  assert.ok(sampleScene('drunk',10).neil.source.includes('扶墙'));
   assert.ok(sampleScene('chase',18.5).worker.scale<1);
 });
 
 test('Neon coordinate convention: head is higher than feet in Three scene space',()=>{
   const b=getAutoBind(model['尼尔']);
   assert.ok(b.head.y>b.footY,'formal line data stores a bottom-up figure');
+});
+
+test('pursuit key art and blocking both stay traceable',()=>{
+  const running=sampleScene('chase',12);
+  assert.equal(running.neil.source,'尼尔_逼近');
+  assert.ok(running.worker.x<running.neil.x,'worker ahead of pursuer on left');
+  assert.ok(running.neil.tilt>.1,'pursuer reads as running, not standing');
 });

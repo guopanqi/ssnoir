@@ -24,8 +24,8 @@ function getDrunk(time) {
       legL:.23*stumble,legR:-.23*stumble,kneeL:Math.max(0,stumble)*.18,kneeR:Math.max(0,-stumble)*.18};
     tilt=.052*Math.sin(t*2.15)+(t>14&&t<16?.14*Math.sin(t*5):0);
   } else if(t>=8&&t<12.5){
-    source='尼尔_靠墙';
-    pose={torso:.18,head:.15,armL:-.75,legR:.11};
+    source='尼尔_扶墙';
+    pose={torso:.12,head:.15,armL:-.20,legR:.11};
     tilt=.09;
   } else {
     pose={torso:.11*Math.sin(t*1.3),head:.13,armL:.12,armR:-.09};
@@ -54,7 +54,7 @@ function getChase(time){
   const neilTurn=S(22.1,24.5,t);
   const gap=lerp(3.45,2.55,S(9,15,t));
   const stride=sin((t-5.2)*11.8);
-  const workerX=lerp(2.3,1.0,S(5,8,t));
+  const workerX=lerp(-2.05,-1.35,S(5,8,t));
   let neil=D(4.8,-2.5,{flip:true,source:'尼尔',pose:{}});
   let worker=D(-2.0,-2.5,{flip:true,source:'码头工人',pose:{},visible:t>=1});
   if(t<3.5){
@@ -65,13 +65,13 @@ function getChase(time){
     neil=D(4.2,-2.5,{source:'尼尔',flip:true,pose:{torso:.24,armR:-.7,head:-.16}});
     worker=D(-2.05,-2.5,{source:'码头工人',flip:true,pose:{head:-.35,torso:.10}});
   }else{
-    neil=D(lerp(4.2,1.0+gap,S(5.3,9,t)),-2.50,{source:t<6.3?'尼尔':'尼尔',
-      flip:true,pose:{torso:.16,head:-.11,
-       armL:-.63*stride,armR:.63*stride,elbowL:.11,elbowR:-.11,
-       legL:.45*stride,legR:-.45*stride,kneeL:.32*Math.max(0,-stride),kneeR:.32*Math.max(0,stride)},
+    neil=D(lerp(4.2,workerX+gap,S(5.3,9,t)),-2.50,{source:t<6.3?'尼尔':'尼尔_逼近',
+      flip:true,tilt:.16+.05*sin(t*3.0),pose:{torso:.27,head:-.11,
+       armL:-.85*stride,armR:.85*stride,elbowL:.13,elbowR:-.13,
+       legL:.66*stride,legR:-.66*stride,kneeL:.44*Math.max(0,-stride),kneeR:.44*Math.max(0,stride)},
        bob:Math.abs(stride)*.07});
     worker=D(workerX,-2.50,{source:t<5.8?'码头工人':'码头工人_奔跑',
-      flip:true,pose:{torso:.18,head:-.1,
+      flip:true,tilt:.12+.05*sin(t*3.0),pose:{torso:.18,head:-.1,
         armL:.67*stride,armR:-.67*stride,
         legL:-.42*stride,legR:.42*stride,kneeL:.3*Math.max(0,stride),kneeR:.3*Math.max(0,-stride)},
         bob:Math.abs(stride)*.08});
@@ -86,6 +86,8 @@ function getChase(time){
     }
     if(t>=18.5) {
       neil.x=lerp(neil.x,2.2,S(18.5,20,t));
+      neil.source='尼尔';
+      neil.tilt=lerp(.18,0,S(18.5,20.5,t));
       neil.pose={torso:lerp(.24,-.13,S(19,20,t)),head:.15,armL:.17,armR:-.16,legL:-.17,legR:.21};
       neil.bob=0;
     }
