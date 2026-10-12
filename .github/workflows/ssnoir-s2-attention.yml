@@ -9,6 +9,7 @@ on:
       - 'tools/content-validator/experiments/s2_temporal_commitment.py'
       - 'tools/content-validator/experiments/s2_microcity_attention.py'
       - 'tools/content-validator/experiments/s2_fair_revelation.py'
+      - 'tools/content-validator/experiments/s2_real_choice.py'
   workflow_dispatch:
 permissions:
   contents: read
@@ -156,3 +157,35 @@ jobs:
         with:
           name: ssnoir-s2-fair-opportunity-window
           path: /tmp/S2-R121.json
+  real-choice-after-clue:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - name: R122/R123 full Fraction and four ablations, strict first-clue decisions
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/s2_real_choice.py > /tmp/s2-real-choice.json
+          python3 - <<'PY'
+          import json
+          from fractions import Fraction as F
+          data=json.load(open('/tmp/s2-real-choice.json'))
+          core=next(x for x in data['rows'] if x['B_reward']=='3/2' and x['C_reward']=='2')
+          ab=data['core_ablations']
+          assert F(core['optimal'])==F(896,243)
+          assert F(core['first_clue_response_probability'])==F(233,243)
+          assert all(F(core['first_strict_public_choice_probabilities'][a])>0 for a in ('追线索','截信','帮艾迪'))
+          assert F(ab['C_independent_value'])==F(125,162)
+          assert F(ab['C_closure_marginal'])==0 # Negative causal control, must not hide.
+          assert F(core['strong_public_baseline']['gap'])==F(47,486)
+          assert F(core['optimal'])>=F(core['best_fixed_priority']['value'])
+          print('R122/R123: first-public-clue has three strictly valuable conditional choices; no fake positive closure increment')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ssnoir-s2-reveal-choice-fraction
+          path: /tmp/s2-real-choice.json
+          retention-days: 90
