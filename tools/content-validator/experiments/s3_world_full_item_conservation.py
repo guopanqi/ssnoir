@@ -172,7 +172,7 @@ def run(spend_counter=True, let_chase_escape=False, stop_after_west_identity=Fal
                             next_ops=[{"kind":o.get("Kind"),"card":o.get("Card")}
                                       for o in obs.get("Operations",[])]
                             transcript_path="/tmp/s3-y-west-identity-native.json"
-                            p.stdin.write(json.dumps({"command":"save","path":transcript_path},ensure_ascii=False)+"\\n")
+                            p.stdin.write(json.dumps({"command":"save","path":transcript_path},ensure_ascii=False)+"\n")
                             p.stdin.flush()
                             msg=json.loads(p.stdout.readline())
                             assert msg.get("type")=="saved",msg
