@@ -30,7 +30,7 @@ jobs:
           assert c['normal_public_state_count'] > 8
           assert F(c['optimal']) >= F(c['strong_global']) >= 0
           assert F(c['optimal']) >= F(c['strong_day_specific'])
-          assert F(c['optimal']) >= F(c['best_public_rule'])
+          assert F(c['optimal']) >= F(c['best_legible_including_fixed'])
           assert F(c['normal_optimal_expected_visits_with_multiple_actions']) > 0
           a=r['ablations']
           assert F(a['disable_eddie']) <= F(c['optimal'])
@@ -38,7 +38,7 @@ jobs:
           assert F(a['remove_observed_eddie_same_evening_deadline']) >= F(c['optimal'])
           assert F(a['remove_two_lead_convergence_reward']) <= F(c['optimal'])
           assert r['source_boundary']['eddie_unobserved_event_has_no_public_clock']
-          summary={"optimal":c["optimal"],"best_fixed":c["strong_global"],"best_day_rule":c["strong_day_specific"],"best_public_rule":c["best_public_rule"],"strict_vs_fixed_visits":c["strict_departure_from_strong_fixed_expected_visits"],"eddie_over_solo":c["strict_eddie_over_solo_expected_visits"],"solo_over_eddie":c["strict_solo_over_eddie_expected_visits"],"main_prob":c["probability_joint_dock_and_help"],"eddie_prob":c["probability_completed_eddie"],"first_witnesses":c["strict_witnesses"][:5],"ablations":a}
+          summary={"optimal":c["optimal"],"best_fixed":c["strong_global"],"best_day_rule":c["strong_day_specific"],"best_public_rule":c["best_legible_including_fixed"],"strict_vs_fixed_visits":c["strict_departure_from_strong_fixed_expected_visits"],"eddie_over_solo":c["strict_eddie_over_solo_expected_visits"],"solo_over_eddie":c["strict_solo_over_eddie_expected_visits"],"eddie_over_dock":c["strict_eddie_over_dock_expected_visits"],"dock_over_eddie":c["strict_dock_over_eddie_expected_visits"],"main_prob":c["probability_joint_dock_and_help"],"eddie_prob":c["probability_completed_eddie"],"first_witnesses":c["strict_witnesses"][:5],"ablations":a}
           print('S3-METRICS '+json.dumps(summary,ensure_ascii=False))
           print('S3纸面：期限和并发、最强简单规则、正常可达轨迹及四项消融通过')
           PY
