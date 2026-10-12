@@ -5,6 +5,7 @@ on:
     paths:
       - '.github/workflows/ssnoir-s3-y-information.yml'
       - 'tools/content-validator/experiments/s3_y_visible_option_audit.py'
+      - 'tools/content-validator/experiments/s3_y_route_consequence_contract.py'
       - 'UnityClient/Assets/Resources/Content/scenes/world/三封信.scm'
       - 'UnityClient/Assets/Resources/Content/scenes/encounters/巷子.scm'
   workflow_dispatch:
@@ -47,3 +48,31 @@ jobs:
           name: ssnoir-s3-y-公开信息与动作风险
           path: /tmp/s3-y-information.json
           retention-days: 90
+  route-and-companion-information:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - name: 独立检查莱恩揭晓后弗兰克是否真消失与夜莺离队时点
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/s3_y_route_consequence_contract.py /tmp/s3-y-route.json
+          python3 - <<'PY'
+          import json
+          x=json.load(open('/tmp/s3-y-route.json'))
+          a=x['after_west_identity']
+          assert a['guided_east_cards_disappear']
+          assert a['solo_frank_search_available_when_not_met']
+          assert not a['frank_relation_permanently_missed']
+          assert x['deferred_dialogue']['potential_ui_timing_mismatch_needs_native_observation']
+          assert not x['deferred_dialogue']['asserted_live_bug']
+          print('S3-Y-ROUTE-CONTRACT-OK: source only, timing risk not claimed live bug')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ssnoir-s3-y-路线信息与人物后果
+          path: /tmp/s3-y-route.json
