@@ -1,0 +1,46 @@
+name: SSNoir Parallel Mechanism Research R103-R105
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r103-r105-parallel.yml'
+      - 'tools/content-validator/experiments/r103_pressure_trigger_source.py'
+      - 'tools/content-validator/experiments/r104_exit_commitment_boundaries.py'
+      - 'tools/content-validator/experiments/r105_ambient_vs_paid_information.py'
+permissions:
+  contents: read
+jobs:
+  pressure-source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - name: Exact independent R103 cause ablation
+        run: python3 tools/content-validator/experiments/r103_pressure_trigger_source.py /tmp/r103.json
+      - uses: actions/upload-artifact@v4
+        with: {name: ssnoir-r103-trigger-source, path: /tmp/r103.json}
+  route-commitment:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - name: Exact independent R104 route-cost sensitivity
+        run: python3 tools/content-validator/experiments/r104_exit_commitment_boundaries.py /tmp/r104.json
+      - uses: actions/upload-artifact@v4
+        with: {name: ssnoir-r104-commitment-boundary, path: /tmp/r104.json}
+  information-opportunity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - name: Exact independent R105 paid-information ablation
+        run: python3 tools/content-validator/experiments/r105_ambient_vs_paid_information.py /tmp/r105.json
+      - uses: actions/upload-artifact@v4
+        with: {name: ssnoir-r105-information-option, path: /tmp/r105.json}
