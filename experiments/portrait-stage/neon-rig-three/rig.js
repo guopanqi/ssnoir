@@ -12,15 +12,16 @@ const p = (x,y) => ({x,y});
 export function getAutoBind(data) {
   const all=data.paths.flat();
   if(!all.length) throw new Error('Empty Neon paths');
-  const y0=Math.min(...all.map(a=>a[1])), y1=Math.max(...all.map(a=>a[1]));
-  const cx=.5, h=y1-y0;
+  const y0=Math.max(...all.map(a=>a[1])), y1=Math.min(...all.map(a=>a[1]));
+  const cx=.5, h=y0-y1;
+  // Neon is bottom-up in source coordinates: high y means head, low y means feet.
   // Proportional joints are a starting hypothesis, not artist-authored rigging.
-  const sy=y0+h*.365, hy=y0+h*.645, ky=y0+h*.815;
+  const sy=y0-h*.365, hy=y0-h*.645, ky=y0-h*.815;
   return {
     centerX:cx, footY:y1, height:h,
-    hip:p(cx,hy), chest:p(cx,y0+h*.41), neck:p(cx,y0+h*.265), head:p(cx,y0+h*.135),
-    shoulderL:p(cx-.067,sy), elbowL:p(cx-.110,y0+h*.53), handL:p(cx-.125,y0+h*.70),
-    shoulderR:p(cx+.067,sy), elbowR:p(cx+.110,y0+h*.53), handR:p(cx+.125,y0+h*.70),
+    hip:p(cx,hy), chest:p(cx,y0-h*.41), neck:p(cx,y0-h*.265), head:p(cx,y0-h*.135),
+    shoulderL:p(cx-.067,sy), elbowL:p(cx-.110,y0-h*.53), handL:p(cx-.125,y0-h*.70),
+    shoulderR:p(cx+.067,sy), elbowR:p(cx+.110,y0-h*.53), handR:p(cx+.125,y0-h*.70),
     hipL:p(cx-.04,hy), hipR:p(cx+.04,hy),
     kneeL:p(cx-.049,ky), kneeR:p(cx+.049,ky),
     ankleL:p(cx-.06,y1), ankleR:p(cx+.06,y1)
@@ -30,7 +31,7 @@ export function getAutoBind(data) {
 function warp(v,pose,b) {
   if(!pose || pose.rigid) return v;
   const a=pose, cx=b.centerX, y=v.y, hx=b.hip.y, sy=b.shoulderL.y;
-  const lower=smooth(hx-.055,hx+.055,y);
+  const lower=smooth(hx+.055,hx-.055,y);
   let q=v;
   const l=smooth(cx+.022,cx-.065,v.x), r=smooth(cx-.022,cx+.065,v.x);
   const la=(a.legL||0)*lower*l, ra=(a.legR||0)*lower*r;
@@ -40,27 +41,27 @@ function warp(v,pose,b) {
   const knees=[['L',l,la],['R',r,ra]];
   for (const [side,sideWeight,parentAngle] of knees) {
     const knee=b['knee'+side], hip=b['hip'+side], movedKnee=rot(knee,hip,parentAngle);
-    const w=sideWeight*smooth(knee.y-.035,knee.y+.055,y);
+    const w=sideWeight*smooth(knee.y+.035,knee.y-.055,y);
     const angle=(a['knee'+side]||0)*w;
     if(angle) q=rot(q,movedKnee,angle);
   }
-  const upper=1-smooth(hx-.07,hx+.065,y);
+  const upper=1-smooth(hx+.065,hx-.07,y);
   const torsoAngle=(a.torso||0)*upper;
   if(torsoAngle) q=rot(q,b.hip,torsoAngle);
   const torsoPivot=vertex=>rot(vertex,b.hip,a.torso||0);
   const armWeight=(side)=> {
     const flank=side==='L'?smooth(cx-.018,cx-.115,v.x):smooth(cx+.018,cx+.115,v.x);
-    const vertical=smooth(sy-.055,sy+.10,y)*(1-smooth(hx+.14,hx+.30,y));
+    const vertical=smooth(sy+.055,sy-.10,y)*(1-smooth(hx-.14,hx-.30,y));
     return flank*vertical;
   };
   for(const side of ['L','R']) {
     const w=armWeight(side), angle=(a['arm'+side]||0)*w;
     if(angle) q=rot(q,torsoPivot(b['shoulder'+side]),angle);
-    const ew=w*smooth(b['elbow'+side].y-.065,b['elbow'+side].y+.035,y);
+    const ew=w*smooth(b['elbow'+side].y+.065,b['elbow'+side].y-.035,y);
     const el=(a['elbow'+side]||0)*ew;
     if(el) q=rot(q,torsoPivot(b['elbow'+side]),el);
   }
-  const hw=1-smooth(b.neck.y-.01,b.neck.y+.11,y);
+  const hw=1-smooth(b.neck.y+.01,b.neck.y-.11,y);
   if(hw && a.head) q=rot(q,torsoPivot(b.neck),a.head*hw);
   return q;
 }
@@ -106,7 +107,7 @@ export function makeNeonActor(THREE,source,options={}) {
     mesh.geometry.dispose();mesh.geometry=geom;
   }
   function pointToLocal(v,unit) {
-    return [(v.x-bind.centerX)*unit,(bind.footY-v.y)*unit];
+    return [(v.x-bind.centerX)*unit,(v.y-bind.footY)*unit];
   }
   function update(t,pose={},settings={}) {
     const unit=settings.unit||4.95, radius=settings.stroke||.0195;

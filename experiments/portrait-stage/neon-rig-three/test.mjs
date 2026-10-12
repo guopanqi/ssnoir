@@ -19,7 +19,7 @@ test('all used paths are valid official Neon line data',()=>{
       }
     }
     const b=getAutoBind(src);
-    assert.ok(b.head.y<b.neck.y&&b.neck.y<b.hip.y&&b.hip.y<b.ankleL.y,name);
+    assert.ok(b.head.y>b.neck.y&&b.neck.y>b.hip.y&&b.hip.y>b.ankleL.y,name);
   }
 });
 test('each time value produces finite deterministic stage state',()=>{
@@ -44,4 +44,9 @@ test('the two stories retain essential readable beats',()=>{
   assert.match(sampleScene('chase',21).beat,/喘了/);
   assert.ok(sampleScene('drunk',10).neil.source.includes('靠墙'));
   assert.ok(sampleScene('chase',18.5).worker.scale<1);
+});
+
+test('Neon coordinate convention: head is higher than feet in Three scene space',()=>{
+  const b=getAutoBind(model['尼尔']);
+  assert.ok(b.head.y>b.footY,'formal line data stores a bottom-up figure');
 });
