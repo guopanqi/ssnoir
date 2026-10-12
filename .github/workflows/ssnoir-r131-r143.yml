@@ -1,0 +1,47 @@
+name: SSNoir R131-R143 Information and Autonomous Ally
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r131-r143.yml'
+      - 'tools/content-validator/experiments/r131_r143_information_and_ally.py'
+      - 'docs/实验/机制研究/批次/R131-R143-信息和自主同伴/研究记录.md'
+permissions:
+  contents: read
+jobs:
+  exact-paper:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Exact beliefs, independent complete-policy enumeration and regression checks
+        run: |
+          set -euo pipefail
+          python3 -m py_compile tools/content-validator/experiments/r131_r143_information_and_ally.py
+          python3 tools/content-validator/experiments/r131_r143_information_and_ally.py | tee /tmp/r131-r143.json
+          python3 - <<'PY'
+          import json
+          r=json.load(open('/tmp/r131-r143.json'))
+          m=r['R134_R138_independent_helper']['by_probability']
+          assert m['1/2']['full']=='4'
+          assert m['1/2']['best_fixed']=='7/2'
+          assert r['R141_completion_only_report']=='15/4'
+          assert r['R142_helper_active_first_two_turns']['best_fixed'][0]=='3'
+          print('R131-R143 exact-paper verified')
+          PY
+      - name: Existing portfolio and Debug menu source-contract checks
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/validate_mechanism_portfolio.py
+          python3 tools/content-validator/experiments/validate_debug_playtests.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-r131-r143-exact-paper
+          path: /tmp/r131-r143.json
+          if-no-files-found: warn
+          retention-days: 21

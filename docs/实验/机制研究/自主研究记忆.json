@@ -1,16 +1,18 @@
 {
   "schema": "ssnoir.autonomous-pattern-memory/v1",
   "updated": "2026-10-12",
-  "batch": "R128–R130 人际关系伤害与错位时间窗",
-  "rounds": 3,
-  "totalArchivedRounds": 75,
+  "batch": "R131–R143 信息公平与自主同伴分工长批次",
+  "rounds": 13,
+  "totalArchivedRounds": 88,
   "objective": "Keep an honest research candidate quality gate: 20 different sources is not 20 human-validated attractive games; continue autonomously with direct causal ablations",
   "method": {
-    "stage": "R128–R130/new minimal social relationship counterexample",
-    "baselineMain": "fbf914d6243651f07e8ba847edb71ce54d4be877",
-    "paperScript": "tools/content-validator/experiments/r128_r130_social_deadline.py",
-    "workflow": ".github/workflows/ssnoir-r128-r130.yml",
-    "evidence": "exact Fraction only; not native, not human",
+    "stage": "信息信念限制→自主帮助的动态注意力→强可学口诀→精确策略枚举→报告延迟与回应源消融",
+    "baselineMain": "9b495a7ec82b24c38147dc37655858961dfa84d0",
+    "paperScript": "tools/content-validator/experiments/r131_r143_information_and_ally.py",
+    "workflow": ".github/workflows/ssnoir-r131-r143.yml",
+    "evidence": "only exact Fraction paper, no native or new human",
+    "confirmedFamilies": 2,
+    "tests": 13,
     "noCanonicalChange": true,
     "debugEntriesUnchanged": 3
   },
@@ -151,6 +153,136 @@
         "strongPublicPolicy": "拒绝后先接触B"
       },
       "lesson": "角色时间表而非增加骰子/参数，是连带关系能否成为真实权衡的关键。"
+    },
+    {
+      "id": "R131",
+      "name": "没有及时有区分力的信息时，见证取舍按3 vs E[B]=3平手",
+      "status": "本轮原理或因果/退化边界，不独立晋升",
+      "evidence": {
+        "mathematicalSummary": "9/2",
+        "model": "R131–R143 paper, see source and report"
+      },
+      "lesson": "无及时报告；对早揭示的历史信息模式作反证"
+    },
+    {
+      "id": "R132",
+      "name": "准确率3/4的公开消息导致B高低条件动作反转",
+      "status": "本轮原理或因果/退化边界，不独立晋升",
+      "evidence": {
+        "mathematicalSummary": "37/8",
+        "model": "R131–R143 paper, see source and report"
+      },
+      "lesson": "相对无消息+1/8，但可学的简单阈值全解释"
+    },
+    {
+      "id": "R133",
+      "name": "同一准确消息若等作决定之后才到达",
+      "status": "本轮原理或因果/退化边界，不独立晋升",
+      "evidence": {
+        "mathematicalSummary": "19/4→9/2",
+        "model": "R131–R143 paper, see source and report"
+      },
+      "lesson": "时序的信念状态必须保持；非独立新型信息机制"
+    },
+    {
+      "id": "R134",
+      "name": "其他行动者独立在A/B中随机做工，玩家每手调整目标",
+      "status": "保留自主同伴可观察分工的组合潜力；非第七个成熟玩法",
+      "evidence": {
+        "mathematicalSummary": "4 vs 最强预定7/2",
+        "model": "R131–R143 paper, see source and report"
+      },
+      "lesson": "自由适应的收益1/2，但另有免费进度贡献，不得混因果"
+    },
+    {
+      "id": "R135",
+      "name": "独立穷举完整信息、迟一手与无信息下的政策",
+      "status": "本轮原理或因果/退化边界，不独立晋升",
+      "evidence": {
+        "mathematicalSummary": "2^7/2^4/2^3×三p",
+        "model": "R131–R143 paper, see source and report"
+      },
+      "lesson": "信念态Fraction DP与独立策略穷举逐项一致"
+    },
+    {
+      "id": "R136",
+      "name": "公开三条件分工原则是否可追平完全自由",
+      "status": "保留自主同伴可观察分工的组合潜力；非第七个成熟玩法",
+      "evidence": {
+        "mathematicalSummary": "4=完全自由4",
+        "model": "R131–R143 paper, see source and report"
+      },
+      "lesson": "在最佳路径第2手两种严格动作分别以1/2到达；不是高阶计算的证明"
+    },
+    {
+      "id": "R137",
+      "name": "同伴偏向A的概率p1/4、1/2、3/4",
+      "status": "本轮原理或因果/退化边界，不独立晋升",
+      "evidence": {
+        "mathematicalSummary": "完全信息均4；固定59/16,7/2,59/16",
+        "model": "R131–R143 paper, see source and report"
+      },
+      "lesson": "只测结构边界，不扫参数提升差距"
+    },
+    {
+      "id": "R138",
+      "name": "将同伴真实贡献延迟一手汇报",
+      "status": "本轮原理或因果/退化边界，不独立晋升",
+      "evidence": {
+        "mathematicalSummary": "p1/2=7/2；p1/4,3/4=31/8",
+        "model": "R131–R143 paper, see source and report"
+      },
+      "lesson": "实情不可见时不允许策略偷看内部状态"
+    },
+    {
+      "id": "R139",
+      "name": "关闭同伴，或让其总去固定目标",
+      "status": "本轮原理或因果/退化边界，不独立晋升",
+      "evidence": {
+        "mathematicalSummary": "关闭后最佳2；固定A/B最佳4",
+        "model": "R131–R143 paper, see source and report"
+      },
+      "lesson": "仅有免费资源不等于需要合作调整"
+    },
+    {
+      "id": "R140",
+      "name": "完整响应相对最强预承诺和可学条件策略",
+      "status": "本轮原理或因果/退化边界，不独立晋升",
+      "evidence": {
+        "mathematicalSummary": "4 vs 7/2 vs 简单条件4",
+        "model": "R131–R143 paper, see source and report"
+      },
+      "lesson": "开放结构有实际变化但不能晋升独立精选模式"
+    },
+    {
+      "id": "R141",
+      "name": "只告诉完成与否，不报部分工作进度",
+      "status": "保留自主同伴可观察分工的组合潜力；非第七个成熟玩法",
+      "evidence": {
+        "mathematicalSummary": "15/4",
+        "model": "R131–R143 paper, see source and report"
+      },
+      "lesson": "独立2^9信息集完整枚举吻合；信息粒度决定可观察的响应价值"
+    },
+    {
+      "id": "R142",
+      "name": "同伴只在前三手中的前两手工作",
+      "status": "本轮原理或因果/退化边界，不独立晋升",
+      "evidence": {
+        "mathematicalSummary": "完整4 vs 固定3",
+        "model": "R131–R143 paper, see source and report"
+      },
+      "lesson": "辅助行动时序改变差距；不能把更大差距自动称更好"
+    },
+    {
+      "id": "R143",
+      "name": "同伴完全确定地协助玩家另一目标",
+      "status": "本轮原理或因果/退化边界，不独立晋升",
+      "evidence": {
+        "mathematicalSummary": "固定BBB也能得4",
+        "model": "R131–R143 paper, see source and report"
+      },
+      "lesson": "全自动回应可以退化为脚本；与P16/P18需审核同构"
     }
   ],
   "crossRoundMemory": [
@@ -201,7 +333,8 @@
     "S3-Y: source contract distinguishes under-informed choices: East entrance social vs West knowledge are public but East=Frank West=Ryan are hidden. Cigs counter public gain EastGallery2 and irreversible item cost; later Lyon form1 +2 without die hidden at counter. Without packet native options: letters knowledge bad composure-1, mid1 good2; her-now social bad composure-2 + crowd pressure1, mid2 good3. Fraction equal-prob one-stage sample is NOT live skills. Frank remains meetable after West via solo card, guided scenes instead lost. No new mathematical complexity or human fun established.",
     "S3-Z source/native: official world seed19 growth4 West bridge reveals Ryan on day9 after 42 authorized actions. Solo Frank operation is already available with Nightingale's die and caption '她已经走了'. One real public end-turn day9->day10 changes actor names ['尼尔','夜莺'] -> ['尼尔'], replay CI38215151932 successful. This precisely locates mismatch before day-end. Any future fix must respect the deferred dialogue and player action economy; no code patch yet.",
     "R125–R127: 位置+期限有正常可达严格转换但被两条公开阈值完全压缩；证人逼问的连带关门有演示效果而强策略根值边际0。精确 Fraction 纸面证据，未加精选/Debug/原生/真人。接续 R128 先做真实时间可达性与双消融，再决定是否独立。",
-    "R128–R130（纸面）：R127零价值人际惩罚只有在A逼问窗口短于B可接触窗口时才形成真实两路取舍；free19/4 > 两固定9/2，关闭惩罚21/4；延长A一手则惩罚边际0，两版本同43/8。强公开规则可完全解释，数学并非真人有趣。无正式角色/Debug修改。"
+    "R128–R130（纸面）：R127零价值人际惩罚只有在A逼问窗口短于B可接触窗口时才形成真实两路取舍；free19/4 > 两固定9/2，关闭惩罚21/4；延长A一手则惩罚边际0，两版本同43/8。强公开规则可完全解释，数学并非真人有趣。无正式角色/Debug修改。",
+    "R131–R143：共13项数学原理及反证但只有两个结构家族。信息q1/2=9/2、q3/4=37/8、q1=19/4，迟到准确消息又降至9/2；属于R110/P08旧信息时点关系。自主同伴3手内独立给A/B各概率1/2：及时可见自由4、最强真正固定计划7/2、只报告完成15/4、迟到一手7/2；一条3条件公开规则就追平最优，正常最优分支1/2各严格应选不同目标。关闭同伴得2、固定同伴做A或B无动态差。Exact Fraction DP+独立2^7/2^4/2^3/2^9策略空间核对；数学非真人。精选6、20候选、Debug3全不变。"
   ],
   "history": [
     {
@@ -1736,6 +1869,151 @@
         }
       ],
       "record": "docs/实验/机制研究/批次/R128-R130-人物关系与期限/研究记录.md"
+    },
+    {
+      "batch": "R131–R143-信息和自主同伴",
+      "rounds": 13,
+      "method": {
+        "CIWorkflow": "ssnoir-r131-r143.yml",
+        "paperScript": "tools/content-validator/experiments/r131_r143_information_and_ally.py",
+        "independentPolicyEnumeration": true,
+        "notNative": true,
+        "novelCandidateFamilies": 2
+      },
+      "results": [
+        {
+          "id": "R131",
+          "name": "没有及时有区分力的信息时，见证取舍按3 vs E[B]=3平手",
+          "status": "本轮原理或因果/退化边界，不独立晋升",
+          "evidence": {
+            "mathematicalSummary": "9/2",
+            "model": "R131–R143 paper, see source and report"
+          },
+          "lesson": "无及时报告；对早揭示的历史信息模式作反证"
+        },
+        {
+          "id": "R132",
+          "name": "准确率3/4的公开消息导致B高低条件动作反转",
+          "status": "本轮原理或因果/退化边界，不独立晋升",
+          "evidence": {
+            "mathematicalSummary": "37/8",
+            "model": "R131–R143 paper, see source and report"
+          },
+          "lesson": "相对无消息+1/8，但可学的简单阈值全解释"
+        },
+        {
+          "id": "R133",
+          "name": "同一准确消息若等作决定之后才到达",
+          "status": "本轮原理或因果/退化边界，不独立晋升",
+          "evidence": {
+            "mathematicalSummary": "19/4→9/2",
+            "model": "R131–R143 paper, see source and report"
+          },
+          "lesson": "时序的信念状态必须保持；非独立新型信息机制"
+        },
+        {
+          "id": "R134",
+          "name": "其他行动者独立在A/B中随机做工，玩家每手调整目标",
+          "status": "保留自主同伴可观察分工的组合潜力；非第七个成熟玩法",
+          "evidence": {
+            "mathematicalSummary": "4 vs 最强预定7/2",
+            "model": "R131–R143 paper, see source and report"
+          },
+          "lesson": "自由适应的收益1/2，但另有免费进度贡献，不得混因果"
+        },
+        {
+          "id": "R135",
+          "name": "独立穷举完整信息、迟一手与无信息下的政策",
+          "status": "本轮原理或因果/退化边界，不独立晋升",
+          "evidence": {
+            "mathematicalSummary": "2^7/2^4/2^3×三p",
+            "model": "R131–R143 paper, see source and report"
+          },
+          "lesson": "信念态Fraction DP与独立策略穷举逐项一致"
+        },
+        {
+          "id": "R136",
+          "name": "公开三条件分工原则是否可追平完全自由",
+          "status": "保留自主同伴可观察分工的组合潜力；非第七个成熟玩法",
+          "evidence": {
+            "mathematicalSummary": "4=完全自由4",
+            "model": "R131–R143 paper, see source and report"
+          },
+          "lesson": "在最佳路径第2手两种严格动作分别以1/2到达；不是高阶计算的证明"
+        },
+        {
+          "id": "R137",
+          "name": "同伴偏向A的概率p1/4、1/2、3/4",
+          "status": "本轮原理或因果/退化边界，不独立晋升",
+          "evidence": {
+            "mathematicalSummary": "完全信息均4；固定59/16,7/2,59/16",
+            "model": "R131–R143 paper, see source and report"
+          },
+          "lesson": "只测结构边界，不扫参数提升差距"
+        },
+        {
+          "id": "R138",
+          "name": "将同伴真实贡献延迟一手汇报",
+          "status": "本轮原理或因果/退化边界，不独立晋升",
+          "evidence": {
+            "mathematicalSummary": "p1/2=7/2；p1/4,3/4=31/8",
+            "model": "R131–R143 paper, see source and report"
+          },
+          "lesson": "实情不可见时不允许策略偷看内部状态"
+        },
+        {
+          "id": "R139",
+          "name": "关闭同伴，或让其总去固定目标",
+          "status": "本轮原理或因果/退化边界，不独立晋升",
+          "evidence": {
+            "mathematicalSummary": "关闭后最佳2；固定A/B最佳4",
+            "model": "R131–R143 paper, see source and report"
+          },
+          "lesson": "仅有免费资源不等于需要合作调整"
+        },
+        {
+          "id": "R140",
+          "name": "完整响应相对最强预承诺和可学条件策略",
+          "status": "本轮原理或因果/退化边界，不独立晋升",
+          "evidence": {
+            "mathematicalSummary": "4 vs 7/2 vs 简单条件4",
+            "model": "R131–R143 paper, see source and report"
+          },
+          "lesson": "开放结构有实际变化但不能晋升独立精选模式"
+        },
+        {
+          "id": "R141",
+          "name": "只告诉完成与否，不报部分工作进度",
+          "status": "保留自主同伴可观察分工的组合潜力；非第七个成熟玩法",
+          "evidence": {
+            "mathematicalSummary": "15/4",
+            "model": "R131–R143 paper, see source and report"
+          },
+          "lesson": "独立2^9信息集完整枚举吻合；信息粒度决定可观察的响应价值"
+        },
+        {
+          "id": "R142",
+          "name": "同伴只在前三手中的前两手工作",
+          "status": "本轮原理或因果/退化边界，不独立晋升",
+          "evidence": {
+            "mathematicalSummary": "完整4 vs 固定3",
+            "model": "R131–R143 paper, see source and report"
+          },
+          "lesson": "辅助行动时序改变差距；不能把更大差距自动称更好"
+        },
+        {
+          "id": "R143",
+          "name": "同伴完全确定地协助玩家另一目标",
+          "status": "本轮原理或因果/退化边界，不独立晋升",
+          "evidence": {
+            "mathematicalSummary": "固定BBB也能得4",
+            "model": "R131–R143 paper, see source and report"
+          },
+          "lesson": "全自动回应可以退化为脚本；与P16/P18需审核同构"
+        }
+      ],
+      "record": "docs/实验/机制研究/批次/R131-R143-信息和自主同伴/研究记录.md",
+      "note": "Thirteen numbered independent falsification checks, NOT thirteen successful new play patterns. No official Unity/Content or human work."
     }
   ],
   "frontier": [
@@ -1780,6 +2058,27 @@
       "question": "新人能否理解什么时候可接触哪位证人以及逼问A会如何得罪尚未联系的B？",
       "method": "先做无剧透公开信息四拍、事件与关系的最低提示，挑战固定A/B和R130先B后A；没有故事授权只做纸面，不自动创建Debug",
       "humanGate": false
+    },
+    {
+      "id": "R144-承诺影响自主同伴",
+      "priority": 7,
+      "question": "同伴接受一次公开承诺后才自行行动，玩家是否会真正选择撤回/重分工而不是固定承诺？",
+      "method": "先读R17、R45、R79承诺反证，公开状态与同伴行动范围小模型，分别关闭承诺成本与其他人物连带；若被一条固定策略解释就停止，不做正典功能开发",
+      "humanGate": false
+    },
+    {
+      "id": "R145-行动前后报告的因果",
+      "priority": 8,
+      "question": "同伴公开反馈在行动前/后/延迟时，是否对玩家正常决策产生超出条件口诀的价值？",
+      "method": "R131–R143已有t0-t2模型可作为校验边界；先检查独立人物议程和非确定回报必要性，别继续同一q数字表",
+      "humanGate": false
+    },
+    {
+      "id": "R146-人类协作情景的可读性",
+      "priority": 9,
+      "question": "玩家是否把同伴理解成有自己动机的人，而不是第三个免费资源骰？",
+      "method": "需日后选择独立可玩情境，不得挪用正式夜莺Actor为当前自主NPC；先以最小两种提示做结构审阅，真正判断需真人反馈",
+      "humanGate": true
     }
   ],
   "policy": "Continue without user feedback; distinguish native mechanism function, feature ablation, strong simple policy, actual voluntary decision, and eventual human appeal. Do not auto-add candidates to Debug.",
@@ -1899,6 +2198,24 @@
       },
       "lesson": "关系后果可以真正改变决策，但单个错位窗口修订就使其归零；保留情景组合而不计新精选",
       "record": "docs/实验/机制研究/批次/R128-R130-人物关系与期限/研究记录.md"
+    },
+    {
+      "id": "R131-R143-belief-and-delegated-attention",
+      "date": "2026-10-12",
+      "name": "及时知识权限、另一行动者独立进度与完成级报告三个维度",
+      "scope": "13 Fraction mathematics checks; 2 model families; 0 native/human/Debug",
+      "evidence": {
+        "socialNoInfo": "9/2",
+        "socialNoisy": "37/8",
+        "socialFull": "19/4",
+        "allyFull": "4",
+        "allyBestFixed": "7/2",
+        "allyCompletionOnly": "15/4",
+        "allyNoHelper": "2",
+        "exactIndependentPolicyEnumeration": "2^7 / 2^4 / 2^3 / 2^9"
+      },
+      "lesson": "额外收益需区分免费进度、实时知情和复杂策略；公开三条件规则即可达到最优。",
+      "record": "docs/实验/机制研究/批次/R131-R143-信息和自主同伴/研究记录.md"
     }
   ],
   "parallelBatches": [
