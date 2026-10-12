@@ -1,0 +1,32 @@
+name: SSNoir GPT-6 Agent Harness Preflight
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-gpt6-agents.yml'
+      - '.github/workflows/ssnoir-gpt6-agents-ci.yml'
+      - 'tools/mechanism-agents/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Validate Python and all three genuine agent definitions
+        run: |
+          python3 -m py_compile tools/mechanism-agents/runner.py tools/mechanism-agents/verify.py
+          python3 tools/mechanism-agents/verify.py --self-test
+          for lane in pressure route information; do
+            python3 tools/mechanism-agents/runner.py --lane "$lane" --dry-run
+          done
