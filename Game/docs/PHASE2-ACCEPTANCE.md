@@ -99,3 +99,7 @@ The actual revised tavern prologue invokes C# natives `__apply-drunk!`, `__play-
 ## Native registration coverage gate
 
 `Game/tests/native-contract.test.mjs` scans `Engine/Runtime/Scripting/NativeFunctions.cs` and `Game/src/runtime/native-bridge.ts`. Every C# game native beginning with `__` must have a named TS bridge; the check prevents a newly-authored Scheme scene from invoking a missing runtime primitive without CI catching the omission. Name coverage is NOT semantic parity: script-driven story and C# trace comparisons remain mandatory.
+
+## Graphic-noir city preview
+
+The phase-one eight bare WebGL cuboids are now architecturally legible through hard roof cornices, restrained instanced lit windows, a street lamp, and localized lighting. This is an inexpensive shared WebGL2 backdrop with no extra texture/network dependencies. It is **not** a substitute for original CityBox art assets, whose migration still has a separate acceptance gate. While an authored place is loading, every gameplay control is locked against racing the script's world entry effects.

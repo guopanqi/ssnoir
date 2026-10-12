@@ -62,13 +62,46 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
   camera.position.set(7, 7, 12);
   camera.lookAt(0, 1, 0);
 
-  const blocks = new THREE.MeshLambertMaterial({ color: 0x222731 });
-  for (let i = 0; i < 8; i++) {
-    const height = 2 + (i % 4) * 1.15;
-    const building = new THREE.Mesh(new THREE.BoxGeometry(1.3, height, 1.6), blocks);
-    building.position.set((i - 3.5) * 1.55, height / 2, i % 2 ? -1.4 : 0.4);
+  const blocks=new THREE.MeshLambertMaterial({color:0x222731});
+  const corniceInk=new THREE.MeshLambertMaterial({color:0x34383b});
+  const glassInk=new THREE.MeshBasicMaterial({color:0xb4a48a,transparent:true,opacity:0.72});
+  // The physical city is a cheap noir maquette. Authored destinations live
+  // in the original world.scm and are never inferred from these meshes.
+  const windows:Array<{x:number;y:number;z:number}>=[];
+  for(let i=0;i<8;i++){
+    const height=2+(i%4)*1.15;
+    const x=(i-3.5)*1.55,z=i%2?-1.4:0.4;
+    const building=new THREE.Mesh(new THREE.BoxGeometry(1.3,height,1.6),blocks);
+    building.position.set(x,height/2,z);
     scene.add(building);
+    const roof=new THREE.Mesh(new THREE.BoxGeometry(1.47,0.095,1.78),corniceInk);
+    roof.position.set(x,height+0.018,z);scene.add(roof);
+    if(i%3===1){
+      const ledge=new THREE.Mesh(new THREE.BoxGeometry(1.38,0.12,1.70),corniceInk);
+      ledge.position.set(x,height*0.44,z);scene.add(ledge);
+    }
+    for(let floor=0;floor<Math.floor(height-0.45);floor++)
+      for(let col=0;col<2;col++){
+        if((i*7+floor*5+col*11)%5===0)continue;
+        windows.push({x:x+(col===0?-0.29:0.29),y:0.63+floor*0.87,z:z+0.806});
+      }
   }
+  const glassGeometry=new THREE.PlaneGeometry(0.18,0.29);
+  const windowMesh=new THREE.InstancedMesh(glassGeometry,glassInk,windows.length);
+  const marker=new THREE.Object3D();
+  windows.forEach(({x,y,z},index)=>{
+    marker.position.set(x,y,z);marker.updateMatrix();
+    windowMesh.setMatrixAt(index,marker.matrix);
+  });
+  windowMesh.instanceMatrix.needsUpdate=true;scene.add(windowMesh);
+  const poleInk=new THREE.MeshLambertMaterial({color:0x171d20});
+  const lampGlass=new THREE.MeshBasicMaterial({color:0xd4b88b});
+  const lampPole=new THREE.Mesh(new THREE.CylinderGeometry(0.038,0.055,2.7,6),poleInk);
+  lampPole.position.set(-1.45,1.35,2.25);scene.add(lampPole);
+  const lampHead=new THREE.Mesh(new THREE.SphereGeometry(0.16,8,6),lampGlass);
+  lampHead.position.set(-1.45,2.75,2.25);scene.add(lampHead);
+  const lampGlow=new THREE.PointLight(0xc5a274,5.0,4.5,2);
+  lampGlow.position.copy(lampHead.position);scene.add(lampGlow);
   const street = new THREE.Mesh(
     new THREE.PlaneGeometry(40, 40),
     new THREE.MeshLambertMaterial({ color: 0x171b23 })
@@ -632,6 +665,7 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
   function activateAt(x: number, y: number): boolean {
     const xx = (x - size.left) / size.scale;
     const yy = (y - size.top) / size.scale;
+    if(navigating)return true;
     if(playback.blocked){
       if(activeStage&&!activeStage.complete){
         activeStage.advance();updateStory();
@@ -771,6 +805,7 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
         if (obj instanceof THREE.Mesh) obj.geometry.dispose();
       });
       blocks.dispose();
+      corniceInk.dispose();glassInk.dispose();poleInk.dispose();lampGlass.dispose();
       street.material.dispose();
       three.dispose();
     }
