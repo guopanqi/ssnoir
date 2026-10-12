@@ -176,6 +176,8 @@ jobs:
               print('LAST-OBS',json.dumps(x['last_public_observation'],ensure_ascii=False))
           if x.get('obstacles'):
               print('BLOCKER',json.dumps(x['obstacles'],ensure_ascii=False))
+          if x.get('milestones'):
+              print('MILESTONES',json.dumps(x['milestones'],ensure_ascii=False))
           PY
       - uses: actions/upload-artifact@v4
         if: always()
