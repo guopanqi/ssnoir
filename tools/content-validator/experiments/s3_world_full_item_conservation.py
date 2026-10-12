@@ -44,7 +44,7 @@ def perform(p,obs,card,history):
     return choose_action(p,obs,op,history)
 def end(p,obs,history):
     return choose_action(p,obs,get(obs,"end-turn"),history)
-def run(spend_counter=True, let_chase_escape=False, stop_after_west_identity=False):
+def run(spend_counter=True, let_chase_escape=False, stop_after_west_identity=False, execute_nightingale_solo=False):
     p=Popen(CMD+["--session","world","--seed","19","--growth","4"],
        cwd=ROOT,stdin=PIPE,stdout=PIPE,stderr=PIPE,text=True)
     obs=recv(p);history=[];stage="wait_commission";cig_obtained=False;counter_spent=False;obstacles=[]
@@ -171,7 +171,28 @@ def run(spend_counter=True, let_chase_escape=False, stop_after_west_identity=Fal
                                    for c in obs.get("Cards",[])]
                             next_ops=[{"kind":o.get("Kind"),"card":o.get("Card")}
                                       for o in obs.get("Operations",[])]
-                            transcript_path="/tmp/s3-y-west-identity-native.json"
+                            solo_frank_op_details=[o for o in obs.get("Operations",[])
+                                if o.get("Card")=="自己走东侧那条回廊"]
+                            actors_at_reveal=obs.get("Actors")
+                            nightingale_solo_result=None
+                            if execute_nightingale_solo:
+                                chosen=next((o for o in obs["Operations"]
+                                    if o.get("Kind")=="action"
+                                    and o.get("Card")=="自己走东侧那条回廊"
+                                    and "夜莺" in str(o.get("Label",""))),None)
+                                assert chosen is not None, "Nightin​gale die not actually slottable"
+                                before_world_day=obs["WorldDay"]
+                                before_actors=obs["Actors"]
+                                before_clocks=obs.get("Clocks",[])
+                                obs=choose_action(p,obs,chosen,history)
+                                nightingale_solo_result={
+                                   "actual_operation":chosen,"world_day_before":before_world_day,
+                                   "world_day_after":obs["WorldDay"],
+                                   "actors_before":before_actors,"actors_after":obs["Actors"],
+                                   "clocks_before":before_clocks,"clocks_after":obs.get("Clocks",[]),
+                                   "legal_original_engine_action_executed":True}
+                            transcript_path=("/tmp/s3-y-west-identity-use-nightingale.json"
+                                  if execute_nightingale_solo else "/tmp/s3-y-west-identity-native.json")
                             p.stdin.write(json.dumps({"command":"save","path":transcript_path},ensure_ascii=False)+"\n")
                             p.stdin.flush()
                             msg=json.loads(p.stdout.readline())
@@ -185,8 +206,9 @@ def run(spend_counter=True, let_chase_escape=False, stop_after_west_identity=Fal
                               "companion_fields":{
                                   k:v for k,v in obs.items()
                                   if ("companion" in k.lower() or "actor" in k.lower())},
-                              "solo_frank_legal_operations":[o for o in obs["Operations"]
-                                  if o.get("Card")=="自己走东侧那条回廊"],
+                              "solo_frank_legal_operations":solo_frank_op_details,
+                              "actors_at_reveal":actors_at_reveal,
+                              "nightingale_solo_execution":nightingale_solo_result,
                               "item_quantity":obs.get("Inventory",{}).get(ITEM,0),
                               "already_spent_at_counter":counter_spent,
                               "native_steps":history,
