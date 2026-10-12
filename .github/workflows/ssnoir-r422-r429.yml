@@ -1,0 +1,52 @@
+name: SSNoir R422-R429 Precompiled Rule Baseline
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r422-r429.yml'
+      - 'tools/content-validator/experiments/r422_r429_precompiled_modes.py'
+      - 'tools/content-validator/experiments/r414_r421_late_sensor.py'
+      - 'docs/实验/机制研究/批次/R422-R429-预编译模式强基线/**'
+permissions:
+  contents: read
+jobs:
+  counterfactual:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify original against same-cost precompiled policies
+        run: |
+          set -euo pipefail
+          python3 -m py_compile tools/content-validator/experiments/r414_r421_late_sensor.py tools/content-validator/experiments/r422_r429_precompiled_modes.py
+          python3 tools/content-validator/experiments/r414_r421_late_sensor.py > /tmp/r414.json
+          python3 tools/content-validator/experiments/r422_r429_precompiled_modes.py > /tmp/r422.json
+          python3 - <<'PY'
+          import json
+          x=json.load(open('/tmp/r422.json'))
+          assert x['R422_original_authoring_optimum']['XN_4_plus_4']=='21/4'
+          assert x['R423_R425_precompiled_XN']['one_edit']=='11/2'
+          assert x['R423_R425_precompiled_XN']['two_edit']=='6'
+          assert x['R426_R427_precompiled_XNX']['one_edit']=='13/2'
+          assert x['R428_R429_explicit_constructive_witness']['XNX_one_mode_switch']=='13/2'
+          print('Same-cost, one-slot precompiled baselines exceed authoring in both scenarios')
+          PY
+      - name: Preserve current abstract research entrypoints and human gates
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/validate_abstract_research_scope.py
+          python3 tools/content-validator/experiments/validate_mechanism_portfolio.py
+          python3 tools/content-validator/experiments/validate_debug_playtests.py
+          python3 tools/content-validator/experiments/build_mechanism_atlas.py --check
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-r422-r429-precompiled-baseline
+          path: |
+            /tmp/r414.json
+            /tmp/r422.json
+          retention-days: 21
