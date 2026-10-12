@@ -1,0 +1,51 @@
+name: SSNoir R510-R517 Private Partner Planning
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r510-r517.yml'
+      - 'tools/content-validator/experiments/r510_r517_partner_private_future.py'
+      - 'docs/实验/机制研究/批次/R510-R517-私有意志与场外机会/**'
+permissions:
+  contents: read
+jobs:
+  exact:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Solve private-motive partner and exhaust 512 transparent policies
+        run: |
+          set -euo pipefail
+          python3 -m py_compile tools/content-validator/experiments/r510_r517_partner_private_future.py
+          python3 tools/content-validator/experiments/r510_r517_partner_private_future.py > /tmp/r510.json
+          python3 - <<'PY'
+          import json
+          z=json.load(open('/tmp/r510.json'))
+          assert z['R510_player_adaptive']['value']=='29/4'
+          assert z['R511_best_of_256_fixed']['value']=='25/4'
+          assert z['R512_best_of_256_last-event-rules']['value']=='105/16'
+          assert z['R513_no_partner_event_observation']=='25/4'
+          assert z['R514_no_help']=='115/16'
+          assert z['R515_private_state_revelation']=={'theta_known':'8','energy_known':'31/4'}
+          assert z['R516_myopic_partner']=='217/32'
+          assert z['R517_low_acceptance_reward']=='43/8'
+          print('Eight freeze-protocol, no feedback, simple baselines and partner foresight contrasts pass')
+          PY
+      - name: Protect existing scope and Debug gate
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/validate_abstract_research_scope.py
+          python3 tools/content-validator/experiments/validate_mechanism_portfolio.py
+          python3 tools/content-validator/experiments/validate_debug_playtests.py
+          python3 tools/content-validator/experiments/build_mechanism_atlas.py --check
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-r510-r517-private-partner
+          path: /tmp/r510.json
+          retention-days: 21
