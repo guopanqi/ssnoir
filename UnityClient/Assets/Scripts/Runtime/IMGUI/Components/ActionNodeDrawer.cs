@@ -79,12 +79,7 @@ namespace SSNoir.IMGUI
                 if (disabled) subtitleStyle.normal.textColor = IMGUIStyles.TextSecondary;
                 float subtitleWidth = rect.width - 24f;
                 string subtitle = WrapSubtitle(node.Subtitle, subtitleStyle, subtitleWidth);
-                float subtitleHeight = MeasureSubtitleHeight(subtitle, subtitleStyle, subtitleWidth);
-
-                float subtitleBudget = bodyBottom - (titleY + TitleH + GapTitleToBody)
-                    - RequirementSlotsMinNeed(node, actors);
-                if (subtitleHeight > subtitleBudget)
-                    subtitleHeight = subtitleBudget >= 18f ? subtitleBudget : 0f;
+                float subtitleHeight = FittedSubtitleHeight(node, rect, titleY, bodyBottom, actors);
 
                 if (subtitleHeight > 0f && titleY + TitleH + subtitleHeight <= rect.yMax)
                     IMGUIStyles.DrawLabel(new Rect(rect.x + 12f, titleY + TitleH, subtitleWidth, subtitleHeight), subtitle, subtitleStyle);
@@ -409,7 +404,23 @@ namespace SSNoir.IMGUI
         {
             var reqs = node.Requires;
             if (reqs == null || reqs.Count == 0) return;
+            int pillIndex = SkillPillIndex(node);
+            var slots = RequirementSlotRects(rect, bodyY, exeY, clocksBottomY, node, gameManager.DisplayedSnapshot.Actors);
+            for (int j = 0; j < reqs.Count; j++)
+            {
+                if (j == pillIndex)
+                    DrawSkillColumn(slots[j], node.Resolve!.SkillName, gameManager.DisplayedSnapshot.Actors,
+                        gameManager.DisplayedSnapshot, disabled);
+                DrawSlotBlock(slots[j], node, j, reqs[j], slotted != null ? slotted[j] : null, disabled, ui, gameManager,
+                    ref interaction, judged: j == pillIndex);
+            }
+        }
 
+        // 绘制与投放命中共用实际槽位几何，包括多槽、技能栏与紧凑卡的缩放。
+        private static Rect[] RequirementSlotRects(Rect rect, float bodyY, float exeY, float clocksBottomY,
+            GameNode node, IReadOnlyList<ActorSnapshot>? actors)
+        {
+            var reqs = node.Requires!;
             int n = reqs.Count;
             ActionCost biggest = reqs[0];
             for (int j = 1; j < n; j++)
@@ -422,7 +433,7 @@ namespace SSNoir.IMGUI
             int pillIndex = SkillPillIndex(node);
             bool showPill = pillIndex >= 0;
             float skillColumnH = showPill
-                ? SkillColumnHeight(node.Resolve!.SkillName, gameManager.DisplayedSnapshot.Actors)
+                ? SkillColumnHeight(node.Resolve!.SkillName, actors)
                 : 0f;
             float belowH = HasItemRequirement(reqs) ? CaptionH + CaptionGap + CaptionBottomPad : 0f;
             float scale = 1f;
@@ -446,22 +457,42 @@ namespace SSNoir.IMGUI
             rowW += SlotGap * (n - 1);
 
             float x = rect.center.x - rowW * 0.5f;
+            var slots = new Rect[n];
             for (int j = 0; j < n; j++)
             {
                 var req = reqs[j];
                 float size = SlotSize(req) * scale;
                 if (showPill && j == pillIndex)
                     x += PillW + PillGap;
-                var square = new Rect(x, centerY - size * 0.5f, size, size);
-                if (showPill && j == pillIndex)
-                    DrawSkillColumn(square, node.Resolve!.SkillName, gameManager.DisplayedSnapshot.Actors,
-                        gameManager.DisplayedSnapshot, disabled);
-
-                DrawSlotBlock(square, node, j, req, slotted != null ? slotted[j] : null, disabled, ui, gameManager,
-                    ref interaction, judged: j == pillIndex);
-
+                slots[j] = new Rect(x, centerY - size * 0.5f, size, size);
                 x += size + SlotGap;
             }
+            return slots;
+        }
+
+        public static bool ContainsDropSlot(Rect rect, GameNode node, float clocksBottomY,
+            Vector2 pointer, SSNoirGameManager gameManager)
+        {
+            if (node.Disabled || node.Requires == null || node.Requires.Count == 0 || node.Resolve == null)
+                return false;
+            float titleY = Mathf.Min(TitleTop(clocksBottomY, rect.y), rect.yMax - 32f);
+            float bodyBottom = rect.yMax - BottomPad;
+            float subtitleHeight = FittedSubtitleHeight(node, rect, titleY, bodyBottom, gameManager.DisplayedSnapshot.Actors);
+            float bodyY = titleY + TitleH + subtitleHeight + GapTitleToBody;
+            var slots = RequirementSlotRects(rect, bodyY, bodyBottom, clocksBottomY, node, gameManager.DisplayedSnapshot.Actors);
+            for (int i = 0; i < slots.Length; i++)
+                if (slots[i].Contains(pointer) && gameManager.CanPlaceSelectedResource(node, i))
+                    return true;
+            return false;
+        }
+
+        private static float FittedSubtitleHeight(GameNode node, Rect rect, float titleY, float bodyBottom,
+            IReadOnlyList<ActorSnapshot>? actors)
+        {
+            if (string.IsNullOrWhiteSpace(node.Subtitle)) return 0f;
+            float height = MeasureSubtitleHeight(node, rect.width);
+            float budget = bodyBottom - (titleY + TitleH + GapTitleToBody) - RequirementSlotsMinNeed(node, actors);
+            return height > budget ? (budget >= 18f ? budget : 0f) : height;
         }
 
         /// <summary>自动行动的飞行骰需要落到和卡内绘制完全一致的位置。</summary>
@@ -706,8 +737,10 @@ namespace SSNoir.IMGUI
         {
             bool slotTargeted = !disabled && ui.IsPointerInside(rect);
             bool slotHover = slotTargeted && IMGUIInteractionContext.HoverAvailable;
-            bool canMatchHeld = !disabled && gameManager.CanMatchRequirement(req);
-            bool canDropHeld = !disabled && gameManager.CanPlaceSelectedResource(node, slotIndex);
+            bool canMatchHeld = !disabled && !ui.IsLocked && !ui.IsOccluded
+                && gameManager.CanMatchRequirement(req);
+            bool canDropHeld = !disabled && !ui.IsLocked && !ui.IsOccluded
+                && gameManager.CanPlaceSelectedResource(node, slotIndex);
             Color border = SlotBorderColor(disabled, canDropHeld, canMatchHeld, slotHover);
             bool filled = res != null;
 

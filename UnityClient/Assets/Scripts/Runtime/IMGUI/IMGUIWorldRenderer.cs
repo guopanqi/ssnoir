@@ -1889,6 +1889,24 @@ namespace SSNoir.IMGUI
                 }
             }
 
+            // 拖拽投放按槽位解析归属，卡片正文不能挡住另一张卡的明确落点。
+            // 相交的槽位仍按绘制顺序取最上层；HUD、网格与附件的遮挡规则保持一致。
+            if (_gameManager.IsDraggingResource && !ghostLayer && !attachmentConsumesPointer
+                && !keepOut.IsUiBlocked(new Rect(ui.Mouse.x, ui.Mouse.y, 1f, 1f))
+                && !MouseOverGridCard(gridNodes, ui.Mouse))
+            {
+                ProjectedCardLayout? dropOwner = null;
+                foreach (var layout in layouts)
+                {
+                    if (layout.IsAnnotation || _gameManager.IsNodeFlipped(layout.Node.Name)) continue;
+                    if (ActionNodeDrawer.ContainsDropSlot(layout.Rect, layout.Node,
+                            CardDrawer.MeasureClockBadgesBottom(layout.Rect, ClocksForCard(layout.Node)),
+                            ui.Mouse, _gameManager))
+                        dropOwner = layout;
+                }
+                if (dropOwner != null) hitOwner = dropOwner;
+            }
+
             // 标注在最底下：它是印在图纸上的字，卡片压在它上面——卡才是可操作层。
             // 它自己画那一笔引线（线走到头长出字，见 AnnotationDrawer），所以不进下面
             // 那一层；卡片引线接的是矩形边中点，两种线的语言本来就不同。

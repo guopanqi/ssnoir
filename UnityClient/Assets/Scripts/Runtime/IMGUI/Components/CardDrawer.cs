@@ -270,7 +270,7 @@ namespace SSNoir.IMGUI
         private const float CompactDialDiameter = 20f;
 
         // 量出徽章会占到哪一行的哪个 Y——只做计算不画，供上层在画标题/头像前先留够空间。
-        private static float MeasureClockBadgesBottom(Rect rect, List<GameClock>? clocks)
+        public static float MeasureClockBadgesBottom(Rect rect, List<GameClock>? clocks)
             => LayoutClockBadges(rect, clocks, draw: false);
 
         public static float MeasureClockBadgesHeight(float cardWidth, List<GameClock>? clocks)
