@@ -1,19 +1,38 @@
 {
   "schema": "ssnoir.autonomous-pattern-memory/v1",
   "updated": "2026-10-12",
-  "batch": "R144–R148 改变自主同伴行动政策的投资与信息边界",
-  "rounds": 5,
-  "totalArchivedRounds": 93,
+  "batch": "R149–R173 城市人物自主议程→新目标→双人物连锁",
+  "rounds": 25,
+  "totalArchivedRounds": 118,
   "objective": "Keep an honest research candidate quality gate: 20 different sources is not 20 human-validated attractive games; continue autonomously with direct causal ablations",
   "method": {
-    "stage": "third family: command changes NPC action policy → early/late/hidden/visible/reliability ablation",
-    "baselineMain": "c7b9ae324544f7ce99fb7628bcaf60f2f0cbad1b",
-    "paperScript": "tools/content-validator/experiments/r144_r148_directing_ally.py",
-    "workflow": ".github/workflows/ssnoir-r144-r148.yml",
-    "evidence": "exact Fraction belief optimization + exhaustive legal precommitted 3-action scripts only",
-    "novelFamiliesAddedToSelected": 0,
-    "debugAdmissions": 0,
-    "gameContentUnchanged": true
+    "stage": "autonomous consequences→public-knowledge strict reversal→event-generated objectives→response graph cascade; all with counterfactual controls",
+    "baselineMain": "35a5d9bcc026ffa5f77059c5bc670ed2f4b02c04",
+    "substudies": [
+      {
+        "rounds": 8,
+        "record": "docs/实验/机制研究/批次/R149-R156-城市人物自主议程/研究记录.md",
+        "source": "tools/content-validator/experiments/r149_r156_autonomous_city_agendas.py",
+        "workflow": "ssnoir-r149-r156.yml"
+      },
+      {
+        "rounds": 9,
+        "record": "docs/实验/机制研究/批次/R157-R165-事件生成新目标/研究记录.md",
+        "source": "tools/content-validator/experiments/r157_r165_event_generated_targets.py",
+        "workflow": "ssnoir-r157-r165.yml"
+      },
+      {
+        "rounds": 8,
+        "record": "docs/实验/机制研究/批次/R166-R173-人物议程连锁/研究记录.md",
+        "source": "tools/content-validator/experiments/r166_r173_city_cascade_network.py",
+        "workflow": "ssnoir-r166-r173.yml"
+      }
+    ],
+    "evidence": "Exact Fraction DP or exact finite-state graphs, independent exhaustive plan enumeration only",
+    "humanCount": 0,
+    "newOfficialNativeRuns": 0,
+    "newDebugAdmissions": 0,
+    "correctedWaitAction": true
   },
   "results": [
     {
@@ -332,6 +351,256 @@
         "source": "tools/content-validator/experiments/r144_r148_directing_ally.py"
       },
       "lesson": "及时可见让直接补缺足够，新增指挥根部价值严格零"
+    },
+    {
+      "id": "R149",
+      "name": "记者自行发表与老街人物主动行动的并发后果",
+      "status": "保留作为玩法与人物叙事组合研究；未认证",
+      "evidence": {
+        "mathematicalSummary": "正常最优7/2，首手调查7/2 > 接触老街3",
+        "source": "tools/content-validator/experiments/r149_r156_autonomous_city_agendas.py"
+      },
+      "lesson": "人物主动后果能形成成本，但属于期限和并发注意力组合"
+    },
+    {
+      "id": "R150",
+      "name": "正常路径公开高低风险后严格逆向选择",
+      "status": "数学反证/时序/内容结构边界；未认证",
+      "evidence": {
+        "mathematicalSummary": "低风险选老街4而续查3；高风险续查3而老街2；两支各1/2",
+        "source": "tools/content-validator/experiments/r149_r156_autonomous_city_agendas.py"
+      },
+      "lesson": "人物未停下等玩家，早期调查成为情境分水岭"
+    },
+    {
+      "id": "R151",
+      "name": "关掉风险提示或拖到所有行动之后",
+      "status": "数学反证/时序/内容结构边界；未认证",
+      "evidence": {
+        "mathematicalSummary": "最佳完全定序3，及时提示7/2",
+        "source": "tools/content-validator/experiments/r149_r156_autonomous_city_agendas.py"
+      },
+      "lesson": "信息应在第一次会改变玩家动作前出现"
+    },
+    {
+      "id": "R152",
+      "name": "关闭记者在无人纠正时发布误报的自主行为",
+      "status": "数学反证/时序/内容结构边界；未认证",
+      "evidence": {
+        "mathematicalSummary": "自由4 vs原7/2",
+        "source": "tools/content-validator/experiments/r149_r156_autonomous_city_agendas.py"
+      },
+      "lesson": "自动人物行为制造机会损失不是自动增加收益"
+    },
+    {
+      "id": "R153",
+      "name": "关闭老街人物无需玩家参与也自行行动的负后果",
+      "status": "数学反证/时序/内容结构边界；未认证",
+      "evidence": {
+        "mathematicalSummary": "自由5 vs原7/2",
+        "source": "tools/content-validator/experiments/r149_r156_autonomous_city_agendas.py"
+      },
+      "lesson": "单个人物活动的跨剧情损失必须被明确区分"
+    },
+    {
+      "id": "R154",
+      "name": "删除劝记者暂缓动作；延长接触老街期限",
+      "status": "数学反证/时序/内容结构边界；未认证",
+      "evidence": {
+        "mathematicalSummary": "根值两种都仍7/2",
+        "source": "tools/content-validator/experiments/r149_r156_autonomous_city_agendas.py"
+      },
+      "lesson": "多一张可做卡或表面期限改动未必有因果价值"
+    },
+    {
+      "id": "R155",
+      "name": "消息在第1手前就公开",
+      "status": "数学反证/时序/内容结构边界；未认证",
+      "evidence": {
+        "mathematicalSummary": "根值仍7/2",
+        "source": "tools/content-validator/experiments/r149_r156_autonomous_city_agendas.py"
+      },
+      "lesson": "提前知道不等于更有价值，需观察真实决策时间"
+    },
+    {
+      "id": "R156",
+      "name": "私证据、正确报道、老街、误报四维结局",
+      "status": "数学反证/时序/内容结构边界；未认证",
+      "evidence": {
+        "mathematicalSummary": "高风险(2,3,-2,0)与(2,0,2,-3)都是可达Pareto实例",
+        "source": "tools/content-validator/experiments/r149_r156_autonomous_city_agendas.py"
+      },
+      "lesson": "不同情感故事不可擅自压成正确分数"
+    },
+    {
+      "id": "R157",
+      "name": "同一人物的自主事件按玩家前两手关注开启证人或游行",
+      "status": "保留作为玩法与人物叙事组合研究；未认证",
+      "evidence": {
+        "mathematicalSummary": "条件事件后出现合法新动作，5种结果向量",
+        "source": "tools/content-validator/experiments/r157_r165_event_generated_targets.py"
+      },
+      "lesson": "情景网络可扩展玩家的注意力选项"
+    },
+    {
+      "id": "R158",
+      "name": "图中支持先接触与不接触后续实际不同可执行任务",
+      "status": "数学反证/时序/内容结构边界；未认证",
+      "evidence": {
+        "mathematicalSummary": "67条合法满时段方案，见证真实目标分岔",
+        "source": "tools/content-validator/experiments/r157_r165_event_generated_targets.py"
+      },
+      "lesson": "行动菜单改变不能只靠新增按钮口头承诺"
+    },
+    {
+      "id": "R159",
+      "name": "独立6^4逐条行动序与记忆化集合DP",
+      "status": "数学反证/时序/内容结构边界；未认证",
+      "evidence": {
+        "mathematicalSummary": "七类变体终局集合严格吻合",
+        "source": "tools/content-validator/experiments/r157_r165_event_generated_targets.py"
+      },
+      "lesson": "允许随时等待以消除强制行动导致的假不可达"
+    },
+    {
+      "id": "R160",
+      "name": "完整四维目标完成Pareto审查",
+      "status": "数学反证/时序/内容结构边界；未认证",
+      "evidence": {
+        "mathematicalSummary": "(0,1,0,0)与(1,0,1,0)",
+        "source": "tools/content-validator/experiments/r157_r165_event_generated_targets.py"
+      },
+      "lesson": "人物支线与案卷+公共活动不一定可以全兼顾"
+    },
+    {
+      "id": "R161",
+      "name": "关闭第一名人物的自动事件",
+      "status": "数学反证/时序/内容结构边界；未认证",
+      "evidence": {
+        "mathematicalSummary": "只有主线案卷为Pareto",
+        "source": "tools/content-validator/experiments/r157_r165_event_generated_targets.py"
+      },
+      "lesson": "不再生成新故事目标，根本不同于仅扣分"
+    },
+    {
+      "id": "R162",
+      "name": "人物无论玩家前期做什么都固定开启游行",
+      "status": "数学反证/时序/内容结构边界；未认证",
+      "evidence": {
+        "mathematicalSummary": "案卷+游行唯一Pareto",
+        "source": "tools/content-validator/experiments/r157_r165_event_generated_targets.py"
+      },
+      "lesson": "有自动事件却没有可由玩家影响的关系因果"
+    },
+    {
+      "id": "R163",
+      "name": "两种后续行动无条件全部开放",
+      "status": "数学反证/时序/内容结构边界；未认证",
+      "evidence": {
+        "mathematicalSummary": "Pareto仍与响应版相同",
+        "source": "tools/content-validator/experiments/r157_r165_event_generated_targets.py"
+      },
+      "lesson": "仅看终局Pareto相同会掩盖人际条件是否真实生效"
+    },
+    {
+      "id": "R164",
+      "name": "新目标晚一个时段才出现",
+      "status": "数学反证/时序/内容结构边界；未认证",
+      "evidence": {
+        "mathematicalSummary": "证人需两手却只剩一手，无法真正完成",
+        "source": "tools/content-validator/experiments/r157_r165_event_generated_targets.py"
+      },
+      "lesson": "屏幕出现了任务≠可投射注意力"
+    },
+    {
+      "id": "R165",
+      "name": "改为通用两步调查/缩短证人调查时间",
+      "status": "数学反证/时序/内容结构边界；未认证",
+      "evidence": {
+        "mathematicalSummary": "通用版不再有独立证人/游行的终局维度",
+        "source": "tools/content-validator/experiments/r157_r165_event_generated_targets.py"
+      },
+      "lesson": "任务更名与行动代价改变必须区分"
+    },
+    {
+      "id": "R166",
+      "name": "B依据此前玩家是否实际参与A事件自动调整自己的议程",
+      "status": "保留作为玩法与人物叙事组合研究；未认证",
+      "evidence": {
+        "mathematicalSummary": "6行动下13种终局，837条合法完整方案，Pareto4",
+        "source": "tools/content-validator/experiments/r166_r173_city_cascade_network.py"
+      },
+      "lesson": "跨人物连锁可拓展后续可关心的故事目标"
+    },
+    {
+      "id": "R167",
+      "name": "全8^6原始行动字符串+独立状态集合求解",
+      "status": "数学反证/时序/内容结构边界；未认证",
+      "evidence": {
+        "mathematicalSummary": "四组消融的终局全集逐项一致",
+        "source": "tools/content-validator/experiments/r166_r173_city_cascade_network.py"
+      },
+      "lesson": "模型证据是精确可达性，不是玩家乐趣"
+    },
+    {
+      "id": "R168",
+      "name": "完全关闭第二人的自动事件",
+      "status": "数学反证/时序/内容结构边界；未认证",
+      "evidence": {
+        "mathematicalSummary": "5种终局，Pareto2",
+        "source": "tools/content-validator/experiments/r166_r173_city_cascade_network.py"
+      },
+      "lesson": "没有第二个人的行动，新关注目标不会无故出现"
+    },
+    {
+      "id": "R169",
+      "name": "第二人永远固定产生传言，不对A的真实结果反应",
+      "status": "数学反证/时序/内容结构边界；未认证",
+      "evidence": {
+        "mathematicalSummary": "10种终局，Pareto2",
+        "source": "tools/content-validator/experiments/r166_r173_city_cascade_network.py"
+      },
+      "lesson": "多个自动倒计时不等于人物彼此回应"
+    },
+    {
+      "id": "R170",
+      "name": "第二个人晚一手才响应",
+      "status": "数学反证/时序/内容结构边界；未认证",
+      "evidence": {
+        "mathematicalSummary": "9种终局，Pareto3；两手查访无法完成",
+        "source": "tools/content-validator/experiments/r166_r173_city_cascade_network.py"
+      },
+      "lesson": "跨阶段目标必须留出真实游玩窗口"
+    },
+    {
+      "id": "R171",
+      "name": "B读取第4手已完成的证人、参与游行或均未完成",
+      "status": "数学反证/时序/内容结构边界；未认证",
+      "evidence": {
+        "mathematicalSummary": "四个真实合法阶段前缀分别打开查访/回应/传言",
+        "source": "tools/content-validator/experiments/r166_r173_city_cascade_network.py"
+      },
+      "lesson": "人物读真实过程而非仅看是否见过另一人"
+    },
+    {
+      "id": "R172",
+      "name": "终局按六维人物命运记录而不是只有总效用",
+      "status": "数学反证/时序/内容结构边界；未认证",
+      "evidence": {
+        "mathematicalSummary": "四个非支配结果向量",
+        "source": "tools/content-validator/experiments/r166_r173_city_cascade_network.py"
+      },
+      "lesson": "传言不预设为坏故事，人物结果不是通用数字"
+    },
+    {
+      "id": "R173",
+      "name": "归纳两次事件的简单公开四步语法",
+      "status": "数学反证/时序/内容结构边界；未认证",
+      "evidence": {
+        "mathematicalSummary": "两个角色串联仍可由短条件分支解释",
+        "source": "tools/content-validator/experiments/r166_r173_city_cascade_network.py"
+      },
+      "lesson": "不是第七个经认证独立玩法，缺人类理解与新情感体验"
     }
   ],
   "crossRoundMemory": [
@@ -384,7 +653,8 @@
     "R125–R127: 位置+期限有正常可达严格转换但被两条公开阈值完全压缩；证人逼问的连带关门有演示效果而强策略根值边际0。精确 Fraction 纸面证据，未加精选/Debug/原生/真人。接续 R128 先做真实时间可达性与双消融，再决定是否独立。",
     "R128–R130（纸面）：R127零价值人际惩罚只有在A逼问窗口短于B可接触窗口时才形成真实两路取舍；free19/4 > 两固定9/2，关闭惩罚21/4；延长A一手则惩罚边际0，两版本同43/8。强公开规则可完全解释，数学并非真人有趣。无正式角色/Debug修改。",
     "R131–R143：共13项数学原理及反证但只有两个结构家族。信息q1/2=9/2、q3/4=37/8、q1=19/4，迟到准确消息又降至9/2；属于R110/P08旧信息时点关系。自主同伴3手内独立给A/B各概率1/2：及时可见自由4、最强真正固定计划7/2、只报告完成15/4、迟到一手7/2；一条3条件公开规则就追平最优，正常最优分支1/2各严格应选不同目标。关闭同伴得2、固定同伴做A或B无动态差。Exact Fraction DP+独立2^7/2^4/2^3/2^9策略空间核对；数学非真人。精选6、20候选、Debug3全不变。",
-    "R144–R148：付玩家一手来改变助手剩余行动政策，看不到自主工作时若可靠度1可将根值7/2→4，但当场看得见工作时关闭指挥也为4；t1晚指挥仍7/2，可靠度9/10不值得、19/20值得，用r³>3/4和早期固定指挥A+自己做B两手完全解释。全无汇报条件Fraction DP=独立所有合法预定脚本。不存在新的动态复杂规划，不把它作为第七精选。仅数学，正典夜莺Actor依旧不是本模型的自主NPC。"
+    "R144–R148：付玩家一手来改变助手剩余行动政策，看不到自主工作时若可靠度1可将根值7/2→4，但当场看得见工作时关闭指挥也为4；t1晚指挥仍7/2，可靠度9/10不值得、19/20值得，用r³>3/4和早期固定指挥A+自己做B两手完全解释。全无汇报条件Fraction DP=独立所有合法预定脚本。不存在新的动态复杂规划，不把它作为第七精选。仅数学，正典夜莺Actor依旧不是本模型的自主NPC。",
+    "R149–R173 三批共25项独立精确纸面检查，仍只有自主议程/目标生成/人物事件连锁三个相邻研究族。A记者误报与老街期限同时独立推进，3手最优7/2，消息缺失只3，正常高低风险各1/2严格反向；同一人物t1事件按早期接触打开证人2手或游行1手，需合法WAIT纠错后67条完整序、5结果向量，Pareto证人与案卷+游行双分支；双人物依实际完成情况在t3再行动，6手837合法完整序、13结果向量、Pareto4，关闭第二人Pareto2、第二人固定传言Pareto2、延迟事件Pareto3。均是抽象动态故事图与玩家注意力语法的组合，不是新独立玩法；角色真实体验、玩家可读性和SSNoir原版C#+Scheme实现均未验证。"
   ],
   "history": [
     {
@@ -2127,6 +2397,304 @@
       ],
       "record": "docs/实验/机制研究/批次/R144-R148-指挥自主同伴/研究记录.md",
       "note": "an added action with limited causal utility, not five good play patterns; no debug change"
+    },
+    {
+      "batch": "R149–R156-双人物自主议程",
+      "rounds": 8,
+      "method": {
+        "paperScript": "tools/content-validator/experiments/r149_r156_autonomous_city_agendas.py",
+        "CIWorkflow": "ssnoir-r149-r156.yml",
+        "exactFiniteEnumeration": true,
+        "notNative": true,
+        "notHuman": true,
+        "DebugNoChange": true
+      },
+      "results": [
+        {
+          "id": "R149",
+          "name": "记者自行发表与老街人物主动行动的并发后果",
+          "status": "保留作为玩法与人物叙事组合研究；未认证",
+          "evidence": {
+            "mathematicalSummary": "正常最优7/2，首手调查7/2 > 接触老街3",
+            "source": "tools/content-validator/experiments/r149_r156_autonomous_city_agendas.py"
+          },
+          "lesson": "人物主动后果能形成成本，但属于期限和并发注意力组合"
+        },
+        {
+          "id": "R150",
+          "name": "正常路径公开高低风险后严格逆向选择",
+          "status": "数学反证/时序/内容结构边界；未认证",
+          "evidence": {
+            "mathematicalSummary": "低风险选老街4而续查3；高风险续查3而老街2；两支各1/2",
+            "source": "tools/content-validator/experiments/r149_r156_autonomous_city_agendas.py"
+          },
+          "lesson": "人物未停下等玩家，早期调查成为情境分水岭"
+        },
+        {
+          "id": "R151",
+          "name": "关掉风险提示或拖到所有行动之后",
+          "status": "数学反证/时序/内容结构边界；未认证",
+          "evidence": {
+            "mathematicalSummary": "最佳完全定序3，及时提示7/2",
+            "source": "tools/content-validator/experiments/r149_r156_autonomous_city_agendas.py"
+          },
+          "lesson": "信息应在第一次会改变玩家动作前出现"
+        },
+        {
+          "id": "R152",
+          "name": "关闭记者在无人纠正时发布误报的自主行为",
+          "status": "数学反证/时序/内容结构边界；未认证",
+          "evidence": {
+            "mathematicalSummary": "自由4 vs原7/2",
+            "source": "tools/content-validator/experiments/r149_r156_autonomous_city_agendas.py"
+          },
+          "lesson": "自动人物行为制造机会损失不是自动增加收益"
+        },
+        {
+          "id": "R153",
+          "name": "关闭老街人物无需玩家参与也自行行动的负后果",
+          "status": "数学反证/时序/内容结构边界；未认证",
+          "evidence": {
+            "mathematicalSummary": "自由5 vs原7/2",
+            "source": "tools/content-validator/experiments/r149_r156_autonomous_city_agendas.py"
+          },
+          "lesson": "单个人物活动的跨剧情损失必须被明确区分"
+        },
+        {
+          "id": "R154",
+          "name": "删除劝记者暂缓动作；延长接触老街期限",
+          "status": "数学反证/时序/内容结构边界；未认证",
+          "evidence": {
+            "mathematicalSummary": "根值两种都仍7/2",
+            "source": "tools/content-validator/experiments/r149_r156_autonomous_city_agendas.py"
+          },
+          "lesson": "多一张可做卡或表面期限改动未必有因果价值"
+        },
+        {
+          "id": "R155",
+          "name": "消息在第1手前就公开",
+          "status": "数学反证/时序/内容结构边界；未认证",
+          "evidence": {
+            "mathematicalSummary": "根值仍7/2",
+            "source": "tools/content-validator/experiments/r149_r156_autonomous_city_agendas.py"
+          },
+          "lesson": "提前知道不等于更有价值，需观察真实决策时间"
+        },
+        {
+          "id": "R156",
+          "name": "私证据、正确报道、老街、误报四维结局",
+          "status": "数学反证/时序/内容结构边界；未认证",
+          "evidence": {
+            "mathematicalSummary": "高风险(2,3,-2,0)与(2,0,2,-3)都是可达Pareto实例",
+            "source": "tools/content-validator/experiments/r149_r156_autonomous_city_agendas.py"
+          },
+          "lesson": "不同情感故事不可擅自压成正确分数"
+        }
+      ],
+      "record": "docs/实验/机制研究/批次/R149-R156-城市人物自主议程/研究记录.md",
+      "note": "Numbered structural checks and falsifications, NOT this many certified games; authored finite scenes are research fiction."
+    },
+    {
+      "batch": "R157–R165-事件生成故事目标",
+      "rounds": 9,
+      "method": {
+        "paperScript": "tools/content-validator/experiments/r157_r165_event_generated_targets.py",
+        "CIWorkflow": "ssnoir-r157-r165.yml",
+        "exactFiniteEnumeration": true,
+        "notNative": true,
+        "notHuman": true,
+        "DebugNoChange": true
+      },
+      "results": [
+        {
+          "id": "R157",
+          "name": "同一人物的自主事件按玩家前两手关注开启证人或游行",
+          "status": "保留作为玩法与人物叙事组合研究；未认证",
+          "evidence": {
+            "mathematicalSummary": "条件事件后出现合法新动作，5种结果向量",
+            "source": "tools/content-validator/experiments/r157_r165_event_generated_targets.py"
+          },
+          "lesson": "情景网络可扩展玩家的注意力选项"
+        },
+        {
+          "id": "R158",
+          "name": "图中支持先接触与不接触后续实际不同可执行任务",
+          "status": "数学反证/时序/内容结构边界；未认证",
+          "evidence": {
+            "mathematicalSummary": "67条合法满时段方案，见证真实目标分岔",
+            "source": "tools/content-validator/experiments/r157_r165_event_generated_targets.py"
+          },
+          "lesson": "行动菜单改变不能只靠新增按钮口头承诺"
+        },
+        {
+          "id": "R159",
+          "name": "独立6^4逐条行动序与记忆化集合DP",
+          "status": "数学反证/时序/内容结构边界；未认证",
+          "evidence": {
+            "mathematicalSummary": "七类变体终局集合严格吻合",
+            "source": "tools/content-validator/experiments/r157_r165_event_generated_targets.py"
+          },
+          "lesson": "允许随时等待以消除强制行动导致的假不可达"
+        },
+        {
+          "id": "R160",
+          "name": "完整四维目标完成Pareto审查",
+          "status": "数学反证/时序/内容结构边界；未认证",
+          "evidence": {
+            "mathematicalSummary": "(0,1,0,0)与(1,0,1,0)",
+            "source": "tools/content-validator/experiments/r157_r165_event_generated_targets.py"
+          },
+          "lesson": "人物支线与案卷+公共活动不一定可以全兼顾"
+        },
+        {
+          "id": "R161",
+          "name": "关闭第一名人物的自动事件",
+          "status": "数学反证/时序/内容结构边界；未认证",
+          "evidence": {
+            "mathematicalSummary": "只有主线案卷为Pareto",
+            "source": "tools/content-validator/experiments/r157_r165_event_generated_targets.py"
+          },
+          "lesson": "不再生成新故事目标，根本不同于仅扣分"
+        },
+        {
+          "id": "R162",
+          "name": "人物无论玩家前期做什么都固定开启游行",
+          "status": "数学反证/时序/内容结构边界；未认证",
+          "evidence": {
+            "mathematicalSummary": "案卷+游行唯一Pareto",
+            "source": "tools/content-validator/experiments/r157_r165_event_generated_targets.py"
+          },
+          "lesson": "有自动事件却没有可由玩家影响的关系因果"
+        },
+        {
+          "id": "R163",
+          "name": "两种后续行动无条件全部开放",
+          "status": "数学反证/时序/内容结构边界；未认证",
+          "evidence": {
+            "mathematicalSummary": "Pareto仍与响应版相同",
+            "source": "tools/content-validator/experiments/r157_r165_event_generated_targets.py"
+          },
+          "lesson": "仅看终局Pareto相同会掩盖人际条件是否真实生效"
+        },
+        {
+          "id": "R164",
+          "name": "新目标晚一个时段才出现",
+          "status": "数学反证/时序/内容结构边界；未认证",
+          "evidence": {
+            "mathematicalSummary": "证人需两手却只剩一手，无法真正完成",
+            "source": "tools/content-validator/experiments/r157_r165_event_generated_targets.py"
+          },
+          "lesson": "屏幕出现了任务≠可投射注意力"
+        },
+        {
+          "id": "R165",
+          "name": "改为通用两步调查/缩短证人调查时间",
+          "status": "数学反证/时序/内容结构边界；未认证",
+          "evidence": {
+            "mathematicalSummary": "通用版不再有独立证人/游行的终局维度",
+            "source": "tools/content-validator/experiments/r157_r165_event_generated_targets.py"
+          },
+          "lesson": "任务更名与行动代价改变必须区分"
+        }
+      ],
+      "record": "docs/实验/机制研究/批次/R157-R165-事件生成新目标/研究记录.md",
+      "note": "Numbered structural checks and falsifications, NOT this many certified games; authored finite scenes are research fiction."
+    },
+    {
+      "batch": "R166–R173-人物议程连锁",
+      "rounds": 8,
+      "method": {
+        "paperScript": "tools/content-validator/experiments/r166_r173_city_cascade_network.py",
+        "CIWorkflow": "ssnoir-r166-r173.yml",
+        "exactFiniteEnumeration": true,
+        "notNative": true,
+        "notHuman": true,
+        "DebugNoChange": true
+      },
+      "results": [
+        {
+          "id": "R166",
+          "name": "B依据此前玩家是否实际参与A事件自动调整自己的议程",
+          "status": "保留作为玩法与人物叙事组合研究；未认证",
+          "evidence": {
+            "mathematicalSummary": "6行动下13种终局，837条合法完整方案，Pareto4",
+            "source": "tools/content-validator/experiments/r166_r173_city_cascade_network.py"
+          },
+          "lesson": "跨人物连锁可拓展后续可关心的故事目标"
+        },
+        {
+          "id": "R167",
+          "name": "全8^6原始行动字符串+独立状态集合求解",
+          "status": "数学反证/时序/内容结构边界；未认证",
+          "evidence": {
+            "mathematicalSummary": "四组消融的终局全集逐项一致",
+            "source": "tools/content-validator/experiments/r166_r173_city_cascade_network.py"
+          },
+          "lesson": "模型证据是精确可达性，不是玩家乐趣"
+        },
+        {
+          "id": "R168",
+          "name": "完全关闭第二人的自动事件",
+          "status": "数学反证/时序/内容结构边界；未认证",
+          "evidence": {
+            "mathematicalSummary": "5种终局，Pareto2",
+            "source": "tools/content-validator/experiments/r166_r173_city_cascade_network.py"
+          },
+          "lesson": "没有第二个人的行动，新关注目标不会无故出现"
+        },
+        {
+          "id": "R169",
+          "name": "第二人永远固定产生传言，不对A的真实结果反应",
+          "status": "数学反证/时序/内容结构边界；未认证",
+          "evidence": {
+            "mathematicalSummary": "10种终局，Pareto2",
+            "source": "tools/content-validator/experiments/r166_r173_city_cascade_network.py"
+          },
+          "lesson": "多个自动倒计时不等于人物彼此回应"
+        },
+        {
+          "id": "R170",
+          "name": "第二个人晚一手才响应",
+          "status": "数学反证/时序/内容结构边界；未认证",
+          "evidence": {
+            "mathematicalSummary": "9种终局，Pareto3；两手查访无法完成",
+            "source": "tools/content-validator/experiments/r166_r173_city_cascade_network.py"
+          },
+          "lesson": "跨阶段目标必须留出真实游玩窗口"
+        },
+        {
+          "id": "R171",
+          "name": "B读取第4手已完成的证人、参与游行或均未完成",
+          "status": "数学反证/时序/内容结构边界；未认证",
+          "evidence": {
+            "mathematicalSummary": "四个真实合法阶段前缀分别打开查访/回应/传言",
+            "source": "tools/content-validator/experiments/r166_r173_city_cascade_network.py"
+          },
+          "lesson": "人物读真实过程而非仅看是否见过另一人"
+        },
+        {
+          "id": "R172",
+          "name": "终局按六维人物命运记录而不是只有总效用",
+          "status": "数学反证/时序/内容结构边界；未认证",
+          "evidence": {
+            "mathematicalSummary": "四个非支配结果向量",
+            "source": "tools/content-validator/experiments/r166_r173_city_cascade_network.py"
+          },
+          "lesson": "传言不预设为坏故事，人物结果不是通用数字"
+        },
+        {
+          "id": "R173",
+          "name": "归纳两次事件的简单公开四步语法",
+          "status": "数学反证/时序/内容结构边界；未认证",
+          "evidence": {
+            "mathematicalSummary": "两个角色串联仍可由短条件分支解释",
+            "source": "tools/content-validator/experiments/r166_r173_city_cascade_network.py"
+          },
+          "lesson": "不是第七个经认证独立玩法，缺人类理解与新情感体验"
+        }
+      ],
+      "record": "docs/实验/机制研究/批次/R166-R173-人物议程连锁/研究记录.md",
+      "note": "Numbered structural checks and falsifications, NOT this many certified games; authored finite scenes are research fiction."
     }
   ],
   "frontier": [
@@ -2198,6 +2766,20 @@
       "priority": 10,
       "question": "人物自己有目标时，公开承诺是否改变其下一步选择以及其他人物可接触性，而非只购买可靠帮工？",
       "method": "先对照R17/R45/R79和P13；保持已获成果不可撤销，以公开事件前后双方行动作为因果对照；独立关闭他人反应，找到正常路径严格双向转折后才扩模型",
+      "humanGate": false
+    },
+    {
+      "id": "R174-情境四拍与NPC动机的无提示可读性",
+      "priority": 11,
+      "question": "如果不显示前置条件图，普通玩家能否理解A自主离开、B因亲历的事而改变计划、剩下的行动够不够完成新故事？",
+      "method": "先用R166四个可达前缀拟不同阅读情景，只给角色会真实说的公开线索；独立人类反馈才能判定。保留第1章正典人物身份与现有可达条件，绝不可按模型魔改当前夜莺时序。",
+      "humanGate": true
+    },
+    {
+      "id": "R175-内容场景价值的真实兑现",
+      "priority": 12,
+      "question": "玩家投入与人物结果是否在稍后具有情绪、理念、命运变化，而不只是把一条支线变成第二条支线？",
+      "method": "采用第一章现有人物明确的愿望与矛盾，研究故事本体的两种完整后果写作，再区分玩家察觉到的改变；优先正式原生已有的场景，避免打造新内容系统。",
       "humanGate": false
     }
   ],
@@ -2383,6 +2965,45 @@
       },
       "lesson": "严格临场分歧需要显示合法替代动作的反事实值及正常路径概率，不等于数学root策略差或人为采样。",
       "record": "docs/实验/机制研究/批次/R131-R143-信息和自主同伴/研究记录.md"
+    },
+    {
+      "id": "R149–R156-双人物自主议程",
+      "date": "2026-10-12",
+      "name": "R149–R156-双人物自主议程",
+      "scope": "exact abstract paper; no canonical engine, no human playtest, no new debug entries",
+      "evidence": {
+        "script": "tools/content-validator/experiments/r149_r156_autonomous_city_agendas.py",
+        "workflow": "ssnoir-r149-r156.yml",
+        "record": "docs/实验/机制研究/批次/R149-R156-城市人物自主议程/研究记录.md"
+      },
+      "lesson": "保留多维结局与完整行动合法性；比较角色反应被关闭及目标事件太迟两类因果消融，不能只算好看的终局计数。",
+      "record": "docs/实验/机制研究/批次/R149-R156-城市人物自主议程/研究记录.md"
+    },
+    {
+      "id": "R157–R165-事件生成故事目标",
+      "date": "2026-10-12",
+      "name": "R157–R165-事件生成故事目标",
+      "scope": "exact abstract paper; no canonical engine, no human playtest, no new debug entries",
+      "evidence": {
+        "script": "tools/content-validator/experiments/r157_r165_event_generated_targets.py",
+        "workflow": "ssnoir-r157-r165.yml",
+        "record": "docs/实验/机制研究/批次/R157-R165-事件生成新目标/研究记录.md"
+      },
+      "lesson": "保留多维结局与完整行动合法性；比较角色反应被关闭及目标事件太迟两类因果消融，不能只算好看的终局计数。",
+      "record": "docs/实验/机制研究/批次/R157-R165-事件生成新目标/研究记录.md"
+    },
+    {
+      "id": "R166–R173-人物议程连锁",
+      "date": "2026-10-12",
+      "name": "R166–R173-人物议程连锁",
+      "scope": "exact abstract paper; no canonical engine, no human playtest, no new debug entries",
+      "evidence": {
+        "script": "tools/content-validator/experiments/r166_r173_city_cascade_network.py",
+        "workflow": "ssnoir-r166-r173.yml",
+        "record": "docs/实验/机制研究/批次/R166-R173-人物议程连锁/研究记录.md"
+      },
+      "lesson": "保留多维结局与完整行动合法性；比较角色反应被关闭及目标事件太迟两类因果消融，不能只算好看的终局计数。",
+      "record": "docs/实验/机制研究/批次/R166-R173-人物议程连锁/研究记录.md"
     }
   ],
   "parallelBatches": [
