@@ -1,0 +1,48 @@
+name: SSNoir R157-R165 Story Goals Spawned by City Events
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r157-r165.yml'
+      - 'tools/content-validator/experiments/r157_r165_event_generated_targets.py'
+      - 'docs/实验/机制研究/批次/R157-R165-事件生成新目标/研究记录.md'
+permissions:
+  contents: read
+jobs:
+  exact-graph:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Independent exact graph and multi-objective target reachability
+        run: |
+          set -euo pipefail
+          python3 -m py_compile tools/content-validator/experiments/r157_r165_event_generated_targets.py
+          python3 tools/content-validator/experiments/r157_r165_event_generated_targets.py | tee /tmp/r157-r165.json
+          python3 - <<'PY'
+          import json
+          j=json.load(open('/tmp/r157-r165.json'))
+          assert j['variants']['responsive']['outcomes']==4
+          assert j['variants']['responsive']['paths']==10
+          assert j['R160_narrative_pareto']==[[0,1,0,0],[1,0,1,0]]
+          assert j['variants']['late_event']['reachable_goals']==[0,2]
+          print('Independent graph vs memoized set DP complete')
+          PY
+      - name: Prior exact regression and admission gates
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/r149_r156_autonomous_city_agendas.py >/tmp/r149-r156.json
+          python3 tools/content-validator/experiments/validate_mechanism_portfolio.py
+          python3 tools/content-validator/experiments/validate_debug_playtests.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-r157-r165-reachable-story-outcomes
+          path: |
+            /tmp/r157-r165.json
+            /tmp/r149-r156.json
+          retention-days: 21
