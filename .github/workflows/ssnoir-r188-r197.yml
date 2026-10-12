@@ -1,0 +1,52 @@
+name: SSNoir R188-R197 Abstract Allocation and Programmable Policy
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r188-r197.yml'
+      - 'tools/content-validator/experiments/r188_r197_allocation_and_policy.py'
+      - 'docs/实验/机制研究/批次/R188-R197-跨周期资源与规则编排/研究记录.md'
+permissions:
+  contents: read
+jobs:
+  exact-paper:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Exact resource quality DP, policy tapes and practical rules
+        run: |
+          set -euo pipefail
+          python3 -m py_compile tools/content-validator/experiments/r188_r197_allocation_and_policy.py
+          python3 tools/content-validator/experiments/r188_r197_allocation_and_policy.py | tee /tmp/abstract-r188-r197.json
+          python3 - <<'PY'
+          import json
+          j=json.load(open('/tmp/abstract-r188-r197.json'))
+          assert j['R188_2cycle_persistent_and_volatile']['value']=='11/2'
+          assert j['R189_best_static_plan']=='9/2'
+          assert j['R190_quality_only_strong_policy']=='19/4'
+          assert j['R192_allow_partial_B_to_survive_boundary']['value']=='11/2'
+          assert j['R194_policy_as_action']['highest_static']=='1087/160'
+          assert j['R195_midstream_rule_rewrite_tax']=='0'
+          print('Independent public rules and complete quality tapes checked')
+          PY
+      - name: Prior horizontal batch and research scope
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/r174_r187_horizontal_abstract.py >/tmp/abstract-r174-r187.json
+          python3 tools/content-validator/experiments/validate_abstract_research_scope.py
+          python3 tools/content-validator/experiments/validate_mechanism_portfolio.py
+          python3 tools/content-validator/experiments/validate_debug_playtests.py
+          python3 tools/content-validator/experiments/build_mechanism_atlas.py --check
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-abstract-r188-r197
+          path: |
+            /tmp/abstract-r188-r197.json
+            /tmp/abstract-r174-r187.json
+          retention-days: 21
