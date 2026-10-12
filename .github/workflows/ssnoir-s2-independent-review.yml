@@ -9,7 +9,7 @@ on:
 permissions:
   contents: read
 jobs:
-  独立复核:
+  independent-review:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
