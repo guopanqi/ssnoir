@@ -1,0 +1,47 @@
+name: SSNoir R494-R501 Refusal and Exhaustion
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r494-r501.yml'
+      - 'tools/content-validator/experiments/r494_r501_refusal_and_exhaustion.py'
+      - 'docs/实验/机制研究/批次/R494-R501-拒绝与疲惫的混淆/**'
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Four-state Bayesian belief and all 256 fixed-action scripts
+        run: |
+          set -euo pipefail
+          python3 -m py_compile tools/content-validator/experiments/r494_r501_refusal_and_exhaustion.py
+          python3 tools/content-validator/experiments/r494_r501_refusal_and_exhaustion.py >/tmp/r494.json
+          python3 - <<'PY'
+          import json
+          a=json.load(open('/tmp/r494.json'))
+          assert [a[k] for k in ('R495_optimal_observed','R497_no_restore','R498_no_response_observation','R499_type_known','R500_energy_known')]==['5','4','4','6','23/4']
+          assert a['R496_best_of_256_blind_scripts']=={'value':'4','count':256}
+          assert a['R501_offer_reward_threshold']=={'reward_2':'4','reward_4':'13/2'}
+          assert a['R494_refusal_posterior']['probability']=='3/4'
+          assert a['constructive_witness']=={'theta_A':'6','theta_B':'4'}
+          print('R494-R501 latent-type/effort branches and all fixed controls pass')
+          PY
+      - name: Maintain research scope and Debug admission gates
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/validate_abstract_research_scope.py
+          python3 tools/content-validator/experiments/validate_mechanism_portfolio.py
+          python3 tools/content-validator/experiments/validate_debug_playtests.py
+          python3 tools/content-validator/experiments/build_mechanism_atlas.py --check
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-r494-r501-refusal
+          path: /tmp/r494.json
