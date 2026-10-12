@@ -8,6 +8,7 @@ on:
       - 'tools/content-validator/experiments/s3_one_item_option_bound.py'
       - 'tools/content-validator/experiments/s3_world_entry_probe.py'
       - 'tools/content-validator/experiments/s3_world_cigarette_route.py'
+      - 'tools/content-validator/experiments/s3_world_full_item_conservation.py'
   workflow_dispatch:
 permissions:
   contents: read
@@ -142,5 +143,44 @@ jobs:
         with:
           name: ssnoir-s3-W-从新档到柜台的有界真实行动记录
           path: /tmp/s3-natural-route.json
+          if-no-files-found: ignore
+          retention-days: 90
+  original-world-through-lyon:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - uses: actions/setup-dotnet@v4
+        with: {dotnet-version: '9.0.x'}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: dotnet build tools/content-validator/SSNoir.ContentValidator.csproj -nologo -v q
+      - name: 同一正式世界存档自然取得并消费金牌烟后尝试进入莱恩交锋
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/s3_world_full_item_conservation.py /tmp/s3-full-world.json
+          python3 - <<'PY'
+          import json
+          x=json.load(open('/tmp/s3-full-world.json'))
+          assert x['settings']['items']=={}
+          assert x['native_steps']
+          print('S3-FULL-WORLD',x['status'],'steps',len(x['native_steps']),
+            'cigarette_obtained',x['item_naturally_acquired'],'counter_spent',x['counter_spent'])
+          if x['status']=='same_original_world_counter_then_lyon_unusable':
+              assert x['lyon_card_visible'] and not x['lyon_item_action_legal']
+              assert x['lyon_inventory']==0
+              print('同一世界存档：从获得物证到交出，再到莱恩交锋确实不能第二次使用')
+          if 'last_public_observation' in x:
+              print('LAST-OBS',json.dumps(x['last_public_observation'],ensure_ascii=False))
+          if x.get('obstacles'):
+              print('BLOCKER',json.dumps(x['obstacles'],ensure_ascii=False))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-s3-W-同一世界归档到莱恩进场
+          path: /tmp/s3-full-world.json
           if-no-files-found: ignore
           retention-days: 90
