@@ -6,6 +6,7 @@ on:
       - '.github/workflows/ssnoir-s3-y-native-reveal.yml'
       - 'tools/content-validator/experiments/s3_y_west_reveal_native.py'
       - 'tools/content-validator/experiments/s3_y_solo_companion_native.py'
+      - 'tools/content-validator/experiments/s3_z_departure_native.py'
       - 'tools/content-validator/experiments/s3_world_full_item_conservation.py'
   workflow_dispatch:
 permissions:
@@ -56,6 +57,18 @@ jobs:
           print('S3-Y-SOLO-NATIVE-RESULT '+json.dumps(x['native_check'],ensure_ascii=False))
           PY
           dotnet run --no-build --project tools/content-validator/SSNoir.ContentValidator.csproj -- --replay /tmp/s3-y-west-identity-use-nightingale.json
+      - name: 原生下一天实际离队时点
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/s3_z_departure_native.py /tmp/s3-z-day-boundary.json
+          python3 - <<'PY'
+          import json
+          x=json.load(open('/tmp/s3-z-day-boundary.json'))['native_end_day_check']
+          assert x['nightingale_left_after_day_end'],x
+          print('S3-Z-DEPARTURE-OBSERVED '+json.dumps(x,ensure_ascii=False))
+          PY
+          dotnet run --no-build --project tools/content-validator/SSNoir.ContentValidator.csproj -- --replay /tmp/s3-z-warren-next-day-native.json
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -65,5 +78,7 @@ jobs:
             /tmp/s3-y-west-identity-native.json
             /tmp/s3-y-solo-native.json
             /tmp/s3-y-west-identity-use-nightingale.json
+            /tmp/s3-z-day-boundary.json
+            /tmp/s3-z-warren-next-day-native.json
           if-no-files-found: ignore
           retention-days: 90
