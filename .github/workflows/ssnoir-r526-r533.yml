@@ -1,0 +1,59 @@
+name: SSNoir R526-R533 Hidden Pressure Causal Rule
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r526-r533.yml'
+      - 'tools/content-validator/experiments/r526_r533_hidden_pressure_identity.py'
+      - 'tools/content-validator/experiments/r518_r525_pressure_success_failure.py'
+      - 'docs/实验/机制研究/批次/R526-R533-隐藏压力因果的零信息价值/**'
+permissions:
+  contents: read
+jobs:
+  exact:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Hidden-type Bayesian solver and no value of direct identification
+        run: |
+          set -euo pipefail
+          python3 -m py_compile tools/content-validator/experiments/r526_r533_hidden_pressure_identity.py
+          python3 tools/content-validator/experiments/r518_r525_pressure_success_failure.py >/tmp/r518.json
+          python3 tools/content-validator/experiments/r526_r533_hidden_pressure_identity.py >/tmp/r526.json
+          python3 - <<'PY'
+          import json
+          q=json.load(open('/tmp/r526.json'))
+          for k,expect in [('R526_unknown_trigger_optimal','15/2'),
+                           ('R527_known_trigger_ex_ante','15/2'),
+                           ('R528_single_type_blind_threshold','15/2'),
+                           ('R529_pay_info_first','187/32'),
+                           ('R530_optional_information_action','15/2'),
+                           ('R531_no_vent','35/8')]:
+              value=q[k]['value'] if isinstance(q[k],dict) else q[k]
+              assert value==expect,(k,value,expect)
+          assert q['R533_cap3_replication']=={
+              'private_type_optimum':'33/4',
+              'public_type_optimum':'33/4',
+              'simple_threshold':'33/4'}
+          print('A hidden mechanism which does not alter optimal choice has ZERO decision value')
+          PY
+      - name: Research scope and Debug gate
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/validate_abstract_research_scope.py
+          python3 tools/content-validator/experiments/validate_mechanism_portfolio.py
+          python3 tools/content-validator/experiments/validate_debug_playtests.py
+          python3 tools/content-validator/experiments/build_mechanism_atlas.py --check
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-r526-r533-hidden-causal-rule
+          path: |
+            /tmp/r526.json
+            /tmp/r518.json
+          retention-days: 21
