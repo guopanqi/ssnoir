@@ -44,7 +44,7 @@ def perform(p,obs,card,history):
     return choose_action(p,obs,op,history)
 def end(p,obs,history):
     return choose_action(p,obs,get(obs,"end-turn"),history)
-def run(spend_counter=True, let_chase_escape=False, stop_after_west_identity=False, execute_nightingale_solo=False):
+def run(spend_counter=True, let_chase_escape=False, stop_after_west_identity=False, execute_nightingale_solo=False, end_day_after_west=False):
     p=Popen(CMD+["--session","world","--seed","19","--growth","4"],
        cwd=ROOT,stdin=PIPE,stdout=PIPE,stderr=PIPE,text=True)
     obs=recv(p);history=[];stage="wait_commission";cig_obtained=False;counter_spent=False;obstacles=[]
@@ -191,7 +191,25 @@ def run(spend_counter=True, let_chase_escape=False, stop_after_west_identity=Fal
                                    "actors_before":before_actors,"actors_after":obs["Actors"],
                                    "clocks_before":before_clocks,"clocks_after":obs.get("Clocks",[]),
                                    "legal_original_engine_action_executed":True}
-                            transcript_path=("/tmp/s3-y-west-identity-use-nightingale.json"
+                            next_day_result=None
+                            if end_day_after_west:
+                                assert not execute_nightingale_solo
+                                before_actors=obs["Actors"]
+                                before_day=obs["WorldDay"]
+                                obs=end(p,obs,history)
+                                next_day_result={
+                                    "actors_before":before_actors,
+                                    "actors_after":obs["Actors"],
+                                    "world_day_before":before_day,
+                                    "world_day_after":obs["WorldDay"],
+                                    "world_cards_after":[{
+                                        "name":c.get("Name"),
+                                        "subtitle":c.get("Subtitle")}
+                                        for c in obs.get("Cards",[])],
+                                }
+                            transcript_path=("/tmp/s3-z-warren-next-day-native.json"
+                                  if end_day_after_west else
+                                  "/tmp/s3-y-west-identity-use-nightingale.json"
                                   if execute_nightingale_solo else "/tmp/s3-y-west-identity-native.json")
                             p.stdin.write(json.dumps({"command":"save","path":transcript_path},ensure_ascii=False)+"\n")
                             p.stdin.flush()
@@ -209,6 +227,7 @@ def run(spend_counter=True, let_chase_escape=False, stop_after_west_identity=Fal
                               "solo_frank_legal_operations":solo_frank_op_details,
                               "actors_at_reveal":actors_at_reveal,
                               "nightingale_solo_execution":nightingale_solo_result,
+                              "next_day_result":next_day_result,
                               "item_quantity":obs.get("Inventory",{}).get(ITEM,0),
                               "already_spent_at_counter":counter_spent,
                               "native_steps":history,
