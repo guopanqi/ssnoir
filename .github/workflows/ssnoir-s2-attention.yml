@@ -1,0 +1,71 @@
+name: SSNoir S2 Attention Network Mathematical Research
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-s2-attention.yml'
+      - 'tools/content-validator/experiments/s2_attention_information.py'
+      - 'tools/content-validator/experiments/s2_goal_network.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  information-and-time:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - name: Exact Fraction R110-R112
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/s2_attention_information.py > /tmp/S2-A.json
+          python3 - <<'PY'
+          import json
+          from fractions import Fraction as F
+          j=json.load(open('/tmp/S2-A.json'))
+          assert [x['r'] for x in j['studies']]==['R110','R111','R112']
+          a,b,c=j['studies']
+          assert a['after_first']==a['outset_revealed']=='2113/864'
+          assert a['never']==a['after_second']=='1049/432'
+          assert a['revelation_gain']=='5/288'
+          assert any(F(x['adaptive_above_simple'])>0 for x in b['results'])
+          assert all(F(x['adaptive_above_simple'])==0 for x in c['results'])
+          print('R110-R112: exact opportunity/revelation/expiry evidence OK; no native evidence')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ssnoir-s2-information-time
+          path: /tmp/S2-A.json
+  goal-network-and-pressure:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - name: Exact Fraction R113-R115
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/s2_goal_network.py > /tmp/S2-B.json
+          python3 - <<'PY'
+          import json
+          from fractions import Fraction as F
+          j=json.load(open('/tmp/S2-B.json'))
+          assert [x['r'] for x in j['studies']]==['R113','R114','R115']
+          a,b,c=j['studies']
+          mid=next(x for x in a['results'] if x['B_reward']=='3/2')
+          assert mid['full']=='161/81' and mid['best_fixed_priority_order']['gap']=='0'
+          assert all(x['coupling_gain']=='0' for x in b['results'])
+          tight=next(x for x in c['results'] if x['side_reward']=='1' and x['work_tax']=='1')
+          assert tight['coupling_gain']=='1/4'
+          assert F(tight['best_simple_threshold']['gap'])>=0
+          print('R113-R115: exact unlock/debt/scarcity evidence OK; no native evidence')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ssnoir-s2-goal-network
+          path: /tmp/S2-B.json
