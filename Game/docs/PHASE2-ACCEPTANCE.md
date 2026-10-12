@@ -91,3 +91,7 @@ The Playwright capture now has a separate **normal mode** path, not the old foun
 ## Avoid duplicate runtime on normal launch (2026-10-12)
 
 The player-facing UI no longer starts the two independent Phase-1 LIPS namespace probes or the duplicate platform cash session. These cost interpreter and package startup time while not powering the game. They now initialize only in explicit foundation QA mode; Web and wx smoke harnesses opt in. Ordinary gameplay uses the sole authentic GameSceneDirector and its typed native state. This removes redundant initialization without modifying the original Scheme scripts or losing the existing platform acceptance probes.
+
+## Current prologue native function parity (2026-10-12)
+
+The actual revised tavern prologue invokes C# natives `__apply-drunk!`, `__play-camera!`, and `__play-intertitle!`. These are now in the shared TS bridge with C#-equivalent validation and typed events. Protagonist `isDrunk` is persisted in TeamSave, remains during encounters, and clears on the next consuming city roll (not on arbitrary day change). Intertitles advance one authentic narration page per acknowledgment; camera transition payloads preserve anchor/duration/destination and are explicitly displayed in the current prototype client. Full 3D camera-anchor motion and voice playback are *not* yet at art parity and still need their own stage gate. Opening C#/TS end-to-end regression must be green before claiming accepted.

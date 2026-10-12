@@ -559,7 +559,7 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
     if(frame){
       storySpeaker.text=frame.speaker||"叙事";
       storyBody.text=frame.text;
-      storyHelp.text="轻触继续";
+      storyHelp.text=frame.kind==="camera"?"轻触继续 · 场景过渡":"轻触继续";
     }
   };
   const receiveStory=()=>{

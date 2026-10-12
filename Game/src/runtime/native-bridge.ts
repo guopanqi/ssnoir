@@ -176,6 +176,10 @@ export function createNativeBridge(state: GameRuntimeState, random:()=>number=Ma
       state.team.permanentDiePenalty(id(args[0]),string(args[1]),integer(args[2]));
       return undefined;
     },
+    "__apply-drunk!": (...args) => {
+      arity("__apply-drunk!",args,0);
+      state.team.setDrunk("player",true);return undefined;
+    },
     "__apply-hangover!": (...args) => {
       arity("__apply-hangover!",args,0);state.team.applyHangover();return undefined;
     },
@@ -215,6 +219,29 @@ export function createNativeBridge(state: GameRuntimeState, random:()=>number=Ma
     "__record-clock-effect!": (...args) => {
       arity("__record-clock-effect!",args,3);
       state.recordClockEffect(string(args[0]),string(args[1]),integer(args[2]));
+      return undefined;
+    },
+    "__play-intertitle!": (...args) => {
+      arity("__play-intertitle!",args,2);
+      if(typeof args[0]!=="boolean")throw new Error("intertitle requires a Scheme boolean");
+      if(!state.isActionReporting())throw new Error("intertitle requires an action");
+      const pages=schemeList(args[1],"intertitle pages").map(raw=>{
+        const fields=schemeList(raw,"intertitle page");
+        if(fields.length!==2)throw new Error("intertitle page needs text and voice id");
+        return [string(fields[0]),string(fields[1])];
+      });
+      if(!pages.length)throw new Error("intertitle requires pages");
+      state.queueStory({kind:"intertitle",blocking:true,args:[args[0],pages]});
+      return undefined;
+    },
+    "__play-camera!": (...args) => {
+      arity("__play-camera!",args,3);
+      if(!state.isActionReporting())throw new Error("camera transition requires an action");
+      const anchor=string(args[0]),destination=string(args[2]);
+      const duration=Number(String(args[1]));
+      if(!anchor.trim()||!Number.isFinite(duration)||duration<0)
+        throw new Error("invalid camera transition");
+      state.queueStory({kind:"camera",blocking:true,args:[anchor,duration,destination]});
       return undefined;
     },
     "__play-narration!":story("narration",true,1),

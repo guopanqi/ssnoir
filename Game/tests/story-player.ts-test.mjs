@@ -24,3 +24,18 @@ test("stage events retain their raw structured commands without executing them",
  assert.equal(player.current?.kind,"stage");
  assert.deepEqual(player.current?.commands,[commands]);
 });
+
+test("authoritative intertitle splits its pages and preserves camera transitions",()=>{
+ const q=new StoryPlaybackQueue();
+ q.push([{kind:"intertitle",args:[true,[
+  ["大雨下个不停。","序章/01"],["那天我还不知道会遇见她。","序章/02"]
+ ]],immediate:false,blocking:true},
+ {kind:"camera",args:["老街酒馆",0.8,"家"],blocking:true,immediate:false}]);
+ assert.equal(q.pendingCount(),3);
+ assert.equal(q.current?.text,"大雨下个不停。");
+ assert.deepEqual(q.current?.commands,[true,["大雨下个不停。","序章/01"]]);
+ q.advance();assert.equal(q.current?.text,"那天我还不知道会遇见她。");
+ q.advance();assert.equal(q.current?.kind,"camera");
+ assert.deepEqual(q.current?.commands,["老街酒馆",0.8,"家"]);
+ q.advance();assert.equal(q.blocked,false);
+});

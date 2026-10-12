@@ -9,7 +9,7 @@ export interface ActorSave {
   id: string; name: string; role: "protagonist"|"companion";
   status: "active"|"away"; composure: number; stats: Stats;
   actionSlotCount: number; fixedDieValue: number|null; fixedDieLabel: string;
-  spentGrowthPoints: number; hangoverSlotId: number|null;
+  spentGrowthPoints: number; isDrunk: boolean; hangoverSlotId: number|null;
   permanentDiePenalty: number; permanentDiePenaltyLabel: string;
   actionDice: number[]; actionDiceSlotIds: number[];
   temporary: boolean;
@@ -41,6 +41,7 @@ function validateActor(a:ActorSave):void {
   if(a.fixedDieValue!==null){checkInt(a.fixedDieValue,1,6,"fixed die");ident(a.fixedDieLabel,"fixed die label");}
   else if(a.fixedDieLabel!=="")throw new Error("fixed die label without fixed value");
   checkInt(a.spentGrowthPoints,0,100000,"spent growth");
+  if(typeof a.isDrunk!=="boolean")throw new Error("invalid drunk actor flag");
   if(a.hangoverSlotId!==null)checkInt(a.hangoverSlotId,0,a.actionSlotCount-1,"hangover slot");
   checkInt(a.permanentDiePenalty,-2,0,"permanent die penalty");
   if(a.permanentDiePenalty!==0)ident(a.permanentDiePenaltyLabel,"permanent penalty label");
@@ -64,7 +65,7 @@ export class TeamState {
       id:"player",name:"尼尔",role:"protagonist",status:"active",composure:5,
       stats:{violence:-1,knowledge:1,sharpness:0,social:0},
       actionSlotCount:4,fixedDieValue:null,fixedDieLabel:"",
-      spentGrowthPoints:0,hangoverSlotId:null,permanentDiePenalty:0,
+      spentGrowthPoints:0,isDrunk:false,hangoverSlotId:null,permanentDiePenalty:0,
       permanentDiePenaltyLabel:"",actionDice:[],actionDiceSlotIds:[],temporary:false
     }];
     this.supports=[];this.carriedSupport="";
@@ -91,7 +92,7 @@ export class TeamState {
     this.actors.push({
       id,name,role:"companion",status:"active",composure:2,stats:{...stats},
       actionSlotCount:1,fixedDieValue:null,fixedDieLabel:"",
-      spentGrowthPoints:0,hangoverSlotId:null,permanentDiePenalty:0,
+      spentGrowthPoints:0,isDrunk:false,hangoverSlotId:null,permanentDiePenalty:0,
       permanentDiePenaltyLabel:"",actionDice:[],actionDiceSlotIds:[],temporary
     });
   }
@@ -128,6 +129,7 @@ export class TeamState {
     if(penalty!==0)ident(label,"permanent penalty label");
     const a=this.require(id);a.permanentDiePenalty=penalty;a.permanentDiePenaltyLabel=penalty===0?"":label;
   }
+  setDrunk(id:string,drunk=true):void {this.require(id).isDrunk=drunk;}
   applyHangover():void {this.require("player").hangoverSlotId=0;}
   spend(id:string,amount:number):number {
     checkInt(amount,0,100000,"composure cost");
@@ -154,6 +156,7 @@ export class TeamState {
    */
   rollDice(random:()=>number,isEncounter=false,consumeHangover=true,injuryCostsDie=false):void {
     for(const actor of this.actors){
+      if(!isEncounter&&consumeHangover)actor.isDrunk=false;
       const applyHangover=!isEncounter&&consumeHangover&&actor.hangoverSlotId!==null;
       actor.actionDice=[];actor.actionDiceSlotIds=[];
       if(actor.status!=="active")continue;

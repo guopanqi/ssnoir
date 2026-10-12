@@ -4,7 +4,7 @@ import { schemeList } from "./node-converter.ts";
 /** Presentation intent, not rendered UI. Used by Web, Electron and both Mini Game hosts. */
 export type StoryValue=string|number|boolean|null|StoryValue[];
 export type StoryKind="narration"|"spotlight"|"dialogue"|"remote-dialogue"|
-  "banter"|"remote-banter"|"theatre"|"stage"|"video"|"motion"|"supplement";
+  "banter"|"remote-banter"|"theatre"|"stage"|"video"|"motion"|"supplement"|"intertitle"|"camera";
 export interface StoryEvent {
   kind:StoryKind;
   args:StoryValue[];

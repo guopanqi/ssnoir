@@ -37,6 +37,22 @@ export class StoryPlaybackQueue {
         kind,blocking,commands:args,speaker:line.speaker,text:line.text
       }));
     }
+    if(kind==="intertitle"){
+      if(args.length!==2||typeof args[0]!=="boolean"||!Array.isArray(args[1]))
+        throw new Error("invalid intertitle story event");
+      return (args[1] as StoryValue[]).map(page=>{
+        if(!Array.isArray(page)||page.length!==2||typeof page[0]!=="string"||typeof page[1]!=="string")
+          throw new Error("invalid intertitle page");
+        return {kind,blocking,commands:[args[0],page],speaker:"尼尔 · 独白",text:page[0]};
+      });
+    }
+    if(kind==="camera"){
+      if(args.length!==3||typeof args[0]!=="string"||typeof args[1]!=="number"||
+         !Number.isFinite(args[1])||typeof args[2]!=="string")
+        throw new Error("invalid camera story event");
+      return [{kind,blocking,commands:args,speaker:"镜头",
+        text:args[2]?"镜头经过 "+args[0]+"，来到 "+args[2]:"镜头移向 "+args[0]}];
+    }
     if(kind==="spotlight")return [{
       kind,blocking,commands:args,speaker:StoryPlaybackQueue.text(args[0]),
       text:StoryPlaybackQueue.text(args[1])

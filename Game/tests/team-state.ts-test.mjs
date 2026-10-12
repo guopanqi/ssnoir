@@ -61,3 +61,22 @@ test("native actor and support bridge is shared with typed state",()=>{
   const snap=state.snapshot();const copy=new GameRuntimeState();copy.restore(JSON.parse(JSON.stringify(snap)));
   assert.deepEqual(copy.snapshot(),snap);
 });
+
+test("authored prologue drunk state is saved and clears only on the next city dice roll",()=>{
+  const team=new TeamState();
+  const state=new GameRuntimeState();const bridge=createNativeBridge(state);
+  assert.equal(state.team.require("player").isDrunk,false);
+  assert.throws(()=>bridge["__apply-drunk!"]("unexpected"),/expects 0/);
+  bridge["__apply-drunk!"]();
+  assert.equal(state.team.require("player").isDrunk,true);
+  const saved=state.snapshot();
+  const copy=new GameRuntimeState();
+  copy.restore(JSON.parse(JSON.stringify(saved)));
+  assert.equal(copy.team.require("player").isDrunk,true,"C# IsDrunk must survive world save");
+  copy.team.rollDice(()=>0.5,true,true);
+  assert.equal(copy.team.require("player").isDrunk,true,"encounter dice do not clear drink");
+  copy.team.rollDice(()=>0.5,false,false);
+  assert.equal(copy.team.require("player").isDrunk,true,"non-consuming roll does not clear drink");
+  copy.team.rollDice(()=>0.5,false,true);
+  assert.equal(copy.team.require("player").isDrunk,false,"next city roll ends drunkenness");
+});
