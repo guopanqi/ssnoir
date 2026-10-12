@@ -1,0 +1,52 @@
+name: SSNoir S3-Y 正典西侧揭晓瞬间原生证据
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-s3-y-native-reveal.yml'
+      - 'tools/content-validator/experiments/s3_y_west_reveal_native.py'
+      - 'tools/content-validator/experiments/s3_world_full_item_conservation.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-world-reveal:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - uses: actions/setup-dotnet@v4
+        with: {dotnet-version: '9.0.x'}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - name: 构建原版 C# + Scheme 内容执行器
+        run: dotnet build tools/content-validator/SSNoir.ContentValidator.csproj -nologo -v q
+      - name: 未改正典的新档正常走到莱恩身份揭晓的瞬间
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/s3_y_west_reveal_native.py /tmp/s3-y-native-reveal.json
+          python3 - <<'PY'
+          import json
+          x=json.load(open('/tmp/s3-y-native-reveal.json'))
+          assert x['status']=='original_world_after_west_identity_before_day_end'
+          assert not x['research']['guided_east_card_still_visible']
+          assert x['setting']['item_fixture'] is False
+          print('S3-Y-NATIVE-OBSERVED '+json.dumps(x['research'],ensure_ascii=False))
+          print('DAY',x['world_day'],'STEPS',len(x['native_steps']))
+          PY
+      - name: 严格重放同一新档的前述全部世界行动
+        shell: bash
+        run: |
+          set -euo pipefail
+          dotnet run --no-build --project tools/content-validator/SSNoir.ContentValidator.csproj -- --replay /tmp/s3-y-west-identity-native.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-s3-y-老街身份揭示原生逐手记录
+          path: |
+            /tmp/s3-y-native-reveal.json
+            /tmp/s3-y-west-identity-native.json
+          if-no-files-found: ignore
+          retention-days: 90
