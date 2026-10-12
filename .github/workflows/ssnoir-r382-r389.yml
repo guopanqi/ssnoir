@@ -1,0 +1,58 @@
+name: SSNoir R382-R389 Nonlinear Rule Transfer
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r382-r389.yml'
+      - 'tools/content-validator/experiments/r382_r389_nonlinear_program.py'
+      - 'docs/实验/机制研究/批次/R382-R389-非线性规则的迁移与反证/研究记录.md'
+permissions:
+  contents: read
+jobs:
+  exact:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Independent AND/OR posterior DP and exhaustive actual-input tapes
+        run: |
+          set -euo pipefail
+          python3 -m py_compile tools/content-validator/experiments/r382_r389_nonlinear_program.py
+          python3 tools/content-validator/experiments/r382_r389_nonlinear_program.py | tee /tmp/r382-r389.json
+          python3 - <<'PY'
+          import json
+          x=json.load(open('/tmp/r382-r389.json'))
+          assert x["R382_full_non_linear_posterior_DP"]=="16921/4096"
+          assert x["R383_independent_8192_actual_input_tapes"]=="16921/4096"
+          assert x["R384_best_15625_fixed_grammars"]["best"]=="15/4"
+          assert x["R384_best_15625_fixed_grammars"]["count"]==15625
+          assert x["R385_fewer_edit_permissions"]["2"]=="16753/4096"
+          assert x["R386_remove_non_linear_clause"]=="16161/4096"
+          assert x["R387_execution_feedback_not_informative"]=="15707/4096"
+          assert x["R388_oracle_type_and_partial_observability"]["oracle"]=="37325/8192"
+          print("NONLINEAR RULE TRANSFER, ALL PUBLIC RUN INPUTS AND EDIT ABLATIONS PASS")
+          PY
+      - name: Compare original XOR authoring and the two other families
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/r366_r373_program_composition.py >/tmp/r366-r373.json
+          python3 tools/content-validator/experiments/r358_r365_delegation.py >/tmp/r358-r365.json
+          python3 tools/content-validator/experiments/r374_r381_shared_norm.py >/tmp/r374-r381.json
+          python3 tools/content-validator/experiments/validate_abstract_research_scope.py
+          python3 tools/content-validator/experiments/validate_mechanism_portfolio.py
+          python3 tools/content-validator/experiments/validate_debug_playtests.py
+          python3 tools/content-validator/experiments/build_mechanism_atlas.py --check
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-r382-r389-nonlinear-transfer
+          path: |
+            /tmp/r382-r389.json
+            /tmp/r366-r373.json
+            /tmp/r358-r365.json
+            /tmp/r374-r381.json
+          retention-days: 21
