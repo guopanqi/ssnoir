@@ -138,7 +138,16 @@ def run():
                         obs=perform(p,obs,name,history)
                         break
                 else:
-                    stage="meet_manager"
+                    west_cards={"陪她上西侧楼梯","跟横椅子的人说","硬挤过去","跟她走上层桥廊"}
+                    if any(card["Name"] in west_cards for card in obs["Cards"]):
+                        # Visible-but-unusable after spending all today's dice
+                        # is not equivalent to "route complete".
+                        if obs["RestBlockers"]:
+                            stage="meet_manager"
+                        else:
+                            obs=end(p,obs,history)
+                    else:
+                        stage="meet_manager"
                 continue
             if stage=="meet_manager":
                 # If focused inside the Manager container, act BEFORE moving to
@@ -147,7 +156,7 @@ def run():
                     obs=move_to(p,obs,"剧院",history)
                 if get(obs,"action","见剧院的经理"):
                     obs=perform(p,obs,"见剧院的经理",history)
-                    stage="wait_alley"
+                    stage="west_street"
                 elif get(obs,"navigate","经理"):
                     obs=choose_action(p,obs,get(obs,"navigate","经理"),history)
                 elif obs["WorldDay"]<7:
@@ -158,11 +167,13 @@ def run():
                                 "莱恩" in (o.get("Card") or "")),None)
                     if candidate:
                         obs=choose_action(p,obs,candidate,history)
-                        stage="wait_alley"
+                        stage="west_street"
                     else:
                         stage="wait_alley"
                 continue
             if stage=="wait_alley":
+                if obs["WorldDay"]>25:
+                    raise RuntimeError("No original alley entry before day25; west inquiry or manager report may be unfinished")
                 obs=move_to(p,obs,"码头",history)
                 if get(obs,"action","今晚去货栈后面"):
                     obs=perform(p,obs,"今晚去货栈后面",history)
@@ -213,6 +224,7 @@ def run():
     return {"status":status,"item_naturally_acquired":cig_obtained,
          "counter_spent":counter_spent,"native_steps":history,
          "last_public_observation":last,"obstacles":obstacles,
+         "milestones":[h for h in history if h.get("card") in ("带她穿过东侧门廊","把烟盒给柜台后的人看","陪她上西侧楼梯","跟横椅子的人说","硬挤过去","跟她走上层桥廊","见剧院的经理","今晚去货栈后面")][-38:],
          "settings":{"entry":"world","seed":19,"growth":4,"items":{}},
          "scope":"real world legal operations; author-guided target action, not human or full alley continuation"}
 def main():
