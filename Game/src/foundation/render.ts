@@ -425,8 +425,16 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
         const top=authoredWorld.root.children.find(x=>x.name===name&&!x.disabled);
         if(!top)throw new Error("unavailable world node "+name);
         if(top.isPlace){
+          // Perceived latency: enter the already prepared scene immediately.
+          // All interaction is locked by navigating=true until on-enter-place,
+          // arrivals, and the authoritative tree have finished executing.
+          selectedPlace=name;navigationStack.length=0;showContainer(top);
+          worldStatus.text="正在进入 "+name+" · 整理当日事件…";
+          // The render loop's RAF callback was registered first; this gives
+          // the player an actual painted frame before the heavy Scheme eval.
+          await new Promise<void>(done=>options.animationFrame(()=>done()));
           const entered=await authoredWorld.enterPlace(name);
-          selectedPlace=name;navigationStack.length=0;showContainer(entered);
+          showContainer(entered);
           receiveStory();return;
         }
         // Main-quest cards are real root children; they are not locations.
@@ -459,6 +467,8 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
       await executeOriginal(target);
     }).catch(error=>{
       pendingRoll=null;chosenDice=[];
+      if(selectedPlace&&!authoredWorld?.root.children.find(n=>n.name===selectedPlace&&n.isPlace))
+        showRoot();
       worldStatus.text="行动失败："+String(error).slice(0,42);
       console.error("[SSNoir] authored-world action",error);options.onError?.(error);
     }).finally(()=>{
