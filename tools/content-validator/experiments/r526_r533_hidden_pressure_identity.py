@@ -26,7 +26,7 @@ def hidden(cap=2,vent=True,info=False,initial_known=None):
         options.append(result)
         return max(options)
     if initial_known is None:return v(0,0,0,None),v.cache_info().currsize,v
-    return sum((v(0,0,0,k) for k in TRIGGERS),F(0))/2),v.cache_info().currsize,v
+    return (sum((v(0,0,0,k) for k in TRIGGERS),F(0))/2, v.cache_info().currsize, v)
 
 def threshold(cap):
     return lambda t,p,d:('STOP' if p>=3 else 'VENT' if d>=cap else 'GO')
