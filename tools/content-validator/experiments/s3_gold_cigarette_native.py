@@ -39,6 +39,7 @@ def test_with_fixture(qty):
                  "--item",f"{ITEM}={qty}"],cwd=ROOT,stdin=PIPE,stdout=PIPE,stderr=PIPE,text=True)
     obs=recv(p)
     history=[]
+    initial_scene=obs["Scene"]
     seen_guarantee=False
     try:
         assert inventory(obs)==qty,(inventory(obs),qty)
@@ -101,7 +102,7 @@ def test_with_fixture(qty):
                 obs=action(p,obs,chosen)
             except Exception as exc:
                 raise AssertionError(f"Native action error after {len(history)} commands: {history[-12:]}: {exc}") from exc
-            if obs.get("Scene")!=ENTRY:
+            if obs.get("Scene")!=initial_scene:
                 raise AssertionError("Left original encounter before Lyon phase: "+str(history[-12:]))
         raise AssertionError("Could not reach original Lyon phase in 110 genuine operations "+str(history[-15:]))
     finally:
