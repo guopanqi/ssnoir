@@ -141,7 +141,7 @@ namespace SSNoir.IMGUI
             _dropdownItems.Add(new DropdownItem { Name = "--- WORLD ---", IsHeader = true });
             _dropdownItems.Add(new DropdownItem { Name = "world", SceneName = "world" });
 
-            // Use the same explicit author-playtest allowlist as DebugPanelDrawer.
+            // Use the same complete story catalog as DebugPanelDrawer.
             // Research files stay available for automated sessions, not UI browsing.
             bool storyHeader = false;
             bool researchHeader = false;

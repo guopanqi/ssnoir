@@ -6,12 +6,9 @@ using UnityEngine;
 namespace SSNoir.IMGUI
 {
     /// <summary>
-    /// Debug scene switcher allowlist. A research .scm existing on disk does not
-    /// mean it has been approved for manual playtesting.
-    ///
-    /// Story scenes: Resources/DemoEncounters.json (also used by demo tooling).
-    /// Selected research: Resources/DebugResearchPlaytests.json, explicit opt-in.
-    /// All other .scm scenes remain loadable by the engine and headless tests.
+    /// Test menu catalog: all story encounters, plus explicitly selected research.
+    /// DemoEncounters supplies familiar labels and ordering, not story membership.
+    /// Research and experimental scenes are excluded from automatic discovery.
     /// </summary>
     public static class DebugEncounterCatalog
     {
@@ -47,6 +44,17 @@ namespace SSNoir.IMGUI
             var result = new List<Entry>();
             var included = new HashSet<string>(StringComparer.Ordinal);
             Append("DemoEncounters", false, included, result);
+            var scenes = Resources.LoadAll<TextAsset>("Content/scenes/encounters");
+            Array.Sort(scenes, (left, right) => StringComparer.Ordinal.Compare(left.name, right.name));
+            foreach (var asset in scenes)
+            {
+                var scene = asset.name;
+                if (scene.StartsWith("研究", StringComparison.Ordinal)
+                    || scene.StartsWith("实验", StringComparison.Ordinal)
+                    || !included.Add(scene))
+                    continue;
+                result.Add(new Entry(scene, scene, false));
+            }
             Append("DebugResearchPlaytests", true, included, result);
             return result;
         }

@@ -591,8 +591,7 @@ namespace SSNoir.IMGUI
             _scenes.Add(new SceneItem { Name = "--- 世界 ---", IsHeader = true });
             _scenes.Add(new SceneItem { Name = "world", SceneName = "world" });
 
-            // Listing all Resources scenes used to expose EVERY failed mathematical
-            // experiment as a manual playtest. Only explicit approvals belong here.
+            // 剧情交锋全部列出；研究与实验不混入剧情列表。
             var allowed = DebugEncounterCatalog.Load();
             bool storyHeader = false;
             bool researchHeader = false;

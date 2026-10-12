@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Validate manual Debug menu allowlists, without launching Unity.
+"""Validate Debug story catalog and selected research, without launching Unity.
 
-Debug UI is a deliberate *subset* of encounter scripts. Experiment creation
-must never implicitly promote a scene. Both menus consume one C# catalog.
+Debug UI exposes all story encounters. Research and experiment creation
+must never implicitly promote a scene. Both test menus consume one C# catalog.
 """
 from pathlib import Path
 import json,re
@@ -32,6 +32,9 @@ def main():
         evidence=ROOT/item["evidence"]
         assert evidence.is_file(),f"No human-facing evidence for {item['scene']}: {evidence}"
     catalog=CATALOG.read_text(encoding="utf-8")
+    assert 'Resources.LoadAll<TextAsset>("Content/scenes/encounters")' in catalog
+    assert 'scene.StartsWith("研究", StringComparison.Ordinal)' in catalog
+    assert 'scene.StartsWith("实验", StringComparison.Ordinal)' in catalog
     assert 'Append("DemoEncounters"' in catalog
     assert 'Append("DebugResearchPlaytests"' in catalog
     assert 'Resources.Load<TextAsset>("Content/scenes/encounters/" + scene)' in catalog
@@ -39,12 +42,13 @@ def main():
         s=(SRC/name).read_text(encoding="utf-8")
         assert "DebugEncounterCatalog.Load()" in s
         assert 'Resources.LoadAll<TextAsset>("Content/scenes/encounters")' not in s
+    story_names=[p.stem for p in sorted(ENCOUNTERS.glob("*.scm")) if not p.stem.startswith(("研究","实验"))]
     all_research=list(ENCOUNTERS.glob("研究·*.scm"))
     included=sum(name.startswith("研究·") for name in scene_names)
     excluded=len(all_research)-included
     assert excluded>20, "Do not accidentally expose entire research corpus"
     assert "研究·动作回声" not in scene_names, "Rejected baseline should not remain in playtest menu"
-    print(json.dumps({"status":"PASS","narrative_debug":len(a),"curated_research_debug":len(b),
+    print(json.dumps({"status":"PASS","narrative_debug":len(story_names),"demo_selected":len(a),"curated_research_debug":len(b),
                       "research_hidden":excluded,"research_total":len(all_research),
-                      "preview_names":scene_names},ensure_ascii=False,indent=2))
+                      "story_names":story_names,"selected_names":scene_names},ensure_ascii=False,indent=2))
 if __name__=="__main__":main()
