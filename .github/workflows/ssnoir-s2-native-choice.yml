@@ -1,0 +1,46 @@
+name: SSNoir S2-D 原生双选项因果验证
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-s2-native-choice.yml'
+      - 'UnityClient/Assets/Resources/Content/scenes/encounters/研究·线索两选.scm'
+      - 'tools/content-validator/experiments/s2_true_choice_native.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  native-observed-decisions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 构建正式 C# 与 Scheme 会话执行器
+        run: dotnet build tools/content-validator/SSNoir.ContentValidator.csproj -nologo -v q
+      - name: 新场景实际入场后见到两条选择并执行不同分支
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/s2_true_choice_native.py /tmp/s2-native.json
+          python3 - <<'PY'
+          import json
+          x=json.load(open('/tmp/s2-native.json'))['cases']
+          assert x['trace_first']['trace_action_has_effect']
+          assert x['commit_first']['trace_closed']
+          assert x['day_boundary']['day1_offer_expired']
+          print('确实在正式 C#+Scheme 中完成两分支行动，不是纸面计算')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-s2-原生逐手语义证据
+          path: /tmp/s2-native.json
+          if-no-files-found: ignore
+          retention-days: 90
