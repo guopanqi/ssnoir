@@ -141,7 +141,10 @@ def run():
                     stage="meet_manager"
                 continue
             if stage=="meet_manager":
-                obs=move_to(p,obs,"剧院",history)
+                # If focused inside the Manager container, act BEFORE moving to
+                # the theatre place; otherwise backtracking would lose focus.
+                if obs["Focus"]!="经理":
+                    obs=move_to(p,obs,"剧院",history)
                 if get(obs,"action","见剧院的经理"):
                     obs=perform(p,obs,"见剧院的经理",history)
                     stage="wait_alley"
@@ -198,7 +201,7 @@ def run():
                             obs=end(p,obs,history)
                 continue
             raise RuntimeError("Unexpected phase "+stage)
-        status="bounded_180_legal_ops_incomplete"
+        status="bounded_260_iterations_incomplete"
     except Exception as exc:
         obstacles.append(str(exc))
         status="blocked_by_actual_public_route"
