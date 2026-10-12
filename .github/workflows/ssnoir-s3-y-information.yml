@@ -1,0 +1,49 @@
+name: SSNoir S3-Y 玩家信息与交锋风险反证
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-s3-y-information.yml'
+      - 'tools/content-validator/experiments/s3_y_visible_option_audit.py'
+      - 'UnityClient/Assets/Resources/Content/scenes/world/三封信.scm'
+      - 'UnityClient/Assets/Resources/Content/scenes/encounters/巷子.scm'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-contract-and-paper:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - name: 最新源内容信息边界、动作风险与独立精确条件反证
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/s3_y_visible_option_audit.py /tmp/s3-y-information.json
+          python3 - <<'PY'
+          import json
+          from fractions import Fraction as F
+          x=json.load(open('/tmp/s3-y-information.json'))
+          s=x['static'];p=x['paper']
+          assert s['before_reveal']['east_card_hides_endpoint']
+          assert s['before_reveal']['west_card_hides_endpoint']
+          assert s['lyon_form_one']['form_two_excludes_packet']
+          a={t['remaining_progress']:t for t in p['same_state_first_form_action_contrasts']}
+          assert a[1]['letters']['one_action_completion_prob']==a[1]['her_now']['one_action_completion_prob']=='2/3'
+          assert a[2]['letters']['one_action_completion_prob']=='1/3'
+          assert a[2]['her_now']['one_action_completion_prob']=='2/3'
+          assert a[2]['packet']['one_action_completion_prob']=='1'
+          assert any(z['possible_preference_reversal'] for z in p['unknown_future_example_bounds'])
+          assert any(z['use_now_weakly_dominates_under_this_bound'] for z in p['unknown_future_example_bounds'])
+          print('S3-Y-SOURCE-CONTRACT-OK: no engine runs; no human data')
+          print('S3-Y-SAMPLE '+json.dumps({'remaining_1':a[1],'remaining_2':a[2],
+             'unknown_future':p['unknown_future_example_bounds']},ensure_ascii=False))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ssnoir-s3-y-公开信息与动作风险
+          path: /tmp/s3-y-information.json
+          retention-days: 90
