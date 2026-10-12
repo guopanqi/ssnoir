@@ -37,6 +37,7 @@ export interface WorldHost {
   director:GameSceneDirector;
   mode:"world"|"encounter";
   root:RuntimeNode;
+  lastNavigation:{durationMs:number;materializations:number;modeChanged:boolean}|null;
   getPlaces():RuntimeNode[];
   getDossier():Promise<DossierEntry[]>;
   enterPlace(name:string):Promise<RuntimeNode>;
@@ -48,7 +49,9 @@ export interface WorldHost {
 export async function createWorldHostRuntime(random:()=>number=Math.random):Promise<WorldHost> {
   const authored=sources(),stdlib=base64Bytes(compiledStdBase64);
   let director=await GameSceneDirector.create(authored,stdlib,random);
-  let root=await director.render();
+  // GameSceneDirector.create already materializes the initial world tree.
+  let root=director.getPreparedRoot()??await director.render();
+  let lastNavigation:WorldHost["lastNavigation"]=null;
   const host:WorldHost={
     get director(){return director;},
     get state(){return director.state;},
@@ -56,6 +59,7 @@ export async function createWorldHostRuntime(random:()=>number=Math.random):Prom
     get runner(){return director.actions;},
     get mode(){return director.mode;},
     get root(){return root;},
+    get lastNavigation(){return lastNavigation;},
     getPlaces:()=>director.mode==="world"?root.children.filter(n=>n.isPlace&&!n.disabled):[],
     async getDossier(){
       if(director.mode!=="world")throw new Error("city dossier unavailable in encounter");
@@ -63,10 +67,29 @@ export async function createWorldHostRuntime(random:()=>number=Math.random):Prom
     },
     async enterPlace(name:string){
       if(director.mode!=="world")throw new Error("place entry only in the city");
-      const node=await director.worldActions.enterPlace(name);
-      await director.flush();
-      root=await director.render();
-      return node;
+      const started=Date.now(),beforeMode=director.mode;
+      const originalPrepare=director.worldActions.prepare.bind(director.worldActions);
+      let materializations=0;
+      // Measure actual get-render-data invocations, not abstract API calls.
+      // This is scoped to the serialized world UI queue, and always restored.
+      director.worldActions.prepare=async (...args)=>{
+        materializations++;
+        return originalPrepare(...args);
+      };
+      try{
+        const node=await director.worldActions.enterPlace(name);
+        // An arrival may open an encounter; only that mode transition needs
+        // a different interpreter's render tree after flush().
+        await director.flush();
+        const modeChanged=director.mode!==beforeMode;
+        root=modeChanged?(director.getPreparedRoot()??await director.render()):
+          (director.worldActions.getPreparedRoot()??await director.render());
+        lastNavigation={durationMs:Date.now()-started,materializations,modeChanged};
+        console.log("[SSNoir] enter place",name,JSON.stringify(lastNavigation));
+        return node;
+      }finally{
+        director.worldActions.prepare=originalPrepare;
+      }
     },
     async refresh(){
       await director.flush();

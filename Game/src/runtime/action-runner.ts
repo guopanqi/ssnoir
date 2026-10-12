@@ -94,6 +94,12 @@ export class GameActionRunner {
     return this.root;
   }
 
+  /** The most recently materialized tree, valid until a Scheme mutation.
+   * SceneDirector/WorldHost use this to avoid evaluating the same authored
+   * world tree again after enterPlace has already refreshed it.
+   */
+  getPreparedRoot():RuntimeNode|null {return this.root;}
+
   /** World navigation is not an action; it never consumes a die or advances a day. */
   async enterPlace(name:string):Promise<RuntimeNode>{
     if(!this.root)await this.prepare();
@@ -110,12 +116,16 @@ export class GameActionRunner {
       const refreshed=await this.prepare();
       const place=refreshed.children.find(x=>x.name===name);
       if(!place||!place.isPlace||place.disabled)throw new Error("place disappeared during entry");
+      // If there are no arrivals, the first post-entry materialization is
+      // already authoritative. Re-evaluating get-render-data is redundant
+      // and can cost seconds for the full chapter-one city content.
       if(place.arrivals.length) {
         await this.scripts.evaluate("(__ssnoir-run-place-arrivals! "+JSON.stringify(name)+")");
       }
       // C# arrivals are a story beat, not an action report with costs.
       const report=this.state.takeActionReport();
       if(report.length)throw new Error("arrival produced action clock costs");
+      if(!place.arrivals.length)return place;
       const updated=await this.prepare();
       const result=updated.children.find(x=>x.name===name);
       if(!result||!result.isPlace)throw new Error("entered place removed itself");

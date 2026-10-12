@@ -71,6 +71,7 @@ export class GameSceneDirector {
 
   get mode():"world"|"encounter"{return this.encounter?"encounter":"world";}
   get actions():GameActionRunner {return this.encounterActions??this.worldActions;}
+  getPreparedRoot():RuntimeNode|null{return this.actions.getPreparedRoot();}
   async render():Promise<RuntimeNode>{return this.actions.prepare();}
   requestStart(name:string,callback:unknown=false):void {
     if(this.encounter||this.pendingStart)throw new Error("already in encounter");

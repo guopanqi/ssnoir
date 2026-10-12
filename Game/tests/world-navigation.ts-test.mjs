@@ -26,3 +26,20 @@ test("world place entry invokes authored on-enter-place rules without spending d
  assert.equal(entered.name,places[0].name);
  assert.deepEqual(runner.turn.available(),before,"navigating should consume no dice");
 });
+
+test("ordinary place entry reuses the post-entry render tree without redundant global render",async()=>{
+ const state=new GameRuntimeState();
+ const session=await GameScriptSession.create("world-navigation-cache",state,sources,std);
+ await session.loadFile("scenes/world/world.scm");
+ const runner=await GameActionRunner.create(session,state,new ActionTurnState(()=>0.5));
+ const root=await runner.prepare();
+ const place=root.children.find(n=>n.isPlace&&!n.disabled&&n.arrivals.length===0);
+ assert.ok(place,"original world must contain a place with no arrival hooks");
+ let calls=0;
+ const orig=runner.prepare.bind(runner);
+ runner.prepare=async(...args)=>{calls++;return orig(...args);};
+ const entry=await runner.enterPlace(place.name);
+ assert.equal(entry.name,place.name);
+ assert.equal(calls,1,"no-arrival entry must materialize world just once");
+ assert.equal(runner.getPreparedRoot()?.children.find(n=>n.name===place.name)?.name,place.name);
+});
