@@ -121,13 +121,17 @@ def run():
                     counter_spent=True
                     return {"status":"original_world_counter_consumed","item_naturally_acquired":cig_obtained,
                         "counter_spent":counter_spent,"before":before,"after":after,
-                        "native_steps":history}
+                        "native_steps":history,
+                        "settings":{"entry":"world","seed":19,"growth":4,"items":{}},
+                        "obstacles":[],"scope":"naturally reached original counter, not yet later alley"}
                 if get(obs,"action","带她穿过东侧门廊"):
                     obs=perform(p,obs,"带她穿过东侧门廊",history)
                 else:
                     if not cig_obtained:
                         return {"status":"no_cigarette_from_original_chase","item_naturally_acquired":False,
-                            "native_steps":history}
+                            "counter_spent":False,"native_steps":history,
+                            "settings":{"entry":"world","seed":19,"growth":4,"items":{}},
+                            "obstacles":[],"scope":"original chase did not yield item, not yet later alley"}
                     obs=end(p,obs,history)
                 continue
             raise RuntimeError("Unexpected phase "+stage)
