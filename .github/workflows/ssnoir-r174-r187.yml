@@ -1,0 +1,49 @@
+name: SSNoir R174-R187 Abstract Horizontal Mechanisms
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r174-r187.yml'
+      - 'tools/content-validator/experiments/r174_r187_horizontal_abstract.py'
+      - 'docs/实验/机制研究/批次/R174-R187-横向抽象机制/研究记录.md'
+permissions:
+  contents: read
+jobs:
+  exact-paper:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Exact Fraction experiments, independent fixed plans, reachable states
+        run: |
+          set -euo pipefail
+          python3 -m py_compile tools/content-validator/experiments/r174_r187_horizontal_abstract.py
+          python3 tools/content-validator/experiments/r174_r187_horizontal_abstract.py | tee /tmp/abstract-r174-r187.json
+          python3 - <<'PY'
+          import json
+          j=json.load(open('/tmp/abstract-r174-r187.json'))
+          assert j["R174_reciprocity_random"]["value"]=="647/80"
+          assert j["R174_reciprocity_random"]["fixed_gap"]=="41/80"
+          assert j["R178_real_path_both_preferences"]==["A","B"]
+          assert j["R180_stake_and_bank"]["value"]=="2523/1024"
+          assert j["R181_remove_protect"]["value"]=="2457/1024"
+          assert j["R186_simple_action_rewrite_counterexample"]["best"]==8
+          print("Exact two-family paper checks and independent open-loop enumerations succeeded")
+          PY
+      - name: Research scope, historical portfolio, Debug admission consistency
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/validate_abstract_research_scope.py
+          python3 tools/content-validator/experiments/validate_mechanism_portfolio.py
+          python3 tools/content-validator/experiments/validate_debug_playtests.py
+          python3 tools/content-validator/experiments/build_mechanism_atlas.py --check
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-abstract-r174-r187
+          path: /tmp/abstract-r174-r187.json
+          retention-days: 21
