@@ -185,6 +185,8 @@ def run(spend_counter=True, let_chase_escape=False, stop_after_west_identity=Fal
                               "companion_fields":{
                                   k:v for k,v in obs.items()
                                   if ("companion" in k.lower() or "actor" in k.lower())},
+                              "solo_frank_legal_operations":[o for o in obs["Operations"]
+                                  if o.get("Card")=="自己走东侧那条回廊"],
                               "item_quantity":obs.get("Inventory",{}).get(ITEM,0),
                               "already_spent_at_counter":counter_spent,
                               "native_steps":history,
