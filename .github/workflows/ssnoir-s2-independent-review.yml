@@ -1,0 +1,37 @@
+name: SSNoir S2-D 独立首选项复核
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-s2-independent-review.yml'
+      - 'tools/content-validator/experiments/s2_independent_choice_review.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  独立复核:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 检查首个揭示与重复访问两种口径
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/s2_independent_choice_review.py > /tmp/s2-independent-review.json
+          python3 - <<'PY'
+          import json
+          x=json.load(open("/tmp/s2-independent-review.json"))["result"]
+          assert x["first_strict_choice_probabilities"]["lead"] == "1/9"
+          assert x["first_strict_choice_probabilities"]["submit"] == "2/9"
+          assert x["expected_strict_repeated_visits"]["submit"] == "8/27"
+          print("独立证明通过：首次揭示的概率与再次遇到同状态的访问质量不能混用")
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ssnoir-s2-independent-review
+          path: /tmp/s2-independent-review.json
