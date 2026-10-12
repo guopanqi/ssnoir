@@ -1,10 +1,7 @@
-;; 移植立绘剧场 C2：室内求助（尼尔的房间 · 夜莺把一切摊在桌上）。
-;; 布景 = 地面线 + 吊灯 HANG(800,610) + 桌子 TABLE(660,280)，坐标照 HTML 原样，
-;; reveal 延迟用 HTML 的 --d。人物只用现成立绘，SVG 肢体/表情/帽子/眼泪不移植。
-;; 对白逐字照抄 HTML run()，时长一律 0.45+字数×0.105 秒（字数 = Scheme 字符串长度）。
-;; 与 HTML 的出入（含原因）见本仓库根目录下移植报告：WebAudio 合成音全部省略
-;; （点烟 light/pad/tn 无采样，其中两次点烟用现成 尼尔_点烟 立绘表示）；“当”字
-;; 票无文字绘制能力，只画票纸；fl() 灯闪用路灯电流采样 + 同款 brightness 关键帧。
+;; 同步 Claude 当前第二场：人物进退、对白停顿、灯光与镜头缓推。
+;; 参考：experiments/portrait-stage/portrait-theatre-claude/src/js/chapters/02-indoor-plea.js。
+;; 保留原有 24 句正式对白及停留秒；人物关节表演用既有立绘的关键姿势表达。
+;; 剧场结束后的配音独白仍由 commission-dialogue! 播放。
 (define (室内求助-演出)
   (define 图形 '())
   (define 描绘 '())
@@ -32,6 +29,17 @@
           (.33 .3) (.331 .9) (.44 .9) (.441 .5) (.55 .5) (.551 1) (.66 1)))
       (theatre-sound "电流" "Theatre/路灯电流" #f .28 0)))
 
+  (define (镜头 scale x y seconds)
+    (theatre-parallel
+      (theatre-tween "镜头" 'scale-x scale seconds 'smooth)
+      (theatre-tween "镜头" 'scale-y scale seconds 'smooth)
+      (theatre-tween "镜头" 'x (* (- 1 scale) x) seconds 'smooth)
+      (theatre-tween "镜头" 'y (* (- 1 scale) y) seconds 'smooth)))
+  (define (走 id x seconds hold)
+    (theatre-parallel
+      (theatre-tween id 'x x seconds 'smooth)
+      (theatre-sound "走动脚步" "StageSounds/老街酒馆/脚步" #f .35 0)
+      (theatre-wait hold)))
   (加入 (theatre-with (theatre-group "房间" "" 0 0) 'opacity 0))
   (线 "地面" "房间" "#5A6F9C" 1.5 '((0 790) (1600 790)) 0)
   (线 "地面沿" "房间" "#33466E" 1 '((0 806) (1600 806)) .4)
@@ -85,100 +93,103 @@
     (theatre-image "夜莺" "夜莺位置" "Portraits/Neon/夜莺_低头" 0 0 308 308 "吊灯光")
     'brightness 1.5))
 
+  ;; 衣帽架只作为室内布景，不增加挂取物件的表演。
+  (线 "衣帽架杆" "房间" "#7F95C4" 5 '((470 790) (470 470)) .9)
+  (线 "衣帽架底" "房间" "#7F95C4" 5 '((424 790) (516 790)) 1)
+  (线 "衣帽架钩" "房间" "#7F95C4" 3.5
+    '((436 546) (470 500) (504 546) (470 500) (470 560) (440 602) (470 560) (500 602)) 1.1)
+  ;; 根分组就是镜头：道具、人物与灯一起推近，字幕保持原位置。
+  (set! 图形 (cons (theatre-group "镜头" "" 0 0)
+    (map (lambda (object)
+      (if (and (equal? (cadr object) "") (not (eq? (list-ref object 2) 'focus)))
+        (cons (car object) (cons "镜头" (cddr object))) object)) 图形)))
   (play-theatre! (theatre-scene 1600 900 "#0B0907" 图形)
-    ;; 开场：布景按 --d 描绘，0.5 秒后灯闪、吊灯亮起（HTML w500/fl/lamp(1)/w600）。
-    (theatre-parallel
-      (apply theatre-parallel (cons (theatre-tween "房间" 'opacity 1 1.5) 描绘))
+    (theatre-during
       (theatre-sequence
-        (theatre-wait .5)
-        (闪)
-        (theatre-tween "吊灯光" 'brightness 1 .2)
-        (theatre-wait .6)))
-    ;; 夜莺进场（HTML go 560/2800 + w3000）。
-    (theatre-parallel
-      (theatre-tween "夜莺位置" 'opacity 1 .05)
-      (theatre-tween "夜莺位置" 'x 560 2.8 'smooth)
-      (theatre-sound "脚步" "StageSounds/老街酒馆/脚步" #f .4 -.2)
-      (theatre-wait 3))
-    ;; 夜莺把照片拍在桌上（HTML w700/op#ph/w600）。
-    (theatre-wait .7)
-    (theatre-parallel
-      (theatre-tween "照片" 'opacity 1 .4)
-      (theatre-wait .6))
-    (说 "尼尔" 1040 "这张照片，嗯，是有些出格，但也没什么特别的，你为什么这么紧张？" 3.705)
-    (说 "夜莺" 560 "他手上也许不止这一张，这种照片对普通人来说没什么，可我过些天有一场演出，这是我第一场大型的演出，这肯定会毁了我的" 6.330)
-    ;; 尼尔点烟（HTML light()，点烟采样缺失，用点烟立绘表示）。
-    (theatre-image-to "尼尔" "Portraits/Neon/尼尔_点烟")
-    (说 "尼尔" 1040 "会不会是一个恶作剧，有些小混混会四处搜集照片，然后写一堆这样的信，如果恰巧有人有一些不愿意别人知道的故事的话" 6.120)
-    (说 "夜莺" 560 "唉，但我这次真的不能冒险，万一他真的有些什么……" 2.970)
-    (说 "尼尔" 1040 "你能想到，你身边有什么人会干这种事吗？" 2.445)
-    (theatre-clear-caption)
-    (theatre-wait 2.4)
-    (说 "夜莺" 560 "……没有，我和他们很久都不联系了" 2.130)
-    (说 "尼尔" 1040 "他们？" 0.765)
-    (说 "夜莺" 560 "过去的邻居和朋友什么的，不会是他们" 2.235)
-    (说 "尼尔" 1040 "报警呢？" 0.870)
-    (说 "夜莺" 560 "不行，我经理会知道的，最好也别让他知道" 2.445)
-    ;; 尼尔掐烟又点上一支（HTML cg:0/w300/light()，净效果仍是点烟，保持立绘）。
-    (theatre-wait .3)
-    (说 "尼尔" 1040 "还有一个方法，他要得不算多，不是什么大钱，把钱给他也许他就不会再纠缠了。" 4.230)
-    (说 "夜莺" 560 "你不是一个侦探吗？" 1.395)
-    (说 "尼尔" 1040 "我很少见到要这么少的勒索，让我来办也要付给我钱，恐怕未必划算" 3.600)
-    (说 "尼尔" 1040 "但是话说回来，拿到钱他也未必肯停手，那我们就必须弄清楚他是谁了" 3.705)
-    ;; 夜莺摊开首饰当票（HTML w700/op#jw/tn 点名音省略/w1200）。
-    (theatre-clear-caption)
-    (theatre-wait .7)
-    (theatre-parallel
-      (theatre-tween "首饰" 'opacity 1 .3)
-      (theatre-wait 1.2))
-    (说 "夜莺" 560 "说实话，我把首饰也当了，也凑不够他信里要的钱。我其实根本就没办法" 3.810)
-    (说 "尼尔" 1040 "那我的报酬呢？你准备怎么付我的报酬？" 2.340)
-    (theatre-wait 1.7)
-    (theatre-image-to "夜莺" "Portraits/Neon/夜莺_恳求")
-    (说 "夜莺" 560 "演出之后可以吗？经理说过些天会有一场大型的演出，应该会有些钱。虽然之前很多次小一些的演出，他也没给过我什么钱" 6.120)
-    ;; 夜莺转身背对（HTML f:1/back:1，翻面 0.7 秒与台词重叠）。
-    (theatre-parallel
-      (theatre-image-to "夜莺" "Portraits/Neon/夜莺_背身")
-      (theatre-tween "夜莺位置" 'scale-x -1 .7)
-      (说 "夜莺" 560 "当时他说会有些钱的，但是也没给" 2.025))
-    (说 "夜莺" 560 "这次机会很重要，我不愿意错过" 1.920)
-    (theatre-clear-caption)
-    (theatre-wait 2.6)
-    ;; 夜莺转回身（HTML f:0/back:0）。
-    (theatre-parallel
-      (theatre-image-to "夜莺" "Portraits/Neon/夜莺_低头")
-      (theatre-tween "夜莺位置" 'scale-x 1 .7)
-      (theatre-wait .9))
-    (说 "夜莺" 560 "我明白，确实太麻烦你了" 1.605)
-    ;; 收起首饰（HTML op#jw0/w700）。
-    (theatre-parallel
-      (theatre-tween "首饰" 'opacity 0 .3)
-      (theatre-wait .7))
-    (theatre-wait .9)
-    (说 "夜莺" 560 "谢谢你，尼尔先生" 1.290)
-    ;; 夜莺走向门口（HTML f:1/go330/2200/w2400）。
-    (theatre-clear-caption)
-    (theatre-parallel
-      (theatre-image-to "夜莺" "Portraits/Neon/夜莺_背身")
-      (theatre-tween "夜莺位置" 'scale-x -1 .7)
-      (theatre-tween "夜莺位置" 'x 330 2.2 'smooth)
-      (theatre-sound "脚步" "StageSounds/老街酒馆/脚步" #f .4 -.2)
-      (theatre-wait 2.4))
-    (说 "尼尔" 1040 "演出还有多久？" 1.185)
-    (说 "夜莺" 330 "就这两周了。" 1.080)
-    ;; 夜莺回头（HTML f:0/d:500）。
-    (theatre-parallel
-      (theatre-image-to "夜莺" "Portraits/Neon/夜莺_低头")
-      (theatre-tween "夜莺位置" 'scale-x 1 .5)
-      (theatre-wait .5))
-    (说 "尼尔" 1040 "我们得先想办法凑够赎金，只要他来拿钱，我有办法弄明白他是谁" 3.495)
-    (theatre-clear-caption)
-    (theatre-wait .9)
-    ;; 夜莺落泪（HTML tr:1/pad()/sp，说话柔光推到她身后；pad 无采样，等待保留）。
-    ;; 剧场到此落幕：收束独白不在剧场里，剧本结束后由 commission-dialogue!
-    ;; 放一句带配音的场外独白。
-    (theatre-image-to "夜莺" "Portraits/Neon/夜莺_恳求")
-    (theatre-parallel
-      (theatre-tween "说话柔光" 'x 330 1.2 'smooth)
-      (theatre-tween "说话柔光" 'opacity .26 1.2 'smooth)
-      (theatre-wait 3.8))))
+        (theatre-wait .5) (闪)
+        (theatre-during (theatre-wait .6) (theatre-tween "吊灯光" 'brightness 1 .2))
+        (theatre-parallel
+          (theatre-tween "夜莺位置" 'opacity 1 .001)
+          (走 "夜莺位置" 400 2.2 2.4))
+        ;; 向桌前推进的 26 秒镜头与第一段谈话同时进行。
+        (theatre-during
+          (theatre-sequence
+            (走 "夜莺位置" 560 1.6 1.8)
+            (theatre-wait .7)
+            (theatre-during (theatre-wait .6) (theatre-tween "照片" 'opacity 1 .3))
+            (说 "尼尔" 1040 "这张照片，嗯，是有些出格，但也没什么特别的，你为什么这么紧张？" 3.705)
+            (theatre-during (说 "夜莺" 610 "他手上也许不止这一张，这种照片对普通人来说没什么，可我过些天有一场演出，这是我第一场大型的演出，这肯定会毁了我的" 6.330) (走 "夜莺位置" 610 .9 .9))
+            (theatre-image-to "尼尔" "Portraits/Neon/尼尔_点烟")
+            (theatre-during (说 "尼尔" 1040 "会不会是一个恶作剧，有些小混混会四处搜集照片，然后写一堆这样的信，如果恰巧有人有一些不愿意别人知道的故事的话" 6.120)
+              (theatre-sound "点烟" "StageSounds/室内求助/点烟" #f 1 0)
+              (theatre-sequence (theatre-wait 1.5)
+                (theatre-tween "吊灯光" 'brightness .7 .2)
+                (theatre-wait .5) (theatre-tween "吊灯光" 'brightness 1 .2)))
+            (theatre-wait .5)
+            (说 "夜莺" 610 "唉，但我这次真的不能冒险，万一他真的有些什么……" 2.970) (说 "尼尔" 1040 "你能想到，你身边有什么人会干这种事吗？" 2.445)
+            (theatre-clear-caption)
+            (theatre-image-to "夜莺" "Portraits/Neon/夜莺_背身")
+            (theatre-during (走 "夜莺位置" 540 1.3 2.4)
+              (theatre-sound "钟表" "StageSounds/室内求助/钟表" #f 1 0))
+            (说 "夜莺" 540 "……没有，我和他们很久都不联系了" 2.130)
+            (theatre-image-to "夜莺" "Portraits/Neon/夜莺_低头")
+            (theatre-during (theatre-sequence (说 "尼尔" 1040 "他们？" 0.765) (说 "夜莺" 590 "过去的邻居和朋友什么的，不会是他们" 2.235))
+              (走 "夜莺位置" 590 .9 .9))
+            (说 "尼尔" 1040 "报警呢？" 0.870) (说 "夜莺" 590 "不行，我经理会知道的，最好也别让他知道" 2.445)
+            (theatre-wait .3)
+            (theatre-during (说 "尼尔" 990 "还有一个方法，他要得不算多，不是什么大钱，把钱给他也许他就不会再纠缠了。" 4.230)
+              (theatre-sound "点烟" "StageSounds/室内求助/点烟" #f 1 0)
+              (走 "尼尔位置" 990 1.2 1.2))
+            (说 "夜莺" 590 "你不是一个侦探吗？" 1.395) (说 "尼尔" 990 "我很少见到要这么少的勒索，让我来办也要付给我钱，恐怕未必划算" 3.600) (说 "尼尔" 990 "但是话说回来，拿到钱他也未必肯停手，那我们就必须弄清楚他是谁了" 3.705)
+            (theatre-clear-caption)
+            (走 "夜莺位置" 640 .7 .7)
+            (theatre-during (theatre-wait 1.2)
+              (theatre-tween "首饰" 'opacity 1 .3)
+              (theatre-sound "首饰" "StageSounds/室内求助/首饰" #f 1 0))
+            (theatre-during (说 "夜莺" 640 "说实话，我把首饰也当了，也凑不够他信里要的钱。我其实根本就没办法" 3.810) (theatre-tween "吊灯光" 'brightness .8 .2))
+            (说 "尼尔" 990 "那我的报酬呢？你准备怎么付我的报酬？" 2.340)
+            (走 "夜莺位置" 570 .9 1.7)
+            (theatre-image-to "夜莺" "Portraits/Neon/夜莺_恳求")
+            (说 "夜莺" 570 "演出之后可以吗？经理说过些天会有一场大型的演出，应该会有些钱。虽然之前很多次小一些的演出，他也没给过我什么钱" 6.120))
+          (镜头 1.06 928 576 26))
+        (theatre-during
+          (theatre-sequence
+            (theatre-image-to "夜莺" "Portraits/Neon/夜莺_背身")
+            (theatre-during (说 "夜莺" 570 "当时他说会有些钱的，但是也没给" 2.025) (theatre-tween "夜莺位置" 'scale-x -1 .7))
+            (说 "夜莺" 570 "这次机会很重要，我不愿意错过" 1.920)
+            (theatre-clear-caption) (theatre-wait 2.6)
+            (theatre-image-to "夜莺" "Portraits/Neon/夜莺_掩面")
+            (theatre-during (theatre-wait .9) (theatre-tween "夜莺位置" 'scale-x 1 .7))
+            (theatre-image-to "夜莺" "Portraits/Neon/夜莺_低头")
+            (说 "夜莺" 570 "我明白，确实太麻烦你了" 1.605))
+          (镜头 1.1 832 576 6))
+        (theatre-during
+          (theatre-sequence
+            (theatre-during (说 "夜莺" 570 "谢谢你，尼尔先生" 1.290)
+              (theatre-tween "首饰" 'opacity 0 .3)
+              (theatre-tween "吊灯光" 'brightness 1 .2))
+            (theatre-clear-caption)
+            (theatre-image-to "夜莺" "Portraits/Neon/夜莺_背身")
+            (theatre-during (走 "夜莺位置" 420 1.5 1.7)
+              (theatre-tween "夜莺位置" 'scale-x -1 .7))
+            (theatre-image-to "夜莺" "Portraits/Neon/夜莺_低头")
+            (theatre-tween "夜莺位置" 'scale-x 1 .001)
+            (theatre-wait .4)
+            (theatre-during (theatre-wait 1.8)
+              (theatre-sound "叹息" "StageSounds/室内求助/叹息" #f 1 -.3)))
+          (镜头 1.03 800 576 3))
+        (theatre-during
+          (theatre-sequence
+            (说 "尼尔" 990 "演出还有多久？" 1.185) (说 "夜莺" 420 "就这两周了。" 1.080)
+            (theatre-image-to "尼尔" "Portraits/Neon/尼尔_抱臂")
+            (theatre-during (说 "尼尔" 960 "我们得先想办法凑够赎金，只要他来拿钱，我有办法弄明白他是谁" 3.495) (走 "尼尔位置" 960 1.4 1.4))
+            (theatre-clear-caption) (theatre-wait .9)
+            (theatre-image-to "夜莺" "Portraits/Neon/夜莺_恳求")
+            (theatre-during (theatre-wait 4.2)
+              (theatre-sound "收束低弦" "StageSounds/室内求助/收束低弦" #f 1 0)
+              (theatre-tween "吊灯光" 'brightness .7 .2)
+              (theatre-tween "说话柔光" 'x 410 1.2 'smooth)
+              (theatre-tween "说话柔光" 'opacity .26 1.2 'smooth)))
+          (镜头 1 800 558 3)))
+      (apply theatre-parallel (cons (theatre-tween "房间" 'opacity 1 1.5) 描绘))
+      (theatre-sound "窗外雨" "StageSounds/雨夜求助/雨" #t .1 0))))
