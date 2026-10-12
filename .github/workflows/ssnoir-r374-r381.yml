@@ -1,0 +1,54 @@
+name: SSNoir R374-R381 Joint Rule and Veto Rights
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r374-r381.yml'
+      - 'tools/content-validator/experiments/r374_r381_shared_norm.py'
+      - 'docs/实验/机制研究/批次/R374-R381-共同规则与异议权/研究记录.md'
+permissions:
+  contents: read
+jobs:
+  exact:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Complete conditional shared-norm controller and independent partner traces
+        run: |
+          set -euo pipefail
+          python3 -m py_compile tools/content-validator/experiments/r374_r381_shared_norm.py
+          python3 tools/content-validator/experiments/r374_r381_shared_norm.py | tee /tmp/r374-r381.json
+          python3 - <<'PY'
+          import json
+          v=json.load(open('/tmp/r374-r381.json'))
+          assert v['R374_full_public_belief_DP']=='7/4'
+          assert v['R375_all_27_nonadaptive_norm_plans']['best']=='13/8'
+          assert v['R377_deliberate_veto_expenditure_readable_rule']['value']=='7/4'
+          assert v['R378_simple_lock_current_demand']=='5/4'
+          assert v['R379_partner_veto_capacity_ablations']=={'one':'7/4','no_veto':'9/4','unlimited':'3/2'}
+          assert v['R380_hidden_type_oracle_and_higher_edit_cost']['full_information']=='15/8'
+          print('Independent norm paths, partner veto opportunity and cost ablations passed')
+          PY
+      - name: Previous two families, scope and player-test whitelist
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/r358_r365_delegation.py >/tmp/r358-r365.json
+          python3 tools/content-validator/experiments/r366_r373_program_composition.py >/tmp/r366-r373.json
+          python3 tools/content-validator/experiments/validate_abstract_research_scope.py
+          python3 tools/content-validator/experiments/validate_mechanism_portfolio.py
+          python3 tools/content-validator/experiments/validate_debug_playtests.py
+          python3 tools/content-validator/experiments/build_mechanism_atlas.py --check
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-r374-r381-shared-rule-veto
+          path: |
+            /tmp/r374-r381.json
+            /tmp/r366-r373.json
+            /tmp/r358-r365.json
+          retention-days: 21
