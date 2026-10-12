@@ -44,7 +44,7 @@ def perform(p,obs,card,history):
     return choose_action(p,obs,op,history)
 def end(p,obs,history):
     return choose_action(p,obs,get(obs,"end-turn"),history)
-def run(spend_counter=True, let_chase_escape=False):
+def run(spend_counter=True, let_chase_escape=False, stop_after_west_identity=False):
     p=Popen(CMD+["--session","world","--seed","19","--growth","4"],
        cwd=ROOT,stdin=PIPE,stdout=PIPE,stderr=PIPE,text=True)
     obs=recv(p);history=[];stage="wait_commission";cig_obtained=False;counter_spent=False;obstacles=[]
@@ -162,6 +162,34 @@ def run(spend_counter=True, let_chase_escape=False):
                         else:
                             obs=end(p,obs,history)
                     else:
+                        if stop_after_west_identity:
+                            # Stop at the FIRST official observation after
+                            # the West clue reveal; do not advance day to
+                            # trigger delayed Nightingale dismissal yet.
+                            cards=[{"name":c.get("Name"),"subtitle":c.get("Subtitle"),
+                                    "description":c.get("Description")}
+                                   for c in obs.get("Cards",[])]
+                            next_ops=[{"kind":o.get("Kind"),"card":o.get("Card")}
+                                      for o in obs.get("Operations",[])]
+                            transcript_path="/tmp/s3-y-west-identity-native.json"
+                            p.stdin.write(json.dumps({"command":"save","path":transcript_path},ensure_ascii=False)+"\\n")
+                            p.stdin.flush()
+                            msg=json.loads(p.stdout.readline())
+                            assert msg.get("type")=="saved",msg
+                            return {
+                              "status":"original_world_after_west_identity_before_day_end",
+                              "setting":{"session":"world","seed":19,"growth":4,"item_fixture":False},
+                              "transcript":transcript_path,
+                              "world_day":obs["WorldDay"],"focus":obs["Focus"],
+                              "scene":obs.get("Scene"),"cards":cards,"operations":next_ops,
+                              "companion_fields":{
+                                  k:v for k,v in obs.items()
+                                  if ("companion" in k.lower() or "actor" in k.lower())},
+                              "item_quantity":obs.get("Inventory",{}).get(ITEM,0),
+                              "already_spent_at_counter":counter_spent,
+                              "native_steps":history,
+                              "evidence":"Actual official world C#+Scheme snapshot, not human interpretation",
+                            }
                         stage="meet_manager"
                 continue
             if stage=="meet_manager":
