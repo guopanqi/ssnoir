@@ -4,6 +4,7 @@ import {join} from "node:path";
 import {spawn} from "node:child_process";
 import readline from "node:readline";
 import {GameSceneDirector} from "../src/runtime/scene-director.ts";
+import {WorldTurnController} from "../src/runtime/world-turn.ts";
 
 const base="../UnityClient/Assets/Resources/Content",sources={};
 function scan(dir){for(const entry of readdirSync(join(base,dir),{withFileTypes:true})){
@@ -23,10 +24,11 @@ function pathTo(node,name,parents=[]){
   }
   return null;
 }
-const doorPath=pathTo(tsRoot,"有人敲门");
-assert.ok(doorPath,"SSNoir's original world no longer exposes the opening");
-const place=tsRoot.children.find(node=>node.isPlace&&pathTo(node,"有人敲门"));
-assert.ok(place,"opening should live in an enterable place");
+const tavernPath=pathTo(tsRoot,"醉酒的尼尔");
+assert.ok(tavernPath,"original opening must start at the old-street tavern");
+const tavern=tsRoot.children.find(node=>node.isPlace&&pathTo(node,"醉酒的尼尔"));
+assert.ok(tavern,"authored prologue must live in an enterable tavern");
+assert.equal(pathTo(tsRoot,"有人敲门"),null,"Nightingale door is day-three content");
 assert.equal(ts.state.getItemCount("金钱"),15);
 
 const child=spawn("dotnet",[
@@ -69,16 +71,38 @@ async function act(observation,op){
 let csharp=await receive();
 try{
   assert.equal(Number(prop(csharp,"Inventory")["金钱"]),15);
-  csharp=await act(csharp,findAction(csharp,"enter-place",place.name));
-  await ts.worldActions.enterPlace(place.name);
+  csharp=await act(csharp,findAction(csharp,"enter-place",tavern.name));
+  await ts.worldActions.enterPlace(tavern.name);
   await ts.flush();
-  const relative=pathTo(place,"有人敲门");
-  assert.ok(relative);
-  for(const branch of relative.slice(1,-1))
+  for(const branch of tavernPath.slice(2,-1))
     csharp=await act(csharp,findAction(csharp,"navigate",branch));
-  const door=findAction(csharp,"action","有人敲门");
-  csharp=await act(csharp,door);
+  csharp=await act(csharp,findAction(csharp,"action","醉酒的尼尔"));
+  await ts.worldActions.performSlots("醉酒的尼尔",[]);
+  await ts.flush();
+  const turn=new WorldTurnController(ts.state,ts.world);
+  for(const expectedDay of [2,3]){
+    csharp=await act(csharp,findAction(csharp,"end-turn","结束回合"));
+    const tsDay=await turn.endDay(()=>.42);
+    assert.equal(tsDay.after,expectedDay,"authored calendar advances once");
+    assert.equal(Number(prop(csharp,"WorldDay")),expectedDay,"C# daily transition matches TS");
+  }
+  // The C# session navigation stack is still inside the tavern after sleep.
+  while(prop(csharp,"Operations").some(op=>prop(op,"Kind")==="back")){
+    const back=prop(csharp,"Operations").find(op=>prop(op,"Kind")==="back");
+    csharp=await act(csharp,back);
+  }
   await ts.worldActions.prepare();
+  const dayThree=ts.worldActions.getPreparedRoot();
+  const doorPath=pathTo(dayThree,"有人敲门");
+  assert.ok(doorPath,"Nightingale must knock at home on day three");
+  const home=dayThree.children.find(node=>node.isPlace&&pathTo(node,"有人敲门"));
+  assert.ok(home,"the original door is now in Neil's home");
+  csharp=await act(csharp,findAction(csharp,"enter-place",home.name));
+  await ts.worldActions.enterPlace(home.name);
+  await ts.flush();
+  for(const branch of doorPath.slice(2,-1))
+    csharp=await act(csharp,findAction(csharp,"navigate",branch));
+  csharp=await act(csharp,findAction(csharp,"action","有人敲门"));
   await ts.worldActions.performSlots("有人敲门",[]);
   await ts.flush();
   const cMoney=Number(prop(csharp,"Inventory")["金钱"]);
@@ -87,7 +111,8 @@ try{
     "new TS/LIPS game must exactly match the C# authored payout");
   assert.equal(Number(prop(csharp,"WorldDay")),Number(ts.state.getGlobal("世界日")),
     "world calendar must not advance when accepting the original commission");
-  console.log("PASS: original opening C# vs TypeScript cash and day parity, "+place.name);
+  console.log("PASS: original tavern → 2 nights → door / 20-gold commission parity, "+
+    home.name);
 }finally{
   child.stdin.write('{"command":"quit"}\n');
   child.stdin.end();
