@@ -1,0 +1,52 @@
+name: SSNoir R198-R203 Rule-Switching Falsification
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r198-r203.yml'
+      - 'tools/content-validator/experiments/r198_r203_rule_switching.py'
+      - 'docs/实验/机制研究/批次/R198-R203-规则编辑的退化/研究记录.md'
+permissions:
+  contents: read
+jobs:
+  exact-paper:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Repeated edit and public-rule optimality check
+        run: |
+          set -euo pipefail
+          python3 -m py_compile tools/content-validator/experiments/r198_r203_rule_switching.py
+          python3 tools/content-validator/experiments/r198_r203_rule_switching.py | tee /tmp/abstract-r198-r203.json
+          python3 - <<'PY'
+          import json
+          j=json.load(open('/tmp/abstract-r198-r203.json'))
+          assert j['R198_no_persistence']['optimum']=='3'
+          assert j['R199_persistence_2_3']['optimum']=='23/6'
+          assert j['R200_persistence_3_4']['optimum']=='17/4'
+          assert j['R201_perfect_persistence']['optimum']=='11/2'
+          print('DP and independent forward policy values agree')
+          PY
+      - name: All three horizontal batches and scope consistency
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/r174_r187_horizontal_abstract.py >/tmp/abstract-r174-r187.json
+          python3 tools/content-validator/experiments/r188_r197_allocation_and_policy.py >/tmp/abstract-r188-r197.json
+          python3 tools/content-validator/experiments/validate_abstract_research_scope.py
+          python3 tools/content-validator/experiments/validate_mechanism_portfolio.py
+          python3 tools/content-validator/experiments/validate_debug_playtests.py
+          python3 tools/content-validator/experiments/build_mechanism_atlas.py --check
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-abstract-r198-r203
+          path: |
+            /tmp/abstract-r198-r203.json
+            /tmp/abstract-r188-r197.json
+            /tmp/abstract-r174-r187.json
+          retention-days: 21
