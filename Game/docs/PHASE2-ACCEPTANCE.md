@@ -95,3 +95,7 @@ The player-facing UI no longer starts the two independent Phase-1 LIPS namespace
 ## Current prologue native function parity (2026-10-12)
 
 The actual revised tavern prologue invokes C# natives `__apply-drunk!`, `__play-camera!`, and `__play-intertitle!`. These are now in the shared TS bridge with C#-equivalent validation and typed events. Protagonist `isDrunk` is persisted in TeamSave, remains during encounters, and clears on the next consuming city roll (not on arbitrary day change). Intertitles advance one authentic narration page per acknowledgment; camera transition payloads preserve anchor/duration/destination and are explicitly displayed in the current prototype client. Full 3D camera-anchor motion and voice playback are *not* yet at art parity and still need their own stage gate. Opening C#/TS end-to-end regression must be green before claiming accepted.
+
+## Native registration coverage gate
+
+`Game/tests/native-contract.test.mjs` scans `Engine/Runtime/Scripting/NativeFunctions.cs` and `Game/src/runtime/native-bridge.ts`. Every C# game native beginning with `__` must have a named TS bridge; the check prevents a newly-authored Scheme scene from invoking a missing runtime primitive without CI catching the omission. Name coverage is NOT semantic parity: script-driven story and C# trace comparisons remain mandatory.
