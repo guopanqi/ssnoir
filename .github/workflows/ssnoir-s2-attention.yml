@@ -181,7 +181,7 @@ jobs:
           assert F(ab['C_independent_value'])==F(125,162)
           assert F(ab['C_closure_marginal'])==0 # Negative causal control, must not hide.
           assert F(core['strong_public_baseline']['gap'])==F(47,486)
-          assert F(core['optimal'])>=F(core['best_fixed_priority']['value'])
+          assert F(core['optimal'])>=F(core['fixed_priority']['value'])
           print('R122/R123: first-public-clue has three strictly valuable conditional choices; no fake positive closure increment')
           PY
       - uses: actions/upload-artifact@v4
