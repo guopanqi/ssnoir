@@ -1,0 +1,49 @@
+name: SSNoir R454-R461 Delegated Cognition and Audit
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r454-r461.yml'
+      - 'tools/content-validator/experiments/r454_r461_report_verification.py'
+      - 'docs/实验/机制研究/批次/R454-R461-托付核验与反馈时点/**'
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify all information timing and independent policy witnesses
+        run: |
+          set -euo pipefail
+          python3 -m py_compile tools/content-validator/experiments/r454_r461_report_verification.py
+          python3 tools/content-validator/experiments/r454_r461_report_verification.py >/tmp/r454.json
+          python3 - <<'PY'
+          import json
+          x=json.load(open('/tmp/r454.json'))
+          assert x['R455_no_feedback_no_audit']=='2'
+          assert x['R456_paid_audit_only']=='3'
+          assert x['R457_free_score_feedback_no_audit']=='7/2'
+          assert x['R458_free_feedback_plus_audit']=='7/2'
+          assert x['R460_lag_plus_audit']=='3'
+          assert x['R461_fresh_type_every_round']=='2'
+          print('Audit controlled for free work feedback, report delay, and changing type')
+          PY
+      - name: Protect scope and admission boundaries
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/validate_abstract_research_scope.py
+          python3 tools/content-validator/experiments/validate_mechanism_portfolio.py
+          python3 tools/content-validator/experiments/validate_debug_playtests.py
+          python3 tools/content-validator/experiments/build_mechanism_atlas.py --check
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-r454-r461-report-audit
+          path: /tmp/r454.json
+          retention-days: 21
