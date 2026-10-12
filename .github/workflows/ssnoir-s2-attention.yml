@@ -8,6 +8,7 @@ on:
       - 'tools/content-validator/experiments/s2_goal_network.py'
       - 'tools/content-validator/experiments/s2_temporal_commitment.py'
       - 'tools/content-validator/experiments/s2_microcity_attention.py'
+      - 'tools/content-validator/experiments/s2_fair_revelation.py'
   workflow_dispatch:
 permissions:
   contents: read
@@ -128,3 +129,30 @@ jobs:
         with:
           name: ssnoir-s2-integrated-microcity
           path: /tmp/S2-D.json
+  opportunity-fairness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - name: R121 grace-window Exact Fraction semantic audit
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/s2_fair_revelation.py > /tmp/S2-R121.json
+          python3 - <<'PY'
+          import json
+          from fractions import Fraction as F
+          x=next(x for x in json.load(open('/tmp/S2-R121.json'))['results'] if x['B_reward']=='3/2')
+          assert F(x['old_same_action_closure'])==F(2359,729)
+          assert F(x['single_response_window'])==F(2447,729)
+          assert F(x['best_public_priority']['gap'])==0
+          assert F(x['normal_path_grace_window_visits'])>0
+          assert F(x['strict_choice_C_over_other_in_grace_visits'])==0
+          print('R121: no simultaneous reveal-and-close; mathematically optional response not yet verified as meaningful choice')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ssnoir-s2-fair-opportunity-window
+          path: /tmp/S2-R121.json
