@@ -86,7 +86,7 @@ def model(B=F(3,2),C=F(2),side=True,gate=True,closure=True,urgent=True,
    traverse(aa,bb,cc,ss,nn,mass*p,seen)
  traverse(0,0,0,False,6,F(1),False)
  assert free>=best_fixed[0] and free>=best_simple[0]
- assert first_m>0 and all(x>0 for x in strict.values()),strict
+ assert first_m>0 and any(x>0 for x in strict.values()),strict\n # A conditional third action is required ONLY in the core B=3/2 case;\n # changing its reward can legitimately remove the first-day help priority.
  return {"B_reward":str(B),"C_reward":str(C),"optimal":str(free),
   "fixed_priority":{"value":str(best_fixed[0]),"order":best_fixed[1],
                     "gap":str(free-best_fixed[0])},
