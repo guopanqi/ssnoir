@@ -6,6 +6,7 @@ on:
       - '.github/workflows/ssnoir-s2-native-choice.yml'
       - 'UnityClient/Assets/Resources/Content/scenes/encounters/研究·线索两选.scm'
       - 'tools/content-validator/experiments/s2_true_choice_native.py'
+      - 'tools/content-validator/experiments/s2_choice_capacity_native.py'
   workflow_dispatch:
 permissions:
   contents: read
@@ -37,10 +38,25 @@ jobs:
           assert x['day_boundary']['day1_offer_expired']
           print('确实在正式 C#+Scheme 中完成两分支行动，不是纸面计算')
           PY
+      - name: 验证同一手牌确实能走向三种不同结果
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/s2_choice_capacity_native.py /tmp/s2-capacity-native.json
+          python3 - <<'PY'
+          import json
+          x=json.load(open('/tmp/s2-capacity-native.json'))['paths']
+          assert x['submit']['secured_letter']
+          assert x['trace']['lead_finished']
+          assert x['fighter']['help_fighter_completed']
+          assert not x['trace']['letter_delivered']
+          print('正式四骰/首日：至少三个互斥后果真实可达')
+          PY
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: ssnoir-s2-原生逐手语义证据
-          path: /tmp/s2-native.json
+          path: |
+            /tmp/s2-native.json
+            /tmp/s2-capacity-native.json
           if-no-files-found: ignore
           retention-days: 90
