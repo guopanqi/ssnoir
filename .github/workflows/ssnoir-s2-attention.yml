@@ -6,6 +6,7 @@ on:
       - '.github/workflows/ssnoir-s2-attention.yml'
       - 'tools/content-validator/experiments/s2_attention_information.py'
       - 'tools/content-validator/experiments/s2_goal_network.py'
+      - 'tools/content-validator/experiments/s2_temporal_commitment.py'
   workflow_dispatch:
 permissions:
   contents: read
@@ -69,3 +70,31 @@ jobs:
         with:
           name: ssnoir-s2-goal-network
           path: /tmp/S2-B.json
+  multi-day-and-policy-falsification:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - name: Exact Fraction R116-R118
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/s2_temporal_commitment.py > /tmp/S2-C.json
+          python3 - <<'PY'
+          import json
+          from fractions import Fraction as F
+          s=json.load(open('/tmp/S2-C.json'))['studies']
+          assert [x['r'] for x in s]==['R116','R117','R118']
+          x=next(v for v in s[0]['rows'] if v['A_reward']=='3/2')
+          assert x['optimal']=='307/162' and x['best_simple']['gap']=='0'
+          assert all(y['remaining_gap']=='0' for y in s[1]['rows'] if y['side_reward']!='1/2')
+          x=next(v for v in s[2]['rows'] if v['A_reward']=='2' and v['B_reward']=='1')
+          assert F(x['paid_preserve_gain'])==F(1,27)
+          print('R116-R118: 2-day conflict, strong simple rule and conditional carryover checks passed')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ssnoir-s2-temporal-commitment
+          path: /tmp/S2-C.json
