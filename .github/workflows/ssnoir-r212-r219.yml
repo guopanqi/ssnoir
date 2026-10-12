@@ -1,0 +1,49 @@
+name: SSNoir R212-R219 Resource Rebinding
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r212-r219.yml'
+      - 'tools/content-validator/experiments/r212_r219_resource_rebinding.py'
+      - 'docs/实验/机制研究/批次/R212-R219-资源权限重新绑定/研究记录.md'
+permissions:
+  contents: read
+jobs:
+  exact:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: DP, exhaustive input tapes, strong state-blind and threshold rules
+        run: |
+          set -euo pipefail
+          python3 -m py_compile tools/content-validator/experiments/r212_r219_resource_rebinding.py
+          python3 tools/content-validator/experiments/r212_r219_resource_rebinding.py | tee /tmp/r212-r219.json
+          python3 - <<'PY'
+          import json
+          j=json.load(open('/tmp/r212-r219.json'))
+          assert j['R212_full_feedback_best']=='121/16'
+          assert j['R213_forbid_rebinding']=='99/16'
+          assert j['R214_at_most_one_rebinding']=='121/16'
+          assert j['R218_simple_if_bound_goal_full_rule']=='121/16'
+          assert j['R219_abolish_binding_and_choose_target_freely']=='127/16'
+          assert {x['best'] for x in j['R217_normal_strict_paths']}=={'U','E'}
+          print('All exact public-resource binding comparisons passed')
+          PY
+      - name: Research scope and portfolio gates
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/validate_abstract_research_scope.py
+          python3 tools/content-validator/experiments/validate_mechanism_portfolio.py
+          python3 tools/content-validator/experiments/validate_debug_playtests.py
+          python3 tools/content-validator/experiments/build_mechanism_atlas.py --check
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-r212-r219-resource-rights
+          path: /tmp/r212-r219.json
+          retention-days: 21
