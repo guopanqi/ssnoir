@@ -72,7 +72,7 @@ def audit():
     # Under either rule, each GO has exactly one Bernoulli(1/2)
     # +1 hazard outcome, so the *marginal* risk is held equal.
     for trigger in ('success','failure'):
-        assert sorted(nd-d for _,np,nd in trial(trigger,0,0,0))==[0,1]
+        assert sorted(nd for _,np,nd in trial(trigger,0,0,0))==[0,1]
         assert sum(prob for prob,np,nd in trial(trigger,0,0,0) if nd==1)==F(1,2) #R523
     no_danger=(exact('success',limit=6)[0],exact('failure',limit=6)[0])
     assert no_danger==(F(9),F(9))                  # R524
