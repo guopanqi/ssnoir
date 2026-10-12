@@ -1,0 +1,46 @@
+name: Cutout Puppet Theatre
+on:
+  push:
+    paths:
+      - 'experiments/portrait-stage/neon-cutout-puppet/**'
+      - '.github/workflows/neon-cutout-puppet.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout: experiments/portrait-stage/neon-cutout-puppet
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Deterministic unit tests
+        working-directory: experiments/portrait-stage/neon-cutout-puppet
+        run: npm test
+      - name: Validate cutout images and compose nonbrowser key poses
+        working-directory: experiments/portrait-stage/neon-cutout-puppet
+        run: |
+          pip install --disable-pip-version-check pillow numpy opencv-python-headless
+          python tools/preview.py
+      - name: Install browser runner
+        working-directory: experiments/portrait-stage/neon-cutout-puppet
+        run: |
+          pip install --disable-pip-version-check playwright
+          playwright install --with-deps chromium
+      - name: Render all three scenes in Chromium
+        working-directory: experiments/portrait-stage/neon-cutout-puppet
+        run: |
+          python3 -m http.server 5190 --bind 127.0.0.1 &
+          python tools/verify-browser.py
+      - name: Visual review frames
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: neon-cutout-puppet-captures
+          path: experiments/portrait-stage/neon-cutout-puppet/captures/
+          if-no-files-found: ignore

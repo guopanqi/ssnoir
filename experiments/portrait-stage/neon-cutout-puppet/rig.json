@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "asset": "assets/puppet-atlas.png",
+  "sourceSize": [1448, 1086],
+  "character": "尼尔 / Cutout Study",
+  "origin": [700, 1055],
+  "parts": [
+    {"id":"pelvis","label":"腰胯","parent":null,"crop":[612,471,213,161],"sourcePivot":[716,488],"joint":[700,511],"z":1},
+    {"id":"torso","label":"躯干与领带","parent":"pelvis","crop":[548,190,340,275],"sourcePivot":[719,439],"joint":[700,443],"z":5},
+    {"id":"head","label":"头帽","parent":"torso","crop":[608,8,210,193],"sourcePivot":[711,182],"joint":[700,211],"z":10},
+    {"id":"armUpperL","label":"左上臂","parent":"torso","crop":[362,88,177,260],"sourcePivot":[488,112],"joint":[591,257],"z":2},
+    {"id":"armLowerL","label":"左前臂与手","parent":"armUpperL","crop":[383,357,119,224],"sourcePivot":[418,378],"joint":[564,445],"z":8},
+    {"id":"armUpperR","label":"右上臂","parent":"torso","crop":[916,87,181,259],"sourcePivot":[956,115],"joint":[815,257],"z":2},
+    {"id":"armLowerR","label":"右前臂与手","parent":"armUpperR","crop":[945,356,125,232],"sourcePivot":[997,382],"joint":[868,451],"z":8},
+    {"id":"thighL","label":"左大腿","parent":"pelvis","crop":[537,594,130,176],"sourcePivot":[616,608],"joint":[652,603],"z":-10},
+    {"id":"shinL","label":"左小腿与鞋","parent":"thighL","crop":[446,775,168,282],"sourcePivot":[555,788],"joint":[634,770],"z":-11},
+    {"id":"thighR","label":"右大腿","parent":"pelvis","crop":[779,591,132,181],"sourcePivot":[819,603],"joint":[758,601],"z":-9},
+    {"id":"shinR","label":"右小腿与鞋","parent":"thighR","crop":[828,776,155,276],"sourcePivot":[856,790],"joint":[785,765],"z":-10},
+    {"id":"coatL","label":"左衣摆","parent":"pelvis","crop":[94,535,317,505],"sourcePivot":[346,549],"joint":[608,475],"z":-5},
+    {"id":"coatR","label":"右衣摆","parent":"pelvis","crop":[1043,534,311,511],"sourcePivot":[1095,555],"joint":[794,474],"z":-4}
+  ],
+  "notes": "Rig points are manually authored in the cutout asset's source pixel coordinate system. They are not heuristically inferred. The two coat tails are distinct layers attached near the pelvis."
+}

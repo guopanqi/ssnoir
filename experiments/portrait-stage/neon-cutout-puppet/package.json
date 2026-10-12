@@ -1,0 +1,1 @@
+{"private":true,"name":"ssnoir-neon-cutout-puppet","version":"0.1.0","type":"module","scripts":{"serve":"python3 -m http.server 5190","test":"node --test test.mjs"}}

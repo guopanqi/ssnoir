@@ -1,0 +1,13 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SSNOIR / CUTOUT PUPPET THEATRE</title><link rel="stylesheet" href="./style.css"></head>
+<body><div class="shell"><header><span class="brand">SS / N <span class="thin">— PORTRAIT STUDIES</span></span><span class="release">LAB 02 / RIGGED CUTOUT · 2026</span></header>
+<div class="heading"><div><div class="overline">EXPERIMENT 02 / CUTOUT VS. DEFORMATION</div><h1>把描线人物拆开，<em>再让他动起来。</em></h1></div><p>尼尔的头帽、袖子、手臂、腿与衣摆是独立部件。通过明确的支点和层级运动；不再扭曲整张图。</p></div>
+<div class="viewer"><canvas id="stage" width="1600" height="900" aria-label="2D cutout puppet 表演舞台"></canvas><div class="view-meta"><span><i class="led"></i> LIVE CUTOUT RIG</span><span id="frame-label">01 / DRUNK WALK</span></div><div class="subtitle" id="subtitle"></div><div id="error" role="alert" hidden></div></div>
+<div class="controls"><div class="top-controls"><div class="clip-controls" id="clip-buttons">
+<button class="clip selected" data-scene="drunk">01 醉步</button><button class="clip" data-scene="brace">02 扶墙</button><button class="clip" data-scene="run">03 奔跑</button></div>
+<div class="transport"><button id="play">暂停</button><button id="restart">从头播放</button><span id="clock">00:00 / 00:14</span></div></div>
+<input aria-label="时间进度" id="timeline" type="range" min="0" max="14" step=".02" value="0">
+<div class="bottom-controls"><div class="view-controls"><label for="view">观察方式</label><select id="view"><option value="stage">舞台演出</option><option value="compare">静态 / 动态对比</option><option value="exploded">拆分部件检查</option></select></div><div class="toggles"><label><input type="checkbox" id="rigged" checked> 部件旋转</label><label><input type="checkbox" id="coat" checked> 独立衣摆</label><label><input type="checkbox" id="joints"> 显示支点</label></div><div><select id="speed" aria-label="播放速度"><option value=".5">0.5×</option><option selected value="1">1×</option><option value="1.5">1.5×</option><option value="2">2×</option></select></div></div></div>
+<div class="explain"><div><span class="tag">THIS ROUND</span><p>真正的 rigid cutout：每块素材独立完整，父子关节变换。展示身份保持、姿势读图与肢体连接，不把一个整体人物当橡皮布。</p></div><div><span class="tag">WATCH FOR</span><p>观察接缝、手部落点、鞋底滑动、外套与大腿的前后遮挡。关键姿势可作为对照，不应假装拆分能自动补全所有动作。</p></div></div>
+<footer><span>EXPERIMENTAL ART · NOT A PRODUCTION CHARACTER</span><span>空格：播放 / 暂停　 ← →：逐帧检查</span></footer></div>
+<script type="module" src="./main.js"></script></body></html>

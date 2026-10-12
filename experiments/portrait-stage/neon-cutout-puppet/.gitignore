@@ -1,0 +1,4 @@
+__pycache__/
+node_modules/
+assets/source-atlas.png
+captures/*.png
