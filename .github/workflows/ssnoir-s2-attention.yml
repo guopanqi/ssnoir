@@ -7,6 +7,7 @@ on:
       - 'tools/content-validator/experiments/s2_attention_information.py'
       - 'tools/content-validator/experiments/s2_goal_network.py'
       - 'tools/content-validator/experiments/s2_temporal_commitment.py'
+      - 'tools/content-validator/experiments/s2_microcity_attention.py'
   workflow_dispatch:
 permissions:
   contents: read
@@ -98,3 +99,32 @@ jobs:
         with:
           name: ssnoir-s2-temporal-commitment
           path: /tmp/S2-C.json
+  integrated-microcity-and-falsification:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - name: Exact Fraction R119-R120 integrated paper and legible strategy
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/s2_microcity_attention.py > /tmp/S2-D.json
+          python3 - <<'PY'
+          import json
+          from fractions import Fraction as F
+          j=json.load(open('/tmp/S2-D.json'))
+          assert j['studies']==['R119','R120']
+          case=next(x for x in j['results'] if x['B_reward']=='3/2')
+          assert case['optimal']=='2359/729'
+          assert F(case['fixed_priority']['gap'])==F(1,6)
+          assert F(case['strong_public_rule']['gap'])==0
+          assert F(case['added_C_value'])>0
+          assert F(case['closure_opportunity_cost'])>0
+          print('R119-R120: opportunity causal ablations and simple public strategy validated as paper math; NOT game canon')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ssnoir-s2-integrated-microcity
+          path: /tmp/S2-D.json
