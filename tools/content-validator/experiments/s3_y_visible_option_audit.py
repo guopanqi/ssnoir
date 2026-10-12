@@ -46,6 +46,8 @@ def audit():
     for name,x in [("east",east),("west",west),("east_gallery",east_deep),("west_bridge",west_deep)]:
         # This checks only the node text block, not live event popups nor human interpretation.
         assert '莱恩' not in x and '弗兰克' not in x,(name,"premature named solution")
+    require(east,":resolve (roll 'social",'east public skill')
+    require(west,":resolve (roll 'knowledge",'west public skill')
     require(final_west,'莱恩', 'west endpoint')
     require(final_east,'弗兰克','east endpoint')
     require(counter,'东侧回廊推进两格','counter public gain')
@@ -74,7 +76,10 @@ def audit():
       "source":"Official Scheme static contract only",
       "source_lengths":{"world":len(w),"alley":len(l)},
       "before_reveal":{"east_card_hides_endpoint":True,"west_card_hides_endpoint":True,
-                       "east_endpoint_from_actual_story":"弗兰克","west_endpoint_from_actual_story":"莱恩"},
+                       "east_endpoint_from_actual_story":"弗兰克","west_endpoint_from_actual_story":"莱恩",
+                       "east_first_card_uses_skill":"social",
+                       "west_first_card_uses_skill":"knowledge",
+                       "pre_reveal_route_choice_has_public_skill_risk":True},
       "counter":{"item":ITEM,"cost":"1 unique packet","action_dice":0,"east_gallery_progress":2,
                  "public_subtitle_warns_packet_taken":True},
       "lyon_form_one":{"packet_required":1,"dice_cost":0,"progress":2,"one_time":True,
