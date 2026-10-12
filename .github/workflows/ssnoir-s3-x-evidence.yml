@@ -35,6 +35,9 @@ jobs:
           import json
           r=json.load(open('/tmp/s3-x-keep.json'))
           assert r['settings']['items']=={}
+          assert r['status']=='same_original_world_saved_for_lyon_spent',r.get('obstacles')
+          assert r['item_naturally_acquired'] and not r['counter_spent']
+          assert r['lyon_item_executed'] and r['lyon_inventory_before']==1 and r['lyon_inventory_after']==0
           print('S3-X-KEEP',r['status'],'operations',len(r['native_steps']),
                 'counter_spent',r['counter_spent'],'item_obtained',r['item_naturally_acquired'])
           if r.get('obstacles'):print('BLOCKERS',json.dumps(r['obstacles'],ensure_ascii=False))
@@ -81,6 +84,10 @@ jobs:
           import json
           x=json.load(open('/tmp/s3-x-no-item.json'))
           assert x['settings']['items']=={}
+          assert x['status']=='same_original_world_no_cigarette_reached_lyon',x.get('obstacles')
+          assert x['lyon_card_visible'] and not x['lyon_item_action_legal'] and x['lyon_inventory']==0
+          assert x['alternative_action_executed'],x.get('alternative_actions')
+          assert x['alternative_action_selected'] in ('摊开那两封信','提她现在的样子')
           print('S3-X-NO-ITEM',x['status'],'operations',len(x['native_steps']),
                 'item_acquired',x['item_naturally_acquired'])
           if x.get('obstacles'):print('BLOCKERS',json.dumps(x['obstacles'],ensure_ascii=False))
