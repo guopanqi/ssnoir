@@ -1,0 +1,46 @@
+name: SSNoir R220-R227 Noncommuting Operator Order
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r220-r227.yml'
+      - 'tools/content-validator/experiments/r220_r227_noncommuting_order.py'
+      - 'docs/实验/机制研究/批次/R220-R227-操作次序非交换/研究记录.md'
+permissions:
+  contents: read
+jobs:
+  exact:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Exact operation order, delayed information and commuting falsification
+        run: |
+          set -euo pipefail
+          python3 -m py_compile tools/content-validator/experiments/r220_r227_noncommuting_order.py
+          python3 tools/content-validator/experiments/r220_r227_noncommuting_order.py | tee /tmp/r220-r227.json
+          python3 - <<'PY'
+          import json
+          j=json.load(open('/tmp/r220-r227.json'))
+          assert j["R221_request_public_before_order"]=={"adaptive":"1","best_fixed":"1/2"}
+          assert j["R223_commutative_control"]["best_adaptive"]=="1/2"
+          assert j["R226_three_independent_episodes"]["best_precommitted_sequences_all_correct"]=="1/8"
+          print("Independent exact order witnesses and counterfactuals all checked")
+          PY
+      - name: Scope, existing curated library and manual Debug audit
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/validate_abstract_research_scope.py
+          python3 tools/content-validator/experiments/validate_mechanism_portfolio.py
+          python3 tools/content-validator/experiments/validate_debug_playtests.py
+          python3 tools/content-validator/experiments/build_mechanism_atlas.py --check
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-r220-r227-operator-order
+          path: /tmp/r220-r227.json
+          retention-days: 21
