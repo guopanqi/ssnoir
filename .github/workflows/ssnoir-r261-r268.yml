@@ -44,7 +44,7 @@ jobs:
         if: always()
         with:
           name: ssnoir-r261-r268-credibility
-          path:
-            - /tmp/r261-r268.json
-            - /tmp/r253-r260.json
+          path: |
+            /tmp/r261-r268.json
+            /tmp/r253-r260.json
           retention-days: 21
