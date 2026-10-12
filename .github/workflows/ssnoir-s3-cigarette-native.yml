@@ -5,6 +5,7 @@ on:
     paths:
       - '.github/workflows/ssnoir-s3-cigarette-native.yml'
       - 'tools/content-validator/experiments/s3_gold_cigarette_native.py'
+      - 'tools/content-validator/experiments/s3_one_item_option_bound.py'
   workflow_dispatch:
 permissions:
   contents: read
@@ -40,4 +41,28 @@ jobs:
           name: ssnoir-s3-W-原版莱恩交锋物品前后
           path: /tmp/s3-cigarette-native.json
           if-no-files-found: ignore
+          retention-days: 90
+  simple-policy-ablations:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - name: 证明单份物证强策略公式与独立消融
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/s3_one_item_option_bound.py /tmp/s3-option-bound.json
+          python3 - <<'PY'
+          import json
+          p=json.load(open('/tmp/s3-option-bound.json'))
+          assert p['cases'][0]['signal_marginal']=='0'
+          assert p['cases'][2]['signal_marginal']=='1'
+          print('不额外给人物价值的纸面规则反证通过：简单阈值完整解释模型')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ssnoir-s3-W-纸面单份物证消融
+          path: /tmp/s3-option-bound.json
           retention-days: 90
