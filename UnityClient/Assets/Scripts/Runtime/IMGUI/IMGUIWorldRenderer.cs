@@ -39,11 +39,12 @@ namespace SSNoir.IMGUI
         private readonly WorldLabelLayout.PlacementState _banterPlacements = new();
         private WorldLabelLayout.Space? _worldLabelSpace;
         private readonly HashSet<string> _reportedLabelOverflow = new();
-        private SSNoirVirtualCameraConfig? _actionLayoutCamera;
-        private CameraDragMode _actionLayoutMode;
-        private Rect _actionLayoutSafeArea;
-        private bool _hasActionLayoutContext;
-        private bool _actionLayoutWasTravelling;
+        // A layout context is a *scene*, not the currently active camera.
+        // Camera travel completion is deliberately not an invalidation event.
+        private string? _labelLayoutRoot;
+        private bool _labelLayoutEncounter;
+        private Rect _labelLayoutSafeArea;
+        private bool _hasLabelLayoutContext;
         // 结果停留：结算演完、新快照采纳前，结果条挂在宿主卡下面的那几秒。键是动作名。
         // 采纳快照时一起清掉，不留到下一手——旧快照的卡、新快照的钟，只在这段时间里同台。
         private readonly Dictionary<string, CardPresentationResidue> _cardResidues = new Dictionary<string, CardPresentationResidue>();
@@ -767,6 +768,10 @@ namespace SSNoir.IMGUI
             _animationTimer = 0f;
             _videoOwnedByCutscene = false;
             _banterPlayer.Reset();
+            _labelPlacements.Clear();
+            _banterPlacements.Clear();
+            _cardCenters.Clear();
+            _hasLabelLayoutContext = false;
             _conversationPlayer.Reset();
             _storyStagePlayer.Reset();
             _theatrePlayer.Reset();
@@ -1472,22 +1477,32 @@ namespace SSNoir.IMGUI
             // 穿门内半程由 Stage 的过渡相机驱动，不属于焦点弧线。
             // 两种运镜以及 brain 的混合都结束后，主相机投影才可作为布局依据。
             var brain = cam.GetComponent<Cinemachine.CinemachineBrain>();
+            bool cutPending = _gameManager.CameraManager.IsCameraCutPending;
             bool layoutTravelling = _gameManager.StageController.IsTransitioning
                 || _gameManager.CameraManager.IsFocusTravelInFlight
+                || cutPending
                 || (brain != null && brain.IsBlending);
-            EnsureActionLayoutContext(actionCamera, actionMode, layoutTravelling);
+            EnsureLabelLayoutContext();
 
             var nodes = new List<GameNode>(_gameManager.VisibleNodes);
             if (_activeAutoAction?.AutoActionNode != null)
                 nodes.Add(_activeAutoAction.AutoActionNode);
             // Screen culling is not content removal: remember a label's side
             // when its anchor leaves the camera and later returns.
-            _labelPlacements.KeepOnly(nodes.Select(n => n.Name));
+            var authoredKeys = new HashSet<string>(StringComparer.Ordinal);
+            if (_gameManager.DisplayedSnapshot.RootNode != null)
+                CollectAuthoredNodeNames(_gameManager.DisplayedSnapshot.RootNode, authoredKeys);
+            if (_activeAutoAction?.AutoActionNode != null)
+                authoredKeys.Add(_activeAutoAction.AutoActionNode.Name);
+            _labelPlacements.KeepOnly(authoredKeys);
             var focusedName = _gameManager.FocusedNodeName;
             // All projected labels use one anchor-local layout, independent of camera mode.
             // 世界投射层跟着换镜一起显形：新那一镜露出多少，这一层就画多浓（见下面
             // BeginLayer 那一段）。低动画换镜之外恒为 1，什么都不变。
-            float viewReveal = _gameManager.CameraManager.ReducedViewReveal;
+            // While Cinemachine applies an immediate return-to-world cut in
+            // LateUpdate, the old projected world must never become visible.
+            float viewReveal = cutPending ? 0f
+                : _gameManager.CameraManager.ReducedViewReveal;
             // 附件（判定条、结果条）画在别处、隔着几个绘制阶段，浓度只能这样带过去。
             _cardLayerReveal = viewReveal;
 
@@ -1543,9 +1558,10 @@ namespace SSNoir.IMGUI
                     // 标注已参与避让，所以也走落镜后再排布 / 已有落点可续画，避免运镜途中乱跳。
                     var viewPos = cam.WorldToViewportPoint(anchor.transform.position);
                     float padding = 0.05f;
-                    bool layoutFixed = node.IsContainer;
-                    bool cachedAction = !layoutFixed && _labelPlacements.Contains(node.Name);
-                    bool waitForLanding = !layoutFixed && !cachedAction
+                    // A node with no established layout must be solved only when
+                    // the camera has reached its final view. This applies to
+                    // location names as well as action cards.
+                    bool waitForLanding = !_labelPlacements.Contains(node.Name)
                         && layoutTravelling;
                     // The visible edge is the last valid anchor region. Off-screen nodes
                     // use beacons; never drag an orphan label back into the viewport.
@@ -2076,22 +2092,33 @@ namespace SSNoir.IMGUI
         }
 
         private const float LocationLabelWorldHeight = 1f;
-        private void EnsureActionLayoutContext(
-            SSNoirVirtualCameraConfig? camera, CameraDragMode mode, bool travelling)
+        private void EnsureLabelLayoutContext()
         {
-            bool landed = _actionLayoutWasTravelling && !travelling;
-            _actionLayoutWasTravelling = travelling;
-            if (_hasActionLayoutContext && _actionLayoutCamera == camera
-                && _actionLayoutMode == mode && _actionLayoutSafeArea.Equals(UIScale.SafeArea)
-                && !landed)
+            // Only an authored scene/root change or a genuine canvas geometry
+            // change starts a new layout. Returning from a place, switching
+            // focus cameras and finishing a travel leave label memory intact.
+            var snapshot = _gameManager.DisplayedSnapshot;
+            string root = snapshot.RootNode?.Name ?? string.Empty;
+            if (_hasLabelLayoutContext
+                && string.Equals(root, _labelLayoutRoot, StringComparison.Ordinal)
+                && _labelLayoutEncounter == snapshot.IsInEncounter
+                && _labelLayoutSafeArea.Equals(UIScale.SafeArea))
                 return;
 
-            _actionLayoutCamera = camera;
-            _actionLayoutMode = mode;
-            _actionLayoutSafeArea = UIScale.SafeArea;
-            _hasActionLayoutContext = true;
+            _labelLayoutRoot = root;
+            _labelLayoutEncounter = snapshot.IsInEncounter;
+            _labelLayoutSafeArea = UIScale.SafeArea;
+            _hasLabelLayoutContext = true;
             _labelPlacements.Clear();
             _banterPlacements.Clear();
+            _reportedLabelOverflow.Clear();
+        }
+
+        private static void CollectAuthoredNodeNames(GameNode node, HashSet<string> keys)
+        {
+            keys.Add(node.Name);
+            foreach (var child in node.Children)
+                CollectAuthoredNodeNames(child, keys);
         }
 
         private static Vector2 ViewportDirection(Vector3 viewportPosition)

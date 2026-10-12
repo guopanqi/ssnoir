@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace SSNoir
 {
-    public enum FocusTravelPath { AuthoredArc, DirectApproach, Exploration }
+    public enum FocusTravelPath { AuthoredArc, DirectApproach, Exploration, Immediate }
 
     public class SSNoirCameraManager
     {
@@ -221,6 +221,11 @@ namespace SSNoir
         public bool IsFocusTravelInFlight =>
             _isFocusArcActive || _crossfade.IsFading || _crossfade.IsCapturing
             || _reducedParkedCamera != null;
+
+        // A zero-duration change still needs Cinemachine LateUpdate to apply the
+        // destination pose. World labels must not use the old camera projection
+        // during that handoff, or the world flashes in an intermediate layout.
+        public bool IsCameraCutPending => _cutHoldBrain != null;
 
         /// <summary>
         /// 低动画换镜的整段：从画面被按在旧那一镜上等冻帧，到冻帧淡完为止。
@@ -1127,7 +1132,8 @@ namespace SSNoir
             // A repeated refresh of the focus that is already travelling must be a
             // no-op. Finishing first would snap the running arc to t=1 before the
             // "already active" check below gets a chance to reject the duplicate.
-            if (_isFocusArcActive && ReferenceEquals(_focusArcCamera, focusCamera))
+            if (path != FocusTravelPath.Immediate
+                && _isFocusArcActive && ReferenceEquals(_focusArcCamera, focusCamera))
             {
                 transitionDuration = Mathf.Max(
                     0f, _focusArcDuration - (Time.unscaledTime - _focusArcStartedAt));
@@ -1173,8 +1179,9 @@ namespace SSNoir
             // 机位上正是这种情况——两台不同的 vcam，同一个构图。上面那条早退只认「同一台相机」，
             // 认不出这个。走到这儿的任何过渡都是在原地耗时间（弧线两秒，brain 的默认混合也是
             // 两秒），画面一动不动，看上去就是卡住了。这种情况直接切。
-            if ((targetPosition - startPosition).sqrMagnitude <= SamePoseDistance * SamePoseDistance
-                && Quaternion.Angle(targetRotation, startRotation) <= SamePoseAngle)
+            if (path == FocusTravelPath.Immediate
+                || ((targetPosition - startPosition).sqrMagnitude <= SamePoseDistance * SamePoseDistance
+                    && Quaternion.Angle(targetRotation, startRotation) <= SamePoseAngle))
                 return BeginInstantFocusChange(focusCamera, brain);
 
             // Reduce motion takes the same fork every time, whatever the two ends are:
@@ -1317,15 +1324,19 @@ namespace SSNoir
         }
 
         /// <summary>
-        /// Debug-only zero-duration focus change. Orbit shots still return to their authored
-        /// framing, but there is no travel and no dissolve around the Cinemachine cut.
+        /// Zero-duration focus change for returning to a parent world view (and debugging).
+        /// The destination is committed before world labels become visible, so players
+        /// never see an intermediate city shot followed by another camera movement.
         /// </summary>
         private bool BeginInstantFocusChange(
             Cinemachine.CinemachineVirtualCamera focusCamera,
             Cinemachine.CinemachineBrain brain)
         {
             _isNavigating = false;
+            _isPressingWorld = false;
             _isDraggingCam = false;
+            _isDraggingFocusArc = false;
+            _inertiaVelocity = Vector2.zero;
             ReleaseReducedPark();
 
             var config = focusCamera.GetComponent<SSNoirVirtualCameraConfig>();

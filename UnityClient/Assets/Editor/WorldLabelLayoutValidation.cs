@@ -85,6 +85,29 @@ public static class WorldLabelLayoutValidation
             "new content must not move established card");
         Check(!together["old"].Overlaps(together["new"]), "cards must occupy distinct slots");
 
+        // Enter a location and return to the world with its map labels still authored
+        // in the same root tree. Navigating to a child must NOT prune the map memory.
+        // This reproduces the old "initial world arrangement, then jump" regression.
+        var worldState = new WorldLabelLayout.PlacementState();
+        var worldLabels = new List<WorldLabelLayout.Request>
+        {
+            new("报社", WorldLabelLayout.Kind.Location, new Vector2(300, 240),
+                new Vector2(220, 198), new Vector2(108, 40), 0),
+            new("码头", WorldLabelLayout.Kind.Location, new Vector2(710, 320),
+                new Vector2(630, 278), new Vector2(108, 40), 1),
+        };
+        var beforeEntry = worldState.Arrange(new WorldLabelLayout.Space(area), worldLabels);
+        worldState.KeepOnly(new[] { "报社", "码头", "酒馆房间" });
+        worldState.Arrange(new WorldLabelLayout.Space(area), new List<WorldLabelLayout.Request>
+        {
+            new("酒馆房间", WorldLabelLayout.Kind.Action, new Vector2(520, 250),
+                new Vector2(520, 180), new Vector2(200, 70)),
+        });
+        var afterReturn = worldState.Arrange(new WorldLabelLayout.Space(area), worldLabels);
+        Check(Approximately(beforeEntry["报社"].center, afterReturn["报社"].center)
+            && Approximately(beforeEntry["码头"].center, afterReturn["码头"].center),
+            "returning to world must reuse the original map layout");
+
         // Structural invalidation is explicit. A changed HUD does not move an existing
         // world label under the camera, but a scene reset does trigger a fresh solve.
         var fixedHud = new WorldLabelLayout.Space(area);

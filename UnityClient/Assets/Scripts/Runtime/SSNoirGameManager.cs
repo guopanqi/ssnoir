@@ -601,7 +601,7 @@ namespace SSNoir
         /// 在交代"你从哪儿到了哪儿"，砍了空间关系就断了，所以不受该设置影响。Portal 和
         /// 过场出于同样理由也永远走全动画。
         /// </summary>
-        private void UpdateCameraFocus(bool storyDriven = false)
+        private void UpdateCameraFocus(bool storyDriven = false, bool settleImmediately = false)
         {
             if (ShouldDeferFocusToPendingPortal())
                 return;
@@ -632,7 +632,8 @@ namespace SSNoir
                 if (_stageController == null || !_stageController.IsTransitioning)
                     travelStarted = _cameraManager.BeginFocusTravel(
                         focusCamera, respectReduceMotion: !storyDriven,
-                        path: storyDriven ? FocusTravelPath.AuthoredArc : FocusTravelPath.Exploration);
+                        path: settleImmediately ? FocusTravelPath.Immediate
+                            : storyDriven ? FocusTravelPath.AuthoredArc : FocusTravelPath.Exploration);
 
                 ResetFocusCameraPriorities();
                 focusCamera.Priority = 20;
@@ -1493,8 +1494,13 @@ namespace SSNoir
                         PlayArrival(root.Name);
                 }
 
-                // Update camera focus priority for navigation parent or global view
-                UpdateCameraFocus();
+                // Entering the city root is a navigation boundary, not a second
+                // cinematic movement after the world map has appeared. Resolve its
+                // final camera in the same navigation transaction.
+                bool returnedToWorld = _navigationStack.Count == 0
+                    && string.Equals(_sceneManager.CurrentSceneName, "world",
+                        StringComparison.OrdinalIgnoreCase);
+                UpdateCameraFocus(settleImmediately: returnedToWorld);
             }
         }
 
