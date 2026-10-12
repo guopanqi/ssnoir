@@ -29,6 +29,7 @@ try {
      assert.ok(Math.abs(state.time-t)<1e-5);
    }
  }
+ await page.evaluate(()=>window.__neonTheatre.setScene('drunk'));
  await page.locator('#rig').uncheck();
  await page.evaluate(()=>window.__neonTheatre.seek(10));
  await page.locator('#stage-canvas').screenshot({path:'captures/drunk-10-rigid.png'});
