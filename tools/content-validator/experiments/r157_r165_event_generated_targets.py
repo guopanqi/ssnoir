@@ -9,7 +9,7 @@ from functools import lru_cache
 from itertools import product
 import json
 
-ACTIONS=("case","contact","witness","march","generic")
+ACTIONS=("wait","case","contact","witness","march","generic")
 N=4
 # S = (case_progress, early_contact, witness_progress, march_progress,
 #      generic_progress, revealed_branch). Event happens automatically
@@ -18,7 +18,8 @@ INITIAL=(0,0,0,0,0,"")
 
 def move(s,act,t,mode="responsive",event_after=1,weak_witness=False):
     c,f,w,m,g,b=s
-    if act=="case" and c<3:c+=1
+    if act=="wait":pass
+    elif act=="case" and c<3:c+=1
     elif act=="contact" and t<=1 and not f:f=1
     elif act=="witness" and b in ("witness","both") and t>event_after:
         if w<(1 if weak_witness else 2):w+=1
@@ -103,8 +104,8 @@ def audit():
                           reachable_goals=sorted([i for i in range(4)
                                     if any(v[i] for v in observed)]))
     resp=report["responsive"]
-    assert resp["outcomes"]==4
-    assert resp["paths"]==10
+    assert resp["outcomes"]==5
+    assert resp["paths"]==67
     assert resp["pareto"]==[(0,1,0,0),(1,0,1,0)]
     assert report["none"]["pareto"]==[(1,0,0,0)]
     assert report["forced_march"]["pareto"]==[(1,0,1,0)]
@@ -114,7 +115,7 @@ def audit():
     lead=intermediate_turn2()
     assert lead["after_contact"][-1]=="witness"
     assert lead["after_neglect"][-1]=="march"
-    assert resp["at_event"]=={"witness":2,"march":1}
+    assert resp["at_event"]=={"witness":4,"march":4}
     assert set(report["generic"]["reachable_goals"])=={0,3}
     # Distinguish an actual structural choice from merely renamed branches.
     # Witness progress W2 and march M1 have different required action budgets.
@@ -144,7 +145,7 @@ def audit():
         },
         "variants":report,
         "R157_R158_early_behavior_reversal":lead,
-        "R159_independent_graph_enumerator":"all 5^4 action strings filtered by legality; compare memoized set-DP exact reachability",
+        "R159_independent_graph_enumerator":"all 6^4 action strings filtered by legality; compare memoized set-DP exact reachability",
         "R160_narrative_pareto":resp["pareto"],
         "R161_event_missing":report["none"]["pareto"],
         "R162_forced_agenda":report["forced_march"]["pareto"],

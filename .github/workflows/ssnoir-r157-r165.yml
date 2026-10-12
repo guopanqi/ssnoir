@@ -26,8 +26,8 @@ jobs:
           python3 - <<'PY'
           import json
           j=json.load(open('/tmp/r157-r165.json'))
-          assert j['variants']['responsive']['outcomes']==4
-          assert j['variants']['responsive']['paths']==10
+          assert j['variants']['responsive']['outcomes']==5
+          assert j['variants']['responsive']['paths']==67
           assert j['R160_narrative_pareto']==[[0,1,0,0],[1,0,1,0]]
           assert j['variants']['late_event']['reachable_goals']==[0,2]
           print('Independent graph vs memoized set DP complete')
