@@ -4,11 +4,11 @@
 (define meeting? #f)
 (define crisis-called? #f)
 (define crisis? #f)
-(define finding (make-clock "找到丈夫" 4 'gauge "满4发现会面；敏锐辨认或见识判断去向。"))
-(define photos (make-clock "可靠照片" 18 'gauge "满18取得照片成果；可以收手，也可继续查身份。"))
-(define identity (make-clock "女子身份" 24 'gauge "8获姓氏、16获工作地点、24核实本人；两种办法用不同技能。"))
+(define finding (make-clock "找到丈夫" 6 'gauge "满6发现会面；敏锐辨认或见识判断去向。"))
+(define photos (make-clock "可靠照片" 8 'gauge "满8取得照片成果；可以收手，也可继续查身份。"))
+(define identity (make-clock "女子身份" 12 'gauge "4获姓氏、8获工作地点、12核实本人；两种办法用不同技能。"))
 (define alertness (make-clock "对象警觉" 8 'gauge "满8暴露；到4首次触发怀疑危机。"))
-(define disguise (make-clock "摆脱注意" 4 'gauge "好2中1；满4危机解除，警觉减2。未解除每回合警觉加1。"))
+(define disguise (make-clock "摆脱注意" 6 'gauge "好2中1；满6危机解除，警觉减2。未解除每回合警觉加1。"))
 (define (result-tier)
   (cond ((and (photos 'full?) (identity 'full?)) '照片与身份)
         ((identity 'full?) '身份) ((photos 'full?) '照片) (else '无成果)))
@@ -29,11 +29,11 @@
 (define (identity-progress! n)
   (let ((before (identity 'current)))
     (identity 'advance! n)
-    (if (and (< before 8) (>= (identity 'current) 8))
+    (if (and (< before 4) (>= (identity 'current) 4))
       (play-dialogue! (line "世界" "服务员称她哈珀小姐。她似乎常来这里。")) #f)
-    (if (and (< before 16) (>= (identity 'current) 16))
+    (if (and (< before 8) (>= (identity 'current) 8))
       (play-dialogue! (line "世界" "她在梅森百货工作。姓氏和工作地点都对上了。")) #f)
-    (if (and (< before 24) (identity 'full?))
+    (if (and (< before 12) (identity 'full?))
       (play-dialogue! (line "世界" "停车侍者认得她：伊芙琳·哈珀，梅森百货的职员。")) #f)))
 (define (progress! goal n)
   (cond ((eq? goal '找人)
@@ -79,7 +79,7 @@
       (line "世界" "男人离开座位，走到门口，朝你这边看。")
       (line "世界" "他还没确定。掩饰能让他回去，继续取证会增加警觉。"))))
 (define (identity-nodes)
-  (let ((stage (cond ((< (identity 'current) 8) 0) ((< (identity 'current) 16) 1) (else 2))))
+  (let ((stage (cond ((< (identity 'current) 4) 0) ((< (identity 'current) 8) 1) (else 2))))
     (list
       (action-node
         (cond ((= stage 0) "留意称呼") ((= stage 1) "留意随身物") (else "核对去向"))
@@ -102,7 +102,7 @@
       (clock-nodes (alertness 'render-data))
       (list (note-node "标注：取证场面" "此刻的场面"
         (cond (crisis? "男人正在门口查看你；继续调查每次额外警觉1，回合末也加1。")
-              (meeting? "两人在窗边用餐。照片满18可收手；身份满24报酬更高。")
+              (meeting? "两人在窗边用餐。照片满8可收手；身份满12报酬更高。")
               (else "丈夫还在人群中。先辨认面孔或推断去向。"))))
       (if meeting?
         (append
