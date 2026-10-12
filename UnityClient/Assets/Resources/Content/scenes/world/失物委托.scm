@@ -3,8 +3,21 @@
   (let ()
     (define lunch-checked? #f)
     (define stage 0) ; 0 可接 / 1 已接 / 2 已找到 / 3 已归还
+    (define rumours
+      (make-clock "小道消息" 4 'gauge
+        "喝酒 +3，做服务员 +1；填满后听到一件找东西的委托。"))
+    (define (available?)
+      (and (= stage 0) (= (three-letters 'story-stage) 1)))
+    (define (hear-rumours! amount)
+      (if (and (available?) (not (rumours 'full?)))
+          (begin
+            (rumours 'advance! amount)
+            (if (rumours 'full?)
+                (result-supplement! "听到了委托：寻找工具袋") #f))
+          #f))
     (define (accept-node)
       (node "寻找工具袋"
+        :anchor "老街酒馆"
         :subtitle "替修理工找回工具袋，报酬30"
         :resolve (instant
         (lambda ()
@@ -36,6 +49,7 @@
 
     (define (return-node)
       (node "归还工具袋"
+        :anchor "老街酒馆"
         :subtitle "把找到的工具袋交还修理工"
         :resolve (instant
         (lambda ()
@@ -50,7 +64,9 @@
       (if (and (= stage 0) (not (= (three-letters 'story-stage) 1))) '()
           (cond
             ((equal? location "老街酒馆")
-             (cond ((= stage 0) (list (accept-node)))
+             (cond ((= stage 0)
+                    (if (rumours 'full?) (list (accept-node))
+                        (list (clock-node "标注：酒馆小道消息" (rumours 'render-data)))))
                    ((= stage 2) (list (return-node)))
                    (else '())))
             ((and (equal? location "码头") (= stage 1))
@@ -63,9 +79,13 @@
     (lambda args
       (cond
         ((eq? (car args) 'nodes-at) (nodes-at (cadr args)))
-        ((eq? (car args) 'save) (list (list "stage" stage) (list "lunch-checked?" lunch-checked?)))
+        ((eq? (car args) 'hear-rumours!) (hear-rumours! (cadr args)))
+        ((eq? (car args) 'save)
+         (list (list "stage" stage) (list "lunch-checked?" lunch-checked?)
+               (list "rumours" (rumours 'save))))
         ((eq? (car args) 'load!)
          (set! stage (assoc-get (cadr args) "stage" 0))
          (set! lunch-checked? (assoc-get (cadr args) "lunch-checked?" #f))
+         (rumours 'load! (assoc-get (cadr args) "rumours" 0))
          (if (member? stage '(0 1 2 3)) #t (error "失物委托：非法存档阶段")))
         (else #f)))))
