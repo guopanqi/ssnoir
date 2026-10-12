@@ -240,7 +240,7 @@ namespace SSNoir.IMGUI
                 IMGUIStyles.DrawGoldPulse(rect);
         }
 
-        // ── 时钟徽章（卡右上角，居中，超一行自动换行）─────────────────
+        // ── 时钟徽章（卡右上角，右对齐，超一行自动换行）───────────────
 
         private const float ClockBadgeH = 28f;
         private const float ClockBadgeGap = 8f;
@@ -328,7 +328,7 @@ namespace SSNoir.IMGUI
 
                 if (draw)
                 {
-                    float x = rect.x + (rect.width - totalW) * 0.5f;
+                    float x = rect.xMax - 12f - totalW;
                     for (int j = 0; j < widths.Count; j++)
                     {
                         float badgeH = compactSingleRow ? CompactClockBadgeH : ClockBadgeH;
