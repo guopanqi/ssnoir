@@ -1,0 +1,41 @@
+name: Neon Rig Theatre
+on:
+  push:
+    paths:
+      - 'experiments/portrait-stage/neon-rig-three/**'
+      - '.github/workflows/neon-rig-theatre.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout: experiments/portrait-stage/neon-rig-three
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Static time-line and source validation
+        working-directory: experiments/portrait-stage/neon-rig-three
+        run: npm test
+      - name: Install only the browser harness
+        working-directory: experiments/portrait-stage/neon-rig-three
+        run: |
+          npm install --no-save playwright@1.55.1
+          npx playwright install --with-deps chromium
+      - name: Capture live WebGL frames
+        working-directory: experiments/portrait-stage/neon-rig-three
+        run: |
+          python3 -m http.server 5189 --bind 127.0.0.1 &
+          node tools/verify-browser.mjs
+      - name: Save visual review frames
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: neon-rig-theatre-frames
+          path: experiments/portrait-stage/neon-rig-three/captures/
+          if-no-files-found: ignore
