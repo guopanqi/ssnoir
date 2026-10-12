@@ -187,7 +187,13 @@ def run():
                     legal=bool(get(obs,"action","把烟盒扔到桌上"))
                     assert counter_spent and obs["Inventory"].get(ITEM,0)==0
                     assert not legal,(obs["Inventory"],obs["Operations"])
+                    transcript_path="/tmp/s3-w-same-world-to-lyon.json"
+                    p.stdin.write(json.dumps({"command":"save","path":transcript_path},ensure_ascii=False)+"\n")
+                    p.stdin.flush()
+                    save_response=json.loads(p.stdout.readline())
+                    assert save_response.get("type")=="saved",save_response
                     return {"status":"same_original_world_counter_then_lyon_unusable",
+                        "transcript":transcript_path,
                         "item_naturally_acquired":cig_obtained,"counter_spent":counter_spent,
                         "lyon_card_visible":True,"lyon_item_action_legal":False,
                         "lyon_worldday":obs["WorldDay"],"lyon_inventory":obs["Inventory"].get(ITEM,0),
