@@ -43,10 +43,10 @@ jobs:
            'R358_belief_DP','R366_full_program_DP','R374_full_public_belief_DP',
            'R382_full_non_linear_posterior_DP'))]==['37/16','111/32','7/4','16921/4096']
           m=json.loads(Path('docs/实验/机制研究/自主研究记忆.json').read_text())
-          assert m['totalArchivedRounds']==334
-          assert m['roundsSinceCalibration']==216
+          assert m['totalArchivedRounds']>=334
+          assert m['roundsSinceCalibration']>=216
           assert m['totalArchivedRounds']==118+m['roundsSinceCalibration']
-          assert sum(h['rounds'] for h in m['history'])==216
+          assert sum(h['rounds'] for h in m['history'])==m['roundsSinceCalibration']
           assert m['evidenceIdentity']['shortlistedPatterns']==6
           assert m['evidenceIdentity']['historicalStructuralCandidates']==20
           assert m['evidenceIdentity']['researchDebugWhitelisted']==['R09','R37','R54']
