@@ -568,41 +568,44 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
     updateStory();
   };
 
-  // This is the real LIPS runtime candidate, not an unrelated BiwaScheme probe.
-  // Confirm isolated namespaces before any user action, in both Web and WeChat.
-  const world = new LipsSession("SSNoir-foundation-world");
-  const encounter = new LipsSession("SSNoir-foundation-encounter");
-  await world.evaluate("(define foundation-local 17)");
-  await encounter.evaluate("(define foundation-local 2)");
-  if (await world.evaluateNumber("foundation-local") !== 17 ||
-      await encounter.evaluateNumber("foundation-local") !== 2) {
-    throw new Error("Scheme world/encounter interpreter isolation failed");
-  }
-  // Import the original Scheme source at build time; no second editable copy.
-  // This is not the full game engine's native-function bridge yet.
-  await world.evaluate(ssnoirStdlib);
-  if (await world.evaluateNumber("(length (filter (lambda (x) (> x 2)) '(1 2 3 4)))") !== 2) {
-    throw new Error("Original SSNoir stdlib.scm compatibility failed");
-  }
-  await world.evaluate("(define foundation-count 0)");
-  await world.evaluate("(define (foundation-next!) (set! foundation-count (+ foundation-count 1)) foundation-count)");
-  // Phase 2: run the SAME original engine.scm native inventory path on all hosts.
-  // The independent legacy smoke counter remains for existing platform checks.
-  const gameplay = await createHostScriptRuntime();
-  let count = 0;
-  let actionQueue = Promise.resolve();
-  function increment(): Promise<void> {
-    actionQueue = actionQueue.then(async () => {
-      const next = await world.evaluateNumber("(foundation-next!)");
-      // Initial counter display is not a paid action; start cash stays 15.
-      if (next > 1) await gameplay.session.evaluate('(add-item! "金钱" 1)');
-      count = next;
-      debugCounter.text = "Scheme 计算结果：" + count +
-        " · 金钱：" + gameplay.state.getItemCount("金钱");
+  // The original world/scene director is the real player runtime. Do not
+  // instantiate two extra LIPS VMs and a duplicate native game session on
+  // every launch: they existed solely to validate Phase 1 platform boot.
+  // Dedicated QA URLs and mocked wx smoke hosts still exercise them fully.
+  let debugWorld:LipsSession|null=null;
+  let gameplay:Awaited<ReturnType<typeof createHostScriptRuntime>>|null=null;
+  let count=1;
+  let actionQueue=Promise.resolve();
+  function increment():Promise<void>{
+    actionQueue=actionQueue.then(async()=>{
+      if(!debugWorld||!gameplay)throw new Error("Foundation QA counter is disabled during gameplay");
+      const next=await debugWorld.evaluateNumber("(foundation-next!)");
+      if(next>1)await gameplay.session.evaluate('(add-item! "金钱" 1)');
+      count=next;
+      debugCounter.text="Scheme 计算结果："+count+
+        " · 金钱："+gameplay.state.getItemCount("金钱");
     });
     return actionQueue;
   }
-  await increment();
+  if(qaMode){
+    debugWorld=new LipsSession("SSNoir-foundation-world");
+    const probeEncounter=new LipsSession("SSNoir-foundation-encounter");
+    await debugWorld.evaluate("(define foundation-local 17)");
+    await probeEncounter.evaluate("(define foundation-local 2)");
+    if(await debugWorld.evaluateNumber("foundation-local")!==17||
+       await probeEncounter.evaluateNumber("foundation-local")!==2)
+      throw new Error("Scheme world/encounter interpreter isolation failed");
+    await debugWorld.evaluate(ssnoirStdlib);
+    if(await debugWorld.evaluateNumber(
+      "(length (filter (lambda (x) (> x 2)) '(1 2 3 4)))")!==2)
+      throw new Error("Original SSNoir stdlib.scm compatibility failed");
+    await debugWorld.evaluate("(define foundation-count 0)");
+    await debugWorld.evaluate(
+      "(define (foundation-next!) (set! foundation-count (+ foundation-count 1)) foundation-count)");
+    gameplay=await createHostScriptRuntime();
+    count=0;
+    await increment();
+  }
 
   let size = { width: options.width, height: options.height, scale: 1, left: 0, top: 0 };
   function resize(width: number, height: number): void {
@@ -730,7 +733,8 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
     increment,
     activateAt,
     getCount: () => count,
-    getMoney: () => gameplay.state.getItemCount("金钱"),
+    getMoney: () => gameplay?.state.getItemCount("金钱") ??
+      authoredWorld?.state.getItemCount("金钱") ?? 15,
     getGamePreviewStatus:()=>({
       loaded:authoredWorld!==null,
       mode:authoredWorld?.mode??"loading",

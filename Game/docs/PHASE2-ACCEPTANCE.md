@@ -87,3 +87,7 @@ The original three-letters prologue was extended: an optional `醉酒的尼尔` 
 ## Player-facing browser performance gate (2026-10-12)
 
 The Playwright capture now has a separate **normal mode** path, not the old foundation-debug test. It captures city and entered-place screenshots, performs an actual pointer click on the first authored location, waits for the game view to update, and rejects navigation requiring more than two complete authored tree materializations. It emits measured navigation milliseconds in CI for future regression trends. This tests the interactive path and the story UI, not only a state snapshot; mobile and native-device timings remain separate gates.
+
+## Avoid duplicate runtime on normal launch (2026-10-12)
+
+The player-facing UI no longer starts the two independent Phase-1 LIPS namespace probes or the duplicate platform cash session. These cost interpreter and package startup time while not powering the game. They now initialize only in explicit foundation QA mode; Web and wx smoke harnesses opt in. Ordinary gameplay uses the sole authentic GameSceneDirector and its typed native state. This removes redundant initialization without modifying the original Scheme scripts or losing the existing platform acceptance probes.
