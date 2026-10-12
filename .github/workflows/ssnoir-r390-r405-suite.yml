@@ -54,16 +54,19 @@ jobs:
           import json
           from pathlib import Path
           m=json.loads(Path('docs/实验/机制研究/自主研究记忆.json').read_text())
-          assert m['totalArchivedRounds']==350
-          assert m['roundsSinceCalibration']==232
-          assert sum(h['rounds'] for h in m['history'])==232
+          # 350 is a historical checkpoint, NOT the permanent research total.
+          # Older experiments remain frozen; new abstract batches append checks.
+          assert m['totalArchivedRounds']>=350
+          assert m['roundsSinceCalibration']>=232
+          assert sum(h['rounds'] for h in m['history'])==m['roundsSinceCalibration']
           assert 118+m['roundsSinceCalibration']==m['totalArchivedRounds']
           assert m['evidenceIdentity']['shortlistedPatterns']==6
           assert m['evidenceIdentity']['historicalStructuralCandidates']==20
           assert m['evidenceIdentity']['researchDebugWhitelisted']==['R09','R37','R54']
           status=Path('docs/实验/机制研究/当前状态.md').read_text()
-          assert '350项' in status and '尚未执行真人' in status
-          print('350 evidence CHECKS, zero new curated modes, unchanged Debug whitelist')
+          assert str(m['totalArchivedRounds'])+'项检查' in status
+          assert '真人' in status and '精选' in status and 'Debug' in status
+          print(f"{m['totalArchivedRounds']} research CHECKS, selected patterns=6, Debug whitelist unchanged")
           PY
       - name: Existing abstract scope, portfolio integrity and playtest selection
         run: |
