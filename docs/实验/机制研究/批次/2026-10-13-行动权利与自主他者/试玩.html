@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>独立行动者｜三轮纸面交锋</title>
+<style>
+:root{color-scheme:dark;--bg:#111719;--panel:#1b2425;--ink:#e8e5d9;--muted:#afb9b5;--line:#556362;--accent:#c0d9b3}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,-apple-system,sans-serif;margin:0}
+main{max-width:820px;margin:0 auto;padding:24px 16px 64px}
+header{border-bottom:1px solid var(--line);padding-bottom:18px;margin-bottom:22px}
+small,.muted{color:var(--muted)}
+h1{font-size:1.75rem;line-height:1.25;margin:6px 0 14px}
+h2{font-size:1.16rem;margin:0 0 8px}
+p{margin:8px 0 12px}
+.panel{background:var(--panel);padding:18px 20px;border:1px solid #394947;border-radius:9px;margin:12px 0}
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0}
+.metric{background:#101919;border-radius:6px;padding:13px;text-align:center}
+.metric b{font-size:1.5rem;display:block;font-variant-numeric:tabular-nums}
+.metric span{font-size:.8rem;color:var(--muted)}
+button{background:#2b3a39;border:1px solid #84968d;color:var(--ink);border-radius:6px;padding:12px 16px;font:inherit;cursor:pointer}
+button:hover:not(:disabled){border-color:var(--accent);background:#38504a}
+button:focus-visible{outline:3px solid #f0cb72;outline-offset:2px}
+button:disabled{opacity:.45;cursor:not-allowed}
+.actions{display:flex;flex-wrap:wrap;gap:10px}
+.primary{background:#bbd2af;color:#11201b;border-color:#bbd2af;font-weight:700}
+.status{border-left:3px solid #b5caba;padding-left:13px}
+pre{font:13px/1.6 ui-monospace,SFMono-Regular,monospace;white-space:pre-wrap;overflow-wrap:anywhere;background:#101819;padding:14px;border-radius:5px}
+details summary{cursor:pointer;color:var(--accent)}
+.notice{font-size:.91rem;color:var(--muted)}
+#game{display:none}
+@media(max-width:500px){.metrics{grid-template-columns:1fr 1fr}.panel{padding:15px}}
+</style>
+</head>
+<body><main>
+<header><small>SSNoir · 独立抽象实验 · ACT-01</small><h1>对方也有自己的事要做</h1><p class="muted">三轮。你选择投入哪一项工作，协作者会按照自己的目标和有限体力独立行动。这里没有故事、骰子或隐藏人物属性。</p></header>
+<section class="panel" aria-labelledby="rulesTitle">
+<h2 id="rulesTitle">公开规则</h2>
+<p>每轮你先选择：推进 A 或推进 B（各增加 1）。协作者看见你的选择后，会在推进 A、推进 B、保留体力或处理自己的外部机会之间自行决定。<strong>协作者三轮总共只能实际工作一次</strong>，保留体力不花机会。</p>
+<p>你的终局收益：A 进度达到 4 得 6；B 进度达到 2 再得 1。协作者的终局收益：B 达到 2 得 4；A 达到 4 得 5；完成其自己的 OUT 工作再得 8。</p>
+<p>第二轮开始时才知道协作者有没有 OUT 工作，出现概率各半。你能看见他的选择和体力，也可以在下一轮改变自己的打算。</p>
+</section>
+<section class="panel" id="setup" aria-labelledby="setupTitle">
+<h2 id="setupTitle">开始三轮试验</h2>
+<p class="notice">可以先随机体验，再分别重放“有 OUT”与“无 OUT”的条件。两种预设只固定外部条件，不决定你如何行动。</p>
+<div class="actions">
+<button class="primary" id="random">随机开始</button>
+<button id="absent">固定：没有 OUT</button>
+<button id="present">固定：存在 OUT</button>
+</div>
+</section>
+<section id="game">
+<div class="panel">
+<h2 id="roundTitle">第 1 / 3 轮</h2>
+<p id="offer" class="status" aria-live="polite"></p>
+<div class="metrics">
+<div class="metric"><b id="a">0</b><span>A / 4</span></div>
+<div class="metric"><b id="b">0</b><span>B / 2</span></div>
+<div class="metric"><b id="energy">1</b><span>协作者剩余体力</span></div>
+</div>
+<p id="question">你决定把这一轮行动投入哪里？</p>
+<div class="actions" id="actionButtons">
+<button class="primary" id="doA">推进 A +1</button>
+<button id="doB">推进 B +1</button>
+</div>
+<p class="status" id="response" aria-live="polite"></p>
+</div>
+<div class="panel"><h2>实际轨迹</h2><pre id="trace" aria-live="polite"></pre><div class="actions"><button id="copy">复制本局记录</button><button id="restart">重新选择条件</button></div></div>
+</section>
+<section class="panel">
+<details><summary>关于这项试验能够、不能证明什么</summary>
+<p>协作者不是固定动作脚本，而是根据自己与共同目标的未来收益，用有限三轮模型选择自身最优行动。规则完全公开，模型也假设之后双方仍会理性作出选择。它没有个人记忆、私有目标、语言对话，也不是通用人工智能人物。</p>
+<p>这里保留玩家的实际动作轨迹供复制，不联网、不提交数据。模型研究已证明某些条件下会改选；真实参与者是否理解、纠结或觉得好玩，仍是未经验证的问题。</p>
+</details>
+</section>
+</main>
+<script>
+"use strict";
+(function(){
+const byId=id=>document.getElementById(id);
+const priority={HOLD:3,B:2,OUT:1,A:0};
+const cache=new Map();
+let state=null,forced=null,history=[];
+function terminal(a,b,done){return [6*Number(a>=4)+Number(b>=2),4*Number(b>=2)+5*Number(a>=4)+8*Number(done)];}
+function v(t,a,b,e,offer,done){
+ if(t===3)return terminal(a,b,done);
+ const key=[t,a,b,e,offer,Number(done)].join("|");
+ if(cache.has(key))return cache.get(key);
+ let result;
+ if(t===1&&offer===-1){
+   const no=v(t,a,b,e,0,done),yes=v(t,a,b,e,1,done);
+   result=[(no[0]+yes[0])/2,(no[1]+yes[1])/2];
+ }else result=playerBest(t,a,b,e,offer,done).score;
+ cache.set(key,result);
+ return result;
+}
+function partnerBest(t,a,b,e,offer,done){
+ const choices=[{name:"HOLD",a:a,b:b,e:e,done:done}];
+ if(e>0){
+  choices.push({name:"A",a:a+1,b:b,e:e-1,done:done});
+  choices.push({name:"B",a:a,b:b+1,e:e-1,done:done});
+  if(offer===1&&!done)choices.push({name:"OUT",a:a,b:b,e:e-1,done:true});
+ }
+ let best=null;
+ for(const c of choices){
+  const score=v(t+1,c.a,c.b,c.e,offer,c.done);
+  if(!best||score[1]>best.score[1]||(score[1]===best.score[1]&&priority[c.name]>priority[best.name])){
+   best={name:c.name,a:c.a,b:c.b,e:c.e,done:c.done,score:score};
+  }
+ }
+ return best;
+}
+function playerBest(t,a,b,e,offer,done){
+ const aa=partnerBest(t,a+1,b,e,offer,done),bb=partnerBest(t,a,b+1,e,offer,done);
+ return aa.score[0]>=bb.score[0]?{action:"A",score:aa.score}:{action:"B",score:bb.score};
+}
+function offerText(){
+ if(state.turn===0)return "OUT 机会尚未揭示；第二轮开始前会公布。";
+ return state.offer===1?"协作者收到了 OUT 工作机会；如果他选择处理，可以获得自己的 8 点收益。":"协作者没有获得 OUT 工作机会。";
+}
+function historyText(){
+ const lines=["本局条件："+(forced===null?"随机":"固定")+", 第二轮OUT："+(state&&state.turn>0?(state.offer?"有":"无"):"尚未公开")];
+ for(const x of history){
+   lines.push("第"+(x.turn+1)+"轮  你："+x.you+"  协作者："+x.partner+"  → A="+x.a+", B="+x.b+", 体力="+x.e);
+ }
+ if(state&&state.turn===3){
+    const payoff=terminal(state.a,state.b,state.done);
+    lines.push("结束  你的成果="+payoff[0]+"  协作者成果="+payoff[1]);
+ }
+ return lines.join("\n");
+}
+function render(){
+ byId("game").style.display="block";
+ byId("roundTitle").textContent=state.turn===3?"本局结束":"第 "+(state.turn+1)+" / 3 轮";
+ byId("offer").textContent=offerText();
+ byId("a").textContent=state.a;
+ byId("b").textContent=state.b;
+ byId("energy").textContent=state.e;
+ byId("actionButtons").style.display=state.turn===3?"none":"flex";
+ byId("question").textContent=state.turn===3?"观察两人获得了哪些成果，再尝试另一条路线。":"这轮你的注意力投向哪个目标？";
+ byId("trace").textContent=historyText();
+ if(state.turn===3){
+  const pay=terminal(state.a,state.b,state.done);
+  byId("response").textContent="结束。你的成果 "+pay[0]+"；协作者成果 "+pay[1]+"。没有固定的胜利提示，请记录你的判断。";
+ }
+}
+function start(kind){
+ forced=kind;
+ history=[];
+ cache.clear();
+ state={turn:0,a:0,b:0,e:1,offer:-1,done:false};
+ byId("setup").style.display="none";
+ byId("response").textContent="你先行动；协作者随后决定如何使用自己的体力。";
+ render();
+}
+function doWork(goal){
+ if(!state||state.turn>=3)return;
+ if(goal==="A")state.a+=1;else state.b+=1;
+ const response=partnerBest(state.turn,state.a,state.b,state.e,state.offer,state.done);
+ state.a=response.a;state.b=response.b;state.e=response.e;state.done=response.done;
+ history.push({turn:state.turn,you:goal,partner:response.name,a:state.a,b:state.b,e:state.e});
+ state.turn+=1;
+ if(state.turn===1)state.offer=forced===null?(Math.random()<.5?1:0):forced;
+ byId("response").textContent="协作者这轮选择："+response.name+"。";
+ render();
+}
+byId("random").onclick=()=>start(null);
+byId("absent").onclick=()=>start(0);
+byId("present").onclick=()=>start(1);
+byId("doA").onclick=()=>doWork("A");
+byId("doB").onclick=()=>doWork("B");
+byId("restart").onclick=()=>{state=null;byId("game").style.display="none";byId("setup").style.display="block";};
+byId("copy").onclick=async()=>{const s=historyText();try{await navigator.clipboard.writeText(s);byId("copy").textContent="已复制记录";}catch(_){byId("copy").textContent="请从上方选取记录复制";}};
+})();
+</script>
+</body></html>

@@ -6,6 +6,8 @@ on:
     paths:
       - '.github/workflows/ssnoir-mechanism-pages.yml'
       - 'docs/实验/机制研究/模式库.json'
+      - 'docs/实验/机制研究/模式语言知识地图.json'
+      - 'docs/实验/机制研究/研究沟通.json'
       - 'docs/实验/机制研究/试玩任务.json'
       - 'docs/实验/机制研究/研究总览.template.html'
       - 'docs/实验/机制研究/研究总览.html'
@@ -14,6 +16,14 @@ on:
       - 'tools/content-validator/experiments/mechanism_workbench.css'
       - 'tools/content-validator/experiments/mechanism_workbench.js'
       - 'experiments/research-workbench-gpt6/**'
+      - 'docs/实验/机制研究/批次/2026-10-13-行动权利与自主他者/试玩.html'
+      - 'tools/content-validator/experiments/test_partner_prototype.js'
+      - 'tools/content-validator/experiments/test_relational_field_study.js'
+      - 'docs/实验/机制研究/批次/2026-10-13-关系许可与成果保全/试玩.html'
+      - 'docs/实验/机制研究/批次/2026-10-13-策略回应与危机可达性/协商试玩.html'
+      - 'tools/content-validator/experiments/test_strategic_refusal_field_study.js'
+      - 'docs/实验/机制研究/批次/2026-10-13-策略回应与危机可达性/危机试玩.html'
+      - 'tools/content-validator/experiments/test_crisis_opening_study.js'
       - 'Game/**'
 permissions:
   contents: read
@@ -55,6 +65,22 @@ jobs:
           cp docs/实验/机制研究/研究总览.html pages-dist/index.html
           mkdir -p pages-dist/open-field
           cp experiments/research-workbench-gpt6/index.html pages-dist/open-field/index.html
+          node tools/content-validator/experiments/test_partner_prototype.js
+          mkdir -p pages-dist/actor
+          cp docs/实验/机制研究/批次/2026-10-13-行动权利与自主他者/试玩.html pages-dist/actor/index.html
+          test -s pages-dist/actor/index.html
+          node tools/content-validator/experiments/test_relational_field_study.js
+          mkdir -p pages-dist/relational
+          cp docs/实验/机制研究/批次/2026-10-13-关系许可与成果保全/试玩.html pages-dist/relational/index.html
+          test -s pages-dist/relational/index.html
+          node tools/content-validator/experiments/test_strategic_refusal_field_study.js
+          mkdir -p pages-dist/negotiation
+          cp docs/实验/机制研究/批次/2026-10-13-策略回应与危机可达性/协商试玩.html pages-dist/negotiation/index.html
+          test -s pages-dist/negotiation/index.html
+          node tools/content-validator/experiments/test_crisis_opening_study.js
+          mkdir -p pages-dist/crisis
+          cp docs/实验/机制研究/批次/2026-10-13-策略回应与危机可达性/危机试玩.html pages-dist/crisis/index.html
+          test -s pages-dist/crisis/index.html
           mkdir -p pages-dist/game
           cp -R Game/dist/web/. pages-dist/game/
           test -s pages-dist/game/index.html

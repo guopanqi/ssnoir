@@ -19,6 +19,22 @@ on:
       - 'docs/实验/机制研究/试玩任务.json'
       - 'docs/实验/机制研究/研究总览.html'
       - 'skills/research-mechanisms/SKILL.md'
+      - 'tools/content-validator/experiments/pattern_endogenous_goals_20261013.py'
+      - 'tools/content-validator/experiments/pattern_objective_rights_20261013.py'
+      - 'docs/实验/机制研究/批次/2026-10-13-目标图因果交互与强策略复核/**'
+      - 'docs/实验/机制研究/批次/2026-10-13-行动权利与自主他者/**'
+      - 'tools/content-validator/experiments/pattern_rights_actor_20261013.py'
+      - 'tools/content-validator/experiments/pattern_relational_salvage_20261013.py'
+      - 'tools/content-validator/experiments/pattern_portable_salvage_20261013.py'
+      - 'tools/content-validator/experiments/pattern_bargaining_incentives_20261013.py'
+      - 'docs/实验/机制研究/批次/2026-10-13-可信协商与策略性拒绝/**'
+      - 'tools/content-validator/experiments/test_relational_field_study.js'
+      - 'docs/实验/机制研究/批次/2026-10-13-关系许可与成果保全/**'
+      - 'tools/content-validator/experiments/test_partner_prototype.js'
+      - 'tools/content-validator/experiments/pattern_crisis_from_opening_20261013.py'
+      - 'tools/content-validator/experiments/test_strategic_refusal_field_study.js'
+      - 'tools/content-validator/experiments/test_crisis_opening_study.js'
+      - 'docs/实验/机制研究/批次/2026-10-13-策略回应与危机可达性/**'
 permissions:
   contents: read
 jobs:
@@ -37,3 +53,15 @@ jobs:
           python3 tools/content-validator/experiments/validate_mechanism_portfolio.py
           python3 tools/content-validator/experiments/validate_debug_playtests.py
           python3 tools/content-validator/experiments/build_mechanism_atlas.py --check
+          python3 tools/content-validator/experiments/validate_pattern_language_map.py
+          python3 tools/content-validator/experiments/pattern_endogenous_goals_20261013.py
+          python3 tools/content-validator/experiments/pattern_objective_rights_20261013.py
+          python3 tools/content-validator/experiments/pattern_rights_actor_20261013.py
+          python3 tools/content-validator/experiments/pattern_relational_salvage_20261013.py
+          python3 tools/content-validator/experiments/pattern_portable_salvage_20261013.py
+          python3 tools/content-validator/experiments/pattern_bargaining_incentives_20261013.py
+          python3 tools/content-validator/experiments/pattern_crisis_from_opening_20261013.py
+          node tools/content-validator/experiments/test_strategic_refusal_field_study.js
+          node tools/content-validator/experiments/test_crisis_opening_study.js
+          node tools/content-validator/experiments/test_relational_field_study.js
+          node tools/content-validator/experiments/test_partner_prototype.js

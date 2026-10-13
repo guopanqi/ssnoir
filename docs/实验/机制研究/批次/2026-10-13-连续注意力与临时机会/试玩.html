@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PL-W02｜三天注意力实验</title>
+<style>
+:root{color-scheme:light;--bg:#f2f0eb;--text:#242b2a;--muted:#606c69;--line:#d6d9d5;--card:#fff;--accent:#245b54}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;color:var(--text)}
+main{width:min(740px,calc(100% - 28px));margin:28px auto 56px}.top{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+h1{font-size:clamp(23px,5vw,30px);letter-spacing:-.03em;margin:4px 0 10px}
+small,.muted{color:var(--muted)}p{line-height:1.65;margin:8px 0 16px}
+section{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:18px;margin-top:14px}
+h2{font-size:18px;margin:0 0 14px}h3{font-size:15px;margin:10px 0 8px}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.stat{padding:12px;background:#f5f7f5;border:1px solid var(--line);border-radius:9px}
+.stat strong{display:block;font-size:25px;margin-top:6px;font-variant-numeric:tabular-nums}
+.stat small{display:block;font-size:12px}
+progress{width:100%;height:14px;accent-color:var(--accent);margin:10px 0 4px}
+.notice{font-size:19px;font-weight:650;margin:8px 0 12px}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0}
+button{font:inherit;cursor:pointer;border-radius:9px;padding:14px 12px;border:1px solid var(--accent);background:#fff;color:var(--accent);text-align:left}
+button:hover:not(:disabled){background:#ebf3f1}button:disabled{opacity:.42;cursor:not-allowed}
+button.primary{background:var(--accent);color:#fff}button.primary:hover:not(:disabled){background:#1a453f}
+button .desc{display:block;font-size:13px;opacity:.85;font-weight:400;margin-top:5px}
+label{display:block;font-weight:600;font-size:14px;margin:12px 0 7px}
+textarea{width:100%;min-height:76px;padding:10px;font:inherit;border:1px solid var(--line);border-radius:8px;resize:vertical}
+#transcript{min-height:136px;font-size:13px;line-height:1.6;color:#3a4543}
+.note{border-left:3px solid var(--accent);padding-left:12px;font-size:14px;color:var(--muted)}
+#end{display:none}#end strong{font-variant-numeric:tabular-nums}
+footer{font-size:12px;color:var(--muted);margin-top:20px;line-height:1.7}
+@media(max-width:520px){main{margin-top:16px}.stats{grid-template-columns:1fr 1fr 1fr}.stat{padding:9px}.stat strong{font-size:21px}.choices{grid-template-columns:1fr}section{padding:14px}}
+</style>
+</head>
+<body>
+<main>
+ <div class="top"><small>SSNoir · 抽象玩法研究 / PL-W02</small><small>独立静态原型 · 仅供观察</small></div>
+ <h1>三天里，注意力投向哪里？</h1>
+ <p>有一件长期工作 B，同时每天都可能出现当天过期的新委托 U。每天只有两次行动。你无法知道明天是否有临时委托。目标是在有限时间里决定哪些事情值得完成。</p>
+ <section>
+  <h2>公开规则</h2>
+  <p><b>长期 B：</b>跨天累积4次行动，第三天结束时得到9分，否则得0。<b>临时 U：</b>每天独立有50%概率出现，必须当天花满2次行动，才能获得当天的5 / 5 / 6分；没完成就过期。每次选择会投入整天的2次行动。</p>
+  <p class="note">本原型只保留按天分配注意力的决策，没有骰子，也没有复杂任务系统。分数是实验规则，不是乐趣评分。请先独立思考，不参考研究解答。</p>
+ </section>
+ <section>
+  <div class="stats">
+   <div class="stat"><small>当前日期</small><strong id="dayNumber">第1天</strong></div>
+   <div class="stat"><small>短期成果</small><strong id="shortScore">0</strong></div>
+   <div class="stat"><small>长期 B 进度</small><strong id="bProgress">0/4</strong></div>
+  </div>
+  <progress id="bBar" max="4" value="0" aria-label="长期目标进度"></progress>
+  <div id="play">
+   <h2 style="margin-top:16px">今天的局面</h2>
+   <div id="urgentNotice" class="notice" aria-live="polite"></div>
+   <p id="prompt" class="muted"></p>
+   <label for="reason">为什么作这个决定？（可不填）</label>
+   <textarea id="reason" placeholder="例如：担心未来没时间完成B，或者今天的U更值得投入……"></textarea>
+   <div class="choices">
+    <button id="doUrgent" type="button" class="primary"><b>投入 U</b><span class="desc">今天两次行动都用在临时任务</span></button>
+    <button id="doLong" type="button"><b>投入 B</b><span class="desc">长期工作进度 +2，跨天保留</span></button>
+   </div>
+  </div>
+  <div id="end">
+   <h2>三天结束</h2>
+   <p id="resultText"></p>
+   <p>回顾：哪一天你改变了计划？有没有觉得自己只是执行一条很简单的规则？</p>
+   <button id="retry" type="button" class="primary">重新开始（重新随机生成每天的任务）</button>
+  </div>
+ </section>
+ <section>
+  <h2>个人行动日志</h2>
+  <p class="muted">每次选择与理由会记录在这里。可复制文本反馈研究者。数据只存在本页内存，不自动上传。</p>
+  <textarea id="transcript" readonly aria-label="行动日志"></textarea>
+  <button type="button" id="copy" style="margin-top:9px">复制记录</button>
+  <small id="copyStatus" aria-live="polite"></small>
+ </section>
+ <footer>没有统计服务、账户或联网依赖。实际人类反馈应保留原话及试玩版本，不能以这个页面的存在宣称已有人玩过。</footer>
+</main>
+<script>
+(function(){
+"use strict";
+var values=[5,5,6], state;
+var $=function(id){return document.getElementById(id)};
+function start(){
+ state={day:0,b:0,shortScore:0,urgent:false,history:[]};
+ $("play").style.display="block";$("end").style.display="none";
+ $("copyStatus").textContent="";nextDay();
+}
+function nextDay(){
+ if(state.day>=3){finish();return}
+ state.urgent=Math.random()<0.5;
+ render();
+}
+function render(){
+ $("dayNumber").textContent="第"+(state.day+1)+"天";
+ $("shortScore").textContent=String(state.shortScore);
+ $("bProgress").textContent=state.b+"/4";
+ $("bBar").value=state.b;
+ $("urgentNotice").textContent=state.urgent
+  ?"今天有新的 U 委托：完成可得 "+values[state.day]+" 分"
+  :"今天没有临时 U 委托";
+ $("prompt").textContent=state.urgent
+  ?"U只在今天有效；也可以不接，继续做跨天的B。"
+  :"今天只能把两次行动投入B。";
+ $("doUrgent").disabled=!state.urgent;
+ $("doLong").disabled=false;
+ $("reason").value="";
+ renderLog();
+}
+function act(action){
+ if(state.day>=3||(action==="U"&&!state.urgent))return;
+ var day=state.day+1, before=state.b, value=values[state.day];
+ var reason=$("reason").value.trim();
+ if(action==="U")state.shortScore+=value;
+ else state.b=Math.min(4,state.b+2);
+ state.history.push({day:day,available:state.urgent,
+   decision:action,bBefore:before,bAfter:state.b,gain:action==="U"?value:0,why:reason});
+ state.day++;nextDay();
+}
+function logText(){
+ var arr=["PL-W02 三天注意力实验（玩家自行操作；非真实反馈采集）"];
+ state.history.forEach(function(r){
+  arr.push("第"+r.day+"天｜临时U "+(r.available?"出现":"未出现")+"｜选择"+r.decision+
+   "｜B "+r.bBefore+"→"+r.bAfter+"｜短期+ "+r.gain+
+   "｜理由："+(r.why||"未填写"));
+ });
+ arr.push("当前短期得分："+state.shortScore);
+ if(state.day>=3)arr.push("终局B："+(state.b>=4?"完成，+9":"未完成，+0")+
+    "；最终："+(state.shortScore+(state.b>=4?9:0)));
+ return arr.join("\n");
+}
+function renderLog(){$("transcript").value=logText()}
+function finish(){
+ $("play").style.display="none";$("end").style.display="block";
+ $("dayNumber").textContent="结束";
+ $("shortScore").textContent=state.shortScore;
+ $("bProgress").textContent=state.b+"/4";$("bBar").value=state.b;
+ var bonus=state.b>=4?9:0;
+ $("resultText").textContent="临时工作累计 "+state.shortScore+" 分；长期B "+
+   (bonus?"已完成，获得9分":"未完成，没有结算分")+"。总计 "+(state.shortScore+bonus)+" 分。";
+ renderLog();
+}
+$("doUrgent").addEventListener("click",function(){act("U")});
+$("doLong").addEventListener("click",function(){act("B")});
+$("retry").addEventListener("click",start);
+$("copy").addEventListener("click",function(){
+ var t=logText();
+ if(navigator.clipboard && navigator.clipboard.writeText){
+  navigator.clipboard.writeText(t).then(function(){$("copyStatus").textContent="已复制。"},
+    function(){$("copyStatus").textContent="复制失败；可从上方文本框手动复制。"});
+ }else{
+  $("transcript").focus();$("transcript").select();
+  $("copyStatus").textContent="请手动复制已选中的文字。";
+ }
+});
+start();
+})();
+</script>
+</body>
+</html>
