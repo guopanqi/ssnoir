@@ -106,6 +106,27 @@ def private_outside_strategic(cost=F(1)):
     }
 
 
+
+
+def verifiable_proof(low_type_proof_cost):
+    """A public certificate is cheap for high-outside type, costly for low.
+
+    Types choose the 2 wage without proof, or wage 4 after public proof.
+    The certificate is not a cheap-talk declaration: faking carries
+    a real participant-paid cost. Equality uses the no-proof default.
+    """
+    c = F(low_type_proof_cost)
+    assert c >= 0
+    low_accept_plain = F(2)
+    low_accept_proved = F(4) - c
+    low_mimics = low_accept_proved > low_accept_plain
+    # High-outside=4 cannot accept wage2, so chooses proof at wage4.
+    high_proves = True
+    outcome_low_wage = F(4) if low_mimics else F(2)
+    player = (GROSS-outcome_low_wage + GROSS-F(4))/2
+    return player, low_mimics, high_proves
+
+
 def main():
     p = credible_compensation()
     print("NEG-01", {k: tuple(map(str,v)) if isinstance(v,tuple) else str(v)
@@ -134,6 +155,14 @@ def main():
     print("NEG-03", {k:str(v) for k,v in n3.items()})
     assert n3["naive_low_acceptance_prediction"] > n3["strategic_best_initial_pool"]
     assert n3["strategic_best_initial_pool"] == F(8)
+    for c,expected,low_mimics in ((F(0), F(8), True),
+                                   (F(1), F(8), True),
+                                   (F(2), F(9), False),
+                                   (F(3), F(9), False)):
+        val,mimics,high_proves=verifiable_proof(c)
+        print("NEG-04 certificate",str(c),"player",str(val),
+              "low-mimics",mimics,"high-shows-proof",high_proves)
+        assert (val,mimics,high_proves)==(expected,low_mimics,True)
     # Regime fixed: the private partner sees both offers and maximizes its own
     # wage; replacing him with a naive threshold bot invents extra utility.
     print("PASS credible offers, renegotiation, and strategic rejection controls")
