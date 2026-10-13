@@ -4,8 +4,8 @@
   "batch": "R510–R533 自主他者的私有机会与压力相关因果",
   "rounds": 24,
   "totalArchivedRounds": 478,
-  "objective": "长期自主探索具有实质差异的抽象玩法形态，尤其是玩家实际反复作出的有意义的行动、资源分配和状态依赖判断。20是价值目标，不是轮数或历史候选池数量。",
-  "policy": "首选无剧情的玩家心理循环、同构/简单策略反证及跨机制族发散。叙事、香烟、人物、S3世界排错不再是机制默认方向。数学、原生、真人分层；异步反馈不阻塞。不得自动新增Debug或精选。",
+  "objective": "长期自主发展可复用的玩法模式语言，覆盖已知作品先例、基础原语、完整交锋、跨阶段结构、组合条件与重要负例；评价玩家实际反复作出的判断、反馈、后果。历史20是广度愿景，不是价值认证名单或完成配额。",
+  "policy": "从成熟作品、旧实验、新假设三向吸收；先去剧情定义玩家活动，再独立批评同构/最强简单策略，按需模型与盲Agent试玩。数学、作品先例、Agent、原生与真人是正交证据。知识图谱收录不等真人认可，精选展示与Debug独立把关，真人反馈异步且不阻塞。",
   "scope": {
     "default": "abstract-decision-patterns",
     "adjacent": "minimal-optional-playtesting",
@@ -14,7 +14,10 @@
     "exploratoryMap": "docs/实验/机制研究/抽象探索地图-20261012校准.md",
     "currentQueue": "docs/实验/机制研究/研究队列.md",
     "historicalStateAndQueue": "docs/实验/机制研究/归档/2026-10-12-方向校准前/",
-    "fullLegacyMemory": "docs/实验/机制研究/归档/2026-10-12-方向校准前/自主研究记忆.json"
+    "fullLegacyMemory": "docs/实验/机制研究/归档/2026-10-12-方向校准前/自主研究记忆.json",
+    "patternGraph": "docs/实验/机制研究/模式语言知识地图.json",
+    "patternGraphReading": "docs/实验/机制研究/模式语言与证据地图.md",
+    "compositionNotes": "docs/实验/机制研究/模式语言-知识地图.md"
   },
   "evidenceIdentity": {
     "shortlistedPatterns": 6,
@@ -291,8 +294,8 @@
     }
   ],
   "method": {
-    "next": "R510–R533已完成三批24项：自主同伴历史信念相对上一手口诀存在真实期望收益差，但自有均匀未来玩家预期过于隐性、不可直接叫成熟交锋；成败压力同边际风险触发不同，却同一阈值策略全优；隐藏因果类型有零信息决策价值。先真人R518 paired对照，简化可教的自主他者回应规则；接线尝试不再堆节点救死模型。其余抽象方向横向找本质不同的决策活动。",
-    "admissions": "candidate/curated only after novelty and play-test gates; never automatically to Debug",
+    "next": "连接C01–C03和X01–X03两组独立组合证据，优先纵向可达性/准备窗口×危机/目标承诺语义；同时维护成熟作品先例与旧负例的横向模式关系。分批自主转向、不依赖人类逐轮批准，也不因为数学结果强而宣称新玩法。",
+    "admissions": "知识地图可以收录有来源的成熟作品模式、已知组合、阴性边界与开放假设；精选是设计师编辑视图，Debug仅人工明确批准，均不可按数学或编号自动晋升。",
     "feedback": "human asynchronous",
     "code": "tools/content-validator/experiments/",
     "historicalEvidence": "docs/实验/机制研究/批次/",
@@ -378,6 +381,7 @@
     }
   ],
   "crossRoundMemory": [
+    "2026-10-13长期开题：合并成熟作品模式与20历史候选/精选六/R历史证据为正交知识地图（json），新C组和X组不同源脚本与研究记录。X01完整局部枚举：危机+B0优先FIX→A得2.50，B2先B→STOP得3.75，低B报酬退化FIX。X02准备窗口：p红0.5优先EARN得4，p红0.8优先PREP_RED得4.4，去掉早到窗口后EARN/临场ENABLE统一得6。两者无真人/正式C#、无需添加精选；下一步追问前史可达性与是否形成新的心理循环。",
     "R510–R533三轴24检查完成且CI通过：真正有自身REST/OUT/ACCEPT长期效用的私有θ/精力伙伴四期玩家全反馈29/4对无反馈/最佳256固定25/4、最佳256上一事件口诀105/16；但对方预测未来玩家动作均匀并非PBE，且贝叶斯读懂体验未证。两种同边际GO压触发成功/失败最优31/4与29/4但同一句VENT临界口诀两边全优。隐藏该触发类型，即便可用一次GO准确识别，隐藏/事先免费公开/通用口诀均15/2，付费INFO首手只187/32。R37真实旧反馈仅启发变奏，不冒称本次真人。新建对照纸面真人卡、H-RW-01接线廉价停止，累计478(118+360)，精选6/候选20/Debug3不变。",
     "R486–R509三批24检查+独立CI：局部双分支PATCH的单错根被一行PATCH-WRONG全优7；意图/疲惫混淆REFUSE时先RESTORE造出诊断信号，动态5对固定4，但仍短策略；两条独立故障+需求时点的REPAIR动作逐态等价普通ENABLE任务，7/2对晚信号23/8。R494/R502各有无提示真人双条件卡但未执行。累计454=旧118+校准后336，精选6/候选20/Debug3不变。",
     "R478–R485八项：另一方有私有类型且希望被正确理解，普通廉价声明6纯均衡(4混同/2区分)，付费但不可验证的话仍2混同；类型专属真实证据成本1/4仅2个区分，成本2仅混同。证明意愿一致≠可从语言推断类型，可信行动与单纯说话的协议不同；仍经典一次信号博弈，非长期互动或真人体验。前两批R462和R470已CI通过。累计430=校准前118+后312，精选6/历史候选20/Debug3无变。",
@@ -386,5 +390,20 @@
   "focusedAudits": [],
   "parallelBatches": [],
   "fullHistoryPath": "docs/实验/机制研究/归档/2026-10-12-方向校准前/自主研究记忆.json",
-  "roundsSinceCalibration": 360
+  "roundsSinceCalibration": 360,
+  "currentCompositionResearch": {
+    "date": "2026-10-13",
+    "source": "docs/实验/机制研究/批次/长期研究-启动-组合诊断/研究记录.md",
+    "independentPeerBatch": "docs/实验/机制研究/批次/2026-10-13-模式语言与组合首轮/研究记录.md",
+    "executed": [
+      "X01=危机锁A+可替代B局部4状态及低价值B消融，Python本地断言通过",
+      "X02=事前EARN/PREP与现场ENABLE早到窗口、两种预测，Python本地断言通过"
+    ],
+    "onlyPaper": [
+      "X03=数字效用变化不等同叙事目标重新认同"
+    ],
+    "noHumanTests": true,
+    "interpretation": "X01、X02与另一批C01、C02是不同的已知组合条件反证，均不构成新独立模式或完整真人交锋认证",
+    "historyCountUnchanged": 478
+  }
 }
