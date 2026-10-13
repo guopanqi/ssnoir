@@ -831,6 +831,41 @@
         "humanVerified": false
       },
       "note": "目前只有反例问题，没有专用数学和实际玩家证据"
+    },
+    {
+      "id": "R502",
+      "name": "修补依赖与同成本ENABLE等价边界",
+      "origin": "ssnoir-research",
+      "layer": "negative-boundary",
+      "idea": "看似不同的步骤未必引入不同动作语法",
+      "stage": "documented-historical-counterexample",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/R502-R509-依赖修复与选项启用同构/研究记录.md"
+      ],
+      "evidence": {
+        "math": true,
+        "humanVerified": false
+      },
+      "note": "可提示公平比较现场启用，但不能推广为所有事前准备皆无价值"
+    },
+    {
+      "id": "PL-C05",
+      "name": "同成本现场ENABLE压制提前预付",
+      "origin": "new-local-experiment",
+      "layer": "combination-negative-boundary",
+      "idea": "备用路线能力只在危机后有用，危机后可同成本购买时等待需求再买更好",
+      "stage": "exact-finite-model-counterexample",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-13-准备与临场启用对照/研究记录.md"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      },
+      "note": "四组q对照Both=On-site-only；仅限冻结模型，不能推广为普遍准备玩法定理"
     }
   ],
   "edges": [
@@ -983,6 +1018,24 @@
       "to": "PL-C04",
       "relation": "ingredient",
       "reason": "完成主目标关闭后续机会"
+    },
+    {
+      "from": "R502",
+      "to": "PL-C05",
+      "relation": "related-boundary",
+      "reason": "与历史现场ENABLE同构反例一致"
+    },
+    {
+      "from": "PL-C03",
+      "to": "PL-C05",
+      "relation": "counterexample",
+      "reason": "先准备的价值依赖禁止现场补购这一时点约束"
+    },
+    {
+      "from": "P13",
+      "to": "PL-C05",
+      "relation": "limits",
+      "reason": "任何投资都需要与等待需求后再投资的机会成本对照"
     }
   ],
   "coverage": {
@@ -991,7 +1044,8 @@
     "cs2AnalyticalPatterns": 9,
     "unconvertedHistory": "关系索引中的其他R批次、数学负例和组合应按主题逐步纳入；不能据本地图未出现就认定没有价值",
     "additionalExperimentalCompositions": "PL-C01/PL-C02/PL-C03已做最小模型、PL-C04仅概念问题；与另一研究线的C01/C02/C03区别命名",
-    "humanFeedbackNote": "目前有关稳险/R06、边做边看/R10、压力/R37、R54、R50的有限设计者反馈；原记录各不等价于受控盲试玩；P02/R13仍没有真人反馈。"
+    "humanFeedbackNote": "目前有关稳险/R06、边做边看/R10、压力/R37、R54、R50的有限设计者反馈；原记录各不等价于受控盲试玩；P02/R13仍没有真人反馈。",
+    "thirdComparison": "PL-C05 supplies a tested negative boundary; not a new curated or debug pattern"
   },
   "policy": [
     "没有入精选不意味着无价值",
