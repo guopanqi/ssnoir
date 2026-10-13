@@ -2,7 +2,7 @@
   "schema": "ssnoir.pattern-language-map/v1",
   "updated": "2026-10-13",
   "reviewBase": "c8055fa1aa2fe18ec1ecc50c7e721072c67dd809",
-  "scope": "保留成熟作品、20历史候选、精选展示与局部研究；T01是可复用的跨阶段组合边界，非独立新精选/人类认可；本轮另纳入PL-Q01/D01/W01三族跨尺度正负对照，未自动精选或真人认证；新增F1/F2目标内生生成与撤权、D2反驳纯诱饵通用支配，均为局部精确证据；RGT01可更换许可的强简单策略负例及ACT01双向自利公开外部机会模型均纳入；REL01/REL02新增自利关系许可×半成品保全×信息时点可执行证据与短公开口诀全优边界；REL03检验半成品跨交锋转成操作资格的旧启用同构与首手时间窗必要条件；新纳入R342/R430/R478三条历史社会协商先例，以及NEG01—05可信履约、强合同菜单、策略拒绝与伪造成本四个证据节点，不视为新精选；本次未造新节点，用NEG06与X01-LONG独立试玩/完整可达性证据增强原PL-NEG03和X01两个节点，避免数量攀升当价值；X03原纸面开放题升级为HARD禁用与SOFT昂贵可违约的有限最优策略同构/行动菜单差异实证，未加入新模式数量；STG01作为情景化原型实例而非新独立模式：真实三幕历史改变未来可用动作，平坦菜单对照检验换皮，依然无人类体验认证；2026-10-13 PT01转移风险相对同成本擦除的支配边界、INF-P01隐藏触发模式的精确零信息价值证据，均未自动精选或真人认证",
+  "scope": "保留成熟作品、20历史候选、精选展示与局部研究；T01是可复用的跨阶段组合边界，非独立新精选/人类认可；本轮另纳入PL-Q01/D01/W01三族跨尺度正负对照，未自动精选或真人认证；新增F1/F2目标内生生成与撤权、D2反驳纯诱饵通用支配，均为局部精确证据；RGT01可更换许可的强简单策略负例及ACT01双向自利公开外部机会模型均纳入；REL01/REL02新增自利关系许可×半成品保全×信息时点可执行证据与短公开口诀全优边界；REL03检验半成品跨交锋转成操作资格的旧启用同构与首手时间窗必要条件；新纳入R342/R430/R478三条历史社会协商先例，以及NEG01—05可信履约、强合同菜单、策略拒绝与伪造成本四个证据节点，不视为新精选；本次未造新节点，用NEG06与X01-LONG独立试玩/完整可达性证据增强原PL-NEG03和X01两个节点，避免数量攀升当价值；X03原纸面开放题升级为HARD禁用与SOFT昂贵可违约的有限最优策略同构/行动菜单差异实证，未加入新模式数量；STG01作为情景化原型实例而非新独立模式：真实三幕历史改变未来可用动作，平坦菜单对照检验换皮，依然无人类体验认证；2026-10-13 PT01转移风险相对同成本擦除的支配边界、INF-P01隐藏触发模式的精确零信息价值证据，均未自动精选或真人认证；GOAL01主动作生成新委托经完整预列条件菜单同构与义务压力消融；DISC01工作兼探查的及时性/换路成本/单份噪声线索可靠度三项正负边界，均未认证独立新原语或真人",
   "definitions": {
     "layer": "机制原语、基础决策关系、交锋结构、跨交锋组织可交叉连接；层级不是质量排名",
     "origin": "设计先例、仓库研究、局部组合假说分开保存",
@@ -1343,6 +1343,49 @@
         "humanVerified": false
       },
       "note": "压力上限2：未知=提前免费知道=15/2，一手先查=187/32；上限3：未知=免费知道=33/4，先查=237/32。P(success-mode)=1/2，正确观察进度和压力后才按贝叶斯更新；检查cap2共72、cap3共96公开状态免费揭晓值皆0。历史R37反馈不视为本批真人反馈。"
+    },
+    {
+      "id": "PL-GOAL01",
+      "name": "主动发现的新目标被完整条件菜单同构覆盖",
+      "layer": "cross-encounter-option-boundary",
+      "origin": "new-local-experiment",
+      "family": "自主探索/新目标/机会与义务",
+      "idea": "先花一手ASK有概率打开高/低新任务，之后按观察到的状态决定放弃旧事、接新事；若完整同成本条件菜单已有所有对应合法路线，主观发现感不自动构成新的策略循环",
+      "stage": "exact-4-action-model; 7 prior probabilities and two obligation variants; no human",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-13-目标生成与生产性发现/研究记录.md",
+        "tools/content-validator/experiments/pattern_generated_obligations_20261013.py"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      },
+      "note": "初始A1/2、B0/2，第一手ASK生成H14/L4两手目标R，非ASK可得17；选项ASK=15+5p，仅p>2/5严格优越；强制未完成R惩罚4时ASK=11+9p，仅p>2/3严格优越。完整事前条件菜单逐枝等价，免费外生义务甚至可能使玩家受损。无新原语认证。"
+    },
+    {
+      "id": "PL-DISC01",
+      "name": "生产性探查需要及时反馈、可转向和足够可信的证据",
+      "layer": "information-action-composition",
+      "origin": "new-local-experiment",
+      "family": "边做边看/可靠性/行动适配",
+      "idea": "同一手WORK既积累任务进度也产生关于真正目标的信号，后续是否来得及换方向决定它能否压过专门INSPECT；有噪声时即使局部线索可以引发换路，开局仍可能不值得工作探查",
+      "stage": "exact-3-action-belief-DP-plus-noisy-posterior-strong-scripts-and-standalone-DOM; no human",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-13-目标生成与生产性发现/研究记录.md",
+        "tools/content-validator/experiments/pattern_productive_discovery_20261013.py",
+        "tools/content-validator/experiments/pattern_noisy_discovery_20261013.py",
+        "docs/实验/机制研究/批次/2026-10-13-目标生成与生产性发现/试玩.html",
+        "tools/content-validator/experiments/test_productive_discovery_prototype.js"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      },
+      "note": "p=1/2精确信号且首WORK即揭晓：WORK探查根9，INSPECT8；延迟揭晓或转换另耗一手都降为8。单份工作线索可靠率q时，局部相反报告立即转向需q>5/8；工作探查开局优于精准INSPECT需q>7/8；q=3/4虽可考虑换路却仍应先INSPECT。短公开策略全优，网页自动检查不等于真人。"
     }
   ],
   "edges": [
@@ -2029,6 +2072,72 @@
       "to": "PL-PT01",
       "relation": "distinct-questions",
       "reason": "PT01问风险由哪个目标承担，INF-P01问已知压力起因是否增加选项价值；不能合并两个模型数值收益"
+    },
+    {
+      "from": "PL-F01",
+      "to": "PL-GOAL01",
+      "relation": "precursor-and-comparison",
+      "reason": "先前F1的行动生成后续任务已有较强日程近优策略；本批以完整条件菜单同构排除单纯新目标命名本身的战略新意"
+    },
+    {
+      "from": "P11",
+      "to": "PL-GOAL01",
+      "relation": "liability-ingredient",
+      "reason": "从可忽略的R变成未完成需付后果，属于探索同时带来待处理压力，而不只是多一项正奖励"
+    },
+    {
+      "from": "P02",
+      "to": "PL-GOAL01",
+      "relation": "opportunity-cost-ingredient",
+      "reason": "ASK消耗一手与旧A/B争夺有限行动时间，比较的是机会成本而非新树节点数"
+    },
+    {
+      "from": "CS2-05",
+      "to": "PL-GOAL01",
+      "relation": "precedent-not-validation",
+      "reason": "已有作品基本目标与额外目标结构为抽象生成目标提供成熟先例，非此次新原语证明"
+    },
+    {
+      "from": "P03",
+      "to": "PL-DISC01",
+      "relation": "core-ingredient",
+      "reason": "第一手WORK提供进度和及时信息，是边做边看的具体条件实例"
+    },
+    {
+      "from": "P08",
+      "to": "PL-DISC01",
+      "relation": "independent-evidence-contrast",
+      "reason": "专门INSPECT只提供真信息但不能推进目标；工作报告可同时生产成果且可能出现误判"
+    },
+    {
+      "from": "PL-W01",
+      "to": "PL-DISC01",
+      "relation": "timing-analogy",
+      "reason": "相同有用信息若等到决策窗口关闭后才到，则不能再支持改路线"
+    },
+    {
+      "from": "PL-INF-P01",
+      "to": "PL-DISC01",
+      "relation": "information-value-contrast",
+      "reason": "INF-P01免费揭示隐藏触压类型不改变行动价值，本批只有进度与可转向条件结合时工作携带的信息才提升最优值"
+    },
+    {
+      "from": "PL-C05",
+      "to": "PL-DISC01",
+      "relation": "same-cost-strong-control",
+      "reason": "一个可随时购买的INSPECT会压制不够可靠/换路太贵的现场信号；先查再做不是劣策略标签"
+    },
+    {
+      "from": "PL-NEG04",
+      "to": "PL-DISC01",
+      "relation": "signal-credibility-analogy",
+      "reason": "与造假成本型可验证信号不同，本批信号为概率正确的外生噪声；均须防止把提示误作确定真实状态"
+    },
+    {
+      "from": "PL-GOAL01",
+      "to": "PL-DISC01",
+      "relation": "cross-family-not-summed",
+      "reason": "GOAL01决定是否生成额外任务，DISC01决定获取信息时是否已有产出；两者不同收益协议，不能把分数相加"
     }
   ],
   "coverage": {
@@ -2036,7 +2145,7 @@
     "curatedDisplayMappedCount": 6,
     "cs2AnalyticalPatterns": 9,
     "unconvertedHistory": "关系索引中的其他R批次、数学负例和组合应按主题逐步纳入；不能据本地图未出现就认定没有价值",
-    "additionalExperimentalCompositions": "PL-C01/PL-C02/PL-C03已做最小模型、PL-C04仅概念问题；与另一研究线的C01/C02/C03区别命名；PL-Q01/D01/W01另有3个独立模型及消融和负面边界；PL-W02新增连续三天注意力容量组合，最强简明口诀和变更容量边界明确；F1/F2/D2三项同源跨家族与充分边界反证，不增精选；RGT01/ACT01用各自精确逆推补充许可资源与自利协作者正负证据，无真人；REL01/REL02四轮精确博弈与私有信号消融已完成（同原语条件组合；不改变精选六或Debug）；REL03后续通行凭据仅真实首手截止窗口有正准备选择价值、普通窗口弱支配；未证独立新玩法；NEG01—05双方自利协商五项精确反证；R342/R430/R478原生历史首次结构化归图，均非真人。；NEG06双回合私人回应DOM全十路，X01-LONG准备→事件→响应两段完整枚举及136条合法UI路径，均一行规则全优，无真人；X03 hard disable vs costly defiance两种不同动作合法性协议在完整可达子博弈仍同最优；无真人意义证据；STG01共4种规则组合×完整路径40，因果未来菜单5对纯文本菜单1，仅网页逻辑回归，不是互动/情感新模式认证；PT01四回合双目标压转与14短策略强对照/网页试玩；INF-P01 cap2/3贝叶斯模型覆盖72+96局部公开状态信息值0；未改变历史478",
+    "additionalExperimentalCompositions": "PL-C01/PL-C02/PL-C03已做最小模型、PL-C04仅概念问题；与另一研究线的C01/C02/C03区别命名；PL-Q01/D01/W01另有3个独立模型及消融和负面边界；PL-W02新增连续三天注意力容量组合，最强简明口诀和变更容量边界明确；F1/F2/D2三项同源跨家族与充分边界反证，不增精选；RGT01/ACT01用各自精确逆推补充许可资源与自利协作者正负证据，无真人；REL01/REL02四轮精确博弈与私有信号消融已完成（同原语条件组合；不改变精选六或Debug）；REL03后续通行凭据仅真实首手截止窗口有正准备选择价值、普通窗口弱支配；未证独立新玩法；NEG01—05双方自利协商五项精确反证；R342/R430/R478原生历史首次结构化归图，均非真人。；NEG06双回合私人回应DOM全十路，X01-LONG准备→事件→响应两段完整枚举及136条合法UI路径，均一行规则全优，无真人；X03 hard disable vs costly defiance两种不同动作合法性协议在完整可达子博弈仍同最优；无真人意义证据；STG01共4种规则组合×完整路径40，因果未来菜单5对纯文本菜单1，仅网页逻辑回归，不是互动/情感新模式认证；PT01四回合双目标压转与14短策略强对照/网页试玩；INF-P01 cap2/3贝叶斯模型覆盖72+96局部公开状态信息值0；未改变历史478；GOAL01七个p×可选/强制义务、同树强预列菜单；DISC01三手有理数belief-DP、单份可靠度q后验、三种时点/换路与网页合法路径，不动历史478或精选",
     "humanFeedbackNote": "目前有关稳险/R06、边做边看/R10、压力/R37、R54、R50的有限设计者反馈；原记录各不等价于受控盲试玩；P02/R13仍没有真人反馈。",
     "thirdComparison": "PL-C05 supplies a tested negative boundary; not a new curated or debug pattern"
   },
