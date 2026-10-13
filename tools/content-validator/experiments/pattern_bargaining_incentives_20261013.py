@@ -129,7 +129,7 @@ def verifiable_proof(low_type_proof_cost):
 
 
 
-def sunk_favor_hold_up(default_penalty=F(0)):
+def sunk_favor_hold_up(default_penalty=F(0), tie='grant'):
     """Two episodes, other person has a real EXIT option after a past favor.
 
     Episode 1: SELF awards player 3, or FAVOR awards partner 3.
@@ -139,13 +139,14 @@ def sunk_favor_hold_up(default_penalty=F(0)):
     """
     penalty=F(default_penalty)
     assert penalty>=0
+    assert tie in ('grant','exit')
     histories={}
     for first in ("SELF","FAVOR"):
         early_player=F(3 if first=="SELF" else 0)
         early_partner=F(0 if first=="SELF" else 3)
         grant_partner=early_partner
         exit_partner=early_partner+F(2)-(penalty if first=="FAVOR" else F(0))
-        if grant_partner >= exit_partner:  # grant on indifference
+        if grant_partner > exit_partner or (grant_partner == exit_partner and tie == "grant"):
             partner_action="GRANT"
             pay=(early_player+F(8),grant_partner)
         else:
@@ -200,6 +201,8 @@ def main():
               "after favor",hist["FAVOR"],"after self",hist["SELF"])
         assert selected==expected_first
         assert hist["FAVOR"][0]==expected_partner_response
+    assert sunk_favor_hold_up(F(2), tie="exit")[0]=="SELF"
+    assert sunk_favor_hold_up(F(3), tie="exit")[0]=="FAVOR"
     # Separate protocol: binding mutual exchange signed BEFORE the favor.
     # Partner obtains 3 and provides GRANT; no-contract option gives partner 2.
     assert F(3)>F(2) and F(8)>F(3)
