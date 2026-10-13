@@ -874,7 +874,7 @@
       "origin": "new-local-experiment",
       "family": "准备／外部风险／替代路线",
       "idea": "危机前为A与B分配准备；危机可能废掉A，B的先前进度成为可兑现的替代方案。面对不同公开风险，专注A、分散、专注B各有合理条件。",
-      "stage": "exact ex ante/after-shock two-stage model; untested with people",
+      "stage": "exact ex ante/after-shock model plus recoverable-shock ablation; untested with people",
       "curatedDisplay": false,
       "sources": [
         "docs/实验/机制研究/批次/2026-10-13-跨阶段预案与替代目标/研究记录.md",
@@ -885,7 +885,7 @@
         "humanVerified": false,
         "publishedWorkExample": false
       },
-      "note": "当风险p<1/2优先AA，1/2<p<2/3分散AB，p>2/3偏向BB，源于冻结规则。可由简短阈值口诀解释，不能宣称原创机制或真实危机体验。"
+      "note": "冻结硬危机：p<1/2专注A、1/2<p<2/3分散AB、p>2/3专注B；但改为保留A进度且可用一手修复的危机后，所测各p均由AA占优。备选路线的价值是可恢复性、时间与机会成本的条件关系，不是自动成立的新模式。"
     }
   ],
   "edges": [
