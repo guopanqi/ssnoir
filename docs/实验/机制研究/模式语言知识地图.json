@@ -7,7 +7,7 @@
     "layer": "机制原语、基础决策关系、交锋结构、跨交锋组织可交叉连接；层级不是质量排名",
     "origin": "设计先例、仓库研究、局部组合假说分开保存",
     "stage": "历史候选/展示精选/有来源先例/数学结论均非普遍有效的认证",
-    "evidence": "人类体验、游戏先例、数学与原生运行四类证据不可互相替代"
+    "evidence": "人类体验、游戏先例、数学与原生运行四类证据不可互相替代；historical humanRelated 与精选库某版本的反馈记录并非同一字段，相关真人反馈另用 humanFeedbackAvailable 与 humanFeedbackScope 说明"
   },
   "sources": {
     "historicalCandidates": "docs/实验/机制研究/结构候选20.json",
@@ -32,9 +32,11 @@
       "evidence": {
         "nativeEntrance": true,
         "nativeCausalWitness": false,
-        "humanRelated": false
+        "humanRelated": false,
+        "humanFeedbackAvailable": true,
+        "humanFeedbackScope": "设计者认可基础稳险选择；具体数值玩法未盲测"
       },
-      "note": "历史入池不代表试玩认证；未逐项重审全部原始版本；现存状态与反证见原始来源"
+      "note": "历史入池不代表试玩认证；未逐项重审全部原始版本；现存状态与反证见原始来源；该模式相关真人反馈见模式库.json/R06，不能推出通用认可。"
     },
     {
       "id": "P02",
@@ -52,9 +54,10 @@
       "evidence": {
         "nativeEntrance": true,
         "nativeCausalWitness": false,
-        "humanRelated": false
+        "humanRelated": false,
+        "humanFeedbackAvailable": false
       },
-      "note": "历史入池不代表试玩认证；未逐项重审全部原始版本；现存状态与反证见原始来源"
+      "note": "历史入池不代表试玩认证；未逐项重审全部原始版本；现存状态与反证见原始来源；R13仍待真人试玩。"
     },
     {
       "id": "P03",
@@ -72,9 +75,11 @@
       "evidence": {
         "nativeEntrance": true,
         "nativeCausalWitness": false,
-        "humanRelated": true
+        "humanRelated": true,
+        "humanFeedbackAvailable": true,
+        "humanFeedbackScope": "设计者对边做边看有反馈，同时指出猜测感"
       },
-      "note": "历史入池不代表试玩认证；未逐项重审全部原始版本；现存状态与反证见原始来源"
+      "note": "历史入池不代表试玩认证；未逐项重审全部原始版本；现存状态与反证见原始来源；该模式相关真人反馈见模式库.json/R10，不能推出通用认可。"
     },
     {
       "id": "P04",
@@ -232,9 +237,11 @@
       "evidence": {
         "nativeEntrance": true,
         "nativeCausalWitness": false,
-        "humanRelated": true
+        "humanRelated": true,
+        "humanFeedbackAvailable": true,
+        "humanFeedbackScope": "一份标注正式版本的文字反馈，未附逐手日志"
       },
-      "note": "历史入池不代表试玩认证；未逐项重审全部原始版本；现存状态与反证见原始来源"
+      "note": "历史入池不代表试玩认证；未逐项重审全部原始版本；现存状态与反证见原始来源；该模式相关真人反馈见模式库.json/R37，不能推出通用认可。"
     },
     {
       "id": "P12",
@@ -332,9 +339,11 @@
       "evidence": {
         "nativeEntrance": true,
         "nativeCausalWitness": false,
-        "humanRelated": true
+        "humanRelated": true,
+        "humanFeedbackAvailable": true,
+        "humanFeedbackScope": "浏览器5局反馈，偏向开局选短长目标"
       },
-      "note": "历史入池不代表试玩认证；未逐项重审全部原始版本；现存状态与反证见原始来源"
+      "note": "历史入池不代表试玩认证；未逐项重审全部原始版本；现存状态与反证见原始来源；该模式相关真人反馈见模式库.json/R54，不能推出通用认可。"
     },
     {
       "id": "P17",
@@ -600,9 +609,11 @@
       ],
       "evidence": {
         "mathematical": false,
-        "humanVerified": false
+        "humanVerified": false,
+        "humanFeedbackAvailable": true,
+        "humanFeedbackScope": "网页1局操作记录和文字反馈；感知修正但目标不明"
       },
-      "note": "证据仅支持列出的特定规则/历史反馈，不自动归为成熟玩法"
+      "note": "证据仅支持列出的特定规则/历史反馈，不自动归为成熟玩法；该模式相关真人反馈见模式库.json/R50，不能推出通用认可。"
     },
     {
       "id": "R510",
@@ -937,7 +948,8 @@
     "curatedDisplayMappedCount": 6,
     "cs2AnalyticalPatterns": 9,
     "unconvertedHistory": "关系索引中的其他R批次、数学负例和组合应按主题逐步纳入；不能据本地图未出现就认定没有价值",
-    "additionalExperimentalCompositions": "PL-C01/PL-C02/PL-C03已做最小模型、PL-C04仅概念问题；与另一研究线的C01/C02/C03区别命名"
+    "additionalExperimentalCompositions": "PL-C01/PL-C02/PL-C03已做最小模型、PL-C04仅概念问题；与另一研究线的C01/C02/C03区别命名",
+    "humanFeedbackNote": "目前有关稳险/R06、边做边看/R10、压力/R37、R54、R50的有限设计者反馈；原记录各不等价于受控盲试玩；P02/R13仍没有真人反馈。"
   },
   "policy": [
     "没有入精选不意味着无价值",
