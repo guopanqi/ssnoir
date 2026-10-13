@@ -2,7 +2,7 @@
   "schema": "ssnoir.pattern-language-map/v1",
   "updated": "2026-10-13",
   "reviewBase": "c8055fa1aa2fe18ec1ecc50c7e721072c67dd809",
-  "scope": "保留成熟作品、20历史候选、精选展示与局部研究；T01是可复用的跨阶段组合边界，非独立新精选/人类认可；本轮另纳入PL-Q01/D01/W01三族跨尺度正负对照，未自动精选或真人认证；新增F1/F2目标内生生成与撤权、D2反驳纯诱饵通用支配，均为局部精确证据；RGT01可更换许可的强简单策略负例及ACT01双向自利公开外部机会模型均纳入",
+  "scope": "保留成熟作品、20历史候选、精选展示与局部研究；T01是可复用的跨阶段组合边界，非独立新精选/人类认可；本轮另纳入PL-Q01/D01/W01三族跨尺度正负对照，未自动精选或真人认证；新增F1/F2目标内生生成与撤权、D2反驳纯诱饵通用支配，均为局部精确证据；RGT01可更换许可的强简单策略负例及ACT01双向自利公开外部机会模型均纳入；REL01/REL02新增自利关系许可×半成品保全×信息时点可执行证据与短公开口诀全优边界",
   "definitions": {
     "layer": "机制原语、基础决策关系、交锋结构、跨交锋组织可交叉连接；层级不是质量排名",
     "origin": "设计先例、仓库研究、局部组合假说分开保存",
@@ -1068,6 +1068,47 @@
         "humanVerified": false
       },
       "note": "公开信号早到根玩家7/2、伙伴17/2；无OUT玩家6；OUT第三轮才知道玩家3；8份事先公开承诺固定动作最佳AAA为3（不同承诺协议）；两类伙伴tie-break同7/2。既不是R510私有信念也不等于真实社会交锋，简短条件口诀全优。"
+    },
+    {
+      "id": "PL-REL01",
+      "name": "关系许可退出窗口下的半成品保全",
+      "layer": "cross-encounter-composition",
+      "origin": "new-local-experiment",
+      "family": "他者许可/成果暴露/保全时点",
+      "idea": "另一个主体可以为自身更好的机会撤回持续许可；此前USE半成品需要在许可消失前SECURE并放弃完整A，否则在合作许可仍有效时追求完整成果",
+      "stage": "four-turn-exact-sequential-model-with-committed-readable-policy-control; no-human",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-13-关系许可与成果保全/研究记录.md",
+        "tools/content-validator/experiments/pattern_relational_salvage_20261013.py",
+        "docs/实验/机制研究/批次/2026-10-13-关系许可与成果保全/试玩.html"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      },
+      "note": "公开机会时无SECURE=13、有SECURE=27/2，高机会局部可达SECURE得9对不能SECURE得6；强可读公开承诺规则全优，不能认证原创社交玩法。"
+    },
+    {
+      "id": "PL-REL02",
+      "name": "保全选项受他者信息揭晓时点限制",
+      "layer": "observation-boundary",
+      "origin": "new-local-experiment",
+      "family": "信息时点/不可逆保全",
+      "idea": "只在看见他者外部机会之后、仍可执行SECURE之前，玩家才对半成品行使可选择的保全；行动之后才知道机会则保全按钮的根增量归零",
+      "stage": "paired-reveal-timing-ablation-and-private-action-frozen-Fraction; no-human",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-13-关系许可与成果保全/研究记录.md",
+        "tools/content-validator/experiments/pattern_relational_salvage_20261013.py"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      },
+      "note": "晚揭无保全12、有保全仍12；早揭无保全13、有保全27/2。信息改善并不单独足够，需残留可执行的保全窗口；高类型自利严格退出，因此不需猜离轨贝叶斯。"
     }
   ],
   "edges": [
@@ -1442,6 +1483,72 @@
       "to": "PL-ACT01",
       "relation": "future-bridge",
       "reason": "开放问题：许可由可拒绝的主体维持与撤销时，能否打破二值资源换路的完全解释"
+    },
+    {
+      "from": "PL-ACT01",
+      "to": "PL-REL01",
+      "relation": "extends",
+      "reason": "双方自利的外部工作机会不仅改变未来协作意愿，还可能令玩家的未结案成果失去资格"
+    },
+    {
+      "from": "PL-RGT01",
+      "to": "PL-REL01",
+      "relation": "contrasts",
+      "reason": "静态可更换许可退化为工具换道，本批许可来自另一行动者的持续同意且成果暴露"
+    },
+    {
+      "from": "P09",
+      "to": "PL-REL01",
+      "relation": "ingredient",
+      "reason": "在失去许可前SECURE小成果而关闭完整A路径，体现风险兑现与部分成果取舍"
+    },
+    {
+      "from": "P02",
+      "to": "PL-REL01",
+      "relation": "ingredient",
+      "reason": "5分保全与16分完整目标互斥，不能重复领取"
+    },
+    {
+      "from": "P12",
+      "to": "PL-REL01",
+      "relation": "ingredient",
+      "reason": "SECURE具有不可逆关闭完整目标的后果，不是增加免费分数"
+    },
+    {
+      "from": "PL-C05",
+      "to": "PL-REL01",
+      "relation": "timing-boundary",
+      "reason": "必须在许可失效之前保全，不能无限延后并在事后按相同成本购买可用性"
+    },
+    {
+      "from": "PL-W01",
+      "to": "PL-REL02",
+      "relation": "ingredient",
+      "reason": "可行动作尚有效时获知重要变化，与晚揭信息无价值的时间窗口研究同族"
+    },
+    {
+      "from": "R526",
+      "to": "PL-REL02",
+      "relation": "contrast",
+      "reason": "新信息不总有行动价值；本批有可执行SECURE时早揭才增加1/2的额外互动"
+    },
+    {
+      "from": "PL-REL01",
+      "to": "PL-REL02",
+      "relation": "ablation",
+      "reason": "在其它规则冻结时，仅将外部工作信号推迟到玩家行动后，SECURE根增量由1/2降为0"
+    },
+    {
+      "from": "PL-F02",
+      "to": "PL-REL01",
+      "relation": "settlement-comparison",
+      "reason": "F02由玩家选新任务亲自撤销旧目标资格，本批由独立主体退出使未结算成果失效"
+    },
+    {
+      "from": "PL-REL01",
+      "to": "CS2-08",
+      "relation": "structural-analogy-not-verified-game-rule",
+      "reason": "需要即时决定保全部分成果或继续正事，有危机打断结构先例但非CS2官方机制逐项映射"
     }
   ],
   "coverage": {
@@ -1449,7 +1556,7 @@
     "curatedDisplayMappedCount": 6,
     "cs2AnalyticalPatterns": 9,
     "unconvertedHistory": "关系索引中的其他R批次、数学负例和组合应按主题逐步纳入；不能据本地图未出现就认定没有价值",
-    "additionalExperimentalCompositions": "PL-C01/PL-C02/PL-C03已做最小模型、PL-C04仅概念问题；与另一研究线的C01/C02/C03区别命名；PL-Q01/D01/W01另有3个独立模型及消融和负面边界；PL-W02新增连续三天注意力容量组合，最强简明口诀和变更容量边界明确；F1/F2/D2三项同源跨家族与充分边界反证，不增精选；RGT01/ACT01用各自精确逆推补充许可资源与自利协作者正负证据，无真人",
+    "additionalExperimentalCompositions": "PL-C01/PL-C02/PL-C03已做最小模型、PL-C04仅概念问题；与另一研究线的C01/C02/C03区别命名；PL-Q01/D01/W01另有3个独立模型及消融和负面边界；PL-W02新增连续三天注意力容量组合，最强简明口诀和变更容量边界明确；F1/F2/D2三项同源跨家族与充分边界反证，不增精选；RGT01/ACT01用各自精确逆推补充许可资源与自利协作者正负证据，无真人；REL01/REL02四轮精确博弈与私有信号消融已完成（同原语条件组合；不改变精选六或Debug）",
     "humanFeedbackNote": "目前有关稳险/R06、边做边看/R10、压力/R37、R54、R50的有限设计者反馈；原记录各不等价于受控盲试玩；P02/R13仍没有真人反馈。",
     "thirdComparison": "PL-C05 supplies a tested negative boundary; not a new curated or debug pattern"
   },

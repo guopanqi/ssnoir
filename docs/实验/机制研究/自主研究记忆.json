@@ -303,6 +303,12 @@
       "family": "permission-maintained-by-strategic-other",
       "question": "若玩家持有的跨交锋许可需要由有自利目标的另一主体维系/认可，他拒绝或撤销许可可否让玩家连续改变目标计划，而非仅显示换工具与固定外部机会信号？",
       "method": "用RGT01全部简单口诀全优与ACT01公开外部机会严格改选作对照；允许对方真实做策略优化且检查自身效用平局，保留同成本ENABLE、固定脚本和短条件式。优先纸面行为循环/主动拒绝权限，不延长纯数学模型。"
+    },
+    {
+      "id": "ABSTRACT-G-PORTABLE-PARTIAL-EVIDENCE",
+      "family": "salvage-creates-new-operations-not-only-payoff",
+      "question": "REL01 SECURE耗手换部分奖励，已知P09兑现同构；若结案产物可在下一个事件改变实际行动合法性，它是否能超出固定分数和同成本ENABLE？",
+      "method": "跨两个正常可达的交锋事件，比较保全/不保全两条历史与后续真实合法动作，使用双方未来响应、最强可读公开规则、事后补购同成本ENABLE以及保全时点消融；无真人不评价好玩。"
     }
   ],
   "method": {
@@ -417,7 +423,7 @@
     "noHumanTests": true,
     "interpretation": "X01、X02与另一批C01、C02是不同的已知组合条件反证，均不构成新独立模式或完整真人交锋认证",
     "historyCountUnchanged": 478,
-    "latestBatch": "docs/实验/机制研究/批次/2026-10-13-行动权利与自主他者/研究记录.md",
-    "latestCounterfactual": "RGT01四日可换许可在五个持续概率下5种强简单策略中至少一条全部全优；ACT01公开自利协作者伙伴根17/2/玩家7/2，OUT信号使同一正常可达状态第二轮玩家A/B严格反转；未人测"
+    "latestBatch": "docs/实验/机制研究/批次/2026-10-13-关系许可与成果保全/研究记录.md",
+    "latestCounterfactual": "REL01：早揭可保全27/2 vs禁用13；REL02迟揭保全菜单不改12；公开条件口诀在同成本伙伴自利回应下全优。双方博弈模型，不等同于真人关系判断。"
   }
 }
