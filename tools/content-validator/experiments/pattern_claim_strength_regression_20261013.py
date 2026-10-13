@@ -46,6 +46,9 @@ def test_cust_same_root_different_feasible_goals():
     assert x['fixed']==y['fixed']==17
     assert x['pareto']!=y['pareto']
     assert len(x['pareto'])==18 and len(y['pareto'])==23
+    # Also count only C delivered in HIGH; LOW SHOW has no objective value.
+    assert x['effective_count']==67 and y['effective_count']==72
+    assert len(x['effective_pareto'])==15 and len(y['effective_pareto'])==17
     assert x['protected']==17 and y['protected']==F(37,2)
     assert y['pareto']==z['pareto'] and y['protected']==z['protected']
     st=cust.advance('copy',cust.INIT,'A')
