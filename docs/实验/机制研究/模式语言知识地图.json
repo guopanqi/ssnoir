@@ -2090,6 +2090,68 @@
         "humanVerified": false
       },
       "note": "A可晚开时允许重叠/禁止重叠原标量根皆51/4，但并发A先行PA=3/4 PB=1/4 SIDE=1，串行B先行PA=1/2 PB=1/2 SIDE=1。若A首手唯一，不准并行根47/4<51/4；若剩余活跃期限从3缩短至2，不准并行/可并行根同47/4；禁DROP或禁B则动态23/2同固定。只声称指定原目标下根值或可行路径区别，不称两者全结果同构。"
+    },
+    {
+      "id": "PL-CLOCK01",
+      "name": "同时承担工作会加快双方期限时，保留旧任务的并发优势可能被完全吃掉",
+      "layer": "coupled-attention-deadline-semantics",
+      "origin": "new-local-exact-model-cross-family",
+      "family": "并行压力来源/跨任务期限影响/保留退路失效/全局串行对照",
+      "idea": "在HEDGE五手相同目标与行动收益下，只把两个LIVE并存时的时钟增长由每行动+1改为+2。原先允许重叠51/4胜强制串行47/4，改动后允许/禁止重叠根都47/4。时钟语义是实际能否保留旧任务的因果条件，不能只数开了几项工作。",
+      "stage": "5-turn-Fraction-DP-16807-fixed-scripts-clock-semantics-and-opening-window-ablation; no-human",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-13-注意力压力语义与骰质分诊/研究记录.md",
+        "tools/content-validator/experiments/pattern_deadline_semantics_20261013.py",
+        "docs/实验/机制研究/批次/2026-10-13-注意力压力语义与骰质分诊/无答案观察卡.md"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      },
+      "note": "冻结HEDGE A首手才能OPEN，A=H14/L5，B=H14/L0，WORK2，DROP1，三格到期-4。global允许并发51/4/串行47/4，重叠则双倍时钟二者均47/4；最强固定两版都23/2。真跨事务风险让A低B低局面无法再保留A完成窗口，不等于仅多一根压力钟。"
+    },
+    {
+      "id": "PL-CLOCK02",
+      "name": "改变时钟语义未必改变最佳开局：要对照机会窗口和全局串行计划",
+      "layer": "time-semantics-global-plan-negative-boundary",
+      "origin": "new-local-exact-strong-ablation",
+      "family": "低频截止/争用压力/时钟语义可达变化但根不变/信息窗口",
+      "idea": "与global和重叠双倍时钟不同，neglect_only在自己的WORK时不老化、contested_only仅两任务LIVE时老化，HEDGE同原根51/4（并发）与47/4（串行）；取消A首手开窗后四钟语义允许/禁止并发均51/4，全球先试B的串行路线追平。",
+      "stage": "four-clock-semantics-Fraction-DP-early-window-removed-and-strong-fixed-comparators; no-human",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-13-注意力压力语义与骰质分诊/研究记录.md",
+        "tools/content-validator/experiments/pattern_deadline_semantics_20261013.py"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      },
+      "note": "global 51/4 vs47/4，double_if_overlap 47/4 vs47/4，neglect_only/contested_only 51/4 vs47/4（均early-A）。所有语义移除early-A后并发/串行51/4，所有最强固定23/2。只证明给定根值，不证明全状态同构或所有结果集合相等。"
+    },
+    {
+      "id": "PL-DICE01",
+      "name": "高质量骰子在危机严重度超过剩余低骰单次修补量时，严格值得用于修补而非冲进度",
+      "layer": "quality-sensitive-dice-triage",
+      "origin": "new-local-exact-allocation-model",
+      "family": "异质行动资源/刚发生的危机/修补阈值/接近完成进度/重新分配",
+      "idea": "四骰H2,H2,L1,L1可按2/1单位推进A/B或修危机，首次做A触发SAFE/RISK各半、RISK需修2才能兑A。高骰先把A推至2/3后，RISK时高骰FIX2、低骰A补1、低骰SIDE，保A9+SIDE1；SAFE时高骰完成B6、低骰补A9、低骰SIDE1。动态13，禁高骰FIX只有25/2。",
+      "stage": "4-dice-Fraction-Bayesian-expectation-and-exhaustive-1536-prewritten-quality-action-sequences; no-human",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-13-注意力压力语义与骰质分诊/研究记录.md",
+        "tools/content-validator/experiments/pattern_quality_dice_triage_20261013.py",
+        "docs/实验/机制研究/批次/2026-10-13-注意力压力语义与骰质分诊/无答案观察卡.md"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      },
+      "note": "A3得9、B2得6、SIDE1、首次A SAFE或RISK2等概率，H2/L1效果确定。动态13>全部固定方案23/2，限制H不可FIX或FIX与骰品质无关时25/2。条件策略SAFE得16、RISK得10。与R37既有真人评价的‘质量好追目标、低骰先修’同族，但本模型反证此口诀不普适；不是R37实际骰面复刻或新真人证据。"
     }
   ],
   "edges": [
@@ -3604,6 +3666,102 @@
       "to": "PL-HEDGE02",
       "relation": "finite-time-window-guards-fallback",
       "reason": "OPEN迟揭信息可能导致付出损失仍要转向B；HEDGE多一项早窗口控制，实证取消该窗口时串行策略可替代并发的标量优势"
+    },
+    {
+      "from": "PL-HEDGE01",
+      "to": "PL-CLOCK01",
+      "relation": "clock-cost-can-remove-concurrent-fallback-value",
+      "reason": "HEDGE本来并行比串行高1，但同存双倍时钟让旧A的返回工作窗口失效，根变同47/4"
+    },
+    {
+      "from": "PL-HEDGE02",
+      "to": "PL-CLOCK02",
+      "relation": "serial-policy-bypass-independent-of-clock-variant",
+      "reason": "A随时可再打开时先试B、差则放弃B后开A的完全串行方案在四钟语义下都可达51/4"
+    },
+    {
+      "from": "P07",
+      "to": "PL-CLOCK01",
+      "relation": "deadline-acceleration-changes-option-feasibility",
+      "reason": "早期窗口之外，任务并存对现有deadline推进的速度会真正改变可完成结果"
+    },
+    {
+      "from": "P11",
+      "to": "PL-CLOCK01",
+      "relation": "cross-task-liability-not-just-visual-pressure",
+      "reason": "把另一件事暂时挂在进行中状态会增加旧任务错过时限的风险，是具体跨事务负担"
+    },
+    {
+      "from": "CS2-06",
+      "to": "PL-CLOCK02",
+      "relation": "competing-clocks-classification-not-claimed-game-fact",
+      "reason": "成熟竞争时钟结构可被多种时限语义表示；本数学例不是CS2某关卡的实际复制"
+    },
+    {
+      "from": "PL-CLOCK01",
+      "to": "PL-CLOCK02",
+      "relation": "contrasting-clock-semantics-and-strong-global-bypass",
+      "reason": "双倍并存计时会压掉退路价值，怠工计时/纯重叠计时在这套根值却不会，必须查全局最优的使用状态"
+    },
+    {
+      "from": "PL-META01",
+      "to": "PL-CLOCK02",
+      "relation": "root-equality-not-isomorphism",
+      "reason": "neglect_only和contested_only虽原标量根同global，却各自改变大量其它状态转移，本批只声明根等值"
+    },
+    {
+      "from": "PL-RV03",
+      "to": "PL-CLOCK01",
+      "relation": "reachable-pivot-window-constraint",
+      "reason": "因持有第二任务产生的额外时间消耗会让A低B低之后的A终局失去剩余改选容量"
+    },
+    {
+      "from": "P02",
+      "to": "PL-DICE01",
+      "relation": "quality-dependent-allocation-not-fixed-label",
+      "reason": "高骰的最佳用途由距A目标还差1、RISK危机需2单位修补决定，不可只根据资源品质贴标签"
+    },
+    {
+      "from": "P11",
+      "to": "PL-DICE01",
+      "relation": "work-generated-repair-forces-new-resource-allocation",
+      "reason": "首次A生产触发危机，且修补直接消耗原本可投目标的同一骰资源"
+    },
+    {
+      "from": "PL-TRIG01",
+      "to": "PL-DICE01",
+      "relation": "quality-resource-refines-progress-triggered-repair",
+      "reason": "TRIG等价值的动作位用于FIX；DICE分品质骰位可用于工作、修补或SIDE，使动作资源匹配也决定方案"
+    },
+    {
+      "from": "PL-ATN03",
+      "to": "PL-DICE01",
+      "relation": "salvage-as-resource-quality-triage",
+      "reason": "ATN已有部分进度受损后改补救，DICE新增明确高低品质且风险2的效率阈值，属成熟组合"
+    },
+    {
+      "from": "R50",
+      "to": "PL-DICE01",
+      "relation": "goal-legibility-warning",
+      "reason": "旧R50人类反馈对目标究竟要高收益还是避伤存在困惑；DICE模型数学以A9/B6/SIDE1冻结偏好但没有人类目标认同证据"
+    },
+    {
+      "from": "PL-DISC01",
+      "to": "PL-DICE01",
+      "relation": "revelation-timing-and-resource-remaining",
+      "reason": "首次A行动后的SAFE/RISK反馈只有因为还保留H,L,L且可改分配才值得；信息不能太晚"
+    },
+    {
+      "from": "PL-STAKE01",
+      "to": "PL-DICE01",
+      "relation": "score-vectors-not-real-player-stakes",
+      "reason": "DICE的A完成100%/B完成50%/SIDE1是最优公共策略具体结果；不能将一个工具效用标量当玩家真的关心的故事结果"
+    },
+    {
+      "from": "PL-CLOCK01",
+      "to": "PL-DICE01",
+      "relation": "two-distinct-sources-of-attention-cost",
+      "reason": "CLOCK由同时LIVE导致可用时间缩短；DICE由突然危机改变同组骰子的边际用途，两者不应数值合并宣称一个创新原语"
     }
   ],
   "coverage": {
@@ -3611,7 +3769,7 @@
     "curatedDisplayMappedCount": 6,
     "cs2AnalyticalPatterns": 9,
     "unconvertedHistory": "关系索引中的其他R批次、数学负例和组合应按主题逐步纳入；不能据本地图未出现就认定没有价值",
-    "additionalExperimentalCompositions": "PL-C01/PL-C02/PL-C03已做最小模型、PL-C04仅概念问题；与另一研究线的C01/C02/C03区别命名；PL-Q01/D01/W01另有3个独立模型及消融和负面边界；PL-W02新增连续三天注意力容量组合，最强简明口诀和变更容量边界明确；F1/F2/D2三项同源跨家族与充分边界反证，不增精选；RGT01/ACT01用各自精确逆推补充许可资源与自利协作者正负证据，无真人；REL01/REL02四轮精确博弈与私有信号消融已完成（同原语条件组合；不改变精选六或Debug）；REL03后续通行凭据仅真实首手截止窗口有正准备选择价值、普通窗口弱支配；未证独立新玩法；NEG01—05双方自利协商五项精确反证；R342/R430/R478原生历史首次结构化归图，均非真人。；NEG06双回合私人回应DOM全十路，X01-LONG准备→事件→响应两段完整枚举及136条合法UI路径，均一行规则全优，无真人；X03 hard disable vs costly defiance两种不同动作合法性协议在完整可达子博弈仍同最优；无真人意义证据；STG01共4种规则组合×完整路径40，因果未来菜单5对纯文本菜单1，仅网页逻辑回归，不是互动/情感新模式认证；PT01四回合双目标压转与14短策略强对照/网页试玩；INF-P01 cap2/3贝叶斯模型覆盖72+96局部公开状态信息值0；未改变历史478；GOAL01七个p×可选/强制义务、同树强预列菜单；DISC01三手有理数belief-DP、单份可靠度q后验、三种时点/换路与网页合法路径，不动历史478或精选；REC01四手四分之一禁A/B×81信号历史、16条强固定序列、一步前瞻全优及六种因果消融；REC03各目标完成概率独立统计，且最优总体策略B完成率低于简单交替；无真人；SEM01—04动作产出对象改道与材料消费改道，两项均被同成本完整菜单追平，短条件程序全优，无真人。；横向读R366函数编辑与R422预编译强对照：持久编辑可超过固定日程却不一定超过同成本完整工具，源实验非本轮重复执行。；OPS01六手动态维护与同成本SET/一手前瞻全等（含2048独立实际输入历史），CLAIM四手付费撤回×真实A早窗口互补、已给HARD/无加成消融及无窗口强菜单；均不认证新独立原语。；COUP01七手把OPS操作实际变成A/B凭据、CLAIM A禁止制作B，仍在起始phase0三类需求先验下被RUN A→CLAIM A→SIDE×5一行策略全优；局部可达差异不等于有价值的双向注意力循环。；ATN01/02检测4手交换律、1296条件序列与20个Pareto成果向量仍由固定计划追平；ATN03/04双任务已投入进度遭公开单/双损5手模型动态33/2胜固定15，提前预知35/2，单损仍可保证双目标，归入成熟危机保全组合，真人缺席。；ACT-R01/02伙伴真自利救B(3)vs外部工作(2/4)使玩家双损低/高报价严格改选，默认动态51/4 vs迟揭49/4，却与条件备用B位逐动作同构；RV01简化4手R54式A3/B5可达上界t3仅18/64前缀两路线仍各有完成可能，结合旧R37/R50/R54真实反馈提出目标意义×改选容量双审核；RV02旧P18的极简上次路径追踪被固定ABABA全优。；RV03读原R54 Scene后用真实行动/追击次序穷举：第2手后33条活跃形式历史里9可分别达成双终局，第3手后196条中0可分别达成双终局（72仅甲、12仅乙、112无终局）；无骰面概率，非真人概率。；PS01将ATN03实际受损成果与ACT自利援助组合：五手动态71/4 vs ATN03无援33/2 vs五手固定17，分目标(1,7/8,3/4)；双损低报价可保两项目标，高报价必须放弃B，外部信号晚一手零价值；同条件B备用行动容量全状态完全替代。；GRC01/02自利伙伴最初愿帮（玩家11、伙伴3），玩家未来新增低于原成本3的BYPASS使伙伴初始EXIT（玩家3、伙伴5/2），可执行HIGH条件合同或排他承诺恢复11；GRC03/04同样提前公开HIGH/LOW在w5/2令玩家11跌至17/2、在w7/2令玩家3升至17/2；跨族审计区分动作合法、物理终局可达、伙伴策略同意、人类关切。；TRL01生产性试做提供真实产出1且耗时1，诚实信号下直接SIDE2、纯检验2、边做边看3；TRL02低能力主体花1修饰PASS(1/4→3/4)以谋求未来HIRE4，唯一纯均衡下两类型信号池化、试做总值退至2；TRL03修饰成本2存在两纯均衡值2或3、成本3诚实3，q诚实准确度1/2→1试做值2→4。属DISC/R478/NEG04成熟组合边界，不认证新原语。；PRF01 A真实工作副产C凭据3手DP29/2 vs固定14，A+ENABLE同成本同值，始终开放或由B工作附资格DP31/2；CUST01不可再造原件A/C局原件12、COPY15、可复用31/2，但开放独立B后所有版权制度动态19、固定17，证明目标旁路；PUB01公开证据让自利第三方撤B许可动态14 vs固定19/2，但普通排他菜单逐动作同构，取消互斥动态/固定16。均成熟组合/负例，无新人类/Unity。；STAKE01对原CUST不改数值的全条件策略和四维目标反证：original/copy旧根均19、固定均17，但可达向量68/82、Pareto18/23，保护A所有HIGH/LOW时原17/copy37/2/reusable19；STAKE04首手后公布保护A/B时copy75/4、原版18，提前公布无增益。META回归PRF22/PUB10状态真动作同构与CUST仅同根不同可行结果，纠正旧“COPY全无价值”的过强读法，无真人。；补充STAKE向量语义审计：C物理SHOW交付不等于HIGH时有价值交付。original/copy物理四维结果68/82、Pareto18/23；按HIGH∧SHOW有效C结果67/72、Pareto15/17；保A约束17 vs37/2不变。；TRIG01四手首次A推进引发SAFE/RISK修补责任，动态15胜固定14，首手前预知风险仍15，无风险19；一行公开条件计划全优，归入R37/P11而不是新原语。OPEN01五手两可认领工作高14低1，打开后三手未履行损失4，付一手DROP；动态47/4胜固定19/2，只许单工作19/2、无DROP41/4、无违约损失25/2、价值推迟到首次WORK39/4、提前知道双工作53/4、绝对必须履行19/2；都属于GOAL01×注意力/退出/信息时点的成熟组合，无新人类。；HEDGE01五手首手A唯一机会+LOW A5/LOW B0+三次行动后截止，允许双LIVE的动态51/4严格大于禁止并行47/4与最强固定23/2；A低时先OPEN B保留A，B高做B14、B低回来做A5。HEDGE02若A以后也可开，先B失败再开A的完全串行策略同得51/4，说明全局并发必要性依赖早窗口；同分方案PA/PB不同(并发3/4,1/4，串行1/2,1/2)，非动作同构。deadline2或无DROP/无B时并发优势消失。无真人。",
+    "additionalExperimentalCompositions": "PL-C01/PL-C02/PL-C03已做最小模型、PL-C04仅概念问题；与另一研究线的C01/C02/C03区别命名；PL-Q01/D01/W01另有3个独立模型及消融和负面边界；PL-W02新增连续三天注意力容量组合，最强简明口诀和变更容量边界明确；F1/F2/D2三项同源跨家族与充分边界反证，不增精选；RGT01/ACT01用各自精确逆推补充许可资源与自利协作者正负证据，无真人；REL01/REL02四轮精确博弈与私有信号消融已完成（同原语条件组合；不改变精选六或Debug）；REL03后续通行凭据仅真实首手截止窗口有正准备选择价值、普通窗口弱支配；未证独立新玩法；NEG01—05双方自利协商五项精确反证；R342/R430/R478原生历史首次结构化归图，均非真人。；NEG06双回合私人回应DOM全十路，X01-LONG准备→事件→响应两段完整枚举及136条合法UI路径，均一行规则全优，无真人；X03 hard disable vs costly defiance两种不同动作合法性协议在完整可达子博弈仍同最优；无真人意义证据；STG01共4种规则组合×完整路径40，因果未来菜单5对纯文本菜单1，仅网页逻辑回归，不是互动/情感新模式认证；PT01四回合双目标压转与14短策略强对照/网页试玩；INF-P01 cap2/3贝叶斯模型覆盖72+96局部公开状态信息值0；未改变历史478；GOAL01七个p×可选/强制义务、同树强预列菜单；DISC01三手有理数belief-DP、单份可靠度q后验、三种时点/换路与网页合法路径，不动历史478或精选；REC01四手四分之一禁A/B×81信号历史、16条强固定序列、一步前瞻全优及六种因果消融；REC03各目标完成概率独立统计，且最优总体策略B完成率低于简单交替；无真人；SEM01—04动作产出对象改道与材料消费改道，两项均被同成本完整菜单追平，短条件程序全优，无真人。；横向读R366函数编辑与R422预编译强对照：持久编辑可超过固定日程却不一定超过同成本完整工具，源实验非本轮重复执行。；OPS01六手动态维护与同成本SET/一手前瞻全等（含2048独立实际输入历史），CLAIM四手付费撤回×真实A早窗口互补、已给HARD/无加成消融及无窗口强菜单；均不认证新独立原语。；COUP01七手把OPS操作实际变成A/B凭据、CLAIM A禁止制作B，仍在起始phase0三类需求先验下被RUN A→CLAIM A→SIDE×5一行策略全优；局部可达差异不等于有价值的双向注意力循环。；ATN01/02检测4手交换律、1296条件序列与20个Pareto成果向量仍由固定计划追平；ATN03/04双任务已投入进度遭公开单/双损5手模型动态33/2胜固定15，提前预知35/2，单损仍可保证双目标，归入成熟危机保全组合，真人缺席。；ACT-R01/02伙伴真自利救B(3)vs外部工作(2/4)使玩家双损低/高报价严格改选，默认动态51/4 vs迟揭49/4，却与条件备用B位逐动作同构；RV01简化4手R54式A3/B5可达上界t3仅18/64前缀两路线仍各有完成可能，结合旧R37/R50/R54真实反馈提出目标意义×改选容量双审核；RV02旧P18的极简上次路径追踪被固定ABABA全优。；RV03读原R54 Scene后用真实行动/追击次序穷举：第2手后33条活跃形式历史里9可分别达成双终局，第3手后196条中0可分别达成双终局（72仅甲、12仅乙、112无终局）；无骰面概率，非真人概率。；PS01将ATN03实际受损成果与ACT自利援助组合：五手动态71/4 vs ATN03无援33/2 vs五手固定17，分目标(1,7/8,3/4)；双损低报价可保两项目标，高报价必须放弃B，外部信号晚一手零价值；同条件B备用行动容量全状态完全替代。；GRC01/02自利伙伴最初愿帮（玩家11、伙伴3），玩家未来新增低于原成本3的BYPASS使伙伴初始EXIT（玩家3、伙伴5/2），可执行HIGH条件合同或排他承诺恢复11；GRC03/04同样提前公开HIGH/LOW在w5/2令玩家11跌至17/2、在w7/2令玩家3升至17/2；跨族审计区分动作合法、物理终局可达、伙伴策略同意、人类关切。；TRL01生产性试做提供真实产出1且耗时1，诚实信号下直接SIDE2、纯检验2、边做边看3；TRL02低能力主体花1修饰PASS(1/4→3/4)以谋求未来HIRE4，唯一纯均衡下两类型信号池化、试做总值退至2；TRL03修饰成本2存在两纯均衡值2或3、成本3诚实3，q诚实准确度1/2→1试做值2→4。属DISC/R478/NEG04成熟组合边界，不认证新原语。；PRF01 A真实工作副产C凭据3手DP29/2 vs固定14，A+ENABLE同成本同值，始终开放或由B工作附资格DP31/2；CUST01不可再造原件A/C局原件12、COPY15、可复用31/2，但开放独立B后所有版权制度动态19、固定17，证明目标旁路；PUB01公开证据让自利第三方撤B许可动态14 vs固定19/2，但普通排他菜单逐动作同构，取消互斥动态/固定16。均成熟组合/负例，无新人类/Unity。；STAKE01对原CUST不改数值的全条件策略和四维目标反证：original/copy旧根均19、固定均17，但可达向量68/82、Pareto18/23，保护A所有HIGH/LOW时原17/copy37/2/reusable19；STAKE04首手后公布保护A/B时copy75/4、原版18，提前公布无增益。META回归PRF22/PUB10状态真动作同构与CUST仅同根不同可行结果，纠正旧“COPY全无价值”的过强读法，无真人。；补充STAKE向量语义审计：C物理SHOW交付不等于HIGH时有价值交付。original/copy物理四维结果68/82、Pareto18/23；按HIGH∧SHOW有效C结果67/72、Pareto15/17；保A约束17 vs37/2不变。；TRIG01四手首次A推进引发SAFE/RISK修补责任，动态15胜固定14，首手前预知风险仍15，无风险19；一行公开条件计划全优，归入R37/P11而不是新原语。OPEN01五手两可认领工作高14低1，打开后三手未履行损失4，付一手DROP；动态47/4胜固定19/2，只许单工作19/2、无DROP41/4、无违约损失25/2、价值推迟到首次WORK39/4、提前知道双工作53/4、绝对必须履行19/2；都属于GOAL01×注意力/退出/信息时点的成熟组合，无新人类。；HEDGE01五手首手A唯一机会+LOW A5/LOW B0+三次行动后截止，允许双LIVE的动态51/4严格大于禁止并行47/4与最强固定23/2；A低时先OPEN B保留A，B高做B14、B低回来做A5。HEDGE02若A以后也可开，先B失败再开A的完全串行策略同得51/4，说明全局并发必要性依赖早窗口；同分方案PA/PB不同(并发3/4,1/4，串行1/2,1/2)，非动作同构。deadline2或无DROP/无B时并发优势消失。无真人。；CLOCK四语义冻结HEDGE任务而改时钟：global并发51/4/串行47/4，double_if_overlap两者47/4，neglect_only和contested_only仍51/4/47/4；去掉A早开窗口后四语义并发/串行都51/4，全部强固定23/2。DICE公开手牌H2,H2,L1,L1、A3奖励9、B2奖励6、首A有RISK2需修；动态13优于1536种强固定23/2，高骰不得FIX或修复质量不区分时25/2，SAFE分支A+B+SIDE16，RISK高骰FIX/低骰补A+SIDE10。熟悉P02×P11/R37模式边界，无新真人与新原语。",
     "humanFeedbackNote": "目前有关稳险/R06、边做边看/R10、压力/R37、R54、R50的有限设计者反馈；原记录各不等价于受控盲试玩；P02/R13仍没有真人反馈。",
     "thirdComparison": "PL-C05 supplies a tested negative boundary; not a new curated or debug pattern"
   },
