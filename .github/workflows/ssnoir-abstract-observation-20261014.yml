@@ -6,6 +6,7 @@ on:
     paths:
       - '.github/workflows/ssnoir-abstract-observation-20261014.yml'
       - 'tools/content-validator/experiments/pattern_intervention_observability_20261014.py'
+      - 'tools/content-validator/experiments/pattern_selective_intervention_inference_20261014.py'
       - 'docs/实验/机制研究/批次/2026-10-14-干预改变证据可见性/**'
       - 'docs/实验/机制研究/模式语言知识地图.json'
 permissions:
@@ -26,6 +27,7 @@ jobs:
         run: |
           set -euo pipefail
           python3 tools/content-validator/experiments/pattern_intervention_observability_20261014.py
+          python3 tools/content-validator/experiments/pattern_selective_intervention_inference_20261014.py
       - name: Validate independent blind-observation HTML code and controls
         run: |
           set -euo pipefail
