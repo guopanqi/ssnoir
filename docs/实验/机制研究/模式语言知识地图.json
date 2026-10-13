@@ -1507,6 +1507,48 @@
         "humanVerified": false
       },
       "note": "八期自由作者21/4，预编译一次11/2、两次6；九期自由作者49/8，预编译一次13/2。去晚到y传感两者回到手工基线；不能把编写工作量当玩家价值。"
+    },
+    {
+      "id": "PL-OPS01",
+      "name": "持续操作模式维护被同成本预设模式及一手前瞻全解",
+      "layer": "decision-primitive-composition",
+      "origin": "new-local-experiment",
+      "family": "持续操作规则/迟到输入/模式切换/短策略",
+      "idea": "玩家观察本手公开需求，相比立即RUN或手工操作可牺牲本手EDIT改变之后的完整映射；若预制完整模式一手可切，操作方式和收益被同成本工具覆盖",
+      "stage": "6-turn-exact-Fraction-DP; 4096-fixed-schedules; all-28-state-macro-equivalence; 2048-distinct-full-signal-input-histories; no-human",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-13-跨期操作与可撤回承诺/研究记录.md",
+        "tools/content-validator/experiments/pattern_operator_claim_relations_20261013.py",
+        "docs/实验/机制研究/批次/2026-10-13-跨期操作与可撤回承诺/无答案观察卡.md"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      },
+      "note": "相位翻转p=1/5：动态518/125、固定9974/3125、不允许编辑24401/6250；SET完整模式逐状态同最优，一手前瞻从不编辑基准在6种p下同DP，取消RUN晚到输入仅得3；分结果向量phase0 3557/3125、phase1 9393/3125。保留可用的跨期维护节奏，不认证独立编辑原语。"
+    },
+    {
+      "id": "PL-CLAIM03",
+      "name": "早期兑现窗口与付费撤回形成真实互补而非新承诺原语",
+      "layer": "commitment-and-option-composition",
+      "origin": "new-local-experiment",
+      "family": "不可逆成果/窗口期限/撤回成本/后到事实",
+      "idea": "同一份凭据只能最终提交A或B，A早申报并持有带有真正及时收益；需求揭晓后可花一手撤回A、再花一手提交B，使早期承诺与保留选择权真正争夺时间",
+      "stage": "four-turn-Fraction-DP; all-fixed-legal-plans; hard-lock-no-premium-late-menu-counterfactual; no-human",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-13-跨期操作与可撤回承诺/研究记录.md",
+        "tools/content-validator/experiments/pattern_operator_claim_relations_20261013.py",
+        "docs/实验/机制研究/批次/2026-10-13-跨期操作与可撤回承诺/无答案观察卡.md"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      },
+      "note": "p(A)=1/4：SOFT动态25/2、HARD23/2、SOFT取消及时奖励23/2、SOFT最佳固定23/2；真实B需求分支REVOKE后再CLAIM_B。p=1/2分别14/12/12。无期限且无及时奖励的完整晚菜单=13，此对照同时改期限与及时奖励，不是仅一变量。归并期限×撤销选择权。"
     }
   ],
   "edges": [
@@ -2355,6 +2397,54 @@
       "to": "PL-SEM01",
       "relation": "conditional-enabling-equivalence",
       "reason": "维修前置可以同构为启用选项，SEM01的B改道仍有相同危险"
+    },
+    {
+      "from": "R366",
+      "to": "PL-OPS01",
+      "relation": "reusable-rule-ancestor",
+      "reason": "OPS允许切换持续映射，R366此前研究过连续编辑函数；不称本轮原创"
+    },
+    {
+      "from": "R422",
+      "to": "PL-OPS01",
+      "relation": "precompiled-complete-mode-control",
+      "reason": "两种完整预制SET功能、成本与编辑模式相同；OPS全28状态和6种p同最优"
+    },
+    {
+      "from": "PL-REC03",
+      "to": "PL-OPS01",
+      "relation": "outcome-vector-bridge",
+      "reason": "OPS最优每种任务相位的实际期望成功次数分别保留，不用总数掩盖取舍"
+    },
+    {
+      "from": "P14",
+      "to": "PL-CLAIM03",
+      "relation": "irreversible-commitment-reference",
+      "reason": "CLAIM对证据进行早期单向申报及付费撤回，属于不可逆下注与后到事实的成熟关系"
+    },
+    {
+      "from": "PL-REL03",
+      "to": "PL-CLAIM03",
+      "relation": "real-deadline-boundary",
+      "reason": "真实提前窗口需要贡献无法事后免费启用的有效利益；普通晚期完整菜单使等待占优"
+    },
+    {
+      "from": "PL-SEM04",
+      "to": "PL-CLAIM03",
+      "relation": "retain-vs-convert-ingredient",
+      "reason": "SEM04消费已经做过的A成果，CLAIM在不可兼得的最终产权间调整归属并附带撤回成本"
+    },
+    {
+      "from": "PL-OPS01",
+      "to": "PL-CLAIM03",
+      "relation": "open-cross-encounter-composition",
+      "reason": "后续可试操作映射实际生成不同合法凭据、承诺又反馈修改可用操作，否则仅拼装两个孤立钟"
+    },
+    {
+      "from": "PL-ACT01",
+      "to": "PL-CLAIM03",
+      "relation": "autonomous-consent-contrast",
+      "reason": "要让他者撤权构成新判断需其自利行动确实改变承诺合法性，不是固定随机阻塞"
     }
   ],
   "coverage": {
@@ -2362,7 +2452,7 @@
     "curatedDisplayMappedCount": 6,
     "cs2AnalyticalPatterns": 9,
     "unconvertedHistory": "关系索引中的其他R批次、数学负例和组合应按主题逐步纳入；不能据本地图未出现就认定没有价值",
-    "additionalExperimentalCompositions": "PL-C01/PL-C02/PL-C03已做最小模型、PL-C04仅概念问题；与另一研究线的C01/C02/C03区别命名；PL-Q01/D01/W01另有3个独立模型及消融和负面边界；PL-W02新增连续三天注意力容量组合，最强简明口诀和变更容量边界明确；F1/F2/D2三项同源跨家族与充分边界反证，不增精选；RGT01/ACT01用各自精确逆推补充许可资源与自利协作者正负证据，无真人；REL01/REL02四轮精确博弈与私有信号消融已完成（同原语条件组合；不改变精选六或Debug）；REL03后续通行凭据仅真实首手截止窗口有正准备选择价值、普通窗口弱支配；未证独立新玩法；NEG01—05双方自利协商五项精确反证；R342/R430/R478原生历史首次结构化归图，均非真人。；NEG06双回合私人回应DOM全十路，X01-LONG准备→事件→响应两段完整枚举及136条合法UI路径，均一行规则全优，无真人；X03 hard disable vs costly defiance两种不同动作合法性协议在完整可达子博弈仍同最优；无真人意义证据；STG01共4种规则组合×完整路径40，因果未来菜单5对纯文本菜单1，仅网页逻辑回归，不是互动/情感新模式认证；PT01四回合双目标压转与14短策略强对照/网页试玩；INF-P01 cap2/3贝叶斯模型覆盖72+96局部公开状态信息值0；未改变历史478；GOAL01七个p×可选/强制义务、同树强预列菜单；DISC01三手有理数belief-DP、单份可靠度q后验、三种时点/换路与网页合法路径，不动历史478或精选；REC01四手四分之一禁A/B×81信号历史、16条强固定序列、一步前瞻全优及六种因果消融；REC03各目标完成概率独立统计，且最优总体策略B完成率低于简单交替；无真人；SEM01—04动作产出对象改道与材料消费改道，两项均被同成本完整菜单追平，短条件程序全优，无真人。；横向读R366函数编辑与R422预编译强对照：持久编辑可超过固定日程却不一定超过同成本完整工具，源实验非本轮重复执行。",
+    "additionalExperimentalCompositions": "PL-C01/PL-C02/PL-C03已做最小模型、PL-C04仅概念问题；与另一研究线的C01/C02/C03区别命名；PL-Q01/D01/W01另有3个独立模型及消融和负面边界；PL-W02新增连续三天注意力容量组合，最强简明口诀和变更容量边界明确；F1/F2/D2三项同源跨家族与充分边界反证，不增精选；RGT01/ACT01用各自精确逆推补充许可资源与自利协作者正负证据，无真人；REL01/REL02四轮精确博弈与私有信号消融已完成（同原语条件组合；不改变精选六或Debug）；REL03后续通行凭据仅真实首手截止窗口有正准备选择价值、普通窗口弱支配；未证独立新玩法；NEG01—05双方自利协商五项精确反证；R342/R430/R478原生历史首次结构化归图，均非真人。；NEG06双回合私人回应DOM全十路，X01-LONG准备→事件→响应两段完整枚举及136条合法UI路径，均一行规则全优，无真人；X03 hard disable vs costly defiance两种不同动作合法性协议在完整可达子博弈仍同最优；无真人意义证据；STG01共4种规则组合×完整路径40，因果未来菜单5对纯文本菜单1，仅网页逻辑回归，不是互动/情感新模式认证；PT01四回合双目标压转与14短策略强对照/网页试玩；INF-P01 cap2/3贝叶斯模型覆盖72+96局部公开状态信息值0；未改变历史478；GOAL01七个p×可选/强制义务、同树强预列菜单；DISC01三手有理数belief-DP、单份可靠度q后验、三种时点/换路与网页合法路径，不动历史478或精选；REC01四手四分之一禁A/B×81信号历史、16条强固定序列、一步前瞻全优及六种因果消融；REC03各目标完成概率独立统计，且最优总体策略B完成率低于简单交替；无真人；SEM01—04动作产出对象改道与材料消费改道，两项均被同成本完整菜单追平，短条件程序全优，无真人。；横向读R366函数编辑与R422预编译强对照：持久编辑可超过固定日程却不一定超过同成本完整工具，源实验非本轮重复执行。；OPS01六手动态维护与同成本SET/一手前瞻全等（含2048独立实际输入历史），CLAIM四手付费撤回×真实A早窗口互补、已给HARD/无加成消融及无窗口强菜单；均不认证新独立原语。",
     "humanFeedbackNote": "目前有关稳险/R06、边做边看/R10、压力/R37、R54、R50的有限设计者反馈；原记录各不等价于受控盲试玩；P02/R13仍没有真人反馈。",
     "thirdComparison": "PL-C05 supplies a tested negative boundary; not a new curated or debug pattern"
   },
