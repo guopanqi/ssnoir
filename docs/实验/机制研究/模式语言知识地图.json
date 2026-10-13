@@ -1801,6 +1801,67 @@
         "humanVerified": false
       },
       "note": "R54第三手后196活跃前缀里零双终局各可达：物理/执行预算失败；GRC k2尚有未来可用BYPASS合法按钮，但伙伴预见以后被替代而初始拒绝：战略可达失败。R50曾明确不清楚到底应追求何种成果：动机可读性未被数学证明。原人类反馈属于旧R50/R54而非本新实验。"
+    },
+    {
+      "id": "PL-TRL01",
+      "name": "生产性试做使工作本身兼作判断后续是否合作的证据",
+      "layer": "productive-information-composition",
+      "origin": "new-local-exact-experiment",
+      "family": "生产性行动/能力观察/后续改投/可信结果",
+      "idea": "玩家花1手做一份真实价值1的工作时同步观察G/B能力PASS/FAIL，再决定正式HIRE或SIDE，真实能力G/B以后成功率3/4和1/4；观察直接净产0但真反馈决定后续。",
+      "stage": "Fraction-Bayesian-two-type-two-signal-conditional-decision-enumeration; no-human",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-13-生产性试做与信号伪装/研究记录.md",
+        "tools/content-validator/experiments/pattern_credible_trial_20261013.py",
+        "docs/实验/机制研究/批次/2026-10-13-生产性试做与信号伪装/无答案观察卡.md"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      },
+      "note": "未来HIRE成功16成本6、SIDE2、G/B先验等半。无试做2；诚实试做PASS后HIRE4/FAIL后SIDE2，期望3；纯检验没产出但耗1则2，试做耗2则2。简单PASS→HIRE/FAIL→SIDE全优，属于成熟DISC01生产性发现组合。"
+    },
+    {
+      "id": "PL-TRL02",
+      "name": "被观察者策略性修饰试做表象，可使有反馈的工作彻底丢失信息量",
+      "layer": "strategic-signaling-negative-and-equilibrium",
+      "origin": "new-local-exact-game",
+      "family": "自主他者的表现包装/信号不可证/后续利益内生/类型学习",
+      "idea": "低真实能力B为获得未来HIRE价值4，可支付个人成本1将PASS表象从1/4提高至3/4而不改变未来实作成功率1/4。玩家用PASS/FAIL评估未来能力，却可能因双方类型发出相同分布的信号而无法形成后验差。",
+      "stage": "enumerated-sender-polish-and-four-pure-receiver-response-policies; Bayesian-best-response; no-human",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-13-生产性试做与信号伪装/研究记录.md",
+        "tools/content-validator/experiments/pattern_credible_trial_20261013.py"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      },
+      "note": "B修饰成本1时唯一纯均衡：B POLISH、玩家PASS→HIRE/FAIL→SIDE；PASS和FAIL下G类型后验都1/2，玩家HIRE与SIDE预期各为2，属于tie-break；B修饰收益4×3/4−1=2>不修饰4×1/4=1。玩家总工具值2，诚实试做为3。只枚举纯策略、不推断混合均衡或真人伪装。"
+    },
+    {
+      "id": "PL-TRL03",
+      "name": "有生产效益的观察仍受信号准确度和伪装成本独立约束",
+      "layer": "signaling-reliability-boundary",
+      "origin": "new-local-exact-experiment",
+      "family": "信息精度/主体私人欺骗成本/生产性任务成本/策略均衡不唯一",
+      "idea": "玩家试做有实产与被观察者伪装成本是独立变量；前者不会令后者自动诚实。当私人伪装成本等于提高雇佣机会的增量收益时，均衡可同时支持包装与真实信息，不能只挑一种结论。",
+      "stage": "Fraction-q-sweep-and-polish-cost-1-2-3-pure-equilibrium-enumeration; no-human",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-13-生产性试做与信号伪装/研究记录.md",
+        "tools/content-validator/experiments/pattern_credible_trial_20261013.py"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      },
+      "note": "B伪装成本c1，池化均衡玩家2；c2可池化或分离，玩家2或3；c3只有分离纯均衡玩家3。冻结诚实观察q=1/2,5/8,3/4,1时试做期望2,5/2,3,4，均是工具收益而非趣味评分。"
     }
   ],
   "edges": [
@@ -2973,6 +3034,66 @@
       "to": "PL-DIAG01",
       "relation": "pareto-frontier-not-enough",
       "reason": "ATN02即使有20个Pareto结果向量也可被固定路线追平，目标多并非自动拥有复杂策略空间"
+    },
+    {
+      "from": "PL-DISC01",
+      "to": "PL-TRL01",
+      "relation": "productive-discovery-strong-prior",
+      "reason": "DISC01已有生产性探查与及时可信反馈，TRL不是新的调查基本动作而是同伴能力观察的特例"
+    },
+    {
+      "from": "R510",
+      "to": "PL-TRL01",
+      "relation": "self-interested-other-observation-reference",
+      "reason": "R510已有观察另一方自发动作并推断私人特征，TRL仅将观察绑到真实试做的未来授权选择"
+    },
+    {
+      "from": "PL-TRL01",
+      "to": "PL-TRL02",
+      "relation": "endogenous-signal-suppresses-information",
+      "reason": "将诚实自然PASS/FAIL改为有权为被聘利益付成本修饰，信号分布趋同并失去后验价值"
+    },
+    {
+      "from": "R478",
+      "to": "PL-TRL02",
+      "relation": "verifiable-evidence-vs-staged-display",
+      "reason": "R478已警告低成本消息/证据不可靠；TRL把真实任务表现也作为可能被其他主体包装的信号，不能据一次PASS判能力"
+    },
+    {
+      "from": "PL-NEG04",
+      "to": "PL-TRL02",
+      "relation": "cost-difference-signaling-boundary",
+      "reason": "NEG04需要真实不同类型成本才能分离，TRL B伪装成本1可池化、3分离、2均衡不唯一"
+    },
+    {
+      "from": "PL-GRC03",
+      "to": "PL-TRL02",
+      "relation": "receiver-response-changes-sender-incentives",
+      "reason": "GRC信息给另一方改变参加意愿，TRL玩家未来依PASS聘任使另一方今天为提高PASS努力伪装"
+    },
+    {
+      "from": "PL-TRL02",
+      "to": "PL-TRL03",
+      "relation": "pure-equilibrium-multiplicity-at-cost-boundary",
+      "reason": "模仿成本2时B无严格倾向，至少两种纯均衡不能用作者选择替代玩家体验"
+    },
+    {
+      "from": "PL-TRL01",
+      "to": "PL-TRL03",
+      "relation": "productive-byproduct-not-truth-guarantee",
+      "reason": "玩家试做实际产出1净耗费0，只提供生产效益；额外信息价值需要可信反馈与后续动作机会才能成立"
+    },
+    {
+      "from": "PL-RV01",
+      "to": "PL-TRL01",
+      "relation": "post-observation-action-window",
+      "reason": "生产性观察的条件策略只有在结果揭晓后仍有一次HIRE/SIDE选择时成立；仅合法查看不能保证行动容量"
+    },
+    {
+      "from": "PL-TRL02",
+      "to": "PL-DIAG01",
+      "relation": "strategic-validity-of-observed-outcomes",
+      "reason": "合法执行试做不等于结果是外生可信信号；还需要检查另一主体在被评估时主动改变可观察表现"
     }
   ],
   "coverage": {
@@ -2980,7 +3101,7 @@
     "curatedDisplayMappedCount": 6,
     "cs2AnalyticalPatterns": 9,
     "unconvertedHistory": "关系索引中的其他R批次、数学负例和组合应按主题逐步纳入；不能据本地图未出现就认定没有价值",
-    "additionalExperimentalCompositions": "PL-C01/PL-C02/PL-C03已做最小模型、PL-C04仅概念问题；与另一研究线的C01/C02/C03区别命名；PL-Q01/D01/W01另有3个独立模型及消融和负面边界；PL-W02新增连续三天注意力容量组合，最强简明口诀和变更容量边界明确；F1/F2/D2三项同源跨家族与充分边界反证，不增精选；RGT01/ACT01用各自精确逆推补充许可资源与自利协作者正负证据，无真人；REL01/REL02四轮精确博弈与私有信号消融已完成（同原语条件组合；不改变精选六或Debug）；REL03后续通行凭据仅真实首手截止窗口有正准备选择价值、普通窗口弱支配；未证独立新玩法；NEG01—05双方自利协商五项精确反证；R342/R430/R478原生历史首次结构化归图，均非真人。；NEG06双回合私人回应DOM全十路，X01-LONG准备→事件→响应两段完整枚举及136条合法UI路径，均一行规则全优，无真人；X03 hard disable vs costly defiance两种不同动作合法性协议在完整可达子博弈仍同最优；无真人意义证据；STG01共4种规则组合×完整路径40，因果未来菜单5对纯文本菜单1，仅网页逻辑回归，不是互动/情感新模式认证；PT01四回合双目标压转与14短策略强对照/网页试玩；INF-P01 cap2/3贝叶斯模型覆盖72+96局部公开状态信息值0；未改变历史478；GOAL01七个p×可选/强制义务、同树强预列菜单；DISC01三手有理数belief-DP、单份可靠度q后验、三种时点/换路与网页合法路径，不动历史478或精选；REC01四手四分之一禁A/B×81信号历史、16条强固定序列、一步前瞻全优及六种因果消融；REC03各目标完成概率独立统计，且最优总体策略B完成率低于简单交替；无真人；SEM01—04动作产出对象改道与材料消费改道，两项均被同成本完整菜单追平，短条件程序全优，无真人。；横向读R366函数编辑与R422预编译强对照：持久编辑可超过固定日程却不一定超过同成本完整工具，源实验非本轮重复执行。；OPS01六手动态维护与同成本SET/一手前瞻全等（含2048独立实际输入历史），CLAIM四手付费撤回×真实A早窗口互补、已给HARD/无加成消融及无窗口强菜单；均不认证新独立原语。；COUP01七手把OPS操作实际变成A/B凭据、CLAIM A禁止制作B，仍在起始phase0三类需求先验下被RUN A→CLAIM A→SIDE×5一行策略全优；局部可达差异不等于有价值的双向注意力循环。；ATN01/02检测4手交换律、1296条件序列与20个Pareto成果向量仍由固定计划追平；ATN03/04双任务已投入进度遭公开单/双损5手模型动态33/2胜固定15，提前预知35/2，单损仍可保证双目标，归入成熟危机保全组合，真人缺席。；ACT-R01/02伙伴真自利救B(3)vs外部工作(2/4)使玩家双损低/高报价严格改选，默认动态51/4 vs迟揭49/4，却与条件备用B位逐动作同构；RV01简化4手R54式A3/B5可达上界t3仅18/64前缀两路线仍各有完成可能，结合旧R37/R50/R54真实反馈提出目标意义×改选容量双审核；RV02旧P18的极简上次路径追踪被固定ABABA全优。；RV03读原R54 Scene后用真实行动/追击次序穷举：第2手后33条活跃形式历史里9可分别达成双终局，第3手后196条中0可分别达成双终局（72仅甲、12仅乙、112无终局）；无骰面概率，非真人概率。；PS01将ATN03实际受损成果与ACT自利援助组合：五手动态71/4 vs ATN03无援33/2 vs五手固定17，分目标(1,7/8,3/4)；双损低报价可保两项目标，高报价必须放弃B，外部信号晚一手零价值；同条件B备用行动容量全状态完全替代。；GRC01/02自利伙伴最初愿帮（玩家11、伙伴3），玩家未来新增低于原成本3的BYPASS使伙伴初始EXIT（玩家3、伙伴5/2），可执行HIGH条件合同或排他承诺恢复11；GRC03/04同样提前公开HIGH/LOW在w5/2令玩家11跌至17/2、在w7/2令玩家3升至17/2；跨族审计区分动作合法、物理终局可达、伙伴策略同意、人类关切。",
+    "additionalExperimentalCompositions": "PL-C01/PL-C02/PL-C03已做最小模型、PL-C04仅概念问题；与另一研究线的C01/C02/C03区别命名；PL-Q01/D01/W01另有3个独立模型及消融和负面边界；PL-W02新增连续三天注意力容量组合，最强简明口诀和变更容量边界明确；F1/F2/D2三项同源跨家族与充分边界反证，不增精选；RGT01/ACT01用各自精确逆推补充许可资源与自利协作者正负证据，无真人；REL01/REL02四轮精确博弈与私有信号消融已完成（同原语条件组合；不改变精选六或Debug）；REL03后续通行凭据仅真实首手截止窗口有正准备选择价值、普通窗口弱支配；未证独立新玩法；NEG01—05双方自利协商五项精确反证；R342/R430/R478原生历史首次结构化归图，均非真人。；NEG06双回合私人回应DOM全十路，X01-LONG准备→事件→响应两段完整枚举及136条合法UI路径，均一行规则全优，无真人；X03 hard disable vs costly defiance两种不同动作合法性协议在完整可达子博弈仍同最优；无真人意义证据；STG01共4种规则组合×完整路径40，因果未来菜单5对纯文本菜单1，仅网页逻辑回归，不是互动/情感新模式认证；PT01四回合双目标压转与14短策略强对照/网页试玩；INF-P01 cap2/3贝叶斯模型覆盖72+96局部公开状态信息值0；未改变历史478；GOAL01七个p×可选/强制义务、同树强预列菜单；DISC01三手有理数belief-DP、单份可靠度q后验、三种时点/换路与网页合法路径，不动历史478或精选；REC01四手四分之一禁A/B×81信号历史、16条强固定序列、一步前瞻全优及六种因果消融；REC03各目标完成概率独立统计，且最优总体策略B完成率低于简单交替；无真人；SEM01—04动作产出对象改道与材料消费改道，两项均被同成本完整菜单追平，短条件程序全优，无真人。；横向读R366函数编辑与R422预编译强对照：持久编辑可超过固定日程却不一定超过同成本完整工具，源实验非本轮重复执行。；OPS01六手动态维护与同成本SET/一手前瞻全等（含2048独立实际输入历史），CLAIM四手付费撤回×真实A早窗口互补、已给HARD/无加成消融及无窗口强菜单；均不认证新独立原语。；COUP01七手把OPS操作实际变成A/B凭据、CLAIM A禁止制作B，仍在起始phase0三类需求先验下被RUN A→CLAIM A→SIDE×5一行策略全优；局部可达差异不等于有价值的双向注意力循环。；ATN01/02检测4手交换律、1296条件序列与20个Pareto成果向量仍由固定计划追平；ATN03/04双任务已投入进度遭公开单/双损5手模型动态33/2胜固定15，提前预知35/2，单损仍可保证双目标，归入成熟危机保全组合，真人缺席。；ACT-R01/02伙伴真自利救B(3)vs外部工作(2/4)使玩家双损低/高报价严格改选，默认动态51/4 vs迟揭49/4，却与条件备用B位逐动作同构；RV01简化4手R54式A3/B5可达上界t3仅18/64前缀两路线仍各有完成可能，结合旧R37/R50/R54真实反馈提出目标意义×改选容量双审核；RV02旧P18的极简上次路径追踪被固定ABABA全优。；RV03读原R54 Scene后用真实行动/追击次序穷举：第2手后33条活跃形式历史里9可分别达成双终局，第3手后196条中0可分别达成双终局（72仅甲、12仅乙、112无终局）；无骰面概率，非真人概率。；PS01将ATN03实际受损成果与ACT自利援助组合：五手动态71/4 vs ATN03无援33/2 vs五手固定17，分目标(1,7/8,3/4)；双损低报价可保两项目标，高报价必须放弃B，外部信号晚一手零价值；同条件B备用行动容量全状态完全替代。；GRC01/02自利伙伴最初愿帮（玩家11、伙伴3），玩家未来新增低于原成本3的BYPASS使伙伴初始EXIT（玩家3、伙伴5/2），可执行HIGH条件合同或排他承诺恢复11；GRC03/04同样提前公开HIGH/LOW在w5/2令玩家11跌至17/2、在w7/2令玩家3升至17/2；跨族审计区分动作合法、物理终局可达、伙伴策略同意、人类关切。；TRL01生产性试做提供真实产出1且耗时1，诚实信号下直接SIDE2、纯检验2、边做边看3；TRL02低能力主体花1修饰PASS(1/4→3/4)以谋求未来HIRE4，唯一纯均衡下两类型信号池化、试做总值退至2；TRL03修饰成本2存在两纯均衡值2或3、成本3诚实3，q诚实准确度1/2→1试做值2→4。属DISC/R478/NEG04成熟组合边界，不认证新原语。",
     "humanFeedbackNote": "目前有关稳险/R06、边做边看/R10、压力/R37、R54、R50的有限设计者反馈；原记录各不等价于受控盲试玩；P02/R13仍没有真人反馈。",
     "thirdComparison": "PL-C05 supplies a tested negative boundary; not a new curated or debug pattern"
   },
