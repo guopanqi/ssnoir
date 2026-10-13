@@ -10,7 +10,8 @@
     <a href="#overview" aria-current="page"><span class="nav-ico" aria-hidden="true">◫</span><span>研究概览</span><small>01</small></a>
     <a href="#experiments"><span class="nav-ico" aria-hidden="true">▧</span><span>实验室</span><small>02</small></a>
     <a href="#map"><span class="nav-ico" aria-hidden="true">◇</span><span>研究地图</span><small>03</small></a>
-    <a href="#journal"><span class="nav-ico" aria-hidden="true">≡</span><span>研究日志</span><small>04</small></a>
+    <a href="#library"><span class="nav-ico" aria-hidden="true">▤</span><span>模式目录</span><small>04</small></a>
+    <a href="#journal"><span class="nav-ico" aria-hidden="true">≡</span><span>研究日志</span><small>05</small></a>
   </nav>
   </aside><div class="field-main">
 <header class="field-topbar"><div class="field-crumb">SSNOIR / RESEARCH <span aria-hidden="true">／</span> <strong id="field-breadcrumb">研究概览</strong></div>
@@ -25,6 +26,7 @@
   <article class="overview-attention"><div class="simple-section-title"><h2>可以参与</h2><span id="wb-attention-status"></span></div><div id="wb-attention"></div><a href="#experiments" class="overview-small-link">全部实验 →</a></article>
  </div>
  <section class="overview-updates"><div class="simple-section-title"><h2>最新变化</h2><a href="#journal">查看日志 →</a></div><div id="wb-notes" class="overview-updates-list"></div></section>
+<section class="dialogue-section" aria-labelledby="dialogue-title"><div class="simple-section-title"><h2 id="dialogue-title">研究者向你提问</h2><span>反馈不要求评分，也不会阻断 Agent 的研究</span></div><div id="wb-dialogue-requests"></div></section>
 </section>
 <section class="wb-page hidden" id="experiments">
 <div class="lab-heading"><span class="section-label">PLAYTEST LAB</span><h1>实验室</h1></div>
@@ -64,6 +66,13 @@
 <details class="research-paused"><summary>暂缓探索 <span id="wb-stop-count"></span></summary><div id="wb-stop-list"></div></details>
 <p class="network-disclaimer">分支表示问题分类，不代表机制之间存在已证实的因果或演化关系；数学验证、正式运行与真人反馈分别标记。</p>
 </section>
+<section class="wb-page hidden" id="library">
+<div class="simple-heading"><div><span class="section-label">PATTERN LANGUAGE / 可供设计的模式</span><h1>模式目录</h1><p class="simple-subtitle">从已经在作品中使用的结构、实验发现与组合边界中挑选材料。是否经过真人反馈、是否进入精选、是否适合当前情境，是不同的判断。</p></div><span class="simple-count" id="lib-count"></span></div>
+<div class="library-filters"><input type="search" id="lib-search" aria-label="搜索决策模式" placeholder="搜索模式、玩家决策、研究编号"><select id="lib-layer" aria-label="按模式类型筛选"><option value="all">全部尺度</option><option value="decision-relation">基础决策关系</option><option value="encounter-structure">交锋结构</option><option value="combination">组合与边界</option></select><select id="lib-origin" aria-label="按证据来源筛选"><option value="all">全部来源</option><option value="published-game-analysis">成熟作品先例</option><option value="ssnoir-research">本实验研究</option><option value="other">组合与开放问题</option></select><label class="lib-only"><input type="checkbox" id="lib-picked-only"> 仅看已加入</label></div>
+<div class="library-layout"><div class="library-list" id="lib-list" aria-label="可筛选模式列表"></div><aside class="library-detail" id="lib-detail" aria-live="polite"></aside></div>
+<section class="library-compose"><div class="simple-section-title"><h2>组合用于情境</h2><span>只产生设计简报，不自动修改游戏内容</span></div><div class="library-compose-row"><label>正在设计的情境 <input id="lib-scenario" placeholder="例如：取得照片后说服店主透露记录"></label><button class="button ghost tiny" id="lib-copy">复制模式组合简报</button></div><div id="lib-picked" class="lib-picked"></div><p id="lib-copy-state" class="minor" role="status"></p></section>
+<p class="network-disclaimer">这是一张证据导航图，而不是“通过验收的成熟玩法排名”。成熟作品的应用先例不等于该模式独立经过受控实验；数学结构成立也不证明真人觉得有趣。来源与反例可在右侧查阅。</p>
+</section>
 <section class="wb-page hidden" id="journal">
 <div class="simple-heading"><div><span class="section-label">RESEARCH LOG</span><h1>研究日志</h1><p class="simple-subtitle">按已有研究记录呈现变化。目前同一天的记录没有精确时刻，不额外推测先后。</p></div></div>
 <div class="plain-log" id="field-journal-events"></div>
@@ -71,6 +80,8 @@
 </section>
 <div class="hidden" aria-hidden="true"><div id="patterns"></div><div id="not-promoted"></div><ul id="now-research"></ul><a id="research-root"></a></div>
 </main><footer class="wrap foot"><span>SSNOIR / HUMAN–AGENT RESEARCH</span><span>资料更新 <span id="updated"></span> · 反馈有版本，结论可修订</span></footer></div></div><div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+<script type="application/json" id="pattern-map-data">/*PATTERN_MAP_DATA*/</script>
+<script type="application/json" id="research-dialogue-data">/*RESEARCH_DIALOGUE_DATA*/</script>
 <script type="application/json" id="atlas-data">/*ATLAS_DATA*/</script>
 <script type="application/json" id="tasks-data">/*TASK_DATA*/</script>
 <script>
