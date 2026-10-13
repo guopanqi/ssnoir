@@ -1,4 +1,13 @@
-# SSNoir 抽象玩法研究：人类试玩反馈协议 v1
+# SSNoir 抽象玩法研究：人类试玩与研究问答协议 v1
+
+## 不需要试玩也可以回答 Agent 的研究问题
+
+工作台首页“研究者向你提问”展示少量具体问题，其来源见[研究沟通.json](../研究沟通.json)。它们可能询问某次真实改变计划的感受，也可能询问设计师如何挑选一个结构来组织情境。无需先完成 Rxx 实验，更不要求提交数字评分。可以在页面填写后通过已有 GitHub 连接提交，也可以导出 JSON 放入[反馈/questions](questions/)；这两种反馈**不会自动认证模式**，也不会立即获得 AI 回复。
+
+回答文件使用独立 `ssnoir.research-dialogue/v1` 格式，包含 `questionId`、`questionTitle`、`createdAt`、`related`、`answer`、`context`；文件名为 `SSNoir-dialogue-RQ-...-YYYYMMDD-HHMMSS-12位随机码.json`。Agent每次接续同时读取 `反馈/inbox` 和 `反馈/questions`，不改写设计师原话，区分体验观察与设计建议。回答是公开仓库文件，勿填写秘密或个人敏感信息。格式校验：`python3 tools/content-validator/experiments/validate_research_dialogue.py`。
+
+原有Rxx试玩、版本化回复、Token协议完全保留。
+
 
 ## 一切讨论、改版与反馈都从在线工作台完成（2026-10-09更新）
 
