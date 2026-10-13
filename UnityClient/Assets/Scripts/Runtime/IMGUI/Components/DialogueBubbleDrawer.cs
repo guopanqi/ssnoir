@@ -241,6 +241,32 @@ namespace SSNoir.IMGUI
         // "点在矩形内"的情形（它会返回点本身），因此这里明确投到四条边中距离最短的一条。
         private static void GetTail(Rect speaker, Rect bubble, out Vector2 baseA, out Vector2 baseB, out Vector2 tip)
         {
+            // 世界气泡通常在说话人头顶。碰撞避让会把卡片横向推开；这时若只按两矩形的
+            // 最近距离选边，人物与卡片纵向重叠时会错误地从左右侧伸尾巴。上下关系优先，
+            // 只有说话人与卡片几乎齐平时才退回左右侧判定。
+            float verticalOffset = speaker.center.y - bubble.center.y;
+            if (Mathf.Abs(verticalOffset) > BubbleTailHalfWidth)
+            {
+                bool speakerBelow = verticalOffset > 0f;
+                float baseY = speakerBelow ? bubble.yMax : bubble.y;
+                float x = Mathf.Clamp(speaker.center.x,
+                    bubble.x + BubbleTailHalfWidth, bubble.xMax - BubbleTailHalfWidth);
+                baseA = new Vector2(x - BubbleTailHalfWidth, baseY);
+                baseB = new Vector2(x + BubbleTailHalfWidth, baseY);
+
+                float tipY;
+                if (speakerBelow)
+                    tipY = speaker.y < bubble.yMax
+                        ? Mathf.Max(speaker.yMax, bubble.yMax + BubbleTailHalfWidth)
+                        : speaker.y;
+                else
+                    tipY = speaker.yMax > bubble.y
+                        ? Mathf.Min(speaker.y, bubble.y - BubbleTailHalfWidth)
+                        : speaker.yMax;
+                tip = new Vector2(Mathf.Clamp(x, speaker.x, speaker.xMax), tipY);
+                return;
+            }
+
             tip = ClosestPointOnEdge(speaker, bubble.center);
             Vector2 baseCenter = ClosestPointOnEdge(bubble, tip);
 
