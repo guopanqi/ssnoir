@@ -13,7 +13,7 @@ namespace SSNoir.Editor
     {
         private bool IsCityModel => assetPath == "Assets/Resources/Models/Environment/City.fbx"
             || (assetPath.StartsWith("Assets/Resources/City/Places/",StringComparison.Ordinal) && assetPath.EndsWith(".fbx",StringComparison.Ordinal));
-        public override uint GetVersion() => 8;
+        public override uint GetVersion() => 9;
         public override int GetPostprocessOrder() => 1000;
         private const string PalettePath = "Assets/Resources/City/WorldPalette.asset";
         private static CityWorldPalette? ImportedPalette()
@@ -54,7 +54,8 @@ namespace SSNoir.Editor
             }
             importer.generateSecondaryUV = assetPath.EndsWith("/晚宴.fbx",StringComparison.Ordinal);
             if (importer.generateSecondaryUV) importer.secondaryUVPackMargin = 12;
-            if (assetPath.EndsWith("/Environment/City.fbx",StringComparison.Ordinal)) importer.importLights = true;
+            // 局面灯可以随 presence 子树放在地点细节包中，和 City 本体使用同一灯光声明。
+            importer.importLights = true;
         }
         private void OnPostprocessModel(GameObject root)
         {
