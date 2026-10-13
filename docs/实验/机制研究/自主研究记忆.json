@@ -297,6 +297,12 @@
       "family": "endogenous-objectives-and-encounter-rights",
       "question": "怎样让新委托不只是更多收益，而是以可被玩家理解的方式改变此前投入带来的合法操作/结算资格，且不能被几句日期优先规则完全解释？",
       "method": "沿F1/F2/D2的正常可达前史，用可执行行动权利/明确外部回应构造跨单元接续；固定规则与最强公开简单策略作消融，禁止纯调数值救假设；先需可理解的目标图变化，再考虑小游戏。"
+    },
+    {
+      "id": "ABSTRACT-F-RELATIONAL-RIGHTS-AUTONOMOUS-CONSENT",
+      "family": "permission-maintained-by-strategic-other",
+      "question": "若玩家持有的跨交锋许可需要由有自利目标的另一主体维系/认可，他拒绝或撤销许可可否让玩家连续改变目标计划，而非仅显示换工具与固定外部机会信号？",
+      "method": "用RGT01全部简单口诀全优与ACT01公开外部机会严格改选作对照；允许对方真实做策略优化且检查自身效用平局，保留同成本ENABLE、固定脚本和短条件式。优先纸面行为循环/主动拒绝权限，不延长纯数学模型。"
     }
   ],
   "method": {
@@ -411,7 +417,7 @@
     "noHumanTests": true,
     "interpretation": "X01、X02与另一批C01、C02是不同的已知组合条件反证，均不构成新独立模式或完整真人交锋认证",
     "historyCountUnchanged": 478,
-    "latestBatch": "docs/实验/机制研究/批次/2026-10-13-目标图因果交互与强策略复核/研究记录.md",
-    "latestCounterfactual": "F1主动生成R、F2选R撤B资格、D2提前结算打破纯诱饵弱支配；可执行数学，均非人类验证"
+    "latestBatch": "docs/实验/机制研究/批次/2026-10-13-行动权利与自主他者/研究记录.md",
+    "latestCounterfactual": "RGT01四日可换许可在五个持续概率下5种强简单策略中至少一条全部全优；ACT01公开自利协作者伙伴根17/2/玩家7/2，OUT信号使同一正常可达状态第二轮玩家A/B严格反转；未人测"
   }
 }

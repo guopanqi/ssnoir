@@ -2,7 +2,7 @@
   "schema": "ssnoir.pattern-language-map/v1",
   "updated": "2026-10-13",
   "reviewBase": "c8055fa1aa2fe18ec1ecc50c7e721072c67dd809",
-  "scope": "保留成熟作品、20历史候选、精选展示与局部研究；T01是可复用的跨阶段组合边界，非独立新精选/人类认可；本轮另纳入PL-Q01/D01/W01三族跨尺度正负对照，未自动精选或真人认证；新增F1/F2目标内生生成与撤权、D2反驳纯诱饵通用支配，均为局部精确证据",
+  "scope": "保留成熟作品、20历史候选、精选展示与局部研究；T01是可复用的跨阶段组合边界，非独立新精选/人类认可；本轮另纳入PL-Q01/D01/W01三族跨尺度正负对照，未自动精选或真人认证；新增F1/F2目标内生生成与撤权、D2反驳纯诱饵通用支配，均为局部精确证据；RGT01可更换许可的强简单策略负例及ACT01双向自利公开外部机会模型均纳入",
   "definitions": {
     "layer": "机制原语、基础决策关系、交锋结构、跨交锋组织可交叉连接；层级不是质量排名",
     "origin": "设计先例、仓库研究、局部组合假说分开保存",
@@ -1028,6 +1028,46 @@
         "humanVerified": false
       },
       "note": "撤权动态69/4，最强日期优先规则269/16；不撤权动态159/8，对应最强39/2。撤权确实改变可执行计划，日期优先级仍解释绝大部分决策成果；不晋升精选。"
+    },
+    {
+      "id": "PL-RGT01",
+      "name": "跨交锋访问资格的可逆性与简单切换规则",
+      "layer": "cross-encounter-negative-boundary",
+      "origin": "new-local-experiment",
+      "family": "行动权限/未来机会匹配",
+      "idea": "当前许可A/B决定多日匹配工作是否合法；可在当前行动换许可一次，但高持续性下的首次错配换、低持续性下保持等简单口诀已解释全部测试值",
+      "stage": "exact-four-day-Markov-resource-DP; five readable heuristic baselines; no human",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-13-行动权利与自主他者/研究记录.md",
+        "tools/content-validator/experiments/pattern_rights_actor_20261013.py"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      },
+      "note": "p=1/5,1/2,3/5,4/5,9/10时最优10,10,549/50,683/50,771/50; 5个强启发式中始终有一个全优。该资格是二值可更换资源，换叙事语境不自动构成新模式。"
+    },
+    {
+      "id": "PL-ACT01",
+      "name": "协作者公开外部机会改变玩家跨轮投入",
+      "layer": "cross-encounter-actor-composition",
+      "origin": "new-local-experiment",
+      "family": "独立主体效用/跨阶段注意力",
+      "idea": "伙伴保留一次自身稀缺行动权，A/B/HOLD/OUT按自身终局收益最优响应；第二轮公开OUT外部机会使玩家在相同正常可达状态严格A↔B反转",
+      "stage": "three-round-complete-information-sequential-backward-induction; tie-break and signal-timing controls; no human",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-13-行动权利与自主他者/研究记录.md",
+        "tools/content-validator/experiments/pattern_rights_actor_20261013.py"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      },
+      "note": "公开信号早到根玩家7/2、伙伴17/2；无OUT玩家6；OUT第三轮才知道玩家3；8份事先公开承诺固定动作最佳AAA为3（不同承诺协议）；两类伙伴tie-break同7/2。既不是R510私有信念也不等于真实社会交锋，简短条件口诀全优。"
     }
   ],
   "edges": [
@@ -1360,6 +1400,48 @@
       "to": "PL-D02",
       "relation": "shared-causal-boundary",
       "reason": "两种组合都依赖行动改变未来的合法结果，而非简单增加收益数字"
+    },
+    {
+      "from": "P15",
+      "to": "PL-RGT01",
+      "relation": "ingredient",
+      "reason": "唯一改道机会与未来许可状态串连，但工作四天仍是二值换路资源"
+    },
+    {
+      "from": "PL-C05",
+      "to": "PL-RGT01",
+      "relation": "strong-baseline",
+      "reason": "同成本事后换许可与提前准备/权限叙事可能同构；需检查是否有真正失去的行动窗口"
+    },
+    {
+      "from": "PL-F02",
+      "to": "PL-RGT01",
+      "relation": "contrast",
+      "reason": "F2工作撤销B结算资格，RGT01更换许可时不发生他者自利回应"
+    },
+    {
+      "from": "R510",
+      "to": "PL-ACT01",
+      "relation": "evidence-contrast",
+      "reason": "R510有私人机会及均匀未来玩家假设，本例改用公开外部机会和逐状态双向自利逆推"
+    },
+    {
+      "from": "PL-F01",
+      "to": "PL-ACT01",
+      "relation": "causal-contrast",
+      "reason": "F1由玩家产生自己的后续任务，ACT01是其他主体得到自身工作导致玩家改选"
+    },
+    {
+      "from": "PL-W02",
+      "to": "PL-ACT01",
+      "relation": "composes",
+      "reason": "共享跨日有限注意力，但同伴可自主保存资源，玩家不独占整个行动预算"
+    },
+    {
+      "from": "PL-RGT01",
+      "to": "PL-ACT01",
+      "relation": "future-bridge",
+      "reason": "开放问题：许可由可拒绝的主体维持与撤销时，能否打破二值资源换路的完全解释"
     }
   ],
   "coverage": {
@@ -1367,7 +1449,7 @@
     "curatedDisplayMappedCount": 6,
     "cs2AnalyticalPatterns": 9,
     "unconvertedHistory": "关系索引中的其他R批次、数学负例和组合应按主题逐步纳入；不能据本地图未出现就认定没有价值",
-    "additionalExperimentalCompositions": "PL-C01/PL-C02/PL-C03已做最小模型、PL-C04仅概念问题；与另一研究线的C01/C02/C03区别命名；PL-Q01/D01/W01另有3个独立模型及消融和负面边界；PL-W02新增连续三天注意力容量组合，最强简明口诀和变更容量边界明确；F1/F2/D2三项同源跨家族与充分边界反证，不增精选",
+    "additionalExperimentalCompositions": "PL-C01/PL-C02/PL-C03已做最小模型、PL-C04仅概念问题；与另一研究线的C01/C02/C03区别命名；PL-Q01/D01/W01另有3个独立模型及消融和负面边界；PL-W02新增连续三天注意力容量组合，最强简明口诀和变更容量边界明确；F1/F2/D2三项同源跨家族与充分边界反证，不增精选；RGT01/ACT01用各自精确逆推补充许可资源与自利协作者正负证据，无真人",
     "humanFeedbackNote": "目前有关稳险/R06、边做边看/R10、压力/R37、R54、R50的有限设计者反馈；原记录各不等价于受控盲试玩；P02/R13仍没有真人反馈。",
     "thirdComparison": "PL-C05 supplies a tested negative boundary; not a new curated or debug pattern"
   },
