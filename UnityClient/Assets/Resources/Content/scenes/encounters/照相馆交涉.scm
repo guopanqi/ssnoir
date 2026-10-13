@@ -1,11 +1,11 @@
 ;; 独立深入交涉：A→A1→加工结果；B→B1→订单结果。
-;; 每层4格，每完成一层使另一整条路线准备值+1，最多+2（降低难度）。
+;; 每层6格，每完成一层使另一整条路线准备值+1，最多+2（降低难度）。
 ;; 未接入城市或实际线索物品，不获取原始底片。
 (define finished? #f)
-(define paper (make-clock "A：辨认相纸" 4 'gauge "满4找到相纸批次，开放设备比对；订单路线难度降低1。"))
-(define equipment (make-clock "A1：核对设备" 4 'gauge "满4取得加工结果；订单路线难度再降低1。"))
-(define permission (make-clock "B：争取查账" 4 'gauge "满4店主提供候选订单，开放订单核对；加工路线难度降低1。"))
-(define records (make-clock "B1：核对订单" 4 'gauge "满4取得订单结果；加工路线难度再降低1。"))
+(define paper (make-clock "A：辨认相纸" 6 'gauge "满6找到相纸批次，开放设备比对；订单路线难度降低1。"))
+(define equipment (make-clock "A1：核对设备" 6 'gauge "满6取得加工结果；订单路线难度再降低1。"))
+(define permission (make-clock "B：争取查账" 6 'gauge "满6店主提供候选订单，开放订单核对；加工路线难度降低1。"))
+(define records (make-clock "B1：核对订单" 6 'gauge "满6取得订单结果；加工路线难度再降低1。"))
 (define suspicion (make-clock "店主戒心" 7 'gauge "满7结束交涉；每个坏结果扣冷静1，并增加戒心。已有成果保留。"))
 (define (a-help) (+ (if (paper 'full?) 1 0) (if (equipment 'full?) 1 0)))
 (define (b-help) (+ (if (permission 'full?) 1 0) (if (records 'full?) 1 0)))
@@ -85,7 +85,7 @@
     (append
       (clock-nodes (suspicion 'render-data))
       (list (note-node "标注：调查结构" "加工比对与订单追查"
-        (string-append "每层4格；好2、中1。加工路线难度降低"
+        (string-append "每层6格；好2、中1。加工路线难度降低"
           (number->string (b-help)) "，订单路线难度降低" (number->string (a-help)) "。")))
       (cond ((not (paper 'full?))
              (append (clock-nodes (paper 'render-data))
