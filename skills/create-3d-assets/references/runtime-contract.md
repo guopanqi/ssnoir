@@ -146,13 +146,12 @@ Orbit 相机必须满足：
 
 ### 世界视觉基准
 
-作者选项及现有组合限制见 `city-box/docs/视觉参数.md`，不要从材质文件名推断参数含义。
+作者选项及组合限制见 [CityBox 视觉参数](../../../city-box/docs/视觉参数.md)；场景组合方法见 [make-scene 视觉语言](../../make-scene/references/visual-language.md)，共同设计基准见 [城市视觉基准](../../../docs/城市视觉基准.md)。本节只维护 Unity 消费与接入契约，不维护色盘目录。
 
 来源：`city-box/pipeline/world_style.{json,py}`、`CitySharedMaterialImporter.cs`、`CityWorldPalette.cs`、`CityWorldVisuals.cs`、`CityLightmapData.cs`。
 
-- Prefab 网格的 `surface` 声明材质角色（主体、地面、抛光地面、象牙饰面、金色金属等）；`tone=bright|dim` 声明主次描线，`line_palette` 可选择金色结构线、象牙装饰线、金色镶边线。没有 `surface` 的实体使用主体。
 - 源材质名 `M_世界_<角色>` 与已有城市材质名由 `Resources/City/WorldPalette.asset` 映射到唯一共享 `.mat`。WorldPalette 同时引用正式 URP 配置，地点呈现与编辑器取景都显式使用它，避免试用场景遗留的质量级覆盖。Unity 材质是最终表现的权威；CityBox 发布不写这些 `.mat`。导入器缺少角色实现直接失败，不退回嵌入材质。河面保留下节的专用实现。
-- 地点的视觉声明发布为 `Resources/City/World.visual.json`：环境、雾、灯光用途/颜色角色、强度和模式。灯的位置/方向来自正式 City.fbx；`light_palette` 只能选择世界基准已有的冷白、冷边、暖白、琥珀。颜色的 Unity 实现保存在 WorldPalette。
+- 地点的视觉声明发布为 `Resources/City/World.visual.json`：环境、雾、灯光用途/颜色角色、强度和模式。灯的位置/方向来自正式 City.fbx；光色角色必须由 WorldPalette 实现，缺失时校验失败。
 - CityBox 的声明使用源资产单位；`CityWorldVisuals` 按 City 根的正值统一缩放换算灯光范围、面光尺寸和雾距离，不沿用独立试用场景的 0.1 缩放。点光/聚光强度按缩放平方换算，方向光强度保持不变。
 - `CityOutlineState` 随呈现的地点切换灯光和环境。全城机位使用 `WorldPalette.Overview` 的试验配光：共享冷白/冷边光色、侧向主光、环境光和远景雾，由 `CityWorldOverview` 实现。全城阴影距离使用正式 URP 的运行时派生实例；离开全城恢复正式 URP，不修改共享管线资产。局部地点继续使用自己的配光。实体投影、描线不投影。编辑器取景临时使用同一套配置，结束后恢复，不保存 City 子对象覆盖。
 - 晚宴的静态面光使用 `Resources/City/Lighting/晚宴.asset`，绑定正式 Places 模型的 Renderer 路径与 lightmap。数据记录 FBX 内容哈希；几何重新发布而光照未更新时直接报错。`CityWorldLighting.BakeBanquet` 在独立验证工程烘焙，共享材质不变。

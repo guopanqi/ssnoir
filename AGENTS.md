@@ -31,6 +31,7 @@
 - **抽象玩法结构研究（唯一默认研究对象：决策关系，不是剧情）**：[docs/实验/机制研究/README.md](docs/实验/机制研究/README.md) → [研究定位](docs/实验/机制研究/研究定位与评价.md) → [实验维护契约](docs/实验/机制研究/实验结构与维护契约.md)。执行方法见 [skills/research-mechanisms/SKILL.md](skills/research-mechanisms/SKILL.md)；S2/S3正式内容问题另见 [正式内容验证](docs/实验/正式内容验证/README.md)。
 - **制作 3D 资产（参考图、低模、Blender 加工、Unity 命名契约）**：[skills/create-3d-assets/SKILL.md](skills/create-3d-assets/SKILL.md)
 - **制作游戏图片（舞台人物、姿势、2D 道具、3D 参考图）**：[skills/make-images/SKILL.md](skills/make-images/SKILL.md)
+- **场景制作与视觉组合**：[skills/make-scene/SKILL.md](skills/make-scene/SKILL.md) → [组合设计与审核](skills/make-scene/references/visual-language.md)；[共同视觉基准](docs/城市视觉基准.md) 维护风格，[CityBox 视觉参数](city-box/docs/视觉参数.md) 维护作者声明与组合限制。
 - **要不要验证 / 怎么验证**：[tools/VERIFYING.md](tools/VERIFYING.md)
 - **Web Preview、Web Release、TapTap Release 三种构建方式**：[tools/BUILDING.md](tools/BUILDING.md)
 

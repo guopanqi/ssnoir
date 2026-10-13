@@ -9,7 +9,7 @@ description: 为 SSNoir 设计、生成、加工、接入或修复游戏可用�
 
 ## 先确定交付目标
 
-- **城市地点与场景**：正式源是 `city-box/prefabs/<名>.blend`（Prefab），布局在 `city-box/city.blend`，Unity 只消费 `Assets/Resources/Models/Environment/City.fbx`。只读取 [references/delivery/citybox.md](references/delivery/citybox.md)。
+- **城市地点与场景**：正式源是 `city-box/prefabs/<名>.blend`（Prefab），布局在 `city-box/city.blend`，Unity 消费世界层 `City.fbx` 与地点细节 `Resources/City/Places/<名>.fbx`。读取 [references/delivery/citybox.md](references/delivery/citybox.md)；涉及整场景的空间与视觉组合时同时使用 [make-scene](../make-scene/SKILL.md)，本 Skill 负责单件建模、加工与接入。
 - **非城市独立资产**：按运行时职责放入 `UnityClient/Assets/Resources/Models/`。只读取 [references/delivery/unity-standalone.md](references/delivery/unity-standalone.md)。
 - **候选与中间结果**：保留在制作目录或 `city-box/prefabs/review/`，不进入正式构建。
 

@@ -24,8 +24,7 @@ CityBox 以 Blender 为唯一媒介，**Prefab 是唯一的单位**。约定与�
 
 ## 描线与外观
 
-作者参数与组合约束的权威说明是 `city-box/docs/视觉参数.md`。先选表面预设、描线生成方式、阅读层级与装饰色，再调整地点光照、环境和机位；后端 BSDF/Shader 数值不放进每个物件的作者选项。只读检查用 CityBox `tools/visual_check.py`。
-
+作者参数与组合约束见 [CityBox 视觉参数](../../../../city-box/docs/视觉参数.md)；整场景的组合设计与美术审核见 [make-scene 视觉语言](../../../make-scene/references/visual-language.md)。本文件只负责构建与交付，不维护另一份色盘或参数目录。
 源 Prefab 声明 `surface` 材质角色、`tone` 描线主次和可选的 `line_palette`；Blender 材质供自身预览使用，不转换为 Unity 材质。源不保存描线。构建将真实模型生成 `描线_focus_<名>`，将 `outline="proxy"` 的手搭替身生成 `描线_world_<名>`，将填充建筑与基础设施生成 `描线_always_<类>`。`tone` 只决定亮暗。世界状态显示 world + always；聚焦状态显示该顶层地点的 focus + always，并显示它的 `内部_<名>`。逐建筑调参后运行 `./build.sh --no-publish --focus <名>` 检查游戏聚焦图；需要从全城机位检查近景线时运行 `./build.sh --no-publish --render game --inspect-outline <名>`。
 
 ## 发布后验证

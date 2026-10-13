@@ -11,7 +11,7 @@
 
 ## 城市源与独立资产
 
-- `city-box/prefabs/*.blend` 只保存净几何和语义节点，不带材质。最终材质与 focus/world/always 描线由 CityBox 构建生成。
+- `city-box/prefabs/*.blend` 保存净几何、语义节点及作者视觉声明；源材质可用于 Blender 自身查看，最终角色材质与 focus/world/always 描线由构建处理。声明与能力限制见 [CityBox 视觉参数](../../../city-box/docs/视觉参数.md)，物件在场景里的视觉职责按 [make-scene 视觉语言](../../make-scene/references/visual-language.md) 判断。
 - 生成模型碎面密（珠帘吊灯一类）时近景描线会糊成一团：对象可标 `outline = "camera_silhouette"`（只描剪影），或本体标 `outline = "none"`。世界视角需要轮廓时另放 `outline = "proxy"` 的手搭简化体。参数见 `city-box/pipeline/outline.py` 头部。
 - 生成模型里的弧面（穹顶、圆塔）拆成单独对象走 `outline = "hull"`：球面没有硬边，按机位预烘的剪影一转 Orbit 就漂到面中间变成一道锯齿"裂痕"；反向外壳任何视角只描轮廓。范例 `prefabs/src/剧院.py` 的 `穹顶_球面`。
 - 远景替身 `outline = "proxy"` 描的是**签名不是包围盒**：每栋只留一个全城机位认得出的形（楔、穹顶、退台、桅杆），其余体量并成一块；替身要比本体大一圈，缩在里面会被本体挡出断口。远景线按 `Camera_世界` 预烘剪影，所以弧面替身（半球、鼓）能出整圈。
@@ -31,6 +31,6 @@
 - 资产预览使用能暴露入口、圆弧、薄片和遮挡的 3/4 视角，主体占画面约 75%–85%。
 - 城市地点还要提供整城布局预览；单体正确不代表城市位置正确。
 - 审批图显示最终主体与现行描线效果。wireframe/clay 只作为附加诊断图。
-- 正式文件不保留预览 Light、Ground 或临时对象。
+- 正式文件不保留临时预览 Light、Ground；带地点视觉声明、供正式发布使用的灯光必须保留。
 
 保存后用后台 Blender 重新打开并运行验证脚本；二进制可读、几何合格、语义契约和相机对齐是四项独立检查。
