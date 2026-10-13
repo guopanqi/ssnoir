@@ -4,8 +4,8 @@
 6 slots, A/B take 3 WORK each; the rewarded demand is learned after a
 specified number of slots. Finishing either gives base5 +14 if demanded.
 Switching focus consumes a full slot, except in the free-focus control.
-For the primary test the first two slots REQUIRE real work (no SIDE);
-this restriction is explicitly removed in the strongest waiting control.
+For the primary test the first two slots prohibit SIDE; retooling is legal
+in slot 2. This restriction is removed in the waiting control.
 Generic SETUP has exactly the same costs and transitions as SWITCH.
 Fraction DP, all fixed legal schedules, full reachable-state isomorphism.
 No human/agent blind play or Unity evidence.
