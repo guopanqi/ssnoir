@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build/check the standalone human field station from two grounded JSON sources.
+"""Build/check the standalone human field station from versioned research JSON.
 
 - 模式库.json: reviewed research conclusions (not canonical game rules)
 - 试玩任务.json: explicit current human playtest queue and prompts
@@ -18,6 +18,8 @@ ROOT=Path(__file__).resolve().parents[3]
 BASE=ROOT/"docs/实验/机制研究"
 ATLAS=BASE/"模式库.json"
 TASKS=BASE/"试玩任务.json"
+PATTERN_MAP=BASE/"模式语言知识地图.json"
+DIALOGUE=BASE/"研究沟通.json"
 TEMPLATE=BASE/"研究总览.template.html"
 CLOUD=ROOT/"tools/content-validator/experiments/mechanism_cloud_feedback.js"
 WORKBENCH_CSS=ROOT/"tools/content-validator/experiments/mechanism_workbench.css"
@@ -90,7 +92,21 @@ def build()->str:
     config=json.loads(tasks)
     validate_library(data)
     validate_tasks(config,data)
+    pattern_map=PATTERN_MAP.read_text(encoding="utf-8").strip()
+    dialogue=DIALOGUE.read_text(encoding="utf-8").strip()
+    graph=json.loads(pattern_map)
+    questions=json.loads(dialogue)
+    assert graph["schema"]=="ssnoir.pattern-language-map/v1"
+    node_ids=[node["id"] for node in graph["nodes"]]
+    assert len(node_ids)==len(set(node_ids)) and len(node_ids)>=20
+    assert all(edge["from"] in node_ids and edge["to"] in node_ids for edge in graph["edges"])
+    assert questions["schema"]=="ssnoir.research-requests/v1"
+    qids=[q["id"] for q in questions["questions"]]
+    assert len(qids)==len(set(qids)) and all(qid.startswith("RQ-") for qid in qids)
+    assert all(all(pid in node_ids for pid in q["related"]) for q in questions["questions"])
     template=TEMPLATE.read_text(encoding="utf-8")
+    assert template.count("/*PATTERN_MAP_DATA*/")==1
+    assert template.count("/*RESEARCH_DIALOGUE_DATA*/")==1
     assert template.count("/*ATLAS_DATA*/")==1
     assert template.count("/*TASK_DATA*/")==1
     assert template.count("/*CLOUD_FEEDBACK_SCRIPT*/")==1
@@ -99,10 +115,12 @@ def build()->str:
     cloud=CLOUD.read_text(encoding="utf-8")
     wb_css=WORKBENCH_CSS.read_text(encoding="utf-8")
     wb_js=WORKBENCH_JS.read_text(encoding="utf-8")
-    assert "</script" not in atlas.lower() and "</script" not in tasks.lower()
+    assert all("</script" not in item.lower() for item in (atlas,tasks,pattern_map,dialogue))
     assert "</script" not in cloud.lower(), "Embedded cloud code must not close its script"
     assert "</script" not in wb_js.lower() and "</style" not in wb_css.lower()
-    return (template.replace("/*ATLAS_DATA*/",atlas)
+    return (template.replace("/*PATTERN_MAP_DATA*/",pattern_map)
+                    .replace("/*RESEARCH_DIALOGUE_DATA*/",dialogue)
+                    .replace("/*ATLAS_DATA*/",atlas)
                     .replace("/*TASK_DATA*/",tasks)
                     .replace("/*CLOUD_FEEDBACK_SCRIPT*/",cloud)
                     .replace("/*WORKBENCH_CSS*/",wb_css)
