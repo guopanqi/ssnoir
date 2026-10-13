@@ -147,7 +147,7 @@ function begin(mode){
  g={mode,prep:null,done:false};log=[];
  $("setup").classList.add("invisible");$("play").classList.remove("invisible");
  $("reason").value="";$("reason").disabled=false;
- say("实验版本："+(mode==="hard"?"A": "B")+"；菜单对照："+(FLAT_MENU?"统一次日行动":"依历史改变行动")+"；以下都是虚构情境，不存在数值评分。");
+ say("独立虚构情境实验已开始；没有数值评分，条件编号将在完成第三幕后记录。");
  render();
 }
 function render(){
@@ -205,6 +205,7 @@ function choose(id){
  if(!legal.includes(id))return;
  copyReason();g.next=id;g.done=true;
  say("第三幕行动："+id+"；新的情况："+FOLLOWUP_DETAILS[id].after);
+ say("实验条件："+(g.mode==="hard"?"A":"B")+"；菜单版："+(FLAT_MENU?"平坦":"历史条件化")+"。");
  render();
 }
 $("start").onclick=()=>begin(Math.random()<.5?"hard":"soft");
