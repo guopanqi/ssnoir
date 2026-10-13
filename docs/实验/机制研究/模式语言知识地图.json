@@ -656,7 +656,7 @@
       "note": "证据仅支持列出的特定规则/历史反馈，不自动归为成熟玩法"
     },
     {
-      "id": "C01",
+      "id": "PL-C01",
       "name": "危机封路后的绕行/修复",
       "layer": "combination-hypothesis",
       "origin": "new-local-experiment",
@@ -673,7 +673,7 @@
       "note": "证据仅支持列出的特定规则/历史反馈，不自动归为成熟玩法"
     },
     {
-      "id": "C02",
+      "id": "PL-C02",
       "name": "信息与改目标的剩余容量",
       "layer": "combination-boundary",
       "origin": "new-local-experiment",
@@ -742,6 +742,42 @@
         "humanVerified": false
       },
       "note": "该卡片只记录进一步探索的问题，不能声称已证明目标意义反转"
+    },
+    {
+      "id": "PL-C03",
+      "name": "事前准备使危机中的备用路线更有效",
+      "layer": "combination-hypothesis",
+      "origin": "new-local-experiment",
+      "idea": "为未来可能关闭的主路线提前投入一手；当危机概率变化时合理投资与直接推进会互换",
+      "stage": "exact-model-with-strong-fixed-strategy-critique",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-13-准备与危机概率/研究记录.md"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      },
+      "note": "准备会把危机中DETOUR从+1增强为+2；是否值得开局准备与q有关。未证明持续重规划，尚未与同成本现场ENABLE做正式公平对照"
+    },
+    {
+      "id": "PL-C04",
+      "name": "完成主要目标关闭额外收益",
+      "layer": "combination-hypothesis",
+      "origin": "new-local-paper-question",
+      "idea": "额外成果与尽快完成主要目标之间是否存在可达的见好就收/机会关闭取舍",
+      "stage": "paper-question-unmodeled",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-13-模式语言与组合首轮/研究记录.md"
+      ],
+      "evidence": {
+        "mathematical": false,
+        "native": false,
+        "humanVerified": false
+      },
+      "note": "目前只有反例问题，没有专用数学和实际玩家证据"
     }
   ],
   "edges": [
@@ -753,37 +789,37 @@
     },
     {
       "from": "CS2-04",
-      "to": "C01",
+      "to": "PL-C01",
       "relation": "ingredient",
       "reason": "替代行动路线是C01能条件改道的必要部分"
     },
     {
       "from": "CS2-08",
-      "to": "C01",
+      "to": "PL-C01",
       "relation": "ingredient",
       "reason": "触发危机后原行动关闭，玩家需重新选择"
     },
     {
       "from": "P11",
-      "to": "C01",
+      "to": "PL-C01",
       "relation": "contrasts",
       "reason": "P11主要研究压力的维护成本，C01特意改变危机时行动可达性"
     },
     {
       "from": "P03",
-      "to": "C02",
+      "to": "PL-C02",
       "relation": "related-structure",
       "reason": "行动与信息的关系受剩余行动容量约束"
     },
     {
       "from": "P14",
-      "to": "C02",
+      "to": "PL-C02",
       "relation": "related-structure",
       "reason": "调查的价值要与继续执行、直接选择对照"
     },
     {
       "from": "R526",
-      "to": "C02",
+      "to": "PL-C02",
       "relation": "boundary",
       "reason": "可识别的信息若不改变最优动作则不产生独立调查决策"
     },
@@ -807,7 +843,7 @@
     },
     {
       "from": "CS2-09",
-      "to": "C02",
+      "to": "PL-C02",
       "relation": "unproven-extension",
       "reason": "数值上的目标偏好变化尚不能证明叙事意义重估"
     },
@@ -858,13 +894,50 @@
       "to": "X03",
       "relation": "negative-boundary",
       "reason": "信息可被识别但若不改变可行行动，其额外价值可能为零"
+    },
+    {
+      "from": "P13",
+      "to": "PL-C03",
+      "relation": "ingredient",
+      "reason": "当前行动投资未来产能，需检查是否只是固定开局升级"
+    },
+    {
+      "from": "CS2-08",
+      "to": "PL-C03",
+      "relation": "ingredient",
+      "reason": "危机打断普通推进，备用路线是事前行动的场内兑现"
+    },
+    {
+      "from": "PL-C01",
+      "to": "PL-C03",
+      "relation": "extension",
+      "reason": "首轮研究危机后修复/绕行；本轮增加危机发生概率与不可补做的事前准备"
+    },
+    {
+      "from": "R526",
+      "to": "PL-C03",
+      "relation": "negative-comparison",
+      "reason": "研究不应仅凭信息存在就断言行动改变；该轮概率是公开的"
+    },
+    {
+      "from": "P09",
+      "to": "PL-C04",
+      "relation": "ingredient",
+      "reason": "积累与兑现的风险选择"
+    },
+    {
+      "from": "P12",
+      "to": "PL-C04",
+      "relation": "ingredient",
+      "reason": "完成主目标关闭后续机会"
     }
   ],
   "coverage": {
     "historicalCandidateCount": 20,
     "curatedDisplayMappedCount": 6,
     "cs2AnalyticalPatterns": 9,
-    "unconvertedHistory": "关系索引中的其他R批次、数学负例和组合应按主题逐步纳入；不能据本地图未出现就认定没有价值"
+    "unconvertedHistory": "关系索引中的其他R批次、数学负例和组合应按主题逐步纳入；不能据本地图未出现就认定没有价值",
+    "additionalExperimentalCompositions": "PL-C01/PL-C02/PL-C03已做最小模型、PL-C04仅概念问题；与另一研究线的C01/C02/C03区别命名"
   },
   "policy": [
     "没有入精选不意味着无价值",
@@ -872,6 +945,7 @@
     "数学不支配与收益增量不足以证明乐趣",
     "可检索的边界反例也是研究成果",
     "新假设可直接存入知识地图；精选展示和Debug是独立决策",
-    "X01–X03属与C01–C03不同的独立最小组合对照；任何节点编号都不是精选晋升或真人认证"
+    "X01–X03属与C01–C03不同的独立最小组合对照；任何节点编号都不是精选晋升或真人认证",
+    "PL前缀区别于并行研究线在长期研究启动档案中使用的C01/C02/C03，禁止凭名称相同直接合并"
   ]
 }
