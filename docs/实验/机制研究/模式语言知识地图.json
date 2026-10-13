@@ -2,7 +2,7 @@
   "schema": "ssnoir.pattern-language-map/v1",
   "updated": "2026-10-13",
   "reviewBase": "c8055fa1aa2fe18ec1ecc50c7e721072c67dd809",
-  "scope": "保留成熟作品、20历史候选、精选展示与局部研究；T01是可复用的跨阶段组合边界，非独立新精选/人类认可；本轮另纳入PL-Q01/D01/W01三族跨尺度正负对照，未自动精选或真人认证；新增F1/F2目标内生生成与撤权、D2反驳纯诱饵通用支配，均为局部精确证据；RGT01可更换许可的强简单策略负例及ACT01双向自利公开外部机会模型均纳入；REL01/REL02新增自利关系许可×半成品保全×信息时点可执行证据与短公开口诀全优边界；REL03检验半成品跨交锋转成操作资格的旧启用同构与首手时间窗必要条件；新纳入R342/R430/R478三条历史社会协商先例，以及NEG01—05可信履约、强合同菜单、策略拒绝与伪造成本四个证据节点，不视为新精选",
+  "scope": "保留成熟作品、20历史候选、精选展示与局部研究；T01是可复用的跨阶段组合边界，非独立新精选/人类认可；本轮另纳入PL-Q01/D01/W01三族跨尺度正负对照，未自动精选或真人认证；新增F1/F2目标内生生成与撤权、D2反驳纯诱饵通用支配，均为局部精确证据；RGT01可更换许可的强简单策略负例及ACT01双向自利公开外部机会模型均纳入；REL01/REL02新增自利关系许可×半成品保全×信息时点可执行证据与短公开口诀全优边界；REL03检验半成品跨交锋转成操作资格的旧启用同构与首手时间窗必要条件；新纳入R342/R430/R478三条历史社会协商先例，以及NEG01—05可信履约、强合同菜单、策略拒绝与伪造成本四个证据节点，不视为新精选；本次未造新节点，用NEG06与X01-LONG独立试玩/完整可达性证据增强原PL-NEG03和X01两个节点，避免数量攀升当价值",
   "definitions": {
     "layer": "机制原语、基础决策关系、交锋结构、跨交锋组织可交叉连接；层级不是质量排名",
     "origin": "设计先例、仓库研究、局部组合假说分开保存",
@@ -748,17 +748,21 @@
       "layer": "combination-boundary",
       "origin": "new-local-experiment",
       "idea": "危机封锁A后，另一目标的既有进度与价值决定修复还是转投；无可竞争B时退化为FIX税",
-      "stage": "exact four-state local enumeration; no full-encounter reachability or human play",
+      "stage": "original four-state local exact check PLUS a separate fully reachable four-action opening, 136 DOM legal-path smoke checks; no human",
       "curatedDisplay": false,
       "sources": [
         "docs/实验/机制研究/批次/长期研究-启动-组合诊断/研究记录.md",
-        "tools/content-validator/experiments/pattern_language_composition_pilot.py"
+        "tools/content-validator/experiments/pattern_language_composition_pilot.py",
+        "docs/实验/机制研究/批次/2026-10-13-策略回应与危机可达性/研究记录.md",
+        "docs/实验/机制研究/批次/2026-10-13-策略回应与危机可达性/危机试玩.html",
+        "tools/content-validator/experiments/pattern_crisis_from_opening_20261013.py",
+        "tools/content-validator/experiments/test_crisis_opening_study.js"
       ],
       "evidence": {
         "mathematical": true,
         "humanVerified": false
       },
-      "note": "仅局部状态冻结、无随机；不是一套新的原创交锋模式或完整玩家体验"
+      "note": "仅局部状态冻结、无随机；不是一套新的原创交锋模式或完整玩家体验；X01-LONG独立新数值方案：A初始2/3、B0/4，先两手准备，后公开危机再两手响应；低风险q=1/4最优SIDE×2→危机FIX,A期望35/2，高风险q=3/4最优B×2→危机B,B期望17；强条件阈值q>1/2完全解释。不是对旧局部奖励作同协议数值续推。"
     },
     {
       "id": "X02",
@@ -1234,18 +1238,21 @@
       "origin": "new-local-experiment",
       "family": "回应信息/自利期待",
       "idea": "初报2被拒后会提4时，保留价只需2的类型也会为更多报酬拒绝初报；把回应当真实私人类型阈值会造出虚假调查能力",
-      "stage": "exact-two-type-rejection-incentive-counterexample; no human",
+      "stage": "exact private-type strategic rejection model plus tested standalone two-turn no-answer DOM prototype; no human",
       "curatedDisplay": false,
       "sources": [
         "docs/实验/机制研究/批次/2026-10-13-可信协商与策略性拒绝/研究记录.md",
-        "tools/content-validator/experiments/pattern_bargaining_incentives_20261013.py"
+        "tools/content-validator/experiments/pattern_bargaining_incentives_20261013.py",
+        "docs/实验/机制研究/批次/2026-10-13-策略回应与危机可达性/研究记录.md",
+        "docs/实验/机制研究/批次/2026-10-13-策略回应与危机可达性/协商试玩.html",
+        "tools/content-validator/experiments/test_strategic_refusal_field_study.js"
       ],
       "evidence": {
         "mathematical": true,
         "native": false,
         "humanVerified": false
       },
-      "note": "朴素阈值脚本假算17/2，真实双方拒绝再涨价得7；直接初报4使伙伴平局接受得8。具体根值依赖高类型外部4与平局接受；低类型有利可图而拒绝的严格反证不依赖平局。"
+      "note": "朴素阈值脚本假算17/2，真实双方拒绝再涨价得7；直接初报4使伙伴平局接受得8。具体根值依赖高类型外部4与平局接受；低类型有利可图而拒绝的严格反证不依赖平局。；NEG06协议+可观测拒绝的10条完整路径网页冒烟，首报4始终全优，低价拒绝分支可能在理性首报下根本不出现；不能据此宣称已获得真人社交体验。"
     },
     {
       "id": "PL-NEG04",
@@ -1808,6 +1815,30 @@
       "to": "PL-NEG03",
       "relation": "limitation",
       "reason": "旧模型的支持/反建议可能携带需求信号，新模型证明当响应可用于诱发加价时不能预设同样的信号含义"
+    },
+    {
+      "from": "X01",
+      "to": "PL-C01",
+      "relation": "longitudinal-evidence",
+      "reason": "原有局部封路绕行/修复，新增同一开局两手准备后危机公开，证明确有可达B0/B2两种输入但最优仅单阈值"
+    },
+    {
+      "from": "X01",
+      "to": "PL-W02",
+      "relation": "cross-scale-backup-attention",
+      "reason": "连续临时机会与提前构造可替代成果同为有限注意力分配；X01前期准备需真占用SIDE收益"
+    },
+    {
+      "from": "X01",
+      "to": "PL-NEG03",
+      "relation": "causal-source-contrast",
+      "reason": "X01危机是外部随机信号；NEG03拒绝是会预期玩家后续报价的他者自主策略行为，二者不能统称信息揭示"
+    },
+    {
+      "from": "PL-NEG03",
+      "to": "R478",
+      "relation": "signaling-boundary",
+      "reason": "对方拒绝没有稳定类型后验；与可核验类型事实能在特定均衡区分的历史结论形成相反信号边界"
     }
   ],
   "coverage": {
@@ -1815,7 +1846,7 @@
     "curatedDisplayMappedCount": 6,
     "cs2AnalyticalPatterns": 9,
     "unconvertedHistory": "关系索引中的其他R批次、数学负例和组合应按主题逐步纳入；不能据本地图未出现就认定没有价值",
-    "additionalExperimentalCompositions": "PL-C01/PL-C02/PL-C03已做最小模型、PL-C04仅概念问题；与另一研究线的C01/C02/C03区别命名；PL-Q01/D01/W01另有3个独立模型及消融和负面边界；PL-W02新增连续三天注意力容量组合，最强简明口诀和变更容量边界明确；F1/F2/D2三项同源跨家族与充分边界反证，不增精选；RGT01/ACT01用各自精确逆推补充许可资源与自利协作者正负证据，无真人；REL01/REL02四轮精确博弈与私有信号消融已完成（同原语条件组合；不改变精选六或Debug）；REL03后续通行凭据仅真实首手截止窗口有正准备选择价值、普通窗口弱支配；未证独立新玩法；NEG01—05双方自利协商五项精确反证；R342/R430/R478原生历史首次结构化归图，均非真人。",
+    "additionalExperimentalCompositions": "PL-C01/PL-C02/PL-C03已做最小模型、PL-C04仅概念问题；与另一研究线的C01/C02/C03区别命名；PL-Q01/D01/W01另有3个独立模型及消融和负面边界；PL-W02新增连续三天注意力容量组合，最强简明口诀和变更容量边界明确；F1/F2/D2三项同源跨家族与充分边界反证，不增精选；RGT01/ACT01用各自精确逆推补充许可资源与自利协作者正负证据，无真人；REL01/REL02四轮精确博弈与私有信号消融已完成（同原语条件组合；不改变精选六或Debug）；REL03后续通行凭据仅真实首手截止窗口有正准备选择价值、普通窗口弱支配；未证独立新玩法；NEG01—05双方自利协商五项精确反证；R342/R430/R478原生历史首次结构化归图，均非真人。；NEG06双回合私人回应DOM全十路，X01-LONG准备→事件→响应两段完整枚举及136条合法UI路径，均一行规则全优，无真人",
     "humanFeedbackNote": "目前有关稳险/R06、边做边看/R10、压力/R37、R54、R50的有限设计者反馈；原记录各不等价于受控盲试玩；P02/R13仍没有真人反馈。",
     "thirdComparison": "PL-C05 supplies a tested negative boundary; not a new curated or debug pattern"
   },
