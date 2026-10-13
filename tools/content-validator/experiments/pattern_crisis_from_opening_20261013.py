@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """X01 full-start audit: is the alternative goal naturally reachable?
 
-Two preparation actions from A=2/3 B=0/3, then a publicly revealed lock
+Two preparation actions from A=2/3 B=0/4, then a publicly revealed lock
 (crisis) and two response actions. Preparation has safe SIDE or B investment.
 Fractions, exhaustive memoized backward induction and strong public scripts.
 This is deliberately an interpretable known-mode composition, not human play.
@@ -11,15 +11,17 @@ from functools import lru_cache
 from itertools import product
 from collections import defaultdict
 
-A_REWARD=F(3)
-B_REWARD=F(6)
-SIDE=F(23,10)
+A_REWARD=F(8)
+B_REWARD=F(17)
+PREP_SIDE=F(4)
+RESPONSE_SIDE=F(2)
+B_TARGET=4
 PREP_STEPS=2
 LATE_STEPS=2
 
 def respond(b,side,locked,b_available=True):
     """Two final actions: A completes once if unlocked, B at progress 3,
-    FIX unlocks A; SIDE yields immediate 23/10. Count rewards only once.
+    FIX unlocks A; SIDE yields immediate 2. Count rewards only once.
     """
     @lru_cache(None)
     def go(step,a,b,lock,done_a,done_b):
@@ -32,19 +34,19 @@ def respond(b,side,locked,b_available=True):
         for x in available:
             na,nb,nlock,da,db=a,b,lock,done_a,done_b
             reward=F(0)
-            if x=="SIDE":reward=SIDE
+            if x=="SIDE":reward=RESPONSE_SIDE
             elif x=="FIX":nlock=False
             elif x=="A":
                 na+=1
                 if na>=3:reward=A_REWARD;da=True
             elif x=="B":
                 nb+=1
-                if nb>=3:reward=B_REWARD;db=True
+                if nb>=B_TARGET:reward=B_REWARD;db=True
             val,tail=go(step+1,na,nb,nlock,da,db)
             options.append((reward+val,(x,)+tail))
         return max(options,key=lambda x:x[0])
     value,seq=go(0,2,b,bool(locked),False,False)
-    return value+side*SIDE,seq
+    return value+side*PREP_SIDE,seq
 
 def full(prob_crisis,b_available=True,lock_matters=True):
     q=F(prob_crisis)
@@ -72,7 +74,7 @@ def fixed_preparation(q,sequence,lock_matters=True,b_available=True):
     return q*in_crisis[0]+(1-q)*no_crisis[0],in_crisis,no_crisis
 
 def main():
-    cases=[(F(1,4),"SIDE",F(373,40)),(F(3,4),"B",F(339,40))]
+    cases=[(F(1,4),"SIDE",F(35,2)),(F(3,4),"B",F(17))]
     for q,first_action,expected in cases:
         best=full(q)
         assert best[0]==expected,(q,best)
@@ -87,11 +89,11 @@ def main():
         if first_action=="SIDE":
             assert best[2][1]==("FIX","A")
         else:
-            assert best[2][1] in (("B","SIDE"),("SIDE","B"))
-        assert best[3][1] in (("A","SIDE"),("SIDE","A"),("A","B"),("B","A"))
+            assert best[2][1]==("B","B")
+        assert best[3][1] in (("A","SIDE"),("SIDE","A"),("B","B"))
     # At threshold 9/16 both prep routes can be optimal; the oracle's
     # tie behavior is not evidence for two distinct strict decisions.
-    bound=F(9,16)
+    bound=F(1,2)
     ss=fixed_preparation(bound,("SIDE","SIDE"))[0]
     bb=fixed_preparation(bound,("B","B"))[0]
     ab=fixed_preparation(bound,("SIDE","B"))[0]
@@ -102,9 +104,9 @@ def main():
         bb=fixed_preparation(q,("B","B"))[0]
         ab=fixed_preparation(q,("SIDE","B"))[0]
         assert oracle==max(ss,bb)
-        assert ss==F(99,10)-F(23,10)*q
-        assert bb==F(9)-F(7,10)*q
-        assert ab==F(83,10)
+        assert ss==F(18)-F(2)*q
+        assert bb==F(17)
+        assert ab==F(14)-F(2)*q
         assert full(q,lock_matters=False)[1]==("SIDE","SIDE")
         assert full(q,b_available=False)[1]==("SIDE","SIDE")
         print("X01 controls",str(q),"oracle",str(oracle),
@@ -113,8 +115,7 @@ def main():
               "no B",str(full(q,b_available=False)[0]))
     # Symmetric sources: old local B=2 is reached with two B prep actions
     # and old B=0 with two SIDE actions, from exactly the same start.
-    assert fixed_preparation(F(3,4),("B","B"))[1][1] in (
-        ("B","SIDE"),("SIDE","B"))
+    assert fixed_preparation(F(3,4),("B","B"))[1][1]==("B","B")
     print("PASS X01 full opening reachable, crisis effects, simple threshold controls")
 
 if __name__=="__main__":main()
