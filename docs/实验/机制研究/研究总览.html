@@ -563,7 +563,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
   "schema": "ssnoir.pattern-language-map/v1",
   "updated": "2026-10-13",
   "reviewBase": "c8055fa1aa2fe18ec1ecc50c7e721072c67dd809",
-  "scope": "非排他发现地图：20历史结构候选、6精选展示映射、CS2九类比较先例、近期重点关系和本批组合；不是478项逐一复审。",
+  "scope": "保留成熟作品、20历史候选、精选展示与局部研究；T01是可复用的跨阶段组合边界，非独立新精选/人类认可",
   "definitions": {
     "layer": "机制原语、基础决策关系、交锋结构、跨交锋组织可交叉连接；层级不是质量排名",
     "origin": "设计先例、仓库研究、局部组合假说分开保存",
@@ -1427,6 +1427,26 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
         "humanVerified": false
       },
       "note": "四组q对照Both=On-site-only；仅限冻结模型，不能推广为普遍准备玩法定理"
+    },
+    {
+      "id": "T01",
+      "name": "预案保留替代成果",
+      "layer": "cross-timescale-combination",
+      "origin": "new-local-experiment",
+      "family": "准备／外部风险／替代路线",
+      "idea": "危机前为A与B分配准备；危机可能废掉A，B的先前进度成为可兑现的替代方案。面对不同公开风险，专注A、分散、专注B各有合理条件。",
+      "stage": "exact ex ante/after-shock two-stage model; untested with people",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-13-跨阶段预案与替代目标/研究记录.md",
+        "tools/content-validator/experiments/pattern_language_contingency_pilot.py"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "humanVerified": false,
+        "publishedWorkExample": false
+      },
+      "note": "当风险p<1/2优先AA，1/2<p<2/3分散AB，p>2/3偏向BB，源于冻结规则。可由简短阈值口诀解释，不能宣称原创机制或真实危机体验。"
     }
   ],
   "edges": [
@@ -1597,6 +1617,36 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
       "to": "PL-C05",
       "relation": "limits",
       "reason": "任何投资都需要与等待需求后再投资的机会成本对照"
+    },
+    {
+      "from": "P02",
+      "to": "T01",
+      "relation": "ingredient",
+      "reason": "有限行动中完成A/B的机会成本使准备分配成为问题"
+    },
+    {
+      "from": "CS2-08",
+      "to": "T01",
+      "relation": "ingredient",
+      "reason": "外部危机改变可用路线和已有成果，观察后改用B"
+    },
+    {
+      "from": "X01",
+      "to": "T01",
+      "relation": "extends",
+      "reason": "X01事后危机分诊向前扩展到危机前的可解释准备决策"
+    },
+    {
+      "from": "X02",
+      "to": "T01",
+      "relation": "contrasts",
+      "reason": "X02准备权限受早到窗口影响；T01准备阶段投入的是可保留的次级成果而非解锁动作"
+    },
+    {
+      "from": "P07",
+      "to": "T01",
+      "relation": "potential-composition",
+      "reason": "主动开启机会窗口可能改变危机概率与准备时点，尚未运行联合模型"
     }
   ],
   "coverage": {
@@ -1631,7 +1681,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
       "status": "需要人类观察",
       "related": [
         "CS2-08",
-        "C01",
+        "PL-C01",
         "X01"
       ],
       "context": "研究发现危机封路之后可能出现修理、绕行或改投另一目标的不同最优行动，但不知道玩家实际是否感到计划被打断。",
@@ -1658,7 +1708,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
 }</script>
 <script type="application/json" id="atlas-data">{
   "version": 1,
-  "updated": "2026-10-12",
+  "updated": "2026-10-13",
   "title": "SSNoir · 抽象玩法结构研究",
   "subtitle": "研究少量规则如何让玩家重新分配资源、改变优先级与调整计划；情景和人物意义由设计者另行创作。",
   "summary": "抽象结构研究已重新校准：研究玩家在少量规则中如何选择、分配有限资源、根据行动反馈调整决定，并探索实质不同的循环。历史20项只是待审核结构候选，六种精选并非都已被人类认可。先比较不同机制族、无情景玩家判断和强简单策略；S2/S3道具与人物正典验证已转为独立内容工作，不再占据研究前沿。",
@@ -1961,12 +2011,19 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
     }
   ],
   "nextQuestions": [
-    "紧急研究质量门槛：day9‘独自调查’如何允许夜莺行动且副标题称她已走？day10才正式离队，怎样不破坏路灯下对白地统一事件时点？",
-    "隐蔽目的地的东西两条路线，玩家能利用公开的social与knowledge和中途遭遇作选择吗？",
-    "无烟莱恩场景，低风险信件vs高风险夜莺近况是否真正产生不同的失败人物后果？",
-    "无提示理解的真实反馈仍缺，不提前揭露烟盒未来效果和东、西最终人物。"
+    "危机是否真的改变玩家的原计划与可行动作，还是被一条固定修理口诀解释？",
+    "事前准备与替代成果在什么条件下产生玩家可理解的跨阶段取舍？T01的风险阈值是否仅是经典分散投资？",
+    "成熟作品中的完整交锋决策结构如何与实验室的基础关系相互组合，又能在哪里被简化或反证？"
   ],
   "references": [
+    {
+      "label": "Agent 向设计师提出的问题",
+      "href": "研究沟通.json"
+    },
+    {
+      "label": "完整模式语言知识图（含未精选研究）",
+      "href": "模式语言知识地图.json"
+    },
     {
       "label": "研究定位与评价",
       "href": "研究定位与评价.md"
@@ -1995,13 +2052,13 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
 }</script>
 <script type="application/json" id="tasks-data">{
   "version": 1,
-  "updated": "2026-10-12",
-  "headline": "抽象玩法研究：探索新的决策循环、有意义的选择与资源分配",
-  "intro": "体验最小规则之间的选择与反馈：观察每次怎么决定，什么时候修改计划，以及操作是否很快退化为固定流程。人物与剧情属于后续创作，本工作台只展示已筛选的抽象机制体验与对应证据。",
+  "updated": "2026-10-13",
+  "headline": "长期抽象玩法模式研究：机制发现、组合关系、成熟作品参考与真人体验校准并行",
+  "intro": "Agent自主探索与积累模式语言；设计师可在工作台的模式目录检索整个知识图、选择适合情境的结构，在研究提问区描述实际体验或设计需求。实验室只放经审阅的少量可试玩原型，不是全部研究成果。",
   "current": [
-    "研究方向已从剧情、人物、道具校准回抽象决策关系。新轮次必须先以A/B、动作成本、状态、反馈、资源和目标写出玩家的反复选择循环。",
-    "当前精选六种代表性模式、历史20结构候选与人工审核后的试玩入口数量均未因研究校准而增加；未筛选的R/S批次和S3原版情节验证不作为自动试玩任务。",
-    "当前请优先体验已有R55等已明确版本的玩法原型：是否看得懂可选行动为何不同？做完第一步后是否真想改变计划？有无变成固定操作？真人反馈独立于数学和原生验证。"
+    "模式语言知识图已吸收Citizen Sleeper 2交锋结构的设计归纳、历史研究与负面边界；候选/精选是展示方式，不能代表模式的全部价值。",
+    "T01跨阶段预案×替代成果：在有限准备中，风险低时专注主目标，适中时保留次级方案，较高时优先可靠成果；已做有理数完整枚举，仍缺人类体验证据。",
+    "工作台新增完整模式目录、情境组合简报及独立研究提问。只有在需要人类解释理解、情绪或使用方式时提出问题；其它机制探索持续自主进行。"
   ],
   "nonPromoted": [
     {
@@ -2880,7 +2937,7 @@ window.SSNoirResearchDialogue={
       createdAt:new Date().toISOString(),
       related:question.related,answer:payload.answer.trim(),context:question.context
     };
-    const stamp=clean.createdAt.replace(/[-:]/g,"").replace(/\\..+$/,"").replace("T","-");
+    const stamp=clean.createdAt.replace(/[-:]/g,"").replace(/\..+$/,"").replace("T","-");
     const random=crypto.getRandomValues(new Uint8Array(6));
     const suffix=Array.from(random,x=>x.toString(16).padStart(2,"0")).join("");
     const dest="docs/实验/机制研究/反馈/questions/SSNoir-dialogue-"+question.id+"-"+stamp+"-"+suffix+".json";
@@ -3334,9 +3391,9 @@ function attention(){
 }
 function home(){
  $("wb-updated").textContent=tasks.updated+" 更新";
- $("wb-main-question").textContent=atlas.nextQuestions[0]||tasks.headline;
- $("wb-main-link").href=studyLink(tasks.tasks[0].id);
- $("wb-main-link").textContent="查看 "+tasks.tasks[0].id+" · "+tasks.tasks[0].title+" ↗";
+ $("wb-main-question").textContent=dialogue.questions[0]?.title||tasks.headline;
+ $("wb-main-link").href="#library";
+ $("wb-main-link").textContent="从模式目录挑选结构 ↗";
  const root=$("wb-notes");root.replaceChildren();
  tasks.current.slice(0,3).forEach((v,i)=>{const a=make(root,"article","wb-note");make(a,"span","wb-kicker","记录 "+String(i+1).padStart(2,"0"));make(a,"p",null,v);});
 }
