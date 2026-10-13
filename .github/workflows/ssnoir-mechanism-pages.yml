@@ -26,6 +26,8 @@ on:
       - 'tools/content-validator/experiments/test_crisis_opening_study.js'
       - 'docs/实验/机制研究/批次/2026-10-13-情境选择与注意力验证/证词与时限.html'
       - 'tools/content-validator/experiments/test_witness_vignette.js'
+      - 'docs/实验/机制研究/批次/2026-10-13-压力转移与隐藏触发/压力分配.html'
+      - 'tools/content-validator/experiments/test_pressure_transfer_prototype.js'
       - 'Game/**'
 permissions:
   contents: read
@@ -87,6 +89,10 @@ jobs:
           mkdir -p pages-dist/witness
           cp docs/实验/机制研究/批次/2026-10-13-情境选择与注意力验证/证词与时限.html pages-dist/witness/index.html
           test -s pages-dist/witness/index.html
+          node tools/content-validator/experiments/test_pressure_transfer_prototype.js
+          mkdir -p pages-dist/pressure
+          cp docs/实验/机制研究/批次/2026-10-13-压力转移与隐藏触发/压力分配.html pages-dist/pressure/index.html
+          test -s pages-dist/pressure/index.html
           mkdir -p pages-dist/game
           cp -R Game/dist/web/. pages-dist/game/
           test -s pages-dist/game/index.html
