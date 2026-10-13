@@ -1549,6 +1549,26 @@
         "humanVerified": false
       },
       "note": "p(A)=1/4：SOFT动态25/2、HARD23/2、SOFT取消及时奖励23/2、SOFT最佳固定23/2；真实B需求分支REVOKE后再CLAIM_B。p=1/2分别14/12/12。无期限且无及时奖励的完整晚菜单=13，此对照同时改期限与及时奖励，不是仅一变量。归并期限×撤销选择权。"
+    },
+    {
+      "id": "PL-COUP01",
+      "name": "真实双向跨交锋规则仍被一条单线策略旁路",
+      "layer": "gameplay-architecture-negative",
+      "origin": "new-local-experiment",
+      "family": "跨交锋操作生产/凭据归属/关闭行动权/简单策略压制",
+      "idea": "操作规则生成A/B证明，提前提交A反过来禁止制作B；即使两级规则双向影响合法性，某些正常开局下首手RUN获得A证据、第二手提交A、后五手全部SIDE已全优",
+      "stage": "exact-seven-turn-two-variant-Fraction-DP-three-priors-two-initial-phases-with-strong-constructive-bypass; no-human",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-13-跨期操作与可撤回承诺/跨交锋拼接反证.md",
+        "tools/content-validator/experiments/pattern_cross_encounter_coupling_20261013.py"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      },
+      "note": "初始phase0且p(A)=1/4、1/2、3/4，GATED和FLAT根值均9+10p（23/2、14、33/2），由RUN_A→CLAIM_A→SIDE×5一行策略实现；初始phase1 p1/4 FLAT-GATED仅61/5000，其他两先验根同。因果图真实相连却不能自动证明新玩法活动。"
     }
   ],
   "edges": [
@@ -2445,6 +2465,36 @@
       "to": "PL-CLAIM03",
       "relation": "autonomous-consent-contrast",
       "reason": "要让他者撤权构成新判断需其自利行动确实改变承诺合法性，不是固定随机阻塞"
+    },
+    {
+      "from": "PL-OPS01",
+      "to": "PL-COUP01",
+      "relation": "operator-produces-substantive-evidence",
+      "reason": "OPS式操作结果改成A/B具体凭据，证据直接约束能否申报目标"
+    },
+    {
+      "from": "PL-CLAIM03",
+      "to": "PL-COUP01",
+      "relation": "claim-feedback-closes-operational-actions",
+      "reason": "提前A声明反过来令B生产暂时非法，除非真正付费撤回"
+    },
+    {
+      "from": "PL-SEM04",
+      "to": "PL-COUP01",
+      "relation": "productive-byproduct-not-sufficient",
+      "reason": "生产改变下层可用成果仅证明有资源因果边，可能仍被已有最短路占据"
+    },
+    {
+      "from": "P02",
+      "to": "PL-COUP01",
+      "relation": "competing-results-require-relevant-opportunity-cost",
+      "reason": "A/B虽资源与终局不同，若A早提交加SIDE完全覆盖，玩家无须实际顾及B"
+    },
+    {
+      "from": "PL-COUP01",
+      "to": "PL-STG01",
+      "relation": "human-care-and-outcome-semantics-remain-open",
+      "reason": "数学旁路提醒仅增加合法关系无法让两件事同时值得关注；真实关注须独立体验与结果后果材料"
     }
   ],
   "coverage": {
@@ -2452,7 +2502,7 @@
     "curatedDisplayMappedCount": 6,
     "cs2AnalyticalPatterns": 9,
     "unconvertedHistory": "关系索引中的其他R批次、数学负例和组合应按主题逐步纳入；不能据本地图未出现就认定没有价值",
-    "additionalExperimentalCompositions": "PL-C01/PL-C02/PL-C03已做最小模型、PL-C04仅概念问题；与另一研究线的C01/C02/C03区别命名；PL-Q01/D01/W01另有3个独立模型及消融和负面边界；PL-W02新增连续三天注意力容量组合，最强简明口诀和变更容量边界明确；F1/F2/D2三项同源跨家族与充分边界反证，不增精选；RGT01/ACT01用各自精确逆推补充许可资源与自利协作者正负证据，无真人；REL01/REL02四轮精确博弈与私有信号消融已完成（同原语条件组合；不改变精选六或Debug）；REL03后续通行凭据仅真实首手截止窗口有正准备选择价值、普通窗口弱支配；未证独立新玩法；NEG01—05双方自利协商五项精确反证；R342/R430/R478原生历史首次结构化归图，均非真人。；NEG06双回合私人回应DOM全十路，X01-LONG准备→事件→响应两段完整枚举及136条合法UI路径，均一行规则全优，无真人；X03 hard disable vs costly defiance两种不同动作合法性协议在完整可达子博弈仍同最优；无真人意义证据；STG01共4种规则组合×完整路径40，因果未来菜单5对纯文本菜单1，仅网页逻辑回归，不是互动/情感新模式认证；PT01四回合双目标压转与14短策略强对照/网页试玩；INF-P01 cap2/3贝叶斯模型覆盖72+96局部公开状态信息值0；未改变历史478；GOAL01七个p×可选/强制义务、同树强预列菜单；DISC01三手有理数belief-DP、单份可靠度q后验、三种时点/换路与网页合法路径，不动历史478或精选；REC01四手四分之一禁A/B×81信号历史、16条强固定序列、一步前瞻全优及六种因果消融；REC03各目标完成概率独立统计，且最优总体策略B完成率低于简单交替；无真人；SEM01—04动作产出对象改道与材料消费改道，两项均被同成本完整菜单追平，短条件程序全优，无真人。；横向读R366函数编辑与R422预编译强对照：持久编辑可超过固定日程却不一定超过同成本完整工具，源实验非本轮重复执行。；OPS01六手动态维护与同成本SET/一手前瞻全等（含2048独立实际输入历史），CLAIM四手付费撤回×真实A早窗口互补、已给HARD/无加成消融及无窗口强菜单；均不认证新独立原语。",
+    "additionalExperimentalCompositions": "PL-C01/PL-C02/PL-C03已做最小模型、PL-C04仅概念问题；与另一研究线的C01/C02/C03区别命名；PL-Q01/D01/W01另有3个独立模型及消融和负面边界；PL-W02新增连续三天注意力容量组合，最强简明口诀和变更容量边界明确；F1/F2/D2三项同源跨家族与充分边界反证，不增精选；RGT01/ACT01用各自精确逆推补充许可资源与自利协作者正负证据，无真人；REL01/REL02四轮精确博弈与私有信号消融已完成（同原语条件组合；不改变精选六或Debug）；REL03后续通行凭据仅真实首手截止窗口有正准备选择价值、普通窗口弱支配；未证独立新玩法；NEG01—05双方自利协商五项精确反证；R342/R430/R478原生历史首次结构化归图，均非真人。；NEG06双回合私人回应DOM全十路，X01-LONG准备→事件→响应两段完整枚举及136条合法UI路径，均一行规则全优，无真人；X03 hard disable vs costly defiance两种不同动作合法性协议在完整可达子博弈仍同最优；无真人意义证据；STG01共4种规则组合×完整路径40，因果未来菜单5对纯文本菜单1，仅网页逻辑回归，不是互动/情感新模式认证；PT01四回合双目标压转与14短策略强对照/网页试玩；INF-P01 cap2/3贝叶斯模型覆盖72+96局部公开状态信息值0；未改变历史478；GOAL01七个p×可选/强制义务、同树强预列菜单；DISC01三手有理数belief-DP、单份可靠度q后验、三种时点/换路与网页合法路径，不动历史478或精选；REC01四手四分之一禁A/B×81信号历史、16条强固定序列、一步前瞻全优及六种因果消融；REC03各目标完成概率独立统计，且最优总体策略B完成率低于简单交替；无真人；SEM01—04动作产出对象改道与材料消费改道，两项均被同成本完整菜单追平，短条件程序全优，无真人。；横向读R366函数编辑与R422预编译强对照：持久编辑可超过固定日程却不一定超过同成本完整工具，源实验非本轮重复执行。；OPS01六手动态维护与同成本SET/一手前瞻全等（含2048独立实际输入历史），CLAIM四手付费撤回×真实A早窗口互补、已给HARD/无加成消融及无窗口强菜单；均不认证新独立原语。；COUP01七手把OPS操作实际变成A/B凭据、CLAIM A禁止制作B，仍在起始phase0三类需求先验下被RUN A→CLAIM A→SIDE×5一行策略全优；局部可达差异不等于有价值的双向注意力循环。",
     "humanFeedbackNote": "目前有关稳险/R06、边做边看/R10、压力/R37、R54、R50的有限设计者反馈；原记录各不等价于受控盲试玩；P02/R13仍没有真人反馈。",
     "thirdComparison": "PL-C05 supplies a tested negative boundary; not a new curated or debug pattern"
   },

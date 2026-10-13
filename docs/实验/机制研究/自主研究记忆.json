@@ -258,6 +258,13 @@
       "question": "先声明一个互斥成果再花真实行动撤回，需要哪些成立条件？",
       "source": "CLAIM01—03 2026-10-13",
       "summary": "4手在A早报时获得真实早窗口收益、后到A/B需求时可耗完整一手REVOKE再一手CLAIM_B，p1/4 SOFT25/2>HARD23/2=SOFT无及时奖励23/2；最强固定SOFT23/2。无窗口且无及时奖金完整菜单13，此处是联合消融。不新增独立承诺原语。"
+    },
+    {
+      "family": "cross-encounter-causal-coupling-dominated-by-one-lane",
+      "kind": "negative-architecture-composition-bypass",
+      "question": "两个成熟规则之间有真实双向约束，是否自动形成跨交锋重新分配注意力？",
+      "source": "COUP01 2026-10-13",
+      "summary": "七手OPS生产A/B具体证据，CLAIM_A禁止继续生产B；GATED/FLAT比较。phase0下p(A)=1/4、1/2、3/4根均9+10p，并由RUN_A、CLAIM_A、SIDE×5同一简单策略达到。phase1、p1/4虽有FLAT高61/5000的真实局部影响，不能据此认证新跨交锋架构或人的体验。"
     }
   ],
   "failedExplanations": [
@@ -288,7 +295,8 @@
     "R526–R533压力触发因果类型可从第一手GO完全识别，但即便在开局免费知道类型，最优平均收益也同为15/2；付费了解降至187/32。秘密规则若不改变最优行动就没有决策信息价值。",
     "H-RW-01接线重设的廉价纸面审查中，首手未知来源状态时直接KEEP值9/4，盲目先接线值2，先观察再改线已支配早期选择；不为此失败模型扩状态或代码。",
     "SEM01非数值用途B_TO_C确实生成不同C成果，但完整同成本B_TO_C常开菜单达到相同的37/2；SEM04的必须紧邻A也不增益，同库存菜单12且SIDE先行可以延迟A。动作语义变化不等于新策略活动。",
-    "OPS01持续规则编辑并不自动具有超越预编译模式的独立价值：完整同成本SET逐状态追平，强一手前瞻已全优。CLAIM若没有真实早到有效收益与有限撤回成本，就容易退化成等待信号后再直接提交。两者只在条件真实存在时作为成熟关系组合保留。"
+    "OPS01持续规则编辑并不自动具有超越预编译模式的独立价值：完整同成本SET逐状态追平，强一手前瞻已全优。CLAIM若没有真实早到有效收益与有限撤回成本，就容易退化成等待信号后再直接提交。两者只在条件真实存在时作为成熟关系组合保留。",
+    "COUP01表明两个循环有双向因果边还不够：具体A/B证据、宣告A后禁止B生产在多种正常开局下仍被RUN_A→CLAIM_A→SIDE×5支配。未来先检查有没有一条一开始就避开所有变化的稳妥路径，不能靠叠新目标或调大B奖分补救。"
   ],
   "frontier": [
     {
@@ -358,10 +366,10 @@
       "method": "DISC01及时完美报告9 vs 迟揭/换路税8，DISC02 q>5/8才局部换路、q>7/8工作探查才胜精准INSPECT。已有独立三手网页供无答案人类体验；先收真实行动与误解。若无人反馈，转到另一项行动与结果关系而非只扫q或添加新任务。"
     },
     {
-      "id": "ABSTRACT-M-OPERATOR-GOAL-COUPLING",
+      "id": "ABSTRACT-M-ATTENTION-BYPASS-AND-NONEXCHANGEABLE-OUTCOMES",
       "family": "action-modifies-another-action-kind-not-only-yield",
-      "question": "跨期操作的编辑已经被同成本SET与一手前瞻覆盖，下一步什么样的持续操作维护能在另一交锋直接生成不同合法成果，同时承诺的结果反过来改变后续操作？",
-      "method": "先画两级共享行动资源的因果依赖，区分独立叠加的两钟和双向真正改动作菜单；保留OPS01/CLAIM及R422、REL03作为强对照，不用增长回合或数值救新颖性。"
+      "question": "即使双向因果真实可达，COUP01的phase0多先验仍由单轨A完全最优；有哪些真实责任/不可交换结果可让玩家不得不重新分配注意力，而不是奖励数值硬推B？",
+      "method": "先从无剧情心理循环与真实结果区别找两条非可互换目的，对单线RUN A→CLAIM A→SIDE做最便宜反证；同时保留FLAT/GATED和强同成本菜单，仍可短口诀时归并。切忌再追加时钟或强化B分数为新颖性服务。"
     },
     {
       "id": "ABSTRACT-O-REVOCABLE-CLAIM-PLAYER-EXPERIENCE",
@@ -446,8 +454,8 @@
     "noHumanTests": true,
     "interpretation": "X01、X02与另一批C01、C02是不同的已知组合条件反证，均不构成新独立模式或完整真人交锋认证",
     "historyCountUnchanged": 478,
-    "latestBatch": "docs/实验/机制研究/批次/2026-10-13-跨期操作与可撤回承诺/研究记录.md",
-    "latestCounterfactual": "OPS01模式编辑在p翻转1/5下DP518/125 vs固定9974/3125，完整SET同价值、一步前瞻全优、去晚到输入仅3，2048条在线历史核验；CLAIM03早A加成+花两手撤回转换，p(A)=1/4时SOFT25/2、HARD23/2、取消及时奖励23/2、无早窗口无及时奖金完整菜单13。",
+    "latestBatch": "docs/实验/机制研究/批次/2026-10-13-跨期操作与可撤回承诺/跨交锋拼接反证.md",
+    "latestCounterfactual": "COUP01：将OPS与CLAIM双向关联为具体A/B凭据与CLAIM_A锁B生产，七手p(A)=1/4,1/2,3/4且phase0时GATED/FLAT均被RUN A→CLAIM A→SIDE×5完全最优（9+10p）。初始phase1 p=1/4，FLAT-GATED仅61/5000，另两p根差0。规则互相改变合法性不保证玩家会利用它，停止为抬高B机会纯调参。",
     "crossFamilyAudit": "OPS01/R366/R422：程序维护与迟到输入成熟组合，预编译和一手前瞻压过对新原语的强推断；CLAIM/P14/REL03/SEM04：真实时限×成本撤销有因果交互，无早窗口的延迟承诺通常更优。未做人类或独立盲Agent试玩。"
   }
 }
