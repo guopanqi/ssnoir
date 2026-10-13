@@ -16,7 +16,8 @@ function replay(mode,audits,actions){
   return elements.get(id);
  }};
  let nth=0;
- const random={...Math,random:()=>audits[nth++]==="A"?0:0.999999};
+ const random=Object.create(Math);
+ random.random=()=>audits[nth++]==="A"?0:0.999999;
  script.runInNewContext({document,Math:random,navigator:{clipboard:{writeText:async()=>{}}}},{timeout:2000});
  const get=id=>document.getElementById(id);
  get("mode").value=mode;get("risk").value="0.5";
