@@ -1,0 +1,780 @@
+{
+  "schema": "ssnoir.pattern-language-map/v1",
+  "updated": "2026-10-13",
+  "reviewBase": "c8055fa1aa2fe18ec1ecc50c7e721072c67dd809",
+  "scope": "非排他发现地图：20历史结构候选、6精选展示映射、CS2九类比较先例、近期重点关系和本批组合；不是478项逐一复审。",
+  "definitions": {
+    "layer": "机制原语、基础决策关系、交锋结构、跨交锋组织可交叉连接；层级不是质量排名",
+    "origin": "设计先例、仓库研究、局部组合假说分开保存",
+    "stage": "历史候选/展示精选/有来源先例/数学结论均非普遍有效的认证",
+    "evidence": "人类体验、游戏先例、数学与原生运行四类证据不可互相替代"
+  },
+  "sources": {
+    "historicalCandidates": "docs/实验/机制研究/结构候选20.json",
+    "curatedDisplay": "docs/实验/机制研究/模式库.json",
+    "extensiveHistory": "docs/实验/机制研究/关系索引.md",
+    "cs2Analysis": "docs/设计研究/Citizen_Sleeper_2_交锋决策模式梳理.md"
+  },
+  "nodes": [
+    {
+      "id": "P01",
+      "name": "稳险选择",
+      "layer": "decision-relation",
+      "origin": "ssnoir-research",
+      "family": "风险分布",
+      "idea": "稳妥小进度还是波动大收益",
+      "stage": "historical-structural-candidate",
+      "curatedDisplay": true,
+      "sources": [
+        "UnityClient/Assets/Resources/Content/scenes/encounters/研究·稳险选择.scm",
+        "docs/实验/机制研究/结构候选20.json"
+      ],
+      "evidence": {
+        "nativeEntrance": true,
+        "nativeCausalWitness": false,
+        "humanRelated": false
+      },
+      "note": "历史入池不代表试玩认证；未逐项重审全部原始版本；现存状态与反证见原始来源"
+    },
+    {
+      "id": "P02",
+      "name": "成果取舍",
+      "layer": "decision-relation",
+      "origin": "ssnoir-research",
+      "family": "有限容量",
+      "idea": "小成果易完成还是大成果更有价值",
+      "stage": "historical-structural-candidate",
+      "curatedDisplay": true,
+      "sources": [
+        "UnityClient/Assets/Resources/Content/scenes/encounters/研究·成果取舍.scm",
+        "docs/实验/机制研究/结构候选20.json"
+      ],
+      "evidence": {
+        "nativeEntrance": true,
+        "nativeCausalWitness": false,
+        "humanRelated": false
+      },
+      "note": "历史入池不代表试玩认证；未逐项重审全部原始版本；现存状态与反证见原始来源"
+    },
+    {
+      "id": "P03",
+      "name": "边做边看",
+      "layer": "decision-relation",
+      "origin": "ssnoir-research",
+      "family": "行动即揭示",
+      "idea": "知道部分代价后坚持还是改路",
+      "stage": "historical-structural-candidate",
+      "curatedDisplay": true,
+      "sources": [
+        "UnityClient/Assets/Resources/Content/scenes/encounters/研究·边做边看.scm",
+        "docs/实验/机制研究/结构候选20.json"
+      ],
+      "evidence": {
+        "nativeEntrance": true,
+        "nativeCausalWitness": false,
+        "humanRelated": true
+      },
+      "note": "历史入池不代表试玩认证；未逐项重审全部原始版本；现存状态与反证见原始来源"
+    },
+    {
+      "id": "P04",
+      "name": "按需用骰",
+      "layer": "decision-relation",
+      "origin": "ssnoir-research",
+      "family": "能力分配",
+      "idea": "哪颗骰分给哪种能力需求",
+      "stage": "historical-structural-candidate",
+      "curatedDisplay": false,
+      "sources": [
+        "UnityClient/Assets/Resources/Content/scenes/encounters/研究·按需用骰.scm",
+        "docs/实验/机制研究/结构候选20.json"
+      ],
+      "evidence": {
+        "nativeEntrance": true,
+        "nativeCausalWitness": false,
+        "humanRelated": false
+      },
+      "note": "历史入池不代表试玩认证；未逐项重审全部原始版本；现存状态与反证见原始来源"
+    },
+    {
+      "id": "P05",
+      "name": "整段里程碑与回合清零",
+      "layer": "decision-relation",
+      "origin": "ssnoir-research",
+      "family": "整段风险",
+      "idea": "把本回合的骰子集中完成一段，还是冒险把它分到不同目标",
+      "stage": "historical-structural-candidate",
+      "curatedDisplay": false,
+      "sources": [
+        "UnityClient/Assets/Resources/Content/scenes/encounters/研究·整段完成.scm",
+        "docs/实验/机制研究/结构候选20.json"
+      ],
+      "evidence": {
+        "nativeEntrance": true,
+        "nativeCausalWitness": true,
+        "humanRelated": false
+      },
+      "note": "历史入池不代表试玩认证；未逐项重审全部原始版本；现存状态与反证见原始来源"
+    },
+    {
+      "id": "P06",
+      "name": "留力推进",
+      "layer": "decision-relation",
+      "origin": "ssnoir-research",
+      "family": "修复与推进",
+      "idea": "先恢复冷静还是现在追赶目标",
+      "stage": "historical-structural-candidate",
+      "curatedDisplay": false,
+      "sources": [
+        "UnityClient/Assets/Resources/Content/scenes/encounters/研究·留力推进.scm",
+        "docs/实验/机制研究/结构候选20.json"
+      ],
+      "evidence": {
+        "nativeEntrance": true,
+        "nativeCausalWitness": false,
+        "humanRelated": false
+      },
+      "note": "历史入池不代表试玩认证；未逐项重审全部原始版本；现存状态与反证见原始来源"
+    },
+    {
+      "id": "P07",
+      "name": "择时开窗",
+      "layer": "decision-relation",
+      "origin": "ssnoir-research",
+      "family": "主动启动期限",
+      "idea": "准备充足后开启倒计时还是立刻出击",
+      "stage": "historical-structural-candidate",
+      "curatedDisplay": false,
+      "sources": [
+        "UnityClient/Assets/Resources/Content/scenes/encounters/研究·择时开窗.scm",
+        "docs/实验/机制研究/结构候选20.json"
+      ],
+      "evidence": {
+        "nativeEntrance": true,
+        "nativeCausalWitness": false,
+        "humanRelated": false
+      },
+      "note": "历史入池不代表试玩认证；未逐项重审全部原始版本；现存状态与反证见原始来源"
+    },
+    {
+      "id": "P08",
+      "name": "定位再搜",
+      "layer": "decision-relation",
+      "origin": "ssnoir-research",
+      "family": "花费行动购信息",
+      "idea": "先定位正确路还是边试探边寻找",
+      "stage": "historical-structural-candidate",
+      "curatedDisplay": false,
+      "sources": [
+        "UnityClient/Assets/Resources/Content/scenes/encounters/研究·定位再搜.scm",
+        "docs/实验/机制研究/结构候选20.json"
+      ],
+      "evidence": {
+        "nativeEntrance": true,
+        "nativeCausalWitness": false,
+        "humanRelated": false
+      },
+      "note": "历史入池不代表试玩认证；未逐项重审全部原始版本；现存状态与反证见原始来源"
+    },
+    {
+      "id": "P09",
+      "name": "风险兑现",
+      "layer": "decision-relation",
+      "origin": "ssnoir-research",
+      "family": "自愿退出",
+      "idea": "把当前成果兑现还是继续暴露于损失",
+      "stage": "historical-structural-candidate",
+      "curatedDisplay": false,
+      "sources": [
+        "UnityClient/Assets/Resources/Content/scenes/encounters/研究·风险兑现.scm",
+        "docs/实验/机制研究/结构候选20.json"
+      ],
+      "evidence": {
+        "nativeEntrance": true,
+        "nativeCausalWitness": false,
+        "humanRelated": false
+      },
+      "note": "历史入池不代表试玩认证；未逐项重审全部原始版本；现存状态与反证见原始来源"
+    },
+    {
+      "id": "P10",
+      "name": "储备衰减与非线性兑现",
+      "layer": "decision-relation",
+      "origin": "ssnoir-research",
+      "family": "储备转换",
+      "idea": "现在兑现储备还是再投入一手追求非线性收益",
+      "stage": "historical-structural-candidate",
+      "curatedDisplay": false,
+      "sources": [
+        "UnityClient/Assets/Resources/Content/scenes/encounters/研究·分段兑现.scm",
+        "docs/实验/机制研究/结构候选20.json"
+      ],
+      "evidence": {
+        "nativeEntrance": true,
+        "nativeCausalWitness": true,
+        "humanRelated": false
+      },
+      "note": "历史入池不代表试玩认证；未逐项重审全部原始版本；现存状态与反证见原始来源"
+    },
+    {
+      "id": "P11",
+      "name": "压力预算",
+      "layer": "decision-relation",
+      "origin": "ssnoir-research",
+      "family": "推进制造问题",
+      "idea": "现在赶工还是消除自己造成的后续问题",
+      "stage": "historical-structural-candidate",
+      "curatedDisplay": true,
+      "sources": [
+        "UnityClient/Assets/Resources/Content/scenes/encounters/研究·压力预算.scm",
+        "docs/实验/机制研究/结构候选20.json"
+      ],
+      "evidence": {
+        "nativeEntrance": true,
+        "nativeCausalWitness": false,
+        "humanRelated": true
+      },
+      "note": "历史入池不代表试玩认证；未逐项重审全部原始版本；现存状态与反证见原始来源"
+    },
+    {
+      "id": "P12",
+      "name": "完成主目标关闭副目标",
+      "layer": "decision-relation",
+      "origin": "ssnoir-research",
+      "family": "完成关闭机会",
+      "idea": "现在完成必需目标结束交锋还是先争副目标",
+      "stage": "historical-structural-candidate",
+      "curatedDisplay": false,
+      "sources": [
+        "UnityClient/Assets/Resources/Content/scenes/encounters/研究·保留终点.scm",
+        "docs/实验/机制研究/结构候选20.json"
+      ],
+      "evidence": {
+        "nativeEntrance": true,
+        "nativeCausalWitness": false,
+        "humanRelated": false
+      },
+      "note": "历史入池不代表试玩认证；未逐项重审全部原始版本；现存状态与反证见原始来源"
+    },
+    {
+      "id": "P13",
+      "name": "整备借力",
+      "layer": "decision-relation",
+      "origin": "ssnoir-research",
+      "family": "当前投资未来产能",
+      "idea": "花一次整备换以后更大收益是否划算",
+      "stage": "historical-structural-candidate",
+      "curatedDisplay": false,
+      "sources": [
+        "UnityClient/Assets/Resources/Content/scenes/encounters/研究·整备借力.scm",
+        "docs/实验/机制研究/结构候选20.json"
+      ],
+      "evidence": {
+        "nativeEntrance": true,
+        "nativeCausalWitness": false,
+        "humanRelated": false
+      },
+      "note": "历史入池不代表试玩认证；未逐项重审全部原始版本；现存状态与反证见原始来源"
+    },
+    {
+      "id": "P14",
+      "name": "探查后不可逆押注",
+      "layer": "decision-relation",
+      "origin": "ssnoir-research",
+      "family": "情报与承诺",
+      "idea": "耗行动查条件还是凭先验直接押定方案",
+      "stage": "historical-structural-candidate",
+      "curatedDisplay": false,
+      "sources": [
+        "UnityClient/Assets/Resources/Content/scenes/encounters/研究·情报承诺.scm",
+        "docs/实验/机制研究/结构候选20.json"
+      ],
+      "evidence": {
+        "nativeEntrance": true,
+        "nativeCausalWitness": false,
+        "humanRelated": false
+      },
+      "note": "历史入池不代表试玩认证；未逐项重审全部原始版本；现存状态与反证见原始来源"
+    },
+    {
+      "id": "P15",
+      "name": "永久切换高风险动作",
+      "layer": "decision-relation",
+      "origin": "ssnoir-research",
+      "family": "承诺式动作替代",
+      "idea": "稳步继续还是耗一手开启不可退的强推",
+      "stage": "historical-structural-candidate",
+      "curatedDisplay": false,
+      "sources": [
+        "UnityClient/Assets/Resources/Content/scenes/encounters/研究·承诺分流.scm",
+        "docs/实验/机制研究/结构候选20.json"
+      ],
+      "evidence": {
+        "nativeEntrance": true,
+        "nativeCausalWitness": false,
+        "humanRelated": false
+      },
+      "note": "历史入池不代表试玩认证；未逐项重审全部原始版本；现存状态与反证见原始来源"
+    },
+    {
+      "id": "P16",
+      "name": "追击领先目标",
+      "layer": "decision-relation",
+      "origin": "ssnoir-research",
+      "family": "对手公开响应",
+      "idea": "故意吸引敌人去攻击较廉价的目标吗",
+      "stage": "historical-structural-candidate",
+      "curatedDisplay": true,
+      "sources": [
+        "UnityClient/Assets/Resources/Content/scenes/encounters/研究·追击领先目标.scm",
+        "docs/实验/机制研究/结构候选20.json"
+      ],
+      "evidence": {
+        "nativeEntrance": true,
+        "nativeCausalWitness": false,
+        "humanRelated": true
+      },
+      "note": "历史入池不代表试玩认证；未逐项重审全部原始版本；现存状态与反证见原始来源"
+    },
+    {
+      "id": "P17",
+      "name": "证词掺水",
+      "layer": "decision-relation",
+      "origin": "ssnoir-research",
+      "family": "进度污染质量",
+      "idea": "要更多证据还是主动退进度消除误判",
+      "stage": "historical-structural-candidate",
+      "curatedDisplay": false,
+      "sources": [
+        "UnityClient/Assets/Resources/Content/scenes/encounters/实验·证词掺水.scm",
+        "docs/实验/机制研究/结构候选20.json"
+      ],
+      "evidence": {
+        "nativeEntrance": true,
+        "nativeCausalWitness": true,
+        "humanRelated": false
+      },
+      "note": "历史入池不代表试玩认证；未逐项重审全部原始版本；现存状态与反证见原始来源"
+    },
+    {
+      "id": "P18",
+      "name": "枪口认路",
+      "layer": "decision-relation",
+      "origin": "ssnoir-research",
+      "family": "追踪上次路线",
+      "idea": "逃得快还是保住证物并躲避枪口",
+      "stage": "historical-structural-candidate",
+      "curatedDisplay": false,
+      "sources": [
+        "UnityClient/Assets/Resources/Content/scenes/encounters/实验·枪口认路.scm",
+        "docs/实验/机制研究/结构候选20.json"
+      ],
+      "evidence": {
+        "nativeEntrance": true,
+        "nativeCausalWitness": true,
+        "humanRelated": false
+      },
+      "note": "历史入池不代表试玩认证；未逐项重审全部原始版本；现存状态与反证见原始来源"
+    },
+    {
+      "id": "P19",
+      "name": "等买主现身",
+      "layer": "decision-relation",
+      "origin": "ssnoir-research",
+      "family": "窗口互斥收益",
+      "idea": "现在拿确定线索还是冒险等更好机会",
+      "stage": "historical-structural-candidate",
+      "curatedDisplay": false,
+      "sources": [
+        "UnityClient/Assets/Resources/Content/scenes/encounters/实验·等买主现身.scm",
+        "docs/实验/机制研究/结构候选20.json"
+      ],
+      "evidence": {
+        "nativeEntrance": true,
+        "nativeCausalWitness": true,
+        "humanRelated": false
+      },
+      "note": "历史入池不代表试玩认证；未逐项重审全部原始版本；现存状态与反证见原始来源"
+    },
+    {
+      "id": "P20",
+      "name": "封死退路",
+      "layer": "decision-relation",
+      "origin": "ssnoir-research",
+      "family": "封危险也封出口",
+      "idea": "封闭威胁来源是否值得牺牲安全退出",
+      "stage": "historical-structural-candidate",
+      "curatedDisplay": false,
+      "sources": [
+        "UnityClient/Assets/Resources/Content/scenes/encounters/实验·封死退路.scm",
+        "docs/实验/机制研究/结构候选20.json"
+      ],
+      "evidence": {
+        "nativeEntrance": true,
+        "nativeCausalWitness": true,
+        "humanRelated": false
+      },
+      "note": "历史入池不代表试玩认证；未逐项重审全部原始版本；现存状态与反证见原始来源"
+    },
+    {
+      "id": "CS2-01",
+      "name": "单目标推进",
+      "layer": "encounter-structure",
+      "origin": "published-game-analysis",
+      "family": "objective-topology",
+      "idea": "行动逐步增加同一目标进度；容易退化为机械填条",
+      "stage": "documented-comparative-reference",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/设计研究/Citizen_Sleeper_2_交锋决策模式梳理.md"
+      ],
+      "evidence": {
+        "publishedWorkExample": true,
+        "controlledIsolation": false,
+        "originalPlayLog": false
+      },
+      "note": "该九分法是设计研究归纳，非游戏官方分类；对应具体Contract时必须复核节点和条件"
+    },
+    {
+      "id": "CS2-02",
+      "name": "阶段解锁",
+      "layer": "encounter-structure",
+      "origin": "published-game-analysis",
+      "family": "objective-topology",
+      "idea": "达成一段才开放下一段；需区分解锁内容与新决策",
+      "stage": "documented-comparative-reference",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/设计研究/Citizen_Sleeper_2_交锋决策模式梳理.md"
+      ],
+      "evidence": {
+        "publishedWorkExample": true,
+        "controlledIsolation": false,
+        "originalPlayLog": false
+      },
+      "note": "该九分法是设计研究归纳，非游戏官方分类；对应具体Contract时必须复核节点和条件"
+    },
+    {
+      "id": "CS2-03",
+      "name": "并行必需目标",
+      "layer": "encounter-structure",
+      "origin": "published-game-analysis",
+      "family": "objective-topology",
+      "idea": "两个目标都必需，有限行动决定先后与分配",
+      "stage": "documented-comparative-reference",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/设计研究/Citizen_Sleeper_2_交锋决策模式梳理.md"
+      ],
+      "evidence": {
+        "publishedWorkExample": true,
+        "controlledIsolation": false,
+        "originalPlayLog": false
+      },
+      "note": "该九分法是设计研究归纳，非游戏官方分类；对应具体Contract时必须复核节点和条件"
+    },
+    {
+      "id": "CS2-04",
+      "name": "替代路径",
+      "layer": "encounter-structure",
+      "origin": "published-game-analysis",
+      "family": "objective-topology",
+      "idea": "多条路线可达同一结果，资源与后果决定选路",
+      "stage": "documented-comparative-reference",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/设计研究/Citizen_Sleeper_2_交锋决策模式梳理.md"
+      ],
+      "evidence": {
+        "publishedWorkExample": true,
+        "controlledIsolation": false,
+        "originalPlayLog": false
+      },
+      "note": "该九分法是设计研究归纳，非游戏官方分类；对应具体Contract时必须复核节点和条件"
+    },
+    {
+      "id": "CS2-05",
+      "name": "基本目标与额外目标",
+      "layer": "encounter-structure",
+      "origin": "published-game-analysis",
+      "family": "objective-topology",
+      "idea": "达到最低成果后继续投入可能获得更多但承担风险",
+      "stage": "documented-comparative-reference",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/设计研究/Citizen_Sleeper_2_交锋决策模式梳理.md"
+      ],
+      "evidence": {
+        "publishedWorkExample": true,
+        "controlledIsolation": false,
+        "originalPlayLog": false
+      },
+      "note": "该九分法是设计研究归纳，非游戏官方分类；对应具体Contract时必须复核节点和条件"
+    },
+    {
+      "id": "CS2-06",
+      "name": "竞争时钟",
+      "layer": "encounter-structure",
+      "origin": "published-game-analysis",
+      "family": "pressure-dynamics",
+      "idea": "外部事件推进，玩家不犯错也会错过机会",
+      "stage": "documented-comparative-reference",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/设计研究/Citizen_Sleeper_2_交锋决策模式梳理.md"
+      ],
+      "evidence": {
+        "publishedWorkExample": true,
+        "controlledIsolation": false,
+        "originalPlayLog": false
+      },
+      "note": "该九分法是设计研究归纳，非游戏官方分类；对应具体Contract时必须复核节点和条件"
+    },
+    {
+      "id": "CS2-07",
+      "name": "危险累积",
+      "layer": "encounter-structure",
+      "origin": "published-game-analysis",
+      "family": "pressure-dynamics",
+      "idea": "推进或失手积累风险，改变之后行动的价值",
+      "stage": "documented-comparative-reference",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/设计研究/Citizen_Sleeper_2_交锋决策模式梳理.md"
+      ],
+      "evidence": {
+        "publishedWorkExample": true,
+        "controlledIsolation": false,
+        "originalPlayLog": false
+      },
+      "note": "该九分法是设计研究归纳，非游戏官方分类；对应具体Contract时必须复核节点和条件"
+    },
+    {
+      "id": "CS2-08",
+      "name": "危机打断",
+      "layer": "encounter-structure",
+      "origin": "published-game-analysis",
+      "family": "pressure-dynamics",
+      "idea": "新增必须关注的问题，原有计划遭到干扰",
+      "stage": "documented-comparative-reference",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/设计研究/Citizen_Sleeper_2_交锋决策模式梳理.md"
+      ],
+      "evidence": {
+        "publishedWorkExample": true,
+        "controlledIsolation": false,
+        "originalPlayLog": false
+      },
+      "note": "该九分法是设计研究归纳，非游戏官方分类；对应具体Contract时必须复核节点和条件"
+    },
+    {
+      "id": "CS2-09",
+      "name": "目标意义重估",
+      "layer": "encounter-structure",
+      "origin": "published-game-analysis",
+      "family": "outcome-structure",
+      "idea": "新信息或关系要求重新考虑是否仍追求原定目标",
+      "stage": "documented-comparative-reference",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/设计研究/Citizen_Sleeper_2_交锋决策模式梳理.md"
+      ],
+      "evidence": {
+        "publishedWorkExample": true,
+        "controlledIsolation": false,
+        "originalPlayLog": false
+      },
+      "note": "该九分法是设计研究归纳，非游戏官方分类；对应具体Contract时必须复核节点和条件"
+    },
+    {
+      "id": "R50",
+      "name": "动作回声",
+      "layer": "decision-relation",
+      "origin": "ssnoir-research",
+      "idea": "行动切换改变下一次收益",
+      "stage": "curated historical, critical human feedback",
+      "curatedDisplay": true,
+      "sources": [
+        "docs/实验/机制研究/批次/R50-动作回声/研究记录.md"
+      ],
+      "evidence": {
+        "mathematical": false,
+        "humanVerified": false
+      },
+      "note": "证据仅支持列出的特定规则/历史反馈，不自动归为成熟玩法"
+    },
+    {
+      "id": "R510",
+      "name": "自主主体与历史推断",
+      "layer": "interaction-hypothesis",
+      "origin": "ssnoir-research",
+      "idea": "他者自主行动，玩家从多期反馈判断偏好与剩余机会",
+      "stage": "exact model; no human test",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/R510-R517-私有意志与场外机会/研究记录.md"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "humanVerified": false
+      },
+      "note": "证据仅支持列出的特定规则/历史反馈，不自动归为成熟玩法"
+    },
+    {
+      "id": "R518",
+      "name": "成功或失败产生压力",
+      "layer": "variation",
+      "origin": "ssnoir-research",
+      "idea": "事件相关性不同，但同一公开阈值口诀均全优",
+      "stage": "exact model; no current-pair human test",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/R518-R525-成功与失败的同边际压力/研究记录.md"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "humanVerified": false
+      },
+      "note": "证据仅支持列出的特定规则/历史反馈，不自动归为成熟玩法"
+    },
+    {
+      "id": "R526",
+      "name": "秘密未改变可行行动选择",
+      "layer": "negative-boundary",
+      "origin": "ssnoir-research",
+      "idea": "隐藏压力成因可识别，但知道真相不改变最优行动",
+      "stage": "exact negative counterexample",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/R526-R533-隐藏压力因果的零信息价值/研究记录.md"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "humanVerified": false
+      },
+      "note": "证据仅支持列出的特定规则/历史反馈，不自动归为成熟玩法"
+    },
+    {
+      "id": "C01",
+      "name": "危机封路后的绕行/修复",
+      "layer": "combination-hypothesis",
+      "origin": "new-local-experiment",
+      "idea": "前一行动的反馈改变危机时应使用的路线",
+      "stage": "exact small model; playable CLI; no human play",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-13-模式语言与组合首轮/研究记录.md"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "humanVerified": false
+      },
+      "note": "证据仅支持列出的特定规则/历史反馈，不自动归为成熟玩法"
+    },
+    {
+      "id": "C02",
+      "name": "信息与改目标的剩余容量",
+      "layer": "combination-boundary",
+      "origin": "new-local-experiment",
+      "idea": "信息只有在仍可转投另一个目标时产生数值决策价值",
+      "stage": "exact small model; playable CLI; no human play",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-13-模式语言与组合首轮/研究记录.md"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "humanVerified": false
+      },
+      "note": "证据仅支持列出的特定规则/历史反馈，不自动归为成熟玩法"
+    }
+  ],
+  "edges": [
+    {
+      "from": "CS2-08",
+      "to": "P11",
+      "relation": "related-structure",
+      "reason": "危机打断与推进生成后续负担相邻；单纯修一格不等于行动集合改变"
+    },
+    {
+      "from": "CS2-04",
+      "to": "C01",
+      "relation": "ingredient",
+      "reason": "替代行动路线是C01能条件改道的必要部分"
+    },
+    {
+      "from": "CS2-08",
+      "to": "C01",
+      "relation": "ingredient",
+      "reason": "触发危机后原行动关闭，玩家需重新选择"
+    },
+    {
+      "from": "P11",
+      "to": "C01",
+      "relation": "contrasts",
+      "reason": "P11主要研究压力的维护成本，C01特意改变危机时行动可达性"
+    },
+    {
+      "from": "P03",
+      "to": "C02",
+      "relation": "related-structure",
+      "reason": "行动与信息的关系受剩余行动容量约束"
+    },
+    {
+      "from": "P14",
+      "to": "C02",
+      "relation": "related-structure",
+      "reason": "调查的价值要与继续执行、直接选择对照"
+    },
+    {
+      "from": "R526",
+      "to": "C02",
+      "relation": "boundary",
+      "reason": "可识别的信息若不改变最优动作则不产生独立调查决策"
+    },
+    {
+      "from": "R518",
+      "to": "P11",
+      "relation": "variation",
+      "reason": "压力触发语义差异，不必晋升为两种基础原语"
+    },
+    {
+      "from": "P02",
+      "to": "P16",
+      "relation": "combination-question",
+      "reason": "成果价值与对手攻击领先项共同决定优先次序"
+    },
+    {
+      "from": "P09",
+      "to": "CS2-05",
+      "relation": "related-structure",
+      "reason": "收益兑现与额外目标的风险承担可相互组合"
+    },
+    {
+      "from": "CS2-09",
+      "to": "C02",
+      "relation": "unproven-extension",
+      "reason": "数值上的目标偏好变化尚不能证明叙事意义重估"
+    },
+    {
+      "from": "P05",
+      "to": "CS2-02",
+      "relation": "related-structure",
+      "reason": "阶段完成与阶段解锁相近，但是否改变玩家动词待审"
+    }
+  ],
+  "coverage": {
+    "historicalCandidateCount": 20,
+    "curatedDisplayMappedCount": 6,
+    "cs2AnalyticalPatterns": 9,
+    "unconvertedHistory": "关系索引中的其他R批次、数学负例和组合应按主题逐步纳入；不能据本地图未出现就认定没有价值"
+  },
+  "policy": [
+    "没有入精选不意味着无价值",
+    "商业游戏应用先例不是本实验的受控试玩验证",
+    "数学不支配与收益增量不足以证明乐趣",
+    "可检索的边界反例也是研究成果",
+    "新假设可直接存入知识地图；精选展示和Debug是独立决策"
+  ]
+}
