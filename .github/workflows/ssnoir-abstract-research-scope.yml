@@ -33,6 +33,9 @@ on:
       - 'tools/content-validator/experiments/test_partner_prototype.js'
       - 'tools/content-validator/experiments/pattern_crisis_from_opening_20261013.py'
       - 'tools/content-validator/experiments/pattern_objective_affordance_20261013.py'
+      - 'tools/content-validator/experiments/pattern_pressure_transfer_20261013.py'
+      - 'tools/content-validator/experiments/pattern_pressure_information_20261013.py'
+      - 'docs/实验/机制研究/批次/2026-10-13-压力转移与隐藏触发/**'
       - 'tools/content-validator/experiments/test_witness_vignette.js'
       - 'docs/实验/机制研究/批次/2026-10-13-情境选择与注意力验证/**'
       - 'docs/实验/机制研究/批次/2026-10-13-目标语义与行动权对照/**'
@@ -66,6 +69,8 @@ jobs:
           python3 tools/content-validator/experiments/pattern_bargaining_incentives_20261013.py
           python3 tools/content-validator/experiments/pattern_crisis_from_opening_20261013.py
           python3 tools/content-validator/experiments/pattern_objective_affordance_20261013.py
+          python3 tools/content-validator/experiments/pattern_pressure_transfer_20261013.py
+          python3 tools/content-validator/experiments/pattern_pressure_information_20261013.py
           node tools/content-validator/experiments/test_witness_vignette.js
           node tools/content-validator/experiments/test_strategic_refusal_field_study.js
           node tools/content-validator/experiments/test_crisis_opening_study.js
