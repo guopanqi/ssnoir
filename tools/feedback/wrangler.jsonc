@@ -1,0 +1,18 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "ssnoir-feedback",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-10-13",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": true,
+  "d1_databases": [{
+    "binding": "DB", "database_name": "ssnoir-feedback",
+    "database_id": "3554fa71-08e7-41cf-86d7-4b473c30422c"
+  }],
+  "ratelimits": [{
+    "name": "SUBMISSIONS",
+    "namespace_id": "731013",
+    "simple": { "limit": 30, "period": 60 }
+  }],
+  "observability": { "enabled": true }
+}

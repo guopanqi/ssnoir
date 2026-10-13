@@ -5,12 +5,12 @@ namespace SSNoir.IMGUI
 {
     /// <summary>
     /// 整条顶栏的唯一布局所有者：左边一组（返回 / 面包屑）、右边一格微透暗条
-    /// （天数读数 + 卷宗 / 成长 / 帮助 / 设置 / 调试 / 演示六个文字开关），面包屑吃掉中间剩下的所有宽度。
+    /// （天数读数 + 卷宗 / 成长 / 帮助 / 设置 / 调试 / 演示 / 反馈七个文字开关），面包屑吃掉中间剩下的所有宽度。
     ///
     /// 右边这格只有一层微透暗底（见 IMGUIStyles.FunctionSlotBg），无框、无投影——
     /// 实墨 + 硬投影在右上角太像一件可拿的东西，细框也一样往「卡」上靠，都不要。
     /// 画法由调用方自己画一笔底，这里面只管把矩形算出来。暗条里没有图标，
-    /// 六个入口都是次级灰字（见 IMGUIButton.DrawTopTextToggle），天数是左侧的读数，
+    /// 七个入口都是次级灰字（见 IMGUIButton.DrawTopTextToggle），天数是左侧的读数，
     /// 中间一道细分隔线。天数不紧跟在面包屑后面，而是钉在暗条里：面包屑是弹性的
     /// （地点名一长一短），跟着它走天数就会左右跳。它是每天都要瞟一眼的读数，
     /// 位置必须钉死。代价是面包屑和天数之间会空一段——空的那段总比会动的读数好。
@@ -46,15 +46,16 @@ namespace SSNoir.IMGUI
         public Rect SettingsToggle { get; }
         public Rect DebugToggle { get; }
         public Rect DemoToggle { get; }
+        public Rect FeedbackToggle { get; }
 
-        /// <summary>右上角整块暗条（含天数读数与六个文字开关）；交锋里卷宗入口隐藏时缩掉空位。</summary>
+        /// <summary>右上角整块暗条（含天数读数与七个文字开关）；交锋里卷宗入口隐藏时缩掉空位。</summary>
         public Rect FunctionPlate(bool showDossier)
         {
             float left = (showDossier ? DossierToggle : GrowthToggle).xMin;
             // 天数是暗条的一部分：读数和开关共用同一块底，顶栏左右两截才是一家人。
             left = Mathf.Min(left, Day.xMin);
             return UIScale.PixelSnap(new Rect(left - PlatePadX, SettingsToggle.yMin - PlatePadY,
-                DemoToggle.xMax - left + PlatePadX * 2f, SettingsToggle.height + PlatePadY * 2f));
+                FeedbackToggle.xMax - left + PlatePadX * 2f, SettingsToggle.height + PlatePadY * 2f));
         }
 
         /// <summary>顶栏之下、可以开始摆世界内容（卡片 / 边缘信标）的 y。</summary>
@@ -62,7 +63,7 @@ namespace SSNoir.IMGUI
 
         private TopHudLayout(Rect bar, Rect back, Rect breadcrumb, Rect day, Rect dossierToggle,
             Rect growthToggle, Rect helpToggle,
-            Rect settingsToggle, Rect debugToggle, Rect demoToggle, float contentTop)
+            Rect settingsToggle, Rect debugToggle, Rect demoToggle, Rect feedbackToggle, float contentTop)
         {
             Bar = bar;
             Back = back;
@@ -74,17 +75,20 @@ namespace SSNoir.IMGUI
             SettingsToggle = settingsToggle;
             DebugToggle = debugToggle;
             DemoToggle = demoToggle;
+            FeedbackToggle = feedbackToggle;
             ContentTop = contentTop;
         }
 
-        // 暗条内部尺寸：二字开关 52×6、读数 76、开关之间 2、读数与开关之间留 10 给分隔线。
-        // 整块约 430，面包屑相应收窄。
+        // 暗条内部尺寸：二字开关 52×7、读数 76、开关间隔 6、读数与开关之间留 10 给分隔线。
+        // 入口从右往左分配，面包屑吃剩余宽度。
         private const float EntryW = 52f;
         private const float DayW = 76f;
         private const float EntryGap = 6f;
         private const float DayGap = 10f;
         private const float PlatePadX = 8f;
         private const float PlatePadY = 4f;
+        // 宿主胶囊占位在所有预览里恒定保留，避免发布后覆盖最右侧入口。
+        private const float HostReservedWidth = 128f;
 
         public static TopHudLayout Create()
         {
@@ -96,13 +100,14 @@ namespace SSNoir.IMGUI
             float top = safe.y + TopInset;
 
             float left = safe.x + margin;
-            float right = safe.xMax - margin;
+            float right = safe.xMax - margin - HostReservedWidth;
 
             var bar = new Rect(left, top, Mathf.Max(0f, right - left), rowH);
 
             // 右组是低频文字开关；卷宗排在最左——它是这组里唯一每天都要开的，离面包屑最近。
             // 演示与调试排在右侧，避免挤占常用入口。
             float cursorRight = right;
+            Rect feedback = TakeFromRight(ref cursorRight, EntryW, rowH, top, EntryGap);
             Rect demo = TakeFromRight(ref cursorRight, EntryW, rowH, top, EntryGap);
             Rect debug    = TakeFromRight(ref cursorRight, EntryW, rowH, top, EntryGap);
             Rect settings = TakeFromRight(ref cursorRight, EntryW, rowH, top, EntryGap);
@@ -134,6 +139,7 @@ namespace SSNoir.IMGUI
                 UIScale.PixelSnap(settings),
                 UIScale.PixelSnap(debug),
                 UIScale.PixelSnap(demo),
+                UIScale.PixelSnap(feedback),
                 contentTop);
         }
 

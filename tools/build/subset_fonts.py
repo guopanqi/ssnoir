@@ -116,7 +116,10 @@ def main() -> None:
             raise SystemExit(f"找不到源字体: {source_path}")
 
         supported = font_codepoints(hb_info, source_path)
-        included = codepoints & supported
+        # 玩家反馈允许自由输入，不能只留下剧情里出现过的字。正文使用 Regular，
+        # staging 保留它的完整字库；标题用的 SemiBold 仍按内容裁剪，主工程资源不变。
+        free_text_font = font_name == "SourceHanSerifCN-Regular.ttf"
+        included = supported if free_text_font else codepoints & supported
         missing = codepoints - supported
         missing_across_fonts.update(missing)
         text_path = output_dir / f"{font_name}.characters.txt"
@@ -142,6 +145,7 @@ def main() -> None:
                 "subsetBytes": output_path.stat().st_size,
                 "includedCodepointCount": len(included),
                 "missingCodepointCount": len(missing),
+                "coverage": "free-text" if free_text_font else "content",
             }
         )
 
@@ -152,7 +156,7 @@ def main() -> None:
     )
     print(
         f"扫描 {len(scanned_files)} 个文本文件，收集 {len(codepoints)} 个字符；"
-        f"生成 {len(FONT_FILES)} 个字体子集。"
+        "生成发布字体（正文保留自由输入字库，标题按内容裁剪）。"
     )
     if missing_across_fonts:
         print(f"提示：源字体本身不包含 {len(missing_across_fonts)} 个扫描字符，详见 font-report.json。")

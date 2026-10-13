@@ -1,0 +1,16 @@
+{
+  "name": "ssnoir-feedback",
+  "private": true,
+  "scripts": {
+    "types": "wrangler types",
+    "check": "npm run types --silent && tsc --noEmit",
+    "test": "node tests/integration.mjs",
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "@types/node": "^26.4.0",
+    "typescript": "^7.0.2",
+    "wrangler": "^4.127.0"
+  }
+}

@@ -30,6 +30,7 @@ namespace SSNoir.IMGUI
 
         private bool _isGrowthPanelOpen = false;
         private readonly IMGUIWindowStack _windowStack = new();
+        private FeedbackPanelDrawer _feedback = null!;
 
         private readonly Dictionary<string, Vector2> _cardCenters = new Dictionary<string, Vector2>();
         // 见 DrawCards 里 RegisterWorldPoint 的注释。
@@ -145,6 +146,7 @@ namespace SSNoir.IMGUI
         public void Initialize(SSNoirGameManager gameManager)
         {
             _gameManager = gameManager;
+            _feedback = new FeedbackPanelDrawer();
             // 立绘标志色由剧情写在全局 "立绘色/<人>" 里（engine.scm 的 set-portrait-accent!）。
             StoryStageDrawer.AccentOverride = name =>
                 _gameManager.GameState.Get<object>("立绘色/" + name) as string;
@@ -167,6 +169,7 @@ namespace SSNoir.IMGUI
 
         private void OnDestroy()
         {
+            _feedback?.Dispose();
             _theatrePlayer?.Dispose();
             if (_gameManager != null)
             {
@@ -726,7 +729,8 @@ namespace SSNoir.IMGUI
             || _activeActionSpotlight != null
             || _conversationPlayer.IsActive || _storyStagePlayer.IsActive || _theatrePlayer.IsActive || _activeVideoTag != null;
         public bool IsAnimationReadyToAcknowledge => _animator != null && _animator.IsReadyToAcknowledge();
-        public bool IsInputLocked => _inputLocked || _activeAutoAction != null
+        public bool IsInputLocked => (_feedback != null && _feedback.IsOpen) || IsPresentationInputLocked;
+        private bool IsPresentationInputLocked => _inputLocked || _activeAutoAction != null
             || _activeActionSpotlight != null
             || _gameManager.GameState.SpotlightCenter.HasSpotlight || _conversationPlayer.IsActive || _storyStagePlayer.IsActive || _theatrePlayer.IsActive
             || _activeVideoTag != null || _gameManager.Cutscene.IsActive || _gameManager.Title.IsActive
@@ -778,6 +782,11 @@ namespace SSNoir.IMGUI
         // 普通界面面板不参与剧情推进；ESC 只关闭当前最上层面板。
         public bool TryCloseUiPanel()
         {
+            if (_feedback.IsOpen)
+            {
+                _feedback.Close();
+                return true;
+            }
             if (_isGrowthPanelOpen)
             {
                 _isGrowthPanelOpen = false;
@@ -872,6 +881,7 @@ namespace SSNoir.IMGUI
             DebugPanelDrawer.Reset();
             DemoPanelDrawer.Reset();
             SettingsPanelDrawer.Reset();
+            _feedback.Close();
             HelpPanelDrawer.Reset();
             TutorialDirector.Reset();
         }
@@ -979,6 +989,7 @@ namespace SSNoir.IMGUI
                 && !_isGrowthPanelOpen
                 && !DebugPanelDrawer.IsOpen
                 && !DemoPanelDrawer.IsOpen
+                && !_feedback.IsOpen
                 && !_inputLocked
                 // 影幕期间没有任何 UI 反馈，右键把选中的资源清掉，玩家出来才发现，等于静默丢状态。
                 && !_gameManager.Cutscene.IsActive)
@@ -996,6 +1007,7 @@ namespace SSNoir.IMGUI
             if (Event.current.type != EventType.Repaint && Event.current.type != EventType.MouseDown
                 && Event.current.type != EventType.MouseUp && Event.current.type != EventType.MouseDrag
                 && Event.current.type != EventType.ScrollWheel
+                && Event.current.type != EventType.KeyDown && Event.current.type != EventType.KeyUp
                 && Event.current.type != EventType.Layout)
                 return;
 
@@ -1061,6 +1073,18 @@ namespace SSNoir.IMGUI
             _drawnCardRects.Clear();
             TopHudLayout topHud = TopHudLayout.Create();
             _topHud = topHud;
+
+            if (_feedback.IsOpen)
+            {
+                _windowStack.Register(new IMGUIWindowBlocker
+                {
+                    Id = IMGUIWindowId.FeedbackPanel,
+                    Bounds = _feedback.GetPanelRect(),
+                    Layer = IMGUIWindowLayer.Modal,
+                    BlockMode = IMGUIBlockMode.Fullscreen,
+                    CloseOnClickedOutside = false,
+                });
+            }
 
             if (DossierPanelDrawer.IsOpen && !_isGrowthPanelOpen)
             {
@@ -1179,7 +1203,8 @@ namespace SSNoir.IMGUI
                 });
             }
 
-            bool baseLocked = IsInputLocked || IsAnimationPlaying;
+            // 反馈锁住游戏输入，但自己的控件仍能操作；演出锁另行传给反馈。
+            bool baseLocked = IsPresentationInputLocked || IsAnimationPlaying;
             if (baseLocked)
                 IMGUIInteractionContext.ConsumeCurrentPress();
             _windowStack.Update();
@@ -1307,6 +1332,19 @@ namespace SSNoir.IMGUI
             if (DebugPanelDrawer.IsOpen) DemoPanelDrawer.Close();
             DemoPanelDrawer.Draw(_gameManager, debugUi, topHud);
 
+            var feedbackUi = _feedback.IsOpen
+                ? _windowStack.MakeContext(IMGUIWindowLayer.Modal, baseLocked)
+                : panelUi;
+            if (_feedback.DrawToggle(_gameManager, feedbackUi, topHud))
+            {
+                _isGrowthPanelOpen = false;
+                DossierPanelDrawer.Close();
+                SettingsPanelDrawer.Close();
+                HelpPanelDrawer.Close();
+                DebugPanelDrawer.Close();
+                DemoPanelDrawer.Close();
+            }
+
             // ── Overlays ──
             // 通知摞在左上、标注带之下（上一帧的带子位置，带子很少动，差一帧无妨）。
             float notifTop = _sceneBandRect.height > 0f
@@ -1334,9 +1372,13 @@ namespace SSNoir.IMGUI
             }
 
             // ── 教程提示 ──
+            if (!worldUiHidden)
+                _feedback.Draw(this, _windowStack.MakeContext(IMGUIWindowLayer.Modal, baseLocked));
+
             // 观察放在所有卡片画完之后：这一帧到底有没有动作卡、第一张在哪儿，这时才知道。
             // 演出/对白/其它模态在跑的时候不弹——教程要指的东西这会儿正被盖着。
             bool tutorialQuiet = !IsPresentationActive && !_isGrowthPanelOpen
+                && !_feedback.IsOpen
                 && !DossierPanelDrawer.IsOpen && !SettingsPanelDrawer.IsOpen && !HelpPanelDrawer.IsOpen;
             if (tutorialQuiet)
                 TutorialDirector.Observe(_gameManager, _firstActionCardRect.HasValue);
@@ -3154,6 +3196,7 @@ namespace SSNoir.IMGUI
             Hard(_topHud.SettingsToggle);
             Hard(_topHud.DebugToggle);
             Hard(_topHud.DemoToggle);
+            Hard(_topHud.FeedbackToggle);
             Hard(_pinStripRect);
             foreach (var rect in _sceneBandOccupiedRects) Hard(rect);
             var touch = new List<Rect>();
