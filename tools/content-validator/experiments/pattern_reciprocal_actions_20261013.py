@@ -123,6 +123,29 @@ def mode_choice(solve, day, a, b, last, mode):
             return action, val, dict((x,v) for v,x in other)
     raise AssertionError(mode)
 
+def outcome_vector(policy, priming="mutual", blocked=True):
+    """E[complete_A, complete_B, SIDE count], not a scalar welfare claim.
+
+    Enumerate every exogenous public signal string, using only observations
+    available at the current step to the supplied policy.
+    """
+    totals = [Q(0), Q(0), Q(0)]
+    for draws in product(MODES, repeat=DAYS):
+        a=b=side=0
+        last="-"
+        weight=Q(1)
+        for day,mode in enumerate(draws):
+            weight *= PROBS[MODES.index(mode)]
+            moves=legal(mode,blocked)
+            action=policy(day,a,b,last,mode,moves)
+            assert action in moves
+            a,b,last=step(a,b,last,action,priming)
+            side+=int(action=="SIDE")
+        for i,x in enumerate((int(a>=3),int(b>=3),side)):
+            totals[i]+=weight*x
+    return tuple(totals)
+
+
 def main():
     baseline = solver("mutual")
     root = baseline(0, 0, 0, "-")[0]
@@ -170,6 +193,30 @@ def main():
         value = solver(prime)(0,0,0,"-")[0]
         assert value == expected_value,(prime,value,expected_value)
         print("REC02 ablation",prime,value,float(value))
+    # Scalar optimization is a research *instrument*, not the definition of
+    # what an individual player should value. Keep the actual expected
+    # outcomes of the two distinct tasks plus independent SIDE results.
+    def exact_action(day,a,b,last,mode,moves):
+        return mode_choice(baseline,day,a,b,last,mode)[0]
+    vectors = {
+        "oracle": outcome_vector(exact_action),
+        "alternate":outcome_vector(alternate),
+        "fixed":outcome_vector(routine(("A","B","A","B"))),
+    }
+    assert vectors["oracle"] == (Q(117,128),Q(83,128),Q(11,32))
+    assert vectors["alternate"] == (Q(27,32),Q(23,32),Q(0))
+    assert vectors["fixed"] == (Q(89,128),Q(89,128),Q(0))
+    for name,(a_prob,b_prob,side) in vectors.items():
+        scalar=10*a_prob+8*b_prob+side
+        assert scalar==({"oracle":root,"alternate":basic,
+                         "fixed":best_fixed}[name])
+        print("REC03 outcome vector",name,"A",a_prob,
+              "B",b_prob,"SIDE",side)
+    # Even though optimal aggregate payoff is higher, the optimal policy
+    # puts LESS completion probability on B than the easy alternation rule.
+    assert vectors["oracle"][1] < vectors["alternate"][1]
+    assert vectors["oracle"][0] > vectors["alternate"][0]
+
     # If there is no blockade, deterministic ABAB/BABA hits BOTH goal
     # thresholds. Hence intermittent blocking is what makes revision useful.
     no_block=solver("mutual",blocked=False)(0,0,0,"-")[0]
