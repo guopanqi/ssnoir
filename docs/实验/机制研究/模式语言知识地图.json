@@ -2,7 +2,7 @@
   "schema": "ssnoir.pattern-language-map/v1",
   "updated": "2026-10-13",
   "reviewBase": "c8055fa1aa2fe18ec1ecc50c7e721072c67dd809",
-  "scope": "非排他发现地图：20历史结构候选、6精选展示映射、CS2九类比较先例、近期重点关系和本批组合；不是478项逐一复审。",
+  "scope": "保留成熟作品、20历史候选、精选展示与局部研究；T01是可复用的跨阶段组合边界，非独立新精选/人类认可",
   "definitions": {
     "layer": "机制原语、基础决策关系、交锋结构、跨交锋组织可交叉连接；层级不是质量排名",
     "origin": "设计先例、仓库研究、局部组合假说分开保存",
@@ -866,6 +866,26 @@
         "humanVerified": false
       },
       "note": "四组q对照Both=On-site-only；仅限冻结模型，不能推广为普遍准备玩法定理"
+    },
+    {
+      "id": "T01",
+      "name": "预案保留替代成果",
+      "layer": "cross-timescale-combination",
+      "origin": "new-local-experiment",
+      "family": "准备／外部风险／替代路线",
+      "idea": "危机前为A与B分配准备；危机可能废掉A，B的先前进度成为可兑现的替代方案。面对不同公开风险，专注A、分散、专注B各有合理条件。",
+      "stage": "exact ex ante/after-shock two-stage model; untested with people",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-13-跨阶段预案与替代目标/研究记录.md",
+        "tools/content-validator/experiments/pattern_language_contingency_pilot.py"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "humanVerified": false,
+        "publishedWorkExample": false
+      },
+      "note": "当风险p<1/2优先AA，1/2<p<2/3分散AB，p>2/3偏向BB，源于冻结规则。可由简短阈值口诀解释，不能宣称原创机制或真实危机体验。"
     }
   ],
   "edges": [
@@ -1036,6 +1056,36 @@
       "to": "PL-C05",
       "relation": "limits",
       "reason": "任何投资都需要与等待需求后再投资的机会成本对照"
+    },
+    {
+      "from": "P02",
+      "to": "T01",
+      "relation": "ingredient",
+      "reason": "有限行动中完成A/B的机会成本使准备分配成为问题"
+    },
+    {
+      "from": "CS2-08",
+      "to": "T01",
+      "relation": "ingredient",
+      "reason": "外部危机改变可用路线和已有成果，观察后改用B"
+    },
+    {
+      "from": "X01",
+      "to": "T01",
+      "relation": "extends",
+      "reason": "X01事后危机分诊向前扩展到危机前的可解释准备决策"
+    },
+    {
+      "from": "X02",
+      "to": "T01",
+      "relation": "contrasts",
+      "reason": "X02准备权限受早到窗口影响；T01准备阶段投入的是可保留的次级成果而非解锁动作"
+    },
+    {
+      "from": "P07",
+      "to": "T01",
+      "relation": "potential-composition",
+      "reason": "主动开启机会窗口可能改变危机概率与准备时点，尚未运行联合模型"
     }
   ],
   "coverage": {
