@@ -257,6 +257,12 @@ namespace SSNoir.IMGUI
 
         private static Vector2 ClosestPointOnEdge(Rect rect, Vector2 point)
         {
+            // 点在矩形外时，先将它夹到矩形范围：得到的才是最近边界点。
+            // 仅比较到四条无限直线的距离，会把左侧人物误判成上边，尾角反向。
+            if (point.x < rect.x || point.x > rect.xMax || point.y < rect.y || point.y > rect.yMax)
+                return new Vector2(Mathf.Clamp(point.x, rect.x, rect.xMax),
+                    Mathf.Clamp(point.y, rect.y, rect.yMax));
+
             float left = Mathf.Abs(point.x - rect.x);
             float right = Mathf.Abs(point.x - rect.xMax);
             float top = Mathf.Abs(point.y - rect.y);

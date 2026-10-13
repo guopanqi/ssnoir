@@ -68,7 +68,7 @@
       (lambda ()
         (let ((help (if (member? stage '(A A1)) (b-help) (a-help))))
           (if (> help 0) (list (modifier help
-            (if (member? stage '(A A1)) "订单依据" "加工依据"))) '())))
+            (if (member? stage '(A A1)) "老板建议" "你的证据"))) '())))
       (outcome (lambda () (resolve! stage direct? '坏)))
       (outcome (lambda () (resolve! stage direct? '中)))
       (outcome (lambda () (resolve! stage direct? '好))))))
