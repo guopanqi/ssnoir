@@ -1467,6 +1467,46 @@
         "humanVerified": false
       },
       "note": "gated动态12、最优固定11；token_menu动态12；首手A与SIDE均12，前置准备没有严格必要性。普通增产18并不属于同一目标结果集合的匹配支配论证。归并成果转化/等待信息边界。"
+    },
+    {
+      "id": "R366",
+      "name": "玩家编写持续执行函数并根据反馈编辑子句",
+      "layer": "decision-primitive-composition",
+      "origin": "historical-experiment",
+      "family": "在线规则维护/动态反馈/编辑操作",
+      "idea": "六手RUN现有布尔函数并获正确反馈，EDIT-X/Y/I改变之后所有输入的输出，与一次B_TO_C不同",
+      "stage": "six-turn-exact-DP-and-4096-scripts; subsequently controlled by R422; no human",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/R366-R373-可组合规则的执行与修订/研究记录.md",
+        "tools/content-validator/experiments/r366_r373_program_composition.py"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      },
+      "note": "六手111/32高于固定3，一次编辑仍3；R422的不同冻结模型中完整预编译显著胜过自由编辑，未认证规则编写本身是新玩法。"
+    },
+    {
+      "id": "R422",
+      "name": "同成本预编译函数压过玩家自由编辑的强反证",
+      "layer": "evaluation-boundary",
+      "origin": "historical-experiment",
+      "family": "预编译模式/持久规则作者/完整菜单对照",
+      "idea": "同时间槽和晚到输入能力下，预编译选择两个完整函数可能优于玩家逐子句编辑",
+      "stage": "exact-eight-and-nine-turn-strong-precompiled-counterfactual; no-human",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/R422-R429-预编译模式强基线/研究记录.md",
+        "tools/content-validator/experiments/r422_r429_precompiled_modes.py"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      },
+      "note": "八期自由作者21/4，预编译一次11/2、两次6；九期自由作者49/8，预编译一次13/2。去晚到y传感两者回到手工基线；不能把编写工作量当玩家价值。"
     }
   ],
   "edges": [
@@ -2297,6 +2337,24 @@
       "to": "PL-SEM04",
       "relation": "retarget-vs-consume",
       "reason": "SEM01不消耗既有A，只改B产出对象；SEM04消耗A使保留/转化形成不同结果，但通用材料菜单仍追平"
+    },
+    {
+      "from": "R366",
+      "to": "R422",
+      "relation": "strong-counterexample-to-authored-programs",
+      "reason": "可持续编辑的子句曾压过固定动作，但同成本预编译完整函数在8/9期压过自由编辑"
+    },
+    {
+      "from": "R422",
+      "to": "PL-SEM01",
+      "relation": "full-menu-contingent-control",
+      "reason": "单次动作改用途亦应与一行条件计划和完整预设菜单相比较"
+    },
+    {
+      "from": "R502",
+      "to": "PL-SEM01",
+      "relation": "conditional-enabling-equivalence",
+      "reason": "维修前置可以同构为启用选项，SEM01的B改道仍有相同危险"
     }
   ],
   "coverage": {
@@ -2304,7 +2362,7 @@
     "curatedDisplayMappedCount": 6,
     "cs2AnalyticalPatterns": 9,
     "unconvertedHistory": "关系索引中的其他R批次、数学负例和组合应按主题逐步纳入；不能据本地图未出现就认定没有价值",
-    "additionalExperimentalCompositions": "PL-C01/PL-C02/PL-C03已做最小模型、PL-C04仅概念问题；与另一研究线的C01/C02/C03区别命名；PL-Q01/D01/W01另有3个独立模型及消融和负面边界；PL-W02新增连续三天注意力容量组合，最强简明口诀和变更容量边界明确；F1/F2/D2三项同源跨家族与充分边界反证，不增精选；RGT01/ACT01用各自精确逆推补充许可资源与自利协作者正负证据，无真人；REL01/REL02四轮精确博弈与私有信号消融已完成（同原语条件组合；不改变精选六或Debug）；REL03后续通行凭据仅真实首手截止窗口有正准备选择价值、普通窗口弱支配；未证独立新玩法；NEG01—05双方自利协商五项精确反证；R342/R430/R478原生历史首次结构化归图，均非真人。；NEG06双回合私人回应DOM全十路，X01-LONG准备→事件→响应两段完整枚举及136条合法UI路径，均一行规则全优，无真人；X03 hard disable vs costly defiance两种不同动作合法性协议在完整可达子博弈仍同最优；无真人意义证据；STG01共4种规则组合×完整路径40，因果未来菜单5对纯文本菜单1，仅网页逻辑回归，不是互动/情感新模式认证；PT01四回合双目标压转与14短策略强对照/网页试玩；INF-P01 cap2/3贝叶斯模型覆盖72+96局部公开状态信息值0；未改变历史478；GOAL01七个p×可选/强制义务、同树强预列菜单；DISC01三手有理数belief-DP、单份可靠度q后验、三种时点/换路与网页合法路径，不动历史478或精选；REC01四手四分之一禁A/B×81信号历史、16条强固定序列、一步前瞻全优及六种因果消融；REC03各目标完成概率独立统计，且最优总体策略B完成率低于简单交替；无真人；SEM01—04动作产出对象改道与材料消费改道，两项均被同成本完整菜单追平，短条件程序全优，无真人。",
+    "additionalExperimentalCompositions": "PL-C01/PL-C02/PL-C03已做最小模型、PL-C04仅概念问题；与另一研究线的C01/C02/C03区别命名；PL-Q01/D01/W01另有3个独立模型及消融和负面边界；PL-W02新增连续三天注意力容量组合，最强简明口诀和变更容量边界明确；F1/F2/D2三项同源跨家族与充分边界反证，不增精选；RGT01/ACT01用各自精确逆推补充许可资源与自利协作者正负证据，无真人；REL01/REL02四轮精确博弈与私有信号消融已完成（同原语条件组合；不改变精选六或Debug）；REL03后续通行凭据仅真实首手截止窗口有正准备选择价值、普通窗口弱支配；未证独立新玩法；NEG01—05双方自利协商五项精确反证；R342/R430/R478原生历史首次结构化归图，均非真人。；NEG06双回合私人回应DOM全十路，X01-LONG准备→事件→响应两段完整枚举及136条合法UI路径，均一行规则全优，无真人；X03 hard disable vs costly defiance两种不同动作合法性协议在完整可达子博弈仍同最优；无真人意义证据；STG01共4种规则组合×完整路径40，因果未来菜单5对纯文本菜单1，仅网页逻辑回归，不是互动/情感新模式认证；PT01四回合双目标压转与14短策略强对照/网页试玩；INF-P01 cap2/3贝叶斯模型覆盖72+96局部公开状态信息值0；未改变历史478；GOAL01七个p×可选/强制义务、同树强预列菜单；DISC01三手有理数belief-DP、单份可靠度q后验、三种时点/换路与网页合法路径，不动历史478或精选；REC01四手四分之一禁A/B×81信号历史、16条强固定序列、一步前瞻全优及六种因果消融；REC03各目标完成概率独立统计，且最优总体策略B完成率低于简单交替；无真人；SEM01—04动作产出对象改道与材料消费改道，两项均被同成本完整菜单追平，短条件程序全优，无真人。；横向读R366函数编辑与R422预编译强对照：持久编辑可超过固定日程却不一定超过同成本完整工具，源实验非本轮重复执行。",
     "humanFeedbackNote": "目前有关稳险/R06、边做边看/R10、压力/R37、R54、R50的有限设计者反馈；原记录各不等价于受控盲试玩；P02/R13仍没有真人反馈。",
     "thirdComparison": "PL-C05 supplies a tested negative boundary; not a new curated or debug pattern"
   },
