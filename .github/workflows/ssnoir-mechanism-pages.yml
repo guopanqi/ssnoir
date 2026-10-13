@@ -20,6 +20,8 @@ on:
       - 'tools/content-validator/experiments/test_partner_prototype.js'
       - 'tools/content-validator/experiments/test_relational_field_study.js'
       - 'docs/实验/机制研究/批次/2026-10-13-关系许可与成果保全/试玩.html'
+      - 'docs/实验/机制研究/批次/2026-10-13-策略回应与危机可达性/协商试玩.html'
+      - 'tools/content-validator/experiments/test_strategic_refusal_field_study.js'
       - 'Game/**'
 permissions:
   contents: read
@@ -69,6 +71,10 @@ jobs:
           mkdir -p pages-dist/relational
           cp docs/实验/机制研究/批次/2026-10-13-关系许可与成果保全/试玩.html pages-dist/relational/index.html
           test -s pages-dist/relational/index.html
+          node tools/content-validator/experiments/test_strategic_refusal_field_study.js
+          mkdir -p pages-dist/negotiation
+          cp docs/实验/机制研究/批次/2026-10-13-策略回应与危机可达性/协商试玩.html pages-dist/negotiation/index.html
+          test -s pages-dist/negotiation/index.html
           mkdir -p pages-dist/game
           cp -R Game/dist/web/. pages-dist/game/
           test -s pages-dist/game/index.html
