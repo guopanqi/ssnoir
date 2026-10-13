@@ -265,6 +265,13 @@
       "question": "两个成熟规则之间有真实双向约束，是否自动形成跨交锋重新分配注意力？",
       "source": "COUP01 2026-10-13",
       "summary": "七手OPS生产A/B具体证据，CLAIM_A禁止继续生产B；GATED/FLAT比较。phase0下p(A)=1/4、1/2、3/4根均9+10p，并由RUN_A、CLAIM_A、SIDE×5同一简单策略达到。phase1、p1/4虽有FLAT高61/5000的真实局部影响，不能据此认证新跨交锋架构或人的体验。"
+    },
+    {
+      "family": "multiobjective-attention-commutativity-and-interruption",
+      "kind": "negative-order-equivalence-and-mature-replanning-composition",
+      "question": "多个目标/多种帕累托成果是否意味着连续注意力调配；中途擦除已做成果是否真正需要重排？",
+      "source": "ATN01—04 2026-10-13",
+      "summary": "无事件81计划仅15同操作计数类，打乱顺序不改变结果。四手公示禁令1296条件策略有20项三维帕累托，但10/8/1动态=固定33/2。五手两任务独立擦除已做进度，动态33/2>最强固定15，由AB预备后按擦除补做策略达到，向量(A1,B3/4,SIDE1/2)；提前信息35/2；删双擦仍可两项全部完成。成熟危机保全与信息时点组合，无人类。"
     }
   ],
   "failedExplanations": [
@@ -296,7 +303,8 @@
     "H-RW-01接线重设的廉价纸面审查中，首手未知来源状态时直接KEEP值9/4，盲目先接线值2，先观察再改线已支配早期选择；不为此失败模型扩状态或代码。",
     "SEM01非数值用途B_TO_C确实生成不同C成果，但完整同成本B_TO_C常开菜单达到相同的37/2；SEM04的必须紧邻A也不增益，同库存菜单12且SIDE先行可以延迟A。动作语义变化不等于新策略活动。",
     "OPS01持续规则编辑并不自动具有超越预编译模式的独立价值：完整同成本SET逐状态追平，强一手前瞻已全优。CLAIM若没有真实早到有效收益与有限撤回成本，就容易退化成等待信号后再直接提交。两者只在条件真实存在时作为成熟关系组合保留。",
-    "COUP01表明两个循环有双向因果边还不够：具体A/B证据、宣告A后禁止B生产在多种正常开局下仍被RUN_A→CLAIM_A→SIDE×5支配。未来先检查有没有一条一开始就避开所有变化的稳妥路径，不能靠叠新目标或调大B奖分补救。"
+    "COUP01表明两个循环有双向因果边还不够：具体A/B证据、宣告A后禁止B生产在多种正常开局下仍被RUN_A→CLAIM_A→SIDE×5支配。未来先检查有没有一条一开始就避开所有变化的稳妥路径，不能靠叠新目标或调大B奖分补救。",
+    "ATN01纯独立单调目标每一组动作次数下顺序交换无影响，ATN02虽有20种三维非支配成果却仍被固定计划达到最优；不能以多目标、帕累托宽度或临时封锁数量宣布玩家会持续重规划。ATN03擦除已投入成果才使现场转向胜固定，但极短AB后补救法全优，仍非独立新原语。"
   ],
   "frontier": [
     {
@@ -366,16 +374,22 @@
       "method": "DISC01及时完美报告9 vs 迟揭/换路税8，DISC02 q>5/8才局部换路、q>7/8工作探查才胜精准INSPECT。已有独立三手网页供无答案人类体验；先收真实行动与误解。若无人反馈，转到另一项行动与结果关系而非只扫q或添加新任务。"
     },
     {
-      "id": "ABSTRACT-M-ATTENTION-BYPASS-AND-NONEXCHANGEABLE-OUTCOMES",
+      "id": "ABSTRACT-M-ATTENTION-VALUES-AND-THREATENED-PROGRESS",
       "family": "action-modifies-another-action-kind-not-only-yield",
-      "question": "即使双向因果真实可达，COUP01的phase0多先验仍由单轨A完全最优；有哪些真实责任/不可交换结果可让玩家不得不重新分配注意力，而不是奖励数值硬推B？",
-      "method": "先从无剧情心理循环与真实结果区别找两条非可互换目的，对单线RUN A→CLAIM A→SIDE做最便宜反证；同时保留FLAT/GATED和强同成本菜单，仍可短口诀时归并。切忌再追加时钟或强化B分数为新颖性服务。"
+      "question": "数学上已能构造同时投入A/B、受损后需要重排，但参与者会把两项成果真正当作关心之事吗？如何使实际情境中的不可交换结果与抽象危机组合，而非增加擦除频率？",
+      "method": "ATN01交换律/ATN02帕累托不够/ATN03简单AB后补救全优均已精确检验；下一步独立无答案人的逐手理由，或换机制族探索对他人可撤销责任与受损成果联动，不在同族继续调概率、奖励和时钟。"
     },
     {
       "id": "ABSTRACT-O-REVOCABLE-CLAIM-PLAYER-EXPERIENCE",
       "family": "irreversible-mutually-exclusive-outcomes-and-option-preservation",
       "question": "玩家会否真的感到先提交A再用两手撤回到B是一段值得关心的局势转变，而不是一条简单操作税？",
       "method": "已准备OPS/CLAIM无答案纸面观察卡，先收逐手行动和原话，并对比HARD和撤回协议；在没有人类时无需扩大数值概率，不得写作已验证体验。"
+    },
+    {
+      "id": "ABSTRACT-P-CRISIS-RESPONSIBILITY-COORDINATION",
+      "family": "multi-agent-loss-ownership-and-rescue",
+      "question": "某项成果受损后，一个自利的另一主体是否真会承担/拒绝补救，以致玩家对两个目标的承诺发生新的操作层后果？",
+      "method": "先纸面独立审查同成本自助修复、免费备用工具、固定随机拒绝和‘总先救收益高者’强口诀；参照ACT01/R510/NEG，不再造一根缺少动机的随机封锁钟。若无新人体验证据仅当抽象组合假说保存。"
     }
   ],
   "method": {
@@ -454,8 +468,8 @@
     "noHumanTests": true,
     "interpretation": "X01、X02与另一批C01、C02是不同的已知组合条件反证，均不构成新独立模式或完整真人交锋认证",
     "historyCountUnchanged": 478,
-    "latestBatch": "docs/实验/机制研究/批次/2026-10-13-跨期操作与可撤回承诺/跨交锋拼接反证.md",
-    "latestCounterfactual": "COUP01：将OPS与CLAIM双向关联为具体A/B凭据与CLAIM_A锁B生产，七手p(A)=1/4,1/2,3/4且phase0时GATED/FLAT均被RUN A→CLAIM A→SIDE×5完全最优（9+10p）。初始phase1 p=1/4，FLAT-GATED仅61/5000，另两p根差0。规则互相改变合法性不保证玩家会利用它，停止为抬高B机会纯调参。",
+    "latestBatch": "docs/实验/机制研究/批次/2026-10-13-多目标注意力与破坏后重规划/研究记录.md",
+    "latestCounterfactual": "ATN01无事件4手81序列按计数归15类，同类全部交换等价；ATN02中途公共封锁1296条件策略/157向量/20项Pareto，但多组权重动态全与最强固定相同；ATN03两手分散准备后A/B独立损毁，5手动态33/2 vs固定15，分结果(1,3/4,1/2)，提前全知35/2，无损19，去双边损毁等概率三事件55/3且两个目标全部可达。简单AB后按损毁补救已全优；不代表真人关心两事或独立新原语。",
     "crossFamilyAudit": "OPS01/R366/R422：程序维护与迟到输入成熟组合，预编译和一手前瞻压过对新原语的强推断；CLAIM/P14/REL03/SEM04：真实时限×成本撤销有因果交互，无早窗口的延迟承诺通常更优。未做人类或独立盲Agent试玩。"
   }
 }
