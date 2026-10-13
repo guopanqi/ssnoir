@@ -25,6 +25,7 @@ on:
       - 'docs/实验/机制研究/批次/2026-10-13-行动权利与自主他者/**'
       - 'tools/content-validator/experiments/pattern_rights_actor_20261013.py'
       - 'tools/content-validator/experiments/pattern_relational_salvage_20261013.py'
+      - 'tools/content-validator/experiments/pattern_portable_salvage_20261013.py'
       - 'tools/content-validator/experiments/test_relational_field_study.js'
       - 'docs/实验/机制研究/批次/2026-10-13-关系许可与成果保全/**'
       - 'tools/content-validator/experiments/test_partner_prototype.js'
@@ -51,5 +52,6 @@ jobs:
           python3 tools/content-validator/experiments/pattern_objective_rights_20261013.py
           python3 tools/content-validator/experiments/pattern_rights_actor_20261013.py
           python3 tools/content-validator/experiments/pattern_relational_salvage_20261013.py
+          python3 tools/content-validator/experiments/pattern_portable_salvage_20261013.py
           node tools/content-validator/experiments/test_relational_field_study.js
           node tools/content-validator/experiments/test_partner_prototype.js
