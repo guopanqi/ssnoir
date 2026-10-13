@@ -35,6 +35,10 @@ on:
       - 'tools/content-validator/experiments/pattern_objective_affordance_20261013.py'
       - 'tools/content-validator/experiments/pattern_pressure_transfer_20261013.py'
       - 'tools/content-validator/experiments/pattern_pressure_information_20261013.py'
+      - 'tools/content-validator/experiments/pattern_generated_obligations_20261013.py'
+      - 'tools/content-validator/experiments/pattern_productive_discovery_20261013.py'
+      - 'tools/content-validator/experiments/test_productive_discovery_prototype.js'
+      - 'docs/实验/机制研究/批次/2026-10-13-目标生成与生产性发现/**'
       - 'tools/content-validator/experiments/test_pressure_transfer_prototype.js'
       - 'docs/实验/机制研究/批次/2026-10-13-压力转移与隐藏触发/**'
       - 'tools/content-validator/experiments/test_witness_vignette.js'
@@ -72,6 +76,9 @@ jobs:
           python3 tools/content-validator/experiments/pattern_objective_affordance_20261013.py
           python3 tools/content-validator/experiments/pattern_pressure_transfer_20261013.py
           python3 tools/content-validator/experiments/pattern_pressure_information_20261013.py
+          python3 tools/content-validator/experiments/pattern_generated_obligations_20261013.py
+          python3 tools/content-validator/experiments/pattern_productive_discovery_20261013.py
+          node tools/content-validator/experiments/test_productive_discovery_prototype.js
           node tools/content-validator/experiments/test_pressure_transfer_prototype.js
           node tools/content-validator/experiments/test_witness_vignette.js
           node tools/content-validator/experiments/test_strategic_refusal_field_study.js
