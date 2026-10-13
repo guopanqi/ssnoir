@@ -362,7 +362,7 @@
       "kind": "correction-of-prior-weighted-optimal-bypass",
       "question": "CUST新增B后四种制度在8/9/12总收益下根同19，是否真的意味着COPY不提供不同有用成果？",
       "source": "STAKE01—03 2026-10-13",
-      "summary": "复用未修改的CUST四手规则并穷举完整条件计划：original/copy分别5366/12153合法策略、68/82个不同四维成果、18/23个Pareto向量，原根仍同19。COPY保A必成可得37/2，original只能17；两代表向量保A(1,1/2,1/2,0)与保B(1/2,1,1/2,0)互不支配。B仅旁路原标量目标，不替代明确A保护义务；匹配普通PRESERVE仍等价，非新基础原语。"
+      "summary": "复用未修改的CUST四手规则并穷举完整条件计划：original/copy分别5366/12153合法策略、68/82个不同四维成果、18/23个Pareto向量，原根仍同19。COPY保A必成可得37/2，original只能17；两代表向量保A(1,1/2,1/2,0)与保B(1/2,1,1/2,0)互不支配。B仅旁路原标量目标，不替代明确A保护义务；匹配普通PRESERVE仍等价，非新基础原语。 进一步按HIGH需求下真正有价值的C交付计向量，original/copy有效不同向量67/72、Pareto15/17；原68/82、18/23只为物理C交付，不能假装所有C都值得关心。"
     },
     {
       "family": "late-revealed-nonfungible-obligations",
@@ -376,7 +376,7 @@
       "kind": "method-calibration-source-verified",
       "question": "研究结论‘相同/没价值’究竟由何种强度证据支持？",
       "source": "META01—03 2026-10-13",
-      "summary": "跨模型导入原历史动作：PRF凭据与同槽位A+ENABLE在22可达状态同动作同转移，PUB自利许可与普通排他菜单10状态同动作同转移，CUST original/copy原根19相同但合法COPY不同、前沿18/23、保A条件17/37/2。研究Agent不得将单组标量根值等式晋升为完整机制同构或所有玩家偏好没有价值。"
+      "summary": "跨模型导入原历史动作：PRF凭据与同槽位A+ENABLE在22可达状态同动作同转移，PUB自利许可与普通排他菜单10状态同动作同转移，CUST original/copy原根19相同但合法COPY不同、前沿18/23、保A条件17/37/2。研究Agent不得将单组标量根值等式晋升为完整机制同构或所有玩家偏好没有价值。 审核向量本身的语义，LOW时C交付价值0；严格HIGH-C有效前沿original15/copy17。"
     }
   ],
   "failedExplanations": [
@@ -420,7 +420,8 @@
     "CUST的唯一原件与COPY在只有A/C时是有代价的选择，但完整加入不依赖原件的B后最优直接绕行，原件可复制与否全部根19；不能把局部资源稀缺夸大成完整玩家心理两难，或靠继续抬A奖分强迫保原件。【STAKE后续正式限定】这里的B旁路只成立于原8A+9B+12C总分最优；保护A无论事件都完成时COPY令17→37/2，四维前沿original18 vs copy23，不能外推为完全没用。",
     "PUB的其他主体公开后按自身效用撤回B许可（且持续需保密）是真正的策略解释，但若自利回应完全确定公开、所有转移都可写成普通互斥菜单，则没有新玩家操作原语；取消互斥甚至使一条固定得两结果策略全优。",
     "不能用原总分下CUST四机制相同最优19推导原件可复制与不可复制对所有玩家目标等价。A不可补偿约束会使COPY严格增加可行结果集合；同时不能把该目标假设当成人类实际关切。",
-    "信息提前公开并不一定有价值：STAKE04首手A可兼顾日后保护A/B与HIGH/LOW需求分支，早揭受保护目标与首手后才揭均copy75/4；不能只凭后到信息假设有实质信息收集路线。"
+    "信息提前公开并不一定有价值：STAKE04首手A可兼顾日后保护A/B与HIGH/LOW需求分支，早揭受保护目标与首手后才揭均copy75/4；不能只凭后到信息假设有实质信息收集路线。",
+    "即使保存帕累托前沿也不能假定每一维天然有价值：STAKE物理C交付不管HIGH/LOW的前沿original18/copy23，而只计HIGH需求下有效交付时为15/17。结果口径必须说明，尤其不能把LOW时0收益的SHOW暗称有效成就。"
   ],
   "frontier": [
     {
@@ -615,7 +616,7 @@
     "interpretation": "X01、X02与另一批C01、C02是不同的已知组合条件反证，均不构成新独立模式或完整真人交锋认证",
     "historyCountUnchanged": 478,
     "latestBatch": "docs/实验/机制研究/批次/2026-10-13-不可替代目标与证据强度/研究记录.md",
-    "latestCounterfactual": "STAKE01-03不改旧CUST规则和8A+9B+HIGH12C奖励：开放B时original/copy/reusable旧总分动态根都是19、固定17，但original/copy完整HIGH/LOW条件策略5366/12153、不同四维成果68/82、Pareto18/23。COPY新增保A始终完成且HIGH得A+C/LOW得A+B的结果向量(1,1/2,1/2,0)，与旧B旁路(1/2,1,1/2,0)不互相支配。保A两需求约束下原件模式17、copy37/2、matched37/2、reusable19；最短动作A+C原件永不可达、copy4、reusable3。STAKE04首手后公布受保护A/B及HIGH/LOW，原模式18、copy75/4、reusable19，首手前公布同值（第一手A已覆盖）；这并非新玩家兴趣证据。META回归PRF22、PUB10状态逐动作真同构，CUST同根不同结果集合。旧“B旁路让COPY完全没价值”正式收窄为特定原标量下的最优旁路。",
-    "crossFamilyAudit": "META01跨历史比较证据层：PRF真做A得到资格 vs 同槽位A+ENABLE合法性和转移在22可达状态全同；PUB自利撤权 vs 普通互斥菜单在10可达状态全同；CUST original/copy动态根19同值却动作菜单不同、结果向量68/82、保A约束17/37/2，不可宣称逐动作或所有玩家目标同构。联系REC03总效用牺牲某项成功率、ATN02 Pareto丰富不等于持续计划、SEM01强菜单根值追平不等于同动作规则。人的A价值需要独立无答案体验，不能凭原件文案虚构。"
+    "latestCounterfactual": "STAKE01-03不改旧CUST规则和8A+9B+HIGH12C奖励：开放B时original/copy/reusable旧总分动态根都是19、固定17，但original/copy完整HIGH/LOW条件策略5366/12153、不同四维成果68/82、Pareto18/23。COPY新增保A始终完成且HIGH得A+C/LOW得A+B的结果向量(1,1/2,1/2,0)，与旧B旁路(1/2,1,1/2,0)不互相支配。保A两需求约束下原件模式17、copy37/2、matched37/2、reusable19；最短动作A+C原件永不可达、copy4、reusable3。STAKE04首手后公布受保护A/B及HIGH/LOW，原模式18、copy75/4、reusable19，首手前公布同值（第一手A已覆盖）；这并非新玩家兴趣证据。META回归PRF22、PUB10状态逐动作真同构，CUST同根不同结果集合。旧“B旁路让COPY完全没价值”正式收窄为特定原标量下的最优旁路。 补充第三目标向量口径：原统计C交付不问HIGH/LOW，LOW时SHOW收益0，会夸大物理交付维度的非支配数量。严格统计P(HIGH且C交付)：original有效向量67/Pareto15、copy有效向量72/Pareto17、reusable68/17；原68/82与18/23仅表示物理C已交付。保A约束原17/copy37/2及代表路径不受影响。",
+    "crossFamilyAudit": "META01跨历史比较证据层：PRF真做A得到资格 vs 同槽位A+ENABLE合法性和转移在22可达状态全同；PUB自利撤权 vs 普通互斥菜单在10可达状态全同；CUST original/copy动态根19同值却动作菜单不同、结果向量68/82、保A约束17/37/2，不可宣称逐动作或所有玩家目标同构。联系REC03总效用牺牲某项成功率、ATN02 Pareto丰富不等于持续计划、SEM01强菜单根值追平不等于同动作规则。人的A价值需要独立无答案体验，不能凭原件文案虚构。 额外方法警戒：从一个标量切换到成果向量仍需审查各维是否有实际用途；C在LOW的SHOW物理已交付但奖励为0，需另报P(HIGH且SHOW)，不得拿物理完成数暗中代表玩家关心的价值。"
   }
 }
