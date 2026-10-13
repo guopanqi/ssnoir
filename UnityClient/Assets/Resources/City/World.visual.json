@@ -85,7 +85,7 @@
       "name": "入口灯照明",
       "profile": "双目标跟拍",
       "type": "POINT",
-      "energy": 55.0,
+      "energy": 28.0,
       "size": 0,
       "spotAngle": 160,
       "spotBlend": 0.5,
@@ -96,7 +96,7 @@
       "name": "目标桌台灯照明",
       "profile": "双目标跟拍",
       "type": "POINT",
-      "energy": 130.0,
+      "energy": 35.0,
       "size": 0,
       "spotAngle": 160,
       "spotBlend": 0.5,
@@ -107,9 +107,42 @@
       "name": "目标桌顶光",
       "profile": "双目标跟拍",
       "type": "SPOT",
-      "energy": 420.0,
+      "energy": 100.0,
       "size": 0,
-      "spotAngle": 69.99999967119774,
+      "spotAngle": 48.00000133572169,
+      "spotBlend": 0.6499999761581421,
+      "palette": "琥珀",
+      "mode": "realtime"
+    },
+    {
+      "name": "背景桌1暖光",
+      "profile": "双目标跟拍",
+      "type": "SPOT",
+      "energy": 22.0,
+      "size": 0,
+      "spotAngle": 65.00000067042492,
+      "spotBlend": 0.6499999761581421,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "背景桌2暖光",
+      "profile": "双目标跟拍",
+      "type": "SPOT",
+      "energy": 22.0,
+      "size": 0,
+      "spotAngle": 65.00000067042492,
+      "spotBlend": 0.6499999761581421,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "背景桌3暖光",
+      "profile": "双目标跟拍",
+      "type": "SPOT",
+      "energy": 22.0,
+      "size": 0,
+      "spotAngle": 65.00000067042492,
       "spotBlend": 0.6499999761581421,
       "palette": "暖白",
       "mode": "realtime"
@@ -118,7 +151,7 @@
       "name": "饭店冷白主光",
       "profile": "双目标跟拍",
       "type": "SUN",
-      "energy": 1.4500000476837158,
+      "energy": 0.6499999761581421,
       "size": 0,
       "spotAngle": 160,
       "spotBlend": 0.5,
@@ -129,7 +162,7 @@
       "name": "街面补光",
       "profile": "双目标跟拍",
       "type": "SUN",
-      "energy": 0.44999998807907104,
+      "energy": 0.25,
       "size": 0,
       "spotAngle": 160,
       "spotBlend": 0.5,
@@ -140,18 +173,18 @@
       "name": "柜台灯照明",
       "profile": "照相馆交涉",
       "type": "POINT",
-      "energy": 60.0,
+      "energy": 18.0,
       "size": 0,
       "spotAngle": 160,
       "spotBlend": 0.5,
-      "palette": "暖白",
+      "palette": "冷白",
       "mode": "realtime"
     },
     {
       "name": "工作台灯照明",
       "profile": "照相馆交涉",
       "type": "POINT",
-      "energy": 90.0,
+      "energy": 24.0,
       "size": 0,
       "spotAngle": 160,
       "spotBlend": 0.5,
@@ -162,7 +195,7 @@
       "name": "暗房低照明",
       "profile": "照相馆交涉",
       "type": "POINT",
-      "energy": 16.0,
+      "energy": 4.0,
       "size": 0,
       "spotAngle": 160,
       "spotBlend": 0.5,
@@ -173,7 +206,7 @@
       "name": "店内主光",
       "profile": "照相馆交涉",
       "type": "SUN",
-      "energy": 1.2000000476837158,
+      "energy": 1.149999976158142,
       "size": 0,
       "spotAngle": 160,
       "spotBlend": 0.5,
@@ -184,11 +217,11 @@
       "name": "店内边光",
       "profile": "照相馆交涉",
       "type": "SUN",
-      "energy": 0.4000000059604645,
+      "energy": 0.550000011920929,
       "size": 0,
       "spotAngle": 160,
       "spotBlend": 0.5,
-      "palette": "暖白",
+      "palette": "冷白",
       "mode": "realtime"
     },
     {
@@ -374,9 +407,9 @@
     {
       "name": "照相馆交涉",
       "worldLinear": {
-        "r": 0.012,
-        "g": 0.017,
-        "b": 0.026,
+        "r": 0.035,
+        "g": 0.039,
+        "b": 0.045,
         "a": 1.0
       },
       "fog": false,
@@ -443,7 +476,7 @@
     },
     {
       "name": "双目标跟拍",
-      "hash": "e456186720448a377ef84c9b6520f5c80bc87ec8db5dcad476c7c6d7f23a6d78"
+      "hash": "ce72e2d4819ac8644cdd0d3301c8ab8f9495e12f5e600a6fe14d7e491fd78ea5"
     },
     {
       "name": "家",
@@ -479,7 +512,7 @@
     },
     {
       "name": "照相馆交涉",
-      "hash": "26792a9f3b8acb5610bd489e265cd9c4517fad9b4ed1ea84685be81491d67d29"
+      "hash": "0ddb6b59e00fe1c5b1d132be3253b2d2e90670d31dc9e637ba36a030e7be3dc4"
     },
     {
       "name": "码头",
