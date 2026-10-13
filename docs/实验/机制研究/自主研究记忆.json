@@ -531,6 +531,34 @@
       "question": "如果事件可能自然缺席，为什么一次直接STOP正确率相同的PARTIAL与WATCH，在可以再调查一手时可能优劣倒转？",
       "source": "PART02—04 2026-10-14",
       "summary": "自然事件概率q；PARTIAL_R的NO_EVENT概率1-q/2、P(R|NO_EVENT)=1/(2-q)，WATCH的NO_EVENT仍对R/B均匀。q=1/2时两者一次MAP正确STOP率同(1+q)/2=3/4，PARTIAL无伤7/8胜WATCH3/4，但完整后3手含75% PROBE时WATCH动态33/2>PARTIAL65/4；q=1时PARTIAL37/2胜WATCH17；q=1/4时WATCH65/4>PARTIAL129/8。不能用一个准确率或一条简单政策声称两信息过程同构，Bayesian后续行动差别实际可达。"
+    },
+    {
+      "family": "repeated-group-shield-diagnosis-vs-one-targeted-test",
+      "kind": "strong-global-one-test-dominance-negative",
+      "question": "四个隐藏来源下，反复保护位置缩小范围是否真的比一次有针对性保护更有玩法行动价值？",
+      "source": "GROUP01—04 2026-10-14",
+      "summary": "q1必然潜在事件、真源未防护事件精确可见且风险1/2；4来源/3手，保护任意子集+STOP+SIDE的动态67/4，限制每次仅护单点也是67/4，不测试11。(6,12,1)下单点首次保护即100%知道源、无伤率5/8、SIDE1；N种均匀来源要100%辨识，最多一种来源能保持全NO_EVENT不曝光，故至少(N−1)/N来源暴露，单点一手达到最低暴露界。q<1或事件信息模糊则结论不适用；无真人。"
+    },
+    {
+      "family": "registered-negative-observation-and-proof-eligibility",
+      "kind": "mature-ex-ante-commitment-for-admissible-evidence",
+      "question": "已经通过事件缺席准确推断来源，但外部要求可提交证明时，事前登记有没有独立行动价值？",
+      "source": "RECORD01—04 2026-10-14",
+      "summary": "四手R/B q1可选择性TEST，NO_EVENT本身对玩家正确辨源但缺少外部PROOF资格。事前REGISTER1手给缺席记录合法SUBMIT，安全6/正确STOP8/PROOF10/SIDE1，none根22/固定18，prereg45/2/固定37/2；REGISTER完全同构普通LICENSE，保留一种成熟资格动作组合而非新原语。"
+    },
+    {
+      "family": "posthoc-admissibility-and-safe-evidence-bypass",
+      "kind": "strong-generic-menu-and-conditional-license-counters",
+      "question": "事前登记是否被同成本普通许可、事后有选择地补许可或安全完整证明能力替代？",
+      "source": "RECORD05—06 2026-10-14",
+      "summary": "四手prereg45/2，但严格同成本generic_license全状态45/2；如仅在确实得到NO_EVENT时才用完整1手事后补许可，根23、固定19；允许一手无伤准确且可提交SAFE_PROBE，根25、固定21；固定预写10^4枚举用非法SIDE补偿。真正额外结果是PROOF可结算资格而非认识精度，实验假定制度承认证据但未模拟第三方自利选择。"
+    },
+    {
+      "family": "single-shot-observation-and-claimability-evidence-check",
+      "kind": "cross-family-research-method-anti-false-depth",
+      "question": "机制研究何时把重复试探、个人知道、合法证明和他人真实同意错误地当成同一种能力？",
+      "source": "META07 2026-10-14",
+      "summary": "从GROUP简单单点全局旁路、PART负观察需要q1、RECORD事前许可等于generic LICENSE、CERT已有独立资格、GRC真实自主参与，建立审计：先看一手强策略是否覆盖多手决策；事实来源是否真的可确定；结果是否可合法提交；许可是不是同成本普通菜单；是否需要另一个主体独立同意。未得到新人类反馈和原生体验，不认证原创机制。"
     }
   ],
   "failedExplanations": [
@@ -594,7 +622,9 @@
     "“保护就无法取得证据”只有事件确实因保护而不发生且没有同样可靠的安全替代时才产生张力。INV若SHIELD后免费得精确来源，根20且WATCH全局不优；若付一手安全100%调查，根19大于原17。禁止安全调查按钮必须有真实因果解释，不能靠删功能制造新颖性。",
     "INV的准确WATCH痕迹只是玩家条件策略可用的信息，正确STOP只是事实结果，既没有独立可结算证明C、也没有对方自主伪装/否认/拒绝；不能把它与CERT或TRL/GRC完整社会证明语义混为一谈。",
     "INV旧首手菜单只有FULL SHIELD和WATCH，WATCH权重(6,12,1)下最优17不能外推到所有可想象保护动作。PART加入同成本仅保护R，在原事件必然q=1时未见事件恰能反向确认R，PART根37/2且结果向量(3/4,1,2)严格优于旧WATCH(1/2,1,2)。这改变协议不是推翻旧DP；以后必须审部分保护/非侵入安全观测的强替代。",
-    "PART中直接猜测STOP的正确率WATCH与PARTIAL_R对任意q均(1+q)/2，PARTIAL还更安全，但不能直接宣称完整最优时PARTIAL弱支配WATCH。当q=1/2，WATCH无事R/B均匀使后续PROBE能显著提高准确率，PART无事后验R2/3则PROBE与直接STOP平局，完整DP WATCH33/2反超PARTIAL65/4；同一次指标准确率不等于后续信息价值相等。"
+    "PART中直接猜测STOP的正确率WATCH与PARTIAL_R对任意q均(1+q)/2，PARTIAL还更安全，但不能直接宣称完整最优时PARTIAL弱支配WATCH。当q=1/2，WATCH无事R/B均匀使后续PROBE能显著提高准确率，PART无事后验R2/3则PROBE与直接STOP平局，完整DP WATCH33/2反超PARTIAL65/4；同一次指标准确率不等于后续信息价值相等。",
+    "GROUP可画出许多连续保护子集与贝叶斯状态，却不能因此宣称玩家需要反复缩圈：q1且暴露真实来源准确时，四源一个单点保护就根据事件出现/未出现完美辨源，完整三手DP任意子集67/4与每次单点67/4相同。只有新信息制度/保护限制才值得重开。",
+    "RECORD玩家对R/B源的私人知识在有无REGISTER时同为100%（q1），但NO_EVENT是否可提交PROOF不同；事前REGISTER根45/2优于只取正面TRACE22，却被同成本普通LICENSE完全同构，事后仅必要时登记23、安全无风险完整证明25分别更强。不能把知道事实、被允许提交和另一个真正愿意接受的主体混作一个结果。"
   ],
   "frontier": [
     {
@@ -788,6 +818,18 @@
       "family": "sequential-observation-and-followup-information",
       "question": "不同信号来源即使第一步猜对概率相同，因未来仍能选择PROBE，它们在完整行动循环中是否具备不同的后续价值？",
       "method": "以PART q=1/2的WATCH33/2 vs PARTIAL65/4为确认案例，对未来候选保留每种观测后的后验与后续可行动作，而非只上报“得到线索准确率x%”；仍必须与强普通菜单、人类理解和不可补偿结果核对。"
+    },
+    {
+      "id": "ABSTRACT-AK-ONE-TEST-FULL-DIAGNOSIS-GLOBAL-BYPASS",
+      "family": "multi-step-diagnostic-vs-one-targeted-intervention",
+      "question": "当抽象交锋允许多轮排查时，是否有一手保护/试验直接达到完全识别与较低风险，令多轮试探只是更大的树而非新的选择？",
+      "method": "以后每当提出逐层缩圈，先在正常初态枚举最强单手试验并核查单次信息是否可准确识别具体来源、潜在事件是否必然、单点操作是否合法。参考GROUP q1 N4完全一手识别，只有真正不满足这些因果前提才研究多轮。"
+    },
+    {
+      "id": "ABSTRACT-AL-RECOGNIZED-NEGATIVE-EVIDENCE-VS-KNOWLEDGE",
+      "family": "predeclared-method-and-admissible-proof",
+      "question": "玩家可以确知来源但尚不能交出可信证明时，提前声明验证方法是否有可学而非行政性的行动取舍？如果普通LICENSE/事后许可/安全PROBE都存在，理由还成立吗？",
+      "method": "使用未执行RECORD无答案卡，首次不提示最优；分别比较仅正面TRACE、事前REGISTER、事后许可、同成本LICENSE改名、安全无害合格调查。记录玩家是否真正关心PROOF结果，是否相信事件必然发生与记录防伪机制；尚不申请精选或Debug。"
     }
   ],
   "method": {
@@ -866,8 +908,8 @@
     "noHumanTests": true,
     "interpretation": "X01、X02与另一批C01、C02是不同的已知组合条件反证，均不构成新独立模式或完整真人交锋认证",
     "historyCountUnchanged": 478,
-    "latestBatch": "docs/实验/机制研究/批次/2026-10-14-干预改变证据可见性/选择性保护与缺席证据反证.md",
-    "latestCounterfactual": "INV01—06原首手只有全保护SHIELD与完全观察WATCH：隐藏来源R/B等概率，WATCH无损害率1/2、准确STOP1、SIDE2，SHIELD安全1但可75%PROBE，(安全6、正确STOP12、SIDE1) WATCH17胜SHIELD16，固定最优14；安全12/阻止8时SHIELD19胜WATCH16，强无伤禁WATCH后(6,12,1)根16。强外生免费精确信息使SHIELD根20，安全完美PROBE一手使SHIELD根19。PART扩展首手同成本只保护R/B并显式事件自然发生基线q：若q=1必然有事件，保护R而未见事件可确定来源R，见B事件可确定B，PARTIAL结果(无伤3/4,正确1,SIDE2)，(6,12,1)根37/2严格胜旧WATCH17；原INV未提供PARTIAL按钮，非旧计算错误。q=1/2时未见事件后PARTIAL后验P(R)=2/3，而WATCH未见事件R/B各半；若再可用一次75%PROBE，DP值FULL16 WATCH33/2 PARTIAL65/4，反而WATCH略胜PARTIAL，虽然后者单次猜来源正确率与WATCH同(1+q)/2、且更安全。q=1/4时WATCH65/4 PARTIAL129/8。表明单次分类准确率、信息结构的后续价值和安全结果必须分开；q从必然到不确定改变了沉默的证据含义。",
-    "crossFamilyAudit": "新增PART01/02是INV原菜单的强替代反证，不是新基础原语。q=1时事件被保护导致缺席是确定来源线索；q<1时NO_EVENT也可能只是潜在事件自然没发生，需用Bayes证实，不能当司法凭证或人格推断。与DISC生产性信息、TRL被观察者策略性伪装、INF-P01免费早知没策略价值、GRC他者因公开信息退出、CERT资格结算均应区分。完整三手允许PROBE后续时，PARTIAL和WATCH虽有相等的直接STOP准确率却可出现WATCH动态值更高，原因是NO_EVENT后续信念状态与新调查边际价值不同。研究着重结果向量、真实初态和普通替代，不宣称新真人乐趣，HTML只首手SHIELD/WATCH，选择性保护在分开纸面无提示卡。"
+    "latestBatch": "docs/实验/机制研究/批次/2026-10-14-重复试探与可被承认的负证据/研究记录.md",
+    "latestCounterfactual": "GROUP四源均等、q1必然事件：每TEST可护任何集合，真源未被保护事件出现可准确识别源并有1/2伤害，真源在盾内只有NO_EVENT。三手STOP正确12/安全6/SIDE1，任意集合可多次TEST完整DP=67/4、每次仅单点保护同67/4、根本不测试11；只护任意一个源，一手就根据无事/其他处暴露完美判源，P无伤5/8、P正确1、SIDE1。需要完全辨识N种等概率类型时，不暴露事件的全NO_EVENT观测序列最多能确定一种，故至少(N−1)/N类型经历暴露，P无伤≤1−(N−1)/(2N)，单点一手达界；不允许将此推给q<1/信息模糊/禁单点。RECORD四手R/B q1，WATCH有正面TRACE但1/2伤害，选择性TEST可出无事并准确判断来源，但NO_EVENT只有事先REGISTER才被制度认可SUBMIT PROOF10。安全6 STOP正确8 PROOF10 SIDE1，none动态22/最佳10^4固定18，prereg45/2/37/2，完整同构generic_license45/2/37/2，允许只在NO_EVENT事后REGISTER_AFTER23/19，SAFE_PROBE一手无伤且准确可提交25/21。条件政策none WATCH STOP SUBMIT SIDE，prereg REGISTER TEST_R STOP SUBMIT；后者P安全3/4 STOP正确1 PROOF1 SIDE0。知道原因与具备可结算对外证明是不同成果维度，普通同成本许可和更强安全调查必须先比较。",
+    "crossFamilyAudit": "本批查旧PART q1/q<1负观察、INV保护与痕迹、DISC生产性信息、PRF同成本A+ENABLE、CUST/STAKE独立成果、CERT可结算资格、GRC他者自利参加。GROUP说明看似可多次缩圈的行动菜单如果事件必然发生且暴露准确给出来源，正常起点一手保护单点就完美识别并最小暴露；不能把复杂信息树当游戏深度。RECORD借PART的确定性负观察给外部PROOF资格，REGISTER是普通同成本LICENSE全状态同构，事后许可或一手安全准确公认证明路径均更强；没有真实裁判行为、可伪造声明、真人可学性等证据。研究对象是区别私人信念/准确STOP/可认可结果而非增加一根PROOF进度条。"
   }
 }
