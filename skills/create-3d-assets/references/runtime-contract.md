@@ -65,6 +65,8 @@ CityBox 的贴地层由构建在生成源头按 `郊野 0.00m / 城市地面 0.3
 - pivot 是稳定的镜头旋转中心，不是交互卡片的位置。它通常放在资产视觉重心附近、略高于地面。
 - 运行时配置自相矛盾时会 assert/throw。Pan 机位可带平移边界：Prefab 里一块贴地的框（`pan_bounds_for = "Camera_<名>"`，`preview_only`），构建时换成同根的 `PanBounds_<名>` Empty 进 FBX，角点是它的两个子 Empty `_min` / `_max`（用位置而不是 scale：FBX 导出把单位换算烘进 Prefab 根的 scale，子物体位置随之缩小、scale 不会）；导入器按角点位置算出模型空间 XZ 边界写进 `SSNoirVirtualCameraConfig.panBounds*`，运行时经 `modelRoot` 换算成世界值。
 
+PanBounds 的尺寸与构图取舍见 [make-scene 机位约定](../../make-scene/references/anchors-camera.md#机位)：所有场景默认宽松平移，边角露黑可接受；这里的导入契约不要求极限画面完全填满场景。
+
 每个 Prefab 的 `OrbitPivot_<名>` 只配同根的 `Camera_<名>`；相机只在同根直接子级里找 pivot。
 
 #### 相机与 pivot 必须对齐
