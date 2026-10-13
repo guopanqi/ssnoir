@@ -688,6 +688,60 @@
         "humanVerified": false
       },
       "note": "证据仅支持列出的特定规则/历史反馈，不自动归为成熟玩法"
+    },
+    {
+      "id": "X01",
+      "name": "危机与已有替代成果",
+      "layer": "combination-boundary",
+      "origin": "new-local-experiment",
+      "idea": "危机封锁A后，另一目标的既有进度与价值决定修复还是转投；无可竞争B时退化为FIX税",
+      "stage": "exact four-state local enumeration; no full-encounter reachability or human play",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/长期研究-启动-组合诊断/研究记录.md",
+        "tools/content-validator/experiments/pattern_language_composition_pilot.py"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "humanVerified": false
+      },
+      "note": "仅局部状态冻结、无随机；不是一套新的原创交锋模式或完整玩家体验"
+    },
+    {
+      "id": "X02",
+      "name": "准备与早到机会窗口",
+      "layer": "cross-timescale-combination",
+      "origin": "new-local-experiment",
+      "idea": "如果现场机会在临时ENABLE之前关闭，准备期的预测和特殊能力才可能有价值；撤去窗口时晚买严格占优",
+      "stage": "exact two-stage finite action enumeration; no human play",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/长期研究-启动-组合诊断/研究记录.md",
+        "tools/content-validator/experiments/pattern_language_preparation_pilot.py"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "humanVerified": false
+      },
+      "note": "一条概率阈值条件规则即可解释，不能因跨时间尺度称为新心理原语"
+    },
+    {
+      "id": "X03",
+      "name": "目标重估与结算语义的区别",
+      "layer": "open-hypothesis",
+      "origin": "analysis-from-existing-work",
+      "idea": "信息改变数值奖励并不自动等于玩家重新认可或拒绝原先承诺；需研究合法退出和结算合同的变化",
+      "stage": "paper hypothesis only; no new model",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/长期研究-启动-组合诊断/研究记录.md",
+        "docs/设计研究/Citizen_Sleeper_2_交锋决策模式梳理.md"
+      ],
+      "evidence": {
+        "mathematical": false,
+        "humanVerified": false
+      },
+      "note": "该卡片只记录进一步探索的问题，不能声称已证明目标意义反转"
     }
   ],
   "edges": [
@@ -762,6 +816,48 @@
       "to": "CS2-02",
       "relation": "related-structure",
       "reason": "阶段完成与阶段解锁相近，但是否改变玩家动词待审"
+    },
+    {
+      "from": "P02",
+      "to": "X01",
+      "relation": "ingredient",
+      "reason": "并行成果的进度与价值改变危机后是否舍弃主目标"
+    },
+    {
+      "from": "CS2-08",
+      "to": "X01",
+      "relation": "ingredient",
+      "reason": "危机封锁工作动作，局部测试是否触发分诊而非固定修理"
+    },
+    {
+      "from": "P11",
+      "to": "X01",
+      "relation": "negative-boundary",
+      "reason": "没有活跃可替代目标时仍只有固定修复税"
+    },
+    {
+      "from": "P13",
+      "to": "X02",
+      "relation": "related-structure",
+      "reason": "整备能力在早于现场购买的机会窗口内才能兑现"
+    },
+    {
+      "from": "P14",
+      "to": "X02",
+      "relation": "related-structure",
+      "reason": "准备期公开预测与未来隐藏真相之间存在机会成本与锁定"
+    },
+    {
+      "from": "CS2-09",
+      "to": "X03",
+      "relation": "open-distinction",
+      "reason": "故事中重新评价是否完成目标，不能用更换结算数值替代"
+    },
+    {
+      "from": "R526",
+      "to": "X03",
+      "relation": "negative-boundary",
+      "reason": "信息可被识别但若不改变可行行动，其额外价值可能为零"
     }
   ],
   "coverage": {
@@ -775,6 +871,7 @@
     "商业游戏应用先例不是本实验的受控试玩验证",
     "数学不支配与收益增量不足以证明乐趣",
     "可检索的边界反例也是研究成果",
-    "新假设可直接存入知识地图；精选展示和Debug是独立决策"
+    "新假设可直接存入知识地图；精选展示和Debug是独立决策",
+    "X01–X03属与C01–C03不同的独立最小组合对照；任何节点编号都不是精选晋升或真人认证"
   ]
 }
