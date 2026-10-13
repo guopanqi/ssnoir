@@ -216,7 +216,7 @@ function drawDialogue(){
   const submit=make(controls,"button","button tiny","提交给研究 Agent");submit.type="button";
   const backup=make(controls,"button","button ghost tiny","导出回答 JSON");backup.type="button";
   const result=make(section,"p","minor");result.setAttribute("role","status");
-  const response=()=>({schema:"ssnoir.research-dialogue/v1",questionId:q.id,questionTitle:q.title,createdAt:new Date().toISOString(),related:q.related,answer:field.value.trim(),context:q.context});
+  const response=()=>({schema:"ssnoir.research-dialogue/v1",questionId:q.id,questionTitle:q.title,questionVersion:dialogue.updated,createdAt:new Date().toISOString(),related:q.related,answer:field.value.trim(),context:q.context});
   const validate=()=>{if(!field.value.trim()){result.textContent="先填写一个具体观察或问题。";return false;}return true;};
   backup.addEventListener("click",()=>{
    if(!validate())return;
