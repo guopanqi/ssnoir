@@ -32,6 +32,7 @@ on:
       - 'docs/实验/机制研究/批次/2026-10-13-关系许可与成果保全/**'
       - 'tools/content-validator/experiments/test_partner_prototype.js'
       - 'tools/content-validator/experiments/pattern_crisis_from_opening_20261013.py'
+      - 'tools/content-validator/experiments/pattern_objective_affordance_20261013.py'
       - 'tools/content-validator/experiments/test_strategic_refusal_field_study.js'
       - 'tools/content-validator/experiments/test_crisis_opening_study.js'
       - 'docs/实验/机制研究/批次/2026-10-13-策略回应与危机可达性/**'
@@ -61,6 +62,7 @@ jobs:
           python3 tools/content-validator/experiments/pattern_portable_salvage_20261013.py
           python3 tools/content-validator/experiments/pattern_bargaining_incentives_20261013.py
           python3 tools/content-validator/experiments/pattern_crisis_from_opening_20261013.py
+          python3 tools/content-validator/experiments/pattern_objective_affordance_20261013.py
           node tools/content-validator/experiments/test_strategic_refusal_field_study.js
           node tools/content-validator/experiments/test_crisis_opening_study.js
           node tools/content-validator/experiments/test_relational_field_study.js
