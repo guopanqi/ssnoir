@@ -87,8 +87,6 @@ namespace SSNoir.IMGUI
         private const float DayGap = 10f;
         private const float PlatePadX = 8f;
         private const float PlatePadY = 4f;
-        // 宿主胶囊占位在所有预览里恒定保留，避免发布后覆盖最右侧入口。
-        private const float HostReservedWidth = 128f;
 
         public static TopHudLayout Create()
         {
@@ -100,7 +98,7 @@ namespace SSNoir.IMGUI
             float top = safe.y + TopInset;
 
             float left = safe.x + margin;
-            float right = safe.xMax - margin - HostReservedWidth;
+            float right = safe.xMax - margin;
 
             var bar = new Rect(left, top, Mathf.Max(0f, right - left), rowH);
 
