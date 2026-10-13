@@ -563,7 +563,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
   "schema": "ssnoir.pattern-language-map/v1",
   "updated": "2026-10-13",
   "reviewBase": "c8055fa1aa2fe18ec1ecc50c7e721072c67dd809",
-  "scope": "保留成熟作品、20历史候选、精选展示与局部研究；T01是可复用的跨阶段组合边界，非独立新精选/人类认可；本轮另纳入PL-Q01/D01/W01三族跨尺度正负对照，未自动精选或真人认证；新增F1/F2目标内生生成与撤权、D2反驳纯诱饵通用支配，均为局部精确证据；RGT01可更换许可的强简单策略负例及ACT01双向自利公开外部机会模型均纳入；REL01/REL02新增自利关系许可×半成品保全×信息时点可执行证据与短公开口诀全优边界",
+  "scope": "保留成熟作品、20历史候选、精选展示与局部研究；T01是可复用的跨阶段组合边界，非独立新精选/人类认可；本轮另纳入PL-Q01/D01/W01三族跨尺度正负对照，未自动精选或真人认证；新增F1/F2目标内生生成与撤权、D2反驳纯诱饵通用支配，均为局部精确证据；RGT01可更换许可的强简单策略负例及ACT01双向自利公开外部机会模型均纳入；REL01/REL02新增自利关系许可×半成品保全×信息时点可执行证据与短公开口诀全优边界；REL03检验半成品跨交锋转成操作资格的旧启用同构与首手时间窗必要条件",
   "definitions": {
     "layer": "机制原语、基础决策关系、交锋结构、跨交锋组织可交叉连接；层级不是质量排名",
     "origin": "设计先例、仓库研究、局部组合假说分开保存",
@@ -1670,6 +1670,26 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
         "humanVerified": false
       },
       "note": "晚揭无保全12、有保全仍12；早揭无保全13、有保全27/2。信息改善并不单独足够，需残留可执行的保全窗口；高类型自利严格退出，因此不需猜离轨贝叶斯。"
+    },
+    {
+      "id": "PL-REL03",
+      "name": "跨交锋半成品改造为未来操作资格的现场启用反证",
+      "layer": "cross-encounter-negative-boundary",
+      "origin": "new-local-experiment",
+      "family": "可移植物件/提前准备与现场启用",
+      "idea": "将REL01的SECURE立即分数改为下一场M专属WORK资格；若能到场用同成本ENABLE，提前SECURE被等待弱支配；只有M须在第一手WORK，早备才可能有优势",
+      "stage": "exact-two-encounter-Fraction-with-single-slot-deadline-and-public-prior; no human",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-13-关系许可与成果保全/后续行动权反证.md",
+        "tools/content-validator/experiments/pattern_portable_salvage_20261013.py"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      },
+      "note": "事前SECURE=6+2p；没有真实首手窗口时等待并现场ENABLE=8且弱支配全p；有首手窗口时等待=8−2p，SECURE仅p>1/2胜。纯配置转移与已知PL-C05/P14同构，非独立新模式。"
     }
   ],
   "edges": [
@@ -2110,6 +2130,36 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
       "to": "CS2-08",
       "relation": "structural-analogy-not-verified-game-rule",
       "reason": "需要即时决定保全部分成果或继续正事，有危机打断结构先例但非CS2官方机制逐项映射"
+    },
+    {
+      "from": "PL-REL01",
+      "to": "PL-REL03",
+      "relation": "recontextualizes",
+      "reason": "把高外部报价时可保全的A半成品由直接结算5改为下一场能让WORK立即合法的物件，避免把收益相加"
+    },
+    {
+      "from": "PL-C05",
+      "to": "PL-REL03",
+      "relation": "strong-negative-control",
+      "reason": "有同成本现场ENABLE并未丧失工作窗口时，所有先验概率下提前保全不更优"
+    },
+    {
+      "from": "P14",
+      "to": "PL-REL03",
+      "relation": "classic-preparation",
+      "reason": "提前投资后续权利与观察事件后再办理相对，仍由先验概率和窗口解释"
+    },
+    {
+      "from": "CS2-02",
+      "to": "PL-REL03",
+      "relation": "structural-analogy",
+      "reason": "阶段解锁/工作入口是设计归纳先例，不代表新原语或官方项目验证"
+    },
+    {
+      "from": "PL-REL02",
+      "to": "PL-REL03",
+      "relation": "complementarity-boundary",
+      "reason": "REL02来自信息在权限关闭前是否可用，REL03来自未来工作入口在现场ENABLE之后是否还开放"
     }
   ],
   "coverage": {
@@ -2117,7 +2167,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
     "curatedDisplayMappedCount": 6,
     "cs2AnalyticalPatterns": 9,
     "unconvertedHistory": "关系索引中的其他R批次、数学负例和组合应按主题逐步纳入；不能据本地图未出现就认定没有价值",
-    "additionalExperimentalCompositions": "PL-C01/PL-C02/PL-C03已做最小模型、PL-C04仅概念问题；与另一研究线的C01/C02/C03区别命名；PL-Q01/D01/W01另有3个独立模型及消融和负面边界；PL-W02新增连续三天注意力容量组合，最强简明口诀和变更容量边界明确；F1/F2/D2三项同源跨家族与充分边界反证，不增精选；RGT01/ACT01用各自精确逆推补充许可资源与自利协作者正负证据，无真人；REL01/REL02四轮精确博弈与私有信号消融已完成（同原语条件组合；不改变精选六或Debug）",
+    "additionalExperimentalCompositions": "PL-C01/PL-C02/PL-C03已做最小模型、PL-C04仅概念问题；与另一研究线的C01/C02/C03区别命名；PL-Q01/D01/W01另有3个独立模型及消融和负面边界；PL-W02新增连续三天注意力容量组合，最强简明口诀和变更容量边界明确；F1/F2/D2三项同源跨家族与充分边界反证，不增精选；RGT01/ACT01用各自精确逆推补充许可资源与自利协作者正负证据，无真人；REL01/REL02四轮精确博弈与私有信号消融已完成（同原语条件组合；不改变精选六或Debug）；REL03后续通行凭据仅真实首手截止窗口有正准备选择价值、普通窗口弱支配；未证独立新玩法",
     "humanFeedbackNote": "目前有关稳险/R06、边做边看/R10、压力/R37、R54、R50的有限设计者反馈；原记录各不等价于受控盲试玩；P02/R13仍没有真人反馈。",
     "thirdComparison": "PL-C05 supplies a tested negative boundary; not a new curated or debug pattern"
   },
