@@ -157,6 +157,36 @@ def sunk_favor_hold_up(default_penalty=F(0), tie='grant'):
     return best_first,histories
 
 
+
+
+def exhaustive_posted_policy_table():
+    """Enumerate all advertised pure price/second-round policies, 2 private types.
+
+    Partner knows the advertised second-round plan when responding, and
+    values their own wage. A STOP plan is credible only when binding in advance.
+    Acceptance is chosen on equal utility; same-price future offers cannot
+    induce rejection under that tie convention.
+    """
+    results = {}
+    for first, on_reject in product((F(2), F(4)), ("STOP", "RAISE_4")):
+        choices = {}
+        payoffs = []
+        for outside in (F(2), F(4)):
+            accept_utility = first if first >= outside else F(-1)
+            reject_utility = (F(4) if on_reject == "RAISE_4" else outside)
+            accepts = accept_utility >= reject_utility
+            if accepts:
+                outcome = ("ACCEPT", GROSS-first)
+            elif on_reject == "RAISE_4":
+                outcome = ("REJECT_RAISE", GROSS-F(4)-F(1))
+            else:
+                outcome = ("REJECT_STOP", F(0))
+            choices[outside] = outcome
+            payoffs.append(outcome[1])
+        results[(first,on_reject)] = (sum(payoffs)/2,choices)
+    return results
+
+
 def main():
     p = credible_compensation()
     print("NEG-01", {k: tuple(map(str,v)) if isinstance(v,tuple) else str(v)
@@ -185,6 +215,20 @@ def main():
     print("NEG-03", {k:str(v) for k,v in n3.items()})
     assert n3["naive_low_acceptance_prediction"] > n3["strategic_best_initial_pool"]
     assert n3["strategic_best_initial_pool"] == F(8)
+    policies=exhaustive_posted_policy_table()
+    expected_policies={
+        (F(2),"STOP"):F(5),
+        (F(2),"RAISE_4"):F(7),
+        (F(4),"STOP"):F(8),
+        (F(4),"RAISE_4"):F(8)
+    }
+    for policy,(value,by_type) in policies.items():
+        print("NEG-03 whole plan",str(policy),str(value),
+              {str(k):v[0] for k,v in by_type.items()})
+        assert value==expected_policies[policy]
+    assert policies[(F(2),"RAISE_4")][1][F(2)][0]=="REJECT_RAISE"
+    assert policies[(F(2),"RAISE_4")][1][F(4)][0]=="REJECT_RAISE"
+    assert max(v[0] for v in policies.values())==F(8)
     for c,expected,low_mimics in ((F(0), F(8), True),
                                    (F(1), F(8), True),
                                    (F(2), F(9), False),
