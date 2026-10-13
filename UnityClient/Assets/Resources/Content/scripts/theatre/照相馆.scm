@@ -109,9 +109,9 @@
   (框 "门框" "布景" 260 470 150 320 "#E9EEF8" 2.5 1.2)
   (加入 (theatre-focus "焦点" 800 594 .20 .52))
   ;; 原型 s2 是店主背后的大面积情绪光，不是墙上的灯具。
-  ;; 平常淡红，迟疑时暖光接管，恼火时红光加深；与追随说话人的蓝光独立。
-  (加入 (theatre-with (theatre-glow "店主暖背景" "画面" "#F3D08A" 900 560 660 924) 'opacity 0))
-  (加入 (theatre-with (theatre-glow "店主红背景" "画面" "#FF7A6A" 900 560 720 1008) 'opacity .1))
+  ;; 大面积低强度染色，范围明显宽于说话光；平常淡红，迟疑时暖光接管，恼火时红光加深；与追随说话人的蓝光独立。
+  (加入 (theatre-with (theatre-glow "店主暖背景" "画面" "#F3D08A" 900 450 1700 1200) 'opacity 0))
+  (加入 (theatre-with (theatre-glow "店主红背景" "画面" "#FF7A6A" 900 450 1700 1200) 'opacity .04))
   (加入 (theatre-with (theatre-glow "说话柔光" "画面" "#8FB4E8" 860 560 600 840) 'opacity 0))
   (组 "尼尔位置" "画面" -150 790 0)
   (加入 (theatre-image "尼尔" "尼尔位置" "Portraits/Neon/尼尔" 0 0 308 308 ""))
@@ -193,9 +193,9 @@
       (theatre-tween "冲印相片" 'opacity 1 .01)
       (theatre-parallel (theatre-tween "暗场" 'opacity 0 .9)
         (theatre-tween "暗房红光" 'opacity 0 .9)
-        (theatre-tween "店主红背景" 'opacity .2 .9))
+        (theatre-tween "店主红背景" 'opacity .08 .9))
       (theatre-wait .2)
-      (theatre-tween "店主红背景" 'opacity .08 .4)
+      (theatre-tween "店主红背景" 'opacity .032 .4)
       (theatre-image-to "尼尔" "Portraits/Neon/尼尔_伸手")
       (theatre-tween "冲印相片" 'opacity 0 .4)
       (theatre-wait .6)
@@ -222,7 +222,7 @@
       (说 "店主" 1070 "嗯，应该是吧。" 1.185)
       (theatre-tween "店主位置" 'rotation 0 .2)
       (theatre-image-to "尼尔" "Portraits/Neon/尼尔")
-      (气氛 .7 .154 0 1.2)
+      (气氛 .7 .062 0 1.2)
       (theatre-sound "钟声" "StageSounds/室内求助/钟表" #f .22 0)
       ;; 半透明的旧照片背面只作为记忆，不额外产生物品或结论。
       (theatre-during
@@ -253,7 +253,7 @@
       (theatre-tween "店主位置" 'rotation 3 .7)
       (theatre-parallel
         (theatre-tween "店主位置" 'x 1090 .5 'smooth)
-        (气氛 .8 .176 0 1.2)
+        (气氛 .8 .07 0 1.2)
         (theatre-sound "犹豫钟声" "StageSounds/室内求助/钟表" #f .22 0)
         (theatre-wait 1.7))
       (说 "店主" 1090 "这、这我怎么知道……" 1.500)
@@ -261,7 +261,7 @@
         (theatre-tween "店主位置" 'rotation 0 .2)
         (theatre-tween "店主位置" 'x 1040 .6 'smooth)
         (theatre-tween "店主位置" 'brightness 1.2 .2)
-        (气氛 .8 0 .2 .6)
+        (气氛 .8 0 .08 .6)
         (提示声 "恼火低音" "低音"))
       (theatre-wait .5)
       (说 "店主" 1040 "你到底想问什么？" 1.290)
