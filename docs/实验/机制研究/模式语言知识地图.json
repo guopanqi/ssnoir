@@ -2403,6 +2403,90 @@
         "humanVerified": false
       },
       "note": "与已知ACT/GRC自利参与不同，本轮Helper/Robot在完整规则中同构；只认可成熟组合和失败边界，不自动增加精选/候选/正式Debug或将浏览器冒烟当真人反馈。"
+    },
+    {
+      "id": "PL-INV01",
+      "name": "提前保护会内生地抑制事件痕迹：安全行动本身改变未来信息能否产生",
+      "layer": "intervention-dependent-observability",
+      "origin": "new-local-exact-bayesian-model-and-blind-interactive-vignette",
+      "family": "保护/观察/证据产生条件/一次性风险/后到阻止",
+      "idea": "隐藏原因R/B等半，初手SHIELD避免当次损害却不会有直接痕迹；WATCH完全看清原因却有1/2概率造成无法追回的当次损害。后续3手可PROBE一次（正确率3/4）、STOP一次、SIDE。可达三类终局向量：SHIELD+PROBE为(无伤1,正确STOP3/4,SIDE1)；SHIELD猜为(1,1/2,2)；WATCH为(1/2,1,2)，互不支配。",
+      "stage": "four-turn-full-fraction-belief-DP-2-by-4-cubed-strong-fixed-hard-safety-and-safe-information-counterfactuals; local-mirror-tests-no-human",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-14-干预改变证据可见性/研究记录.md",
+        "tools/content-validator/experiments/pattern_intervention_observability_20261014.py",
+        "docs/实验/机制研究/批次/2026-10-14-干预改变证据可见性/试玩.html",
+        "docs/实验/机制研究/批次/2026-10-14-干预改变证据可见性/无答案观察卡.md"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      },
+      "note": "安全/阻止/SIDE权重(6,12,1)最优WATCH17、128固定最优14；(12,8,1)则最优SHIELD19、固定18；硬性无伤约束在前一组下仅能SHIELD、根16。这里痕迹只给来源信号，不等于合法凭据，也无策略性对手。"
+    },
+    {
+      "id": "PL-INV02",
+      "name": "安全取得可靠信息可完全绕过保护和观察的两难；不得把缺少这条路线当原创",
+      "layer": "safe-observation-menu-and-hard-protection-counterexample",
+      "origin": "new-local-exact-strong-information-controls",
+      "family": "安全调查/普通完整菜单/不可补偿保护/后续改选",
+      "idea": "冻结INV隐藏原因及4手，在(安全6,正确STOP12,SIDE1)下：保护抑制痕迹的基准根17；若SHIELD后仍免费获得完整真实信息根20、两难失效；若可花一手安全取得100%报告则根19、WATCH也非最优；完全没有后续PROBE仍为17且WATCH胜。硬无损要求时 WATCH不合法，根16。",
+      "stage": "exact-DP-safe-perfect-free-and-costly-information-ablation-plus-no-harm-outcome-constraint; no-human",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-14-干预改变证据可见性/研究记录.md",
+        "tools/content-validator/experiments/pattern_intervention_observability_20261014.py"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      },
+      "note": "仅依据原总效用、非补偿合法性与三维结果。纯STOP命中真实原因不证明玩家掌握可被第三方认可的证据。只要普通安全信息菜单足够强，WATCH的因果权衡便会被支配。"
+    },
+    {
+      "id": "PL-INV03",
+      "name": "观察造成的信息与损害取舍会随未来受影响的周期变化，但非跨期模拟",
+      "layer": "outcome-horizon-valuation-without-new-future-actions",
+      "origin": "new-local-exact-horizon-proxy-counterfactual",
+      "family": "长短期利益/保留现在安全/未来阻止准确率/硬性要求",
+      "idea": "安全权重8、SIDE1、正确STOP每个未来周期价值4N折算，只改变终局重要性：N=1/2/3/4时贝叶斯DP根12/15/18/22；N3 WATCH与SHIELD+PROBE平局，N4 WATCH严格更高。但这不是模拟未来重复行动，不能据此赞成牺牲当下不可补偿安全。",
+      "stage": "four-terminal-weight-horizons-exact-DP-and-algebraic-break-even; no-human",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-14-干预改变证据可见性/研究记录.md",
+        "tools/content-validator/experiments/pattern_intervention_observability_20261014.py"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      },
+      "note": "WATCH相对于SHIELD PROBE的增量=-Wsafe/2+Wcorrect/4+Wside；若不接受可补偿折算，必须用hard safety而非最大化根值。未来周期仅权重代理。"
+    },
+    {
+      "id": "PL-META05",
+      "name": "认识变化不是证据所有权：干预造成的无观察、概率报告、事实正确、可采纳证明须区分",
+      "layer": "cross-family-information-provenance-and-claimability-method",
+      "origin": "cross-DISC-TRL-INF-P01-CERT-STAKE-INV-source-audit",
+      "family": "信息因果来源/信号准确性/实体证据资格/他者策略性伪装/价值评价",
+      "idea": "INV的SHIELD消灭本次可观察事件，不等于TRL对手主动伪装、DISC工作兼作信号、INF-P01提前知道原因值0。WATCH的真实痕迹仅供玩家认识与正确STOP，未建模第三方许可/凭据；CERT另有明确C结算资格。后续研究区分动作是否改变信息生成、何时被玩家看见、准确率、是否能转为可结算证据和保护目标是否不可补偿。",
+      "stage": "cross-source-synthesis-not-independent-gameplay-novelty-or-human-feedback",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-14-干预改变证据可见性/研究记录.md",
+        "docs/实验/机制研究/批次/2026-10-13-目标生成与生产性发现/研究记录.md",
+        "docs/实验/机制研究/批次/2026-10-13-生产性试做与信号伪装/研究记录.md",
+        "docs/实验/机制研究/批次/2026-10-13-可交付成果与延续义务/研究记录.md"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      },
+      "note": "四层术语区分并非建议正式游戏再增加四项新功能。较高数学值、存在浏览器页面不构成真人趣味或社会接受度证明。"
     }
   ],
   "edges": [
@@ -4325,6 +4409,90 @@
       "to": "PL-META04",
       "relation": "residual-action-capacity-explains-cost-of-acceptance",
       "reason": "META02提醒完成后剩余可操作容量是具体机会；CERT领取消耗一手却开C，CARRY额外FOLLOW消耗未来行动且可能不划算"
+    },
+    {
+      "from": "P09",
+      "to": "PL-INV01",
+      "relation": "observation-accrues-irreversible-current-risk",
+      "reason": "选择WATCH直接保留真实可观察痕迹但引入A当次损害1/2，不是推高风险得纯奖励"
+    },
+    {
+      "from": "P03",
+      "to": "PL-INV01",
+      "relation": "future-observability-depends-on-protection",
+      "reason": "P03在观察后改做什么；INV进一步让保护行动抑制未来信息生成，而不是某信息仅晚一手报告"
+    },
+    {
+      "from": "PL-DISC01",
+      "to": "PL-INV01",
+      "relation": "working-as-measurement-vs-intervention-suppresses-data",
+      "reason": "DISC中WORK给生产进度并反馈，INV中SHIELD保护进展但事件不发生因此失去直接来源痕迹，因果方向不同"
+    },
+    {
+      "from": "PL-TRL02",
+      "to": "PL-META05",
+      "relation": "no-observation-is-not-strategic-deception",
+      "reason": "TRL低能力主体会为HIRE主动POLISH改变PASS表象；INV源R/B没有自主策略，观察缺失由SHIELD导致，不应混称欺骗"
+    },
+    {
+      "from": "PL-INF-P01",
+      "to": "PL-META05",
+      "relation": "availability-of-information-does-not-equal-decision-value",
+      "reason": "INF隐藏压力类型提前知道却0行动增益；INV精准信息有收益取决于损害/安全调查可行动作，但仍可被普通信息菜单覆盖"
+    },
+    {
+      "from": "PL-INV01",
+      "to": "PL-INV02",
+      "relation": "matched-safe-information-route-eliminates-ethical-risk-bonus",
+      "reason": "保护之后免费得到真来源或付一手100%安全调查使WATCH不再是原权重最优，不能仅凭禁普通工具认证原创"
+    },
+    {
+      "from": "PL-STAKE01",
+      "to": "PL-INV02",
+      "relation": "hard-no-harm-result-invalidates-compensation",
+      "reason": "STAKE必须保护A的非补偿终局使普通标量最优不足；INV明确禁止任何伤害时WATCH非法，(6,12,1)只余SHIELD根16"
+    },
+    {
+      "from": "PL-META01",
+      "to": "PL-INV02",
+      "relation": "no-hard-goal-equivalence-from-scalar-root",
+      "reason": "INV根值比较不能代替安全结果维度和政策集合对照，完全禁止损害必须纳入合法性而非一个大数字"
+    },
+    {
+      "from": "PL-INV01",
+      "to": "PL-INV03",
+      "relation": "repeat-consequence-horizon-shifts-prevention-priority",
+      "reason": "更大未来被STOP影响的周期权重可使WATCH首手由次优变最优，但没有新增未来局势或对手行动"
+    },
+    {
+      "from": "PL-INV03",
+      "to": "PL-META05",
+      "relation": "future-weighted-correctness-is-not-proof-certificate",
+      "reason": "正确STOP影响未来收益不等于拥有可移交的第三方证据，也不等于玩家主观同意承担当次损害风险"
+    },
+    {
+      "from": "PL-CERT01",
+      "to": "PL-META05",
+      "relation": "claimable-proof-is-distinct-from-belief",
+      "reason": "CERT显式资格C并要求A达标才可结算；INV的痕迹仅能使玩家选择正确STOP，没有外部许可或证明资格"
+    },
+    {
+      "from": "PL-GRC03",
+      "to": "PL-META05",
+      "relation": "information-changes-different-agent-or-observation-mechanism",
+      "reason": "GRC改变信息公开时点影响另一主体HELP/EXIT，INV改变干预方式影响事件是否会留下可见信号，没有自主拒绝主体"
+    },
+    {
+      "from": "PL-FOCUS02",
+      "to": "PL-INV02",
+      "relation": "observable-signal-must-have-remaining-action-window",
+      "reason": "FOCUS提醒即使两结果仍可达，其完成后余裕不同；INV后续三手若PROBE花一手使SIDE从2降到1，价值可比较"
+    },
+    {
+      "from": "X03",
+      "to": "PL-META05",
+      "relation": "knowing-the-cause-is-not-the-same-as-recognized-outcome",
+      "reason": "X03目标重估与结算语义不同；INV认识正确来源不自动创造被别人接受的证明或补偿保护对象的责任"
     }
   ],
   "coverage": {
@@ -4332,7 +4500,7 @@
     "curatedDisplayMappedCount": 6,
     "cs2AnalyticalPatterns": 9,
     "unconvertedHistory": "关系索引中的其他R批次、数学负例和组合应按主题逐步纳入；不能据本地图未出现就认定没有价值",
-    "additionalExperimentalCompositions": "PL-C01/PL-C02/PL-C03已做最小模型、PL-C04仅概念问题；与另一研究线的C01/C02/C03区别命名；PL-Q01/D01/W01另有3个独立模型及消融和负面边界；PL-W02新增连续三天注意力容量组合，最强简明口诀和变更容量边界明确；F1/F2/D2三项同源跨家族与充分边界反证，不增精选；RGT01/ACT01用各自精确逆推补充许可资源与自利协作者正负证据，无真人；REL01/REL02四轮精确博弈与私有信号消融已完成（同原语条件组合；不改变精选六或Debug）；REL03后续通行凭据仅真实首手截止窗口有正准备选择价值、普通窗口弱支配；未证独立新玩法；NEG01—05双方自利协商五项精确反证；R342/R430/R478原生历史首次结构化归图，均非真人。；NEG06双回合私人回应DOM全十路，X01-LONG准备→事件→响应两段完整枚举及136条合法UI路径，均一行规则全优，无真人；X03 hard disable vs costly defiance两种不同动作合法性协议在完整可达子博弈仍同最优；无真人意义证据；STG01共4种规则组合×完整路径40，因果未来菜单5对纯文本菜单1，仅网页逻辑回归，不是互动/情感新模式认证；PT01四回合双目标压转与14短策略强对照/网页试玩；INF-P01 cap2/3贝叶斯模型覆盖72+96局部公开状态信息值0；未改变历史478；GOAL01七个p×可选/强制义务、同树强预列菜单；DISC01三手有理数belief-DP、单份可靠度q后验、三种时点/换路与网页合法路径，不动历史478或精选；REC01四手四分之一禁A/B×81信号历史、16条强固定序列、一步前瞻全优及六种因果消融；REC03各目标完成概率独立统计，且最优总体策略B完成率低于简单交替；无真人；SEM01—04动作产出对象改道与材料消费改道，两项均被同成本完整菜单追平，短条件程序全优，无真人。；横向读R366函数编辑与R422预编译强对照：持久编辑可超过固定日程却不一定超过同成本完整工具，源实验非本轮重复执行。；OPS01六手动态维护与同成本SET/一手前瞻全等（含2048独立实际输入历史），CLAIM四手付费撤回×真实A早窗口互补、已给HARD/无加成消融及无窗口强菜单；均不认证新独立原语。；COUP01七手把OPS操作实际变成A/B凭据、CLAIM A禁止制作B，仍在起始phase0三类需求先验下被RUN A→CLAIM A→SIDE×5一行策略全优；局部可达差异不等于有价值的双向注意力循环。；ATN01/02检测4手交换律、1296条件序列与20个Pareto成果向量仍由固定计划追平；ATN03/04双任务已投入进度遭公开单/双损5手模型动态33/2胜固定15，提前预知35/2，单损仍可保证双目标，归入成熟危机保全组合，真人缺席。；ACT-R01/02伙伴真自利救B(3)vs外部工作(2/4)使玩家双损低/高报价严格改选，默认动态51/4 vs迟揭49/4，却与条件备用B位逐动作同构；RV01简化4手R54式A3/B5可达上界t3仅18/64前缀两路线仍各有完成可能，结合旧R37/R50/R54真实反馈提出目标意义×改选容量双审核；RV02旧P18的极简上次路径追踪被固定ABABA全优。；RV03读原R54 Scene后用真实行动/追击次序穷举：第2手后33条活跃形式历史里9可分别达成双终局，第3手后196条中0可分别达成双终局（72仅甲、12仅乙、112无终局）；无骰面概率，非真人概率。；PS01将ATN03实际受损成果与ACT自利援助组合：五手动态71/4 vs ATN03无援33/2 vs五手固定17，分目标(1,7/8,3/4)；双损低报价可保两项目标，高报价必须放弃B，外部信号晚一手零价值；同条件B备用行动容量全状态完全替代。；GRC01/02自利伙伴最初愿帮（玩家11、伙伴3），玩家未来新增低于原成本3的BYPASS使伙伴初始EXIT（玩家3、伙伴5/2），可执行HIGH条件合同或排他承诺恢复11；GRC03/04同样提前公开HIGH/LOW在w5/2令玩家11跌至17/2、在w7/2令玩家3升至17/2；跨族审计区分动作合法、物理终局可达、伙伴策略同意、人类关切。；TRL01生产性试做提供真实产出1且耗时1，诚实信号下直接SIDE2、纯检验2、边做边看3；TRL02低能力主体花1修饰PASS(1/4→3/4)以谋求未来HIRE4，唯一纯均衡下两类型信号池化、试做总值退至2；TRL03修饰成本2存在两纯均衡值2或3、成本3诚实3，q诚实准确度1/2→1试做值2→4。属DISC/R478/NEG04成熟组合边界，不认证新原语。；PRF01 A真实工作副产C凭据3手DP29/2 vs固定14，A+ENABLE同成本同值，始终开放或由B工作附资格DP31/2；CUST01不可再造原件A/C局原件12、COPY15、可复用31/2，但开放独立B后所有版权制度动态19、固定17，证明目标旁路；PUB01公开证据让自利第三方撤B许可动态14 vs固定19/2，但普通排他菜单逐动作同构，取消互斥动态/固定16。均成熟组合/负例，无新人类/Unity。；STAKE01对原CUST不改数值的全条件策略和四维目标反证：original/copy旧根均19、固定均17，但可达向量68/82、Pareto18/23，保护A所有HIGH/LOW时原17/copy37/2/reusable19；STAKE04首手后公布保护A/B时copy75/4、原版18，提前公布无增益。META回归PRF22/PUB10状态真动作同构与CUST仅同根不同可行结果，纠正旧“COPY全无价值”的过强读法，无真人。；补充STAKE向量语义审计：C物理SHOW交付不等于HIGH时有价值交付。original/copy物理四维结果68/82、Pareto18/23；按HIGH∧SHOW有效C结果67/72、Pareto15/17；保A约束17 vs37/2不变。；TRIG01四手首次A推进引发SAFE/RISK修补责任，动态15胜固定14，首手前预知风险仍15，无风险19；一行公开条件计划全优，归入R37/P11而不是新原语。OPEN01五手两可认领工作高14低1，打开后三手未履行损失4，付一手DROP；动态47/4胜固定19/2，只许单工作19/2、无DROP41/4、无违约损失25/2、价值推迟到首次WORK39/4、提前知道双工作53/4、绝对必须履行19/2；都属于GOAL01×注意力/退出/信息时点的成熟组合，无新人类。；HEDGE01五手首手A唯一机会+LOW A5/LOW B0+三次行动后截止，允许双LIVE的动态51/4严格大于禁止并行47/4与最强固定23/2；A低时先OPEN B保留A，B高做B14、B低回来做A5。HEDGE02若A以后也可开，先B失败再开A的完全串行策略同得51/4，说明全局并发必要性依赖早窗口；同分方案PA/PB不同(并发3/4,1/4，串行1/2,1/2)，非动作同构。deadline2或无DROP/无B时并发优势消失。无真人。；CLOCK四语义冻结HEDGE任务而改时钟：global并发51/4/串行47/4，double_if_overlap两者47/4，neglect_only和contested_only仍51/4/47/4；去掉A早开窗口后四语义并发/串行都51/4，全部强固定23/2。DICE公开手牌H2,H2,L1,L1、A3奖励9、B2奖励6、首A有RISK2需修；动态13优于1536种强固定23/2，高骰不得FIX或修复质量不区分时25/2，SAFE分支A+B+SIDE16，RISK高骰FIX/低骰补A+SIDE10。熟悉P02×P11/R37模式边界，无新真人与新原语。；FOCUS 六手A/B各需3手、焦点改向耗1、需求A/B后公布，前两手SIDE非法，动态41/2胜280合法固定及15625条容错固定全最优15；TO与同成本SETUP在89个可达状态完全相同，免费改向A3+B3固定24；开放早期SIDE等待22>主20.5，证明安全等待旁路。需求t0/1/2/3/4公布DP 22/21/41/2/20/19；t2/3/4最优前缀后BFS两目标均可达，剩余手数与最短用手依次(4;1,4),(3;3,3),(2;2,2)，需要记录达成某结局后行动余裕而非仅二元可达。META02六层抽象交锋审计，仅设计归纳，不当真人反馈和新原语。；HAND四手A3奖12/B2奖9/SIDE1，SEND1手启动GOOD后台2进度或BAD1进度等概率，及时报告动态17胜固定15和禁助手13；质量在SEND后0/1/2/3/4行动才公开时根17,17,33/2,15,15，反馈窗口晚到可使改投收益逐步消失。必须等后台至少两手再花ACCEPT1手验收才能让代理产能计入A时，四手根13、五手21，等于同期限纯亲自工作；五手无需验收根43/2。SEND+ACCEPT耗2手代理好时最多给A2，无不可替代能力时委托被普通自身施工/机器替代。META03跨HAND/ACT/GRC区分产能事实、报告、成果可结算权、伙伴自主参加、玩家真正关心五层，非新人类和新独立原语。；CERT新增A达标且领取后才可结算独立资格C奖励10，4/5/6手helper与等价robot根45/2、27、63/2，对比一手REGISTER只给C根22/23/31、无C根13/21/22；去掉C价值4/5手助手验收又根13/21。ROUTE五手后到需求，付一手改派机器根53/2、禁止改派但安全SIDE等待再START根26、免费自动跟随27，固定全17；增值有限、仍普通工具。CARRY两周期2+3手PLEDGE暂时完成A，第二周期FOLLOW1/2未知且随机U需两手，允许PLEDGE与不允许的全局动态/固定根均18，强制先PLEDGE SIDE仅33/2，被不承诺固定A A→A U U支配。META04区分资格新增合法终局、晚开工作全局旁路与跨周期复杂义务无全局采用价值。模型本地通过，独立原语未认证，真实人类未观察。",
+    "additionalExperimentalCompositions": "PL-C01/PL-C02/PL-C03已做最小模型、PL-C04仅概念问题；与另一研究线的C01/C02/C03区别命名；PL-Q01/D01/W01另有3个独立模型及消融和负面边界；PL-W02新增连续三天注意力容量组合，最强简明口诀和变更容量边界明确；F1/F2/D2三项同源跨家族与充分边界反证，不增精选；RGT01/ACT01用各自精确逆推补充许可资源与自利协作者正负证据，无真人；REL01/REL02四轮精确博弈与私有信号消融已完成（同原语条件组合；不改变精选六或Debug）；REL03后续通行凭据仅真实首手截止窗口有正准备选择价值、普通窗口弱支配；未证独立新玩法；NEG01—05双方自利协商五项精确反证；R342/R430/R478原生历史首次结构化归图，均非真人。；NEG06双回合私人回应DOM全十路，X01-LONG准备→事件→响应两段完整枚举及136条合法UI路径，均一行规则全优，无真人；X03 hard disable vs costly defiance两种不同动作合法性协议在完整可达子博弈仍同最优；无真人意义证据；STG01共4种规则组合×完整路径40，因果未来菜单5对纯文本菜单1，仅网页逻辑回归，不是互动/情感新模式认证；PT01四回合双目标压转与14短策略强对照/网页试玩；INF-P01 cap2/3贝叶斯模型覆盖72+96局部公开状态信息值0；未改变历史478；GOAL01七个p×可选/强制义务、同树强预列菜单；DISC01三手有理数belief-DP、单份可靠度q后验、三种时点/换路与网页合法路径，不动历史478或精选；REC01四手四分之一禁A/B×81信号历史、16条强固定序列、一步前瞻全优及六种因果消融；REC03各目标完成概率独立统计，且最优总体策略B完成率低于简单交替；无真人；SEM01—04动作产出对象改道与材料消费改道，两项均被同成本完整菜单追平，短条件程序全优，无真人。；横向读R366函数编辑与R422预编译强对照：持久编辑可超过固定日程却不一定超过同成本完整工具，源实验非本轮重复执行。；OPS01六手动态维护与同成本SET/一手前瞻全等（含2048独立实际输入历史），CLAIM四手付费撤回×真实A早窗口互补、已给HARD/无加成消融及无窗口强菜单；均不认证新独立原语。；COUP01七手把OPS操作实际变成A/B凭据、CLAIM A禁止制作B，仍在起始phase0三类需求先验下被RUN A→CLAIM A→SIDE×5一行策略全优；局部可达差异不等于有价值的双向注意力循环。；ATN01/02检测4手交换律、1296条件序列与20个Pareto成果向量仍由固定计划追平；ATN03/04双任务已投入进度遭公开单/双损5手模型动态33/2胜固定15，提前预知35/2，单损仍可保证双目标，归入成熟危机保全组合，真人缺席。；ACT-R01/02伙伴真自利救B(3)vs外部工作(2/4)使玩家双损低/高报价严格改选，默认动态51/4 vs迟揭49/4，却与条件备用B位逐动作同构；RV01简化4手R54式A3/B5可达上界t3仅18/64前缀两路线仍各有完成可能，结合旧R37/R50/R54真实反馈提出目标意义×改选容量双审核；RV02旧P18的极简上次路径追踪被固定ABABA全优。；RV03读原R54 Scene后用真实行动/追击次序穷举：第2手后33条活跃形式历史里9可分别达成双终局，第3手后196条中0可分别达成双终局（72仅甲、12仅乙、112无终局）；无骰面概率，非真人概率。；PS01将ATN03实际受损成果与ACT自利援助组合：五手动态71/4 vs ATN03无援33/2 vs五手固定17，分目标(1,7/8,3/4)；双损低报价可保两项目标，高报价必须放弃B，外部信号晚一手零价值；同条件B备用行动容量全状态完全替代。；GRC01/02自利伙伴最初愿帮（玩家11、伙伴3），玩家未来新增低于原成本3的BYPASS使伙伴初始EXIT（玩家3、伙伴5/2），可执行HIGH条件合同或排他承诺恢复11；GRC03/04同样提前公开HIGH/LOW在w5/2令玩家11跌至17/2、在w7/2令玩家3升至17/2；跨族审计区分动作合法、物理终局可达、伙伴策略同意、人类关切。；TRL01生产性试做提供真实产出1且耗时1，诚实信号下直接SIDE2、纯检验2、边做边看3；TRL02低能力主体花1修饰PASS(1/4→3/4)以谋求未来HIRE4，唯一纯均衡下两类型信号池化、试做总值退至2；TRL03修饰成本2存在两纯均衡值2或3、成本3诚实3，q诚实准确度1/2→1试做值2→4。属DISC/R478/NEG04成熟组合边界，不认证新原语。；PRF01 A真实工作副产C凭据3手DP29/2 vs固定14，A+ENABLE同成本同值，始终开放或由B工作附资格DP31/2；CUST01不可再造原件A/C局原件12、COPY15、可复用31/2，但开放独立B后所有版权制度动态19、固定17，证明目标旁路；PUB01公开证据让自利第三方撤B许可动态14 vs固定19/2，但普通排他菜单逐动作同构，取消互斥动态/固定16。均成熟组合/负例，无新人类/Unity。；STAKE01对原CUST不改数值的全条件策略和四维目标反证：original/copy旧根均19、固定均17，但可达向量68/82、Pareto18/23，保护A所有HIGH/LOW时原17/copy37/2/reusable19；STAKE04首手后公布保护A/B时copy75/4、原版18，提前公布无增益。META回归PRF22/PUB10状态真动作同构与CUST仅同根不同可行结果，纠正旧“COPY全无价值”的过强读法，无真人。；补充STAKE向量语义审计：C物理SHOW交付不等于HIGH时有价值交付。original/copy物理四维结果68/82、Pareto18/23；按HIGH∧SHOW有效C结果67/72、Pareto15/17；保A约束17 vs37/2不变。；TRIG01四手首次A推进引发SAFE/RISK修补责任，动态15胜固定14，首手前预知风险仍15，无风险19；一行公开条件计划全优，归入R37/P11而不是新原语。OPEN01五手两可认领工作高14低1，打开后三手未履行损失4，付一手DROP；动态47/4胜固定19/2，只许单工作19/2、无DROP41/4、无违约损失25/2、价值推迟到首次WORK39/4、提前知道双工作53/4、绝对必须履行19/2；都属于GOAL01×注意力/退出/信息时点的成熟组合，无新人类。；HEDGE01五手首手A唯一机会+LOW A5/LOW B0+三次行动后截止，允许双LIVE的动态51/4严格大于禁止并行47/4与最强固定23/2；A低时先OPEN B保留A，B高做B14、B低回来做A5。HEDGE02若A以后也可开，先B失败再开A的完全串行策略同得51/4，说明全局并发必要性依赖早窗口；同分方案PA/PB不同(并发3/4,1/4，串行1/2,1/2)，非动作同构。deadline2或无DROP/无B时并发优势消失。无真人。；CLOCK四语义冻结HEDGE任务而改时钟：global并发51/4/串行47/4，double_if_overlap两者47/4，neglect_only和contested_only仍51/4/47/4；去掉A早开窗口后四语义并发/串行都51/4，全部强固定23/2。DICE公开手牌H2,H2,L1,L1、A3奖励9、B2奖励6、首A有RISK2需修；动态13优于1536种强固定23/2，高骰不得FIX或修复质量不区分时25/2，SAFE分支A+B+SIDE16，RISK高骰FIX/低骰补A+SIDE10。熟悉P02×P11/R37模式边界，无新真人与新原语。；FOCUS 六手A/B各需3手、焦点改向耗1、需求A/B后公布，前两手SIDE非法，动态41/2胜280合法固定及15625条容错固定全最优15；TO与同成本SETUP在89个可达状态完全相同，免费改向A3+B3固定24；开放早期SIDE等待22>主20.5，证明安全等待旁路。需求t0/1/2/3/4公布DP 22/21/41/2/20/19；t2/3/4最优前缀后BFS两目标均可达，剩余手数与最短用手依次(4;1,4),(3;3,3),(2;2,2)，需要记录达成某结局后行动余裕而非仅二元可达。META02六层抽象交锋审计，仅设计归纳，不当真人反馈和新原语。；HAND四手A3奖12/B2奖9/SIDE1，SEND1手启动GOOD后台2进度或BAD1进度等概率，及时报告动态17胜固定15和禁助手13；质量在SEND后0/1/2/3/4行动才公开时根17,17,33/2,15,15，反馈窗口晚到可使改投收益逐步消失。必须等后台至少两手再花ACCEPT1手验收才能让代理产能计入A时，四手根13、五手21，等于同期限纯亲自工作；五手无需验收根43/2。SEND+ACCEPT耗2手代理好时最多给A2，无不可替代能力时委托被普通自身施工/机器替代。META03跨HAND/ACT/GRC区分产能事实、报告、成果可结算权、伙伴自主参加、玩家真正关心五层，非新人类和新独立原语。；CERT新增A达标且领取后才可结算独立资格C奖励10，4/5/6手helper与等价robot根45/2、27、63/2，对比一手REGISTER只给C根22/23/31、无C根13/21/22；去掉C价值4/5手助手验收又根13/21。ROUTE五手后到需求，付一手改派机器根53/2、禁止改派但安全SIDE等待再START根26、免费自动跟随27，固定全17；增值有限、仍普通工具。CARRY两周期2+3手PLEDGE暂时完成A，第二周期FOLLOW1/2未知且随机U需两手，允许PLEDGE与不允许的全局动态/固定根均18，强制先PLEDGE SIDE仅33/2，被不承诺固定A A→A U U支配。META04区分资格新增合法终局、晚开工作全局旁路与跨周期复杂义务无全局采用价值。模型本地通过，独立原语未认证，真实人类未观察。；INV01—06四手隐藏R/B源等半，SHIELD保A无损但无直接痕迹，WATCH得准确来源却1/2有不可逆损害，后3手PROBE可得到正确率3/4线索、一次STOP和SIDE。三条透明政策终局向量(无伤,正确STOP,SIDE)=(1,3/4,1),(1,1/2,2),(1/2,1,2)，互不支配；权重6/12/1动态17固定14偏WATCH，权重12/8/1动态19固定18偏SHIELD。硬无伤要求WATCH不可选，前一权重下根16；保护后免费得到真来源根20，花一手安全完美探查根19，强信息菜单压平两难。未来STOP权重4N（安全8/SIDE1）N1..4的根12/15/18/22只是未来收益折算、非跨期动作模型。INV没有自主对手，直接痕迹并非CERT的可结算证据；成熟P09×P03×STAKE组合且不自动精选或Debug。",
     "humanFeedbackNote": "目前有关稳险/R06、边做边看/R10、压力/R37、R54、R50的有限设计者反馈；原记录各不等价于受控盲试玩；P02/R13仍没有真人反馈。",
     "thirdComparison": "PL-C05 supplies a tested negative boundary; not a new curated or debug pattern"
   },
