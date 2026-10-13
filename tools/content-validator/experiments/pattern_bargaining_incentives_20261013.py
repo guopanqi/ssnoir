@@ -127,6 +127,35 @@ def verifiable_proof(low_type_proof_cost):
     return player, low_mimics, high_proves
 
 
+
+
+def sunk_favor_hold_up(default_penalty=F(0)):
+    """Two episodes, other person has a real EXIT option after a past favor.
+
+    Episode 1: SELF awards player 3, or FAVOR awards partner 3.
+    Episode 2: partner chooses GRANT (player 8) or EXIT (partner +2).
+    Favor is already sunk when GRANT/EXIT decision arrives; partner has no
+    incentive to honor a non-binding promise without an enforceable stake.
+    """
+    penalty=F(default_penalty)
+    assert penalty>=0
+    histories={}
+    for first in ("SELF","FAVOR"):
+        early_player=F(3 if first=="SELF" else 0)
+        early_partner=F(0 if first=="SELF" else 3)
+        grant_partner=early_partner
+        exit_partner=early_partner+F(2)-(penalty if first=="FAVOR" else F(0))
+        if grant_partner >= exit_partner:  # grant on indifference
+            partner_action="GRANT"
+            pay=(early_player+F(8),grant_partner)
+        else:
+            partner_action="EXIT"
+            pay=(early_player,exit_partner)
+        histories[first]=(partner_action,pay)
+    best_first=max(histories,key=lambda x:histories[x][1][0])
+    return best_first,histories
+
+
 def main():
     p = credible_compensation()
     print("NEG-01", {k: tuple(map(str,v)) if isinstance(v,tuple) else str(v)
@@ -163,6 +192,19 @@ def main():
         print("NEG-04 certificate",str(c),"player",str(val),
               "low-mimics",mimics,"high-shows-proof",high_proves)
         assert (val,mimics,high_proves)==(expected,low_mimics,True)
+    for penalty,expected_first,expected_partner_response in (
+        (F(0),"SELF","EXIT"),(F(1),"SELF","EXIT"),
+        (F(2),"FAVOR","GRANT"),(F(3),"FAVOR","GRANT")):
+        selected, hist=sunk_favor_hold_up(penalty)
+        print("NEG-05 hold-up",str(penalty),"choice",selected,
+              "after favor",hist["FAVOR"],"after self",hist["SELF"])
+        assert selected==expected_first
+        assert hist["FAVOR"][0]==expected_partner_response
+    # Separate protocol: binding mutual exchange signed BEFORE the favor.
+    # Partner obtains 3 and provides GRANT; no-contract option gives partner 2.
+    assert F(3)>F(2) and F(8)>F(3)
+    # A verbal promise cannot be treated as this binding protocol.
+    assert sunk_favor_hold_up()[0]=="SELF"
     # Regime fixed: the private partner sees both offers and maximizes its own
     # wage; replacing him with a naive threshold bot invents extra utility.
     print("PASS credible offers, renegotiation, and strategic rejection controls")
