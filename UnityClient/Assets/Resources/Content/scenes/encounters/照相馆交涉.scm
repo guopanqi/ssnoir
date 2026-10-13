@@ -100,5 +100,4 @@
                (list (action-node "核对登记" "从候选单比对数量与时间" 'knowledge 'B1 #f)
                      (action-node "追问取件" "请店主回忆取件；中戒心1，坏冷静1、戒心2" 'social 'B1 #t))))
             (else (list (note-node "标注：订单成果" "订单结果已取得" "匿名订单：小幅六张，星期二傍晚取件。取件人是染金发的年轻男人，邮务制服不合身；姓名未知。"))))
-      (if (or (equipment 'full?) (records 'full?))
-        (list (instant-action "停止追问" (lambda () (finish! '收手)))) '()))))
+      )))
