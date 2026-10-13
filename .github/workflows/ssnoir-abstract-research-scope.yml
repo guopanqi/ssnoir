@@ -38,6 +38,8 @@ on:
       - 'tools/content-validator/experiments/pattern_generated_obligations_20261013.py'
       - 'tools/content-validator/experiments/pattern_productive_discovery_20261013.py'
       - 'tools/content-validator/experiments/pattern_noisy_discovery_20261013.py'
+      - 'tools/content-validator/experiments/pattern_reciprocal_actions_20261013.py'
+      - 'docs/实验/机制研究/批次/2026-10-13-双向动作余效与操作顺序/**'
       - 'tools/content-validator/experiments/test_productive_discovery_prototype.js'
       - 'docs/实验/机制研究/批次/2026-10-13-目标生成与生产性发现/**'
       - 'tools/content-validator/experiments/test_pressure_transfer_prototype.js'
@@ -80,6 +82,7 @@ jobs:
           python3 tools/content-validator/experiments/pattern_generated_obligations_20261013.py
           python3 tools/content-validator/experiments/pattern_productive_discovery_20261013.py
           python3 tools/content-validator/experiments/pattern_noisy_discovery_20261013.py
+          python3 tools/content-validator/experiments/pattern_reciprocal_actions_20261013.py
           node tools/content-validator/experiments/test_productive_discovery_prototype.js
           node tools/content-validator/experiments/test_pressure_transfer_prototype.js
           node tools/content-validator/experiments/test_witness_vignette.js
