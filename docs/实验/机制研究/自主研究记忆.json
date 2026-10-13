@@ -461,6 +461,34 @@
       "question": "什么时候委托真涉及另一个自主主体，而不仅是可匹配的后台机器？",
       "source": "META03 2026-10-13",
       "summary": "对照HAND随机好坏无伙伴独立动作，与ACT01旧伙伴有自利HOLD/OUT/GRC01旧HELP/EXIT有外部机会不同。分层审物理工作、进度能否被玩家观察、是否可结算、主体是否有独立参加或拒绝权、玩家是否真正关心结果。任何一层不因加人物名字自然拥有下一层的证据；无人类。"
+    },
+    {
+      "family": "claimable-credential-distinct-from-physical-work",
+      "kind": "mature-delegation-positive-after-new-nonfungible-result",
+      "question": "HAND曾认为SEND+ACCEPT可被两手亲自A工作匹配，若领取另产生独立可结算资格C，还能保持该结论吗？",
+      "source": "CERT01—04 2026-10-13",
+      "summary": "四/五/六手SEND GOOD A2/BAD A1、接受再花一手并授予独立C（A达标+C结算另10），助手/同规则robot根45/2,27,63/2；普通REGISTER仅获得C根22/23/31，不可取C根13/21/22。五手GOOD结果31、BAD23，平均27，向量PA1 PB1/2 PC1 SIDE1/2。去C效用4/5手委托根再回13/21，原HAND数学未错但必须限定终局集合。机器人完全同构，无社交原语。"
+    },
+    {
+      "family": "inflight-work-rerouting-vs-public-signal-waiting",
+      "kind": "weak-mature-retooling-gain-and-strong-safe-waiting-bypass",
+      "question": "后台A已启动时，第三手公开需求B，付一手重定向是否从完整开局产生必须的改选活动？",
+      "source": "ROUTE01—04 2026-10-13",
+      "summary": "五手A/B各4工，START机器人后3后续手各自动产1，需求第3手前A/B各半，redirect动态53/2（分支27/26），locked不能重定向动态26（前2手SIDE安全等信号后START+WORK2，每支26），普通auto_follow免费随工作方向27；三者全部7^5预写固定根17。局部SWITCH有边际增益0.5，但大多数价值可被直接等信息再启动机器替代，非新原语。"
+    },
+    {
+      "family": "cross-cycle-obligation-global-domination",
+      "kind": "negative-conditional-obligation-only-locally-interesting",
+      "question": "第一周期PLEDGE提前得到A的临时成绩并留下日2随机FOLLOW需求，是否从正常起点带来值得管理的多目标决策？",
+      "source": "CARRY01—04 2026-10-13",
+      "summary": "五手(2+3)，A个人工作3得12，日2随机U两手得10，PLEDGE日1一手可暂成A但日2须FOLLOW1/2手后才有效。允许或禁止PLEDGE动态/全固定根均18；强制PLEDGE SIDE之后的最佳条件价值仅33/2。固定不承诺A,A→A,U,U，有U22无U14平均18。固定FOLLOW0/1/2时根20/19/18。这说明后续负担真实存在也可能完全被不承诺全局路线支配。"
+    },
+    {
+      "family": "claimable-results-vs-global-policy-bypass-checks",
+      "kind": "cross-family-methodological-synthesis",
+      "question": "判断一个新增委托/改派/欠账动作有价值前，必须满足哪些比局部数值分叉更强的条件？",
+      "source": "META04 2026-10-13",
+      "summary": "来自HAND旧被支配验收、CERT真正新增C终局、ROUTE安全等待追平大部分改派、CARRY未承诺固定路线完全达到动态。后续先审新增可结算成果/独立资格、能否晚等消息再启动、是否无需领取/承诺/追加复杂动作就能达同结果；根同不能推全向量与动作同构。三个局部循环均未获真人认证。"
     }
   ],
   "failedExplanations": [
@@ -516,7 +544,10 @@
     "物理可达二元检查不是完整机会评价：FOCUS在t2/t3/t4的最优前缀后A/B都物理可达，却因最短达成用手(1,4)/(3,3)/(2,2)与已有保底数不同，动态根20.5/20/19。需同时记录剩余行动余裕和结果重要性，而非宣称同YES可达便同战略自由。",
     "HAND将固定随机AUTO_A工具写成“有自己的想法的伙伴”不会产生社会决策原语：受托者GOOD/BAD只是外生质量类型，不会基于自己的利益保留工作权或拒绝参加；对照ACT01/GRC01旧真实双主体选择，不应借其人的反馈声称本批获体验认证。",
     "派出助手并自动获得进度不等于能使用已完成成果：HAND若必须SEND1+ACCEPT1共花两手，而GOOD最多贡献A2且BAD仅A1，4手与5手验收版动态根13/21均与纯亲自工作同值；同值只限标量根而不是强同构。",
-    "更早得到后台工作的质量报告不总有边际价值：HAND即时与迟一手告知均根17，因为两类结果下第一项后续工作A是共同优选；迟两手根33/2，迟三手才下降到固定15，必须按剩余可改选容量定位真实信息窗口。"
+    "更早得到后台工作的质量报告不总有边际价值：HAND即时与迟一手告知均根17，因为两类结果下第一项后续工作A是共同优选；迟两手根33/2，迟三手才下降到固定15，必须按剩余可改选容量定位真实信息窗口。",
+    "旧HAND断言委托加完整验收不增产只成立于该版成果集合（A/B/SIDE）：CERT增加独立资格C且取得它不能被两手亲自A替代，则委托验收可在5手根27大于一手普通注册23、没有C21；去C后再退21。模型没有社交意志，换普通同条件robot全同构。",
+    "ROUTE有真实需一手SWITCH的后到目标转线，动态53/2胜lock26却只多1/2；安全SIDE SIDE等待需求、再启动对应机器+WORK2已经26，若无正当早开始约束，不能拿局部改派片段宣称游戏整体必须重分配助手。",
+    "CARRY跨两日的PLEDGE让第二日存在随机1/2 FOLLOW负担并与随机U争手，局部可见多个选择，但全部根策略不承诺的固定A A→A U U已18，与允许PLEDGE的动态18相等，强制先PLEDGE SIDE只有33/2；一项会产生麻烦的行动若全局受普通路线支配，就不应继续调奖金来救成候选。"
   ],
   "frontier": [
     {
@@ -674,6 +705,18 @@
       "family": "genuinely-autonomous-work-and-social-decision-loop",
       "question": "若设计目标是表达另一个人的独立意愿，玩家究竟观察其何种自主选择才能区别于固定GOOD/BAD机器？若普通AUTO工具同成本全复刻，还需要单独研究社会反馈吗？",
       "method": "复核既有ACT01/GRC01最强普通条件机器对照，保持对方的自身效用、参加权与未来外部机会公开；不复做已知ACT/GRC数字实验。用HAND的五层诊断审每个候选，只有真实差异才提出无答案人类观察。"
+    },
+    {
+      "id": "ABSTRACT-AE-CERTIFIED-OUTCOME-REAL-MEANING",
+      "family": "nonfungible-result-right-after-outsourcing",
+      "question": "现实抽象的A/C终局中，哪些可核验资格、真正的责任归属或人物授权必须通过交付领取才能取得，哪些其实只是一手REGISTER就可获得的普通菜单？",
+      "method": "先比较CERT助手/机器四五手数值、普通REGISTER与none版本，再让未见最优方案的人类回答自己在乎何种A/B/C结果；如资格无真实差别，不要强迫其采纳形式证书。"
+    },
+    {
+      "id": "ABSTRACT-AF-ROLLING-OBLIGATION-GLOBAL-BYPASS",
+      "family": "global-commitment-dominance-check",
+      "question": "其它主张跨轮承诺创造注意力管理的机制，是否在完整起点就被不承诺、直接做A或安全SIDE等待的固定流程支配？",
+      "method": "沿CARRY先给出未承诺动作序列的真实可达终局，再对承诺后的动作信号作比较；不因某个局部欠债历史能重规划就认定整体好玩。必要时审真实不可补偿义务，不能仅将罚分提高。"
     }
   ],
   "method": {
@@ -752,8 +795,8 @@
     "noHumanTests": true,
     "interpretation": "X01、X02与另一批C01、C02是不同的已知组合条件反证，均不构成新独立模式或完整真人交锋认证",
     "historyCountUnchanged": 478,
-    "latestBatch": "docs/实验/机制研究/批次/2026-10-13-异步委托与成果接收/研究记录.md",
-    "latestCounterfactual": "HAND01—08四手A3奖12/B2奖9/SIDE1；一手SEND后，GOOD概率1/2在后续2手各A+1、BAD只首后续A+1，后台独立于玩家这两手自己做A/B。质量即知动态17，完整固定5^4（非法SEND回退SIDE）15，不允许SEND13；公开最优首SEND,A，GOOD后B,B得21、BAD后A,SIDE得13，先A再SEND同根17（不是第一手必须委托）。质量报告在后续0/1/2/3/4手后动态17,17,33/2,15,15。需经过2后续动作并另花一手ACCEPT验收才能使代理进度计入A，则四手动态13（纯玩家也是13），五手动态21（纯玩家也是21）而五手无验收43/2。由于SEND+ACCEPT共花2个人动作且代理最多产A2（差时A1），没有代理专属能力或额外使用权时工作量收益被验收抵消。全部是抽象确定动作/外生GOOD/BAD信息，非具备自我效用的伙伴，普通AUTO_A机器人可完整改名复刻。",
-    "crossFamilyAudit": "跨RGT/ACT/GRC/FOCUS/HEDGE/STAKE/META审查：HAND委托只是随机后台产能，不是伙伴有选择权。ACT01旧历史伙伴自利HOLD/OUT、GRC01旧历史未来BY​PASS使协作者起初不HELP，是真正各自主体选择；不能借旧研究的自主/真人体验为HAND背书。HAND中物理工作自动完成、质量结果何时可见、需要ACCEPT才准结算、他者能否自主同意、玩家是否在乎A五层必须分开；MATCH普通机器在HAND为规则重命名强对照。STAKE说明相同根值≠所有成果集合相同，HAND验收=不委托在4手/5手原值相同只证明原标量下无严格最优收益，不可宣布全部结果同构。FOCUS的安全等待旁路反例还提醒委托首手SEND不必严格优于先A再SEND。"
+    "latestBatch": "docs/实验/机制研究/批次/2026-10-13-可交付成果与延续义务/研究记录.md",
+    "latestCounterfactual": "CERT加入一项A达标且有独立资格C才可结算的成果10，SEND+ACCEPT除后台A产出还可领取C；4/5/6手helper与完整同构robot动态45/2、27、63/2，普通一手REGISTER只给C动态22/23/31，禁止取得C13/21/22；无C成果奖励时4/5手HELP验收又退回与亲自工作相同13/21，原HAND验收无增益严格限于未额外提供独占资格。五手GOOD SEND,A,B,B,ACCEPT获A/B/C31，BAD SEND,A,A,SIDE,ACCEPT获A/C/SIDE23，动态27、固定23；成果向量PA1,PB1/2,PC1, E SIDE1/2。ROUTE五手后到A/B需求，START启动后台3个工作tick、SWITCH需1手重定向：动态redirect53/2，locked26，自动跟随普通工具27，全部7^5固定最佳17；locked可以前2手SIDE等待信号再START对应任务+2WORK得26。CARRY两阶段(2+3手)PLEDGE日1暂成A而日2需1/2FOLLOW手，U独立一半概率需日2两手；动态允许/禁止PLEDGE与最佳5^5固定都18，首日PLEDGE SIDE仅33/2；简单固定A A→A U U均值18，全局避开复杂负担。",
+    "crossFamilyAudit": "跨HAND/FOCUS/HEDGE/STAKE/ACT/GRC检查：CERT证明新增独立可结算资格C使已被直接A两手支配的领取流程取得额外结果，但与普通AUTO机器完整同构，仍不能称新社会自主原语；一手REGISTER也是C合法替代而不含产能。ROUTE付费改派仅比需求前安全SIDE等待高半点，重命名普通自动跟随工具还能得27，不能只演示局部切换就声称起点必须接受。CARRY局部不同FOLLOW与U确有分支，但从初始最强普通固定路线根18，PLEDGE不是最佳，所以更不能把跨周期新增问题直接当玩家会反复管理的玩法。数学/机读和页面不能替人类独立反馈；旧HAND记录已追加正式收窄校正。"
   }
 }
