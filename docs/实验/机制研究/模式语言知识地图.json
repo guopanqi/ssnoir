@@ -1427,6 +1427,46 @@
         "humanVerified": false
       },
       "note": "完整DP向量P(A)=117/128、P(B)=83/128、E(SIDE)=11/32；简单交替P(A)=27/32、P(B)=23/32、SIDE0。DP在该10/8权重下总值更大，但B完成概率反而较低。此节点是评价证据而非玩法模式，不用数据推出人类对B的偏好。"
+    },
+    {
+      "id": "PL-SEM01",
+      "name": "生产动作令下一动作改换产出对象，但同成本菜单与短条件程序覆盖",
+      "layer": "action-grammar-composition",
+      "origin": "new-local-experiment",
+      "family": "操作语义改道/后到需求/预列动作菜单",
+      "idea": "A后B可不用推进B而用同一手B_TO_C完成第三目标；公开HIGH/LOW决定选哪种B用途，但A本就值得生产，完整同成本菜单追平",
+      "stage": "exact-four-turn-fraction-public-demand-sweep; 109 static plans; no human",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-13-动作语义转化与通用菜单反证/研究记录.md",
+        "tools/content-validator/experiments/pattern_semantic_retarget_20261013.py"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      },
+      "note": "retarget DP37/2、最强固定16、一行条件计划37/2、通用always亦37/2；B+1增产版本17，虽不能产生C成果但不说明谁更有趣。时间揭示末手前降低价值至18。归并成熟组合。"
+    },
+    {
+      "id": "PL-SEM04",
+      "name": "消耗既有成果将操作改为另一种用途：无需紧邻前动作",
+      "layer": "resource-transformation-boundary",
+      "origin": "new-local-experiment",
+      "family": "材料保存/消耗性转化/延迟行动",
+      "idea": "A产出既可保持到目标，也可被B_TO_C消费转成C；需求后到使两类真实成果互斥，但仅需已有A材料的同成本菜单完全追平，且首手SIDE可追平提前A",
+      "stage": "exact-three-turn-fraction; full fixed scripts and material conservation; no human",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-13-动作语义转化与通用菜单反证/研究记录.md",
+        "tools/content-validator/experiments/pattern_consumptive_retarget_20261013.py"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      },
+      "note": "gated动态12、最优固定11；token_menu动态12；首手A与SIDE均12，前置准备没有严格必要性。普通增产18并不属于同一目标结果集合的匹配支配论证。归并成果转化/等待信息边界。"
     }
   ],
   "edges": [
@@ -2227,6 +2267,36 @@
       "to": "PL-REC01",
       "relation": "structural-analogy-not-official",
       "reason": "部分动作改变下一次行动的有效性而非只增加原目标进度；其抽象思想与阶段解锁邻接，但不是官方结构确认"
+    },
+    {
+      "from": "PL-REC01",
+      "to": "PL-SEM01",
+      "relation": "output-type-vs-production-yield",
+      "reason": "REC01改B产量，SEM01改B成果对象；二者都需比较一行公开策略与同成本完整菜单"
+    },
+    {
+      "from": "PL-DISC01",
+      "to": "PL-SEM01",
+      "relation": "information-timing-affects-retargeting",
+      "reason": "后到需求是否还有行动容量会决定转用价值；SEM01揭晓延迟至末手前值从37/2降至18"
+    },
+    {
+      "from": "PL-GOAL01",
+      "to": "PL-SEM01",
+      "relation": "complete-contingent-menu-equivalence",
+      "reason": "把一个后发选项条件列明可能与现场转换得到相同的行为树；SEM01同成本always恰追平"
+    },
+    {
+      "from": "R502",
+      "to": "PL-SEM04",
+      "relation": "enable-operator-and-material-transform-boundary",
+      "reason": "R502同成本ENABLE已同构修复前置；SEM04进一步证明转换权需相邻A本身不优于仅持有材料"
+    },
+    {
+      "from": "PL-SEM01",
+      "to": "PL-SEM04",
+      "relation": "retarget-vs-consume",
+      "reason": "SEM01不消耗既有A，只改B产出对象；SEM04消耗A使保留/转化形成不同结果，但通用材料菜单仍追平"
     }
   ],
   "coverage": {
@@ -2234,7 +2304,7 @@
     "curatedDisplayMappedCount": 6,
     "cs2AnalyticalPatterns": 9,
     "unconvertedHistory": "关系索引中的其他R批次、数学负例和组合应按主题逐步纳入；不能据本地图未出现就认定没有价值",
-    "additionalExperimentalCompositions": "PL-C01/PL-C02/PL-C03已做最小模型、PL-C04仅概念问题；与另一研究线的C01/C02/C03区别命名；PL-Q01/D01/W01另有3个独立模型及消融和负面边界；PL-W02新增连续三天注意力容量组合，最强简明口诀和变更容量边界明确；F1/F2/D2三项同源跨家族与充分边界反证，不增精选；RGT01/ACT01用各自精确逆推补充许可资源与自利协作者正负证据，无真人；REL01/REL02四轮精确博弈与私有信号消融已完成（同原语条件组合；不改变精选六或Debug）；REL03后续通行凭据仅真实首手截止窗口有正准备选择价值、普通窗口弱支配；未证独立新玩法；NEG01—05双方自利协商五项精确反证；R342/R430/R478原生历史首次结构化归图，均非真人。；NEG06双回合私人回应DOM全十路，X01-LONG准备→事件→响应两段完整枚举及136条合法UI路径，均一行规则全优，无真人；X03 hard disable vs costly defiance两种不同动作合法性协议在完整可达子博弈仍同最优；无真人意义证据；STG01共4种规则组合×完整路径40，因果未来菜单5对纯文本菜单1，仅网页逻辑回归，不是互动/情感新模式认证；PT01四回合双目标压转与14短策略强对照/网页试玩；INF-P01 cap2/3贝叶斯模型覆盖72+96局部公开状态信息值0；未改变历史478；GOAL01七个p×可选/强制义务、同树强预列菜单；DISC01三手有理数belief-DP、单份可靠度q后验、三种时点/换路与网页合法路径，不动历史478或精选；REC01四手四分之一禁A/B×81信号历史、16条强固定序列、一步前瞻全优及六种因果消融；REC03各目标完成概率独立统计，且最优总体策略B完成率低于简单交替；无真人",
+    "additionalExperimentalCompositions": "PL-C01/PL-C02/PL-C03已做最小模型、PL-C04仅概念问题；与另一研究线的C01/C02/C03区别命名；PL-Q01/D01/W01另有3个独立模型及消融和负面边界；PL-W02新增连续三天注意力容量组合，最强简明口诀和变更容量边界明确；F1/F2/D2三项同源跨家族与充分边界反证，不增精选；RGT01/ACT01用各自精确逆推补充许可资源与自利协作者正负证据，无真人；REL01/REL02四轮精确博弈与私有信号消融已完成（同原语条件组合；不改变精选六或Debug）；REL03后续通行凭据仅真实首手截止窗口有正准备选择价值、普通窗口弱支配；未证独立新玩法；NEG01—05双方自利协商五项精确反证；R342/R430/R478原生历史首次结构化归图，均非真人。；NEG06双回合私人回应DOM全十路，X01-LONG准备→事件→响应两段完整枚举及136条合法UI路径，均一行规则全优，无真人；X03 hard disable vs costly defiance两种不同动作合法性协议在完整可达子博弈仍同最优；无真人意义证据；STG01共4种规则组合×完整路径40，因果未来菜单5对纯文本菜单1，仅网页逻辑回归，不是互动/情感新模式认证；PT01四回合双目标压转与14短策略强对照/网页试玩；INF-P01 cap2/3贝叶斯模型覆盖72+96局部公开状态信息值0；未改变历史478；GOAL01七个p×可选/强制义务、同树强预列菜单；DISC01三手有理数belief-DP、单份可靠度q后验、三种时点/换路与网页合法路径，不动历史478或精选；REC01四手四分之一禁A/B×81信号历史、16条强固定序列、一步前瞻全优及六种因果消融；REC03各目标完成概率独立统计，且最优总体策略B完成率低于简单交替；无真人；SEM01—04动作产出对象改道与材料消费改道，两项均被同成本完整菜单追平，短条件程序全优，无真人。",
     "humanFeedbackNote": "目前有关稳险/R06、边做边看/R10、压力/R37、R54、R50的有限设计者反馈；原记录各不等价于受控盲试玩；P02/R13仍没有真人反馈。",
     "thirdComparison": "PL-C05 supplies a tested negative boundary; not a new curated or debug pattern"
   },
