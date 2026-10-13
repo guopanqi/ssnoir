@@ -69,7 +69,7 @@ details summary{cursor:pointer;color:#d7e8ce}
 (function(){
 const $=id=>document.getElementById(id);
 let g=null, log=[];
-const FLAT_MENU=(typeof window!=="undefined") && /(?:\\?|&)flat-menu=1(?:&|$)/.test(window.location.search);
+const FLAT_MENU=(typeof window!=="undefined") && window.location.search.includes("flat-menu=1");
 const SCENE={
   prepare:[
     {id:"records",name:"去查仓库的登记簿",desc:"取得一个可以公开引用的日期戳，但来不及当面解释证词会如何被使用。"},
