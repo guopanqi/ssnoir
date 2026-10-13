@@ -1508,6 +1508,27 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
         "humanVerified": false
       },
       "note": "B需3手：早预测101/10 > 晚预测9，完美先知213/20；B需2或4手早/晚相同；无预测信息或付费SCOUT均回9。可被'先A、H续A、L转B'简明口诀解决，尚不是完整持续城市决策循环。"
+    },
+    {
+      "id": "PL-W02",
+      "name": "持续临时目标改变跨日注意力",
+      "origin": "new-local-experiment",
+      "layer": "cross-encounter-architecture",
+      "family": "并行目标/期限/行动预算",
+      "idea": "每天新的短期任务有时到来；过去在长期目标留下的进度会改变今天应接临时任务还是赶长期目标，临界时可主动放弃原目标",
+      "stage": "exact-three-day-model-with-observed-branch-and-strong-rule-counterexample; no human",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-13-连续注意力与临时机会/研究记录.md",
+        "tools/content-validator/experiments/pattern_attention_continuous_20261013.py",
+        "docs/实验/机制研究/批次/2026-10-13-连续注意力与临时机会/参与者卡.md"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      },
+      "note": "B门槛4动态27/2 > 最强8种按日固定25/2，但最强可行性口诀同为27/2。门槛5动态39/4 > 按日固定73/8 > 可行性口诀9。3/4门槛由于块状行动等价；无真人体验。"
     }
   ],
   "edges": [
@@ -1762,6 +1783,30 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
       "to": "PL-C05",
       "relation": "related-boundary",
       "reason": "早到时点本身不够；临场替代和行动余量决定保留选择权的意义"
+    },
+    {
+      "from": "PL-W01",
+      "to": "PL-W02",
+      "relation": "extends",
+      "reason": "由一次预测分支扩展为自然到来的连续临时事务，出现由先前进度改变的决策"
+    },
+    {
+      "from": "P02",
+      "to": "PL-W02",
+      "relation": "ingredient",
+      "reason": "长期积累与短期不可保留目标竞争相同行动容量"
+    },
+    {
+      "from": "CS2-06",
+      "to": "PL-W02",
+      "relation": "related-architecture",
+      "reason": "外部事件进程影响时间窗口，但不是对Citizen Sleeper2的正式机制复刻"
+    },
+    {
+      "from": "PL-W02",
+      "to": "PL-W01",
+      "relation": "boundary-contrast",
+      "reason": "信息时点与事件实际来临不同，两个模型收益不应直接数值比较"
     }
   ],
   "coverage": {
@@ -1769,7 +1814,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
     "curatedDisplayMappedCount": 6,
     "cs2AnalyticalPatterns": 9,
     "unconvertedHistory": "关系索引中的其他R批次、数学负例和组合应按主题逐步纳入；不能据本地图未出现就认定没有价值",
-    "additionalExperimentalCompositions": "PL-C01/PL-C02/PL-C03已做最小模型、PL-C04仅概念问题；与另一研究线的C01/C02/C03区别命名；PL-Q01/D01/W01另有3个独立模型及消融和负面边界",
+    "additionalExperimentalCompositions": "PL-C01/PL-C02/PL-C03已做最小模型、PL-C04仅概念问题；与另一研究线的C01/C02/C03区别命名；PL-Q01/D01/W01另有3个独立模型及消融和负面边界；PL-W02新增连续三天注意力容量组合，最强简明口诀和变更容量边界明确",
     "humanFeedbackNote": "目前有关稳险/R06、边做边看/R10、压力/R37、R54、R50的有限设计者反馈；原记录各不等价于受控盲试玩；P02/R13仍没有真人反馈。",
     "thirdComparison": "PL-C05 supplies a tested negative boundary; not a new curated or debug pattern"
   },
