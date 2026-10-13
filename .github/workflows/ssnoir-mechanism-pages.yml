@@ -6,6 +6,8 @@ on:
     paths:
       - '.github/workflows/ssnoir-mechanism-pages.yml'
       - 'docs/实验/机制研究/模式库.json'
+      - 'docs/实验/机制研究/模式语言知识地图.json'
+      - 'docs/实验/机制研究/研究沟通.json'
       - 'docs/实验/机制研究/试玩任务.json'
       - 'docs/实验/机制研究/研究总览.template.html'
       - 'docs/实验/机制研究/研究总览.html'
