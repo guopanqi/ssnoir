@@ -45,6 +45,11 @@
       (theatre-tween "画面" 'scale-y scale seconds 'smooth)
       (theatre-tween "画面" 'x (* (- 1 scale) x) seconds 'smooth)
       (theatre-tween "画面" 'y (* (- 1 scale) y) seconds 'smooth)))
+  (define (气氛 明度 暖光 红光 秒)
+    (theatre-parallel
+      (theatre-tween "布景" 'brightness 明度 秒)
+      (theatre-tween "店主暖背景" 'opacity 暖光 秒)
+      (theatre-tween "店主红背景" 'opacity 红光 秒)))
   (define (提示声 id asset)
     (theatre-sound id (string-append "StageSounds/照相馆/" asset) #f .6 0))
   (define (胶卷 id x)
@@ -102,12 +107,11 @@
   (框 "架盒一" "布景" 1040 288 70 42 "#7F95C4" 1.5 1.5)
   (框 "架盒二" "布景" 1130 300 60 30 "#7F95C4" 1.5 1.6)
   (框 "门框" "布景" 260 470 150 320 "#E9EEF8" 2.5 1.2)
-  (线 "红灯支架" "布景" "#9FB4E0" 2 '((1320 436) (1320 470) (1300 470) (1340 470)) 1.7)
-  (加入 (theatre-light "安全灯" "画面" "#FF3A3A" 1320 420 650 1))
-  (静线 "红灯边" "安全灯" "#FF9A9A" 2 (theatre-ellipse-points 0 0 16 16))
-  (加入 (theatre-glow "红灯芯" "安全灯" "#FF3A3A" 0 0 32 32))
-  (加入 (theatre-with (theatre-glow "红灯柔光" "安全灯" "#FF3A3A" 0 0 220 220) 'opacity .3))
   (加入 (theatre-focus "焦点" 800 594 .20 .52))
+  ;; 原型 s2 是店主背后的大面积情绪光，不是墙上的灯具。
+  ;; 平常淡红，迟疑时暖光接管，恼火时红光加深；与追随说话人的蓝光独立。
+  (加入 (theatre-with (theatre-glow "店主暖背景" "画面" "#F3D08A" 900 560 660 924) 'opacity 0))
+  (加入 (theatre-with (theatre-glow "店主红背景" "画面" "#FF7A6A" 900 560 720 1008) 'opacity .1))
   (加入 (theatre-with (theatre-glow "说话柔光" "画面" "#8FB4E8" 860 560 600 840) 'opacity 0))
   (组 "尼尔位置" "画面" -150 790 0)
   (加入 (theatre-image "尼尔" "尼尔位置" "Portraits/Neon/尼尔" 0 0 308 308 ""))
@@ -140,7 +144,7 @@
   (相纸背面 "回忆背面")
   (组 "暗场" "" 0 0 0)
   (填 "暗场幕" "暗场" 0 0 1600 900 "#030102")
-  (加入 (theatre-with (theatre-glow "暗房红光" "" "#FF3A3A" 1320 420 110 110) 'opacity 0))
+  (加入 (theatre-with (theatre-glow "暗房红光" "" "#FF3A3A" 900 560 1400 1000) 'opacity 0))
 
   (define 开场
     (theatre-sequence
@@ -182,13 +186,16 @@
       (theatre-clear-caption)
       ;; 原型 brightness(0) 转成短暗场；同一次访问，无世界时间变化。
       (theatre-tween "暗场" 'opacity .96 .5)
-      (theatre-tween "暗房红光" 'opacity .3 .15)
+      (theatre-tween "暗房红光" 'opacity .07 .15)
       (theatre-tween "取件单" 'opacity 0 .01)
       (提示声 "冲印滴水" "冲印")
       (theatre-wait 2.66)
       (theatre-tween "冲印相片" 'opacity 1 .01)
-      (theatre-parallel (theatre-tween "暗场" 'opacity 0 .9) (theatre-tween "暗房红光" 'opacity 0 .9))
+      (theatre-parallel (theatre-tween "暗场" 'opacity 0 .9)
+        (theatre-tween "暗房红光" 'opacity 0 .9)
+        (theatre-tween "店主红背景" 'opacity .2 .9))
       (theatre-wait .2)
+      (theatre-tween "店主红背景" 'opacity .08 .4)
       (theatre-image-to "尼尔" "Portraits/Neon/尼尔_伸手")
       (theatre-tween "冲印相片" 'opacity 0 .4)
       (theatre-wait .6)
@@ -215,7 +222,7 @@
       (说 "店主" 1070 "嗯，应该是吧。" 1.185)
       (theatre-tween "店主位置" 'rotation 0 .2)
       (theatre-image-to "尼尔" "Portraits/Neon/尼尔")
-      (theatre-tween "布景" 'brightness .7 .5)
+      (气氛 .7 .154 0 1.2)
       (theatre-sound "钟声" "StageSounds/室内求助/钟表" #f .22 0)
       ;; 半透明的旧照片背面只作为记忆，不额外产生物品或结论。
       (theatre-during
@@ -246,7 +253,7 @@
       (theatre-tween "店主位置" 'rotation 3 .7)
       (theatre-parallel
         (theatre-tween "店主位置" 'x 1090 .5 'smooth)
-        (theatre-tween "布景" 'brightness .8 .5)
+        (气氛 .8 .176 0 1.2)
         (theatre-sound "犹豫钟声" "StageSounds/室内求助/钟表" #f .22 0)
         (theatre-wait 1.7))
       (说 "店主" 1090 "这、这我怎么知道……" 1.500)
@@ -254,7 +261,7 @@
         (theatre-tween "店主位置" 'rotation 0 .2)
         (theatre-tween "店主位置" 'x 1040 .6 'smooth)
         (theatre-tween "店主位置" 'brightness 1.2 .2)
-        (theatre-tween "安全灯" 'brightness 1.3 .2)
+        (气氛 .8 0 .2 .6)
         (提示声 "恼火低音" "低音"))
       (theatre-wait .5)
       (说 "店主" 1040 "你到底想问什么？" 1.290)
