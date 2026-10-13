@@ -22,15 +22,16 @@ def main():
         match = FILENAME.fullmatch(path.name)
         assert match, f"Invalid filename: {path.name}"
         data = json.loads(path.read_text(encoding="utf-8"))
-        question = questions.get(match.group(1))
-        assert question is not None, path.name
+        # Past replies remain valid when the question is later revised or retired.
+        # The client snapshots the question text and version on submission.
         assert data.get("schema") == "ssnoir.research-dialogue/v1"
-        assert data.get("questionId") == question["id"]
-        assert data.get("questionTitle") == question["title"]
-        assert data.get("related") == question["related"]
+        assert data.get("questionId") == match.group(1)
+        assert isinstance(data.get("questionTitle"), str) and data["questionTitle"].strip()
+        assert isinstance(data.get("questionVersion"), str) and data["questionVersion"]
+        assert isinstance(data.get("related"), list) and all(isinstance(x, str) for x in data["related"])
         answer = data.get("answer")
         assert isinstance(answer, str) and 0 < len(answer.strip()) <= 12000
-        assert data.get("context") == question["context"]
+        assert isinstance(data.get("context"), str) and data["context"].strip()
         assert isinstance(data.get("createdAt"), str) and "T" in data["createdAt"]
         # Answer is human-authored public material, never a model quality verdict.
         # Do not rewrite, rate, or modify the submitted content.
