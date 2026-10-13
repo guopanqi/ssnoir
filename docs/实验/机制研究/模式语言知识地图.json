@@ -1739,6 +1739,68 @@
         "humanVerified": false
       },
       "note": "5手两手预备、4擦除×2报价、后三手工作。10/8/1动态71/4，目标向量(A1,B7/8,SIDE3/4)；无伙伴33/2，条件B工作量71/4，固定五手17，报价迟到第一手危机后行动之后仍71/4；双损低报价两项完成、高报价需牺牲B。成熟ATN03×ACT01组合，不证明独立社交原语。"
+    },
+    {
+      "id": "PL-GRC01",
+      "name": "未来廉价替代路线使早期自利合作消失：扩张玩家菜单反而降低可得结果",
+      "layer": "strategic-cooperation-composition",
+      "origin": "new-local-exact-game",
+      "family": "可信承诺/不完全契约/提前HELP/事后替代/战略可达性",
+      "idea": "伙伴先HELP才让玩家获得第一项成果8；玩家未来可为第二项价值9/1的任务真付3换伙伴GRANT。若额外BY​PASS成本低于3，玩家事后会绕开伙伴，伙伴现在提前EXIT，第一项成果无法启动。强对照是真正约束未来动作的排他协议或可核验条件合同。",
+      "stage": "backward-induction-Fraction-high-low-two-agent-game-fallback-price-0-to-5-tie-break-controls-no-human",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-13-可信合作与信息公开逆转/研究记录.md",
+        "tools/content-validator/experiments/pattern_reciprocal_options_20261013.py"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      },
+      "note": "阶段0伙伴直接EXIT得5/2，HELP后HIGH伙伴GRANT得4、LOW晚EXIT得2；无BYPASS伙伴HELP,玩家11/伙伴3。BYPASS k=0/1/2时伙伴EXIT,玩家3/伙伴5/2；k=3平局可能HELP或EXIT，k>=4合作恢复。强制伙伴HELP且k=2玩家23/2，可执行排他或HIGH条件合同恢复玩家11/伙伴3。熟悉hold-up/NEG可信协议的组合，非新基本原语。"
+    },
+    {
+      "id": "PL-GRC03",
+      "name": "更早公开信息经由对方的选择性参加，可以伤害或帮助玩家",
+      "layer": "information-timing-strategic-interaction",
+      "origin": "new-local-exact-game",
+      "family": "早晚公开/自主对方拒绝权/策略性信息价值方向反转",
+      "idea": "未来HIGH/LOW信号如在伙伴承诺HELP前公开，伙伴可拒绝对自身不划算的LOW；玩家收益不一定因免费早信息增加。w=5/2时晚公知使伙伴混合预期HELP、玩家11；早公知使伙伴低型拒绝、玩家17/2。若伙伴初始外部价值w=7/2，晚公知全拒、早公知HIGH可促成合作、玩家从3升17/2。",
+      "stage": "exact-two-agent-Fraction-information-timing-and-init-outside-3/2-5/2-7/2-9/2; forced-helper control; no human",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-13-可信合作与信息公开逆转/研究记录.md",
+        "tools/content-validator/experiments/pattern_reciprocal_options_20261013.py"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      },
+      "note": "w5/2早:(玩家17/2,伙伴13/4),晚:(玩家11,伙伴3)；w7/2早:(17/2,15/4),晚:(3,7/2)。若强制HELP，早晚玩家均11。信息安排在HIGH/LOW实现之前，不允许玩家带着私有LOW选择性隐瞒；多主体的参加约束导致单人信息弱单调推理不适用。与REL01早揭正价值/PS01早揭零价值并列。"
+    },
+    {
+      "id": "PL-DIAG01",
+      "name": "有效选项的三层审计：菜单合法、规则可达、自主主体愿意参加",
+      "layer": "cross-family-evaluation-method",
+      "origin": "source-grounded-analysis-synthesis",
+      "family": "行动集/剩余完成容量/策略性许可/人类结果关切",
+      "idea": "一个按钮合法不代表仍有行动资源完成对应终局；终局形式可达也不等于另一个自主主体按自己目标愿意批准或提供早期合作。再往上玩家是否关心目标需独立人类体验，不能从两种数学可达性推出。",
+      "stage": "cross-audit-R54-original-scheme-reachability-GRC-strategic-consent-REL01-and-PS01-info-effects; no-new-human",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-13-可信合作与信息公开逆转/跨主体可达性与信息控制诊断.md",
+        "docs/实验/机制研究/批次/2026-10-13-可信合作与信息公开逆转/研究记录.md",
+        "docs/实验/机制研究/批次/2026-10-13-自利救援与改选窗口/R54原规则可达性复核.md",
+        "docs/实验/机制研究/反馈/inbox/SSNoir-feedback-R54-20261009-062528-43765ce6ee.json"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      },
+      "note": "R54第三手后196活跃前缀里零双终局各可达：物理/执行预算失败；GRC k2尚有未来可用BYPASS合法按钮，但伙伴预见以后被替代而初始拒绝：战略可达失败。R50曾明确不清楚到底应追求何种成果：动机可读性未被数学证明。原人类反馈属于旧R50/R54而非本新实验。"
     }
   ],
   "edges": [
@@ -2839,6 +2901,78 @@
       "to": "PL-COUP01",
       "relation": "cross-encounter-non-bypass-contrast",
       "reason": "COUP01可由单线RUN A→CLAIM A全优旁路；PS01单线完整固定17小于动态71/4，组合对正常最优有用却仍非新原语"
+    },
+    {
+      "from": "PL-NEG01",
+      "to": "PL-GRC01",
+      "relation": "credible-performance-baseline",
+      "reason": "NEG01口头许诺不能反向约束最终支付，GRC进一步证明新增更廉价的事后BY​PASS会使提前伙伴不愿投资"
+    },
+    {
+      "from": "PL-NEG02",
+      "to": "PL-GRC01",
+      "relation": "complete-contract-strong-substitute",
+      "reason": "事前可执行且HIGH可核验的条件合同与排他协议皆能恢复合作，不能宣称无替代社交原语"
+    },
+    {
+      "from": "PL-PS01",
+      "to": "PL-GRC01",
+      "relation": "conditional-help-capacity-vs-investment-consent",
+      "reason": "PS01伙伴只提供条件工作容量；GRC则早期帮助是否发生取决于玩家后来是否会将伙伴替代"
+    },
+    {
+      "from": "PL-ACT01",
+      "to": "PL-GRC01",
+      "relation": "autonomous-choice-ancestor",
+      "reason": "已有ACT01同伴会按外部机会独立规划；GRC的区别是玩家自己的未来替代权改变伙伴最初的参加决定"
+    },
+    {
+      "from": "PL-REL02",
+      "to": "PL-GRC03",
+      "relation": "opposite-early-information-effects",
+      "reason": "REL01/02早知让玩家及时SECURE，GRC早知使同伴提前拒绝LOW分支而减少玩家结果"
+    },
+    {
+      "from": "PL-PS01",
+      "to": "PL-GRC03",
+      "relation": "zero-vs-negative-information-value",
+      "reason": "PS01伙伴报价晚一手根值不变；GRC03消息给同伴提前筛选时玩家根值下降；不能统一宣传早信息必有益"
+    },
+    {
+      "from": "PL-GRC01",
+      "to": "PL-GRC03",
+      "relation": "same-participation-different-information-set",
+      "reason": "GRC01改变玩家以后BY​PASS成本，GRC03改变伙伴事前可观察的HIGH/LOW；两者均经另一个主体的最优参加意愿反馈"
+    },
+    {
+      "from": "PL-RV03",
+      "to": "PL-DIAG01",
+      "relation": "physical-goal-reachability-case",
+      "reason": "原R54第三手之后不存在两种终局仍各可达的正式形式状态，即使推进A/B按钮还存在"
+    },
+    {
+      "from": "PL-GRC01",
+      "to": "PL-DIAG01",
+      "relation": "strategic-goal-reachability-case",
+      "reason": "未来BYPASS动作形式上存在，但自利伙伴不先HELP会使需要它打开的合作路线现实中根本没有出现"
+    },
+    {
+      "from": "PL-GRC03",
+      "to": "PL-DIAG01",
+      "relation": "information-controller-distinction",
+      "reason": "信息早到对单人行动可被忽略，对两主体参加协议却可能改变对方的行动，不得错用单人信息单调性"
+    },
+    {
+      "from": "R50",
+      "to": "PL-DIAG01",
+      "relation": "human-goal-meaning-limit",
+      "reason": "R50旧原始反馈认为下一手修正有作用但不清楚目标应是收益还是避伤，数学可达性不意味着玩家关心"
+    },
+    {
+      "from": "PL-ATN02",
+      "to": "PL-DIAG01",
+      "relation": "pareto-frontier-not-enough",
+      "reason": "ATN02即使有20个Pareto结果向量也可被固定路线追平，目标多并非自动拥有复杂策略空间"
     }
   ],
   "coverage": {
@@ -2846,7 +2980,7 @@
     "curatedDisplayMappedCount": 6,
     "cs2AnalyticalPatterns": 9,
     "unconvertedHistory": "关系索引中的其他R批次、数学负例和组合应按主题逐步纳入；不能据本地图未出现就认定没有价值",
-    "additionalExperimentalCompositions": "PL-C01/PL-C02/PL-C03已做最小模型、PL-C04仅概念问题；与另一研究线的C01/C02/C03区别命名；PL-Q01/D01/W01另有3个独立模型及消融和负面边界；PL-W02新增连续三天注意力容量组合，最强简明口诀和变更容量边界明确；F1/F2/D2三项同源跨家族与充分边界反证，不增精选；RGT01/ACT01用各自精确逆推补充许可资源与自利协作者正负证据，无真人；REL01/REL02四轮精确博弈与私有信号消融已完成（同原语条件组合；不改变精选六或Debug）；REL03后续通行凭据仅真实首手截止窗口有正准备选择价值、普通窗口弱支配；未证独立新玩法；NEG01—05双方自利协商五项精确反证；R342/R430/R478原生历史首次结构化归图，均非真人。；NEG06双回合私人回应DOM全十路，X01-LONG准备→事件→响应两段完整枚举及136条合法UI路径，均一行规则全优，无真人；X03 hard disable vs costly defiance两种不同动作合法性协议在完整可达子博弈仍同最优；无真人意义证据；STG01共4种规则组合×完整路径40，因果未来菜单5对纯文本菜单1，仅网页逻辑回归，不是互动/情感新模式认证；PT01四回合双目标压转与14短策略强对照/网页试玩；INF-P01 cap2/3贝叶斯模型覆盖72+96局部公开状态信息值0；未改变历史478；GOAL01七个p×可选/强制义务、同树强预列菜单；DISC01三手有理数belief-DP、单份可靠度q后验、三种时点/换路与网页合法路径，不动历史478或精选；REC01四手四分之一禁A/B×81信号历史、16条强固定序列、一步前瞻全优及六种因果消融；REC03各目标完成概率独立统计，且最优总体策略B完成率低于简单交替；无真人；SEM01—04动作产出对象改道与材料消费改道，两项均被同成本完整菜单追平，短条件程序全优，无真人。；横向读R366函数编辑与R422预编译强对照：持久编辑可超过固定日程却不一定超过同成本完整工具，源实验非本轮重复执行。；OPS01六手动态维护与同成本SET/一手前瞻全等（含2048独立实际输入历史），CLAIM四手付费撤回×真实A早窗口互补、已给HARD/无加成消融及无窗口强菜单；均不认证新独立原语。；COUP01七手把OPS操作实际变成A/B凭据、CLAIM A禁止制作B，仍在起始phase0三类需求先验下被RUN A→CLAIM A→SIDE×5一行策略全优；局部可达差异不等于有价值的双向注意力循环。；ATN01/02检测4手交换律、1296条件序列与20个Pareto成果向量仍由固定计划追平；ATN03/04双任务已投入进度遭公开单/双损5手模型动态33/2胜固定15，提前预知35/2，单损仍可保证双目标，归入成熟危机保全组合，真人缺席。；ACT-R01/02伙伴真自利救B(3)vs外部工作(2/4)使玩家双损低/高报价严格改选，默认动态51/4 vs迟揭49/4，却与条件备用B位逐动作同构；RV01简化4手R54式A3/B5可达上界t3仅18/64前缀两路线仍各有完成可能，结合旧R37/R50/R54真实反馈提出目标意义×改选容量双审核；RV02旧P18的极简上次路径追踪被固定ABABA全优。；RV03读原R54 Scene后用真实行动/追击次序穷举：第2手后33条活跃形式历史里9可分别达成双终局，第3手后196条中0可分别达成双终局（72仅甲、12仅乙、112无终局）；无骰面概率，非真人概率。；PS01将ATN03实际受损成果与ACT自利援助组合：五手动态71/4 vs ATN03无援33/2 vs五手固定17，分目标(1,7/8,3/4)；双损低报价可保两项目标，高报价必须放弃B，外部信号晚一手零价值；同条件B备用行动容量全状态完全替代。",
+    "additionalExperimentalCompositions": "PL-C01/PL-C02/PL-C03已做最小模型、PL-C04仅概念问题；与另一研究线的C01/C02/C03区别命名；PL-Q01/D01/W01另有3个独立模型及消融和负面边界；PL-W02新增连续三天注意力容量组合，最强简明口诀和变更容量边界明确；F1/F2/D2三项同源跨家族与充分边界反证，不增精选；RGT01/ACT01用各自精确逆推补充许可资源与自利协作者正负证据，无真人；REL01/REL02四轮精确博弈与私有信号消融已完成（同原语条件组合；不改变精选六或Debug）；REL03后续通行凭据仅真实首手截止窗口有正准备选择价值、普通窗口弱支配；未证独立新玩法；NEG01—05双方自利协商五项精确反证；R342/R430/R478原生历史首次结构化归图，均非真人。；NEG06双回合私人回应DOM全十路，X01-LONG准备→事件→响应两段完整枚举及136条合法UI路径，均一行规则全优，无真人；X03 hard disable vs costly defiance两种不同动作合法性协议在完整可达子博弈仍同最优；无真人意义证据；STG01共4种规则组合×完整路径40，因果未来菜单5对纯文本菜单1，仅网页逻辑回归，不是互动/情感新模式认证；PT01四回合双目标压转与14短策略强对照/网页试玩；INF-P01 cap2/3贝叶斯模型覆盖72+96局部公开状态信息值0；未改变历史478；GOAL01七个p×可选/强制义务、同树强预列菜单；DISC01三手有理数belief-DP、单份可靠度q后验、三种时点/换路与网页合法路径，不动历史478或精选；REC01四手四分之一禁A/B×81信号历史、16条强固定序列、一步前瞻全优及六种因果消融；REC03各目标完成概率独立统计，且最优总体策略B完成率低于简单交替；无真人；SEM01—04动作产出对象改道与材料消费改道，两项均被同成本完整菜单追平，短条件程序全优，无真人。；横向读R366函数编辑与R422预编译强对照：持久编辑可超过固定日程却不一定超过同成本完整工具，源实验非本轮重复执行。；OPS01六手动态维护与同成本SET/一手前瞻全等（含2048独立实际输入历史），CLAIM四手付费撤回×真实A早窗口互补、已给HARD/无加成消融及无窗口强菜单；均不认证新独立原语。；COUP01七手把OPS操作实际变成A/B凭据、CLAIM A禁止制作B，仍在起始phase0三类需求先验下被RUN A→CLAIM A→SIDE×5一行策略全优；局部可达差异不等于有价值的双向注意力循环。；ATN01/02检测4手交换律、1296条件序列与20个Pareto成果向量仍由固定计划追平；ATN03/04双任务已投入进度遭公开单/双损5手模型动态33/2胜固定15，提前预知35/2，单损仍可保证双目标，归入成熟危机保全组合，真人缺席。；ACT-R01/02伙伴真自利救B(3)vs外部工作(2/4)使玩家双损低/高报价严格改选，默认动态51/4 vs迟揭49/4，却与条件备用B位逐动作同构；RV01简化4手R54式A3/B5可达上界t3仅18/64前缀两路线仍各有完成可能，结合旧R37/R50/R54真实反馈提出目标意义×改选容量双审核；RV02旧P18的极简上次路径追踪被固定ABABA全优。；RV03读原R54 Scene后用真实行动/追击次序穷举：第2手后33条活跃形式历史里9可分别达成双终局，第3手后196条中0可分别达成双终局（72仅甲、12仅乙、112无终局）；无骰面概率，非真人概率。；PS01将ATN03实际受损成果与ACT自利援助组合：五手动态71/4 vs ATN03无援33/2 vs五手固定17，分目标(1,7/8,3/4)；双损低报价可保两项目标，高报价必须放弃B，外部信号晚一手零价值；同条件B备用行动容量全状态完全替代。；GRC01/02自利伙伴最初愿帮（玩家11、伙伴3），玩家未来新增低于原成本3的BYPASS使伙伴初始EXIT（玩家3、伙伴5/2），可执行HIGH条件合同或排他承诺恢复11；GRC03/04同样提前公开HIGH/LOW在w5/2令玩家11跌至17/2、在w7/2令玩家3升至17/2；跨族审计区分动作合法、物理终局可达、伙伴策略同意、人类关切。",
     "humanFeedbackNote": "目前有关稳险/R06、边做边看/R10、压力/R37、R54、R50的有限设计者反馈；原记录各不等价于受控盲试玩；P02/R13仍没有真人反馈。",
     "thirdComparison": "PL-C05 supplies a tested negative boundary; not a new curated or debug pattern"
   },
