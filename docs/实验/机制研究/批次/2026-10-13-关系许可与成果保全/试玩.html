@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="zh-CN"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>保全一份成果 · SSNoir 抽象研究</title>
+<style>
+:root{color-scheme:dark;--bg:#111819;--panel:#1b2626;--text:#e5e6dc;--line:#48605c;--muted:#b9c4bd;--accent:#bce0b9}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.65 system-ui,-apple-system,sans-serif}
+main{max-width:810px;margin:auto;padding:22px 16px 54px}
+h1{font-size:1.65rem;line-height:1.2;margin:6px 0 16px}h2{font-size:1.08rem;margin:0 0 8px}
+.panel{background:var(--panel);border:1px solid #324b46;border-radius:9px;padding:18px;margin:12px 0}
+header{border-bottom:1px solid var(--line);padding:0 0 12px}
+small,.muted{color:var(--muted)}p{margin:6px 0 12px}
+button,select{background:#293b37;border:1px solid #85998d;color:var(--text);padding:10px 12px;font:inherit;border-radius:5px}
+button{cursor:pointer}button:hover:not(:disabled){background:#3b5149}button:disabled{opacity:.45;cursor:default}
+button:focus-visible,select:focus-visible{outline:3px solid #f4ce77;outline-offset:2px}
+.buttons{display:flex;flex-wrap:wrap;gap:9px;margin:12px 0 6px}.primary{background:#b8dab4;color:#13201a;font-weight:700}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
+.stats div{background:#101b1a;text-align:center;padding:11px 5px;border-radius:5px}
+.stats b{display:block;font-size:1.45rem;font-variant-numeric:tabular-nums}.stats span{font-size:.79rem;color:var(--muted)}
+.status{padding-left:12px;border-left:3px solid #a8c7b5;min-height:1.5em}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:13px;background:#0f1b1a;font:13px/1.6 ui-monospace,SFMono-Regular,monospace}
+details summary{cursor:pointer;color:var(--accent)}#stage{display:none}
+label{display:block;margin:8px 0}select{width:100%}
+@media(max-width:530px){.stats{grid-template-columns:1fr 1fr}.panel{padding:14px}}
+</style></head><body><main>
+<header><small>SSNoir · REL-01 · 独立研究原型</small>
+<h1>一份工作，和随时可能离开的合作者</h1>
+<p class="muted">四次行动。你要决定是继续追求完整成果，还是趁合作资格仍然存在时保全半成品。全部基本规则公开，合作者并不总会服从你。</p></header>
+<section class="panel"><h2>双方的目标</h2>
+<p>你每轮可以选 <strong>USE</strong> 推进完整工作（累计2次，四轮结束时仍获得合作者许可，得16），<strong>HELP</strong> 为对方做事，或 <strong>SIDE</strong> 完成独立小工作（立即得2）。</p>
+<p>合作者若一直留下，且得到至少一次HELP，最终得10；他每轮在看完你的动作后，都可以决定永久离开，取得自己的外部收益。一般外部工作得4；第二轮可能突然变成<strong>12或3，各半概率</strong>。</p>
+<p>有些实验版本开放 <strong>SECURE</strong>：你先做过至少一次USE，而且合作者尚未离开，便可花一行动把半成品保全为5。这样会永久关闭完整工作的16分路线，不能两头拿。对方退出后，未保全的完整进度作废。</p>
+</section>
+<section class="panel" id="setup">
+<h2>选择对照条件</h2>
+<label>实验版本
+<select id="variant">
+<option value="public-secure">提前知道外部机会 · 可以保全</option>
+<option value="public-plain">提前知道外部机会 · 不能保全</option>
+<option value="hidden-secure">行动之后才知道外部机会 · 可以保全</option>
+<option value="hidden-plain">行动之后才知道外部机会 · 不能保全</option>
+</select></label>
+<p class="muted">下列“固定”只用于重放同一个外部条件，不预设你会怎样行动。</p>
+<div class="buttons"><button class="primary" id="random">随机开始</button><button id="high">固定：高外部机会</button><button id="low">固定：低外部机会</button></div>
+</section>
+<section id="stage">
+<div class="panel"><h2 id="day">第 1 / 4 轮</h2>
+<p class="status" id="opportunity" aria-live="polite"></p>
+<div class="stats">
+<div><b id="uses">0</b><span>完整进度 / 2</span></div>
+<div><b id="helps">0</b><span>已帮助对方</span></div>
+<div><b id="sides">0</b><span>独立小成果</span></div>
+<div><b id="secured">否</b><span>半成品已保全</span></div>
+</div>
+<p id="question">你要把这一轮行动投入哪里？</p>
+<div class="buttons" id="actions">
+<button id="act-use" class="primary">USE · 推进工作</button>
+<button id="act-help">HELP · 帮助对方</button>
+<button id="act-side">SIDE · 做独立工作</button>
+<button id="act-secure">SECURE · 保全半成品</button>
+</div>
+<p id="reply" class="status" aria-live="polite"></p>
+</div>
+<div class="panel"><h2>你看到的实际行动记录</h2><pre id="log" aria-live="polite"></pre>
+<div class="buttons"><button id="copy">复制记录</button><button id="back">返回版本选择</button></div></div>
+</section>
+<section class="panel"><details><summary>关于研究结论与证据限度</summary>
+<p>内部模型是一个有限四轮、公开双方结算目标的序贯博弈。合作者看见你的动作后，根据未来继续合作或外出工作的自身收益选择；他不会为了戏剧效果随机违约。第二轮外部机会是唯一随机变量。如果版本设为“迟揭”，他先知道，你则在行动之后才从他的决定得知。</p>
+<p>页面没有后台、不会自动上传你的轨迹。数学已对该冻结规则做过精确求解，但玩家是否理解并喜欢这种形式尚未经过真人研究；这张网页不是正式游戏内容。</p>
+</details></section>
+</main><script>
+"use strict";
+(function(){
+const $=id=>document.getElementById(id);
+const state0=()=>({t:0,u:0,h:0,s:0,secured:false,present:true});
+const clone=s=>({...s});
+let game=null,history=[],cache=new Map();
+function legal(s,secure){
+ if(!s.present)return ["SIDE"];
+ if(s.secured)return ["HELP","SIDE"];
+ const a=["HELP","USE","SIDE"];
+ if(secure&&s.u>=1)a.push("SECURE");
+ return a;
+}
+function apply(s,a){
+ const n=clone(s);n.t++;
+ if(a==="USE")n.u++;
+ else if(a==="HELP")n.h++;
+ else if(a==="SIDE")n.s++;
+ else if(a==="SECURE"){n.u=0;n.secured=true;}
+ else throw Error("Unknown action "+a);
+ return n;
+}
+function pay(s){
+ return [2*s.s+5*Number(s.secured)+16*Number(s.present&&s.u>=2&&!s.secured),
+         10*Number(s.present&&s.h>=1)];
+}
+function offerOutside(turn,offer){return turn===1?(offer?12:3):4;}
+function future(s,publicMode,offer=-1){
+ if(s.t===4)return pay(s);
+ if(!s.present)return future(apply(s,"SIDE"),publicMode,0);
+ const key=JSON.stringify([s,publicMode,offer]);
+ if(cache.has(key))return cache.get(key);
+ let result;
+ if(s.t===1&&offer===-1){
+  if(publicMode){
+   const a=future(s,publicMode,1),b=future(s,publicMode,0);
+   result=[(a[0]+b[0])/2,(a[1]+b[1])/2];
+  }else{
+   let best=null;
+   for(const action of legal(s,game.secure)){
+    const h=respond(s,action,1,publicMode),l=respond(s,action,0,publicMode);
+    const value=[(h.score[0]+l.score[0])/2,(h.score[1]+l.score[1])/2];
+    if(!best||value[0]>best[0])best=value;
+   }
+   result=best;
+  }
+ }else{
+  let best=null;
+  for(const a of legal(s,game.secure)){
+   const r=respond(s,a,offer,publicMode);
+   if(!best||r.score[0]>best[0])best=r.score;
+  }
+  result=best;
+ }
+ cache.set(key,result);
+ return result;
+}
+function respond(s,action,offer,publicMode){
+ const next=apply(s,action);
+ const stay=future(next,publicMode,s.t===0?-1:0);
+ const outside=offerOutside(s.t,offer);
+ if(outside>stay[1]){
+  const gone={...next,u:0,h:0,present:false};
+  return {state:gone,response:"EXIT",score:[future(gone,publicMode,0)[0],outside]};
+ }
+ return {state:next,response:"STAY",score:stay};
+}
+function start(forced){
+ const kind=$("variant").value;
+ game={secure:kind.endsWith("secure"),publicMode:kind.startsWith("public"),
+       offer:forced===null?(Math.random()<.5?1:0):forced,s:state0(),partnerExit:null,condition:kind};
+ history=[];cache=new Map();
+ $("setup").style.display="none";$("stage").style.display="block";
+ $("reply").textContent="对方会在你行动后决定继续留下还是退出。";
+ render();
+}
+function offerText(){
+ const s=game.s;
+ if(s.t===0)return "第二轮的外部机会尚未发生。";
+ if(s.t===1&&!game.publicMode)return "对方已经知道这轮自己的机会，但你还不知道。";
+ return game.offer?"外部机会：12（高）":"外部机会：3（低）";
+}
+function finalText(){
+ const p=pay(game.s);
+ return "结束：你的成果="+p[0]+"；对方成果="+(game.partnerExit??p[1])+"。";
+}
+function traceText(){
+ const lines=["条件："+game.condition+"；第二轮外部报价："+(game.s.t>=1&&game.publicMode?(game.offer?12:3):"初时未公开")];
+ for(const r of history)lines.push("第"+(r.day+1)+"轮 | 你："+r.action+" | 对方："+r.response+" | USE="+r.u+", HELP="+r.h+", SIDE="+r.side+", 保全="+r.secured);
+ if(game.s.t===4)lines.push(finalText());
+ return lines.join("\n");
+}
+function render(){
+ const s=game.s;
+ $("day").textContent=s.t===4?"四轮结束":"第 "+(s.t+1)+" / 4 轮";
+ $("opportunity").textContent=offerText()+(s.present?" · 对方目前仍合作。":" · 对方已经离开。");
+ $("uses").textContent=s.u;$("helps").textContent=s.h;
+ $("sides").textContent=2*s.s;$("secured").textContent=s.secured?"是":"否";
+ $("actions").style.display=s.t===4?"none":"flex";
+ const allowed=s.t<4?legal(s,game.secure):[];
+ for(const a of ["USE","HELP","SIDE","SECURE"]){
+  const b=$("act-"+a.toLowerCase());b.disabled=!allowed.includes(a);
+ }
+ $("question").textContent=s.t===4?finalText():s.present?"你现在选择什么？":"对方已经离开，只能做独立小工作。";
+ $("log").textContent=traceText();
+}
+function choose(action){
+ const s=game.s;
+ if(!legal(s,game.secure).includes(action))throw Error("Illegal action");
+ let response;
+ if(!s.present){game.s=apply(s,action);response="GONE";}
+ else {
+  const r=respond(s,action,s.t===1?game.offer:0,game.publicMode);
+  game.s=r.state;response=r.response;
+  if(response==="EXIT")game.partnerExit=r.score[1];
+ }
+ history.push({day:s.t,action,response,u:game.s.u,h:game.s.h,side:2*game.s.s,secured:game.s.secured});
+ const revealed=s.t===1?" 本轮真实外部机会="+(game.offer?12:3)+"。":"";
+ $("reply").textContent="对方选择："+response+"。"+revealed;
+ render();
+}
+$("random").onclick=()=>start(null);
+$("high").onclick=()=>start(1);
+$("low").onclick=()=>start(0);
+for(const a of ["USE","HELP","SIDE","SECURE"])$("act-"+a.toLowerCase()).onclick=()=>choose(a);
+$("back").onclick=()=>{$("stage").style.display="none";$("setup").style.display="block";game=null;};
+$("copy").onclick=async()=>{try{await navigator.clipboard.writeText(traceText());$("copy").textContent="已复制";}catch(_){$("copy").textContent="请选中文本复制";}};
+})();
+</script></body></html>
