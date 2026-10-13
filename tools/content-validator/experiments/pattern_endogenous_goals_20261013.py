@@ -140,6 +140,17 @@ def main():
     assert model[1](3, 4, 0, True)[0] == "U"
     print("F1 reachable conditional switch: day4 B=4 offer=U, R-ticket 0=>U / 1=>R")
 
+    for reward, expected_opt, expected_fixed in (
+        (4, F(17), F(129, 8)),
+        (9, F(177, 8), F(87, 4)),
+    ):
+        variant = followup(referral_reward=reward)
+        optimal = variant[0](0, 0, 0)
+        simple_value = best_day_only_priorities(variant)[0]
+        print("F1 transfer reward", reward, "optimal", optimal,
+              "fixed", simple_value)
+        assert (optimal, simple_value) == (expected_opt, expected_fixed)
+
     for b in (0, 1):
         for auto in (False, True):
             with_decoy = decoy(b, True, auto)
@@ -151,6 +162,15 @@ def main():
     assert decoy(1, False, True)[0] == 3
     for b, auto in ((0, True), (0, False), (1, False)):
         assert decoy(b, True, auto)[0] == decoy(b, False, auto)[0] == 8
+    # Full encounter variant: another participant completed 0/1 side-progress
+    # before this three-slot segment; both public entry states have probability 1/2.
+    mixed_decoy = (F(decoy(0, True, True)[0]) +
+                   F(decoy(1, True, True)[0])) / 2
+    mixed_no_decoy = (F(decoy(0, False, True)[0]) +
+                      F(decoy(1, False, True)[0])) / 2
+    print("D1 public exogenous partial-progress mixture:",
+          mixed_decoy, "vs", mixed_no_decoy)
+    assert (mixed_decoy, mixed_no_decoy) == (8, F(11, 2))
     print("PASS: exact finite witnesses and counterfactual controls")
 
 
