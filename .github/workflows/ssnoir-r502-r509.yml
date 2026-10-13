@@ -1,0 +1,48 @@
+name: SSNoir R502-R509 Dependency vs Enabled Option
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r502-r509.yml'
+      - 'tools/content-validator/experiments/r502_r509_graph_enable_isomorphism.py'
+      - 'docs/实验/机制研究/批次/R502-R509-依赖修复与选项启用同构/**'
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify reachable conflicting faults and statewise action isomorphism
+        run: |
+          set -euo pipefail
+          python3 -m py_compile tools/content-validator/experiments/r502_r509_graph_enable_isomorphism.py
+          python3 tools/content-validator/experiments/r502_r509_graph_enable_isomorphism.py > /tmp/r502.json
+          python3 - <<'PY'
+          import json
+          a=json.load(open('/tmp/r502.json'))
+          assert a['R502_both_faults_reachable']=='1/4'
+          assert a['R505_public_demand_adaptive']=='7/2'
+          assert a['R506_no_repair']=='9/4'
+          assert a['R507_demand_only_after_repair']=='23/8'
+          assert a['R508_flattening_checks']=={'public_states':8,'hidden_demand_states':4,'same_roots':True}
+          assert a['R509_cost_counterfactual']=={'free':'4','too_expensive':'9/4'}
+          print('R502-R509 public/private demand, competing repairs and flat baseline pass')
+          PY
+      - name: Scope and regression of curated/Debug lists
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/validate_abstract_research_scope.py
+          python3 tools/content-validator/experiments/validate_mechanism_portfolio.py
+          python3 tools/content-validator/experiments/validate_debug_playtests.py
+          python3 tools/content-validator/experiments/build_mechanism_atlas.py --check
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-r502-r509-graph-isomorphism
+          path: /tmp/r502.json

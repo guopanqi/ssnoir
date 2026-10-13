@@ -1,0 +1,48 @@
+name: SSNoir R462-R469 Self-interested Effort
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r462-r469.yml'
+      - 'tools/content-validator/experiments/r462_r469_actor_effort.py'
+      - 'docs/实验/机制研究/批次/R462-R469-他者稀缺努力与跨期回应/**'
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify own-interest subgame and 8 independent trajectory replays
+        run: |
+          set -euo pipefail
+          python3 -m py_compile tools/content-validator/experiments/r462_r469_actor_effort.py
+          python3 tools/content-validator/experiments/r462_r469_actor_effort.py > /tmp/r462.json
+          python3 - <<'PY'
+          import json
+          x=json.load(open('/tmp/r462.json'))
+          assert x['R462_long_horizon']==['4','7']
+          assert x['R465_myopic_actor']==['7/2','13/2']
+          assert x['R468_no_first_shock_access']==['15/4','15/4']
+          assert len(x['independent_replay_all_8_shock_tapes'])==8
+          assert x['R469_extra_counterpart_effort']==['4','10']
+          print('Actor owns limited effort; all trajectories and contrasts passed')
+          PY
+      - name: Preserve scope and human Debug gate
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/validate_abstract_research_scope.py
+          python3 tools/content-validator/experiments/validate_mechanism_portfolio.py
+          python3 tools/content-validator/experiments/validate_debug_playtests.py
+          python3 tools/content-validator/experiments/build_mechanism_atlas.py --check
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-r462-r469-self-interested-effort
+          path: /tmp/r462.json
+          retention-days: 21

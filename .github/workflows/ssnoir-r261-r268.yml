@@ -1,0 +1,50 @@
+name: SSNoir R261-R268 Signalling Credibility
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r261-r268.yml'
+      - 'tools/content-validator/experiments/r261_r268_signal_credibility.py'
+      - 'docs/实验/机制研究/批次/R261-R268-信誉与佯攻退化/研究记录.md'
+permissions:
+  contents: read
+jobs:
+  exact:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Exact public credibility DP and exhaustive fixed plans
+        run: |
+          set -euo pipefail
+          python3 -m py_compile tools/content-validator/experiments/r261_r268_signal_credibility.py
+          python3 tools/content-validator/experiments/r261_r268_signal_credibility.py | tee /tmp/r261-r268.json
+          python3 - <<'PY'
+          import json
+          d=json.load(open('/tmp/r261-r268.json'))
+          assert d['R261_full_public_DP']=='7/2'
+          assert d['R262_exhaustive_all_fixed_plans']['best']=='7/2'
+          assert d['R263_independent_readable_strategies']['restore']['value']=='7/2'
+          assert d['R263_independent_readable_strategies']['all-feint']['value']=='13/4'
+          print('Exact DP, all 2^5 schedules and four simple public rules validated')
+          PY
+      - name: Prior batch and portfolio
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/r253_r260_irreversible_checkpoint.py >/tmp/r253-r260.json
+          python3 tools/content-validator/experiments/validate_abstract_research_scope.py
+          python3 tools/content-validator/experiments/validate_mechanism_portfolio.py
+          python3 tools/content-validator/experiments/validate_debug_playtests.py
+          python3 tools/content-validator/experiments/build_mechanism_atlas.py --check
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-r261-r268-credibility
+          path: |
+            /tmp/r261-r268.json
+            /tmp/r253-r260.json
+          retention-days: 21

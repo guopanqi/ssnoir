@@ -1,0 +1,85 @@
+name: SSNoir R358-R389 Integrated Abstract Mechanism Suite
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r358-r389-suite.yml'
+      - 'docs/实验/机制研究/当前状态.md'
+      - 'docs/实验/机制研究/研究队列.md'
+      - 'docs/实验/机制研究/自主研究记忆.json'
+      - 'docs/实验/机制研究/批次/R358-R389-跨心理活动质量审计/**'
+      - 'docs/实验/机制研究/批次/R366-R373-可组合规则的执行与修订/参与者卡片.md'
+      - 'docs/实验/机制研究/批次/R366-R373-可组合规则的执行与修订/研究员规约.md'
+permissions:
+  contents: read
+jobs:
+  exact-and-history:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify four independent mathematical mechanisms and immutable counts
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/r358_r365_delegation.py >/tmp/r358-r365.json
+          python3 tools/content-validator/experiments/r366_r373_program_composition.py >/tmp/r366-r373.json
+          python3 tools/content-validator/experiments/r374_r381_shared_norm.py >/tmp/r374-r381.json
+          python3 tools/content-validator/experiments/r382_r389_nonlinear_program.py >/tmp/r382-r389.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          results=[json.loads(Path('/tmp/'+p+'.json').read_text()) for p in
+                   ('r358-r365','r366-r373','r374-r381','r382-r389')]
+          assert [v['schema'] for v in results]==[
+            'ssnoir.r358-r365.delegated-private-goals.v1',
+            'ssnoir.r366-r373.composed-executable-rule.v1',
+            'ssnoir.r374-r381.coauthored-legal-rule.v1',
+            'ssnoir.r382-r389.non-linear-function-transfer.v1']
+          assert [v[k] for v,k in zip(results,(
+           'R358_belief_DP','R366_full_program_DP','R374_full_public_belief_DP',
+           'R382_full_non_linear_posterior_DP'))]==['37/16','111/32','7/4','16921/4096']
+          m=json.loads(Path('docs/实验/机制研究/自主研究记忆.json').read_text())
+          assert m['totalArchivedRounds']>=334
+          assert m['roundsSinceCalibration']>=216
+          assert m['totalArchivedRounds']==118+m['roundsSinceCalibration']
+          assert sum(h['rounds'] for h in m['history'])==m['roundsSinceCalibration']
+          assert m['evidenceIdentity']['shortlistedPatterns']==6
+          assert m['evidenceIdentity']['historicalStructuralCandidates']==20
+          assert m['evidenceIdentity']['researchDebugWhitelisted']==['R09','R37','R54']
+          print('FOUR ABSTRACT FAMILIES, 32-ITEM APPEND, COUNTS AND PORTFOLIO PASS')
+          PY
+      - name: Human card vs private rules and no fabricated feedback
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          root=Path('docs/实验/机制研究/批次/R366-R373-可组合规则的执行与修订')
+          pub=(root/'参与者卡片.md').read_text()
+          secret=(root/'研究员规约.md').read_text()
+          assert len(pub)>500 and len(secret)>500
+          assert all(x in pub for x in ('RUN','EDIT-X','EDIT-Y','EDIT-I','EDIT-N'))
+          assert '数学最优' not in pub and '111/32' not in pub
+          assert '仅研究员' in secret and '尚未执行' in secret
+          print('Participant card is distinct from facilitator solution; no human data claimed')
+          PY
+      - name: Existing research scope and Debug approval boundaries
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/validate_abstract_research_scope.py
+          python3 tools/content-validator/experiments/validate_mechanism_portfolio.py
+          python3 tools/content-validator/experiments/validate_debug_playtests.py
+          python3 tools/content-validator/experiments/build_mechanism_atlas.py --check
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-r358-r389-four-family-replays
+          path: |
+            /tmp/r358-r365.json
+            /tmp/r366-r373.json
+            /tmp/r374-r381.json
+            /tmp/r382-r389.json
+          retention-days: 21

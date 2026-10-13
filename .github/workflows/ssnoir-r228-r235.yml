@@ -1,0 +1,47 @@
+name: SSNoir R228-R235 Dynamic Operator Order
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r228-r235.yml'
+      - 'tools/content-validator/experiments/r228_r235_dynamic_operator_order.py'
+      - 'docs/实验/机制研究/批次/R228-R235-中间反馈重排操作/研究记录.md'
+permissions:
+  contents: read
+jobs:
+  exact:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Exhaustive legal contingent sequences and blind-order counterfactual
+        run: |
+          set -euo pipefail
+          python3 -m py_compile tools/content-validator/experiments/r228_r235_dynamic_operator_order.py
+          python3 tools/content-validator/experiments/r228_r235_dynamic_operator_order.py | tee /tmp/r228-r235.json
+          python3 - <<'PY'
+          import json
+          v=json.load(open('/tmp/r228-r235.json'))
+          assert v["R229_timed_multiplier_feedback"]=="3/4"
+          assert v["R230_target_aware_but_multiplier_blind"]=="1/2"
+          assert v["R232_target_delayed_until_after_first"]=="1/2"
+          assert v["R234_independent_transfer"]["feedback"]=="1"
+          print("Exact complete conditional order enumeration passed")
+          PY
+      - name: Research scope and manual Debug restrictions
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/validate_abstract_research_scope.py
+          python3 tools/content-validator/experiments/validate_mechanism_portfolio.py
+          python3 tools/content-validator/experiments/validate_debug_playtests.py
+          python3 tools/content-validator/experiments/build_mechanism_atlas.py --check
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-r228-r235-dynamic-order
+          path: /tmp/r228-r235.json
+          retention-days: 21

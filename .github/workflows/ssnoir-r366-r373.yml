@@ -1,0 +1,51 @@
+name: SSNoir R366-R373 Executable Rule Composition
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r366-r373.yml'
+      - 'tools/content-validator/experiments/r366_r373_program_composition.py'
+      - 'docs/实验/机制研究/批次/R366-R373-可组合规则的执行与修订/研究记录.md'
+permissions:
+  contents: read
+jobs:
+  exact:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Exact Boolean clause-authoring Bellman, all input tapes, full fixed schedules
+        run: |
+          set -euo pipefail
+          python3 -m py_compile tools/content-validator/experiments/r366_r373_program_composition.py
+          python3 tools/content-validator/experiments/r366_r373_program_composition.py | tee /tmp/r366-r373.json
+          python3 - <<'PY'
+          import json
+          x=json.load(open('/tmp/r366-r373.json'))
+          assert x['R366_full_program_DP']=='111/32'
+          assert x['R367_best_4096_precommitted_programs']['best']=='3'
+          assert x['R367_best_4096_precommitted_programs']['count']==4096
+          assert x['R368_independent_forward_all_actual_inputs']=='111/32'
+          assert x['R369_edit_budget_ablation']=={'0':'3','1':'3','2':'215/64','3':'111/32','6':'111/32'}
+          assert x['R370_build_entire_rule_after_first_diagnosis']=='3'
+          assert x['R372_hidden_rule_oracle']=='243/64'
+          assert x['R373_multiclause_actual_optimal_paths_and_novelty']['positive_mass_with_two_different_edits']!='0'
+          print('TRUE OPERATOR COMPOSITION, FOUR-INPUT EXECUTION AND 4096 PLAN REGRESSIONS PASS')
+          PY
+      - name: Research scope, portfolio and Debug whitelist
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/validate_abstract_research_scope.py
+          python3 tools/content-validator/experiments/validate_mechanism_portfolio.py
+          python3 tools/content-validator/experiments/validate_debug_playtests.py
+          python3 tools/content-validator/experiments/build_mechanism_atlas.py --check
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-r366-r373-boolean-rule
+          path: /tmp/r366-r373.json
+          retention-days: 21

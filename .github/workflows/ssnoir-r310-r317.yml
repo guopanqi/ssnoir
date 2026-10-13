@@ -1,0 +1,48 @@
+name: SSNoir R310-R317 Spatial Partial Observation
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r310-r317.yml'
+      - 'tools/content-validator/experiments/r310_r317_spatial_information.py'
+      - 'docs/实验/机制研究/批次/R310-R317-部分观察与付费扫描/研究记录.md'
+permissions:
+  contents: read
+jobs:
+  exact:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Belief-only spatial solver, paid scan ablation, independent public greedy rollout
+        run: |
+          set -euo pipefail
+          python3 -m py_compile tools/content-validator/experiments/r310_r317_spatial_information.py
+          python3 tools/content-validator/experiments/r310_r317_spatial_information.py | tee /tmp/r310-r317.json
+          python3 - <<'PY'
+          import json
+          v=json.load(open('/tmp/r310-r317.json'))
+          assert v['R310_partial_feedback_persistent']['cover_only']=='32873/8192'
+          assert v['R311_partial_feedback_nonlocal']['cover_only']=='27389/8192'
+          assert v['R311_partial_feedback_nonlocal']['exact_location_if_covered']=='28545/8192'
+          assert all(x['with_scan']==x['without'] for x in v['R313_remove_paid_SCAN'].values())
+          assert all(x['strict_scan']==0 for x in v['R316_public_Q_and_no_strict_scan'].values())
+          print('All exact spatial belief, paid scan, and public rollout checks passed')
+          PY
+      - name: Scope, curated mode count and Debug access
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/validate_abstract_research_scope.py
+          python3 tools/content-validator/experiments/validate_mechanism_portfolio.py
+          python3 tools/content-validator/experiments/validate_debug_playtests.py
+          python3 tools/content-validator/experiments/build_mechanism_atlas.py --check
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-r310-r317-spatial
+          path: /tmp/r310-r317.json
+          retention-days: 21

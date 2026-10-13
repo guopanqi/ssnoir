@@ -1,0 +1,49 @@
+name: SSNoir R286-R293 Spatial Observation
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r286-r293.yml'
+      - 'tools/content-validator/experiments/r286_r293_spatial_coverage.py'
+      - 'docs/实验/机制研究/批次/R286-R293-位置与观察权/研究记录.md'
+permissions:
+  contents: read
+jobs:
+  exact:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Independent reachable-state DP versus public rollouts and all fixed paths
+        run: |
+          set -euo pipefail
+          python3 -m py_compile tools/content-validator/experiments/r286_r293_spatial_coverage.py
+          python3 tools/content-validator/experiments/r286_r293_spatial_coverage.py | tee /tmp/r286-r293.json
+          python3 - <<'PY'
+          import json
+          x=json.load(open('/tmp/r286-r293.json'))
+          d=x['R286_R289_four_environment_tests']
+          assert d['quarter_jump']['full']=='29857/8192'
+          assert d['quarter_jump']['center_track']=='29857/8192'
+          assert d['quarter_jump']['teleport']=='31017/8192'
+          assert d['no_jump']['full']==d['no_jump']['teleport']
+          assert d['strong_jump']['full']!='1127983/320001'
+          print('All exact position, public policy, fixed plan and teleport checks passed')
+          PY
+      - name: Scope and existing portfolio
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/validate_abstract_research_scope.py
+          python3 tools/content-validator/experiments/validate_mechanism_portfolio.py
+          python3 tools/content-validator/experiments/validate_debug_playtests.py
+          python3 tools/content-validator/experiments/build_mechanism_atlas.py --check
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-r286-r293-spatial
+          path: /tmp/r286-r293.json
+          retention-days: 21

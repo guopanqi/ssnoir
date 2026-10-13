@@ -1,0 +1,56 @@
+name: SSNoir R398-R405 Scripted Delegation vs Capacity
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r398-r405.yml'
+      - 'tools/content-validator/experiments/r398_r405_script_capacity.py'
+      - 'docs/实验/机制研究/批次/R398-R405-自动委托不等于写规则/研究记录.md'
+permissions:
+  contents: read
+jobs:
+  exact:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify full public-state controller against all four rules and capacity bounds
+        run: |
+          set -euo pipefail
+          python3 -m py_compile tools/content-validator/experiments/r398_r405_script_capacity.py
+          python3 tools/content-validator/experiments/r398_r405_script_capacity.py | tee /tmp/r398-r405.json
+          python3 - <<'PY'
+          import json
+          x=json.load(open('/tmp/r398-r405.json'))
+          assert x['R398_serial_equal_tasks']['full_public_DP']=='3'
+          assert x['R399_parallel_equal_tasks']['full_public_DP']=='4'
+          assert x['R400_serial_skew_2_1']['full_public_DP']=='6'
+          assert x['R401_parallel_skew_2_1']['full_public_DP']=='6'
+          assert x['R402_high_reward_asymmetry']['parallel']['full_public_DP']=='9'
+          for vals in x['R403_all_four_installable_grammars'].values():
+            assert len(set(vals['serial'].values()))==1
+            assert len(set(vals['parallel'].values()))==1
+          print('Same-slot dominance, independent bot schedules, and parallel capacity all validated')
+          PY
+      - name: Original authored rule and delegate authority regressions
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/r358_r365_delegation.py >/tmp/r358-r365.json
+          python3 tools/content-validator/experiments/r366_r373_program_composition.py >/tmp/r366-r373.json
+          python3 tools/content-validator/experiments/validate_abstract_research_scope.py
+          python3 tools/content-validator/experiments/validate_mechanism_portfolio.py
+          python3 tools/content-validator/experiments/validate_debug_playtests.py
+          python3 tools/content-validator/experiments/build_mechanism_atlas.py --check
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-r398-r405-scripted-capacity
+          path: |
+            /tmp/r398-r405.json
+            /tmp/r358-r365.json
+            /tmp/r366-r373.json
+          retention-days: 21

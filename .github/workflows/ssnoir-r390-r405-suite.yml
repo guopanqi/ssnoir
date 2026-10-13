@@ -1,0 +1,89 @@
+name: SSNoir R390-R405 Behavioral Autonomy and Automation Suite
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r390-r405-suite.yml'
+      - 'docs/实验/机制研究/当前状态.md'
+      - 'docs/实验/机制研究/研究队列.md'
+      - 'docs/实验/机制研究/自主研究记忆.json'
+      - 'docs/实验/机制研究/批次/R390-R405-战略回应与自动容量反证/**'
+      - 'tools/content-validator/experiments/r390_r397_strategic_veto.py'
+      - 'tools/content-validator/experiments/r398_r405_script_capacity.py'
+permissions:
+  contents: read
+jobs:
+  theory-and-contracts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: R390-R405 complete counterparty and programmable-capacity models
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/r390_r397_strategic_veto.py > /tmp/r390-r397.json
+          python3 tools/content-validator/experiments/r398_r405_script_capacity.py > /tmp/r398-r405.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          a=json.loads(Path('/tmp/r390-r397.json').read_text())
+          b=json.loads(Path('/tmp/r398-r405.json').read_text())
+          assert a['R392_self_interested_strategic_ties_hostile_best']=='3/2'
+          assert a['R393_self_interested_strategic_ties_friendly_best']=='17/8'
+          assert a['R395_hostile_robust_player_plan']==['OOO']
+          assert b['R398_serial_equal_tasks']['full_public_DP']=='3'
+          assert b['R399_parallel_equal_tasks']['full_public_DP']=='4'
+          assert b['R402_high_reward_asymmetry']['parallel']['full_public_DP']=='9'
+          print('TWO NEW ABSTRACT FAMILIES AND STRONG NEGATIVE CONTROLS PASS')
+          PY
+      - name: Re-run four previous distinct abstract mechanisms
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/r358_r365_delegation.py >/tmp/r358-r365.json
+          python3 tools/content-validator/experiments/r366_r373_program_composition.py >/tmp/r366-r373.json
+          python3 tools/content-validator/experiments/r374_r381_shared_norm.py >/tmp/r374-r381.json
+          python3 tools/content-validator/experiments/r382_r389_nonlinear_program.py >/tmp/r382-r389.json
+      - name: Persistent research memory and clear evidence boundaries
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          m=json.loads(Path('docs/实验/机制研究/自主研究记忆.json').read_text())
+          # 350 is a historical checkpoint, NOT the permanent research total.
+          # Older experiments remain frozen; new abstract batches append checks.
+          assert m['totalArchivedRounds']>=350
+          assert m['roundsSinceCalibration']>=232
+          assert sum(h['rounds'] for h in m['history'])==m['roundsSinceCalibration']
+          assert 118+m['roundsSinceCalibration']==m['totalArchivedRounds']
+          assert m['evidenceIdentity']['shortlistedPatterns']==6
+          assert m['evidenceIdentity']['historicalStructuralCandidates']==20
+          assert m['evidenceIdentity']['researchDebugWhitelisted']==['R09','R37','R54']
+          status=Path('docs/实验/机制研究/当前状态.md').read_text()
+          assert str(m['totalArchivedRounds'])+'项检查' in status
+          assert '真人' in status and '精选' in status and 'Debug' in status
+          print(f"{m['totalArchivedRounds']} research CHECKS, selected patterns=6, Debug whitelist unchanged")
+          PY
+      - name: Existing abstract scope, portfolio integrity and playtest selection
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/validate_abstract_research_scope.py
+          python3 tools/content-validator/experiments/validate_mechanism_portfolio.py
+          python3 tools/content-validator/experiments/validate_debug_playtests.py
+          python3 tools/content-validator/experiments/build_mechanism_atlas.py --check
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-r358-r405-six-family-regression
+          path: |
+            /tmp/r390-r397.json
+            /tmp/r398-r405.json
+            /tmp/r358-r365.json
+            /tmp/r366-r373.json
+            /tmp/r374-r381.json
+            /tmp/r382-r389.json
+          retention-days: 21

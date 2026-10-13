@@ -1,0 +1,49 @@
+name: SSNoir R334-R341 Position-Dependent Action Rights
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r334-r341.yml'
+      - 'tools/content-validator/experiments/r334_r341_position_action_rights.py'
+      - 'docs/实验/机制研究/批次/R334-R341-位置改变合法行动/研究记录.md'
+permissions:
+  contents: read
+jobs:
+  exact:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Enumerate all hidden movement tapes, scouting rules, baseline and teleport ablation
+        run: |
+          set -euo pipefail
+          python3 -m py_compile tools/content-validator/experiments/r334_r341_position_action_rights.py
+          python3 tools/content-validator/experiments/r334_r341_position_action_rights.py | tee /tmp/r334-r341.json
+          python3 - <<'PY'
+          import json
+          v=json.load(open('/tmp/r334-r341.json'))
+          assert v["R334_stable_target"]["best"]=="3"
+          assert v["R334_stable_target"]["best_open_loop"]=="2"
+          assert v["R335_slight_movement"]["best"]=="123/50"
+          assert v["R337_nonlocal_quarter"]["best"]=="19/8"
+          assert v["R337_nonlocal_quarter"]["teleport_after_failure"]=="25/8"
+          assert v["R339_certain_flip"]["best"]=="7/2"
+          print("Complete six environments, four contingent scout rules, and physical-position ablations passed")
+          PY
+      - name: Scope, portfolio and Debug regression
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/validate_abstract_research_scope.py
+          python3 tools/content-validator/experiments/validate_mechanism_portfolio.py
+          python3 tools/content-validator/experiments/validate_debug_playtests.py
+          python3 tools/content-validator/experiments/build_mechanism_atlas.py --check
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-r334-r341-position-rights
+          path: /tmp/r334-r341.json
+          retention-days: 21

@@ -1,0 +1,52 @@
+name: SSNoir R390-R397 Strategic Veto Counterpart
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r390-r397.yml'
+      - 'tools/content-validator/experiments/r390_r397_strategic_veto.py'
+      - 'docs/实验/机制研究/批次/R390-R397-对方战略保留异议权/研究记录.md'
+permissions:
+  contents: read
+jobs:
+  exact:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: All independent counterpart veto timings, own-preference optima and tie range
+        run: |
+          set -euo pipefail
+          python3 -m py_compile tools/content-validator/experiments/r390_r397_strategic_veto.py
+          python3 tools/content-validator/experiments/r390_r397_strategic_veto.py | tee /tmp/r390-r397.json
+          python3 - <<'PY'
+          import json
+          x=json.load(open('/tmp/r390-r397.json'))
+          assert x['R390_all_27_preannounced_schedules']==27
+          assert x['R391_opponent_myopic_veto_best']=='13/8'
+          assert x['R392_self_interested_strategic_ties_hostile_best']=='3/2'
+          assert x['R393_self_interested_strategic_ties_friendly_best']=='17/8'
+          assert x['R395_hostile_robust_player_plan']==['OOO']
+          assert x['R394_indifference_witness_OAA_typeB']['early']['partner_score']==2
+          print('Opponent own-utility optimization and full tie-range confirmed')
+          PY
+      - name: Compare with original R374 and verify unchanged research scope
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/r374_r381_shared_norm.py >/tmp/r374-r381.json
+          python3 tools/content-validator/experiments/validate_abstract_research_scope.py
+          python3 tools/content-validator/experiments/validate_mechanism_portfolio.py
+          python3 tools/content-validator/experiments/validate_debug_playtests.py
+          python3 tools/content-validator/experiments/build_mechanism_atlas.py --check
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-r390-r397-strategic-veto
+          path: |
+            /tmp/r390-r397.json
+            /tmp/r374-r381.json
+          retention-days: 21

@@ -1,0 +1,51 @@
+name: SSNoir R478-R485 Verifiable Signals and Beliefs
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r478-r485.yml'
+      - 'tools/content-validator/experiments/r478_r485_verifiable_signal.py'
+      - 'docs/实验/机制研究/批次/R478-R485-可验证信号与他者意志/**'
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Enumerate every pure equilibrium and on/off-path verification rule
+        run: |
+          set -euo pipefail
+          python3 -m py_compile tools/content-validator/experiments/r478_r485_verifiable_signal.py
+          python3 tools/content-validator/experiments/r478_r485_verifiable_signal.py >/tmp/r478.json
+          python3 - <<'PY'
+          import json
+          x=json.load(open('/tmp/r478.json'))
+          assert x['R478_cheap_talk_all_pure_equilibria']=={'count':6,'pool':4,'separate':2,'accuracy_range':['1/2','1']}
+          assert x['R480_generic_costly_unverified_message']['pool']==2
+          assert x['R481_type_bound_verifiable_proof_cost_quarter']=={'count':2,'pool':0,'separate':2,'accuracy_range':['1','1']}
+          assert x['R482_sender_own_payoff_under_proof']=='7/8'
+          assert x['R485_proof_cost_threshold']['cost_two']['pool']==2
+          print('Pure equilibria, credibility and cost threshold accounted for')
+          PY
+      - name: Research scope, existing mechanism and Debug admission regressions
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/r462_r469_actor_effort.py > /tmp/r462.json
+          python3 tools/content-validator/experiments/validate_abstract_research_scope.py
+          python3 tools/content-validator/experiments/validate_mechanism_portfolio.py
+          python3 tools/content-validator/experiments/validate_debug_playtests.py
+          python3 tools/content-validator/experiments/build_mechanism_atlas.py --check
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-r478-r485-verifiable-signal
+          path: |
+            /tmp/r478.json
+            /tmp/r462.json
+          retention-days: 21

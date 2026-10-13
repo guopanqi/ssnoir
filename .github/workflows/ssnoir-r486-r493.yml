@@ -1,0 +1,44 @@
+name: SSNoir R486-R493 Selective Salvage
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r486-r493.yml'
+      - 'tools/content-validator/experiments/r486_r493_selective_salvage.py'
+      - 'docs/实验/机制研究/批次/R486-R493-双分支局部修复/**'
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Eight frozen exact checks and the one-sentence recipe
+        run: |
+          set -euo pipefail
+          python3 -m py_compile tools/content-validator/experiments/r486_r493_selective_salvage.py
+          python3 tools/content-validator/experiments/r486_r493_selective_salvage.py > /tmp/r486.json
+          python3 - <<'PY'
+          import json
+          a=json.load(open('/tmp/r486.json'))
+          assert [a[k] for k in ('R487_full','R489_no_audit','R490_no_patch','R491_no_complement_bonus','R492_no_window','R493_known_start')]==['7','3','7/2','9/2','5','8']
+          assert a['R488_fixed_recipe']=={'A':'7','B':'7'}
+          print('R486-R493 exact/one-line baseline pass')
+          PY
+      - name: Scope and Debug regression
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/validate_abstract_research_scope.py
+          python3 tools/content-validator/experiments/validate_mechanism_portfolio.py
+          python3 tools/content-validator/experiments/validate_debug_playtests.py
+          python3 tools/content-validator/experiments/build_mechanism_atlas.py --check
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-r486-r493-salvage
+          path: /tmp/r486.json

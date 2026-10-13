@@ -1,0 +1,56 @@
+name: SSNoir R294-R301 Offer-and-Rejection Screening
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r294-r301.yml'
+      - 'tools/content-validator/experiments/r294_r301_offer_screening.py'
+      - 'docs/实验/机制研究/当前状态.md'
+      - 'docs/实验/机制研究/研究队列.md'
+      - 'docs/实验/机制研究/自主研究记忆.json'
+      - 'docs/实验/机制研究/批次/R294-R301-单一拒绝分支的议价退化/研究记录.md'
+permissions:
+  contents: read
+jobs:
+  exact:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Complete bargaining belief-DP versus all fixed ladders, including probing and waiting
+        run: |
+          set -euo pipefail
+          python3 -m py_compile tools/content-validator/experiments/r294_r301_offer_screening.py
+          python3 tools/content-validator/experiments/r294_r301_offer_screening.py | tee /tmp/r294-r301.json
+          python3 - <<'PY'
+          import json
+          x=json.load(open('/tmp/r294-r301.json'))
+          expected={'R294_no_delay':'2','R295_quarter_delay':'7/4','R296_half_delay':'3/2','R297_high_delay':'4/3'}
+          for label,truth in expected.items():
+            assert x[label]['full_DP']==x[label]['best_open_loop_offer_plan']==truth
+            assert x[label]['complete_fixed_plans']==64
+          assert x['R297_high_delay']['root_Q_including_probe_wait']['P']=='1'
+          print('All no-delay and discount controls, 64 full fixed plans, probe and wait passed')
+          PY
+      - name: Prior cross-family regressions
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/r278_r285_diagnostic_transfer.py >/tmp/r278-r285.json
+          python3 tools/content-validator/experiments/r286_r293_spatial_coverage.py >/tmp/r286-r293.json
+          python3 tools/content-validator/experiments/validate_abstract_research_scope.py
+          python3 tools/content-validator/experiments/validate_mechanism_portfolio.py
+          python3 tools/content-validator/experiments/validate_debug_playtests.py
+          python3 tools/content-validator/experiments/build_mechanism_atlas.py --check
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-r294-r301-bargaining-negative
+          path: |
+            /tmp/r294-r301.json
+            /tmp/r278-r285.json
+            /tmp/r286-r293.json
+          retention-days: 21

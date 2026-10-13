@@ -1,0 +1,48 @@
+name: SSNoir R326-R333 Action Seals Evidence
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r326-r333.yml'
+      - 'tools/content-validator/experiments/r326_r333_action_seals_evidence.py'
+      - 'docs/实验/机制研究/批次/R326-R333-行动封闭证据/研究记录.md'
+permissions:
+  contents: read
+jobs:
+  exact:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Exact public-belief DP and independent 64 fixed intervention schedules
+        run: |
+          set -euo pipefail
+          python3 -m py_compile tools/content-validator/experiments/r326_r333_action_seals_evidence.py
+          python3 tools/content-validator/experiments/r326_r333_action_seals_evidence.py | tee /tmp/r326-r333.json
+          python3 - <<'PY'
+          import json
+          v=json.load(open('/tmp/r326-r333.json'))
+          x=v["R326_main_sealed_penalty3"]
+          assert (x["closed"],x["remain_open"],x["best_precommitted_actions"])==("13/4","7/2","13/4")
+          assert v["R328_early_action_and_reachable_failure"]["open_next_test"]=="3"
+          assert v["R331_large_failure_cost_test_can_help"]["closed"]=="3"
+          assert v["R331_large_failure_cost_test_can_help"]["no_tests"]=="5/2"
+          print("All five penalty counterfactuals, real failure branch and 64 independent ladders passed")
+          PY
+      - name: Scope, mechanism identity and Debug whitelist
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/validate_abstract_research_scope.py
+          python3 tools/content-validator/experiments/validate_mechanism_portfolio.py
+          python3 tools/content-validator/experiments/validate_debug_playtests.py
+          python3 tools/content-validator/experiments/build_mechanism_atlas.py --check
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-r326-r333-action-closure
+          path: /tmp/r326-r333.json
+          retention-days: 21

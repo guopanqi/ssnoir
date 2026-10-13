@@ -1,0 +1,48 @@
+name: SSNoir R278-R285 Diagnostic Transfer
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r278-r285.yml'
+      - 'tools/content-validator/experiments/r278_r285_diagnostic_transfer.py'
+      - 'docs/实验/机制研究/批次/R278-R285-诊断结构迁移与强负例/研究记录.md'
+permissions:
+  contents: read
+jobs:
+  exact:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Exhaustive 27 contingent policies, independent Bayesian DP and transfer cases
+        run: |
+          set -euo pipefail
+          python3 -m py_compile tools/content-validator/experiments/r278_r285_diagnostic_transfer.py
+          python3 tools/content-validator/experiments/r278_r285_diagnostic_transfer.py | tee /tmp/r278-r285.json
+          python3 - <<'PY'
+          import json
+          x=json.load(open('/tmp/r278-r285.json'))
+          assert x['R278_transfer_112']['adaptivity_gap']=='1/4'
+          assert x['R279_transfer_123']['adaptivity_gap']=='1/4'
+          assert x['R280_control_all_balanced_pairs']['adaptivity_gap']=='0'
+          assert x['R282_insufficient_three_singletons']['adaptive']=='3/4'
+          assert x['R284_biased_prior']['fixed']=='153/200'
+          print('All independently solved transfer, noise and degenerate partitions passed')
+          PY
+      - name: Scope and curated portfolio
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/validate_abstract_research_scope.py
+          python3 tools/content-validator/experiments/validate_mechanism_portfolio.py
+          python3 tools/content-validator/experiments/validate_debug_playtests.py
+          python3 tools/content-validator/experiments/build_mechanism_atlas.py --check
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-r278-r285-diagnostic-transfer
+          path: /tmp/r278-r285.json
+          retention-days: 21

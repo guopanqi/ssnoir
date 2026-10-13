@@ -1,0 +1,54 @@
+name: SSNoir R430-R437 Private Opponent Contingency
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-r430-r437.yml'
+      - 'tools/content-validator/experiments/r430_r437_private_contingent.py'
+      - 'docs/实验/机制研究/批次/R430-R437-隐藏偏好与条件承诺/**'
+permissions:
+  contents: read
+jobs:
+  exact:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Enumerate all 729 committed policies and all optimal opponent veto responses
+        run: |
+          set -euo pipefail
+          python3 -m py_compile tools/content-validator/experiments/r430_r437_private_contingent.py
+          python3 tools/content-validator/experiments/r430_r437_private_contingent.py >/tmp/r430-r437.json
+          python3 - <<'PY'
+          import json
+          x=json.load(open('/tmp/r430-r437.json'))
+          assert x['R430_policy_count']==729
+          assert x['R431_fixed_27']['hostile'][0]=='3/2'
+          assert x['R432_R433_full_729']['hostile'][:2]==['7/4',['AAAAAO']]
+          assert x['R432_R433_full_729']['friendly'][0]=='17/8'
+          assert x['R436_no_conditional_late_branch'][0]=='13/8'
+          assert x['R437_only_one_contingent_branch'][0]=='7/4'
+          print('Complete 729-policy test and one-clause counterexample passed')
+          PY
+      - name: Existing precommitment and abstract gate regressions
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/r390_r397_strategic_veto.py >/tmp/r390.json
+          python3 tools/content-validator/experiments/r406_r413_online_other.py >/tmp/r406.json
+          python3 tools/content-validator/experiments/validate_abstract_research_scope.py
+          python3 tools/content-validator/experiments/validate_mechanism_portfolio.py
+          python3 tools/content-validator/experiments/validate_debug_playtests.py
+          python3 tools/content-validator/experiments/build_mechanism_atlas.py --check
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssnoir-r430-r437-private-contingency
+          path: |
+            /tmp/r430-r437.json
+            /tmp/r390.json
+            /tmp/r406.json
+          retention-days: 21

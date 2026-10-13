@@ -1,0 +1,45 @@
+name: SSNoir Diagnostic Paper Cards Integrity
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-diagnostic-cards.yml'
+      - 'tools/content-validator/experiments/validate_diagnostic_paper_cards.py'
+      - 'docs/实验/机制研究/当前状态.md'
+      - 'docs/实验/机制研究/研究队列.md'
+      - 'docs/实验/机制研究/自主研究记忆.json'
+      - 'docs/实验/机制研究/批次/R278-R285-诊断结构迁移与强负例/参与者卡片.md'
+      - 'docs/实验/机制研究/批次/R278-R285-诊断结构迁移与强负例/研究员规约.md'
+permissions:
+  contents: read
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Check public test cards against abstract mathematical contract
+        run: |
+          set -euo pipefail
+          python3 -m py_compile tools/content-validator/experiments/validate_diagnostic_paper_cards.py
+          python3 tools/content-validator/experiments/validate_diagnostic_paper_cards.py --check
+          python3 tools/content-validator/experiments/validate_diagnostic_paper_cards.py --role player > /tmp/only-public-player-card.txt
+          if grep -q 'PRIVATE FACILITATOR KEY' /tmp/only-public-player-card.txt; then
+             echo 'Private key leaked in player output'; exit 1
+          fi
+      - name: Existing abstract research guard
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/validate_abstract_research_scope.py
+          python3 tools/content-validator/experiments/validate_mechanism_portfolio.py
+          python3 tools/content-validator/experiments/validate_debug_playtests.py
+          python3 tools/content-validator/experiments/build_mechanism_atlas.py --check
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ssnoir-public-diagnostic-card
+          path: /tmp/only-public-player-card.txt
+          retention-days: 21
