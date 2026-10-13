@@ -49,6 +49,10 @@ for(const [v,h,m,p,q] of samples){
  const r=run(v,h,m);
  assert.deepEqual([r.player,r.partner],[p,q],v+" "+h+" "+m);
 }
+const secretBefore=run("hidden-secure",1,["HELP"]);
+assert.match(secretBefore.trace,/第二轮外部报价：尚未公开/);
+const secretAfter=run("hidden-secure",1,["HELP","SIDE"]);
+assert.match(secretAfter.trace,/第二轮外部报价：12/);
 const closed=run("public-secure",0,["USE","SECURE"]);
 assert.equal(closed.document.getElementById("act-use").disabled,true,"SECURE must permanently close A");
 assert.equal(run("public-plain",0,["USE"]).document.getElementById("act-secure").disabled,true);

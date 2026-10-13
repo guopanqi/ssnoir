@@ -156,7 +156,8 @@ function finalText(){
  return "结束：你的成果="+p[0]+"；对方成果="+(game.partnerExit??p[1])+"。";
 }
 function traceText(){
- const lines=["条件："+game.condition+"；第二轮外部报价："+(game.s.t>=1&&game.publicMode?(game.offer?12:3):"初时未公开")];
+ const revealed=game.s.t>=2||(game.s.t>=1&&game.publicMode);
+ const lines=["条件："+game.condition+"；第二轮外部报价："+(revealed?(game.offer?12:3):"尚未公开")];
  for(const r of history)lines.push("第"+(r.day+1)+"轮 | 你："+r.action+" | 对方："+r.response+" | USE="+r.u+", HELP="+r.h+", SIDE="+r.side+", 保全="+r.secured);
  if(game.s.t===4)lines.push(finalText());
  return lines.join("\n");
