@@ -65,6 +65,9 @@ namespace SSNoir.IMGUI
             new ChapterJump { Label = "剧场试演：莱恩的家", Code = "(begin (load-file \"scripts/theatre/莱恩的家.scm\") (莱恩的家-演出))" },
             new ChapterJump { Label = "剧场试演：剧院安全", Code = "(begin (load-file \"scripts/theatre/剧院安全.scm\") (剧院安全-演出))" },
             new ChapterJump { Label = "剧场试演：彩排", Code = "(begin (load-file \"scripts/theatre/彩排.scm\") (彩排-演出))" },
+            new ChapterJump { Label = "剧场试演：照相馆冲印（两卷）", Code = "(begin (load-file \"scripts/theatre/照相馆.scm\") (照相馆冲印-演出 #t))" },
+            new ChapterJump { Label = "剧场试演：照相馆冲印（一卷）", Code = "(begin (load-file \"scripts/theatre/照相馆.scm\") (照相馆冲印-演出 #f))" },
+            new ChapterJump { Label = "剧场试演：照相馆查来源", Code = "(begin (load-file \"scripts/theatre/照相馆.scm\") (照相馆查来源-演出))" },
             new ChapterJump
             {
                 Label = "第一章：大船靠岸（再进码头）",

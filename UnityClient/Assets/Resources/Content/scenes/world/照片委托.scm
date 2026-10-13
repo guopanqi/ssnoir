@@ -49,19 +49,9 @@
         (line "尼尔" (cond ((member? evidence (list "照片" "照片与身份")) "拍到了。先去照相馆洗出来，再交给她。")
                          ((equal? evidence "身份") "知道她是谁了。再把那卷家庭照片洗出来。")
                          (else "没办成。至少把她的家庭照片洗出来，还给她。")))))
-    ;; 演出接入点：Claude 只需替换这两个函数的对白表现，保留调用顺序。
-    ;; 当前用 Dialogue 承载剧本，尚未制作剧场调度。
     (define (develop-script! two?)
-      (play-dialogue!
-        (line "尼尔" (if two? "这卷替我洗出来。还有这一卷。" "这卷替我洗出来。"))
-        (line "店主" "拿着取件单，别丢了。"))
-      (play-dialogue!
-        (line "世界" "照片洗好后，尼尔翻看着照片背面。")
-        (line "尼尔" "我能看看你们的相纸吗？")
-        (line "店主" "喏，最好的纸张。")
-        (line "尼尔" "这背面的压纹，是原来就有的吗？")
-        (line "店主" "嗯，应该是吧。")
-        (line "尼尔" "夜莺给我看的那张照片背面，好像也有这个。")))
+      (load-file "scripts/theatre/照相馆.scm")
+      (照相馆冲印-演出 two?))
     (define (develop!)
       (if (= stage 2) #t (error "照片委托：重复冲印"))
       (let ((two? (member? evidence (list "照片" "照片与身份"))))
@@ -104,12 +94,8 @@
            (remove-item! "金钱" 5)
            (play-dialogue! (line "酒保" "我的那份。谢了，侦探。"))))))
     (define (source-script!)
-      (play-dialogue!
-        (line "尼尔" "老板，我这儿有张照片想请你看看。")
-        (line "店主" "要洗照片吗？")
-        (line "尼尔" "我只是问问，这张是不是也在你们这儿洗的？")
-        (line "店主" "这、这我怎么知道……")
-        (line "店主" "你到底想问什么？")))
+      (load-file "scripts/theatre/照相馆.scm")
+      (照相馆查来源-演出))
     (define (on-source-result result)
       (if (and (= source-stage 1) (list? result) (= (length result) 6)) #t
           (error "照片委托：照相馆结算状态或结果非法"))
