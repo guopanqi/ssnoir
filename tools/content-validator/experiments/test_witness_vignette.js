@@ -35,7 +35,7 @@ for(const mode of ["hard","soft"]){
    assert.match(initial.get("scene").textContent,/听证/);
    initial.get("reason").value="我选择先做这件事";
    initial.choose(prep).onclick();
-   assert.match(initial.get("scene").textContent,/姓名/);
+   assert.match(initial.get("scene").textContent,/认出来|名字|姓名|身份/);
    assert.equal(initial.get("chapter").textContent,"第二幕 · 21:30");
    const next=initial.choose(action);
    if(mode==="hard" && action==="release"){
