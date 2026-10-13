@@ -1630,6 +1630,72 @@
         "humanVerified": false
       },
       "note": "10/8/1动态33/2优于固定15，最简AB后条件补救全优；向量(PA,PB,SIDE)=(1,3/4,1/2)，全提前信息35/2，无损19。若删去eraseBoth、只留none/eraseA/eraseB等概率，DP55/3且两目标均可完成：重规划不等于必需牺牲。属于成熟危机×保全组合，不独立认证。"
+    },
+    {
+      "id": "PL-ACTR01",
+      "name": "有自身利益的救援伙伴严格改变玩家改选，但被同条件普通备用位完全复刻",
+      "layer": "agent-response-composition-and-negative",
+      "origin": "new-local-experiment",
+      "family": "自主他者/资源代理/公开机会/行动容量",
+      "idea": "伙伴亲自救B收益3，退出转自己的工作得2或4；玩家在两项目标都受损时由FIX_A切为FIX_B，但公开机会低时的自动B补救容量与其每状态每动作同结果，动机并不额外成为新玩家原语。",
+      "stage": "eight-public-states-three-actions-four-valuation-sets-Fraction-exact; prior R37/R50/R54 human materials read but no new feedback",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-13-自利救援与改选窗口/研究记录.md",
+        "docs/实验/机制研究/批次/2026-10-13-自利救援与改选窗口/无答案观察卡.md",
+        "tools/content-validator/experiments/pattern_actor_rescue_20261013.py"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      },
+      "note": "A/B受损独立1/2，伙伴低/高外部机会各1/2；默认权重A5/B8/SIDE1：动态伙伴与条件B备用位均(7/8,1,3/8)，工具期望51/4；无伙伴(3/4,1,1/4)得12；伙伴有但报价迟揭(1,7/8,1/4)得49/4；万能额外修复(1,1,3/4)得55/4。双损低报价玩家FIX_A伙伴FIX_B，高报价玩家FIX_B伙伴EXIT。"
+    },
+    {
+      "id": "PL-RV01",
+      "name": "行动余量审计：不同目标仍可能完成是中途重规划的必要条件",
+      "layer": "research-method-diagnostic",
+      "origin": "new-local-experiment-with-earlier-human-feedback-audit",
+      "family": "剩余行动预算/目标完成可达集/反馈时点/人类理解",
+      "idea": "不能只看已经公布多少信息或是否允许改选；每次反馈后检查此前已投入进度和剩余行动给各目标留下多少真实可达机会，联系R54后期无法换目标与R50目标不清、R37危机重排的真实反馈。",
+      "stage": "abstract-4-turn-4-power-prefix-enumeration-necessary-optimistic-bound; not-R54-Scheme-replay; earlier R37/R50/R54 feedback-source-only",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-13-自利救援与改选窗口/研究记录.md",
+        "docs/实验/机制研究/批次/2026-10-13-自利救援与改选窗口/无答案观察卡.md",
+        "tools/content-validator/experiments/pattern_route_viability_20261013.py",
+        "docs/实验/机制研究/反馈/inbox/SSNoir-feedback-R54-20261009-062528-43765ce6ee.json",
+        "docs/实验/机制研究/反馈/inbox/SSNoir-feedback-R50-20261009-074241-223ce357fc.json",
+        "docs/实验/机制研究/反馈/inbox/SSNoir-feedback-R37-20261009-071937-6e46a021c6.json"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": true
+      },
+      "note": "humanVerified在此仅指引用的旧R37/R50/R54原始反馈真实存在、表达过特定问题；不意味着本新RV模型有人测试。上界A需3/B需5、4手每手最多+2：t2共16历史12个两目标仍各可达、4个仅A可达；t3 64中仅18两目标仍各可达，38仅A、8仅B。改选可达仅必要非充分，全部prefix等权枚举非真实玩家分布。"
+    },
+    {
+      "id": "PL-RV02",
+      "name": "记忆上次路线的追兵被ABABA固定计划压制的廉价边界",
+      "layer": "antagonist-response-negative",
+      "origin": "new-cheap-subcase-of-known-prior",
+      "family": "对手追踪上一行动/路径交替/完整固定上界",
+      "idea": "两个目标分别要求5手内A走3次、B走2次，追兵仅在玩家连续两手走相同路线时拦截；ABABA提前固定同时完成所有任务、零次被拦，故历史追踪机制可能完全不需要现场应变。",
+      "stage": "2-power-5-exhaustive-path-enumeration; not-P18-original-scheme-replay; no-new-human",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-13-自利救援与改选窗口/研究记录.md",
+        "tools/content-validator/experiments/pattern_route_viability_20261013.py",
+        "docs/实验/机制研究/结构候选20.md"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      },
+      "note": "枚举32路线，A>=3 B>=2且0次连续路线拦截的唯一路线ABABA；固定计划已到两目标全满和零损伤上界。此为P18抽象退化反例，绝不能外推为旧正式P18原型已被数学否定。"
     }
   ],
   "edges": [
@@ -2616,6 +2682,66 @@
       "to": "PL-ATN03",
       "relation": "broken-commutativity",
       "reason": "midgame erasure turns formerly exchangeable operation sequences into non-equivalent preparation histories"
+    },
+    {
+      "from": "PL-ACT01",
+      "to": "PL-ACTR01",
+      "relation": "self-interest-and-matched-backup",
+      "reason": "ACT01已证明伙伴外部机会可触发不同玩家计划；ACT-R以普通公共容量逐动作复制伙伴，说明仅自主性不是独立玩法证据"
+    },
+    {
+      "from": "PL-NEG03",
+      "to": "PL-ACTR01",
+      "relation": "strategic-agent-vs-public-availability",
+      "reason": "NEG03对方考虑涨价而隐藏真实类型，不可被直接报价门控代替；ACT-R把全公开确定收益明示为可被容量门控复制"
+    },
+    {
+      "from": "PL-REL03",
+      "to": "PL-ACTR01",
+      "relation": "same-function-action-enable-baseline",
+      "reason": "现场同条件备援有效时，自利伙伴影响玩家行动不等于额外资格系统；需检验是否存在不可由同成本工具复制的承诺结果"
+    },
+    {
+      "from": "PL-ATN03",
+      "to": "PL-ACTR01",
+      "relation": "third-party-repairs-threatened-progress",
+      "reason": "ATN03危机后玩家自行补救A/B；ACT-R加入其他人拥有B救援容量，但完整公开行为仍等价资源合作"
+    },
+    {
+      "from": "PL-ATN02",
+      "to": "PL-RV01",
+      "relation": "pareto-options-vs-reachable-pivot",
+      "reason": "拥有两个非支配目标，不等于反馈揭晓时它们仍实际能完成；行动余量作为新评价检查"
+    },
+    {
+      "from": "PL-ATN03",
+      "to": "PL-RV01",
+      "relation": "feasible-mid-encounter-replanning",
+      "reason": "ATN03在危机公开后保留3手和真实不同补救法；RV01检查目标实际还来得及完成的必要条件"
+    },
+    {
+      "from": "P16",
+      "to": "PL-RV01",
+      "relation": "prior-human-R54-observation",
+      "reason": "R54原始反馈：开局因骰值定A/B，后续骰用掉换路也无法达成；RV上界说明行动窗口约束，但非同规则复算"
+    },
+    {
+      "from": "R50",
+      "to": "PL-RV01",
+      "relation": "prior-human-R50-observation",
+      "reason": "R50原始反馈认为修正影响下一手，但不知道总收益与避免受伤谁是目标；数学可达性不能解决目标意义不清"
+    },
+    {
+      "from": "P18",
+      "to": "PL-RV02",
+      "relation": "prior-route-history-cheap-degeneration",
+      "reason": "旧P18上次路径跟踪只做最廉价抽象投影时，ABABA固定计划完美达成双目标并躲开追击"
+    },
+    {
+      "from": "PL-RV01",
+      "to": "PL-RV02",
+      "relation": "necessary-capacity-and-short-script-test",
+      "reason": "即便改选完全可达，对手反应的可预测性也可能使固定路径已全优；可达窗口不能单独等于有趣"
     }
   ],
   "coverage": {
@@ -2623,7 +2749,7 @@
     "curatedDisplayMappedCount": 6,
     "cs2AnalyticalPatterns": 9,
     "unconvertedHistory": "关系索引中的其他R批次、数学负例和组合应按主题逐步纳入；不能据本地图未出现就认定没有价值",
-    "additionalExperimentalCompositions": "PL-C01/PL-C02/PL-C03已做最小模型、PL-C04仅概念问题；与另一研究线的C01/C02/C03区别命名；PL-Q01/D01/W01另有3个独立模型及消融和负面边界；PL-W02新增连续三天注意力容量组合，最强简明口诀和变更容量边界明确；F1/F2/D2三项同源跨家族与充分边界反证，不增精选；RGT01/ACT01用各自精确逆推补充许可资源与自利协作者正负证据，无真人；REL01/REL02四轮精确博弈与私有信号消融已完成（同原语条件组合；不改变精选六或Debug）；REL03后续通行凭据仅真实首手截止窗口有正准备选择价值、普通窗口弱支配；未证独立新玩法；NEG01—05双方自利协商五项精确反证；R342/R430/R478原生历史首次结构化归图，均非真人。；NEG06双回合私人回应DOM全十路，X01-LONG准备→事件→响应两段完整枚举及136条合法UI路径，均一行规则全优，无真人；X03 hard disable vs costly defiance两种不同动作合法性协议在完整可达子博弈仍同最优；无真人意义证据；STG01共4种规则组合×完整路径40，因果未来菜单5对纯文本菜单1，仅网页逻辑回归，不是互动/情感新模式认证；PT01四回合双目标压转与14短策略强对照/网页试玩；INF-P01 cap2/3贝叶斯模型覆盖72+96局部公开状态信息值0；未改变历史478；GOAL01七个p×可选/强制义务、同树强预列菜单；DISC01三手有理数belief-DP、单份可靠度q后验、三种时点/换路与网页合法路径，不动历史478或精选；REC01四手四分之一禁A/B×81信号历史、16条强固定序列、一步前瞻全优及六种因果消融；REC03各目标完成概率独立统计，且最优总体策略B完成率低于简单交替；无真人；SEM01—04动作产出对象改道与材料消费改道，两项均被同成本完整菜单追平，短条件程序全优，无真人。；横向读R366函数编辑与R422预编译强对照：持久编辑可超过固定日程却不一定超过同成本完整工具，源实验非本轮重复执行。；OPS01六手动态维护与同成本SET/一手前瞻全等（含2048独立实际输入历史），CLAIM四手付费撤回×真实A早窗口互补、已给HARD/无加成消融及无窗口强菜单；均不认证新独立原语。；COUP01七手把OPS操作实际变成A/B凭据、CLAIM A禁止制作B，仍在起始phase0三类需求先验下被RUN A→CLAIM A→SIDE×5一行策略全优；局部可达差异不等于有价值的双向注意力循环。；ATN01/02检测4手交换律、1296条件序列与20个Pareto成果向量仍由固定计划追平；ATN03/04双任务已投入进度遭公开单/双损5手模型动态33/2胜固定15，提前预知35/2，单损仍可保证双目标，归入成熟危机保全组合，真人缺席。",
+    "additionalExperimentalCompositions": "PL-C01/PL-C02/PL-C03已做最小模型、PL-C04仅概念问题；与另一研究线的C01/C02/C03区别命名；PL-Q01/D01/W01另有3个独立模型及消融和负面边界；PL-W02新增连续三天注意力容量组合，最强简明口诀和变更容量边界明确；F1/F2/D2三项同源跨家族与充分边界反证，不增精选；RGT01/ACT01用各自精确逆推补充许可资源与自利协作者正负证据，无真人；REL01/REL02四轮精确博弈与私有信号消融已完成（同原语条件组合；不改变精选六或Debug）；REL03后续通行凭据仅真实首手截止窗口有正准备选择价值、普通窗口弱支配；未证独立新玩法；NEG01—05双方自利协商五项精确反证；R342/R430/R478原生历史首次结构化归图，均非真人。；NEG06双回合私人回应DOM全十路，X01-LONG准备→事件→响应两段完整枚举及136条合法UI路径，均一行规则全优，无真人；X03 hard disable vs costly defiance两种不同动作合法性协议在完整可达子博弈仍同最优；无真人意义证据；STG01共4种规则组合×完整路径40，因果未来菜单5对纯文本菜单1，仅网页逻辑回归，不是互动/情感新模式认证；PT01四回合双目标压转与14短策略强对照/网页试玩；INF-P01 cap2/3贝叶斯模型覆盖72+96局部公开状态信息值0；未改变历史478；GOAL01七个p×可选/强制义务、同树强预列菜单；DISC01三手有理数belief-DP、单份可靠度q后验、三种时点/换路与网页合法路径，不动历史478或精选；REC01四手四分之一禁A/B×81信号历史、16条强固定序列、一步前瞻全优及六种因果消融；REC03各目标完成概率独立统计，且最优总体策略B完成率低于简单交替；无真人；SEM01—04动作产出对象改道与材料消费改道，两项均被同成本完整菜单追平，短条件程序全优，无真人。；横向读R366函数编辑与R422预编译强对照：持久编辑可超过固定日程却不一定超过同成本完整工具，源实验非本轮重复执行。；OPS01六手动态维护与同成本SET/一手前瞻全等（含2048独立实际输入历史），CLAIM四手付费撤回×真实A早窗口互补、已给HARD/无加成消融及无窗口强菜单；均不认证新独立原语。；COUP01七手把OPS操作实际变成A/B凭据、CLAIM A禁止制作B，仍在起始phase0三类需求先验下被RUN A→CLAIM A→SIDE×5一行策略全优；局部可达差异不等于有价值的双向注意力循环。；ATN01/02检测4手交换律、1296条件序列与20个Pareto成果向量仍由固定计划追平；ATN03/04双任务已投入进度遭公开单/双损5手模型动态33/2胜固定15，提前预知35/2，单损仍可保证双目标，归入成熟危机保全组合，真人缺席。；ACT-R01/02伙伴真自利救B(3)vs外部工作(2/4)使玩家双损低/高报价严格改选，默认动态51/4 vs迟揭49/4，却与条件备用B位逐动作同构；RV01简化4手R54式A3/B5可达上界t3仅18/64前缀两路线仍各有完成可能，结合旧R37/R50/R54真实反馈提出目标意义×改选容量双审核；RV02旧P18的极简上次路径追踪被固定ABABA全优。",
     "humanFeedbackNote": "目前有关稳险/R06、边做边看/R10、压力/R37、R54、R50的有限设计者反馈；原记录各不等价于受控盲试玩；P02/R13仍没有真人反馈。",
     "thirdComparison": "PL-C05 supplies a tested negative boundary; not a new curated or debug pattern"
   },
