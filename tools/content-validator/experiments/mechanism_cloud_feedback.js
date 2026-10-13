@@ -89,7 +89,7 @@ window.SSNoirResearchDialogue={
       createdAt:new Date().toISOString(),
       related:question.related,answer:payload.answer.trim(),context:question.context
     };
-    const stamp=clean.createdAt.replace(/[-:]/g,"").replace(/\\..+$/,"").replace("T","-");
+    const stamp=clean.createdAt.replace(/[-:]/g,"").replace(/\..+$/,"").replace("T","-");
     const random=crypto.getRandomValues(new Uint8Array(6));
     const suffix=Array.from(random,x=>x.toString(16).padStart(2,"0")).join("");
     const dest="docs/实验/机制研究/反馈/questions/SSNoir-dialogue-"+question.id+"-"+stamp+"-"+suffix+".json";
