@@ -2235,6 +2235,89 @@
         "humanVerified": false
       },
       "note": "CS2九类为仓库内作者分类、非游戏官方体系；可达性与余裕是数学/规则层指标，不等于玩家关心人物结果。曾经STAKE同分不同前沿的纠正说明切勿把某标量同根误写为玩法等价。"
+    },
+    {
+      "id": "PL-HAND01",
+      "name": "异步委托使玩家处理B的同时A仍获得真实进度，质量反馈让玩家适应性补足",
+      "layer": "asynchronous-delegation-parallel-work-composition",
+      "origin": "new-local-Fraction-exact-conditional-work-capacity-model",
+      "family": "委托成本/后台异步进度/独立两目标/自我补救/非自主助手",
+      "idea": "4手A3得12/B2得9；SEND占一手，GOOD后续两次自动给A2、BAD给A1，各半；玩家可在后台进展时自己投A/B。质量及时报告时动态17>最佳固定15>不委托13。公开全优计划SEND,A，GOOD续BB得21，BAD续A,SIDE得13。",
+      "stage": "4-turn-two-type-Fraction-DP-exhaustive-5-power-4-prewritten-SIDE-fallback; local-run-no-human",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-13-异步委托与成果接收/研究记录.md",
+        "tools/content-validator/experiments/pattern_async_handoff_20261013.py",
+        "docs/实验/机制研究/批次/2026-10-13-异步委托与成果接收/无答案观察卡.md"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      },
+      "note": "首手SEND和首手A再SEND有同根17，不该认为一有机会就必须第一手委托。受托者没有自主行动目标；换名AUTO_A工具，动作与时序全对应，不认证新社会原语。"
+    },
+    {
+      "id": "PL-HAND02",
+      "name": "异步进度与质量报告是两条时钟：何时知道才会影响亲自补救或转做B",
+      "layer": "delegation-feedback-and-pivot-window",
+      "origin": "new-local-Fraction-exact-timing-ablation",
+      "family": "后台生产/报告时点/残余改选容量/生产性反馈",
+      "idea": "不变更HAND四手后续实际产能，SEND后经过0/1/2/3/4次其他行动才知道GOOD/BAD，最优依次17,17,33/2,15,15。第一项后续无论结果都先A，所以即时与晚一手报告等价；晚两手需在不知道产能时选择B，最后可能补A；晚三手后退化固定方案15。",
+      "stage": "5-reveal-delays-exact-DP-and-short-contingent-plan-witnesses; no-human",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-13-异步委托与成果接收/研究记录.md",
+        "tools/content-validator/experiments/pattern_async_handoff_20261013.py"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      },
+      "note": "GOOD分支SEND,A,B,B达21；BAD分支SEND,A,A,SIDE达13。质量晚两手公开时SEND,A,B→GOOD续B得21/BAD续A得12，均值33/2。没有玩家以外的策略性隐瞒，报告前后台真实产量对玩家不可见。"
+    },
+    {
+      "id": "PL-HAND03",
+      "name": "委托的后台工作需要整手验收才能结算时，节省的生产力可被移交与领取成本完全抵消",
+      "layer": "result-acceptance-vs-physical-progress-dominance",
+      "origin": "new-local-Fraction-exact-receipt-constraint",
+      "family": "工作实际产生/法律或操作可结算/移交成本/验收动作/支配",
+      "idea": "HAND允许SEND后助手GOOD最多A2/BAD A1，却需等待两项后续动作并花一整手ACCEPT才能将其工作计入A；四手动态回到不委托13（无验收17），五手回到不委托21（无验收43/2）。SEND+ACCEPT共耗2手，自己做A两手在纯工作量上至少相同；此规则未赋予代理不可替代的权限/能力。",
+      "stage": "4/5-turn-Fraction-DP-receipt-vs-passive-vs-no-helper-controls; no-human",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-13-异步委托与成果接收/研究记录.md",
+        "tools/content-validator/experiments/pattern_async_handoff_20261013.py"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      },
+      "note": "四手验收与无委托根13，五手验收与无委托根21，不能把同根延伸成所有策略向量或真人体验同构；真正代理GOOD/A2能否使其有价值要先审是否有其他不可替代许可/能力，不能调奖强行改变结果。"
+    },
+    {
+      "id": "PL-META03",
+      "name": "委托的五层研究：实际生产、信息报告、成果归属、他者自主同意、玩家结果关切",
+      "layer": "cross-agent-evidence-and-ownership-audit",
+      "origin": "cross-family-source-grounded-methodological-synthesis",
+      "family": "物理产能/可观察反馈/成果验收/自主行动/意义证据分层",
+      "idea": "HAND模拟随机后台产能，完全可被AUTO_A同成本机器替换；ACT01伙伴有HOLD/OUT、自己的终局收益；GRC01协作者根据未来REP​AY/BYPASS决定早期HELP/EXIT。独立记录完成工作、质量何时得知、可否结算、他者是否有真正独立意愿、玩家是否真实关心目标五层；不把AUTO叫人物即认证社会玩法。",
+      "stage": "cross-source-HAND/ACT/GRC/STAKE-method-audit-no-new-human-and-no-new-executable-model",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-13-异步委托与成果接收/委托与自主协作的五层区别.md",
+        "docs/实验/机制研究/批次/2026-10-13-异步委托与成果接收/研究记录.md",
+        "docs/实验/机制研究/批次/2026-10-13-行动权利与自主他者/研究记录.md",
+        "docs/实验/机制研究/批次/2026-10-13-可信合作与信息公开逆转/研究记录.md"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      },
+      "note": "合作意愿与验收权可以分开。ACT/GRC历史数学结果不是HAND实验的新用户反馈。五层是研究证据的区分而非建议正式游戏添加五个功能。"
     }
   ],
   "edges": [
@@ -3941,6 +4024,114 @@
       "to": "PL-META02",
       "relation": "safe-waiting-as-global-policy-test",
       "reason": "任何声称需要早投入/改投的情境都要先审SIDE等待情报之后才押方向是否能完全绕过机制"
+    },
+    {
+      "from": "P13",
+      "to": "PL-HAND01",
+      "relation": "investment-starts-future-capacity-without-player-direct-action",
+      "reason": "SEND提前花一手使未来两个动作里后台可为A进展，属于准备借力的成熟产能投资变体"
+    },
+    {
+      "from": "P02",
+      "to": "PL-HAND01",
+      "relation": "freed-turns-for-competing-goal",
+      "reason": "委托使玩家可能同一四手同时完成A3/B2，GOOD21而BAD选择补A并SIDE13"
+    },
+    {
+      "from": "PL-OPEN01",
+      "to": "PL-HAND01",
+      "relation": "self-opened-liability-vs-background-labor",
+      "reason": "OPEN自行认领未知工作并必须履约，HAND启动后台A实际自动生产，心理活动在责任和释放玩家行动容量之间不同"
+    },
+    {
+      "from": "PL-HEDGE01",
+      "to": "PL-HAND01",
+      "relation": "maintaining-two-goals-vs-delegating-one",
+      "reason": "HEDGE为了保留已打开旧工作而亲自试B，HAND可将A产能外移后亲自做B，不等于两个独立主体都有决策权"
+    },
+    {
+      "from": "PL-HAND01",
+      "to": "PL-HAND02",
+      "relation": "feedback-arrival-controls-replanning",
+      "reason": "HAND及时报告动态17，晚2次后16.5、晚3次后15，实际产能没有改变，仅可观察时点与后续行动容量不同"
+    },
+    {
+      "from": "P03",
+      "to": "PL-HAND02",
+      "relation": "doing-other-work-while-learning-delayed-output",
+      "reason": "HAND中任务正在后台进行时玩家继续A/B，晚到结果决定是否补救；属边做边看的成熟变奏"
+    },
+    {
+      "from": "PL-DISC01",
+      "to": "PL-HAND02",
+      "relation": "late-disclosure-loses-useful-switching-capacity",
+      "reason": "DISC研究信号价值取决于看到时是否还可改投，HAND质量晚三手后只能固定15"
+    },
+    {
+      "from": "PL-FOCUS01",
+      "to": "PL-HAND02",
+      "relation": "switching-personal-work-vs-async-progress-information",
+      "reason": "FOCUS玩家亲自切换需要TO税，HAND玩家可在A后台进展时做B，后按质量再决定自己做什么；二者不能按同一根值排名"
+    },
+    {
+      "from": "PL-HAND01",
+      "to": "PL-HAND03",
+      "relation": "acceptance-tax-can-delete-delegation-benefit",
+      "reason": "虽然后台真的贡献1或2进度，若必须再花一手ACCEPT，四手根从17退到13、五手从21.5退到21"
+    },
+    {
+      "from": "PL-STAKE01",
+      "to": "PL-HAND03",
+      "relation": "physical-output-is-not-necessarily-credited-achievement",
+      "reason": "STAKE指出物理C交付与高需求下有效收益不同；HAND明确后台有进度、是否可以直接用于A结算是独立可执行状态"
+    },
+    {
+      "from": "PL-META01",
+      "to": "PL-HAND03",
+      "relation": "equal-root-does-not-prove-structural-isomorphism",
+      "reason": "验收版与无助手根13/21相等不能推出结果集合和所有策略完全相同；需按META声明证据强度"
+    },
+    {
+      "from": "PL-ACT01",
+      "to": "PL-META03",
+      "relation": "autonomous-action-right-exceeds-exogenous-quality",
+      "reason": "ACT伙伴自选HOLD/OUT以最大化自身收益，HAND只是等概率好坏自动机，没有伙伴拒绝或自有外部工作"
+    },
+    {
+      "from": "PL-GRC01",
+      "to": "PL-META03",
+      "relation": "partner-early-consent-may-be-lost-to-future-bypass",
+      "reason": "GRC玩家未来便宜绕行使协作者今天不再HELP，是真实多主体参加约束；HAND没有该因果边"
+    },
+    {
+      "from": "PL-GRC03",
+      "to": "PL-META03",
+      "relation": "report-information-vs-other-actor-participation",
+      "reason": "HAND质量报告晚导致剩余可改选行动减少，GRC早公开需求可能使他者选择不合作；信息影响的是不同主体的不同动作"
+    },
+    {
+      "from": "PL-HAND01",
+      "to": "PL-META03",
+      "relation": "generic-robot-strong-matching-baseline",
+      "reason": "把SEND改AUTO_A、ACCEPT改COLLECT且品质与报告同分布，全部状态行为按名称对应；本研究只证明后台产能成熟组合"
+    },
+    {
+      "from": "PL-HAND02",
+      "to": "PL-META03",
+      "relation": "information-layer-distinct-from-physical-production",
+      "reason": "后台GOOD进度在不可观察期间照样发生；信息早到的价值须经玩家后续还能怎么做验证"
+    },
+    {
+      "from": "PL-HAND03",
+      "to": "PL-META03",
+      "relation": "claimable-outcome-layer-distinct-from-progress",
+      "reason": "必须验收才能结算的收益和已经做完的物理工作是两个不同维度；工时税可以令代理产能完全不划算"
+    },
+    {
+      "from": "PL-META02",
+      "to": "PL-META03",
+      "relation": "remaining-action-slack-and-credit-rights",
+      "reason": "除了目标完成最少需要几手，还要核查助手后台工作是否需要玩家额外领取并具有实际使用资格"
     }
   ],
   "coverage": {
@@ -3948,7 +4139,7 @@
     "curatedDisplayMappedCount": 6,
     "cs2AnalyticalPatterns": 9,
     "unconvertedHistory": "关系索引中的其他R批次、数学负例和组合应按主题逐步纳入；不能据本地图未出现就认定没有价值",
-    "additionalExperimentalCompositions": "PL-C01/PL-C02/PL-C03已做最小模型、PL-C04仅概念问题；与另一研究线的C01/C02/C03区别命名；PL-Q01/D01/W01另有3个独立模型及消融和负面边界；PL-W02新增连续三天注意力容量组合，最强简明口诀和变更容量边界明确；F1/F2/D2三项同源跨家族与充分边界反证，不增精选；RGT01/ACT01用各自精确逆推补充许可资源与自利协作者正负证据，无真人；REL01/REL02四轮精确博弈与私有信号消融已完成（同原语条件组合；不改变精选六或Debug）；REL03后续通行凭据仅真实首手截止窗口有正准备选择价值、普通窗口弱支配；未证独立新玩法；NEG01—05双方自利协商五项精确反证；R342/R430/R478原生历史首次结构化归图，均非真人。；NEG06双回合私人回应DOM全十路，X01-LONG准备→事件→响应两段完整枚举及136条合法UI路径，均一行规则全优，无真人；X03 hard disable vs costly defiance两种不同动作合法性协议在完整可达子博弈仍同最优；无真人意义证据；STG01共4种规则组合×完整路径40，因果未来菜单5对纯文本菜单1，仅网页逻辑回归，不是互动/情感新模式认证；PT01四回合双目标压转与14短策略强对照/网页试玩；INF-P01 cap2/3贝叶斯模型覆盖72+96局部公开状态信息值0；未改变历史478；GOAL01七个p×可选/强制义务、同树强预列菜单；DISC01三手有理数belief-DP、单份可靠度q后验、三种时点/换路与网页合法路径，不动历史478或精选；REC01四手四分之一禁A/B×81信号历史、16条强固定序列、一步前瞻全优及六种因果消融；REC03各目标完成概率独立统计，且最优总体策略B完成率低于简单交替；无真人；SEM01—04动作产出对象改道与材料消费改道，两项均被同成本完整菜单追平，短条件程序全优，无真人。；横向读R366函数编辑与R422预编译强对照：持久编辑可超过固定日程却不一定超过同成本完整工具，源实验非本轮重复执行。；OPS01六手动态维护与同成本SET/一手前瞻全等（含2048独立实际输入历史），CLAIM四手付费撤回×真实A早窗口互补、已给HARD/无加成消融及无窗口强菜单；均不认证新独立原语。；COUP01七手把OPS操作实际变成A/B凭据、CLAIM A禁止制作B，仍在起始phase0三类需求先验下被RUN A→CLAIM A→SIDE×5一行策略全优；局部可达差异不等于有价值的双向注意力循环。；ATN01/02检测4手交换律、1296条件序列与20个Pareto成果向量仍由固定计划追平；ATN03/04双任务已投入进度遭公开单/双损5手模型动态33/2胜固定15，提前预知35/2，单损仍可保证双目标，归入成熟危机保全组合，真人缺席。；ACT-R01/02伙伴真自利救B(3)vs外部工作(2/4)使玩家双损低/高报价严格改选，默认动态51/4 vs迟揭49/4，却与条件备用B位逐动作同构；RV01简化4手R54式A3/B5可达上界t3仅18/64前缀两路线仍各有完成可能，结合旧R37/R50/R54真实反馈提出目标意义×改选容量双审核；RV02旧P18的极简上次路径追踪被固定ABABA全优。；RV03读原R54 Scene后用真实行动/追击次序穷举：第2手后33条活跃形式历史里9可分别达成双终局，第3手后196条中0可分别达成双终局（72仅甲、12仅乙、112无终局）；无骰面概率，非真人概率。；PS01将ATN03实际受损成果与ACT自利援助组合：五手动态71/4 vs ATN03无援33/2 vs五手固定17，分目标(1,7/8,3/4)；双损低报价可保两项目标，高报价必须放弃B，外部信号晚一手零价值；同条件B备用行动容量全状态完全替代。；GRC01/02自利伙伴最初愿帮（玩家11、伙伴3），玩家未来新增低于原成本3的BYPASS使伙伴初始EXIT（玩家3、伙伴5/2），可执行HIGH条件合同或排他承诺恢复11；GRC03/04同样提前公开HIGH/LOW在w5/2令玩家11跌至17/2、在w7/2令玩家3升至17/2；跨族审计区分动作合法、物理终局可达、伙伴策略同意、人类关切。；TRL01生产性试做提供真实产出1且耗时1，诚实信号下直接SIDE2、纯检验2、边做边看3；TRL02低能力主体花1修饰PASS(1/4→3/4)以谋求未来HIRE4，唯一纯均衡下两类型信号池化、试做总值退至2；TRL03修饰成本2存在两纯均衡值2或3、成本3诚实3，q诚实准确度1/2→1试做值2→4。属DISC/R478/NEG04成熟组合边界，不认证新原语。；PRF01 A真实工作副产C凭据3手DP29/2 vs固定14，A+ENABLE同成本同值，始终开放或由B工作附资格DP31/2；CUST01不可再造原件A/C局原件12、COPY15、可复用31/2，但开放独立B后所有版权制度动态19、固定17，证明目标旁路；PUB01公开证据让自利第三方撤B许可动态14 vs固定19/2，但普通排他菜单逐动作同构，取消互斥动态/固定16。均成熟组合/负例，无新人类/Unity。；STAKE01对原CUST不改数值的全条件策略和四维目标反证：original/copy旧根均19、固定均17，但可达向量68/82、Pareto18/23，保护A所有HIGH/LOW时原17/copy37/2/reusable19；STAKE04首手后公布保护A/B时copy75/4、原版18，提前公布无增益。META回归PRF22/PUB10状态真动作同构与CUST仅同根不同可行结果，纠正旧“COPY全无价值”的过强读法，无真人。；补充STAKE向量语义审计：C物理SHOW交付不等于HIGH时有价值交付。original/copy物理四维结果68/82、Pareto18/23；按HIGH∧SHOW有效C结果67/72、Pareto15/17；保A约束17 vs37/2不变。；TRIG01四手首次A推进引发SAFE/RISK修补责任，动态15胜固定14，首手前预知风险仍15，无风险19；一行公开条件计划全优，归入R37/P11而不是新原语。OPEN01五手两可认领工作高14低1，打开后三手未履行损失4，付一手DROP；动态47/4胜固定19/2，只许单工作19/2、无DROP41/4、无违约损失25/2、价值推迟到首次WORK39/4、提前知道双工作53/4、绝对必须履行19/2；都属于GOAL01×注意力/退出/信息时点的成熟组合，无新人类。；HEDGE01五手首手A唯一机会+LOW A5/LOW B0+三次行动后截止，允许双LIVE的动态51/4严格大于禁止并行47/4与最强固定23/2；A低时先OPEN B保留A，B高做B14、B低回来做A5。HEDGE02若A以后也可开，先B失败再开A的完全串行策略同得51/4，说明全局并发必要性依赖早窗口；同分方案PA/PB不同(并发3/4,1/4，串行1/2,1/2)，非动作同构。deadline2或无DROP/无B时并发优势消失。无真人。；CLOCK四语义冻结HEDGE任务而改时钟：global并发51/4/串行47/4，double_if_overlap两者47/4，neglect_only和contested_only仍51/4/47/4；去掉A早开窗口后四语义并发/串行都51/4，全部强固定23/2。DICE公开手牌H2,H2,L1,L1、A3奖励9、B2奖励6、首A有RISK2需修；动态13优于1536种强固定23/2，高骰不得FIX或修复质量不区分时25/2，SAFE分支A+B+SIDE16，RISK高骰FIX/低骰补A+SIDE10。熟悉P02×P11/R37模式边界，无新真人与新原语。；FOCUS 六手A/B各需3手、焦点改向耗1、需求A/B后公布，前两手SIDE非法，动态41/2胜280合法固定及15625条容错固定全最优15；TO与同成本SETUP在89个可达状态完全相同，免费改向A3+B3固定24；开放早期SIDE等待22>主20.5，证明安全等待旁路。需求t0/1/2/3/4公布DP 22/21/41/2/20/19；t2/3/4最优前缀后BFS两目标均可达，剩余手数与最短用手依次(4;1,4),(3;3,3),(2;2,2)，需要记录达成某结局后行动余裕而非仅二元可达。META02六层抽象交锋审计，仅设计归纳，不当真人反馈和新原语。",
+    "additionalExperimentalCompositions": "PL-C01/PL-C02/PL-C03已做最小模型、PL-C04仅概念问题；与另一研究线的C01/C02/C03区别命名；PL-Q01/D01/W01另有3个独立模型及消融和负面边界；PL-W02新增连续三天注意力容量组合，最强简明口诀和变更容量边界明确；F1/F2/D2三项同源跨家族与充分边界反证，不增精选；RGT01/ACT01用各自精确逆推补充许可资源与自利协作者正负证据，无真人；REL01/REL02四轮精确博弈与私有信号消融已完成（同原语条件组合；不改变精选六或Debug）；REL03后续通行凭据仅真实首手截止窗口有正准备选择价值、普通窗口弱支配；未证独立新玩法；NEG01—05双方自利协商五项精确反证；R342/R430/R478原生历史首次结构化归图，均非真人。；NEG06双回合私人回应DOM全十路，X01-LONG准备→事件→响应两段完整枚举及136条合法UI路径，均一行规则全优，无真人；X03 hard disable vs costly defiance两种不同动作合法性协议在完整可达子博弈仍同最优；无真人意义证据；STG01共4种规则组合×完整路径40，因果未来菜单5对纯文本菜单1，仅网页逻辑回归，不是互动/情感新模式认证；PT01四回合双目标压转与14短策略强对照/网页试玩；INF-P01 cap2/3贝叶斯模型覆盖72+96局部公开状态信息值0；未改变历史478；GOAL01七个p×可选/强制义务、同树强预列菜单；DISC01三手有理数belief-DP、单份可靠度q后验、三种时点/换路与网页合法路径，不动历史478或精选；REC01四手四分之一禁A/B×81信号历史、16条强固定序列、一步前瞻全优及六种因果消融；REC03各目标完成概率独立统计，且最优总体策略B完成率低于简单交替；无真人；SEM01—04动作产出对象改道与材料消费改道，两项均被同成本完整菜单追平，短条件程序全优，无真人。；横向读R366函数编辑与R422预编译强对照：持久编辑可超过固定日程却不一定超过同成本完整工具，源实验非本轮重复执行。；OPS01六手动态维护与同成本SET/一手前瞻全等（含2048独立实际输入历史），CLAIM四手付费撤回×真实A早窗口互补、已给HARD/无加成消融及无窗口强菜单；均不认证新独立原语。；COUP01七手把OPS操作实际变成A/B凭据、CLAIM A禁止制作B，仍在起始phase0三类需求先验下被RUN A→CLAIM A→SIDE×5一行策略全优；局部可达差异不等于有价值的双向注意力循环。；ATN01/02检测4手交换律、1296条件序列与20个Pareto成果向量仍由固定计划追平；ATN03/04双任务已投入进度遭公开单/双损5手模型动态33/2胜固定15，提前预知35/2，单损仍可保证双目标，归入成熟危机保全组合，真人缺席。；ACT-R01/02伙伴真自利救B(3)vs外部工作(2/4)使玩家双损低/高报价严格改选，默认动态51/4 vs迟揭49/4，却与条件备用B位逐动作同构；RV01简化4手R54式A3/B5可达上界t3仅18/64前缀两路线仍各有完成可能，结合旧R37/R50/R54真实反馈提出目标意义×改选容量双审核；RV02旧P18的极简上次路径追踪被固定ABABA全优。；RV03读原R54 Scene后用真实行动/追击次序穷举：第2手后33条活跃形式历史里9可分别达成双终局，第3手后196条中0可分别达成双终局（72仅甲、12仅乙、112无终局）；无骰面概率，非真人概率。；PS01将ATN03实际受损成果与ACT自利援助组合：五手动态71/4 vs ATN03无援33/2 vs五手固定17，分目标(1,7/8,3/4)；双损低报价可保两项目标，高报价必须放弃B，外部信号晚一手零价值；同条件B备用行动容量全状态完全替代。；GRC01/02自利伙伴最初愿帮（玩家11、伙伴3），玩家未来新增低于原成本3的BYPASS使伙伴初始EXIT（玩家3、伙伴5/2），可执行HIGH条件合同或排他承诺恢复11；GRC03/04同样提前公开HIGH/LOW在w5/2令玩家11跌至17/2、在w7/2令玩家3升至17/2；跨族审计区分动作合法、物理终局可达、伙伴策略同意、人类关切。；TRL01生产性试做提供真实产出1且耗时1，诚实信号下直接SIDE2、纯检验2、边做边看3；TRL02低能力主体花1修饰PASS(1/4→3/4)以谋求未来HIRE4，唯一纯均衡下两类型信号池化、试做总值退至2；TRL03修饰成本2存在两纯均衡值2或3、成本3诚实3，q诚实准确度1/2→1试做值2→4。属DISC/R478/NEG04成熟组合边界，不认证新原语。；PRF01 A真实工作副产C凭据3手DP29/2 vs固定14，A+ENABLE同成本同值，始终开放或由B工作附资格DP31/2；CUST01不可再造原件A/C局原件12、COPY15、可复用31/2，但开放独立B后所有版权制度动态19、固定17，证明目标旁路；PUB01公开证据让自利第三方撤B许可动态14 vs固定19/2，但普通排他菜单逐动作同构，取消互斥动态/固定16。均成熟组合/负例，无新人类/Unity。；STAKE01对原CUST不改数值的全条件策略和四维目标反证：original/copy旧根均19、固定均17，但可达向量68/82、Pareto18/23，保护A所有HIGH/LOW时原17/copy37/2/reusable19；STAKE04首手后公布保护A/B时copy75/4、原版18，提前公布无增益。META回归PRF22/PUB10状态真动作同构与CUST仅同根不同可行结果，纠正旧“COPY全无价值”的过强读法，无真人。；补充STAKE向量语义审计：C物理SHOW交付不等于HIGH时有价值交付。original/copy物理四维结果68/82、Pareto18/23；按HIGH∧SHOW有效C结果67/72、Pareto15/17；保A约束17 vs37/2不变。；TRIG01四手首次A推进引发SAFE/RISK修补责任，动态15胜固定14，首手前预知风险仍15，无风险19；一行公开条件计划全优，归入R37/P11而不是新原语。OPEN01五手两可认领工作高14低1，打开后三手未履行损失4，付一手DROP；动态47/4胜固定19/2，只许单工作19/2、无DROP41/4、无违约损失25/2、价值推迟到首次WORK39/4、提前知道双工作53/4、绝对必须履行19/2；都属于GOAL01×注意力/退出/信息时点的成熟组合，无新人类。；HEDGE01五手首手A唯一机会+LOW A5/LOW B0+三次行动后截止，允许双LIVE的动态51/4严格大于禁止并行47/4与最强固定23/2；A低时先OPEN B保留A，B高做B14、B低回来做A5。HEDGE02若A以后也可开，先B失败再开A的完全串行策略同得51/4，说明全局并发必要性依赖早窗口；同分方案PA/PB不同(并发3/4,1/4，串行1/2,1/2)，非动作同构。deadline2或无DROP/无B时并发优势消失。无真人。；CLOCK四语义冻结HEDGE任务而改时钟：global并发51/4/串行47/4，double_if_overlap两者47/4，neglect_only和contested_only仍51/4/47/4；去掉A早开窗口后四语义并发/串行都51/4，全部强固定23/2。DICE公开手牌H2,H2,L1,L1、A3奖励9、B2奖励6、首A有RISK2需修；动态13优于1536种强固定23/2，高骰不得FIX或修复质量不区分时25/2，SAFE分支A+B+SIDE16，RISK高骰FIX/低骰补A+SIDE10。熟悉P02×P11/R37模式边界，无新真人与新原语。；FOCUS 六手A/B各需3手、焦点改向耗1、需求A/B后公布，前两手SIDE非法，动态41/2胜280合法固定及15625条容错固定全最优15；TO与同成本SETUP在89个可达状态完全相同，免费改向A3+B3固定24；开放早期SIDE等待22>主20.5，证明安全等待旁路。需求t0/1/2/3/4公布DP 22/21/41/2/20/19；t2/3/4最优前缀后BFS两目标均可达，剩余手数与最短用手依次(4;1,4),(3;3,3),(2;2,2)，需要记录达成某结局后行动余裕而非仅二元可达。META02六层抽象交锋审计，仅设计归纳，不当真人反馈和新原语。；HAND四手A3奖12/B2奖9/SIDE1，SEND1手启动GOOD后台2进度或BAD1进度等概率，及时报告动态17胜固定15和禁助手13；质量在SEND后0/1/2/3/4行动才公开时根17,17,33/2,15,15，反馈窗口晚到可使改投收益逐步消失。必须等后台至少两手再花ACCEPT1手验收才能让代理产能计入A时，四手根13、五手21，等于同期限纯亲自工作；五手无需验收根43/2。SEND+ACCEPT耗2手代理好时最多给A2，无不可替代能力时委托被普通自身施工/机器替代。META03跨HAND/ACT/GRC区分产能事实、报告、成果可结算权、伙伴自主参加、玩家真正关心五层，非新人类和新独立原语。",
     "humanFeedbackNote": "目前有关稳险/R06、边做边看/R10、压力/R37、R54、R50的有限设计者反馈；原记录各不等价于受控盲试玩；P02/R13仍没有真人反馈。",
     "thirdComparison": "PL-C05 supplies a tested negative boundary; not a new curated or debug pattern"
   },
