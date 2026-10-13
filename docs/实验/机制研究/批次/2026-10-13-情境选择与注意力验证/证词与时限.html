@@ -30,7 +30,7 @@ details summary{cursor:pointer;color:#d7e8ce}
 </style></head><body><main>
 <header><small>SSNoir · 独立研究 · 叙事情境验证 / 非正式剧情</small>
 <h1>明天之前</h1>
-<p class="muted">一份证词，两件值得关心的事，以及一个难以撤回的选择。全程两次主要行动，没有数值评分；选择将决定下一幕出现什么事实。请尽量在不知道实验假说的情况下完成首次试玩。</p>
+<p class="muted">一份证词，两件值得关心的事，以及一个难以撤回的选择。全程三次相互关联的行动，没有数值评分；选择将决定下一幕出现什么事实。请尽量在不知道实验假说的情况下完成首次试玩。</p>
 </header>
 <section id="setup" class="panel">
 <h2>开始实验</h2>
@@ -112,6 +112,22 @@ const ENDINGS={
     consequences:["清退被暂缓","承诺被违反","职员拒绝继续合作"]
   }
 };
+const FOLLOWUPS={
+  "records:redact":["appeal","tell"],
+  "witness:redact":["second","neighbors"],
+  "records:delay":["verify","neighbors"],
+  "witness:delay":["second","neighbors"],
+  "records:release":["appeal","apology"],
+  "witness:release":["apology","neighbors"]
+};
+const FOLLOWUP_DETAILS={
+  appeal:{name:"带登记簿去正式申诉",desc:"你能提交可公开核对的时间记录，不能再索取已失去的证人配合。",after:"你把登记簿交给受理申诉的书记员。她要求再核实原件，尚未答应撤销决定。"},
+  tell:{name:"亲自告诉证人结果",desc:"让对方知道你履行了匿名承诺，不把沉默当成信任。",after:"你找到那名职员，告诉她公开使用了什么、没使用什么。她听完后说：‘至少这一次，我知道是谁作了决定。’"},
+  second:{name:"与职员去见第二名知情者",desc:"继续保留合作渠道；新的口供未必赶得上眼前时限。",after:"职员带你找到另一个见过仓库内部记录的人。对方愿意谈，但要求先知道证据会交给谁。"},
+  neighbors:{name:"去居民会议说明当前情况",desc:"面对听证窗口已经发生的后果，不能凭一次演说修改它。",after:"居民问你明天还有哪些实际可走的途径。你说出了目前能证明的事实，也承认没能做到的事情。"},
+  verify:{name:"核对登记簿原始签章",desc:"继续做证据工作，承担错过今天听证的事实。",after:"你在原始卷宗中找到了第二处签章。它不改变已经错过的听证，却让后续申诉不再只靠一张复印件。"},
+  apology:{name:"尝试当面解释并道歉",desc:"证人的身份已公开；你不能用一句歉意恢复之前的许可。",after:"你到了职员工作的街区，没有得到答复。你仍然可以写下解释，但她是否愿意继续与你交谈，不由你决定。"}
+};
 function say(x){log.push(x);$("trail").textContent=log.join("\n");}
 function copyReason(){const v=$("reason").value.trim();say("当时的想法："+(v||"(未填写)"));$("reason").value="";}
 function showChoices(options){
@@ -135,10 +151,10 @@ function begin(mode){
 function render(){
  if(!g)return;
  if(g.done){
-   $("chapter").textContent="尾声 · 次日";
-   const ending=ENDINGS[g.prep+":"+g.decision];
-   $("sceneTitle").textContent=ending.title;
-   $("scene").textContent=ending.text+"\n\n留下的结果："+ending.consequences.join(" / ");
+   $("chapter").textContent="尾声 · 次日上午";
+   const key=g.prep+":"+g.decision;
+   $("sceneTitle").textContent="你决定继续做什么";
+   $("scene").textContent=ENDINGS[key].text+"\n\n你最后选择："+FOLLOWUP_DETAILS[g.next].name+"\n\n"+FOLLOWUP_DETAILS[g.next].after;
    $("choices").innerHTML="";$("reason").disabled=true;
    return;
  }
@@ -147,7 +163,7 @@ function render(){
    $("sceneTitle").textContent="今晚只能认真办好一件事";
    $("scene").textContent="明天上午的临时听证可能决定旧街仓库周围住户是否必须搬离。居民要求你找到能公开的证据。\n\n一名仓库职员把签过字的陈述交给你。她说：‘请别公开我的名字。’\n\n现在已经17点，你今晚只能办好下面其中一件事。";
    showChoices(SCENE.prepare);
- }else{
+ }else if(g.decision===undefined){
    $("chapter").textContent="第二幕 · 21:30";
    $("sceneTitle").textContent="你现在知道了另一件事";
    const background=g.prep==="records"?
@@ -159,6 +175,12 @@ function render(){
      desc:c.id==="release"&&g.mode==="hard"?"具名文件已被本实验的封存规则禁用，无法递交。":c.desc
    }));
    showChoices(options);
+ }else{
+   $("chapter").textContent="第三幕 · 次日上午";
+   const key=g.prep+":"+g.decision,ending=ENDINGS[key];
+   $("sceneTitle").textContent=ending.title;
+   $("scene").textContent=ending.text+"\n\n已经产生的后果："+ending.consequences.join(" / ")+"\n\n现在你还有时间继续办一件事。旧的准备和交付方式，决定了哪些途径还能使用。";
+   showChoices(FOLLOWUPS[key].map(id=>({id,name:FOLLOWUP_DETAILS[id].name,desc:FOLLOWUP_DETAILS[id].desc})));
  }
 }
 function choose(id){
@@ -167,11 +189,18 @@ function choose(id){
    if(!SCENE.prepare.some(x=>x.id===id))return;
    copyReason();g.prep=id;say("第一幕行动："+id);render();return;
  }
- const option=SCENE.decide.find(x=>x.id===id);
- if(!option||(id==="release"&&g.mode==="hard"))return;
- copyReason();g.decision=id;g.done=true;say("第二幕行动："+id);
- const ending=ENDINGS[g.prep+":"+id];
- say("结局："+ending.title+"；后续结果："+ending.consequences.join("、"));
+ if(g.decision===undefined){
+   const option=SCENE.decide.find(x=>x.id===id);
+   if(!option||(id==="release"&&g.mode==="hard"))return;
+   copyReason();g.decision=id;say("第二幕行动："+id);
+   const ending=ENDINGS[g.prep+":"+id];
+   say("已发生的后果："+ending.title+"；"+ending.consequences.join("、"));
+   render();return;
+ }
+ const key=g.prep+":"+g.decision;
+ if(!FOLLOWUPS[key].includes(id))return;
+ copyReason();g.next=id;g.done=true;
+ say("第三幕行动："+id+"；新的情况："+FOLLOWUP_DETAILS[id].after);
  render();
 }
 $("start").onclick=()=>begin(Math.random()<.5?"hard":"soft");
