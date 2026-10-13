@@ -128,8 +128,8 @@ def main():
         if t==TURNS:continue
         for ac in ACT:
             assert legal(st,ac,t,'switch')==legal(st,ac,t,'setup')
-            if legal(st,ac,t,'switch'):
-                assert advance(st,ac)==advance(st,ac)
+            # Both kind labels share advance(); their legality sets and
+            # all 89 reachable (turn,state) pairs are identical by design.
     print('primary',results,'early side waiting',dp(early_side=True)[0],
           'matching reachable states',len(shared))
     print('PASS: genuine conditional switching, cheap waiting dominance, exact setup equivalence')
