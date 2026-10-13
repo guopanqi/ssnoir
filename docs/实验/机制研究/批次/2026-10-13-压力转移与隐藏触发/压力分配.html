@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>麻烦由谁承担？ · SSNoir 抽象玩法研究</title>
+<style>
+:root{color-scheme:dark;--bg:#121b1b;--panel:#1e2a29;--text:#e9e9dd;--muted:#c0cdc6;--line:#536b62;--highlight:#b5dbbe}
+*{box-sizing:border-box}body{background:var(--bg);color:var(--text);font:16px/1.55 system-ui,-apple-system,sans-serif;margin:0}
+main{max-width:780px;margin:auto;padding:22px 16px 60px}h1{font-size:1.75rem;line-height:1.25;margin:8px 0 16px}h2{font-size:1.1rem;margin:0 0 10px}
+p{margin:8px 0 13px}.muted,small{color:var(--muted)}
+.panel{padding:19px 20px;margin:14px 0;background:var(--panel);border:1px solid var(--line);border-radius:7px}
+button,select,textarea{font:inherit;color:inherit}button,select{background:#2f4842;border:1px solid #889d91;border-radius:5px;padding:10px 13px}
+button{cursor:pointer}button:hover:not(:disabled){background:#426257}button:disabled{opacity:.42;cursor:default}
+button:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #efc778;outline-offset:2px}
+.primary{background:var(--highlight);color:#11241b;font-weight:700}
+button.primary:hover:not(:disabled){background:#cfebcd}
+.buttons{display:flex;flex-wrap:wrap;gap:9px;margin:12px 0}
+.stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px}
+.stat{padding:11px 6px;border-radius:5px;background:#121c1b;text-align:center}
+.stat b{font-size:1.45rem;display:block;font-variant-numeric:tabular-nums}
+.stat span{color:var(--muted);font-size:.78rem}
+label{display:block;margin:11px 0 5px}
+select{max-width:100%;width:100%}textarea{width:100%;height:71px;background:#101a19;border:1px solid #839b8c;padding:10px;resize:vertical;border-radius:4px}
+pre{font:13px/1.6 ui-monospace,Menlo,monospace;white-space:pre-wrap;overflow-wrap:anywhere;background:#121b1a;padding:13px}
+.mini{border-left:3px solid #b1d4ba;padding:9px 12px;background:#15221d}
+#game{display:none}details summary{cursor:pointer;color:#cfdfcc}
+@media(max-width:550px){.stats{grid-template-columns:1fr 1fr}.panel{padding:14px}.stat b{font-size:1.25rem}}
+</style></head><body><main>
+<small>SSNoir · 独立研究 · PT01 / 去情境</small>
+<h1>麻烦由谁承担？</h1>
+<p class="muted">四次行动。两个同时值得做的目标都有已有进度；每次推进都会留下受检查的风险。你可以继续做事，也可以用一次行动把压力移到另一个目标。没有人物、剧情、骰子能力或道德评分。</p>
+<div class="panel"><h2>公开规则</h2>
+<p>开局A和B都已经做了一半（1/2）。终局保住A的2格得12，保住B的2格得9。未完成的进度不计分。SIDE是独立小事，一手立即得1。</p>
+<p>WORK_A、WORK_B各用一手：对应进度+1，同时对应目标压力+1，均有上限2。MOVE_A→B消去A的一点压力，但让B增加一点压力；反向相同。**不会凭空消掉压力。**若来源没有压力，不能转移。</p>
+<p>每手动作之后才公开一次检查：按预先公布的概率检查A，否则检查B。被检查目标如果有压力，就失去最多1格进度，同时减少1点压力。第四次检查后立即结算。</p></div>
+<div id="settings" class="panel">
+<h2>开始一局</h2>
+<label for="risk">本局检查A的概率</label>
+<select id="risk"><option value="0.5">50%</option><option value="0.25">25%</option><option value="0.75">75%</option></select>
+<label for="mode">可执行的防护方法</label>
+<select id="mode">
+<option value="move">只能转移压力（主实验）</option>
+<option value="erase">只能直接消除压力（同成本反证）</option>
+<option value="none">两种方法都没有（基线）</option>
+<option value="both">转移或直接消除都能做（支配检查）</option>
+</select>
+<div class="buttons"><button class="primary" id="begin">开始</button></div>
+<details><summary>研究者复现入口（请先独立随机试玩）</summary>
+<p class="muted">以下选项强制所有检查都选中A或B，仅用于技术复现；不是符合公开概率的随机样本。</p>
+<div class="buttons"><button id="fixed-a">所有检查强制A</button><button id="fixed-b">所有检查强制B</button></div>
+</details></div>
+<div id="game">
+<div class="panel"><h2 id="turn">第 1 / 4 手</h2>
+<div class="stats">
+<div class="stat"><b id="progressA">1 / 2</b><span>A 进度 · 完成得12</span></div>
+<div class="stat"><b id="progressB">1 / 2</b><span>B 进度 · 完成得9</span></div>
+<div class="stat"><b id="side">0</b><span>SIDE 永久成果</span></div>
+<div class="stat"><b id="heatA">0</b><span>A 压力</span></div>
+<div class="stat"><b id="heatB">0</b><span>B 压力</span></div>
+<div class="stat"><b id="audit">尚未开始</b><span>上一手检查对象</span></div>
+</div><p class="mini" id="status" aria-live="polite">你准备从哪里开始？</p>
+<label for="why">可选：为什么选这一手？（不会影响结果）</label>
+<textarea id="why" placeholder="也可以留空，直接做决定。"></textarea>
+<div class="buttons">
+<button id="work-a" class="primary">推进 A</button><button id="work-b">推进 B</button>
+<button id="move-a">把 A 的压力移给 B</button><button id="move-b">把 B 的压力移给 A</button>
+<button id="erase-a">彻底消除 A 压力</button><button id="erase-b">彻底消除 B 压力</button>
+<button id="small">SIDE · 独立获得1</button>
+</div></div>
+<div class="panel"><h2>可复制的完整记录</h2><pre id="record"></pre>
+<div class="buttons"><button id="copy">复制记录</button><button id="again">更换条件重试</button></div>
+<p class="muted">页面不发送数据。只有实际参与者的记录和原话才能成为体验证据；程序自动回放不算真人试玩。</p>
+</div></div>
+</main><script>
+"use strict";
+(function(){
+const $=id=>document.getElementById(id);
+let s=null,events=[];
+function log(msg){events.push(msg);$("record").textContent=events.join("\n");}
+function menu(){
+ if(!s||s.t>=4)return [];
+ const acts=["WORK_A","WORK_B","SIDE"];
+ if(s.mode==="move"||s.mode==="both"){
+  if(s.ha>0)acts.push("MOVE_A_TO_B");
+  if(s.hb>0)acts.push("MOVE_B_TO_A");
+ }
+ if(s.mode==="erase"||s.mode==="both"){
+  if(s.ha>0)acts.push("ERASE_A");
+  if(s.hb>0)acts.push("ERASE_B");
+ }
+ return acts;
+}
+function draw(){
+ if(!s)return;
+ $("turn").textContent=s.t===4?"四次行动结束":"第 "+(s.t+1)+" / 4 手";
+ $("progressA").textContent=s.a+" / 2";
+ $("progressB").textContent=s.b+" / 2";
+ $("heatA").textContent=s.ha;$("heatB").textContent=s.hb;
+ $("side").textContent=s.side;
+ $("audit").textContent=s.t===0?"尚未开始":s.last;
+ const acts=menu();
+ for(const [id,act] of [["work-a","WORK_A"],["work-b","WORK_B"],
+   ["move-a","MOVE_A_TO_B"],["move-b","MOVE_B_TO_A"],
+   ["erase-a","ERASE_A"],["erase-b","ERASE_B"],["small","SIDE"]]){
+  $(id).disabled=!acts.includes(act);
+ }
+ $("why").disabled=s.t>=4;
+}
+function begin(fixed=null){
+ s={t:0,a:1,b:1,ha:0,hb:0,side:0,p:Number($("risk").value),
+     mode:$("mode").value,fixed,last:"—"};
+ events=[];
+ $("settings").style.display="none";$("game").style.display="block";
+ $("why").value="";$("why").disabled=false;
+ $("status").textContent="你先决定要做什么，然后才会检查目标。";
+ log("模式="+s.mode+"；检查A概率="+s.p+"；强制复现="+(fixed||"否")+"；A、B初始进度均1/2");
+ draw();
+}
+function act(name){
+ if(!s||!menu().includes(name))return;
+ const reason=$("why").value.trim();
+ $("why").value="";
+ const before=s.t+1;
+ if(name==="WORK_A"){s.a=Math.min(2,s.a+1);s.ha=Math.min(2,s.ha+1);}
+ if(name==="WORK_B"){s.b=Math.min(2,s.b+1);s.hb=Math.min(2,s.hb+1);}
+ if(name==="MOVE_A_TO_B"){s.ha--;s.hb=Math.min(2,s.hb+1);}
+ if(name==="MOVE_B_TO_A"){s.hb--;s.ha=Math.min(2,s.ha+1);}
+ if(name==="ERASE_A")s.ha--;
+ if(name==="ERASE_B")s.hb--;
+ if(name==="SIDE")s.side++;
+ const target=s.fixed||((Math.random()<s.p)?"A":"B");
+ let effect="没有压力导致损失";
+ if(target==="A"&&s.ha>0){
+  s.ha--;const old=s.a;s.a=Math.max(0,s.a-1);
+  effect="A进度 "+old+"→"+s.a+"，A压力减少1";
+ }else if(target==="B"&&s.hb>0){
+  s.hb--;const old=s.b;s.b=Math.max(0,s.b-1);
+  effect="B进度 "+old+"→"+s.b+"，B压力减少1";
+ }
+ s.t++;s.last=target;
+ log("第"+before+"手："+name+"；事前理由："+(reason||"(未填写)")+"；检查"+target+"："+effect);
+ if(s.t===4){
+  const score=s.side+(s.a===2?12:0)+(s.b===2?9:0);
+  $("status").textContent="终局：A"+(s.a===2?"完成":"未保住")+"，B"+(s.b===2?"完成":"未保住")+"；总成果="+score;
+  log("总成果="+score+"；A="+s.a+" / 2，B="+s.b+" / 2，SIDE="+s.side);
+ }else $("status").textContent="刚检查了"+target+"，"+effect+"。现在你下一手要处理哪件事？";
+ draw();
+}
+$("begin").onclick=()=>begin(null);
+$("fixed-a").onclick=()=>begin("A");$("fixed-b").onclick=()=>begin("B");
+for(const [id,actName] of [["work-a","WORK_A"],["work-b","WORK_B"],
+ ["move-a","MOVE_A_TO_B"],["move-b","MOVE_B_TO_A"],
+ ["erase-a","ERASE_A"],["erase-b","ERASE_B"],["small","SIDE"]]){
+  $(id).onclick=()=>act(actName);
+ }
+$("again").onclick=()=>{s=null;events=[];$("game").style.display="none";$("settings").style.display="block";};
+$("copy").onclick=async()=>{try{await navigator.clipboard.writeText($("record").textContent);$("copy").textContent="已复制";}catch(_){$("copy").textContent="请手动复制记录";}};
+})();
+</script></body></html>
