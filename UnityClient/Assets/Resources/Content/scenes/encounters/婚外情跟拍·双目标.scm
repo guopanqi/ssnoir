@@ -61,8 +61,14 @@
         (else (progress! goal (if risky? 3 2))))
   (if (and crisis? (not (eq? goal '掩饰))) (alertness 'advance! 1) #f)
   (check!))
+(define (action-anchor title goal risky?)
+  (cond ((eq? goal '找人) (if risky? "双目标跟拍-门口" "双目标跟拍-观察位"))
+        ((eq? goal '照片) (if risky? "双目标跟拍-窗外" "双目标跟拍-观察位"))
+        ((eq? goal '身份) (if risky? "双目标跟拍-侍者" "双目标跟拍-餐桌"))
+        ((eq? goal '掩饰) (if (equal? title "假装等人") "双目标跟拍-门房" "双目标跟拍-报摊"))
+        (else (error "双目标跟拍：行动缺少空间落点"))))
 (define (action-node title subtitle skill goal risky?)
-  (node title :subtitle subtitle :tags (list (if risky? "高风险" "低风险"))
+  (node title :anchor (action-anchor title goal risky?) :subtitle subtitle :tags (list (if risky? "高风险" "低风险"))
     :requires (list (req-die))
     :resolve (roll skill
       (outcome (lambda () (resolve! goal risky? '坏)))
@@ -97,16 +103,21 @@
 (define (on-encounter-collapse)
   (collapse-result (list '倒下 (result-tier) (photos 'current) (identity 'current))))
 (define (get-render-data)
-  (container "双目标跟拍"
-    (append
+  (node "双目标跟拍"
+    :anchor (if (and meeting? (not crisis?)) "双目标跟拍-餐桌" "双目标跟拍")
+    :children (append
       (clock-nodes (alertness 'render-data))
-      (list (note-node "标注：取证场面" "此刻的场面"
+      (list (at-anchor
+        (cond (crisis? "双目标跟拍-丈夫门口") (meeting? "双目标跟拍-丈夫座位")
+              (else "双目标跟拍-找人"))
+        (note-node "标注：取证场面" "此刻的场面"
         (cond (crisis? "男人正在门口查看你；继续调查每次额外警觉1，回合末也加1。")
               (meeting? "两人在窗边用餐。照片满8可收手；身份满12报酬更高。")
-              (else "丈夫还在人群中。先辨认面孔或推断去向。"))))
+              (else "丈夫还在人群中。先辨认面孔或推断去向。")))))
       (if meeting?
         (append
-          (clock-nodes (photos 'render-data) (identity 'render-data))
+          (map (lambda (n) (at-anchor "双目标跟拍-餐桌" n))
+            (clock-nodes (photos 'render-data) (identity 'render-data)))
           (if (photos 'full?) '()
             (list (action-node "隔街拍摄" "隔街取景；好2、中1，坏扣冷静1和警觉1" 'sharpness '照片 #f)
                   (action-node "靠窗取景" "穿过人流稳住相机；好3、中2并增加警觉1" 'violence '照片 #t)))

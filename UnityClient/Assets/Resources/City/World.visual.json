@@ -82,6 +82,116 @@
       "mode": "realtime"
     },
     {
+      "name": "入口灯照明",
+      "profile": "双目标跟拍",
+      "type": "POINT",
+      "energy": 55.0,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "目标桌台灯照明",
+      "profile": "双目标跟拍",
+      "type": "POINT",
+      "energy": 130.0,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "目标桌顶光",
+      "profile": "双目标跟拍",
+      "type": "SPOT",
+      "energy": 420.0,
+      "size": 0,
+      "spotAngle": 69.99999967119774,
+      "spotBlend": 0.6499999761581421,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "饭店冷白主光",
+      "profile": "双目标跟拍",
+      "type": "SUN",
+      "energy": 1.4500000476837158,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "冷白",
+      "mode": "realtime"
+    },
+    {
+      "name": "街面补光",
+      "profile": "双目标跟拍",
+      "type": "SUN",
+      "energy": 0.44999998807907104,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "冷边",
+      "mode": "realtime"
+    },
+    {
+      "name": "柜台灯照明",
+      "profile": "照相馆交涉",
+      "type": "POINT",
+      "energy": 60.0,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "工作台灯照明",
+      "profile": "照相馆交涉",
+      "type": "POINT",
+      "energy": 90.0,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "冷白",
+      "mode": "realtime"
+    },
+    {
+      "name": "暗房低照明",
+      "profile": "照相馆交涉",
+      "type": "POINT",
+      "energy": 16.0,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "琥珀",
+      "mode": "realtime"
+    },
+    {
+      "name": "店内主光",
+      "profile": "照相馆交涉",
+      "type": "SUN",
+      "energy": 1.2000000476837158,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "冷白",
+      "mode": "realtime"
+    },
+    {
+      "name": "店内边光",
+      "profile": "照相馆交涉",
+      "type": "SUN",
+      "energy": 0.4000000059604645,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
       "name": "码头冷日光",
       "profile": "码头",
       "type": "SUN",
@@ -250,6 +360,30 @@
       "fogEnd": 420.0
     },
     {
+      "name": "双目标跟拍",
+      "worldLinear": {
+        "r": 0.012,
+        "g": 0.017,
+        "b": 0.026,
+        "a": 1.0
+      },
+      "fog": false,
+      "fogStart": 180.0,
+      "fogEnd": 420.0
+    },
+    {
+      "name": "照相馆交涉",
+      "worldLinear": {
+        "r": 0.012,
+        "g": 0.017,
+        "b": 0.026,
+        "a": 1.0
+      },
+      "fog": false,
+      "fogStart": 180.0,
+      "fogEnd": 420.0
+    },
+    {
       "name": "码头",
       "worldLinear": {
         "r": 0.012000000104308128,
@@ -308,6 +442,10 @@
       "hash": "900a4cbbf97f2dfa3806cbca5f567fcc259391cff4fd41f3b0bd818e9a27f146"
     },
     {
+      "name": "双目标跟拍",
+      "hash": "e456186720448a377ef84c9b6520f5c80bc87ec8db5dcad476c7c6d7f23a6d78"
+    },
+    {
       "name": "家",
       "hash": "cf34f9d2c79e8eea0b961ae1b23917c41b584e02f77740c67b7b4b201861fa49"
     },
@@ -338,6 +476,10 @@
     {
       "name": "格兰德酒店",
       "hash": "e3b73a728af0b72180daa97447f2a619f520b73c293366668356b1fd2637944e"
+    },
+    {
+      "name": "照相馆交涉",
+      "hash": "26792a9f3b8acb5610bd489e265cd9c4517fad9b4ed1ea84685be81491d67d29"
     },
     {
       "name": "码头",
