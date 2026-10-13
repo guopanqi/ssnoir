@@ -87,13 +87,32 @@ WITNESSES={
     4:(('A','A','TO_B','B'),('TO_A','A'),('B','B')),
 }
 
+def min_remaining_work(st,target,kind='switch'):
+    """BFS for completing a given outcome from a revealed-state snapshot."""
+    queue=[(st,0)]
+    seen={st}
+    for state,depth in queue:
+        if state[0 if target=='A' else 1]>=3:return depth
+        for ac in ACT[:-1]:  # SIDE cannot help completion.
+            if not legal(state,ac,2,kind):continue
+            nxt,_=advance(state,ac)
+            if nxt not in seen:
+                seen.add(nxt)
+                queue.append((nxt,depth+1))
+    return None
+
 def main():
     roots={t:dp(reveal=t)[0] for t in range(5)}
     assert roots=={0:22,1:21,2:F(41,2),3:20,4:19},roots
+    required={2:(1,4),3:(3,3),4:(2,2)}
     for t,(prefix,aa,bb) in WITNESSES.items():
         hi=run('A',prefix,aa)
         lo=run('B',prefix,bb)
         assert (hi+lo)/2==roots[t],(t,hi,lo)
+        start=INIT
+        for action in prefix:start,_=advance(start,action)
+        assert (min_remaining_work(start,'A'),min_remaining_work(start,'B'))==required[t]
+        assert all(x<=TURNS-t for x in required[t])
         print('reveal',t,'root',roots[t],
               'A/B branch',hi,lo,'prefix',prefix)
     results={kind:(dp(kind)[0],fixed(kind)) for kind in ('switch','setup','free')}
