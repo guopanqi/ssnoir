@@ -2,7 +2,7 @@
   "schema": "ssnoir.pattern-language-map/v1",
   "updated": "2026-10-13",
   "reviewBase": "c8055fa1aa2fe18ec1ecc50c7e721072c67dd809",
-  "scope": "保留成熟作品、20历史候选、精选展示与局部研究；T01是可复用的跨阶段组合边界，非独立新精选/人类认可",
+  "scope": "保留成熟作品、20历史候选、精选展示与局部研究；T01是可复用的跨阶段组合边界，非独立新精选/人类认可；本轮另纳入PL-Q01/D01/W01三族跨尺度正负对照，未自动精选或真人认证",
   "definitions": {
     "layer": "机制原语、基础决策关系、交锋结构、跨交锋组织可交叉连接；层级不是质量排名",
     "origin": "设计先例、仓库研究、局部组合假说分开保存",
@@ -886,6 +886,67 @@
         "publishedWorkExample": false
       },
       "note": "冻结硬危机：p<1/2专注A、1/2<p<2/3分散AB、p>2/3专注B；但改为保留A进度且可用一手修复的危机后，所测各p均由AA占优。备选路线的价值是可恢复性、时间与机会成本的条件关系，不是自动成立的新模式。"
+    },
+    {
+      "id": "PL-Q01",
+      "name": "品质修正与可选成果的行动窗口",
+      "layer": "combination-boundary",
+      "origin": "new-local-experiment",
+      "family": "品质/结果/行动窗口",
+      "idea": "RUSH带来进度及可能的瑕疵；公开反馈后撤回进度修复或争可选佐证，在紧凑的4行动窗口改变结果",
+      "stage": "exact-finite-model-with-ablations; no human",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-13-品质诱敌与跨日选择权/研究记录.md",
+        "tools/content-validator/experiments/pattern_composition_round_20261013.py"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      },
+      "note": "3手所有主要对照=7；4手完整17/2、禁止风险/撤回/副目标均7，最强预先固定脚本7；5手SAFE和SIDE可稳定兑现10，风险及撤回失去收益；移除撤回进度成本在4手仍17/2，不得归因于损失进度。"
+    },
+    {
+      "id": "PL-D01",
+      "name": "普通推进支配同信号纯诱饵",
+      "layer": "combination-negative-boundary",
+      "origin": "new-local-experiment",
+      "family": "记忆对手/诱导行动",
+      "idea": "当WORK与DECOY标记相同敌方下一步目标，但WORK还增加无副作用的进度时，纯诱饵弱支配",
+      "stage": "monotonicity-argument-plus-exact-state-enumeration; no human",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-13-品质诱敌与跨日选择权/研究记录.md",
+        "tools/content-validator/experiments/pattern_composition_round_20261013.py"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      },
+      "note": "在2/4/6手、各时点、A/B进度0..2、上一目标两值共270个局部状态，允许/禁止DECOY全等；该结论依赖进度从不带来负价值与信号等价。"
+    },
+    {
+      "id": "PL-W01",
+      "name": "跨日机会保留与信息时点",
+      "layer": "cross-timescale-combination",
+      "origin": "new-local-experiment",
+      "family": "跨日容量/早到预测/替代目标",
+      "idea": "在两个并行目标都仍可完成的窄窗口，第一手保留目标A选择权，见预测后决定今天第二手坚持A还是改向B；次日结果依外部事件兑现",
+      "stage": "exact-two-day-model-and-strong-fixed-policy-comparison; no human",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-13-品质诱敌与跨日选择权/研究记录.md",
+        "tools/content-validator/experiments/pattern_composition_round_20261013.py",
+        "docs/实验/机制研究/批次/2026-10-13-品质诱敌与跨日选择权/参与者卡.md"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      },
+      "note": "B需3手：早预测101/10 > 晚预测9，完美先知213/20；B需2或4手早/晚相同；无预测信息或付费SCOUT均回9。可被'先A、H续A、L转B'简明口诀解决，尚不是完整持续城市决策循环。"
     }
   ],
   "edges": [
@@ -1086,6 +1147,60 @@
       "to": "T01",
       "relation": "potential-composition",
       "reason": "主动开启机会窗口可能改变危机概率与准备时点，尚未运行联合模型"
+    },
+    {
+      "from": "P17",
+      "to": "PL-Q01",
+      "relation": "ingredient",
+      "reason": "瑕疵使已经获得的进度可能需要撤回与修订"
+    },
+    {
+      "from": "P12",
+      "to": "PL-Q01",
+      "relation": "ingredient",
+      "reason": "可选佐证只有在成果无瑕疵时才能增加结算质量"
+    },
+    {
+      "from": "PL-Q01",
+      "to": "P09",
+      "relation": "limits",
+      "reason": "四手风险/兑现分支有价值，但五手稳妥方案占优"
+    },
+    {
+      "from": "P16",
+      "to": "PL-D01",
+      "relation": "counterexample",
+      "reason": "单纯添加吸引敌人目标的按钮无法产生新玩家活动"
+    },
+    {
+      "from": "P18",
+      "to": "PL-D01",
+      "relation": "related-boundary",
+      "reason": "上一行动被敌方记住仍不构成纯诱饵额外按钮的价值"
+    },
+    {
+      "from": "P07",
+      "to": "PL-W01",
+      "relation": "ingredient",
+      "reason": "阶段性任务时窗控制跨日行动的可能组合"
+    },
+    {
+      "from": "P02",
+      "to": "PL-W01",
+      "relation": "ingredient",
+      "reason": "备用目标需要恰好的跨周期容量余量"
+    },
+    {
+      "from": "PL-W01",
+      "to": "R526",
+      "relation": "contrasts",
+      "reason": "预测改变可执行后续选择才有价值，不同于知道隐藏规则但不能改变行动"
+    },
+    {
+      "from": "PL-W01",
+      "to": "PL-C05",
+      "relation": "related-boundary",
+      "reason": "早到时点本身不够；临场替代和行动余量决定保留选择权的意义"
     }
   ],
   "coverage": {
@@ -1093,7 +1208,7 @@
     "curatedDisplayMappedCount": 6,
     "cs2AnalyticalPatterns": 9,
     "unconvertedHistory": "关系索引中的其他R批次、数学负例和组合应按主题逐步纳入；不能据本地图未出现就认定没有价值",
-    "additionalExperimentalCompositions": "PL-C01/PL-C02/PL-C03已做最小模型、PL-C04仅概念问题；与另一研究线的C01/C02/C03区别命名",
+    "additionalExperimentalCompositions": "PL-C01/PL-C02/PL-C03已做最小模型、PL-C04仅概念问题；与另一研究线的C01/C02/C03区别命名；PL-Q01/D01/W01另有3个独立模型及消融和负面边界",
     "humanFeedbackNote": "目前有关稳险/R06、边做边看/R10、压力/R37、R54、R50的有限设计者反馈；原记录各不等价于受控盲试玩；P02/R13仍没有真人反馈。",
     "thirdComparison": "PL-C05 supplies a tested negative boundary; not a new curated or debug pattern"
   },
@@ -1104,6 +1219,7 @@
     "可检索的边界反例也是研究成果",
     "新假设可直接存入知识地图；精选展示和Debug是独立决策",
     "X01–X03属与C01–C03不同的独立最小组合对照；任何节点编号都不是精选晋升或真人认证",
-    "PL前缀区别于并行研究线在长期研究启动档案中使用的C01/C02/C03，禁止凭名称相同直接合并"
+    "PL前缀区别于并行研究线在长期研究启动档案中使用的C01/C02/C03，禁止凭名称相同直接合并",
+    "Q/D/W跨族模式的经验边界来自冻结有限模型；需要作品先例或实际人类反馈时不能以单人数学作者评估替代"
   ]
 }
