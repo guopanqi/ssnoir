@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="zh-CN"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>对方为什么拒绝？ · SSNoir 独立研究</title>
+<style>
+:root{color-scheme:dark;--bg:#121919;--ink:#ebeadf;--muted:#b6c0b9;--panel:#1e2928;--line:#60746c;--action:#bddebd}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 system-ui,-apple-system,sans-serif}
+main{max-width:780px;margin:auto;padding:24px 16px 58px}header{border-bottom:1px solid var(--line);margin-bottom:18px;padding-bottom:14px}
+h1{font-size:1.68rem;line-height:1.25;margin:7px 0 11px}h2{font-size:1.11rem;margin:0 0 8px}
+p{margin:8px 0 13px}.muted,small{color:var(--muted)}
+.panel{background:var(--panel);border:1px solid #394c44;border-radius:8px;padding:16px 20px;margin:13px 0}
+button,input,textarea{font:inherit}button{border:1px solid #92a99b;border-radius:5px;color:var(--ink);background:#2a403a;cursor:pointer;padding:11px 16px}
+button:hover:not(:disabled){background:#416056}button:focus-visible,textarea:focus-visible{outline:3px solid #f1ce74;outline-offset:3px}
+.primary{color:#1a2721;background:var(--action);border-color:var(--action);font-weight:700}
+button:disabled{opacity:.45;cursor:default}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+label{display:block;margin:10px 0}
+textarea{resize:vertical;width:100%;min-height:74px;background:#131d1c;color:var(--ink);border:1px solid #7f8e86;border-radius:5px;padding:10px}
+.tag{font-size:.83rem;letter-spacing:.03em;color:#cce2c6}
+.status{border-left:3px solid #b1d2b2;padding:8px 12px;background:#172322}
+pre{white-space:pre-wrap;word-break:break-word;background:#121e1b;padding:12px;border-radius:5px;font:13px/1.6 ui-monospace,Menlo,monospace}
+#play{display:none}details summary{cursor:pointer;color:#c6e4c2}
+</style></head><body><main>
+<header><small>SSNoir · 无剧情短交锋 · NEG03 对方的策略性拒绝</small>
+<h1>对方为什么拒绝？</h1><p class="muted">两次可能的出价。你看不见对方的外部工作价值，但他知道自己可以得到多少，也知道你接下来还能做什么。目标是观察你的判断，而不是考计算题。</p></header>
+<section class="panel"><h2>公开规则</h2>
+<p>如果谈成，你得到一份价值 <strong>12</strong> 的工作，但须付出你答应的报酬。对方不合作则可以拿自己的外部工作，价值可能为 <strong>2或4，各半概率</strong>，只有对方自己知道。</p>
+<p>你先报<strong>2或4</strong>。对方可以接受或拒绝。如果允许修改，你在遭拒后还可以改报价为4，但此次改约另花<strong>1</strong>。你也可以停止，双方都不做这份工作。对方会从自身利益出发决定回应，而非诚实报出自己的最低价格；工资等于其外部收益时，他会接受。</p></section>
+<section class="panel" id="setup"><h2>选择试验协议</h2>
+<p>两个协议只有一个差别：你的“拒绝后不再加价”是否能在开局形成真正不可撤销的约束。</p>
+<div class="actions">
+<button class="primary" id="start-open">通常协议：被拒后可以再协商</button>
+<button id="start-bound">事先锁约：被拒后必须离开</button>
+</div><p class="muted">开局随机生成对方外部收益。研究用的“强制2/4”复现条件位于页面底部的测试入口，不影响随机试玩。</p></section>
+<section id="play">
+<div class="panel"><div class="tag" id="stageName">第一轮 · 提出条件</div>
+<h2 id="question">你准备提出什么报酬？</h2>
+<p class="status" id="visibleState" aria-live="polite"></p>
+<label for="reason">你现在认为对方可能怎样想？（可选，不影响实际结果）</label>
+<textarea id="reason" placeholder="可以记下理由，也可以直接作决定。"></textarea>
+<div class="actions" id="firstButtons"><button class="primary" id="offer2">报价 2</button><button id="offer4">报价 4</button></div>
+<div class="actions" id="counterButtons" style="display:none">
+<button class="primary" id="raise">改报 4（另外损失 1）</button>
+<button id="walk">停止合作</button>
+</div>
+<p class="status" id="feedback" aria-live="polite"></p>
+</div>
+<div class="panel"><h2>本局记录</h2>
+<pre id="trace" aria-live="polite"></pre>
+<div class="actions"><button id="copy">复制记录（不联网）</button><button id="reset">重置</button></div>
+<p class="muted">结束后才显示隐藏的外部收益。这里不自动收集用户输入；复制的内容由你决定是否分享。</p></div>
+</section>
+<section class="panel"><details><summary>研究者复现入口（建议先完成随机无提示体验）</summary>
+<div class="actions"><button id="force-low">固定外部值 2 · 普通协议</button><button id="force-high">固定外部值 4 · 普通协议</button><button id="bound-low">固定外部值 2 · 锁约协议</button><button id="bound-high">固定外部值 4 · 锁约协议</button></div>
+<p class="muted">这些按钮只改变隐藏类型，供比照同一初始出价在两类主体下的回应；它们不改变对方效用与行动规则。</p></details></section>
+<section class="panel"><details><summary>关于证据和模型限制</summary><p>对方不是语言模型人物，而是事前知道全部可能动作的理性决策规则。在通常协议下，对方预期你遭拒后会选择经济上更有利的加价；你实际仍可选择退出，那代表偏离该预测，不代表一次完整的多均衡社会博弈。</p><p>锁约协议在开局有真实强制约束，不能第二轮反悔。它与临时口头声称“我不会加价”并不相同。这里的全部精确模型是既有博弈机制的局部证据；玩家是否理解、喜欢或会重复使用这类判断，仍未取得真人验证。</p></details></section>
+</main>
+<script>
+"use strict";
+(function(){
+const $=id=>document.getElementById(id);
+let s=null,entries=[];
+function log(msg){entries.push(msg);$("trace").textContent=entries.join("\n");}
+function begin(mode,type){
+ s={mode,type:type===null?(Math.random()<.5?2:4):type,phase:"offer",first:null,paid:0,player:null,partner:null};
+ entries=[];
+ $("setup").style.display="none";$("play").style.display="block";
+ $("stageName").textContent="第一轮 · 提出条件";
+ $("question").textContent="你的初次报价是多少？";
+ $("visibleState").textContent=mode==="bound"?"你已承诺：一旦报价遭拒绝，就不能再次提高报价。":"被拒绝后，你仍有选择提高报价的行动权。";
+ $("feedback").textContent="对方知道自己的外部工作价值，但你还不知道。";
+ $("reason").value="";
+ $("reason").disabled=false;
+ $("firstButtons").style.display="flex";$("counterButtons").style.display="none";
+ log("协议："+(mode==="bound"?"可执行的禁止加价":"保留后续加价权"));
+ log("外部价值：尚未公开");
+}
+function finish(label,player,partner){
+ s.player=player;s.partner=partner;s.phase="done";
+ $("stageName").textContent="结果 · 本局结束";
+ $("question").textContent="你得到 "+player+"；对方得到 "+partner+"。";
+ $("visibleState").textContent="对方真实外部工作价值："+s.type+"。";
+ $("feedback").textContent=label;
+ $("firstButtons").style.display="none";$("counterButtons").style.display="none";
+ $("reason").disabled=true;
+ log("真实外部价值="+s.type+"；最终："+label+"；玩家="+player+"；对方="+partner);
+}
+function offer(wage){
+ if(!s||s.phase!=="offer")return;
+ s.first=wage;
+ log("首轮理由："+($("reason").value.trim()||"(未填写)"));
+ log("你首先报："+wage);
+ const accepts=wage===4||(s.type===2&&s.mode==="bound");
+ if(accepts){finish("对方接受了首次报价 "+wage,12-wage,wage);return;}
+ log("对方拒绝了首轮报价。");
+ if(s.mode==="bound"){
+  finish("可执行锁约：不得加价，对方转做外部工作",0,s.type);return;
+ }
+ s.phase="counter";
+ $("stageName").textContent="第二轮 · 对方已经拒绝";
+ $("question").textContent="现在修改报价，还是放弃合作？";
+ $("visibleState").textContent="已经观察到拒绝；这不一定能够区分对方究竟需要2还是4。";
+ $("feedback").textContent="这一轮仍由你决定；对方在第一轮按你可能继续加价的预期作出了回应。";
+ $("firstButtons").style.display="none";$("counterButtons").style.display="flex";
+ $("reason").value="";
+}
+function respond(counter){
+ if(!s||s.phase!=="counter")return;
+ log("第二轮理由："+($("reason").value.trim()||"(未填写)"));
+ if(counter==="raise"){log("你改报4，付额外修改费1。");finish("对方接受4的报酬（含改价费1）",7,4);}
+ else {log("你决定不再谈。");finish("对方转做自己的外部工作",0,s.type);}
+}
+$("start-open").onclick=()=>begin("open",null);
+$("start-bound").onclick=()=>begin("bound",null);
+$("force-low").onclick=()=>begin("open",2);
+$("force-high").onclick=()=>begin("open",4);
+$("bound-low").onclick=()=>begin("bound",2);
+$("bound-high").onclick=()=>begin("bound",4);
+$("offer2").onclick=()=>offer(2);$("offer4").onclick=()=>offer(4);
+$("raise").onclick=()=>respond("raise");$("walk").onclick=()=>respond("walk");
+$("reset").onclick=()=>{s=null;entries=[];$("setup").style.display="block";$("play").style.display="none";};
+$("copy").onclick=async()=>{try{await navigator.clipboard.writeText($("trace").textContent);$("copy").textContent="已复制";}catch(_){$("copy").textContent="请手动选择记录复制";}};
+})();
+</script></body></html>
