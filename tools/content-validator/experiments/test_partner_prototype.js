@@ -35,4 +35,11 @@ assert.match(absent,/你的成果=6  协作者成果=5/);
 assert.match(present,/第2轮  你：B  协作者：HOLD/);
 assert.match(present,/第3轮  你：B  协作者：OUT/);
 assert.match(present,/你的成果=1  协作者成果=12/);
-console.log("PASS ACT-01 offline UI smoke: no-OUT A/A/A and OUT A/B/B");
+for(const signal of [0,1]){
+  for(const a of ["A","B"])for(const b of ["A","B"])for(const d of ["A","B"]){
+    const trace=play(signal,[a,b,d]);
+    assert.match(trace,/第3轮  你：[AB]  协作者：(HOLD|A|B|OUT)/);
+    assert.match(trace,/结束  你的成果=\\d+  协作者成果=\\d+/);
+  }
+}
+console.log("PASS ACT-01 offline UI smoke: exact reference paths and all 16 player choice/offer combinations");
