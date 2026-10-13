@@ -5,6 +5,9 @@ on:
     paths:
       - '.github/workflows/ssnoir-mechanism-feedback.yml'
       - 'docs/实验/机制研究/反馈/inbox/**'
+      - 'docs/实验/机制研究/反馈/questions/**'
+      - 'docs/实验/机制研究/研究沟通.json'
+      - 'tools/content-validator/experiments/validate_research_dialogue.py'
       - 'docs/实验/机制研究/反馈/reviews/**'
       - 'tools/content-validator/experiments/validate_mechanism_reviews.py'
       - 'docs/实验/机制研究/试玩任务.json'
@@ -23,3 +26,4 @@ jobs:
         run: |
           python3 tools/content-validator/experiments/validate_mechanism_feedback.py
           python3 tools/content-validator/experiments/validate_mechanism_reviews.py
+          python3 tools/content-validator/experiments/validate_research_dialogue.py
