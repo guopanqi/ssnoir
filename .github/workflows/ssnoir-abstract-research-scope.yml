@@ -24,6 +24,7 @@ on:
       - 'docs/实验/机制研究/批次/2026-10-13-目标图因果交互与强策略复核/**'
       - 'docs/实验/机制研究/批次/2026-10-13-行动权利与自主他者/**'
       - 'tools/content-validator/experiments/pattern_rights_actor_20261013.py'
+      - 'tools/content-validator/experiments/pattern_relational_salvage_20261013.py'
       - 'tools/content-validator/experiments/test_partner_prototype.js'
 permissions:
   contents: read
@@ -47,4 +48,5 @@ jobs:
           python3 tools/content-validator/experiments/pattern_endogenous_goals_20261013.py
           python3 tools/content-validator/experiments/pattern_objective_rights_20261013.py
           python3 tools/content-validator/experiments/pattern_rights_actor_20261013.py
+          python3 tools/content-validator/experiments/pattern_relational_salvage_20261013.py
           node tools/content-validator/experiments/test_partner_prototype.js
