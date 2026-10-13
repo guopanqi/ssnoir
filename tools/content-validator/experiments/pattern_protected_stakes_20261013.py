@@ -49,6 +49,11 @@ def summarize(mode):
     found=list(all_policies(mode))
     full=[(tuple((x+y)/2 for x,y in zip(h,l)),sc,h,l) for sc,h,l in found]
     frontier=pareto(item[0] for item in full)
+    # The physical SHOW flag may be true in LOW, where C has zero value.
+    # Count a second vector: actual HIGH-and-C success rather than mere SHOW.
+    effective=[((h[0]+l[0])/2,(h[1]+l[1])/2,h[2]/2,(h[3]+l[3])/2)
+               for sc,h,l in found]
+    effective_frontier=pareto(effective)
     native=max(score(h,l) for _,h,l in found)
     fixed=max(score(h,l) for ((first,p,q),h,l) in found if p==q)
     guarded=[(score(h,l),sc,h,l) for sc,h,l in found if h[0]==l[0]==1]
@@ -56,6 +61,7 @@ def summarize(mode):
     protected=max((x for x in guarded if x[0]==guar),key=lambda x:str(x[1]))
     return {'mode':mode,'count':len(found),
       'unique':len(set(x[0] for x in full)), 'pareto':frontier,
+      'effective_count':len(set(effective)),'effective_pareto':effective_frontier,
       'root':native,'fixed':fixed,'protected':guar,'witness':protected}
 
 def min_actions(mode,goals,maxsteps=6):
@@ -76,7 +82,7 @@ def main():
     stats={k:summarize(k) for k in MODES}
     for mode,x in stats.items():
         print(mode,'programs',x['count'],'unique_outcomes',x['unique'],
-          'Pareto',len(x['pareto']),'scalar-optimum',x['root'],
+          'Pareto',len(x['pareto']),'demand-effective-Pareto',len(x['effective_pareto']),'scalar-optimum',x['root'],
           'fixed',x['fixed'],'guarantee-A-then-maximize',x['protected'],
           'witness',x['witness'])
     assert all(x['root']==19 and x['fixed']==17 for x in stats.values())
@@ -86,6 +92,9 @@ def main():
     assert len(stats['original']['pareto'])==18
     assert len(stats['copy']['pareto'])==len(stats['reusable']['pareto'])==23
     assert stats['copy']['pareto']==stats['matched_preserve']['pareto']
+    assert [stats[k]['effective_count'] for k in MODES]==[67,72,72,68]
+    assert [len(stats[k]['effective_pareto']) for k in MODES]==[15,17,17,17]
+    assert stats['copy']['effective_pareto']==stats['matched_preserve']['effective_pareto']
     keepA=(F(1),F(1,2),F(1,2),F(0))
     replaceA=(F(1,2),F(1),F(1,2),F(0))
     assert keepA in stats['copy']['pareto'] and keepA not in stats['original']['pareto']
