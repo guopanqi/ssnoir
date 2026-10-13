@@ -67,6 +67,29 @@ def fixed(kind='switch',early_side=False):
             elif score==best:plans.append(sequence)
     return best,count,tuple(plans)
 
+def strong_fixed_with_fallback():
+    """All 5**6 fixed instruction strings; illegal commands become useful,
+    deterministic legal commands. No observation-dependent fallback."""
+    best=None
+    winners=0
+    for sequence in product(ACT,repeat=TURNS):
+        state=INIT
+        side=0
+        for t,ac in enumerate(sequence):
+            if not legal(state,ac,t,'switch'):
+                fallback=('SIDE','A','B','TO_A','TO_B') if t>=2 else (
+                    'A','B','TO_A','TO_B')
+                ac=next(item for item in fallback
+                        if legal(state,item,t,'switch'))
+            state,earn=advance(state,ac)
+            side+=earn
+        value=F(payoff(state,'A')+payoff(state,'B'),2)+side
+        if best is None or value>best:
+            best=value
+            winners=1
+        elif value==best:winners+=1
+    return best,winners
+
 def reachable(kind='switch'):
     all_states={(0,INIT)}
     for t in range(TURNS):
@@ -120,6 +143,7 @@ def main():
     assert results['switch'][1][0]==results['setup'][1][0]==15
     assert results['free'][0]==results['free'][1][0]==24
     assert fixed('switch')[1]==280
+    assert strong_fixed_with_fallback()[0]==15
     assert dp(early_side=True)[0]==22
     assert fixed(early_side=True)[0]==15
     shared=reachable('switch')
