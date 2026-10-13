@@ -16,6 +16,7 @@ const artifact=path.join(root,"artifacts/research-field-station");
 fs.mkdirSync(artifact,{recursive:true});
 const inbox="docs/实验/机制研究/反馈/inbox";
 const reviewDir="docs/实验/机制研究/反馈/reviews";
+const questionDir="docs/实验/机制研究/反馈/questions";
 const fbName="SSNoir-feedback-R54-20261009-062528-43765ce6ee.json";
 const full=inbox+"/"+fbName;
 const reviewPath=reviewDir+"/"+fbName;
@@ -25,6 +26,7 @@ const browser=await chromium.launch({headless:true,args:["--no-sandbox"]});
 let sequence=0;
 const remote=new Map([[full,{body:fbSeed,sha:"cf209caf55c498c5f6236ecd68c2a98ca8b608f1"}]]);
 const reviews=new Map([[reviewPath,{body:reviewSeed,sha:"review-sha"}]]);
+const dialogueRecords=new Map();
 function routeGitHub(page){
  return page.route("https://api.github.com/**",async route=>{
   const req=route.request(),u=new URL(req.url()),p=decodeURIComponent(u.pathname);
@@ -46,6 +48,15 @@ function routeGitHub(page){
    const item=remote.get(f)||reviews.get(f);
    return item?respond(200,{path:f,sha:item.sha,content:Buffer.from(item.body).toString("base64")}):
     respond(404,{message:"Not Found"});
+  }
+  if(method==="PUT"&&f.startsWith(questionDir+"/")){
+   const body=JSON.parse(req.postData()),decoded=Buffer.from(body.content,"base64").toString("utf8");
+   const submitted=JSON.parse(decoded);
+   assert.equal(submitted.schema,"ssnoir.research-dialogue/v1");
+   assert.match(submitted.questionId,/^RQ-/);
+   assert(!decoded.includes("github_pat_research_test"));
+   dialogueRecords.set(f,submitted);
+   return respond(201,{content:{sha:"dialogue-sha",path:f}});
   }
   if(method==="PUT"){
    assert(f.startsWith(inbox+"/"),"feedback writes must stay inside inbox");
@@ -105,6 +116,16 @@ try{
  await page.locator('.wb-pattern[data-id="scarce"]').click();
  assert.match(await page.locator("#wb-map-inspector").innerText(),/容量不足下的成果取舍/);
  assert.match(await page.locator("#wb-map-inspector").innerText(),/待验证/);
+ await page.locator('.desk-nav a[href="#library"]').click();
+ await page.waitForFunction(()=>!document.querySelector("#library").classList.contains("hidden"));
+ assert((await page.locator(".lib-item").count())>=38,"full knowledge map should be visible, not just 6 curated items");
+ await page.locator("#lib-search").fill("危机");
+ assert((await page.locator(".lib-item").count())>0,"mechanism search should find crisis patterns");
+ await page.locator("#lib-search").fill("");
+ await page.locator(".lib-item").first().click();
+ await page.locator("#lib-detail button.button").click();
+ assert.match(await page.locator("#lib-picked").innerText(),/×/);
+ await page.locator("#lib-scenario").fill("照相馆交涉：获得部分记录");
  await page.locator('.desk-nav a[href="#journal"]').click();
  assert.equal(await page.locator("#field-journal-events article").count(),JSON.parse(fs.readFileSync(path.join(root,"docs/实验/机制研究/试玩任务.json"),"utf8")).current.length);
  await page.locator('.desk-nav a[href="#experiments"]').click();
@@ -266,6 +287,15 @@ try{
  // Expected 409/Conflict console request is not an application crash.
  assert(!errors.some(x=>!x.includes("409")),errors.join("\n"));
  errors.length=0;
+ await page.locator('.desk-nav a[href="#overview"]').click();
+ assert.equal(await page.locator(".dialogue-card").count(),2);
+ await page.locator(".dialogue-card").first().locator("textarea").fill("我会在无法恢复原计划时改做另一条路线。");
+ await page.locator(".dialogue-card").first().getByRole("button",{name:"提交给研究 Agent"}).click();
+ await page.waitForFunction(()=>document.querySelector(".dialogue-card .minor[role=status]")?.textContent.includes("已提交到GitHub"));
+ assert.equal(dialogueRecords.size,1,"question answers must be independent of playtest feedback");
+ assert.equal([...dialogueRecords.values()][0].questionId,"RQ-PLAN");
+ assert.equal(remote.size,2,"research question reply must not mutate Rxx feedback");
+ await page.locator('.desk-nav a[href="#experiments"]').click();
  await openExtra(page);
  await page.locator("#gh-disconnect").click();
  assert.equal(await page.evaluate(()=>localStorage.getItem("ssnoir/github-feedback-token/v1")),null);
