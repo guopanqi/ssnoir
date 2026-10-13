@@ -2,7 +2,7 @@
   "schema": "ssnoir.pattern-language-map/v1",
   "updated": "2026-10-13",
   "reviewBase": "c8055fa1aa2fe18ec1ecc50c7e721072c67dd809",
-  "scope": "保留成熟作品、20历史候选、精选展示与局部研究；T01是可复用的跨阶段组合边界，非独立新精选/人类认可；本轮另纳入PL-Q01/D01/W01三族跨尺度正负对照，未自动精选或真人认证",
+  "scope": "保留成熟作品、20历史候选、精选展示与局部研究；T01是可复用的跨阶段组合边界，非独立新精选/人类认可；本轮另纳入PL-Q01/D01/W01三族跨尺度正负对照，未自动精选或真人认证；新增F1/F2目标内生生成与撤权、D2反驳纯诱饵通用支配，均为局部精确证据",
   "definitions": {
     "layer": "机制原语、基础决策关系、交锋结构、跨交锋组织可交叉连接；层级不是质量排名",
     "origin": "设计先例、仓库研究、局部组合假说分开保存",
@@ -968,6 +968,66 @@
         "humanVerified": false
       },
       "note": "B门槛4动态27/2 > 最强8种按日固定25/2，但最强可行性口诀同为27/2。门槛5动态39/4 > 按日固定73/8 > 可行性口诀9。3/4门槛由于块状行动等价；无真人体验。"
+    },
+    {
+      "id": "PL-F01",
+      "name": "行动创造下一日后续目标",
+      "layer": "cross-encounter-combination",
+      "origin": "new-local-experiment",
+      "family": "内生机会/跨日目标图",
+      "idea": "玩家今天完成U，会主动生成明天独占一行动的R；晚一天的目标不是外部独立随机给出",
+      "stage": "exact-four-day-model-with-strong-day-only-baseline; no human",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-13-目标图因果交互与强策略复核/研究记录.md",
+        "tools/content-validator/experiments/pattern_endogenous_goals_20261013.py"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      },
+      "note": "公开模型动态159/8、1296个仅按日期优先次序最强39/2、禁用R为131/8。即使图真实新增合法R，动态相对可解释日程仅3/8，不能把新增分数当新游戏深度。"
+    },
+    {
+      "id": "PL-D02",
+      "name": "不可逆提前结算使纯诱饵摆脱弱支配",
+      "layer": "interaction-boundary",
+      "origin": "new-local-experiment",
+      "family": "对手目标/副目标收束/行动替代",
+      "idea": "当正常WORK_B可能提前完成较廉价的B并强制结束，DECOY_B就不再是同信号WORK_B的劣质替代；若不能自动结束则纯诱饵继续多余",
+      "stage": "exact-three-action-entry-state-ablation; no human",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-13-目标图因果交互与强策略复核/研究记录.md",
+        "tools/content-validator/experiments/pattern_endogenous_goals_20261013.py"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      },
+      "note": "B=1且自动结算时有DECOY值8、无DECOY值3；B=0或取消B自动结算均8对8。初始B1来自明确公开的外部贡献条件，不代表玩家从B0会理性制造B1。"
+    },
+    {
+      "id": "PL-F02",
+      "name": "新后续任务撤销旧目标结算资格",
+      "layer": "cross-encounter-combination",
+      "origin": "new-local-experiment",
+      "family": "目标权利/不可逆承诺",
+      "idea": "R从一个额外机会变为会取消长期B终局结算权的机会；在自然可达day3 B=2/R可用/无新U时，行动从接R反转为保护B",
+      "stage": "exact-four-day-rights-counterfactual-with-1296-readable-baselines; no human",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-13-目标图因果交互与强策略复核/资格变化对照.md",
+        "tools/content-validator/experiments/pattern_objective_rights_20261013.py"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      },
+      "note": "撤权动态69/4，最强日期优先规则269/16；不撤权动态159/8，对应最强39/2。撤权确实改变可执行计划，日期优先级仍解释绝大部分决策成果；不晋升精选。"
     }
   ],
   "edges": [
@@ -1246,6 +1306,60 @@
       "to": "PL-W01",
       "relation": "boundary-contrast",
       "reason": "信息时点与事件实际来临不同，两个模型收益不应直接数值比较"
+    },
+    {
+      "from": "PL-W02",
+      "to": "PL-F01",
+      "relation": "extends",
+      "reason": "由独立每天到来的U进一步研究玩家行动主动生成后一天的新合法目标R"
+    },
+    {
+      "from": "P12",
+      "to": "PL-F01",
+      "relation": "contrast",
+      "reason": "单纯新机会与完成旧目标关闭额外机会是不同的目标图操作"
+    },
+    {
+      "from": "PL-F01",
+      "to": "PL-F02",
+      "relation": "rights-reversal",
+      "reason": "新目标R由可加的短期收益变成会永久撤销B结算权的互斥机会"
+    },
+    {
+      "from": "P15",
+      "to": "PL-F02",
+      "relation": "ingredient",
+      "reason": "不可逆的行动承诺改变未来结算合法性"
+    },
+    {
+      "from": "P12",
+      "to": "PL-F02",
+      "relation": "ingredient",
+      "reason": "目标收束权限与其他目标的持续推进产生竞争"
+    },
+    {
+      "from": "PL-D01",
+      "to": "PL-D02",
+      "relation": "counterexample-to-domination",
+      "reason": "WORK_B的进度因自动结算具有负面副作用，不能再无条件替换DECOY_B"
+    },
+    {
+      "from": "P12",
+      "to": "PL-D02",
+      "relation": "ingredient",
+      "reason": "自动完成低收益目标的终止条件会阻止WORK_B作为诱敌动作"
+    },
+    {
+      "from": "P18",
+      "to": "PL-D02",
+      "relation": "ingredient",
+      "reason": "敌人记忆最后标记的路线，使非推进的DECOY_B可以实际改变受击对象"
+    },
+    {
+      "from": "PL-F02",
+      "to": "PL-D02",
+      "relation": "shared-causal-boundary",
+      "reason": "两种组合都依赖行动改变未来的合法结果，而非简单增加收益数字"
     }
   ],
   "coverage": {
@@ -1253,7 +1367,7 @@
     "curatedDisplayMappedCount": 6,
     "cs2AnalyticalPatterns": 9,
     "unconvertedHistory": "关系索引中的其他R批次、数学负例和组合应按主题逐步纳入；不能据本地图未出现就认定没有价值",
-    "additionalExperimentalCompositions": "PL-C01/PL-C02/PL-C03已做最小模型、PL-C04仅概念问题；与另一研究线的C01/C02/C03区别命名；PL-Q01/D01/W01另有3个独立模型及消融和负面边界；PL-W02新增连续三天注意力容量组合，最强简明口诀和变更容量边界明确",
+    "additionalExperimentalCompositions": "PL-C01/PL-C02/PL-C03已做最小模型、PL-C04仅概念问题；与另一研究线的C01/C02/C03区别命名；PL-Q01/D01/W01另有3个独立模型及消融和负面边界；PL-W02新增连续三天注意力容量组合，最强简明口诀和变更容量边界明确；F1/F2/D2三项同源跨家族与充分边界反证，不增精选",
     "humanFeedbackNote": "目前有关稳险/R06、边做边看/R10、压力/R37、R54、R50的有限设计者反馈；原记录各不等价于受控盲试玩；P02/R13仍没有真人反馈。",
     "thirdComparison": "PL-C05 supplies a tested negative boundary; not a new curated or debug pattern"
   },

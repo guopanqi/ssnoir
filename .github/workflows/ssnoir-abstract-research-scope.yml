@@ -19,6 +19,9 @@ on:
       - 'docs/实验/机制研究/试玩任务.json'
       - 'docs/实验/机制研究/研究总览.html'
       - 'skills/research-mechanisms/SKILL.md'
+      - 'tools/content-validator/experiments/pattern_endogenous_goals_20261013.py'
+      - 'tools/content-validator/experiments/pattern_objective_rights_20261013.py'
+      - 'docs/实验/机制研究/批次/2026-10-13-目标图因果交互与强策略复核/**'
 permissions:
   contents: read
 jobs:
@@ -37,3 +40,6 @@ jobs:
           python3 tools/content-validator/experiments/validate_mechanism_portfolio.py
           python3 tools/content-validator/experiments/validate_debug_playtests.py
           python3 tools/content-validator/experiments/build_mechanism_atlas.py --check
+          python3 tools/content-validator/experiments/validate_pattern_language_map.py
+          python3 tools/content-validator/experiments/pattern_endogenous_goals_20261013.py
+          python3 tools/content-validator/experiments/pattern_objective_rights_20261013.py

@@ -291,6 +291,12 @@
       "family": "authored-rules-versus-complete-menu",
       "question": "R446完整同成本预编译函数菜单数值支配AUTHOR后，玩家是否仍因理解、可迁移、创造规则的参与感而愿意继续？",
       "method": "保留R446、R366的无提示双版本真人卡；不借有限函数位数扩大追求虚假优势。"
+    },
+    {
+      "id": "ABSTRACT-E-ENDOGENOUS-GOALS-OPERATIVE-RIGHTS",
+      "family": "endogenous-objectives-and-encounter-rights",
+      "question": "怎样让新委托不只是更多收益，而是以可被玩家理解的方式改变此前投入带来的合法操作/结算资格，且不能被几句日期优先规则完全解释？",
+      "method": "沿F1/F2/D2的正常可达前史，用可执行行动权利/明确外部回应构造跨单元接续；固定规则与最强公开简单策略作消融，禁止纯调数值救假设；先需可理解的目标图变化，再考虑小游戏。"
     }
   ],
   "method": {
@@ -404,6 +410,8 @@
     ],
     "noHumanTests": true,
     "interpretation": "X01、X02与另一批C01、C02是不同的已知组合条件反证，均不构成新独立模式或完整真人交锋认证",
-    "historyCountUnchanged": 478
+    "historyCountUnchanged": 478,
+    "latestBatch": "docs/实验/机制研究/批次/2026-10-13-目标图因果交互与强策略复核/研究记录.md",
+    "latestCounterfactual": "F1主动生成R、F2选R撤B资格、D2提前结算打破纯诱饵弱支配；可执行数学，均非人类验证"
   }
 }
