@@ -1,0 +1,59 @@
+name: SSNoir Abstract Intervention Observation Evidence
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-abstract-observation-20261014.yml'
+      - 'tools/content-validator/experiments/pattern_intervention_observability_20261014.py'
+      - 'docs/实验/机制研究/批次/2026-10-14-干预改变证据可见性/**'
+      - 'docs/实验/机制研究/模式语言知识地图.json'
+permissions:
+  contents: read
+jobs:
+  exact-evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Exact Bayesian action tree and counterfactual checks
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/pattern_intervention_observability_20261014.py
+      - name: Validate independent blind-observation HTML code and controls
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          from html.parser import HTMLParser
+          import subprocess
+          class ScriptReader(HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.flag=False
+                  self.parts=[]
+              def handle_starttag(self,tag,attrs):
+                  if tag=='script':self.flag=True
+              def handle_endtag(self,tag):
+                  if tag=='script':self.flag=False
+              def handle_data(self,text):
+                  if self.flag:self.parts.append(text)
+          path=Path('docs/实验/机制研究/批次/2026-10-14-干预改变证据可见性/试玩.html')
+          page=path.read_text(encoding='utf-8')
+          reader=ScriptReader()
+          reader.feed(page)
+          assert len(reader.parts)==1
+          assert all(marker in page for marker in
+                     ('id="hard"','id="actions"','id="outcome"','id="log"','id="copy"'))
+          subprocess.run(['node','--check','-'],input=reader.parts[0],
+                         text=True,check=True)
+          print('Standalone evidence / protection page: JS syntax and controls PASS')
+          PY
+      - name: Validate structural research evidence map
+        run: python3 tools/content-validator/experiments/validate_pattern_language_map.py
