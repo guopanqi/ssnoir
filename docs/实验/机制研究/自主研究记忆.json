@@ -377,6 +377,27 @@
       "question": "研究结论‘相同/没价值’究竟由何种强度证据支持？",
       "source": "META01—03 2026-10-13",
       "summary": "跨模型导入原历史动作：PRF凭据与同槽位A+ENABLE在22可达状态同动作同转移，PUB自利许可与普通排他菜单10状态同动作同转移，CUST original/copy原根19相同但合法COPY不同、前沿18/23、保A条件17/37/2。研究Agent不得将单组标量根值等式晋升为完整机制同构或所有玩家偏好没有价值。 审核向量本身的语义，LOW时C交付价值0；严格HIGH-C有效前沿original15/copy17。"
+    },
+    {
+      "family": "progress-generated-repair-vs-precognition",
+      "kind": "mature-pressure-feedback-composition",
+      "question": "推进A行动产生新修补责任，动态调整是否必须且提前信息是否有作用？",
+      "source": "TRIG01—04 2026-10-13",
+      "summary": "4手A2奖励10/B2奖励9/SIDE1。首做A触发SAFE/RISK各半，RISK不FIX一手则A不得分；完整Fraction DP动态15 vs最佳固定14；提前风险信息15，禁风险19。实际公开短策略SAFE AABB得19，RISK A A FIX SIDE得11。属于原R37/P11压力预算成熟变奏，旧R37真人反馈不等于此模型人类验证。"
+    },
+    {
+      "family": "voluntary-opening-and-dropping-time-limited-work",
+      "kind": "mature-composition-with-real-pivot-and-strong-controls",
+      "question": "主动OPEN未知价值任务并启动截止，下一项工作和退出成本能否使玩家真正改投？",
+      "source": "OPEN01—07 2026-10-13",
+      "summary": "五手A/B需OPEN1+WORK2完成，HIGH14/LOW1独立各半，三个后续全局动作仍没完成损失4，DROP1手免责。动态47/4 vs 7^5强固定19/2，一行A高做完获16、A低退出试B获15/2全优；只许单工作19/2、没DROP41/4、没罚款25/2、首WORK才知道价值39/4、提前公知13.25、禁止违约且必须履约19/2。归GOAL01×P11×信息窗口，不证明真实人际义务。"
+    },
+    {
+      "family": "early-window-overlap-with-real-fallback-preservation",
+      "kind": "mature-multi-live-portfolio-positive-and-global-serial-negative",
+      "question": "什么时候并发完成中的两项事务不仅合法存在，而且根优化严格需要暂时同时保留？",
+      "source": "HEDGE01—05 2026-10-13",
+      "summary": "五手A只在首手可OPEN，A高14/低5而B高14/低0；允许两任务LIVE动态51/4、禁止同时LIVE47/4、固定23/2。可行公开计划首手A，若高做完16；A低先OPEN B并暂保A，B高DROP A完成B14，B低继续A完成5；条件期望51/4。取消A首手窗口后先试B的完全串行计划也得51/4，因此早窗口是该原标量下并发正价值的必要控制。并发PA3/4 PB1/4 vs同分串行PA1/2 PB1/2，不可称向量同构；deadline2双方47/4，禁DROP/B23/2。数学验证，不真人。"
     }
   ],
   "failedExplanations": [
@@ -421,7 +442,10 @@
     "PUB的其他主体公开后按自身效用撤回B许可（且持续需保密）是真正的策略解释，但若自利回应完全确定公开、所有转移都可写成普通互斥菜单，则没有新玩家操作原语；取消互斥甚至使一条固定得两结果策略全优。",
     "不能用原总分下CUST四机制相同最优19推导原件可复制与不可复制对所有玩家目标等价。A不可补偿约束会使COPY严格增加可行结果集合；同时不能把该目标假设当成人类实际关切。",
     "信息提前公开并不一定有价值：STAKE04首手A可兼顾日后保护A/B与HIGH/LOW需求分支，早揭受保护目标与首手后才揭均copy75/4；不能只凭后到信息假设有实质信息收集路线。",
-    "即使保存帕累托前沿也不能假定每一维天然有价值：STAKE物理C交付不管HIGH/LOW的前沿original18/copy23，而只计HIGH需求下有效交付时为15/17。结果口径必须说明，尤其不能把LOW时0收益的SHOW暗称有效成就。"
+    "即使保存帕累托前沿也不能假定每一维天然有价值：STAKE物理C交付不管HIGH/LOW的前沿original18/copy23，而只计HIGH需求下有效交付时为15/17。结果口径必须说明，尤其不能把LOW时0收益的SHOW暗称有效成就。",
+    "OPEN01有两个合法可LIVE工作且动态优于固定，不等于最优真正同时管理两件事：一个最优短计划在A低时先DROP A再OPEN B，整个计划从不需要两项同时LIVE。下一次宣称‘真正并发’须与全局禁重叠及最佳串行计划严格比较。",
+    "HEDGE证明局部保留A并试B可增值，然而如果A后来仍可OPEN，全部根值可被“先试B，低则DROP再试A”的纯串行计划追平；只有早机会在首手关闭并且deadline允许返回A、取消成本可接受时才有严格并发根值。即使根同51/4，目标向量PA/PB仍不同，不能反称全结果同构。",
+    "将-4可付违约、花一手DROP取消责任、真正不能违约的非补偿承诺都叫相同‘压力’是逻辑错误。OPEN硬承诺一旦认领必须履行时根19/2，和可补偿违约方案47/4不同，且不代表人类对责任的实际态度。"
   ],
   "frontier": [
     {
@@ -491,10 +515,10 @@
       "method": "DISC01及时完美报告9 vs 迟揭/换路税8，DISC02 q>5/8才局部换路、q>7/8工作探查才胜精准INSPECT。已有独立三手网页供无答案人类体验；先收真实行动与误解。若无人反馈，转到另一项行动与结果关系而非只扫q或添加新任务。"
     },
     {
-      "id": "ABSTRACT-M-ATTENTION-VALUES-AND-THREATENED-PROGRESS",
+      "id": "ABSTRACT-M-HUMAN-UNDERSTANDING-OF-OBLIGATIONS",
       "family": "action-modifies-another-action-kind-not-only-yield",
-      "question": "数学上已能构造同时投入A/B、受损后需要重排，但参与者会把两项成果真正当作关心之事吗？如何使实际情境中的不可交换结果与抽象危机组合，而非增加擦除频率？",
-      "method": "ATN01交换律/ATN02帕累托不够/ATN03简单AB后补救全优均已精确检验；下一步独立无答案人的逐手理由，或换机制族探索对他人可撤销责任与受损成果联动，不在同族继续调概率、奖励和时钟。"
+      "question": "HEDGE已经数学证实早期A窗口×可保留旧LIVE×后来B价值使并发严格胜串行，玩家真的把A/B视为责任还是两张已知分数卡？R37原体验中压力确实打断计划，这种两个开放任务是否同样有可读的心理变化？",
+      "method": "使用本批TRIG/OPEN/HEDGE无答案纸面卡记录第一眼可见时限、何时想放弃、何时感到有责任；不得提示最优分支，也不把旧R37反馈当新模式有效证据。无需扩增骰/期限参数。"
     },
     {
       "id": "ABSTRACT-O-REVOCABLE-CLAIM-PLAYER-EXPERIENCE",
@@ -537,6 +561,12 @@
       "family": "research-epistemic-regressions",
       "question": "以后研究每次宣称强替代或‘没有价值’前是否先明确这是根值同分、向量结果等价、还是逐状态转移同构？",
       "method": "回归运行 pattern_claim_strength_regression_20261013.py 并检查各新模式是否声明其结论强度；若只比较一个标量，至少列出一种与之不同的目标向量/合法行动可达见证作为过强断言防护。"
+    },
+    {
+      "id": "ABSTRACT-X-CONCURRENCY-STRONG-COUNTERFACTUAL",
+      "family": "global-policy-bypass-test-for-many-live-goals",
+      "question": "其它机制声称并行管理两三项问题时，是否真的需要同时有两个未完成的目标，还是一条顺序先看B再回头A已达到同一总收益？若总分同，具体保留了哪些不同成果？",
+      "method": "优先逐状态对照同一个原模型的允许/禁止LIVE重叠、最优开局顺序与独立成果向量，必要时比较真实早机会截止；对本HEDGE以51/4 vs47/4为严格正例，放宽A开窗时51/4 vs51/4为负例，保留P(A)/P(B)不同的证据强度边界。"
     }
   ],
   "method": {
@@ -615,8 +645,8 @@
     "noHumanTests": true,
     "interpretation": "X01、X02与另一批C01、C02是不同的已知组合条件反证，均不构成新独立模式或完整真人交锋认证",
     "historyCountUnchanged": 478,
-    "latestBatch": "docs/实验/机制研究/批次/2026-10-13-不可替代目标与证据强度/研究记录.md",
-    "latestCounterfactual": "STAKE01-03不改旧CUST规则和8A+9B+HIGH12C奖励：开放B时original/copy/reusable旧总分动态根都是19、固定17，但original/copy完整HIGH/LOW条件策略5366/12153、不同四维成果68/82、Pareto18/23。COPY新增保A始终完成且HIGH得A+C/LOW得A+B的结果向量(1,1/2,1/2,0)，与旧B旁路(1/2,1,1/2,0)不互相支配。保A两需求约束下原件模式17、copy37/2、matched37/2、reusable19；最短动作A+C原件永不可达、copy4、reusable3。STAKE04首手后公布受保护A/B及HIGH/LOW，原模式18、copy75/4、reusable19，首手前公布同值（第一手A已覆盖）；这并非新玩家兴趣证据。META回归PRF22、PUB10状态逐动作真同构，CUST同根不同结果集合。旧“B旁路让COPY完全没价值”正式收窄为特定原标量下的最优旁路。 补充第三目标向量口径：原统计C交付不问HIGH/LOW，LOW时SHOW收益0，会夸大物理交付维度的非支配数量。严格统计P(HIGH且C交付)：original有效向量67/Pareto15、copy有效向量72/Pareto17、reusable68/17；原68/82与18/23仅表示物理C已交付。保A约束原17/copy37/2及代表路径不受影响。",
-    "crossFamilyAudit": "META01跨历史比较证据层：PRF真做A得到资格 vs 同槽位A+ENABLE合法性和转移在22可达状态全同；PUB自利撤权 vs 普通互斥菜单在10可达状态全同；CUST original/copy动态根19同值却动作菜单不同、结果向量68/82、保A约束17/37/2，不可宣称逐动作或所有玩家目标同构。联系REC03总效用牺牲某项成功率、ATN02 Pareto丰富不等于持续计划、SEM01强菜单根值追平不等于同动作规则。人的A价值需要独立无答案体验，不能凭原件文案虚构。 额外方法警戒：从一个标量切换到成果向量仍需审查各维是否有实际用途；C在LOW的SHOW物理已交付但奖励为0，需另报P(HIGH且SHOW)，不得拿物理完成数暗中代表玩家关心的价值。"
+    "latestBatch": "docs/实验/机制研究/批次/2026-10-13-主动开启与问题累积/并发工作与保留退路.md",
+    "latestCounterfactual": "TRIG01四手A2得10、B2得9，首A等概率SAFE/RISK，RISK需FIX一手才能兑A，动态15、固定14、提前得知风险15、关闭风险19；短策略SAFE追A+B得19/RISK补A拿SIDE得11，全属于P11/R37已知族。OPEN01五手两项可认领工作价值H14/L1，OPEN立即报告、后需WORK两手、第三后续行动到期未完-4，可付一手DROP：动态47/4胜固定19/2，首A高完成A+SIDE得16、低DROP A后开B条件均值15/2；只能一任务19/2，无DROP41/4，无到期赔偿25/2，报告拖到首WORK后39/4，提前公知双方价值53/4，真正非补偿全履行义务19/2。HEDGE01首手A唯一OPEN窗口、A高14低5/B高14低0、两份OPEN才知价值，允许两项LIVE动态51/4、禁止两LIVE仅47/4、固定23/2；A低时保持A仍LIVE并试B，B高退出A完成B14，B低返回A完成A5。移除A首手窗口后，全球先试B的纯串行计划同得51/4，不能说必须并发；同分方案PA/PB不同(并发3/4,1/4,串行1/2,1/2)。到期容忍时间减2使无并发/有并发根均47/4；禁DROP或B只23/2。没有新人类及正式引擎。",
+    "crossFamilyAudit": "已读R37原始真人评价（原场景推进或失败触发压力、骰质量改变计划），仅作为P11成熟正向体验先例，不得归作TRIG新测试。GOAL01已有ASK生新目标／新义务且被常规等成本条件菜单完整改名，TRIG与OPEN/HEDGE归入成熟压力、可选任务、保留退出权、信息窗口及P12早机会组合。最强跨族反证：TRIG事前风险报告增值0，OPEN仅一任务动态=固定，OPEN硬履约低于可撤销，OPEN最优计划无需并发；HEDGE特设A首手唯一开窗才使重叠LIVE在指定原效用根严格胜串行，无早窗口时串行同根但目标向量不同（META/ST​AKE证据层）。"
   }
 }
