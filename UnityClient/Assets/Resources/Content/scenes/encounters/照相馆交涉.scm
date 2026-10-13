@@ -34,21 +34,27 @@
     ;; 完成层的行动立即撤下，剩余进度不跨层溢出。
     (if (clock 'full?)
       (cond ((eq? stage 'A)
-             (play-dialogue!
-               (line "尼尔" "相纸厚度和背面压纹，跟这批样片一致。")
-               (line "店主" "查这个批次就够了，不用翻整本账。")))
+             (play-bubble!
+               (line "尼尔" "老板，你看这背面的压纹。昨天我在你这里洗的照片也有。")
+               (line "店主" "这个……相纸也是批发来的。不过这种纸，我们上周才进。")))
             ((eq? stage 'A1)
-             (play-dialogue!
-               (line "世界" "裁刀的细口和照片边缘吻合，订单查询又缩小了一步。")))
+             (play-bubble!
+               (line "尼尔" "这里缺了一点。你刚裁的这张也一样。")
+               (line "店主" "这个……诶，是前些天刀口磕了。那几天的小照片都有这个毛病。")
+               (line "尼尔" "你记得大概的日期吗？")
+               (line "店主" "唔……也许吧。")))
             ((eq? stage 'B)
-             (play-dialogue!
-               (line "店主" "我给你看几笔候选单，还有对应的测试样片。")
-               (line "尼尔" "有这些，比对加工就容易了。")))
+             (play-bubble!
+               (line "尼尔" "这张照片被人用来勒索。也许有一天，你也会受影响。")
+               (line "店主" "我只是个洗照片的，和我有什么关系？")
+               (line "尼尔" "警车停在你门前的时候，你的顾客也许不这么想。")
+               (line "店主" "……那几批试印都留着。你自己看。")))
             ((eq? stage 'B1)
-             (play-dialogue!
-               (line "店主" "匿名单，小幅六张，星期二傍晚取件。")
-               (line "店主" "年轻男人，邮务制服不合身。我不知道名字。")
-               (line "世界" "订单的加工规格也能用于核对店内设备。")))) #f)))
+             (play-bubble!
+               (line "尼尔" "我是侦探，不是警察。告诉我该查哪几天，就没你的事了。")
+               (line "店主" "你说话算数？")
+               (line "尼尔" "这纸，前些天是不是换过一批？")
+               (line "店主" "……是有这么回事。")))) #f)))
 (define (resolve! stage direct? grade)
   (cond ((eq? grade '坏)
          (spend-composure! 1) (suspicion 'advance! (if direct? 2 1)))
@@ -98,6 +104,6 @@
              (append (clock-nodes (records 'render-data))
                (list (action-node "核对登记" "从候选单比对数量与时间" 'knowledge 'B1 #f)
                      (action-node "追问取件" "请店主回忆取件；中戒心1，坏冷静1、戒心2" 'social 'B1 #t))))
-            (else (list (note-node "标注：订单成果" "订单结果已取得" "匿名单的时间、数量与取件特征；姓名未知。"))))
+            (else (list (note-node "标注：订单成果" "订单结果已取得" "匿名订单：小幅六张，星期二傍晚取件。取件人是年轻男人，邮务制服不合身；姓名未知。"))))
       (if (or (equipment 'full?) (records 'full?))
         (list (instant-action "带走现有证据" (lambda () (finish! '收手)))) '()))))
