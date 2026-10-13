@@ -27,9 +27,9 @@ function attention(){
 }
 function home(){
  $("wb-updated").textContent=tasks.updated+" 更新";
- $("wb-main-question").textContent=atlas.nextQuestions[0]||tasks.headline;
- $("wb-main-link").href=studyLink(tasks.tasks[0].id);
- $("wb-main-link").textContent="查看 "+tasks.tasks[0].id+" · "+tasks.tasks[0].title+" ↗";
+ $("wb-main-question").textContent=dialogue.questions[0]?.title||tasks.headline;
+ $("wb-main-link").href="#library";
+ $("wb-main-link").textContent="从模式目录挑选结构 ↗";
  const root=$("wb-notes");root.replaceChildren();
  tasks.current.slice(0,3).forEach((v,i)=>{const a=make(root,"article","wb-note");make(a,"span","wb-kicker","记录 "+String(i+1).padStart(2,"0"));make(a,"p",null,v);});
 }
