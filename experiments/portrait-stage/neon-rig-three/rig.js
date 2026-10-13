@@ -100,7 +100,10 @@ export function makeNeonActor(THREE,source,options={}) {
   function setData(next) {
     if(next===data)return;
     if(!Array.isArray(next.paths)||!next.paths.length)throw new Error('Malformed Neon data');
-    data=next; bind=getAutoBind(data);segments=collectSegments(data);
+    // Neon UV uses an origin at the bottom-left (v increases upward). Convert
+    // once to the top-down convention used by the estimated rig and pose warp.
+    const topDown={...next,paths:next.paths.map(stroke=>stroke.map(([x,y])=>[x,1-y]))};
+    data=next; bind=getAutoBind(topDown);segments=collectSegments(topDown);
     buf=new Float32Array(segments.length*18);
     const geom=new THREE.BufferGeometry();
     geom.setAttribute('position',new THREE.BufferAttribute(buf,3).setUsage(THREE.DynamicDrawUsage));

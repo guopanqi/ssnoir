@@ -61,6 +61,20 @@
 </div>
 <footer><span>STUDY / NOT A PRODUCTION RIG</span><span>SSNOIR · 线条、节奏、距离</span></footer>
 </main>
-<script type="module" src="./main.js"></script>
+<script>
+if (location.protocol === 'file:') {
+  const notice = document.querySelector('#error');
+  notice.hidden = false;
+  notice.textContent = '浏览器不允许从 file:// 页面加载本实验所需的脚本和人物数据。\n\n请在仓库根目录运行：\ncd experiments/portrait-stage/neon-rig-three && python3 -m http.server 5189\n\n然后打开：http://127.0.0.1:5189/';
+  document.querySelectorAll('.console button, .console select, .console input').forEach(control => {
+    control.disabled = true;
+  });
+} else {
+  const script = document.createElement('script');
+  script.type = 'module';
+  script.src = './main.js';
+  document.body.append(script);
+}
+</script>
 </body>
 </html>
