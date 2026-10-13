@@ -50,6 +50,11 @@ namespace SSNoir.IMGUI
             if (!string.IsNullOrEmpty(name)) _nodeByName[name] = cardRect;
         }
 
+        public bool IsCardAnchor(string speaker, bool preferCard)
+            => _actorById.ContainsKey(speaker) || _actorByName.ContainsKey(speaker)
+                || (preferCard && _nodeByName.ContainsKey(speaker))
+                || (!_worldByName.ContainsKey(speaker) && _nodeByName.ContainsKey(speaker));
+
         public bool TryResolve(string speaker, out Rect rect)
             => TryResolve(speaker, preferCard: false, out rect);
 

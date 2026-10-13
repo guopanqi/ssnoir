@@ -142,7 +142,9 @@ namespace SSNoir.IMGUI
                 space?.Reserve(anchor, WorldLabelLayout.ZoneKind.Soft);
             }
 
-            DrawBubbleAt(speaker, displaySpeaker, text, anchor, space, placements, bubbleKey);
+            DrawBubbleAt(speaker, displaySpeaker, text, anchor, space, placements, bubbleKey,
+                showAvatar: !usedRemoteFallback && anchors.IsCardAnchor(speaker, preferCardAnchor) == false
+                    && !allowsRemoteParticipant);
             return usedRemoteFallback;
         }
 
@@ -155,7 +157,8 @@ namespace SSNoir.IMGUI
             Rect anchor,
             WorldLabelLayout.Space? space,
             WorldLabelLayout.PlacementState? placements,
-            string bubbleKey)
+            string bubbleKey,
+            bool showAvatar = true)
         {
             // 对话气泡是"递到面前的一张纸"：Paper 底 + PaperInk 字 + 硬投影
             var bodyStyle = new GUIStyle(IMGUIStyles.ModalBody)
@@ -166,7 +169,7 @@ namespace SSNoir.IMGUI
             };
             bodyStyle.normal.textColor = IMGUIStyles.PaperInk;
 
-            var avatar = NeonPortraitLibrary.Load(speaker);
+            var avatar = showAvatar ? NeonPortraitLibrary.Load(speaker) : null;
             float columnX = avatar != null ? 12f + AvatarSize + AvatarGap : 12f;
             float textW = BubbleWidth - columnX - 12f;
             float textH = bodyStyle.CalcHeight(new GUIContent(text), textW);

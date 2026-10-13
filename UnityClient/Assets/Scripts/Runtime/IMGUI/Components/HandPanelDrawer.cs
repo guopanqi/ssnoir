@@ -405,6 +405,7 @@ namespace SSNoir.IMGUI
             bool hasStatus = statusText.Length > 0;
             float statusY = hasStatus ? injuryY - 18f : injuryY;
             float topY = statusY;
+            var speakingAnchor = new Rect(x, topY, clusterW, baseline - topY);
 
             // ── 半身像先落笔：人物从 HUD 里立起来，条子和骰子随后画上去压住它下缘，
             // 像栏杆后面站着的人。不给它画框——一有边框就变回图标了。
@@ -421,6 +422,8 @@ namespace SSNoir.IMGUI
                 // 人像大小仍有主次之分（同伴 0.86），但脚下是同一条线。
                 float bustBottom = composureY + BustOverlap;
                 var bust = new Rect(x - 6f, bustBottom - bustHeight, bustWidth, bustHeight);
+                // 对话指向人像头部，而非包含骰子与状态条的整簇区域。
+                speakingAnchor = new Rect(bust.center.x - 12f, bust.y, 24f, 24f);
                 if (drawPortraits)
                     DrawNeonBust(bust, neon, uv, PortraitConditionOf(actor, isLead, snapshot),
                         gameManager.VitalLossAge(actor.Id));
@@ -509,7 +512,7 @@ namespace SSNoir.IMGUI
                     DrawSpentDieSlot(slotRect);
             }
 
-            anchors?.RegisterActor(actor.Id, actor.Name, new Rect(x, topY, clusterW, baseline - topY));
+            anchors?.RegisterActor(actor.Id, actor.Name, speakingAnchor);
             return clusterW;
         }
 
