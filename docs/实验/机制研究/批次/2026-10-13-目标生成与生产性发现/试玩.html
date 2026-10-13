@@ -33,6 +33,8 @@ details summary{cursor:pointer;color:#d0e8cc}#stage{display:none}
 <option value="early-free">及时反馈 · 可直接换路线</option>
 <option value="late-free">迟来反馈 · 第二次工作后才知道</option>
 <option value="early-tax">及时反馈 · 换路线要额外一手适应</option>
+<option value="noisy-75">有噪声的工作线索 · 准确率75%</option>
+<option value="noisy-90">有噪声的工作线索 · 准确率90%</option>
 </select></label>
 <div class="controls"><button id="random" class="primary">随机开始</button>
 <button id="force-a">固定真实目标 A</button><button id="force-b">固定真实目标 B</button></div>
@@ -49,7 +51,7 @@ details summary{cursor:pointer;color:#d0e8cc}#stage{display:none}
 <div class="controls"><button id="copy">复制轨迹</button><button id="reset">重新开始</button></div>
 <p class="muted">没有服务器、不采集行为。这里只验证短期动作结构，不是玩家心理学试验或剧情内容。</p></div></section>
 <div class="card"><details><summary>研究假设与证据范围（建议先玩再看）</summary>
-<p>冻结数学模型以精确最优策略比较三组：先动手并及时得知类型、第二次工作后才知道、换方向多耗一手。概率1/2时，最优收益分别是9、8、8，但“先做偏好的目标，一旦看清马上调整”是一条足以全优的简短策略。由此不能认证新玩法；它只是P03“边做边看”的具体信息时点与路线成本边界。</p>
+<p>冻结数学模型以精确最优策略比较五组：先动手并及时得知类型、第二次工作后才知道、换方向多耗一手、可靠度75%或90%的有噪声工作线索。概率1/2时，最优收益分别是9、8、8、8、8.2，但“先做偏好的目标，一旦看清马上调整”是一条足以全优的简短策略。由此不能认证新玩法；它只是P03“边做边看”的具体信息时点与路线成本边界。</p>
 <p>该网页进行确定性动作模拟；对错概率只在开局决定隐藏类型。真人是否愿意探索、是否更有代入感，仍没有新数据。</p></details></div></main>
 <script>
 "use strict";
@@ -76,7 +78,8 @@ function start(hidden){
  const v=$("variant").value;
  g={variant:v,t:0,a:0,b:0,doneA:false,doneB:false,
     score:0,last:null,adapted:false,works:0,tax:v.endsWith("tax"),
-    hidden:hidden===null?(Math.random()<.5?"A":"B"):hidden,known:null};
+    hidden:hidden===null?(Math.random()<.5?"A":"B"):hidden,known:null,
+    report:null,accuracy:v==="noisy-75"?.75:v==="noisy-90"?.90:null};
  rows=[];
  $("setup").style.display="none";$("stage").style.display="block";
  $("reaction").textContent="一旦完成某项工作，才知道它是否属于真正目标。";
@@ -100,17 +103,23 @@ function act(a){
    if(a===g.hidden){g.score+=8;print("完成有效目标 "+a+"，获得8。");}
    else print("完成的是无效目标 "+a+"，成果为0。");
    reveal();
-  }else if(g.variant.startsWith("early")||g.works>=2){reveal();}
+  }else if(g.accuracy!==null&&g.report===null){
+    const match=Math.random()<g.accuracy;
+    g.report=match?g.hidden:(g.hidden==="A"?"B":"A");
+    print("工作得到一次有噪声的判断：可能是 "+g.report+"；该判断的准确率为"+Math.round(100*g.accuracy)+"%。");
+  }else if(g.variant.startsWith("early")||(g.variant==="late-free"&&g.works>=2)){reveal();}
  }
  g.t++;
- $("reaction").textContent=g.known===null?"当前仍不知道真正目标。":"已经知道真正目标："+g.known+"。";
+ $("reaction").textContent=g.known!==null?"已经证实真正目标："+g.known+"。":
+    g.report!==null?"目前仅有工作线索："+g.report+"；准确率"+Math.round(100*g.accuracy)+"%，并非事实确认。":"当前仍不知道真正目标。";
  if(g.t===3){print("三手结束；真实目标="+g.hidden+"；最终成果="+g.score+"。");}
  render();
 }
 function render(){
  $("day").textContent=g.t===3?"三手行动已结束":"行动 "+(g.t+1)+" / 3";
  $("a").textContent=g.a+" / 2";$("b").textContent=g.b+" / 2";$("score").textContent=String(g.score);
- $("info").textContent=g.known===null?"真正目标仍未知。":"当前已知正确目标："+g.known+"。";
+ $("info").textContent=g.known!==null?"当前已知正确目标："+g.known+"。":
+    g.report!==null?"线索提示："+g.report+"（准确率"+Math.round(100*g.accuracy)+"%），真实目标仍未确定。":"真正目标仍未知。";
  $("advice").textContent=g.t===3?"本局结算："+g.score+"。":"接下来把这一手投入哪项行动？";
  for(const [name,id] of [["A","work-a"],["B","work-b"],["INSPECT","inspect"],["SIDE","side"],["ADAPT","adapt"]])
    $(id).disabled=!allowed(name);
