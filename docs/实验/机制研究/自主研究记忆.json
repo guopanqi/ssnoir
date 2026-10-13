@@ -356,6 +356,27 @@
       "question": "公开真实证据使第三方失去私下合作意愿，是否形成超出普通互斥选择的玩家决策？",
       "source": "PUB01—03 2026-10-13",
       "summary": "对方私下GRANT自利3>EXIT2，公开后GRANT-1<EXIT2，且撤销旧B许可；3手高A/B需求后揭动态14、固定19/2。完全普通排他菜单逐动作同状态结果；取消互斥可兼得A/B后固定与动态均16。自利人物解释不等于新基本社交机制。"
+    },
+    {
+      "family": "noncompensatory-goal-protection-and-pareto-options",
+      "kind": "correction-of-prior-weighted-optimal-bypass",
+      "question": "CUST新增B后四种制度在8/9/12总收益下根同19，是否真的意味着COPY不提供不同有用成果？",
+      "source": "STAKE01—03 2026-10-13",
+      "summary": "复用未修改的CUST四手规则并穷举完整条件计划：original/copy分别5366/12153合法策略、68/82个不同四维成果、18/23个Pareto向量，原根仍同19。COPY保A必成可得37/2，original只能17；两代表向量保A(1,1/2,1/2,0)与保B(1/2,1,1/2,0)互不支配。B仅旁路原标量目标，不替代明确A保护义务；匹配普通PRESERVE仍等价，非新基础原语。"
+    },
+    {
+      "family": "late-revealed-nonfungible-obligations",
+      "kind": "zero-early-information-value-under-robust-first-action",
+      "question": "受保护目标A/B的要求到首手后才揭晓，是否必需更早获取信息？",
+      "source": "STAKE04 2026-10-13",
+      "summary": "不改CUST规则、另定义当局必须完成随机A或B约束（各半），HIGH/LOW独立各半，首手后揭示，完整条件逆推：原件18、copy75/4、reusable19；首手前揭示完全相同。首手统一A为四情况保留行动可达，早信息边际收益零。无真人。"
+    },
+    {
+      "family": "proof-strength-versus-scalar-optimum-research-regression",
+      "kind": "method-calibration-source-verified",
+      "question": "研究结论‘相同/没价值’究竟由何种强度证据支持？",
+      "source": "META01—03 2026-10-13",
+      "summary": "跨模型导入原历史动作：PRF凭据与同槽位A+ENABLE在22可达状态同动作同转移，PUB自利许可与普通排他菜单10状态同动作同转移，CUST original/copy原根19相同但合法COPY不同、前沿18/23、保A条件17/37/2。研究Agent不得将单组标量根值等式晋升为完整机制同构或所有玩家偏好没有价值。"
     }
   ],
   "failedExplanations": [
@@ -396,8 +417,10 @@
     "不要把早公开信息恒定解释为增加玩家价值；若同时让伙伴在初次承诺前分辨LOW/HIGH，他会在LOW拒绝（w5/2时玩家11->17/2），但若其外部机会w7/2较高，提前公开HIGH才获得合作（玩家3->17/2）。别混入玩家私人看完信号再选择性披露的不同均衡模型。",
     "TRL证明“亲手观察过实际试做”不等于获得可信能力信息：若被观察者自己有强烈未来被雇动机和低伪装成本，则它会主动将试做表象包装到与高能力类型同分布；观察者即便PASS/FAIL都看得见，后验也不能改变。c2有两个纯均衡，不能挑一个作为确定人性结论。",
     "PRF证明凭据随真实工作产出并不自动越过R502式同成本ENABLE强对照；玩家在完整模型中只需认识A工作兼办资格，A_AND_ENABLE可以逐动作映射。",
-    "CUST的唯一原件与COPY在只有A/C时是有代价的选择，但完整加入不依赖原件的B后最优直接绕行，原件可复制与否全部根19；不能把局部资源稀缺夸大成完整玩家心理两难，或靠继续抬A奖分强迫保原件。",
-    "PUB的其他主体公开后按自身效用撤回B许可（且持续需保密）是真正的策略解释，但若自利回应完全确定公开、所有转移都可写成普通互斥菜单，则没有新玩家操作原语；取消互斥甚至使一条固定得两结果策略全优。"
+    "CUST的唯一原件与COPY在只有A/C时是有代价的选择，但完整加入不依赖原件的B后最优直接绕行，原件可复制与否全部根19；不能把局部资源稀缺夸大成完整玩家心理两难，或靠继续抬A奖分强迫保原件。【STAKE后续正式限定】这里的B旁路只成立于原8A+9B+12C总分最优；保护A无论事件都完成时COPY令17→37/2，四维前沿original18 vs copy23，不能外推为完全没用。",
+    "PUB的其他主体公开后按自身效用撤回B许可（且持续需保密）是真正的策略解释，但若自利回应完全确定公开、所有转移都可写成普通互斥菜单，则没有新玩家操作原语；取消互斥甚至使一条固定得两结果策略全优。",
+    "不能用原总分下CUST四机制相同最优19推导原件可复制与不可复制对所有玩家目标等价。A不可补偿约束会使COPY严格增加可行结果集合；同时不能把该目标假设当成人类实际关切。",
+    "信息提前公开并不一定有价值：STAKE04首手A可兼顾日后保护A/B与HIGH/LOW需求分支，早揭受保护目标与首手后才揭均copy75/4；不能只凭后到信息假设有实质信息收集路线。"
   ],
   "frontier": [
     {
@@ -503,10 +526,16 @@
       "method": "按TRl与DISC区分预测信号、PRF身份/出处凭据与CUST唯一物件，检查未来任务的因果相关性、仍有行动余量、最便宜替代目标。不能凭验真二字假定用途。"
     },
     {
-      "id": "ABSTRACT-U-INTERPRETATION-AND-NONFUNGIBLE-STAKES",
+      "id": "ABSTRACT-U-HUMAN-ACCEPTANCE-OF-NONFUNGIBLE-STAKE",
       "family": "real-output-custody-vs-player-perceived-goal-importance",
-      "question": "当数学上B可代替保留原件A、COPY在完整最优策略里消失时，玩家是否仍因A的具体不可交换结果坚持保护原件？这种价值能否通过实际情境后果而非奖励参数表达？",
-      "method": "利用本批CUST无答案观察卡，A/C二目标与加入B的最小对照，收逐手选择与原话，不向人类预先泄露HIGH→B的数学最优；真人缺席时只作可测试情境假说。"
+      "question": "STAKE已数学证明B不能替代有约束的保A义务（保A前沿COPY有额外结果），但真实玩家会自然觉得原件A不可由B成果替代，还是他会优先接受全局总分更高的B+C？",
+      "method": "先做本批无答案观察卡：不给义务时记录自发目标偏好，再明确需保A，最后比较普通同成本保全与原件复印；观察逐手理由及困惑。人类未答时不可宣布体验认证，不再调奖金来证明偏好。"
+    },
+    {
+      "id": "ABSTRACT-W-EVIDENCE-CLAIM-CALIBRATION",
+      "family": "research-epistemic-regressions",
+      "question": "以后研究每次宣称强替代或‘没有价值’前是否先明确这是根值同分、向量结果等价、还是逐状态转移同构？",
+      "method": "回归运行 pattern_claim_strength_regression_20261013.py 并检查各新模式是否声明其结论强度；若只比较一个标量，至少列出一种与之不同的目标向量/合法行动可达见证作为过强断言防护。"
     }
   ],
   "method": {
@@ -585,8 +614,8 @@
     "noHumanTests": true,
     "interpretation": "X01、X02与另一批C01、C02是不同的已知组合条件反证，均不构成新独立模式或完整真人交锋认证",
     "historyCountUnchanged": 478,
-    "latestBatch": "docs/实验/机制研究/批次/2026-10-13-行动凭据与原件保全/研究记录.md",
-    "latestCounterfactual": "PRF01：三手A工作兼C真实凭据动态29/2、固定14，普通同成本A+ENABLE逐状态等价；plain10，独立ENABLE23/2，C始终开放与B工作附资格31/2。CUST01：四手唯一原件是A终局必要条件，交C将A资格消除；只有A/C时原件动态12、花一手COPY15、SHOW无需交原件31/2；开放独立B后所有四版均动态19、固定17，因为HIGH A SHOW B B=21，LOW A A B B=17，COPY合法却不被最优使用。PUB01：自利第三方在私下GRANT B收益3>EXIT2、公开后GRANT-1<EXIT2并可撤旧许可；动态14 vs固定19/2，与普通排他菜单所有完整可达状态逐动作同构；取消互斥动态/固定16。数学/本地Python验证，无真人或原生。",
-    "crossFamilyAudit": "真正做A的凭据(PRF)不同于TRL的预测能力信号：可验证工作事实本身不说明未来工作能力。PRF与R502同成本ENABLE、CUST与SEM04/CLAIM排他材料和COUP01第三目标旁路、PUB与ACT/REL/CLAIM的确定自利许可和同成本排他菜单全部相邻。最强一般性失败边界：不再造的凭据也可能因独立B完成另外的实际成果而无须复制，若人类并不认为B能替代A，则需要独立情境评价而非将A数学奖励调高。"
+    "latestBatch": "docs/实验/机制研究/批次/2026-10-13-不可替代目标与证据强度/研究记录.md",
+    "latestCounterfactual": "STAKE01-03不改旧CUST规则和8A+9B+HIGH12C奖励：开放B时original/copy/reusable旧总分动态根都是19、固定17，但original/copy完整HIGH/LOW条件策略5366/12153、不同四维成果68/82、Pareto18/23。COPY新增保A始终完成且HIGH得A+C/LOW得A+B的结果向量(1,1/2,1/2,0)，与旧B旁路(1/2,1,1/2,0)不互相支配。保A两需求约束下原件模式17、copy37/2、matched37/2、reusable19；最短动作A+C原件永不可达、copy4、reusable3。STAKE04首手后公布受保护A/B及HIGH/LOW，原模式18、copy75/4、reusable19，首手前公布同值（第一手A已覆盖）；这并非新玩家兴趣证据。META回归PRF22、PUB10状态逐动作真同构，CUST同根不同结果集合。旧“B旁路让COPY完全没价值”正式收窄为特定原标量下的最优旁路。",
+    "crossFamilyAudit": "META01跨历史比较证据层：PRF真做A得到资格 vs 同槽位A+ENABLE合法性和转移在22可达状态全同；PUB自利撤权 vs 普通互斥菜单在10可达状态全同；CUST original/copy动态根19同值却动作菜单不同、结果向量68/82、保A约束17/37/2，不可宣称逐动作或所有玩家目标同构。联系REC03总效用牺牲某项成功率、ATN02 Pareto丰富不等于持续计划、SEM01强菜单根值追平不等于同动作规则。人的A价值需要独立无答案体验，不能凭原件文案虚构。"
   }
 }
