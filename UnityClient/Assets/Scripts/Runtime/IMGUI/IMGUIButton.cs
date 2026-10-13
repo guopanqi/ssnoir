@@ -37,8 +37,8 @@ namespace SSNoir.IMGUI
         }
 
         /// <summary>
-        /// 顶栏暗条上的文字开关（卷宗 / 成长 / 帮助 / 设置）。和地点牌同一族：
-        /// 常态为微透暗底、细边与次级灰字；悬停或打开才提到主文字，
+        /// 顶栏暗条上的文字开关：共用顶栏背景，不单独画地点牌的底与框。
+        /// 常态为次级灰字；悬停或打开才提到主文字，
         /// 打开态多一层淡白底。点击仍按完整矩形判定。
         /// </summary>
         public static bool DrawTopTextToggle(Rect rect, string label, bool isOpen, IMGUIInteractionContext ui)
@@ -46,7 +46,6 @@ namespace SSNoir.IMGUI
             bool interactable = !ui.IsLocked;
             bool hover = interactable && ui.CanHover(rect);
 
-            ContainerNodeDrawer.DrawPlateBase(rect);
             if (hover || isOpen)
             {
                 IMGUIStyles.SetColor(new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b,
@@ -61,7 +60,8 @@ namespace SSNoir.IMGUI
                 fontSize = IMGUIStyles.FontSize(14),
                 wordWrap = false,
                 clipping = TextClipping.Clip,
-                normal = { textColor = (hover || isOpen) ? IMGUIStyles.TextPrimary : IMGUIStyles.TextSecondary },
+                normal = { textColor = !interactable ? IMGUIStyles.TextDisabled
+                    : (hover || isOpen) ? IMGUIStyles.TextPrimary : IMGUIStyles.TextSecondary },
             };
             int minSize = IMGUIStyles.FontSize(10);
             while (style.fontSize > minSize

@@ -118,8 +118,6 @@ namespace SSNoir.IMGUI
             }
             var secondary = new GUIStyle(body) { fontSize = IMGUIStyles.FontSize(12),
                 normal = { textColor = IMGUIStyles.PaperTextSecondary } };
-            IMGUIStyles.DrawLabel(new Rect(x, contextY, width - 88f, 20f),
-                UiText.Get("自动附上：游戏版本、当前地点"), secondary);
             var counter = new GUIStyle(secondary) { alignment = TextAnchor.UpperRight, wordWrap = false };
             IMGUIStyles.DrawLabel(new Rect(panel.xMax - 100f, contextY, 76f, 20f),
                 $"{_draft.Length} / {FeedbackClient.MaxTextLength}", counter);

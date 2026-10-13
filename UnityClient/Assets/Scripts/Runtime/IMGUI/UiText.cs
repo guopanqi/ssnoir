@@ -44,7 +44,6 @@ namespace SSNoir.IMGUI
             ["反馈"] = "Feedback",
             ["意见反馈"] = "Feedback",
             ["请输入反馈内容"] = "Enter your feedback",
-            ["自动附上：游戏版本、当前地点"] = "Includes game version and current location",
             ["返回游戏"] = "Return to game",
             ["提交反馈"] = "Send feedback",
             ["提交中…"] = "Sending…",
