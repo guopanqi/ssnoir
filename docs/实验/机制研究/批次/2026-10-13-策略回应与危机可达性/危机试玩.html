@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>危机来临前的两次决定 · SSNoir</title>
+<style>
+:root{color-scheme:dark;--bg:#141b1e;--ink:#ebe8dc;--muted:#b8c0be;--panel:#222c30;--line:#687774;--action:#c9d6b6}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.62 system-ui,-apple-system,sans-serif}
+main{max-width:760px;margin:auto;padding:23px 15px 60px}header{padding-bottom:13px;border-bottom:1px solid var(--line)}
+h1{font-size:1.6rem;margin:8px 0;line-height:1.3}h2{font-size:1.11rem;margin:0 0 10px}
+p{margin:8px 0 12px}.muted,small{color:var(--muted)}
+.card{border:1px solid #405451;border-radius:8px;background:var(--panel);padding:17px 19px;margin:15px 0}
+button,textarea{font:inherit}button{border:1px solid #94a49c;border-radius:6px;padding:10px 13px;color:var(--ink);background:#3b4a4c;cursor:pointer}
+button:hover:not(:disabled){background:#526665}button:focus-visible,textarea:focus-visible{outline:3px solid #f5c86c;outline-offset:3px}
+button:disabled{opacity:.45;cursor:default}
+.primary{background:var(--action);color:#192622;border-color:var(--action);font-weight:700}
+.actions{display:flex;gap:9px;flex-wrap:wrap;margin:12px 0}
+.metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.metric{padding:10px;background:#151f22;border-radius:4px;text-align:center}.metric b{display:block;font-size:1.42rem}
+.metric span{display:block;color:var(--muted);font-size:.77rem}
+textarea{width:100%;resize:vertical;min-height:65px;padding:10px;border:1px solid var(--line);border-radius:5px;background:#151f22;color:var(--ink)}
+pre{font:13px/1.6 ui-monospace,Menlo,monospace;white-space:pre-wrap;word-break:break-word;background:#151e22;padding:13px}
+#play{display:none}details summary{cursor:pointer;color:#cde2c8}
+@media(max-width:520px){.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.card{padding:14px}}
+</style></head><body><main>
+<header><small>SSNoir · X01 · 完整开局决策实验</small><h1>危机发生之前，你会准备什么？</h1>
+<p class="muted">先安排两次准备行动，再揭晓是否发生危机，最后用两次行动完成工作。这个实验检验玩家会不会在危机尚未出现时，为可替代成果留下进度。</p></header>
+<div class="card"><h2>公开规则</h2>
+<p>主工作A原本已有<strong>2/3</strong>进度，达到3可得<strong>8</strong>。备用工作B从0开始，需要<strong>4</strong>格才得<strong>17</strong>。半成品不计报酬。</p>
+<p>准备阶段只能：<strong>B</strong>推进备用工作一格，或<strong>SIDE</strong>做一件独立小工作，立刻得<strong>4</strong>。两手准备结束后，会公开是否发生危机。</p>
+<p>响应阶段有两手行动：A进度+1，B进度+1，SIDE得2；如果危机发生，A会被锁住，需要消耗一手<strong>FIX</strong>解除限制才能继续做A。完成A/B后不能再次领取相同报酬。准备阶段尚不能做A；B的进度可延续到响应阶段。</p></div>
+<div class="card" id="setup">
+<h2>选择已知的危机概率</h2>
+<p>这只影响危机出现的概率，危机结果直到准备阶段结束才揭晓。研究者也可强制结果来复现不同路径。</p>
+<div class="actions"><button id="low" class="primary">危机概率 1/4</button><button id="high">危机概率 3/4</button></div>
+<details><summary>研究者复现入口：固定危机有无</summary>
+<div class="actions"><button id="low-crisis">概率1/4，固定发生危机</button>
+<button id="low-clear">概率1/4，固定无危机</button>
+<button id="high-crisis">概率3/4，固定发生危机</button>
+<button id="high-clear">概率3/4，固定无危机</button></div></details>
+</div>
+<section id="play">
+<div class="card"><h2 id="stage">准备行动 1/2</h2><p id="world" aria-live="polite"></p>
+<div class="metrics"><div class="metric"><b id="a">2 / 3</b><span>主工作A</span></div><div class="metric"><b id="b">0 / 4</b><span>备用工作B</span></div><div class="metric"><b id="score">0</b><span>已获得成果</span></div></div>
+<p id="question">这一手要做什么？</p>
+<label for="thought" class="muted">作决定时你考虑什么？（可选；不影响规则）</label>
+<textarea id="thought" placeholder="可以留下判断依据。"></textarea>
+<div id="prepButtons" class="actions"><button id="prepB" class="primary">准备 B +1</button><button id="prepSide">完成小工作 +4</button></div>
+<div id="responseButtons" class="actions" style="display:none"><button id="workA" class="primary">推进 A +1</button><button id="workB">推进 B +1</button><button id="fix">FIX · 解锁A</button><button id="side">独立小工作 +2</button></div>
+</div>
+<div class="card"><h2>本局记录</h2><pre id="trace" aria-live="polite"></pre>
+<div class="actions"><button id="copy">复制行动记录</button><button id="restart">重新试验</button></div>
+<p class="muted">不联网、不自动提交反馈。这是无剧情的决策结构试验，不是 SSNoir 正式交锋。</p></div>
+</section>
+<div class="card"><details><summary>关于验证范围</summary>
+<p>危机是外部随机事件，不由玩家的选择控制；这里没有真实NPC或叙事权重。完整穷举能够证明某些不同准备路径都从同一初始状态自然可达，也能给出很短的概率条件规则；它无法证明这类选择让真人感到惊讶、紧张或愿意重玩。数字上的临界条件不应被当作创新本身。</p>
+</details></div>
+</main><script>
+"use strict";(function(){
+const $=id=>document.getElementById(id);
+let g=null,trail=[];
+function record(s){trail.push(s);$("trace").textContent=trail.join("\n");}
+function start(prob,force){
+ g={prob,force,phase:"prep",prep:0,respond:0,a:2,b:0,score:0,locked:null,doneA:false,doneB:false};
+ trail=[];$("setup").style.display="none";$("play").style.display="block";
+ $("thought").value="";$("thought").disabled=false;
+ record("危机概率="+prob+"；当前危机结果尚未揭晓");render();
+}
+function legal(){
+ if(!g||g.phase==="done")return [];
+ if(g.phase==="prep")return ["B","SIDE"];
+ const arr=["SIDE"];
+ if(g.locked)arr.push("FIX");else if(!g.doneA)arr.push("A");
+ if(!g.doneB)arr.push("B");
+ return arr;
+}
+function render(){
+ if(!g)return;
+ $("stage").textContent=g.phase==="prep"?"准备行动 "+(g.prep+1)+"/2":g.phase==="response"?"危机响应 "+(g.respond+1)+"/2":"本局结束";
+ $("world").textContent=g.phase==="prep"?"危机尚未揭晓。":(g.locked?"危机已发生：A需要FIX解除限制。":"A目前可以继续进行。");
+ $("a").textContent=g.a+" / 3";$("b").textContent=g.b+" / 4";$("score").textContent=g.score;
+ $("question").textContent=g.phase==="done"?"请先回忆准备阶段你预计会发生什么，再比较不同路线。":"这一手如何分配注意力？";
+ $("prepButtons").style.display=g.phase==="prep"?"flex":"none";
+ $("responseButtons").style.display=g.phase==="response"?"flex":"none";
+ const allowed=legal();
+ for(const [a,id] of [["A","workA"],["B","workB"],["FIX","fix"],["SIDE","side"]])$(id).disabled=!allowed.includes(a);
+ if(g.phase==="done")$("thought").disabled=true;
+}
+function action(which){
+ if(!g||!legal().includes(which))return;
+ const stage=g.phase;const why=$("thought").value.trim();
+ record((stage==="prep"?"准备":"响应")+" "+(stage==="prep"?g.prep+1:g.respond+1)+"：选择 "+which+(why?"；考虑："+why:""));
+ $("thought").value="";
+ if(stage==="prep"){
+  if(which==="B")g.b++;
+  else g.score+=4;
+  g.prep++;
+  if(g.prep===2){
+   g.locked=g.force===null?(Math.random()<g.prob):g.force;
+   g.phase="response";
+   record(g.locked?"外部事件：危机发生，A暂被锁住。":"外部事件：没有危机，A可正常推进。");
+  }
+ }else{
+  if(which==="A"){g.a++;if(g.a>=3&&!g.doneA){g.score+=8;g.doneA=true;}}
+  if(which==="B"){g.b++;if(g.b>=4&&!g.doneB){g.score+=17;g.doneB=true;}}
+  if(which==="FIX")g.locked=false;
+  if(which==="SIDE")g.score+=2;
+  g.respond++;
+  if(g.respond===2){g.phase="done";record("最终成果="+g.score+"；A完成="+g.doneA+"；B完成="+g.doneB);}
+ }
+ render();
+}
+$("low").onclick=()=>start(.25,null);$("high").onclick=()=>start(.75,null);
+$("low-crisis").onclick=()=>start(.25,true);$("low-clear").onclick=()=>start(.25,false);
+$("high-crisis").onclick=()=>start(.75,true);$("high-clear").onclick=()=>start(.75,false);
+$("prepB").onclick=()=>action("B");$("prepSide").onclick=()=>action("SIDE");
+for(const [id,act] of [["workA","A"],["workB","B"],["fix","FIX"],["side","SIDE"]])$(id).onclick=()=>action(act);
+$("restart").onclick=()=>{$("play").style.display="none";$("setup").style.display="block";g=null;};
+$("copy").onclick=async()=>{try{await navigator.clipboard.writeText($("trace").textContent);$("copy").textContent="已复制";}catch(_){$("copy").textContent="请手动复制上方记录";}};
+})();
+</script></body></html>
