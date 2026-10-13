@@ -69,6 +69,7 @@ details summary{cursor:pointer;color:#d7e8ce}
 (function(){
 const $=id=>document.getElementById(id);
 let g=null, log=[];
+const FLAT_MENU=(typeof window!=="undefined") && /(?:\\?|&)flat-menu=1(?:&|$)/.test(window.location.search);
 const SCENE={
   prepare:[
     {id:"records",name:"去查仓库的登记簿",desc:"取得一个可以公开引用的日期戳，但来不及当面解释证词会如何被使用。"},
@@ -126,6 +127,7 @@ const FOLLOWUP_DETAILS={
   second:{name:"与职员去见第二名知情者",desc:"继续保留合作渠道；新的口供未必赶得上眼前时限。",after:"职员带你找到另一个见过仓库内部记录的人。对方愿意谈，但要求先知道证据会交给谁。"},
   neighbors:{name:"去居民会议说明当前情况",desc:"面对听证窗口已经发生的后果，不能凭一次演说修改它。",after:"居民问你明天还有哪些实际可走的途径。你说出了目前能证明的事实，也承认没能做到的事情。"},
   verify:{name:"核对登记簿原始签章",desc:"继续做证据工作，承担错过今天听证的事实。",after:"你在原始卷宗中找到了第二处签章。它不改变已经错过的听证，却让后续申诉不再只靠一张复印件。"},
+  summarize:{name:"把目前的事实整理成时间表",desc:"总结已知资料，不会凭空取得新的文件或恢复任何人的同意。",after:"你把今晚经过的事写成一张时间表。它能帮助你解释自己做过什么，但还不是新的可公开证据。"},
   apology:{name:"尝试当面解释并道歉",desc:"证人的身份已公开；你不能用一句歉意恢复之前的许可。",after:"你到了职员工作的街区，没有得到答复。你仍然可以写下解释，但她是否愿意继续与你交谈，不由你决定。"}
 };
 function say(x){log.push(x);$("trail").textContent=log.join("\n");}
@@ -145,7 +147,7 @@ function begin(mode){
  g={mode,prep:null,done:false};log=[];
  $("setup").classList.add("invisible");$("play").classList.remove("invisible");
  $("reason").value="";$("reason").disabled=false;
- say("实验版本："+(mode==="hard"?"A": "B")+"；以下都是虚构情境，不存在数值评分。");
+ say("实验版本："+(mode==="hard"?"A": "B")+"；菜单对照："+(FLAT_MENU?"统一次日行动":"依历史改变行动")+"；以下都是虚构情境，不存在数值评分。");
  render();
 }
 function render(){
@@ -180,7 +182,8 @@ function render(){
    const key=g.prep+":"+g.decision,ending=ENDINGS[key];
    $("sceneTitle").textContent=ending.title;
    $("scene").textContent=ending.text+"\n\n已经产生的后果："+ending.consequences.join(" / ")+"\n\n现在你还有时间继续办一件事。旧的准备和交付方式，决定了哪些途径还能使用。";
-   showChoices(FOLLOWUPS[key].map(id=>({id,name:FOLLOWUP_DETAILS[id].name,desc:FOLLOWUP_DETAILS[id].desc})));
+   const legal=FLAT_MENU?["neighbors","summarize"]:FOLLOWUPS[key];
+   showChoices(legal.map(id=>({id,name:FOLLOWUP_DETAILS[id].name,desc:FOLLOWUP_DETAILS[id].desc})));
  }
 }
 function choose(id){
@@ -198,7 +201,8 @@ function choose(id){
    render();return;
  }
  const key=g.prep+":"+g.decision;
- if(!FOLLOWUPS[key].includes(id))return;
+ const legal=FLAT_MENU?["neighbors","summarize"]:FOLLOWUPS[key];
+ if(!legal.includes(id))return;
  copyReason();g.next=id;g.done=true;
  say("第三幕行动："+id+"；新的情况："+FOLLOWUP_DETAILS[id].after);
  render();
