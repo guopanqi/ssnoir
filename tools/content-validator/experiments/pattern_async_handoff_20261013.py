@@ -101,6 +101,13 @@ def main():
     assert plan(('SEND','A','A','SIDE'),'bad')==13
     assert plan(('A','SEND','B','B'),'good')==21
     assert plan(('A','SEND','A','SIDE'),'bad')==13
+    # When quality is known only after the second follow-up action:
+    # GOOD completes both projects; BAD abandons B to finish A.
+    assert plan(('SEND','A','B','B'),'good')==21
+    assert plan(('SEND','A','B','A'),'bad')==12
+    assert F(21+12,2)==delays[2]
+    # By the third follow-up, even the strongest contingent policy
+    # cannot improve the prewritten average reward of 15.
     print('HAND four turns no/helper/fixed',no_helper,instant,fixed4)
     print('HAND delivery report after k subsequent turns (k=0..4)',delays)
     print('HAND acceptance required four/five turns',with_receipt4,with_receipt5,
