@@ -1987,6 +1987,68 @@
         "humanVerified": false
       },
       "note": "严格顺序：某个总效用根值相等 < 明示目标结果集合等价 < 所有可达状态、合法动作、转移和时点严格同构；人类对目标的感受不在任一数学层可证明。不要用Pareto结果条数评估趣味。 回归补充：CUST根同但有效HIGH-C Pareto也不同(original15/copy17)，物理C交付前沿18/23含LOW时零收益SHOW的完成事实；两者都应注明第三项口径。"
+    },
+    {
+      "id": "PL-TRIG01",
+      "name": "推进A触发修补责任：动态15胜固定14，但提前风险信息价值为零",
+      "layer": "work-created-risk-known-composition",
+      "origin": "new-local-exact-model-and-prior-R37-source-comparison",
+      "family": "推进/触发风险/修补义务/公共反馈/行动重分配",
+      "idea": "四手中首做A时等概率生成SAFE/RISK；有RISK须多用完整一手FIX才能兑现A。玩家观察后改为SAFE追A+B或RISK保护A+SIDE，适应值15胜全固定14，但首手前预知风险同为15，短条件规则全优。",
+      "stage": "four-action-Fraction-exact-DP-all-4-power-4-static-scripts-upfront-risk-and-no-risk-ablation-no-human",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-13-主动开启与问题累积/研究记录.md",
+        "tools/content-validator/experiments/pattern_triggered_obligation_20261013.py",
+        "docs/实验/机制研究/反馈/inbox/SSNoir-feedback-R37-20261009-071937-6e46a021c6.json"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      },
+      "note": "A2得10、B2得9、SIDE1、首A得SAFE/RISK概率各半；FIX可预支付作强基线。策略SAFE A A B B得19；RISK A A FIX SIDE得11；DP15, fixed14, upfront signal15, no-risk19。R37旧真人原话认为推进累积压力与失败累积压力都能改变计划，不能据此将本新玩具当真人验证。"
+    },
+    {
+      "id": "PL-OPEN01",
+      "name": "主动打开未知工作并承接截止，低价值时花一手退出转向第二项工作",
+      "layer": "optional-obligation-and-cross-thread-pivot-composition",
+      "origin": "new-local-exact-model",
+      "family": "可选任务认领/价值揭示/局部截止/有成本退出/第二工作",
+      "idea": "五手，OPEN后得知任务HIGH14或LOW1，完成还需2 WORK，三次后仍未完成损失4；DROP占一手能解责任。动态从A高完成A加SIDE、A低退出转做B，根47/4，完整固定19/2。一行公开条件策略即全优，归并GOAL01×压力/机会窗口。",
+      "stage": "five-action-two-contract-Fraction-DP-7-power-5-fixed-with-illegal-SIDE-fallback-and-seven-controls-no-human",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-13-主动开启与问题累积/研究记录.md",
+        "tools/content-validator/experiments/pattern_open_work_threads_20261013.py",
+        "docs/实验/机制研究/批次/2026-10-13-主动开启与问题累积/无答案观察卡.md"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      },
+      "note": "A/B各独立H14/L1等概率。正常动态47/4=11.75 vs 16807指令固定19/2；第一手OPEN A 47/4、SIDE 11。A高继续工作得16，A低DROP A OPEN B WORK B WORK B按B价值H14/L1平均15/2；一条简单公开条件计划全优。仅一个任务动态19/2、无DROP动态41/4、无违约损失25/2。未观察人类是否认为允许退出义务合理。"
+    },
+    {
+      "id": "PL-OPEN02",
+      "name": "反馈窗口与承诺可解除程度是不同机制维度：早知、迟知、罚款违约和绝对履行",
+      "layer": "obligation-strength-and-timed-information-boundary",
+      "origin": "new-local-exact-ablation",
+      "family": "信息到达时点/剩余转向机会/有限违约赔偿/非补偿履约",
+      "idea": "同一OPEN工作模型中，价值在首次WORK后才揭晓，动态根39/4而非OPEN即报的47/4；如果在第1手前完全知道A/B价值，则53/4。容许4损失与一手DROP不同于禁止DROP或真正禁止违约；硬性所有已开工作必须完成使根只剩19/2。",
+      "stage": "timing-ablation-early-oracle-and-late-report-plus-hard-feasibility-and-no-drop-control-no-human",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-13-主动开启与问题累积/研究记录.md",
+        "tools/content-validator/experiments/pattern_open_work_threads_20261013.py"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      },
+      "note": "late report WORK1 then A低时可让A到期损失4再转B(期望B15/2−4=7/2)，动态39/4>fixed19/2但远小于即时揭露47/4；全部提前公知13.25=53/4。严禁DROP但可罚款默认41/4；彻底禁止不履行无论罚分高低为19/2，不是简单改罚值。"
     }
   ],
   "edges": [
@@ -3369,6 +3431,78 @@
       "to": "PL-META01",
       "relation": "matching-menu-optimality-not-full-isomorphism",
       "reason": "SEM条件retarget与always完整菜单根同37/2但合法动作约束不同，须分清被强菜单追平与逐动作同构"
+    },
+    {
+      "from": "P11",
+      "to": "PL-TRIG01",
+      "relation": "pressure-created-by-progress-not-new-primitive",
+      "reason": "推进A自身产生RISK修补需求，符合已知压力预算/推进生成负担；有动态分叉不代表新机制"
+    },
+    {
+      "from": "PL-ATN03",
+      "to": "PL-TRIG01",
+      "relation": "salvage-vs-generated-repair",
+      "reason": "ATN03中途现有成果可能受损后补救；TRIG首次A工作生成需FIX以兑现A的待办责任"
+    },
+    {
+      "from": "PL-DISC01",
+      "to": "PL-TRIG01",
+      "relation": "info-early-unnecessary-for-robust-first-action",
+      "reason": "TRIG首手A已在SAFE/RISK两种后续保留可用策略，因此事前知道风险无根价值，信息窗口须按具体可改道动作评估"
+    },
+    {
+      "from": "PL-GOAL01",
+      "to": "PL-OPEN01",
+      "relation": "optional-goal-adoption-ancestor",
+      "reason": "GOAL01首手ASK打开可选工作并可能承担未完成-4的责任；OPEN不是新发现，而是可打开第二份工作并付一手取消、每份有时钟的已知组合"
+    },
+    {
+      "from": "P02",
+      "to": "PL-OPEN01",
+      "relation": "multiple-valuable-projects-and-replanning",
+      "reason": "OPEN一项LOW时从继续原任务改为支付DROP并试第二项，玩家关心可完成目标和剩余行动"
+    },
+    {
+      "from": "P11",
+      "to": "PL-OPEN01",
+      "relation": "liability-as-active-problem",
+      "reason": "OPEN接受工作后生成持续占用关注的到期负担，未完成-4或退出耗一手，区别单纯多一张收益卡"
+    },
+    {
+      "from": "PL-STAKE01",
+      "to": "PL-OPEN02",
+      "relation": "hard-protection-vs-compensable-drop",
+      "reason": "STAKE中的A必达是非补偿结果约束，OPEN有限违约损失-4或DROP并不能替代真正必须完成的承诺，硬约束使开放多项工作的动态优势消失"
+    },
+    {
+      "from": "PL-RV03",
+      "to": "PL-OPEN02",
+      "relation": "late-feedback-loses-switching-window-but-not-all",
+      "reason": "R54到最后一手时别的终局不可达，OPEN价值晚至首次WORK才揭示仍能支付责任损失转做B，但期望大幅下降，说明窗口需审查实际后果"
+    },
+    {
+      "from": "PL-DISC01",
+      "to": "PL-OPEN02",
+      "relation": "report-arrival-controls-pivot-cost",
+      "reason": "同一OPEN信息从认领时推迟到首次WORK后，增加沉没行动并逼迫原任务违约；类似DISC早晚窗口但不是同一数字或情境"
+    },
+    {
+      "from": "PL-META01",
+      "to": "PL-OPEN01",
+      "relation": "do-not-confuse-simple-dynamic-gain-with-new-grammar",
+      "reason": "动态优于固定脚本只否定死板序列，完整同成本条件合同能重命名OPEN，不能宣称原创决策原语"
+    },
+    {
+      "from": "PL-TRIG01",
+      "to": "PL-OPEN01",
+      "relation": "work-created-trouble-vs-voluntary-liability",
+      "reason": "TRIG是当前工作首次推进就可能须修补；OPEN由玩家自愿接下新工作后产生截止与退出权，心理活动、资源和反馈时点不同"
+    },
+    {
+      "from": "PL-OPEN01",
+      "to": "PL-OPEN02",
+      "relation": "compensation-vs-noncompensation-and-information",
+      "reason": "OPEN基础协议确有动态可改投，延后价值报告/禁止退出/禁止违约分别限制不同的决策自由"
     }
   ],
   "coverage": {
@@ -3376,7 +3510,7 @@
     "curatedDisplayMappedCount": 6,
     "cs2AnalyticalPatterns": 9,
     "unconvertedHistory": "关系索引中的其他R批次、数学负例和组合应按主题逐步纳入；不能据本地图未出现就认定没有价值",
-    "additionalExperimentalCompositions": "PL-C01/PL-C02/PL-C03已做最小模型、PL-C04仅概念问题；与另一研究线的C01/C02/C03区别命名；PL-Q01/D01/W01另有3个独立模型及消融和负面边界；PL-W02新增连续三天注意力容量组合，最强简明口诀和变更容量边界明确；F1/F2/D2三项同源跨家族与充分边界反证，不增精选；RGT01/ACT01用各自精确逆推补充许可资源与自利协作者正负证据，无真人；REL01/REL02四轮精确博弈与私有信号消融已完成（同原语条件组合；不改变精选六或Debug）；REL03后续通行凭据仅真实首手截止窗口有正准备选择价值、普通窗口弱支配；未证独立新玩法；NEG01—05双方自利协商五项精确反证；R342/R430/R478原生历史首次结构化归图，均非真人。；NEG06双回合私人回应DOM全十路，X01-LONG准备→事件→响应两段完整枚举及136条合法UI路径，均一行规则全优，无真人；X03 hard disable vs costly defiance两种不同动作合法性协议在完整可达子博弈仍同最优；无真人意义证据；STG01共4种规则组合×完整路径40，因果未来菜单5对纯文本菜单1，仅网页逻辑回归，不是互动/情感新模式认证；PT01四回合双目标压转与14短策略强对照/网页试玩；INF-P01 cap2/3贝叶斯模型覆盖72+96局部公开状态信息值0；未改变历史478；GOAL01七个p×可选/强制义务、同树强预列菜单；DISC01三手有理数belief-DP、单份可靠度q后验、三种时点/换路与网页合法路径，不动历史478或精选；REC01四手四分之一禁A/B×81信号历史、16条强固定序列、一步前瞻全优及六种因果消融；REC03各目标完成概率独立统计，且最优总体策略B完成率低于简单交替；无真人；SEM01—04动作产出对象改道与材料消费改道，两项均被同成本完整菜单追平，短条件程序全优，无真人。；横向读R366函数编辑与R422预编译强对照：持久编辑可超过固定日程却不一定超过同成本完整工具，源实验非本轮重复执行。；OPS01六手动态维护与同成本SET/一手前瞻全等（含2048独立实际输入历史），CLAIM四手付费撤回×真实A早窗口互补、已给HARD/无加成消融及无窗口强菜单；均不认证新独立原语。；COUP01七手把OPS操作实际变成A/B凭据、CLAIM A禁止制作B，仍在起始phase0三类需求先验下被RUN A→CLAIM A→SIDE×5一行策略全优；局部可达差异不等于有价值的双向注意力循环。；ATN01/02检测4手交换律、1296条件序列与20个Pareto成果向量仍由固定计划追平；ATN03/04双任务已投入进度遭公开单/双损5手模型动态33/2胜固定15，提前预知35/2，单损仍可保证双目标，归入成熟危机保全组合，真人缺席。；ACT-R01/02伙伴真自利救B(3)vs外部工作(2/4)使玩家双损低/高报价严格改选，默认动态51/4 vs迟揭49/4，却与条件备用B位逐动作同构；RV01简化4手R54式A3/B5可达上界t3仅18/64前缀两路线仍各有完成可能，结合旧R37/R50/R54真实反馈提出目标意义×改选容量双审核；RV02旧P18的极简上次路径追踪被固定ABABA全优。；RV03读原R54 Scene后用真实行动/追击次序穷举：第2手后33条活跃形式历史里9可分别达成双终局，第3手后196条中0可分别达成双终局（72仅甲、12仅乙、112无终局）；无骰面概率，非真人概率。；PS01将ATN03实际受损成果与ACT自利援助组合：五手动态71/4 vs ATN03无援33/2 vs五手固定17，分目标(1,7/8,3/4)；双损低报价可保两项目标，高报价必须放弃B，外部信号晚一手零价值；同条件B备用行动容量全状态完全替代。；GRC01/02自利伙伴最初愿帮（玩家11、伙伴3），玩家未来新增低于原成本3的BYPASS使伙伴初始EXIT（玩家3、伙伴5/2），可执行HIGH条件合同或排他承诺恢复11；GRC03/04同样提前公开HIGH/LOW在w5/2令玩家11跌至17/2、在w7/2令玩家3升至17/2；跨族审计区分动作合法、物理终局可达、伙伴策略同意、人类关切。；TRL01生产性试做提供真实产出1且耗时1，诚实信号下直接SIDE2、纯检验2、边做边看3；TRL02低能力主体花1修饰PASS(1/4→3/4)以谋求未来HIRE4，唯一纯均衡下两类型信号池化、试做总值退至2；TRL03修饰成本2存在两纯均衡值2或3、成本3诚实3，q诚实准确度1/2→1试做值2→4。属DISC/R478/NEG04成熟组合边界，不认证新原语。；PRF01 A真实工作副产C凭据3手DP29/2 vs固定14，A+ENABLE同成本同值，始终开放或由B工作附资格DP31/2；CUST01不可再造原件A/C局原件12、COPY15、可复用31/2，但开放独立B后所有版权制度动态19、固定17，证明目标旁路；PUB01公开证据让自利第三方撤B许可动态14 vs固定19/2，但普通排他菜单逐动作同构，取消互斥动态/固定16。均成熟组合/负例，无新人类/Unity。；STAKE01对原CUST不改数值的全条件策略和四维目标反证：original/copy旧根均19、固定均17，但可达向量68/82、Pareto18/23，保护A所有HIGH/LOW时原17/copy37/2/reusable19；STAKE04首手后公布保护A/B时copy75/4、原版18，提前公布无增益。META回归PRF22/PUB10状态真动作同构与CUST仅同根不同可行结果，纠正旧“COPY全无价值”的过强读法，无真人。；补充STAKE向量语义审计：C物理SHOW交付不等于HIGH时有价值交付。original/copy物理四维结果68/82、Pareto18/23；按HIGH∧SHOW有效C结果67/72、Pareto15/17；保A约束17 vs37/2不变。",
+    "additionalExperimentalCompositions": "PL-C01/PL-C02/PL-C03已做最小模型、PL-C04仅概念问题；与另一研究线的C01/C02/C03区别命名；PL-Q01/D01/W01另有3个独立模型及消融和负面边界；PL-W02新增连续三天注意力容量组合，最强简明口诀和变更容量边界明确；F1/F2/D2三项同源跨家族与充分边界反证，不增精选；RGT01/ACT01用各自精确逆推补充许可资源与自利协作者正负证据，无真人；REL01/REL02四轮精确博弈与私有信号消融已完成（同原语条件组合；不改变精选六或Debug）；REL03后续通行凭据仅真实首手截止窗口有正准备选择价值、普通窗口弱支配；未证独立新玩法；NEG01—05双方自利协商五项精确反证；R342/R430/R478原生历史首次结构化归图，均非真人。；NEG06双回合私人回应DOM全十路，X01-LONG准备→事件→响应两段完整枚举及136条合法UI路径，均一行规则全优，无真人；X03 hard disable vs costly defiance两种不同动作合法性协议在完整可达子博弈仍同最优；无真人意义证据；STG01共4种规则组合×完整路径40，因果未来菜单5对纯文本菜单1，仅网页逻辑回归，不是互动/情感新模式认证；PT01四回合双目标压转与14短策略强对照/网页试玩；INF-P01 cap2/3贝叶斯模型覆盖72+96局部公开状态信息值0；未改变历史478；GOAL01七个p×可选/强制义务、同树强预列菜单；DISC01三手有理数belief-DP、单份可靠度q后验、三种时点/换路与网页合法路径，不动历史478或精选；REC01四手四分之一禁A/B×81信号历史、16条强固定序列、一步前瞻全优及六种因果消融；REC03各目标完成概率独立统计，且最优总体策略B完成率低于简单交替；无真人；SEM01—04动作产出对象改道与材料消费改道，两项均被同成本完整菜单追平，短条件程序全优，无真人。；横向读R366函数编辑与R422预编译强对照：持久编辑可超过固定日程却不一定超过同成本完整工具，源实验非本轮重复执行。；OPS01六手动态维护与同成本SET/一手前瞻全等（含2048独立实际输入历史），CLAIM四手付费撤回×真实A早窗口互补、已给HARD/无加成消融及无窗口强菜单；均不认证新独立原语。；COUP01七手把OPS操作实际变成A/B凭据、CLAIM A禁止制作B，仍在起始phase0三类需求先验下被RUN A→CLAIM A→SIDE×5一行策略全优；局部可达差异不等于有价值的双向注意力循环。；ATN01/02检测4手交换律、1296条件序列与20个Pareto成果向量仍由固定计划追平；ATN03/04双任务已投入进度遭公开单/双损5手模型动态33/2胜固定15，提前预知35/2，单损仍可保证双目标，归入成熟危机保全组合，真人缺席。；ACT-R01/02伙伴真自利救B(3)vs外部工作(2/4)使玩家双损低/高报价严格改选，默认动态51/4 vs迟揭49/4，却与条件备用B位逐动作同构；RV01简化4手R54式A3/B5可达上界t3仅18/64前缀两路线仍各有完成可能，结合旧R37/R50/R54真实反馈提出目标意义×改选容量双审核；RV02旧P18的极简上次路径追踪被固定ABABA全优。；RV03读原R54 Scene后用真实行动/追击次序穷举：第2手后33条活跃形式历史里9可分别达成双终局，第3手后196条中0可分别达成双终局（72仅甲、12仅乙、112无终局）；无骰面概率，非真人概率。；PS01将ATN03实际受损成果与ACT自利援助组合：五手动态71/4 vs ATN03无援33/2 vs五手固定17，分目标(1,7/8,3/4)；双损低报价可保两项目标，高报价必须放弃B，外部信号晚一手零价值；同条件B备用行动容量全状态完全替代。；GRC01/02自利伙伴最初愿帮（玩家11、伙伴3），玩家未来新增低于原成本3的BYPASS使伙伴初始EXIT（玩家3、伙伴5/2），可执行HIGH条件合同或排他承诺恢复11；GRC03/04同样提前公开HIGH/LOW在w5/2令玩家11跌至17/2、在w7/2令玩家3升至17/2；跨族审计区分动作合法、物理终局可达、伙伴策略同意、人类关切。；TRL01生产性试做提供真实产出1且耗时1，诚实信号下直接SIDE2、纯检验2、边做边看3；TRL02低能力主体花1修饰PASS(1/4→3/4)以谋求未来HIRE4，唯一纯均衡下两类型信号池化、试做总值退至2；TRL03修饰成本2存在两纯均衡值2或3、成本3诚实3，q诚实准确度1/2→1试做值2→4。属DISC/R478/NEG04成熟组合边界，不认证新原语。；PRF01 A真实工作副产C凭据3手DP29/2 vs固定14，A+ENABLE同成本同值，始终开放或由B工作附资格DP31/2；CUST01不可再造原件A/C局原件12、COPY15、可复用31/2，但开放独立B后所有版权制度动态19、固定17，证明目标旁路；PUB01公开证据让自利第三方撤B许可动态14 vs固定19/2，但普通排他菜单逐动作同构，取消互斥动态/固定16。均成熟组合/负例，无新人类/Unity。；STAKE01对原CUST不改数值的全条件策略和四维目标反证：original/copy旧根均19、固定均17，但可达向量68/82、Pareto18/23，保护A所有HIGH/LOW时原17/copy37/2/reusable19；STAKE04首手后公布保护A/B时copy75/4、原版18，提前公布无增益。META回归PRF22/PUB10状态真动作同构与CUST仅同根不同可行结果，纠正旧“COPY全无价值”的过强读法，无真人。；补充STAKE向量语义审计：C物理SHOW交付不等于HIGH时有价值交付。original/copy物理四维结果68/82、Pareto18/23；按HIGH∧SHOW有效C结果67/72、Pareto15/17；保A约束17 vs37/2不变。；TRIG01四手首次A推进引发SAFE/RISK修补责任，动态15胜固定14，首手前预知风险仍15，无风险19；一行公开条件计划全优，归入R37/P11而不是新原语。OPEN01五手两可认领工作高14低1，打开后三手未履行损失4，付一手DROP；动态47/4胜固定19/2，只许单工作19/2、无DROP41/4、无违约损失25/2、价值推迟到首次WORK39/4、提前知道双工作53/4、绝对必须履行19/2；都属于GOAL01×注意力/退出/信息时点的成熟组合，无新人类。",
     "humanFeedbackNote": "目前有关稳险/R06、边做边看/R10、压力/R37、R54、R50的有限设计者反馈；原记录各不等价于受控盲试玩；P02/R13仍没有真人反馈。",
     "thirdComparison": "PL-C05 supplies a tested negative boundary; not a new curated or debug pattern"
   },
