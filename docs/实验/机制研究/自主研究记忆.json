@@ -517,6 +517,20 @@
       "question": "玩家知道真实原因、拥有概率线索、正确处理来源、取得外部认可证明，是否真正被模型分别表达？",
       "source": "META05 2026-10-14",
       "summary": "INV SHIELD内生造成无痕迹，DISC工作同时观察、TRL低型策略性伪装、INF-P01免费已知没价值、GRC信息改变他者同意分别不同。WATCH得信息不等于CERT独立C资格，STOP真正确也不等于司法证据；以后研究信息时优先记录由谁产生、行动是否改变其出现、何时知道、可信度、能否真正转为结果资格。"
+    },
+    {
+      "family": "negative-evidence-created-by-selective-protection",
+      "kind": "mature-causal-intervention-composition-with-strong-new-menu-counterexample",
+      "question": "完全保护让痕迹消失，是否存在只保护R、观察B或事件缺席而直接推断来源的同成本替代？",
+      "source": "PART01 2026-10-14",
+      "summary": "来源R/B各半且事件原本必然q=1，PARTIAL_R只保护R，B事件出现说明B、没有事件说明R；P无伤3/4、正确STOP1、SIDE2，(安全6,STOP12,SIDE1)根37/2 vs原WATCH17，原INV只给FULL/WATCH因此是更强菜单扩张而非原算错。PARTIAL仍有1/4伤害，不满足硬无伤要求。无新真人。"
+    },
+    {
+      "family": "absence-ambiguity-and-sequential-information-value",
+      "kind": "different-posteriors-defeat-one-shot-equivalence",
+      "question": "如果事件可能自然缺席，为什么一次直接STOP正确率相同的PARTIAL与WATCH，在可以再调查一手时可能优劣倒转？",
+      "source": "PART02—04 2026-10-14",
+      "summary": "自然事件概率q；PARTIAL_R的NO_EVENT概率1-q/2、P(R|NO_EVENT)=1/(2-q)，WATCH的NO_EVENT仍对R/B均匀。q=1/2时两者一次MAP正确STOP率同(1+q)/2=3/4，PARTIAL无伤7/8胜WATCH3/4，但完整后3手含75% PROBE时WATCH动态33/2>PARTIAL65/4；q=1时PARTIAL37/2胜WATCH17；q=1/4时WATCH65/4>PARTIAL129/8。不能用一个准确率或一条简单政策声称两信息过程同构，Bayesian后续行动差别实际可达。"
     }
   ],
   "failedExplanations": [
@@ -578,7 +592,9 @@
     "CARRY跨两日的PLEDGE让第二日存在随机1/2 FOLLOW负担并与随机U争手，局部可见多个选择，但全部根策略不承诺的固定A A→A U U已18，与允许PLEDGE的动态18相等，强制先PLEDGE SIDE只有33/2；一项会产生麻烦的行动若全局受普通路线支配，就不应继续调奖金来救成候选。",
     "不能从INV WATCH在一组可补偿权重(6,12,1)下胜SHIELD推断理性玩家应以当次A的安全换取信息：如果A不得在任何状态受损，WATCH不合法，最优只能SHIELD根16；可补偿数学偏好与不可补偿保护义务是不同目标问题。",
     "“保护就无法取得证据”只有事件确实因保护而不发生且没有同样可靠的安全替代时才产生张力。INV若SHIELD后免费得精确来源，根20且WATCH全局不优；若付一手安全100%调查，根19大于原17。禁止安全调查按钮必须有真实因果解释，不能靠删功能制造新颖性。",
-    "INV的准确WATCH痕迹只是玩家条件策略可用的信息，正确STOP只是事实结果，既没有独立可结算证明C、也没有对方自主伪装/否认/拒绝；不能把它与CERT或TRL/GRC完整社会证明语义混为一谈。"
+    "INV的准确WATCH痕迹只是玩家条件策略可用的信息，正确STOP只是事实结果，既没有独立可结算证明C、也没有对方自主伪装/否认/拒绝；不能把它与CERT或TRL/GRC完整社会证明语义混为一谈。",
+    "INV旧首手菜单只有FULL SHIELD和WATCH，WATCH权重(6,12,1)下最优17不能外推到所有可想象保护动作。PART加入同成本仅保护R，在原事件必然q=1时未见事件恰能反向确认R，PART根37/2且结果向量(3/4,1,2)严格优于旧WATCH(1/2,1,2)。这改变协议不是推翻旧DP；以后必须审部分保护/非侵入安全观测的强替代。",
+    "PART中直接猜测STOP的正确率WATCH与PARTIAL_R对任意q均(1+q)/2，PARTIAL还更安全，但不能直接宣称完整最优时PARTIAL弱支配WATCH。当q=1/2，WATCH无事R/B均匀使后续PROBE能显著提高准确率，PART无事后验R2/3则PROBE与直接STOP平局，完整DP WATCH33/2反超PARTIAL65/4；同一次指标准确率不等于后续信息价值相等。"
   ],
   "frontier": [
     {
@@ -760,6 +776,18 @@
       "family": "information-observation-vs-authorized-evidence",
       "question": "某模式声称玩家已经查明真相时，具体是形成了可信猜测、拥有直接痕迹、物理上选对目标，还是获得了可对外提交且第三方承认的结果资格？",
       "method": "先对照INV仅使STOP正确率提高、CERT C必须实际领取才能结算、TRL信号可被伪装、GRC他者可不同意。若还没有独立PROOF动作及接纳条件，不根据解谜文本宣布已有法律或社会证据成果。"
+    },
+    {
+      "id": "ABSTRACT-AI-NEGATIVE-EVIDENCE-AND-EVENT-BASELINE",
+      "family": "selective-intervention-counterfactual-absence-evidence",
+      "question": "参与者是否理解只有当事件原本可靠地会发生时，保护后一片安静才构成确定的来源线索？事件本来可能没发生时，他会误把NO_EVENT作为来源R的证明吗？",
+      "method": "使用INV无答案卡版本D，在首手SHIELD/WATCH原版之后才展现PARTIAL_R/B；先q1必然事件，后q1/2可自然缺席，首试不提示P(R|NO_EVENT)=1/(2-q)。记录是否自发因沉默调整STOP及安全需求，不把第二版当独立首试。"
+    },
+    {
+      "id": "ABSTRACT-AJ-CONTINUATION-VALUE-BEYOND-PREDICTION-ACCURACY",
+      "family": "sequential-observation-and-followup-information",
+      "question": "不同信号来源即使第一步猜对概率相同，因未来仍能选择PROBE，它们在完整行动循环中是否具备不同的后续价值？",
+      "method": "以PART q=1/2的WATCH33/2 vs PARTIAL65/4为确认案例，对未来候选保留每种观测后的后验与后续可行动作，而非只上报“得到线索准确率x%”；仍必须与强普通菜单、人类理解和不可补偿结果核对。"
     }
   ],
   "method": {
@@ -838,8 +866,8 @@
     "noHumanTests": true,
     "interpretation": "X01、X02与另一批C01、C02是不同的已知组合条件反证，均不构成新独立模式或完整真人交锋认证",
     "historyCountUnchanged": 478,
-    "latestBatch": "docs/实验/机制研究/批次/2026-10-14-干预改变证据可见性/研究记录.md",
-    "latestCounterfactual": "INV01—06改变证据是否产生而非只改变证据何时报告。4手先选SHIELD或WATCH：隐藏真实原因R/B各1/2；SHIELD避免当次损害但消灭直接来源痕迹，WATCH准确得来源、A当次有1/2不可逆损害；后3手PROBE一次正确率3/4、STOP_R/B一次、SIDE每手1。结果向量(P无伤,P正确STOP,E SIDE)透明三策略=(1,3/4,1),(1,1/2,2),(1/2,1,2)互无支配。Exact Fraction Bayesian DP：安全/正确/SIDE权重(6,12,1)动态17偏WATCH、128固定14；(12,8,1)动态19偏SHIELD、固定18；(8,8,1)动态15偏SHIELD、固定14。硬性任何伤害不可接受时WATCH失去合法性，(6,12,1)根16。SHIELD后仍免费得精确信息时根20、SHIELD后可花1手做100%安全PROBE根19、禁任何PROBE仍17。安全8、SIDE1、STOP未来影响折算每期4N时N1/2/3/4根12/15/18/22，N3平局、N4偏WATCH；并非真正多个周期的行动模拟。",
-    "crossFamilyAudit": "阅读旧DISC01生产性调查、TRL01/02策略性试做与伪装、INF-P01隐藏压力原因免费提前已知仍零行动价值、GRC03信息先公开通过他者决定参加、STAKE/META原标量与硬目标不同、CERT独立结算资格。INV特殊之处是玩家保护行动使事件不出现从而无法再观察当次痕迹；不像TRL有真实策略性伪装者，也没有GRC中他者拒绝。它仍可全部改名为条件观测菜单，属于P09风险兑现×P03信息与改道×STAKE非补偿安全的成熟组合，未认证新原语；WATCH只得到信息使STOP更准确，不等于被外部认可的证据凭证或司法证据。GitHub新四手无答案HTML和仅Syntax+精确Bayesian CI脚本已创建，真人未试玩。"
+    "latestBatch": "docs/实验/机制研究/批次/2026-10-14-干预改变证据可见性/选择性保护与缺席证据反证.md",
+    "latestCounterfactual": "INV01—06原首手只有全保护SHIELD与完全观察WATCH：隐藏来源R/B等概率，WATCH无损害率1/2、准确STOP1、SIDE2，SHIELD安全1但可75%PROBE，(安全6、正确STOP12、SIDE1) WATCH17胜SHIELD16，固定最优14；安全12/阻止8时SHIELD19胜WATCH16，强无伤禁WATCH后(6,12,1)根16。强外生免费精确信息使SHIELD根20，安全完美PROBE一手使SHIELD根19。PART扩展首手同成本只保护R/B并显式事件自然发生基线q：若q=1必然有事件，保护R而未见事件可确定来源R，见B事件可确定B，PARTIAL结果(无伤3/4,正确1,SIDE2)，(6,12,1)根37/2严格胜旧WATCH17；原INV未提供PARTIAL按钮，非旧计算错误。q=1/2时未见事件后PARTIAL后验P(R)=2/3，而WATCH未见事件R/B各半；若再可用一次75%PROBE，DP值FULL16 WATCH33/2 PARTIAL65/4，反而WATCH略胜PARTIAL，虽然后者单次猜来源正确率与WATCH同(1+q)/2、且更安全。q=1/4时WATCH65/4 PARTIAL129/8。表明单次分类准确率、信息结构的后续价值和安全结果必须分开；q从必然到不确定改变了沉默的证据含义。",
+    "crossFamilyAudit": "新增PART01/02是INV原菜单的强替代反证，不是新基础原语。q=1时事件被保护导致缺席是确定来源线索；q<1时NO_EVENT也可能只是潜在事件自然没发生，需用Bayes证实，不能当司法凭证或人格推断。与DISC生产性信息、TRL被观察者策略性伪装、INF-P01免费早知没策略价值、GRC他者因公开信息退出、CERT资格结算均应区分。完整三手允许PROBE后续时，PARTIAL和WATCH虽有相等的直接STOP准确率却可出现WATCH动态值更高，原因是NO_EVENT后续信念状态与新调查边际价值不同。研究着重结果向量、真实初态和普通替代，不宣称新真人乐趣，HTML只首手SHIELD/WATCH，选择性保护在分开纸面无提示卡。"
   }
 }
