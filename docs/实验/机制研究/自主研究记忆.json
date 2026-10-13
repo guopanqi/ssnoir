@@ -433,6 +433,34 @@
       "question": "只确认两个终局物理可达，就足以声称玩家仍有同样多的改选余地吗？",
       "source": "META02 2026-10-13",
       "summary": "FOCUS t2/t3/t4最优准备后两个目标均可达，却有不同的最短达成手数和能剩余SIDE机会，根20.5/20/19。跨ATN/HEDGE/CLOCK/STAKE/GRC/本项目CS2非官方作者九类归纳，增列检查目标拓扑、行动非交换、切换成本、信息时点、完成后剩余容量、他者意愿与玩家目标意义。方法归纳非新原语和体验证据。"
+    },
+    {
+      "family": "asynchronous-handoff-and-background-capacity",
+      "kind": "mature-cross-goal-delegation-composition",
+      "question": "花一手把A交给固定产能的助手，自己推进B，在报告结果后可补救，是否真实提高可得结果？",
+      "source": "HAND01—04 2026-10-13",
+      "summary": "四手A3奖12/B2奖9/SIDE1，SEND一手启动GOOD后续A2或BAD后续A1，各半；动态17 vs固定15 vs禁代理13。公开两行最优先SEND,A，GOOD B B得21、BAD A SIDE得13；首手A后SEND也可动态17，无严格要求第一手委托。自动机器同成本完全重命名助手，非新社会原语/无真人。"
+    },
+    {
+      "family": "quality-report-arrival-and-pivot-capacity",
+      "kind": "feedback-window-value-with-asynchronous-work",
+      "question": "后台产能结果报告越早是否始终等量提高委托决策价值？",
+      "source": "HAND05 2026-10-13",
+      "summary": "SEND后0/1/2/3/4次后续行动质量才公开的精确根17,17,33/2,15,15。报告早于第一项自我A无额外价值；晚2项后SEND,A,B按GOOD最后B得21、BAD最后A得12、均值16.5；三项后报告已无改选容量退化固定15。和DISC已有成熟信息窗口同族。"
+    },
+    {
+      "family": "physical-output-to-claimable-work-handoff",
+      "kind": "mandatory-acceptance-cost-and-global-dominance",
+      "question": "助手后台完成进度与玩家能合法计入完成的成果，是否是两种不同资源？",
+      "source": "HAND06—08 2026-10-13",
+      "summary": "另设要等两次后续行动再花完整ACCEPT1手才能使用后台A单位；4手验收动态13=无代理13<无验收17；5手验收21=无代理21<无验收43/2。SEND+ACCEPT耗2手，GOOD产能最多A2，缺少独占能力时可由两手亲自做A匹配。等根仅限原标量，不宣称全部行动和成果同构。"
+    },
+    {
+      "family": "delegation-vs-autonomous-partner-evidence-layers",
+      "kind": "cross-source-partner-evidence-audit",
+      "question": "什么时候委托真涉及另一个自主主体，而不仅是可匹配的后台机器？",
+      "source": "META03 2026-10-13",
+      "summary": "对照HAND随机好坏无伙伴独立动作，与ACT01旧伙伴有自利HOLD/OUT/GRC01旧HELP/EXIT有外部机会不同。分层审物理工作、进度能否被玩家观察、是否可结算、主体是否有独立参加或拒绝权、玩家是否真正关心结果。任何一层不因加人物名字自然拥有下一层的证据；无人类。"
     }
   ],
   "failedExplanations": [
@@ -485,7 +513,10 @@
     "高质量资源应一律冲主目标、低质量资源先修风险，只是某些局面中的有用启发式而非数学最优：DICE首A投H2后RISK2，剩余H2修2而L1补A最后1并SIDE另1优于L1两次修2且H2补A；固定‘H不得FIX’根只25/2 vs13。不能把此抽象确定骰模型说成R37真实骰概率或已有人类验证。",
     "不能从FOCUS‘前两手不许SIDE’的动态切换41/2胜固定15，推到一般情况下玩家理应及早押方向；开放前两手SIDE后等需求再WORK根22严格更好，早押是被前期行动窗口锁定的条件性现象，第二手实际上仍可TO而非必须推进WORK。",
     "FOCUS TO改工作对象与普通同成本SETUP在89个可达(回合,状态)拥有相同合法集合与转移；不能仅因写作‘专注’就升级心理学新原语。免费改焦点则固定A3B3可完双目标根24，甚至无需反馈重排。",
-    "物理可达二元检查不是完整机会评价：FOCUS在t2/t3/t4的最优前缀后A/B都物理可达，却因最短达成用手(1,4)/(3,3)/(2,2)与已有保底数不同，动态根20.5/20/19。需同时记录剩余行动余裕和结果重要性，而非宣称同YES可达便同战略自由。"
+    "物理可达二元检查不是完整机会评价：FOCUS在t2/t3/t4的最优前缀后A/B都物理可达，却因最短达成用手(1,4)/(3,3)/(2,2)与已有保底数不同，动态根20.5/20/19。需同时记录剩余行动余裕和结果重要性，而非宣称同YES可达便同战略自由。",
+    "HAND将固定随机AUTO_A工具写成“有自己的想法的伙伴”不会产生社会决策原语：受托者GOOD/BAD只是外生质量类型，不会基于自己的利益保留工作权或拒绝参加；对照ACT01/GRC01旧真实双主体选择，不应借其人的反馈声称本批获体验认证。",
+    "派出助手并自动获得进度不等于能使用已完成成果：HAND若必须SEND1+ACCEPT1共花两手，而GOOD最多贡献A2且BAD仅A1，4手与5手验收版动态根13/21均与纯亲自工作同值；同值只限标量根而不是强同构。",
+    "更早得到后台工作的质量报告不总有边际价值：HAND即时与迟一手告知均根17，因为两类结果下第一项后续工作A是共同优选；迟两手根33/2，迟三手才下降到固定15，必须按剩余可改选容量定位真实信息窗口。"
   ],
   "frontier": [
     {
@@ -631,6 +662,18 @@
       "family": "objective-reachability-and-postcompletion-options",
       "question": "研究者审‘玩家此刻仍可A或B’时，是否都计算目标所需最短合法行动、完成后的保底/支线剩余和该目标真正不可补偿的后果，而不是仅勾选两条仍可达？",
       "method": "以后所有宣称真实可选路径的模型，至少留下一个正常可达前缀，报告距A/B的最短合法资源消耗与可留下的成果；参考FOCUS (4;1,4),(3;3,3),(2;2,2) 和STAKE非补偿义务；不把工具收益当人类关切。"
+    },
+    {
+      "id": "ABSTRACT-AC-HANDOFF-RECEIPT-COST-AND-OWNERSHIP",
+      "family": "work-delegation-and-final-acceptance",
+      "question": "一种抽象场景下，别人完成工作之后是否存在不能由自己两手直接工作替代的独占权限、现场距离、真实质量核查或他者自愿合作，从而使额外验收有不可替代的作用？",
+      "method": "先对照HAND无验收17、有验收13（四手）与纯自己做13的强反证，再查真实的成果转交权而不是提高GOOD概率或奖金。未来纸面无答案看玩家是否会注意已经生产与已经收取是两件事。"
+    },
+    {
+      "id": "ABSTRACT-AD-AUTONOMOUS-PARTNER-VS-AUTOMATION",
+      "family": "genuinely-autonomous-work-and-social-decision-loop",
+      "question": "若设计目标是表达另一个人的独立意愿，玩家究竟观察其何种自主选择才能区别于固定GOOD/BAD机器？若普通AUTO工具同成本全复刻，还需要单独研究社会反馈吗？",
+      "method": "复核既有ACT01/GRC01最强普通条件机器对照，保持对方的自身效用、参加权与未来外部机会公开；不复做已知ACT/GRC数字实验。用HAND的五层诊断审每个候选，只有真实差异才提出无答案人类观察。"
     }
   ],
   "method": {
@@ -709,8 +752,8 @@
     "noHumanTests": true,
     "interpretation": "X01、X02与另一批C01、C02是不同的已知组合条件反证，均不构成新独立模式或完整真人交锋认证",
     "historyCountUnchanged": 478,
-    "latestBatch": "docs/实验/机制研究/批次/2026-10-13-注意力切换与计划余裕/研究记录.md",
-    "latestCounterfactual": "FOCUS六手两目标各需WORK3，完成一项基本5+需求匹配加14，需求A/B各半、在t=2前揭；改变焦点必须用整手TO；前两手只禁SIDE，t1仍可TO。动态41/2=20.5，280条全合法固定和全部5^6=15625含确定合法fallback固定都只15，普通同成本SETUP全部89可达状态动作合法性/转移完全映射，免费转线可六手A3B3固定/动态24。只去掉前两手禁SIDE则SIDE×2→按需求完成WORK3→SIDE，根22，严格高于20.5，说明安全等待能全局绕过前期承诺/TO。需求在t0/1/2/3/4前揭示最优根22,21,41/2,20,19；t2/3/4最优准备前缀A A / A TO_B SIDE / A A TO_B B之后，剩余手数4/3/2、A/B最短动作分别(1,4)/(3,3)/(2,2)，两终局均可达但完成后余裕不同。全部为无新人类/独立Agent/Unity的数学模型。",
-    "crossFamilyAudit": "从仓库Citizen Sleeper 2交锋设计研究（明确是本项目作者九类归纳，非官方机制清单）跨ATN01动作交换律、OPS01同成本预编译工具、HEDGE全球串行旁路、CLOCK并发期限吞噬退路、STAKE/META同根非同构与GRC三层可达性审阅。FOCUS改变工作方向需行动，但同成本SETUP完整结构相同，不是新原语；取消前两手SIDE封禁可先等信号得22超过付费改焦点20.5，强反例不可省略。只数‘A/B两个终局仍可达’不足以描述信息窗口价值：还应记录达成它们最少几手、完成之后有多少剩余行动可另取成果（residual action slack）；数学不能断言玩家真正关心A/B或喜欢前期布局。"
+    "latestBatch": "docs/实验/机制研究/批次/2026-10-13-异步委托与成果接收/研究记录.md",
+    "latestCounterfactual": "HAND01—08四手A3奖12/B2奖9/SIDE1；一手SEND后，GOOD概率1/2在后续2手各A+1、BAD只首后续A+1，后台独立于玩家这两手自己做A/B。质量即知动态17，完整固定5^4（非法SEND回退SIDE）15，不允许SEND13；公开最优首SEND,A，GOOD后B,B得21、BAD后A,SIDE得13，先A再SEND同根17（不是第一手必须委托）。质量报告在后续0/1/2/3/4手后动态17,17,33/2,15,15。需经过2后续动作并另花一手ACCEPT验收才能使代理进度计入A，则四手动态13（纯玩家也是13），五手动态21（纯玩家也是21）而五手无验收43/2。由于SEND+ACCEPT共花2个人动作且代理最多产A2（差时A1），没有代理专属能力或额外使用权时工作量收益被验收抵消。全部是抽象确定动作/外生GOOD/BAD信息，非具备自我效用的伙伴，普通AUTO_A机器人可完整改名复刻。",
+    "crossFamilyAudit": "跨RGT/ACT/GRC/FOCUS/HEDGE/STAKE/META审查：HAND委托只是随机后台产能，不是伙伴有选择权。ACT01旧历史伙伴自利HOLD/OUT、GRC01旧历史未来BY​PASS使协作者起初不HELP，是真正各自主体选择；不能借旧研究的自主/真人体验为HAND背书。HAND中物理工作自动完成、质量结果何时可见、需要ACCEPT才准结算、他者能否自主同意、玩家是否在乎A五层必须分开；MATCH普通机器在HAND为规则重命名强对照。STAKE说明相同根值≠所有成果集合相同，HAND验收=不委托在4手/5手原值相同只证明原标量下无严格最优收益，不可宣布全部结果同构。FOCUS的安全等待旁路反例还提醒委托首手SEND不必严格优于先A再SEND。"
   }
 }
