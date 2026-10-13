@@ -8,13 +8,15 @@ const scripts=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)];
 assert.equal(scripts.length,1);
 new vm.Script(scripts[0][1]);
 const button={A:"work-a",B:"work-b",INSPECT:"inspect",SIDE:"side",ADAPT:"adapt"};
-function replay(variant,truth,actions=[]){
+function replay(variant,truth,actions=[],signalMatch=true){
  const elems=new Map();
  const document={getElementById(id){
   if(!elems.has(id))elems.set(id,{id,onclick:null,textContent:"",value:"",style:{},disabled:false});
   return elems.get(id);
  }};
- vm.runInNewContext(scripts[0][1],{document,Math,navigator:{clipboard:{writeText:async()=>{}}}},{timeout:3000});
+ const controlledMath=Object.create(Math);
+ controlledMath.random=()=>signalMatch?.01:.99;
+ vm.runInNewContext(scripts[0][1],{document,Math:controlledMath,navigator:{clipboard:{writeText:async()=>{}}}},{timeout:3000});
  const $=id=>document.getElementById(id);
  $("variant").value=variant;
  $(truth==="A"?"force-a":"force-b").onclick();
@@ -56,6 +58,17 @@ assert.equal(taxed.$("adapt").disabled,false);
 assert.equal(replay("early-tax","B",["A","ADAPT"]).$("work-b").disabled,false);
 const normal=replay("early-free","B",["A"]);
 assert.equal(normal.$("work-b").disabled,false);
+const noisyA=replay("noisy-75","A",["A"],true);
+assert.match(noisyA.log,/可能是 A/);
+assert.doesNotMatch(noisyA.log,/正确目标是 A/);
+const misleading=replay("noisy-75","B",["A"],false);
+assert.match(misleading.log,/可能是 A/);
+assert.doesNotMatch(misleading.log,/正确目标是 B/);
+const verified=replay("noisy-75","B",["A","INSPECT"],false);
+assert.match(verified.log,/正确目标是 B/);
+assert.equal(replay("noisy-75","B",["A","B","B"],true).score,8);
+assert.equal(replay("noisy-75","A",["A","B","B"],false).score,0);
+assert.equal(replay("noisy-90","A",["A","A","SIDE"],true).score,10);
 let total=0;
 const actions=Object.keys(button);
 function exhaust(variant,truth,prefix=[]){
@@ -69,7 +82,7 @@ function exhaust(variant,truth,prefix=[]){
  for(const a of actions)
   if(!probe.$(button[a]).disabled)exhaust(variant,truth,prefix.concat(a));
 }
-for(const v of ["early-free","late-free","early-tax"])
+for(const v of ["early-free","late-free","early-tax","noisy-75","noisy-90"])
  for(const truth of ["A","B"])exhaust(v,truth);
 assert.ok(total>=100,"insufficient legal trajectory coverage: "+total);
-console.log("PASS DISC-01 DOM: "+reference.length+" reference paths, timely observation, switch legality, "+total+" legal three-action histories");
+console.log("PASS DISC-01/02 DOM: "+reference.length+" reference paths, 75/90%-reliability versus observed truth, switch legality, "+total+" legal three-action histories");
