@@ -505,7 +505,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
   <article class="overview-attention"><div class="simple-section-title"><h2>可以参与</h2><span id="wb-attention-status"></span></div><div id="wb-attention"></div><a href="#experiments" class="overview-small-link">全部实验 →</a></article>
  </div>
  <section class="overview-updates"><div class="simple-section-title"><h2>最新变化</h2><a href="#journal">查看日志 →</a></div><div id="wb-notes" class="overview-updates-list"></div></section>
-<section class="dialogue-section" aria-labelledby="dialogue-title"><div class="simple-section-title"><h2 id="dialogue-title">研究者向你提问</h2><span>反馈不要求评分，也不会阻断 Agent 的研究</span></div><div id="wb-dialogue-requests"></div></section>
+<section class="dialogue-section" aria-labelledby="dialogue-title"><div class="simple-section-title"><h2 id="dialogue-title">研究者向你提问</h2><span>反馈不要求评分，也不会阻断 Agent 的研究</span></div><div id="wb-dialogue-requests"></div><p class="minor">回答将作为研究记录保存在公开 GitHub 仓库；请勿填写私人信息或不希望公开的设计材料。提交后不会自动生成即时 AI 回复。</p></section>
 </section>
 <section class="wb-page hidden" id="experiments">
 <div class="lab-heading"><span class="section-label">PLAYTEST LAB</span><h1>实验室</h1></div>
@@ -1435,7 +1435,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
       "origin": "new-local-experiment",
       "family": "准备／外部风险／替代路线",
       "idea": "危机前为A与B分配准备；危机可能废掉A，B的先前进度成为可兑现的替代方案。面对不同公开风险，专注A、分散、专注B各有合理条件。",
-      "stage": "exact ex ante/after-shock two-stage model; untested with people",
+      "stage": "exact ex ante/after-shock model plus recoverable-shock ablation; untested with people",
       "curatedDisplay": false,
       "sources": [
         "docs/实验/机制研究/批次/2026-10-13-跨阶段预案与替代目标/研究记录.md",
@@ -1446,7 +1446,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
         "humanVerified": false,
         "publishedWorkExample": false
       },
-      "note": "当风险p<1/2优先AA，1/2<p<2/3分散AB，p>2/3偏向BB，源于冻结规则。可由简短阈值口诀解释，不能宣称原创机制或真实危机体验。"
+      "note": "冻结硬危机：p<1/2专注A、1/2<p<2/3分散AB、p>2/3专注B；但改为保留A进度且可用一手修复的危机后，所测各p均由AA占优。备选路线的价值是可恢复性、时间与机会成本的条件关系，不是自动成立的新模式。"
     }
   ],
   "edges": [
@@ -2934,6 +2934,7 @@ window.SSNoirResearchDialogue={
     const clean={
       schema:"ssnoir.research-dialogue/v1",
       questionId:question.id,questionTitle:question.title,
+      questionVersion:questions.updated,
       createdAt:new Date().toISOString(),
       related:question.related,answer:payload.answer.trim(),context:question.context
     };
@@ -3580,7 +3581,7 @@ function drawDialogue(){
   const submit=make(controls,"button","button tiny","提交给研究 Agent");submit.type="button";
   const backup=make(controls,"button","button ghost tiny","导出回答 JSON");backup.type="button";
   const result=make(section,"p","minor");result.setAttribute("role","status");
-  const response=()=>({schema:"ssnoir.research-dialogue/v1",questionId:q.id,questionTitle:q.title,createdAt:new Date().toISOString(),related:q.related,answer:field.value.trim(),context:q.context});
+  const response=()=>({schema:"ssnoir.research-dialogue/v1",questionId:q.id,questionTitle:q.title,questionVersion:dialogue.updated,createdAt:new Date().toISOString(),related:q.related,answer:field.value.trim(),context:q.context});
   const validate=()=>{if(!field.value.trim()){result.textContent="先填写一个具体观察或问题。";return false;}return true;};
   backup.addEventListener("click",()=>{
    if(!validate())return;
