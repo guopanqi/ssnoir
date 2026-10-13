@@ -23,6 +23,7 @@
   (list
     ;;    存档键                  模块                  角色
     (list "three-letters"        three-letters        '(存档 卷宗 节点 入场))
+    (list "photo-case" photo-case '(存档 卷宗 节点))
     (list "lost-property"         lost-property         '(存档 节点))
     ;; 人物支线暂不投射节点、入场与卷宗；状态保留供主线及后续排布。
     (list "eddie"                eddie                '(存档))

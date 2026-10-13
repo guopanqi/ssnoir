@@ -58,7 +58,8 @@
     (地点 board             (lambda () #f))
     ;; ── 第二章开出来的地方 ─────────────────────────
     ;; 格兰德酒店在第二章开场就打开：它是上城的公共客厅，不是另一间酒馆。
-    (地点 grand-hotel     (lambda () (第二章 'started?)))
+    (地点 grand-hotel     (lambda () (or (第二章 'started?) (photo-case 'hotel-open?))))
+    (地点 photo-shop (lambda () (photo-case 'shop-open?)))
     ;; 林进入项目核心后才能替尼尔担保。外围线在码头看得见门禁，但不能进。
     (地点 port-technical-zone (lambda () (林的机器 'has-access?)))
     ;; 报社从那篇文章见报那天起开：在那之前你没有理由去翻别人的排字房。

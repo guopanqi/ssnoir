@@ -1,26 +1,19 @@
 ;; 独立深入交涉：A→A1→加工结果；B→B1→订单结果。
 ;; 每层6格，每完成一层使另一整条路线准备值+1，最多+2（降低难度）。
-;; 未接入城市或实际线索物品，不获取原始底片。
+;; 城市入口与线索物品由 world/照片委托.scm 负责；两路全部完成才成功。
 (define finished? #f)
 (define paper (make-clock "A：辨认相纸" 6 'gauge "满6找到相纸批次，开放设备比对；订单路线难度降低1。"))
 (define equipment (make-clock "A1：核对设备" 6 'gauge "满6取得加工结果；订单路线难度再降低1。"))
 (define permission (make-clock "B：争取查账" 6 'gauge "满6店主提供候选订单，开放订单核对；加工路线难度降低1。"))
 (define records (make-clock "B1：核对订单" 6 'gauge "满6取得订单结果；加工路线难度再降低1。"))
-(define suspicion (make-clock "店主戒心" 7 'gauge "满7结束交涉；每个坏结果扣冷静1，并增加戒心。已有成果保留。"))
+(define suspicion (make-clock "店主戒心" 7 'gauge "满7结束交涉；每个坏结果扣冷静1，并增加戒心。两条路线都完成才取得来源线索。"))
 (define (a-help) (+ (if (paper 'full?) 1 0) (if (equipment 'full?) 1 0)))
 (define (b-help) (+ (if (permission 'full?) 1 0) (if (records 'full?) 1 0)))
 (define (tier)
-  (cond ((and (equipment 'full?) (records 'full?)) '可信来源线索)
-        ((equipment 'full?) '加工吻合) ((records 'full?) '候选订单) (else '尚未证实)))
+  (if (and (equipment 'full?) (records 'full?)) '可信来源线索 '无成果))
 (define (finish! reason)
   (if finished? (error "照相馆：重复结算") #t)
   (set! finished? #t)
-  (spotlight! "照相馆调查"
-    (string-append (if (equal? reason '拒绝) "店主合上登记簿。" "你收起抄录和照片。")
-      (cond ((equal? (tier) '可信来源线索) "加工痕迹与匿名订单相互印证，取得可信来源线索。")
-            ((equal? (tier) '加工吻合) "设备与加工痕迹吻合，但对应订单尚未确认。")
-            ((equal? (tier) '候选订单) "找到符合条件的订单，加工来源仍待核实。")
-            (else "只有初步发现，还不能证实照片来源。"))))
   (end-encounter (list reason (tier) (paper 'current) (equipment 'current)
     (permission 'current) (records 'current))))
 (define (check!)
@@ -35,7 +28,7 @@
     (if (clock 'full?)
       (cond ((eq? stage 'A)
              (play-bubble!
-               (line "尼尔" "老板，你看这背面的压纹。昨天我在你这里洗的照片也有。" :at "尼尔@照相馆交涉")
+               (line "尼尔" "老板，你看这背面的压纹。我在你这里洗的照片也有。" :at "尼尔@照相馆交涉")
                (line "店主" "这个……相纸也是批发来的。不过这种纸，我们上周才进。" :at "店主@照相馆交涉")))
             ((eq? stage 'A1)
              (play-bubble!
@@ -78,11 +71,7 @@
       (outcome (lambda () (resolve! stage direct? '坏)))
       (outcome (lambda () (resolve! stage direct? '中)))
       (outcome (lambda () (resolve! stage direct? '好))))))
-(define (on-encounter-enter)
-  (play-dialogue!
-    (line "尼尔" "这张照片可能在这里加工过。我想核对一下。" :at "尼尔@照相馆交涉")
-    (line "店主" "先弄清楚你要查什么，客户的事情不能随便说。" :at "店主@照相馆交涉")
-    (line "世界" "每条路线有两层；每完成一层，另一条更容易。")))
+(define (on-encounter-enter) #t)
 (define (on-encounter-collapse)
   (collapse-result (list '倒下 (tier) (paper 'current) (equipment 'current)
     (permission 'current) (records 'current))))
@@ -110,6 +99,6 @@
              (append (clock-nodes (records 'render-data))
                (list (action-node "核对登记" "从候选单比对数量与时间" 'knowledge 'B1 #f)
                      (action-node "追问取件" "请店主回忆取件；中戒心1，坏冷静1、戒心2" 'social 'B1 #t))))
-            (else (list (note-node "标注：订单成果" "订单结果已取得" "匿名订单：小幅六张，星期二傍晚取件。取件人是年轻男人，邮务制服不合身；姓名未知。"))))
+            (else (list (note-node "标注：订单成果" "订单结果已取得" "匿名订单：小幅六张，星期二傍晚取件。取件人是染金发的年轻男人，邮务制服不合身；姓名未知。"))))
       (if (or (equipment 'full?) (records 'full?))
-        (list (instant-action "带走现有证据" (lambda () (finish! '收手)))) '()))))
+        (list (instant-action "停止追问" (lambda () (finish! '收手)))) '()))))

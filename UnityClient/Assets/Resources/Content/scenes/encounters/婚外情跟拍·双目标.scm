@@ -1,5 +1,5 @@
-;; 独立原型：寻找 → 照片/身份并行 → 一次怀疑危机。
-;; 未接入委托报酬；回传成果档位与实际进度。无额外时间期限。
+;; 婚外情取证：寻找 → 照片/身份并行 → 一次怀疑危机。
+;; 回传成果档位与实际进度；城市负责胶卷、身份消息及报酬。无额外时间期限。
 (define finished? #f)
 (define meeting? #f)
 (define crisis-called? #f)
@@ -98,8 +98,9 @@
         'social '身份 #t))))
 (define (on-encounter-enter)
   (play-dialogue!
-    (line "世界" "妻子给了你丈夫的照片。先在人群中找到他。")
-    (line "世界" "照片可以交差，查清女子身份的报酬更高。")))
+    (line "尼尔" "就是这里。她说他晚上会来。")
+    (line "尼尔" "我得先在人群里找到他。")
+    (line "尼尔" "如果真是约会，他大概不会挑个难看的座位。")))
 (define (on-encounter-collapse)
   (collapse-result (list '倒下 (result-tier) (photos 'current) (identity 'current))))
 (define (get-render-data)

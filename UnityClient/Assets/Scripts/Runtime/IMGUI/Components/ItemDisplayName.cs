@@ -25,6 +25,8 @@ namespace SSNoir.IMGUI
             ["奥托的地址纸条"] = "地址纸条",
             ["莱恩的底片与照片"] = "底片",     // 通用规则会留下"底片与照片"，五个字里三个是废的
             ["莱恩的照片与信"] = "照片与信",
+            ["女子身份消息"] = "身份消息",
+            ["冲印记录抄本"] = "冲印记录",
         };
 
         private static readonly Dictionary<string, string> _cache = new Dictionary<string, string>();

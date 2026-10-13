@@ -1,0 +1,208 @@
+;; 第一节照片委托：城市负责物品、费用、存档及结算，交锋只回传成果。
+(define photo-case
+  (let ()
+    (define rumours (make-clock "侦探委托" 4 'gauge "喝酒或帮忙时，留意酒保的小道消息。"))
+    (define stage 0) ; 0未接 1约会待处理 2待冲印 3可交付 4已交付
+    (define evidence "无成果")
+    (define source-stage 0) ; 0未开放 1可调查 2失败 3有线索 4已商量
+    (define (sync-blockers!)
+      (rest-release! "照片委托/丈夫的约会")
+      (if (= stage 1)
+          (rest-block! "照片委托/丈夫的约会" "丈夫的约会还未调查" "格兰德酒店" "丈夫的约会") #f))
+    (define (accept!)
+      (set! stage 1)
+      (grant-story-item! "家庭胶卷" 1)
+      (sync-blockers!)
+      (play-dialogue!
+        (line "酒保" "有人跟我打听过你的工作。")
+        (line "尼尔" "在这儿？又是婚外情？")
+        (line "酒保" "嗯，她在那边，你和她谈吧。")
+        (line "酒保" "事成之后别忘了我的一份儿。"))
+      (play-dialogue!
+        (line "妻子" "我丈夫最近经常不在家，他说是陪客户。")
+        (line "尼尔" "你怀疑他……")
+        (line "妻子" "对，他最近精神突然很好。我的直觉告诉我这不对劲。")
+        (line "妻子" "他说晚上有个约会，提前几天就告诉了我。")
+        (line "妻子" "往常他从不这样。一定是那个女人！")
+        (line "妻子" "你能帮我查清楚他和谁在一起吗？")
+        (line "妻子" "有些照片最好，如果能知道她的身份就更好了。")
+        (line "妻子" "这是他的照片。他说约在格兰德酒店。")
+        (line "尼尔" "好。拿到东西后，我会把照片给你。")
+        (line "妻子" "还有这卷照片，替我洗出来吧。一直搁着。")
+        (line "尼尔" "好，一起交给你。")))
+    (define (on-follow-result result)
+      (if (and (= stage 1) (list? result) (= (length result) 4)) #t
+          (error "照片委托：跟拍结算状态或结果非法"))
+      (set! evidence
+        (cond ((eq? (cadr result) '无成果) "无成果")
+              ((eq? (cadr result) '照片) "照片")
+              ((eq? (cadr result) '身份) "身份")
+              ((eq? (cadr result) '照片与身份) "照片与身份")
+              (else (error "照片委托：未知跟拍成果"))))
+      (if (member? evidence (list "无成果" "照片" "身份" "照片与身份")) #t
+          (error "照片委托：未知跟拍成果"))
+      (set! stage 2)
+      (sync-blockers!)
+      (if (member? evidence (list "照片" "照片与身份")) (grant-story-item! "取证胶卷" 1) #f)
+      (if (member? evidence (list "身份" "照片与身份")) (grant-story-item! "女子身份消息" 1) #f)
+      (play-dialogue!
+        (line "尼尔" (cond ((member? evidence (list "照片" "照片与身份")) "拍到了。先去照相馆洗出来，再交给她。")
+                         ((equal? evidence "身份") "知道她是谁了。再把那卷家庭照片洗出来。")
+                         (else "没办成。至少把她的家庭照片洗出来，还给她。")))))
+    ;; 演出接入点：Claude 只需替换这两个函数的对白表现，保留调用顺序。
+    ;; 当前用 Dialogue 承载剧本，尚未制作剧场调度。
+    (define (develop-script! two?)
+      (play-dialogue!
+        (line "尼尔" (if two? "这卷替我洗出来。还有这一卷。" "这卷替我洗出来。"))
+        (line "店主" "拿着取件单，别丢了。"))
+      (play-dialogue!
+        (line "世界" "照片洗好后，尼尔翻看着照片背面。")
+        (line "尼尔" "我能看看你们的相纸吗？")
+        (line "店主" "喏，最好的纸张。")
+        (line "尼尔" "这背面的压纹，是原来就有的吗？")
+        (line "店主" "嗯，应该是吧。")
+        (line "尼尔" "夜莺给我看的那张照片背面，好像也有这个。")))
+    (define (develop!)
+      (if (= stage 2) #t (error "照片委托：重复冲印"))
+      (let ((two? (member? evidence (list "照片" "照片与身份"))))
+        (develop-script! two?)
+        (grant-story-item! "家庭相片" 1)
+        (if two?
+            (begin (remove-item! "取证胶卷" 1) (grant-story-item! "亲密相片" 1)) #f))
+      (set! stage 3)
+      (set! source-stage 1))
+    (define (deliver!)
+      (if (= stage 3) #t (error "照片委托：重复交付"))
+      (let ((reward (cond ((equal? evidence "照片与身份") 55) ((equal? evidence "身份") 45)
+                          ((equal? evidence "照片") 30) (else 0))))
+        (remove-item! "家庭相片" 1)
+        (if (member? evidence (list "照片" "照片与身份")) (remove-item! "亲密相片" 1) #f)
+        (if (member? evidence (list "身份" "照片与身份")) (remove-item! "女子身份消息" 1) #f)
+        (set! stage 4)
+        (cond
+          ((equal? evidence "无成果")
+           (play-dialogue!
+             (line "尼尔" "你的照片。抱歉，这次没查到能交给你的东西。")
+             (line "妻子" "是没查到，还是没有？")
+             (line "尼尔" "没查到。")
+             (line "妻子" "……我知道了。")))
+          (else
+           (play-dialogue! (line "尼尔" "这是你的家庭照片。还有调查的结果。"))
+           (if (member? evidence (list "照片" "照片与身份"))
+               (play-dialogue!
+                 (line "妻子" "……他穿的是我替他挑的那件衣服。")
+                 (line "尼尔" "抱歉。")) #f)
+           (if (member? evidence (list "身份" "照片与身份"))
+               (play-dialogue!
+                 (line "尼尔" "伊芙琳·哈珀，在梅森百货工作。我核实过了。")
+                 (line "妻子" "他提过这个名字……说是客户。")) #f)
+           (play-dialogue!
+             (line "妻子" "不用再说了。钱在信封里。")
+             (line "妻子" "我一直想知道。现在知道了……")
+             (line "妻子" "让我一个人坐一会儿。"))
+           (add-item! "金钱" reward)
+           (remove-item! "金钱" 5)
+           (play-dialogue! (line "酒保" "我的那份。谢了，侦探。"))))))
+    (define (source-script!)
+      (play-dialogue!
+        (line "尼尔" "老板，我这儿有张照片想请你看看。")
+        (line "店主" "要洗照片吗？")
+        (line "尼尔" "我只是问问，这张是不是也在你们这儿洗的？")
+        (line "店主" "这、这我怎么知道……")
+        (line "店主" "你到底想问什么？")))
+    (define (on-source-result result)
+      (if (and (= source-stage 1) (list? result) (= (length result) 6)) #t
+          (error "照片委托：照相馆结算状态或结果非法"))
+      (if (eq? (cadr result) '可信来源线索)
+          (begin
+            (set! source-stage 3)
+            (grant-story-item! "冲印记录抄本" 1)
+            (play-dialogue!
+              (line "尼尔" "六张。星期二傍晚。一个头发染成金色的男人，不合身的制服。")
+              (line "尼尔" "我得跟夜莺谈谈了，看看这件事到底怎么办。")))
+          (begin
+            (set! source-stage 2)
+            (play-dialogue!
+              (line "尼尔" "还是没能查出点什么。")
+              (line "尼尔" "照片这条路行不通的话，还是得按信上的来。")
+              (line "尼尔" "尼尔，你要冷静，你需要想想其他办法。")))))
+    (define (talk!)
+      (set! source-stage 4)
+      (play-dialogue!
+        (line "尼尔" "洗照片的地方找到了。")
+        (line "夜莺" "那他人呢？")
+        (line "尼尔" "还不知道。不过，我有他的一点线索了，我应该能找到他。")
+        (line "夜莺" "那封信呢？")
+        (line "尼尔" "……")))
+    (define (case-dossier)
+      (append
+        (if (= stage 0) '()
+            (list (dossier "婚外情调查" :kind '委托
+              :status (if (= stage 4) '了结 '进行中)
+              :now (cond ((= stage 1) "赴约找到丈夫，拍照或查清女子身份。")
+                         ((= stage 2) "带胶卷去照相馆冲印，费用$5。")
+                         ((= stage 3) "回酒馆交付调查成果。")
+                         (else "委托已经交付。"))
+              :where (cond ((= stage 1) "格兰德酒店") ((= stage 2) "照相馆")
+                           ((= stage 3) "老街酒馆") (else ""))
+              :steps (list (step "调查丈夫的约会" (>= stage 2))
+                           (step "冲印照片" (>= stage 3))
+                           (step "交付调查" (= stage 4))))))
+        (if (= source-stage 0) '()
+            (list (dossier "照片的来源" :kind '委托
+              :status (if (or (= source-stage 2) (= source-stage 4)) '了结 '进行中)
+              :now (cond ((= source-stage 1) "相纸压纹相似，返回照相馆核实。")
+                         ((= source-stage 2) "未能获得可信的来源线索。")
+                         (else "抄本：小幅六张，星期二傍晚取件。染金发的年轻男人，邮务制服不合身；姓名未知。"))
+              :where (cond ((= source-stage 1) "照相馆")
+                           ((= source-stage 3) "老街酒馆") (else ""))
+              :steps (list (step "核实加工与订单" (>= source-stage 3))
+                           (step "与夜莺商量" (= source-stage 4))))))))
+    (define (nodes-at location)
+      (cond
+        ((equal? location "老街酒馆")
+         (append
+           (if (and (= stage 0) (= (three-letters 'story-stage) 1) (rumours 'full?))
+               (list (instant-action "接取委托" accept!)) '())
+           (if (= stage 3) (list (instant-action "交付调查" deliver!)) '())
+           (if (= source-stage 3) (list (instant-action "与夜莺商量" talk!)) '())))
+        ((and (equal? location "格兰德酒店") (= stage 1))
+         (list (encounter-action "丈夫的约会"
+                 (lambda () (start-encounter "婚外情跟拍·双目标" on-follow-result)))))
+        ((equal? location "照相馆")
+         (append
+           (if (= stage 2)
+               (list (node "冲印照片" :subtitle "冲印费$5，连同她的家庭照片"
+                 :requires (list (req-item "家庭胶卷" 1) (req-item "金钱" 5))
+                 :resolve (instant develop!))) '())
+           (if (= source-stage 1)
+               (list (encounter-action "查照片来源"
+                 (lambda () (source-script!) (start-encounter "照相馆交涉" on-source-result)))) '())))
+        (else '())))
+    (lambda args
+      (cond
+        ((eq? (car args) 'dossier) (case-dossier))
+        ((eq? (car args) 'nodes-at) (nodes-at (cadr args)))
+        ((eq? (car args) 'hotel-open?) (= stage 1))
+        ((eq? (car args) 'shop-open?) (or (= stage 2) (= source-stage 1)))
+        ((eq? (car args) 'sync-blockers!) (sync-blockers!))
+        ((eq? (car args) 'hear-rumours!)
+         (if (and (= stage 0) (= (three-letters 'story-stage) 1))
+             (rumours 'advance! (cadr args)) #f))
+        ((eq? (car args) 'save)
+         (list (list "stage" stage) (list "evidence" evidence)
+               (list "source-stage" source-stage) (list "rumours" (rumours 'save))))
+        ((eq? (car args) 'load!)
+         (let ((data (cadr args)))
+           (set! stage (assoc-get data "stage" 0))
+           (set! evidence (assoc-get data "evidence" "无成果"))
+           (set! source-stage (assoc-get data "source-stage" 0))
+           (rumours 'load! (assoc-get data "rumours" 0))
+           (if (and (member? stage '(0 1 2 3 4))
+                    (member? source-stage '(0 1 2 3 4))
+                    (member? evidence (list "无成果" "照片" "身份" "照片与身份"))
+                    (or (and (< stage 3) (= source-stage 0))
+                        (and (>= stage 3) (> source-stage 0)))) #t
+               (error "照片委托：非法存档阶段"))))
+        (else (error "照片委托：未知消息"))))))
+(define photo-shop (纯投射地点 "照相馆"))

@@ -29,6 +29,27 @@ namespace SSNoir.IMGUI
         private static readonly Dictionary<string, Func<float, float, bool>> Shapes =
             new Dictionary<string, Func<float, float, bool>>
             {
+                // 照片委托：胶卷罐、照片双人剪影、身份纸条与带表格的记录。
+                ["家庭胶卷"] = (x, y) => FilmCanister(x, y),
+                ["取证胶卷"] = (x, y) => FilmCanister(x, y)
+                    || Box(x, y, 0.62f, 0.50f, 0.22f, 0.12f),
+                ["家庭相片"] = (x, y) => PhotoFrame(x, y)
+                    || RoundBox(x, y, 0f, -0.18f, 0.18f, 0.18f, 0.18f)
+                    || Taper(x, y, 0.08f, 0.55f, 0.16f, 0.34f),
+                ["亲密相片"] = (x, y) => PhotoFrame(x, y)
+                    || RoundBox(x, y, -0.27f, -0.20f, 0.15f, 0.15f, 0.15f)
+                    || RoundBox(x, y, 0.25f, -0.16f, 0.15f, 0.15f, 0.15f)
+                    || Taper(x + 0.27f, y, 0.04f, 0.55f, 0.13f, 0.26f)
+                    || Taper(x - 0.25f, y, 0.08f, 0.55f, 0.13f, 0.26f),
+                ["女子身份消息"] = (x, y) =>
+                    Box(x, y, 0f, 0f, 0.66f, 0.76f) && !SlipLines(x, y),
+                ["冲印记录抄本"] = (x, y) =>
+                    Box(x, y, 0f, 0f, 0.72f, 0.82f)
+                    && !(Box(x, y, 0f, -0.32f, 0.56f, 0.04f)
+                      || Box(x, y, 0f, 0.04f, 0.56f, 0.04f)
+                      || Box(x, y, 0f, 0.40f, 0.56f, 0.04f)
+                      || Box(x, y, -0.20f, 0.04f, 0.04f, 0.60f)),
+
                 // 金钱：一张钞票，中间把 $ 挖掉。剪影里"钱"没法靠形状说清楚——
                 // 钞票的轮廓和名片、纸条、卡片是同一个矩形；能一眼定性的是那个符号，
                 // 所以符号做负形（挖空），轮廓做正形，两层各说一半。
@@ -88,6 +109,15 @@ namespace SSNoir.IMGUI
                     || (Box(RotX(x - 0.40f, y + 0.52f, 16f), RotY(x - 0.40f, y + 0.52f, 16f), 0f, 0f, 0.34f, 0.30f)
                         && !RoundBox(x, y, 0f, 0.24f, 0.84f, 0.52f, 0.06f)),
             };
+
+        private static bool FilmCanister(float x, float y) =>
+            RoundBox(x, y, -0.10f, 0f, 0.40f, 0.58f, 0.12f)
+            || Box(x, y, -0.10f, -0.70f, 0.46f, 0.08f)
+            || Box(x, y, -0.10f, 0.70f, 0.46f, 0.08f);
+
+        private static bool PhotoFrame(float x, float y) =>
+            Box(x, y, 0f, 0f, 0.88f, 0.76f)
+            && !Box(x, y, 0f, -0.04f, 0.70f, 0.54f);
 
         /// <summary>
         /// 空骰位里的那颗骰子。它不在 <see cref="Shapes"/> 表里——那张表是按物品名查的，

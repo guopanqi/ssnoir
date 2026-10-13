@@ -25,7 +25,7 @@
     ;; 大堂不产情报：情报只在交锋里拿得到（见 报社.scm 卖消息那一段），
     ;; 城里能刷的话它就不稀缺了。消费和恢复留给后续的专门地点。
     (define (children)
-      (append (list (node-fix-problem))
+      (append (if (第二章 'started?) (list (node-fix-problem)) '())
               (地点节点 "格兰德酒店")))
 
     (lambda args

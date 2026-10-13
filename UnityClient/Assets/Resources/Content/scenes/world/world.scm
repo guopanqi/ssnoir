@@ -15,6 +15,7 @@
 (load-file "world/老街酒馆.scm")
 (load-file "world/三封信.scm")
 (load-file "world/失物委托.scm")
+(load-file "world/照片委托.scm")
 (load-file "world/艾迪.scm")
 (load-file "world/诊所.scm")
 (load-file "world/警察局.scm")
@@ -151,7 +152,8 @@
   (frank 'validate!)
   (three-letters 'sync-globals!)
   ;; 休息阻塞是派生状态：上面清空过，这里由拥有必经拍的模块按恢复后的状态重新竖起来。
-  (第二章 'sync-blockers!))
+  (第二章 'sync-blockers!)
+  (photo-case 'sync-blockers!))
 
 ;; 初始同步：新游戏没有存档数据时，也要阻塞第一晚的睡眠。
 (three-letters 'sync-blockers!)
