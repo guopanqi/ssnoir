@@ -86,6 +86,7 @@ window.SSNoirResearchDialogue={
     const clean={
       schema:"ssnoir.research-dialogue/v1",
       questionId:question.id,questionTitle:question.title,
+      questionVersion:questions.updated,
       createdAt:new Date().toISOString(),
       related:question.related,answer:payload.answer.trim(),context:question.context
     };
