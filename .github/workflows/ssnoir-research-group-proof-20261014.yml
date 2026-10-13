@@ -1,0 +1,29 @@
+name: SSNoir Group Test and Negative Proof Evidence
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-research-group-proof-20261014.yml'
+      - 'tools/content-validator/experiments/pattern_shield_group_testing_20261014.py'
+      - 'tools/content-validator/experiments/pattern_registered_negative_evidence_20261014.py'
+      - 'docs/实验/机制研究/批次/2026-10-14-重复试探与可被承认的负证据/**'
+permissions:
+  contents: read
+jobs:
+  exact-decision-models:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Exact group probe, singleton control, and exposure bound
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/pattern_shield_group_testing_20261014.py
+      - name: Complete record-admissibility policy, fixed instructions, and ordinary-license matching
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/pattern_registered_negative_evidence_20261014.py
