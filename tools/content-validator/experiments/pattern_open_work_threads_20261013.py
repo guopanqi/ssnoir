@@ -109,6 +109,36 @@ def fixed(second=True,liability=True,drop=True):
     maxval=max(v for v,_ in vals)
     return maxval,tuple(p for v,p in vals if v==maxval)
 
+def strict_nondefault_obligations():
+    """Once opened, a project MUST complete: dropping or timing out is invalid.
+
+    This differs from paying a finite -4 penalty and is an explicit
+    non-compensatory obligation rather than an inflated reward.
+    """
+    @lru_cache(None)
+    def dp(t,st):
+        if t==HORIZON:
+            return F(0) if all(x[0]!='live' for x in st) else None
+        vals=[]
+        for action in ACT:
+            if action.startswith('DROP') or not legal(st,action):continue
+            samples=[step(st,action,v) for v in VALUES] if action.startswith('OPEN') else [
+                step(st,action)]
+            next_values=[]
+            for ns,r in samples:
+                expired=False
+                for i,before in enumerate(st):
+                    if before[0]=='live' and ns[i][0]=='done':
+                        completing=(action=='WORK_'+('A' if i==0 else 'B')
+                                    and before[2]==1)
+                        if not completing:expired=True
+                future=None if expired else dp(t+1,ns)
+                if future is None:break
+                next_values.append(r+future)
+            else:vals.append(sum(next_values)/len(next_values))
+        return max(vals) if vals else None
+    return dp(0,INIT)
+
 def public_short_policy():
     # H A: finish and spend the spare hands on SIDE.
     # L A: spend one action dropping it, open B and finish B regardless
@@ -134,11 +164,14 @@ def main():
     oracle=evaluate(oracle=True)
     baseline,examples=fixed()
     short,branches=public_short_policy()
+    hard=strict_nondefault_obligations()
     assert (base,no_b,no_liability,no_drop,late,oracle,baseline,short)==(
         F(47,4),F(19,2),F(25,2),F(41,4),F(39,4),F(53,4),
         F(19,2),F(47,4))
+    assert hard==F(19,2),hard
     assert len(examples)>0 and branches[2][2]==14 and branches[3][2]==1
     print('OPEN adaptive',base,'fixed',baseline,'simple conditional',short)
+    print('strict nondefault liability',hard)
     print('controls single-project',no_b,'no-liability',no_liability,
           'no-drop',no_drop,'late-info',late,'oracle-advance-info',oracle)
     print('short-policy public outcomes',branches)
