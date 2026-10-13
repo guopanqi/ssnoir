@@ -427,6 +427,57 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
 @media(max-width:1250px){.field-shell{grid-template-columns:165px minmax(0,1fr)}.wb-lab-layout{grid-template-columns:200px minmax(0,1fr)}.workspace-grid{grid-template-columns:1fr}.research-network{grid-template-columns:minmax(0,1fr) minmax(245px,.8fr)}}
 @media(max-width:850px){.field-shell{display:block}.overview-primary{grid-template-columns:1fr}.overview-updates-list{grid-template-columns:1fr}.overview-updates-list .wb-note,.overview-updates-list .wb-note+.wb-note{padding:11px 0;border-left:0}.wb-lab-layout{display:block}.experiment-sidebar{position:relative;top:0;max-height:none;margin-bottom:16px}.experiment-list{max-height:240px;overflow:auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.workspace-grid{grid-template-columns:1fr}.research-network{grid-template-columns:1fr}.research-network-detail{position:relative;top:0}.simple-heading{align-items:start}.research-network-tree{padding:19px}}
 @media(max-width:480px){.experiment-list{grid-template-columns:1fr;max-height:190px}.research-network-tree{padding:13px}.network-branches{padding-left:20px}.network-branch{grid-template-columns:1fr;gap:5px;padding:10px 0}.network-branch:before{left:-7px;width:7px}.network-branches:before{left:13px}.network-branch-nodes{padding-left:0}.network-branch-nodes:before,.network-branch-nodes:after{display:none}.overview-lead,.overview-attention{padding:22px}.detail-intro{display:block}.detail-intro strong{display:block;margin-bottom:4px}.simple-heading{display:block}}
+
+
+/* 2026-10-13 · Pattern language for the human designer.
+   Evidence remains textual; visual accents never encode an unearned score. */
+.library-filters{display:flex;flex-wrap:wrap;gap:10px;margin:24px 0 14px}
+.library-filters input[type=search]{flex:2 1 230px}
+.library-filters select{flex:1 1 165px}
+.library-filters input[type=search],.library-filters select,.library-compose input{min-height:38px;border:1px solid var(--line);border-radius:3px;background:var(--paper);padding:7px 11px;font-size:13px;min-width:0}
+.lib-only{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--sub);white-space:nowrap;padding:7px}
+.library-layout{display:grid;grid-template-columns:minmax(250px,.76fr) minmax(0,1.3fr);gap:16px;align-items:start}
+.library-list{max-height:min(70vh,780px);overflow-y:auto;border:1px solid var(--line);background:var(--paper)}
+.lib-item{width:100%;border:0;border-bottom:1px solid var(--line);text-align:left;background:transparent;display:block;padding:13px 16px;line-height:1.5}
+.lib-item:hover,.lib-item.active{background:#edf1eb}.lib-item.active{box-shadow:inset 3px 0 var(--forest)}
+.lib-item strong{display:block;font-weight:690;font-size:14px;color:var(--ink);margin:3px 0}
+.lib-item small{display:block;color:var(--sub);font-size:12px}
+.lib-item-head{display:flex;justify-content:space-between;gap:8px;font-size:10px;color:var(--sub)}
+.lib-id{font-family:ui-monospace,monospace;color:var(--ochre);font-weight:750}
+.lib-origin{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.library-detail{border:1px solid var(--line);background:var(--paper);padding:clamp(18px,2.5vw,30px);min-height:360px}
+.library-detail h2{font-size:clamp(22px,2.3vw,31px);margin:7px 0 10px}
+.library-detail h3{font-size:15px;margin:24px 0 9px;font-weight:690}
+.lib-idea{font-size:16px;line-height:1.8;margin:10px 0 17px}
+.lib-explainer{font-size:13px;color:var(--sub);line-height:1.8}
+.lib-metadata{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:15px}
+.lib-metadata span{border:1px solid var(--line);padding:3px 8px;border-radius:3px;font-size:11px;color:var(--sub)}
+.lib-relations{display:grid;gap:6px}
+.lib-relation{border:1px solid var(--line);padding:9px 11px;background:#fbfaf6;display:grid;gap:2px;justify-items:start;text-align:left}
+.lib-relation:hover{background:#edf1eb}
+.lib-relation strong{font-size:12px;font-weight:690}
+.lib-relation span{font-size:11px;color:var(--sub)}
+.library-compose{margin-top:26px;border-top:1px solid var(--line);padding-top:18px}
+.library-compose-row{display:flex;align-items:end;flex-wrap:wrap;gap:12px;margin:14px 0}
+.library-compose-row label{font-size:12px;color:var(--sub);display:grid;gap:6px;flex:1 1 260px}
+.library-compose-row .button{flex:0 0 auto}
+.lib-picked{display:flex;flex-wrap:wrap;gap:7px}
+.lib-chip{padding:5px 10px;border:1px solid #adbbb4;border-radius:3px;background:#edf1eb;font-size:12px}
+.lib-chip:hover{background:#dee5d9}
+.dialogue-section{margin-top:35px;border-top:1px solid var(--line);padding-top:19px}
+.dialogue-section .simple-section-title{margin-bottom:10px}
+.dialogue-card{padding:18px 0;border-bottom:1px solid var(--line)}
+.dialogue-heading{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap}
+.dialogue-heading h3{font-size:16px;margin:0}
+.dialogue-card p{margin:7px 0;font-size:13px;color:var(--sub);line-height:1.8}
+.dialogue-card .dialogue-question{color:var(--ink);font-weight:550}
+.lib-dialogue-links{display:flex;flex-wrap:wrap;gap:14px;margin:10px 0;font-size:12px}
+.dialogue-answer{display:block;width:100%;max-width:840px;border:1px solid var(--line);border-radius:3px;background:var(--paper);padding:11px;margin-top:8px;resize:vertical;font-size:13px}
+.dialogue-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+@media(max-width:880px){
+ .library-layout{grid-template-columns:1fr}
+ .library-list{max-height:290px}
+}
 </style></head>
 <body><div class="field-shell"><aside class="field-side" aria-label="主导航">
   <a href="#overview" class="field-brand" aria-label="OPEN FIELD · SSNoir 研究工作台">
@@ -438,7 +489,8 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
     <a href="#overview" aria-current="page"><span class="nav-ico" aria-hidden="true">◫</span><span>研究概览</span><small>01</small></a>
     <a href="#experiments"><span class="nav-ico" aria-hidden="true">▧</span><span>实验室</span><small>02</small></a>
     <a href="#map"><span class="nav-ico" aria-hidden="true">◇</span><span>研究地图</span><small>03</small></a>
-    <a href="#journal"><span class="nav-ico" aria-hidden="true">≡</span><span>研究日志</span><small>04</small></a>
+    <a href="#library"><span class="nav-ico" aria-hidden="true">▤</span><span>模式目录</span><small>04</small></a>
+    <a href="#journal"><span class="nav-ico" aria-hidden="true">≡</span><span>研究日志</span><small>05</small></a>
   </nav>
   </aside><div class="field-main">
 <header class="field-topbar"><div class="field-crumb">SSNOIR / RESEARCH <span aria-hidden="true">／</span> <strong id="field-breadcrumb">研究概览</strong></div>
@@ -453,6 +505,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
   <article class="overview-attention"><div class="simple-section-title"><h2>可以参与</h2><span id="wb-attention-status"></span></div><div id="wb-attention"></div><a href="#experiments" class="overview-small-link">全部实验 →</a></article>
  </div>
  <section class="overview-updates"><div class="simple-section-title"><h2>最新变化</h2><a href="#journal">查看日志 →</a></div><div id="wb-notes" class="overview-updates-list"></div></section>
+<section class="dialogue-section" aria-labelledby="dialogue-title"><div class="simple-section-title"><h2 id="dialogue-title">研究者向你提问</h2><span>反馈不要求评分，也不会阻断 Agent 的研究</span></div><div id="wb-dialogue-requests"></div></section>
 </section>
 <section class="wb-page hidden" id="experiments">
 <div class="lab-heading"><span class="section-label">PLAYTEST LAB</span><h1>实验室</h1></div>
@@ -492,6 +545,13 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
 <details class="research-paused"><summary>暂缓探索 <span id="wb-stop-count"></span></summary><div id="wb-stop-list"></div></details>
 <p class="network-disclaimer">分支表示问题分类，不代表机制之间存在已证实的因果或演化关系；数学验证、正式运行与真人反馈分别标记。</p>
 </section>
+<section class="wb-page hidden" id="library">
+<div class="simple-heading"><div><span class="section-label">PATTERN LANGUAGE / 可供设计的模式</span><h1>模式目录</h1><p class="simple-subtitle">从已经在作品中使用的结构、实验发现与组合边界中挑选材料。是否经过真人反馈、是否进入精选、是否适合当前情境，是不同的判断。</p></div><span class="simple-count" id="lib-count"></span></div>
+<div class="library-filters"><input type="search" id="lib-search" aria-label="搜索决策模式" placeholder="搜索模式、玩家决策、研究编号"><select id="lib-layer" aria-label="按模式类型筛选"><option value="all">全部尺度</option><option value="decision-relation">基础决策关系</option><option value="encounter-structure">交锋结构</option><option value="combination">组合与边界</option></select><select id="lib-origin" aria-label="按证据来源筛选"><option value="all">全部来源</option><option value="published-game-analysis">成熟作品先例</option><option value="ssnoir-research">本实验研究</option><option value="other">组合与开放问题</option></select><label class="lib-only"><input type="checkbox" id="lib-picked-only"> 仅看已加入</label></div>
+<div class="library-layout"><div class="library-list" id="lib-list" aria-label="可筛选模式列表"></div><aside class="library-detail" id="lib-detail" aria-live="polite"></aside></div>
+<section class="library-compose"><div class="simple-section-title"><h2>组合用于情境</h2><span>只产生设计简报，不自动修改游戏内容</span></div><div class="library-compose-row"><label>正在设计的情境 <input id="lib-scenario" placeholder="例如：取得照片后说服店主透露记录"></label><button class="button ghost tiny" id="lib-copy">复制模式组合简报</button></div><div id="lib-picked" class="lib-picked"></div><p id="lib-copy-state" class="minor" role="status"></p></section>
+<p class="network-disclaimer">这是一张证据导航图，而不是“通过验收的成熟玩法排名”。成熟作品的应用先例不等于该模式独立经过受控实验；数学结构成立也不证明真人觉得有趣。来源与反例可在右侧查阅。</p>
+</section>
 <section class="wb-page hidden" id="journal">
 <div class="simple-heading"><div><span class="section-label">RESEARCH LOG</span><h1>研究日志</h1><p class="simple-subtitle">按已有研究记录呈现变化。目前同一天的记录没有精确时刻，不额外推测先后。</p></div></div>
 <div class="plain-log" id="field-journal-events"></div>
@@ -499,6 +559,1103 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
 </section>
 <div class="hidden" aria-hidden="true"><div id="patterns"></div><div id="not-promoted"></div><ul id="now-research"></ul><a id="research-root"></a></div>
 </main><footer class="wrap foot"><span>SSNOIR / HUMAN–AGENT RESEARCH</span><span>资料更新 <span id="updated"></span> · 反馈有版本，结论可修订</span></footer></div></div><div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+<script type="application/json" id="pattern-map-data">{
+  "schema": "ssnoir.pattern-language-map/v1",
+  "updated": "2026-10-13",
+  "reviewBase": "c8055fa1aa2fe18ec1ecc50c7e721072c67dd809",
+  "scope": "非排他发现地图：20历史结构候选、6精选展示映射、CS2九类比较先例、近期重点关系和本批组合；不是478项逐一复审。",
+  "definitions": {
+    "layer": "机制原语、基础决策关系、交锋结构、跨交锋组织可交叉连接；层级不是质量排名",
+    "origin": "设计先例、仓库研究、局部组合假说分开保存",
+    "stage": "历史候选/展示精选/有来源先例/数学结论均非普遍有效的认证",
+    "evidence": "人类体验、游戏先例、数学与原生运行四类证据不可互相替代；historical humanRelated 与精选库某版本的反馈记录并非同一字段，相关真人反馈另用 humanFeedbackAvailable 与 humanFeedbackScope 说明；curatedSourceEvidence 原样引用精选展示的 math/native/human 标识，不能由历史候选 humanRelated 或 mathematically:true 覆盖"
+  },
+  "sources": {
+    "historicalCandidates": "docs/实验/机制研究/结构候选20.json",
+    "curatedDisplay": "docs/实验/机制研究/模式库.json",
+    "extensiveHistory": "docs/实验/机制研究/关系索引.md",
+    "cs2Analysis": "docs/设计研究/Citizen_Sleeper_2_交锋决策模式梳理.md"
+  },
+  "nodes": [
+    {
+      "id": "P01",
+      "name": "稳险选择",
+      "layer": "decision-relation",
+      "origin": "ssnoir-research",
+      "family": "风险分布",
+      "idea": "稳妥小进度还是波动大收益",
+      "stage": "historical-structural-candidate",
+      "curatedDisplay": true,
+      "sources": [
+        "UnityClient/Assets/Resources/Content/scenes/encounters/研究·稳险选择.scm",
+        "docs/实验/机制研究/结构候选20.json",
+        "docs/实验/机制研究/模式库.json"
+      ],
+      "evidence": {
+        "nativeEntrance": true,
+        "nativeCausalWitness": false,
+        "humanRelated": false,
+        "humanFeedbackAvailable": true,
+        "humanFeedbackScope": "设计者认可基础稳险选择；具体数值玩法未盲测",
+        "curatedSourceEvidence": {
+          "math": true,
+          "native": true,
+          "human": true
+        },
+        "curatedEvidenceNote": "R06设计者认可稳险基本模式；数学与正式原型在旧批次保存。不是受控盲测。"
+      },
+      "note": "历史入池不代表试玩认证；未逐项重审全部原始版本；现存状态与反证见原始来源；该模式相关真人反馈见模式库.json/R06，不能推出通用认可。"
+    },
+    {
+      "id": "P02",
+      "name": "成果取舍",
+      "layer": "decision-relation",
+      "origin": "ssnoir-research",
+      "family": "有限容量",
+      "idea": "小成果易完成还是大成果更有价值",
+      "stage": "historical-structural-candidate",
+      "curatedDisplay": true,
+      "sources": [
+        "UnityClient/Assets/Resources/Content/scenes/encounters/研究·成果取舍.scm",
+        "docs/实验/机制研究/结构候选20.json",
+        "docs/实验/机制研究/模式库.json"
+      ],
+      "evidence": {
+        "nativeEntrance": true,
+        "nativeCausalWitness": false,
+        "humanRelated": false,
+        "humanFeedbackAvailable": false,
+        "curatedSourceEvidence": {
+          "math": true,
+          "native": true,
+          "human": false
+        },
+        "curatedEvidenceNote": "R13正式入场配置、数学与局部决策轨迹；真人待补。"
+      },
+      "note": "历史入池不代表试玩认证；未逐项重审全部原始版本；现存状态与反证见原始来源；R13仍待真人试玩。"
+    },
+    {
+      "id": "P03",
+      "name": "边做边看",
+      "layer": "decision-relation",
+      "origin": "ssnoir-research",
+      "family": "行动即揭示",
+      "idea": "知道部分代价后坚持还是改路",
+      "stage": "historical-structural-candidate",
+      "curatedDisplay": true,
+      "sources": [
+        "UnityClient/Assets/Resources/Content/scenes/encounters/研究·边做边看.scm",
+        "docs/实验/机制研究/结构候选20.json",
+        "docs/实验/机制研究/模式库.json"
+      ],
+      "evidence": {
+        "nativeEntrance": true,
+        "nativeCausalWitness": false,
+        "humanRelated": true,
+        "humanFeedbackAvailable": true,
+        "humanFeedbackScope": "设计者对边做边看有反馈，同时指出猜测感",
+        "curatedSourceEvidence": {
+          "math": true,
+          "native": true,
+          "human": true
+        },
+        "curatedEvidenceNote": "R09正式候选与R10设计者试玩反馈；具体条件并非受控样本。"
+      },
+      "note": "历史入池不代表试玩认证；未逐项重审全部原始版本；现存状态与反证见原始来源；该模式相关真人反馈见模式库.json/R10，不能推出通用认可。"
+    },
+    {
+      "id": "P04",
+      "name": "按需用骰",
+      "layer": "decision-relation",
+      "origin": "ssnoir-research",
+      "family": "能力分配",
+      "idea": "哪颗骰分给哪种能力需求",
+      "stage": "historical-structural-candidate",
+      "curatedDisplay": false,
+      "sources": [
+        "UnityClient/Assets/Resources/Content/scenes/encounters/研究·按需用骰.scm",
+        "docs/实验/机制研究/结构候选20.json"
+      ],
+      "evidence": {
+        "nativeEntrance": true,
+        "nativeCausalWitness": false,
+        "humanRelated": false
+      },
+      "note": "历史入池不代表试玩认证；未逐项重审全部原始版本；现存状态与反证见原始来源"
+    },
+    {
+      "id": "P05",
+      "name": "整段里程碑与回合清零",
+      "layer": "decision-relation",
+      "origin": "ssnoir-research",
+      "family": "整段风险",
+      "idea": "把本回合的骰子集中完成一段，还是冒险把它分到不同目标",
+      "stage": "historical-structural-candidate",
+      "curatedDisplay": false,
+      "sources": [
+        "UnityClient/Assets/Resources/Content/scenes/encounters/研究·整段完成.scm",
+        "docs/实验/机制研究/结构候选20.json"
+      ],
+      "evidence": {
+        "nativeEntrance": true,
+        "nativeCausalWitness": true,
+        "humanRelated": false
+      },
+      "note": "历史入池不代表试玩认证；未逐项重审全部原始版本；现存状态与反证见原始来源"
+    },
+    {
+      "id": "P06",
+      "name": "留力推进",
+      "layer": "decision-relation",
+      "origin": "ssnoir-research",
+      "family": "修复与推进",
+      "idea": "先恢复冷静还是现在追赶目标",
+      "stage": "historical-structural-candidate",
+      "curatedDisplay": false,
+      "sources": [
+        "UnityClient/Assets/Resources/Content/scenes/encounters/研究·留力推进.scm",
+        "docs/实验/机制研究/结构候选20.json"
+      ],
+      "evidence": {
+        "nativeEntrance": true,
+        "nativeCausalWitness": false,
+        "humanRelated": false
+      },
+      "note": "历史入池不代表试玩认证；未逐项重审全部原始版本；现存状态与反证见原始来源"
+    },
+    {
+      "id": "P07",
+      "name": "择时开窗",
+      "layer": "decision-relation",
+      "origin": "ssnoir-research",
+      "family": "主动启动期限",
+      "idea": "准备充足后开启倒计时还是立刻出击",
+      "stage": "historical-structural-candidate",
+      "curatedDisplay": false,
+      "sources": [
+        "UnityClient/Assets/Resources/Content/scenes/encounters/研究·择时开窗.scm",
+        "docs/实验/机制研究/结构候选20.json"
+      ],
+      "evidence": {
+        "nativeEntrance": true,
+        "nativeCausalWitness": false,
+        "humanRelated": false
+      },
+      "note": "历史入池不代表试玩认证；未逐项重审全部原始版本；现存状态与反证见原始来源"
+    },
+    {
+      "id": "P08",
+      "name": "定位再搜",
+      "layer": "decision-relation",
+      "origin": "ssnoir-research",
+      "family": "花费行动购信息",
+      "idea": "先定位正确路还是边试探边寻找",
+      "stage": "historical-structural-candidate",
+      "curatedDisplay": false,
+      "sources": [
+        "UnityClient/Assets/Resources/Content/scenes/encounters/研究·定位再搜.scm",
+        "docs/实验/机制研究/结构候选20.json"
+      ],
+      "evidence": {
+        "nativeEntrance": true,
+        "nativeCausalWitness": false,
+        "humanRelated": false
+      },
+      "note": "历史入池不代表试玩认证；未逐项重审全部原始版本；现存状态与反证见原始来源"
+    },
+    {
+      "id": "P09",
+      "name": "风险兑现",
+      "layer": "decision-relation",
+      "origin": "ssnoir-research",
+      "family": "自愿退出",
+      "idea": "把当前成果兑现还是继续暴露于损失",
+      "stage": "historical-structural-candidate",
+      "curatedDisplay": false,
+      "sources": [
+        "UnityClient/Assets/Resources/Content/scenes/encounters/研究·风险兑现.scm",
+        "docs/实验/机制研究/结构候选20.json"
+      ],
+      "evidence": {
+        "nativeEntrance": true,
+        "nativeCausalWitness": false,
+        "humanRelated": false
+      },
+      "note": "历史入池不代表试玩认证；未逐项重审全部原始版本；现存状态与反证见原始来源"
+    },
+    {
+      "id": "P10",
+      "name": "储备衰减与非线性兑现",
+      "layer": "decision-relation",
+      "origin": "ssnoir-research",
+      "family": "储备转换",
+      "idea": "现在兑现储备还是再投入一手追求非线性收益",
+      "stage": "historical-structural-candidate",
+      "curatedDisplay": false,
+      "sources": [
+        "UnityClient/Assets/Resources/Content/scenes/encounters/研究·分段兑现.scm",
+        "docs/实验/机制研究/结构候选20.json"
+      ],
+      "evidence": {
+        "nativeEntrance": true,
+        "nativeCausalWitness": true,
+        "humanRelated": false
+      },
+      "note": "历史入池不代表试玩认证；未逐项重审全部原始版本；现存状态与反证见原始来源"
+    },
+    {
+      "id": "P11",
+      "name": "压力预算",
+      "layer": "decision-relation",
+      "origin": "ssnoir-research",
+      "family": "推进制造问题",
+      "idea": "现在赶工还是消除自己造成的后续问题",
+      "stage": "historical-structural-candidate",
+      "curatedDisplay": true,
+      "sources": [
+        "UnityClient/Assets/Resources/Content/scenes/encounters/研究·压力预算.scm",
+        "docs/实验/机制研究/结构候选20.json",
+        "docs/实验/机制研究/模式库.json"
+      ],
+      "evidence": {
+        "nativeEntrance": true,
+        "nativeCausalWitness": false,
+        "humanRelated": true,
+        "humanFeedbackAvailable": true,
+        "humanFeedbackScope": "一份标注正式版本的文字反馈，未附逐手日志",
+        "curatedSourceEvidence": {
+          "math": true,
+          "native": true,
+          "human": true
+        },
+        "curatedEvidenceNote": "R37 18条正式模拟轨迹／192步与严格回放不变；2026-10-09收到1份标注正式环境的文字反馈，玩家认可「推进生问题」和「失败推高压力」两种关系并描述好骰优先推进、差骰优先修补。反馈未附实际行动日志，非严格回放证明。"
+      },
+      "note": "历史入池不代表试玩认证；未逐项重审全部原始版本；现存状态与反证见原始来源；该模式相关真人反馈见模式库.json/R37，不能推出通用认可。"
+    },
+    {
+      "id": "P12",
+      "name": "完成主目标关闭副目标",
+      "layer": "decision-relation",
+      "origin": "ssnoir-research",
+      "family": "完成关闭机会",
+      "idea": "现在完成必需目标结束交锋还是先争副目标",
+      "stage": "historical-structural-candidate",
+      "curatedDisplay": false,
+      "sources": [
+        "UnityClient/Assets/Resources/Content/scenes/encounters/研究·保留终点.scm",
+        "docs/实验/机制研究/结构候选20.json"
+      ],
+      "evidence": {
+        "nativeEntrance": true,
+        "nativeCausalWitness": false,
+        "humanRelated": false
+      },
+      "note": "历史入池不代表试玩认证；未逐项重审全部原始版本；现存状态与反证见原始来源"
+    },
+    {
+      "id": "P13",
+      "name": "整备借力",
+      "layer": "decision-relation",
+      "origin": "ssnoir-research",
+      "family": "当前投资未来产能",
+      "idea": "花一次整备换以后更大收益是否划算",
+      "stage": "historical-structural-candidate",
+      "curatedDisplay": false,
+      "sources": [
+        "UnityClient/Assets/Resources/Content/scenes/encounters/研究·整备借力.scm",
+        "docs/实验/机制研究/结构候选20.json"
+      ],
+      "evidence": {
+        "nativeEntrance": true,
+        "nativeCausalWitness": false,
+        "humanRelated": false
+      },
+      "note": "历史入池不代表试玩认证；未逐项重审全部原始版本；现存状态与反证见原始来源"
+    },
+    {
+      "id": "P14",
+      "name": "探查后不可逆押注",
+      "layer": "decision-relation",
+      "origin": "ssnoir-research",
+      "family": "情报与承诺",
+      "idea": "耗行动查条件还是凭先验直接押定方案",
+      "stage": "historical-structural-candidate",
+      "curatedDisplay": false,
+      "sources": [
+        "UnityClient/Assets/Resources/Content/scenes/encounters/研究·情报承诺.scm",
+        "docs/实验/机制研究/结构候选20.json"
+      ],
+      "evidence": {
+        "nativeEntrance": true,
+        "nativeCausalWitness": false,
+        "humanRelated": false
+      },
+      "note": "历史入池不代表试玩认证；未逐项重审全部原始版本；现存状态与反证见原始来源"
+    },
+    {
+      "id": "P15",
+      "name": "永久切换高风险动作",
+      "layer": "decision-relation",
+      "origin": "ssnoir-research",
+      "family": "承诺式动作替代",
+      "idea": "稳步继续还是耗一手开启不可退的强推",
+      "stage": "historical-structural-candidate",
+      "curatedDisplay": false,
+      "sources": [
+        "UnityClient/Assets/Resources/Content/scenes/encounters/研究·承诺分流.scm",
+        "docs/实验/机制研究/结构候选20.json"
+      ],
+      "evidence": {
+        "nativeEntrance": true,
+        "nativeCausalWitness": false,
+        "humanRelated": false
+      },
+      "note": "历史入池不代表试玩认证；未逐项重审全部原始版本；现存状态与反证见原始来源"
+    },
+    {
+      "id": "P16",
+      "name": "追击领先目标",
+      "layer": "decision-relation",
+      "origin": "ssnoir-research",
+      "family": "对手公开响应",
+      "idea": "故意吸引敌人去攻击较廉价的目标吗",
+      "stage": "historical-structural-candidate",
+      "curatedDisplay": true,
+      "sources": [
+        "UnityClient/Assets/Resources/Content/scenes/encounters/研究·追击领先目标.scm",
+        "docs/实验/机制研究/结构候选20.json",
+        "docs/实验/机制研究/模式库.json"
+      ],
+      "evidence": {
+        "nativeEntrance": true,
+        "nativeCausalWitness": false,
+        "humanRelated": true,
+        "humanFeedbackAvailable": true,
+        "humanFeedbackScope": "浏览器5局反馈，偏向开局选短长目标",
+        "curatedSourceEvidence": {
+          "math": true,
+          "native": true,
+          "human": true
+        },
+        "curatedEvidenceNote": "R54 数学与15局原生回放证据不变。2026-10-09 收到1份浏览器示意版人类反馈，共5局（甲1、乙1、超时3），报告按骰子质量选择短/长目标，过程中因余量不足较少改计划。这是主观体验而非代表性频率。研究者已按具体反馈版本回复，修改后须重新审阅。 GitHub Actions run 37896433811 的精确 Fraction 4/5骰对照成功；五骰尚无正式C#或真人反馈。"
+      },
+      "note": "历史入池不代表试玩认证；未逐项重审全部原始版本；现存状态与反证见原始来源；该模式相关真人反馈见模式库.json/R54，不能推出通用认可。"
+    },
+    {
+      "id": "P17",
+      "name": "证词掺水",
+      "layer": "decision-relation",
+      "origin": "ssnoir-research",
+      "family": "进度污染质量",
+      "idea": "要更多证据还是主动退进度消除误判",
+      "stage": "historical-structural-candidate",
+      "curatedDisplay": false,
+      "sources": [
+        "UnityClient/Assets/Resources/Content/scenes/encounters/实验·证词掺水.scm",
+        "docs/实验/机制研究/结构候选20.json"
+      ],
+      "evidence": {
+        "nativeEntrance": true,
+        "nativeCausalWitness": true,
+        "humanRelated": false
+      },
+      "note": "历史入池不代表试玩认证；未逐项重审全部原始版本；现存状态与反证见原始来源"
+    },
+    {
+      "id": "P18",
+      "name": "枪口认路",
+      "layer": "decision-relation",
+      "origin": "ssnoir-research",
+      "family": "追踪上次路线",
+      "idea": "逃得快还是保住证物并躲避枪口",
+      "stage": "historical-structural-candidate",
+      "curatedDisplay": false,
+      "sources": [
+        "UnityClient/Assets/Resources/Content/scenes/encounters/实验·枪口认路.scm",
+        "docs/实验/机制研究/结构候选20.json"
+      ],
+      "evidence": {
+        "nativeEntrance": true,
+        "nativeCausalWitness": true,
+        "humanRelated": false
+      },
+      "note": "历史入池不代表试玩认证；未逐项重审全部原始版本；现存状态与反证见原始来源"
+    },
+    {
+      "id": "P19",
+      "name": "等买主现身",
+      "layer": "decision-relation",
+      "origin": "ssnoir-research",
+      "family": "窗口互斥收益",
+      "idea": "现在拿确定线索还是冒险等更好机会",
+      "stage": "historical-structural-candidate",
+      "curatedDisplay": false,
+      "sources": [
+        "UnityClient/Assets/Resources/Content/scenes/encounters/实验·等买主现身.scm",
+        "docs/实验/机制研究/结构候选20.json"
+      ],
+      "evidence": {
+        "nativeEntrance": true,
+        "nativeCausalWitness": true,
+        "humanRelated": false
+      },
+      "note": "历史入池不代表试玩认证；未逐项重审全部原始版本；现存状态与反证见原始来源"
+    },
+    {
+      "id": "P20",
+      "name": "封死退路",
+      "layer": "decision-relation",
+      "origin": "ssnoir-research",
+      "family": "封危险也封出口",
+      "idea": "封闭威胁来源是否值得牺牲安全退出",
+      "stage": "historical-structural-candidate",
+      "curatedDisplay": false,
+      "sources": [
+        "UnityClient/Assets/Resources/Content/scenes/encounters/实验·封死退路.scm",
+        "docs/实验/机制研究/结构候选20.json"
+      ],
+      "evidence": {
+        "nativeEntrance": true,
+        "nativeCausalWitness": true,
+        "humanRelated": false
+      },
+      "note": "历史入池不代表试玩认证；未逐项重审全部原始版本；现存状态与反证见原始来源"
+    },
+    {
+      "id": "CS2-01",
+      "name": "单目标推进",
+      "layer": "encounter-structure",
+      "origin": "published-game-analysis",
+      "family": "objective-topology",
+      "idea": "行动逐步增加同一目标进度；容易退化为机械填条",
+      "stage": "documented-comparative-reference",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/设计研究/Citizen_Sleeper_2_交锋决策模式梳理.md"
+      ],
+      "evidence": {
+        "publishedWorkExample": true,
+        "controlledIsolation": false,
+        "originalPlayLog": false
+      },
+      "note": "该九分法是设计研究归纳，非游戏官方分类；对应具体Contract时必须复核节点和条件"
+    },
+    {
+      "id": "CS2-02",
+      "name": "阶段解锁",
+      "layer": "encounter-structure",
+      "origin": "published-game-analysis",
+      "family": "objective-topology",
+      "idea": "达成一段才开放下一段；需区分解锁内容与新决策",
+      "stage": "documented-comparative-reference",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/设计研究/Citizen_Sleeper_2_交锋决策模式梳理.md"
+      ],
+      "evidence": {
+        "publishedWorkExample": true,
+        "controlledIsolation": false,
+        "originalPlayLog": false
+      },
+      "note": "该九分法是设计研究归纳，非游戏官方分类；对应具体Contract时必须复核节点和条件"
+    },
+    {
+      "id": "CS2-03",
+      "name": "并行必需目标",
+      "layer": "encounter-structure",
+      "origin": "published-game-analysis",
+      "family": "objective-topology",
+      "idea": "两个目标都必需，有限行动决定先后与分配",
+      "stage": "documented-comparative-reference",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/设计研究/Citizen_Sleeper_2_交锋决策模式梳理.md"
+      ],
+      "evidence": {
+        "publishedWorkExample": true,
+        "controlledIsolation": false,
+        "originalPlayLog": false
+      },
+      "note": "该九分法是设计研究归纳，非游戏官方分类；对应具体Contract时必须复核节点和条件"
+    },
+    {
+      "id": "CS2-04",
+      "name": "替代路径",
+      "layer": "encounter-structure",
+      "origin": "published-game-analysis",
+      "family": "objective-topology",
+      "idea": "多条路线可达同一结果，资源与后果决定选路",
+      "stage": "documented-comparative-reference",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/设计研究/Citizen_Sleeper_2_交锋决策模式梳理.md"
+      ],
+      "evidence": {
+        "publishedWorkExample": true,
+        "controlledIsolation": false,
+        "originalPlayLog": false
+      },
+      "note": "该九分法是设计研究归纳，非游戏官方分类；对应具体Contract时必须复核节点和条件"
+    },
+    {
+      "id": "CS2-05",
+      "name": "基本目标与额外目标",
+      "layer": "encounter-structure",
+      "origin": "published-game-analysis",
+      "family": "objective-topology",
+      "idea": "达到最低成果后继续投入可能获得更多但承担风险",
+      "stage": "documented-comparative-reference",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/设计研究/Citizen_Sleeper_2_交锋决策模式梳理.md"
+      ],
+      "evidence": {
+        "publishedWorkExample": true,
+        "controlledIsolation": false,
+        "originalPlayLog": false
+      },
+      "note": "该九分法是设计研究归纳，非游戏官方分类；对应具体Contract时必须复核节点和条件"
+    },
+    {
+      "id": "CS2-06",
+      "name": "竞争时钟",
+      "layer": "encounter-structure",
+      "origin": "published-game-analysis",
+      "family": "pressure-dynamics",
+      "idea": "外部事件推进，玩家不犯错也会错过机会",
+      "stage": "documented-comparative-reference",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/设计研究/Citizen_Sleeper_2_交锋决策模式梳理.md"
+      ],
+      "evidence": {
+        "publishedWorkExample": true,
+        "controlledIsolation": false,
+        "originalPlayLog": false
+      },
+      "note": "该九分法是设计研究归纳，非游戏官方分类；对应具体Contract时必须复核节点和条件"
+    },
+    {
+      "id": "CS2-07",
+      "name": "危险累积",
+      "layer": "encounter-structure",
+      "origin": "published-game-analysis",
+      "family": "pressure-dynamics",
+      "idea": "推进或失手积累风险，改变之后行动的价值",
+      "stage": "documented-comparative-reference",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/设计研究/Citizen_Sleeper_2_交锋决策模式梳理.md"
+      ],
+      "evidence": {
+        "publishedWorkExample": true,
+        "controlledIsolation": false,
+        "originalPlayLog": false
+      },
+      "note": "该九分法是设计研究归纳，非游戏官方分类；对应具体Contract时必须复核节点和条件"
+    },
+    {
+      "id": "CS2-08",
+      "name": "危机打断",
+      "layer": "encounter-structure",
+      "origin": "published-game-analysis",
+      "family": "pressure-dynamics",
+      "idea": "新增必须关注的问题，原有计划遭到干扰",
+      "stage": "documented-comparative-reference",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/设计研究/Citizen_Sleeper_2_交锋决策模式梳理.md"
+      ],
+      "evidence": {
+        "publishedWorkExample": true,
+        "controlledIsolation": false,
+        "originalPlayLog": false
+      },
+      "note": "该九分法是设计研究归纳，非游戏官方分类；对应具体Contract时必须复核节点和条件"
+    },
+    {
+      "id": "CS2-09",
+      "name": "目标意义重估",
+      "layer": "encounter-structure",
+      "origin": "published-game-analysis",
+      "family": "outcome-structure",
+      "idea": "新信息或关系要求重新考虑是否仍追求原定目标",
+      "stage": "documented-comparative-reference",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/设计研究/Citizen_Sleeper_2_交锋决策模式梳理.md"
+      ],
+      "evidence": {
+        "publishedWorkExample": true,
+        "controlledIsolation": false,
+        "originalPlayLog": false
+      },
+      "note": "该九分法是设计研究归纳，非游戏官方分类；对应具体Contract时必须复核节点和条件"
+    },
+    {
+      "id": "R50",
+      "name": "动作回声",
+      "layer": "decision-relation",
+      "origin": "ssnoir-research",
+      "idea": "行动切换改变下一次收益",
+      "stage": "curated historical, critical human feedback",
+      "curatedDisplay": true,
+      "sources": [
+        "docs/实验/机制研究/批次/R50-动作回声/研究记录.md",
+        "docs/实验/机制研究/模式库.json"
+      ],
+      "evidence": {
+        "mathematical": false,
+        "humanVerified": false,
+        "humanFeedbackAvailable": true,
+        "humanFeedbackScope": "网页1局操作记录和文字反馈；感知修正但目标不明",
+        "curatedSourceEvidence": {
+          "math": true,
+          "native": true,
+          "human": true
+        },
+        "curatedEvidenceNote": "R50 数学与12局原生严格回放保持不变。2026-10-09新增1份网页示意版真人文字反馈+1局实际行动路径；确认感受到行动间修正，但不知道该追求更高收益或避免伤势。研究者SHA绑定回复已归档；未验证哪种呈现更好。"
+      },
+      "note": "证据仅支持列出的特定规则/历史反馈，不自动归为成熟玩法；该模式相关真人反馈见模式库.json/R50，不能推出通用认可。"
+    },
+    {
+      "id": "R510",
+      "name": "自主主体与历史推断",
+      "layer": "interaction-hypothesis",
+      "origin": "ssnoir-research",
+      "idea": "他者自主行动，玩家从多期反馈判断偏好与剩余机会",
+      "stage": "exact model; no human test",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/R510-R517-私有意志与场外机会/研究记录.md"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "humanVerified": false
+      },
+      "note": "证据仅支持列出的特定规则/历史反馈，不自动归为成熟玩法"
+    },
+    {
+      "id": "R518",
+      "name": "成功或失败产生压力",
+      "layer": "variation",
+      "origin": "ssnoir-research",
+      "idea": "事件相关性不同，但同一公开阈值口诀均全优",
+      "stage": "exact model; no current-pair human test",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/R518-R525-成功与失败的同边际压力/研究记录.md"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "humanVerified": false
+      },
+      "note": "证据仅支持列出的特定规则/历史反馈，不自动归为成熟玩法"
+    },
+    {
+      "id": "R526",
+      "name": "秘密未改变可行行动选择",
+      "layer": "negative-boundary",
+      "origin": "ssnoir-research",
+      "idea": "隐藏压力成因可识别，但知道真相不改变最优行动",
+      "stage": "exact negative counterexample",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/R526-R533-隐藏压力因果的零信息价值/研究记录.md"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "humanVerified": false
+      },
+      "note": "证据仅支持列出的特定规则/历史反馈，不自动归为成熟玩法"
+    },
+    {
+      "id": "PL-C01",
+      "name": "危机封路后的绕行/修复",
+      "layer": "combination-hypothesis",
+      "origin": "new-local-experiment",
+      "idea": "前一行动的反馈改变危机时应使用的路线",
+      "stage": "exact small model; playable CLI; no human play",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-13-模式语言与组合首轮/研究记录.md"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "humanVerified": false
+      },
+      "note": "证据仅支持列出的特定规则/历史反馈，不自动归为成熟玩法"
+    },
+    {
+      "id": "PL-C02",
+      "name": "信息与改目标的剩余容量",
+      "layer": "combination-boundary",
+      "origin": "new-local-experiment",
+      "idea": "信息只有在仍可转投另一个目标时产生数值决策价值",
+      "stage": "exact small model; playable CLI; no human play",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-13-模式语言与组合首轮/研究记录.md"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "humanVerified": false
+      },
+      "note": "证据仅支持列出的特定规则/历史反馈，不自动归为成熟玩法"
+    },
+    {
+      "id": "X01",
+      "name": "危机与已有替代成果",
+      "layer": "combination-boundary",
+      "origin": "new-local-experiment",
+      "idea": "危机封锁A后，另一目标的既有进度与价值决定修复还是转投；无可竞争B时退化为FIX税",
+      "stage": "exact four-state local enumeration; no full-encounter reachability or human play",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/长期研究-启动-组合诊断/研究记录.md",
+        "tools/content-validator/experiments/pattern_language_composition_pilot.py"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "humanVerified": false
+      },
+      "note": "仅局部状态冻结、无随机；不是一套新的原创交锋模式或完整玩家体验"
+    },
+    {
+      "id": "X02",
+      "name": "准备与早到机会窗口",
+      "layer": "cross-timescale-combination",
+      "origin": "new-local-experiment",
+      "idea": "如果现场机会在临时ENABLE之前关闭，准备期的预测和特殊能力才可能有价值；撤去窗口时晚买严格占优",
+      "stage": "exact two-stage finite action enumeration; no human play",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/长期研究-启动-组合诊断/研究记录.md",
+        "tools/content-validator/experiments/pattern_language_preparation_pilot.py"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "humanVerified": false
+      },
+      "note": "一条概率阈值条件规则即可解释，不能因跨时间尺度称为新心理原语"
+    },
+    {
+      "id": "X03",
+      "name": "目标重估与结算语义的区别",
+      "layer": "open-hypothesis",
+      "origin": "analysis-from-existing-work",
+      "idea": "信息改变数值奖励并不自动等于玩家重新认可或拒绝原先承诺；需研究合法退出和结算合同的变化",
+      "stage": "paper hypothesis only; no new model",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/长期研究-启动-组合诊断/研究记录.md",
+        "docs/设计研究/Citizen_Sleeper_2_交锋决策模式梳理.md"
+      ],
+      "evidence": {
+        "mathematical": false,
+        "humanVerified": false
+      },
+      "note": "该卡片只记录进一步探索的问题，不能声称已证明目标意义反转"
+    },
+    {
+      "id": "PL-C03",
+      "name": "事前准备使危机中的备用路线更有效",
+      "layer": "combination-hypothesis",
+      "origin": "new-local-experiment",
+      "idea": "为未来可能关闭的主路线提前投入一手；当危机概率变化时合理投资与直接推进会互换",
+      "stage": "exact-model-with-strong-fixed-strategy-critique",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-13-准备与危机概率/研究记录.md"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      },
+      "note": "准备会把危机中DETOUR从+1增强为+2；是否值得开局准备与q有关。未证明持续重规划，尚未与同成本现场ENABLE做正式公平对照"
+    },
+    {
+      "id": "PL-C04",
+      "name": "完成主要目标关闭额外收益",
+      "layer": "combination-hypothesis",
+      "origin": "new-local-paper-question",
+      "idea": "额外成果与尽快完成主要目标之间是否存在可达的见好就收/机会关闭取舍",
+      "stage": "paper-question-unmodeled",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-13-模式语言与组合首轮/研究记录.md"
+      ],
+      "evidence": {
+        "mathematical": false,
+        "native": false,
+        "humanVerified": false
+      },
+      "note": "目前只有反例问题，没有专用数学和实际玩家证据"
+    },
+    {
+      "id": "R502",
+      "name": "修补依赖与同成本ENABLE等价边界",
+      "origin": "ssnoir-research",
+      "layer": "negative-boundary",
+      "idea": "看似不同的步骤未必引入不同动作语法",
+      "stage": "documented-historical-counterexample",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/R502-R509-依赖修复与选项启用同构/研究记录.md"
+      ],
+      "evidence": {
+        "math": true,
+        "humanVerified": false
+      },
+      "note": "可提示公平比较现场启用，但不能推广为所有事前准备皆无价值"
+    },
+    {
+      "id": "PL-C05",
+      "name": "同成本现场ENABLE压制提前预付",
+      "origin": "new-local-experiment",
+      "layer": "combination-negative-boundary",
+      "idea": "备用路线能力只在危机后有用，危机后可同成本购买时等待需求再买更好",
+      "stage": "exact-finite-model-counterexample",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-13-准备与临场启用对照/研究记录.md"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      },
+      "note": "四组q对照Both=On-site-only；仅限冻结模型，不能推广为普遍准备玩法定理"
+    }
+  ],
+  "edges": [
+    {
+      "from": "CS2-08",
+      "to": "P11",
+      "relation": "related-structure",
+      "reason": "危机打断与推进生成后续负担相邻；单纯修一格不等于行动集合改变"
+    },
+    {
+      "from": "CS2-04",
+      "to": "PL-C01",
+      "relation": "ingredient",
+      "reason": "替代行动路线是C01能条件改道的必要部分"
+    },
+    {
+      "from": "CS2-08",
+      "to": "PL-C01",
+      "relation": "ingredient",
+      "reason": "触发危机后原行动关闭，玩家需重新选择"
+    },
+    {
+      "from": "P11",
+      "to": "PL-C01",
+      "relation": "contrasts",
+      "reason": "P11主要研究压力的维护成本，C01特意改变危机时行动可达性"
+    },
+    {
+      "from": "P03",
+      "to": "PL-C02",
+      "relation": "related-structure",
+      "reason": "行动与信息的关系受剩余行动容量约束"
+    },
+    {
+      "from": "P14",
+      "to": "PL-C02",
+      "relation": "related-structure",
+      "reason": "调查的价值要与继续执行、直接选择对照"
+    },
+    {
+      "from": "R526",
+      "to": "PL-C02",
+      "relation": "boundary",
+      "reason": "可识别的信息若不改变最优动作则不产生独立调查决策"
+    },
+    {
+      "from": "R518",
+      "to": "P11",
+      "relation": "variation",
+      "reason": "压力触发语义差异，不必晋升为两种基础原语"
+    },
+    {
+      "from": "P02",
+      "to": "P16",
+      "relation": "combination-question",
+      "reason": "成果价值与对手攻击领先项共同决定优先次序"
+    },
+    {
+      "from": "P09",
+      "to": "CS2-05",
+      "relation": "related-structure",
+      "reason": "收益兑现与额外目标的风险承担可相互组合"
+    },
+    {
+      "from": "CS2-09",
+      "to": "PL-C02",
+      "relation": "unproven-extension",
+      "reason": "数值上的目标偏好变化尚不能证明叙事意义重估"
+    },
+    {
+      "from": "P05",
+      "to": "CS2-02",
+      "relation": "related-structure",
+      "reason": "阶段完成与阶段解锁相近，但是否改变玩家动词待审"
+    },
+    {
+      "from": "P02",
+      "to": "X01",
+      "relation": "ingredient",
+      "reason": "并行成果的进度与价值改变危机后是否舍弃主目标"
+    },
+    {
+      "from": "CS2-08",
+      "to": "X01",
+      "relation": "ingredient",
+      "reason": "危机封锁工作动作，局部测试是否触发分诊而非固定修理"
+    },
+    {
+      "from": "P11",
+      "to": "X01",
+      "relation": "negative-boundary",
+      "reason": "没有活跃可替代目标时仍只有固定修复税"
+    },
+    {
+      "from": "P13",
+      "to": "X02",
+      "relation": "related-structure",
+      "reason": "整备能力在早于现场购买的机会窗口内才能兑现"
+    },
+    {
+      "from": "P14",
+      "to": "X02",
+      "relation": "related-structure",
+      "reason": "准备期公开预测与未来隐藏真相之间存在机会成本与锁定"
+    },
+    {
+      "from": "CS2-09",
+      "to": "X03",
+      "relation": "open-distinction",
+      "reason": "故事中重新评价是否完成目标，不能用更换结算数值替代"
+    },
+    {
+      "from": "R526",
+      "to": "X03",
+      "relation": "negative-boundary",
+      "reason": "信息可被识别但若不改变可行行动，其额外价值可能为零"
+    },
+    {
+      "from": "P13",
+      "to": "PL-C03",
+      "relation": "ingredient",
+      "reason": "当前行动投资未来产能，需检查是否只是固定开局升级"
+    },
+    {
+      "from": "CS2-08",
+      "to": "PL-C03",
+      "relation": "ingredient",
+      "reason": "危机打断普通推进，备用路线是事前行动的场内兑现"
+    },
+    {
+      "from": "PL-C01",
+      "to": "PL-C03",
+      "relation": "extension",
+      "reason": "首轮研究危机后修复/绕行；本轮增加危机发生概率与不可补做的事前准备"
+    },
+    {
+      "from": "R526",
+      "to": "PL-C03",
+      "relation": "negative-comparison",
+      "reason": "研究不应仅凭信息存在就断言行动改变；该轮概率是公开的"
+    },
+    {
+      "from": "P09",
+      "to": "PL-C04",
+      "relation": "ingredient",
+      "reason": "积累与兑现的风险选择"
+    },
+    {
+      "from": "P12",
+      "to": "PL-C04",
+      "relation": "ingredient",
+      "reason": "完成主目标关闭后续机会"
+    },
+    {
+      "from": "R502",
+      "to": "PL-C05",
+      "relation": "related-boundary",
+      "reason": "与历史现场ENABLE同构反例一致"
+    },
+    {
+      "from": "PL-C03",
+      "to": "PL-C05",
+      "relation": "counterexample",
+      "reason": "先准备的价值依赖禁止现场补购这一时点约束"
+    },
+    {
+      "from": "P13",
+      "to": "PL-C05",
+      "relation": "limits",
+      "reason": "任何投资都需要与等待需求后再投资的机会成本对照"
+    }
+  ],
+  "coverage": {
+    "historicalCandidateCount": 20,
+    "curatedDisplayMappedCount": 6,
+    "cs2AnalyticalPatterns": 9,
+    "unconvertedHistory": "关系索引中的其他R批次、数学负例和组合应按主题逐步纳入；不能据本地图未出现就认定没有价值",
+    "additionalExperimentalCompositions": "PL-C01/PL-C02/PL-C03已做最小模型、PL-C04仅概念问题；与另一研究线的C01/C02/C03区别命名",
+    "humanFeedbackNote": "目前有关稳险/R06、边做边看/R10、压力/R37、R54、R50的有限设计者反馈；原记录各不等价于受控盲试玩；P02/R13仍没有真人反馈。",
+    "thirdComparison": "PL-C05 supplies a tested negative boundary; not a new curated or debug pattern"
+  },
+  "policy": [
+    "没有入精选不意味着无价值",
+    "商业游戏应用先例不是本实验的受控试玩验证",
+    "数学不支配与收益增量不足以证明乐趣",
+    "可检索的边界反例也是研究成果",
+    "新假设可直接存入知识地图；精选展示和Debug是独立决策",
+    "X01–X03属与C01–C03不同的独立最小组合对照；任何节点编号都不是精选晋升或真人认证",
+    "PL前缀区别于并行研究线在长期研究启动档案中使用的C01/C02/C03，禁止凭名称相同直接合并"
+  ]
+}</script>
+<script type="application/json" id="research-dialogue-data">{
+  "schema": "ssnoir.research-requests/v1",
+  "updated": "2026-10-13",
+  "headline": "需要设计师参与的判断",
+  "intro": "这些是 Agent 尚无法从数学与规则中直接回答的问题。回答是异步的，不会阻断其他研究；可以只回答一项，也可以描述自己的观察。提交内容保留原文，不自动宣称模式得到验证。",
+  "questions": [
+    {
+      "id": "RQ-PLAN",
+      "title": "什么情况下你真的会重新规划？",
+      "priority": "体验判断",
+      "status": "需要人类观察",
+      "related": [
+        "CS2-08",
+        "C01",
+        "X01"
+      ],
+      "context": "研究发现危机封路之后可能出现修理、绕行或改投另一目标的不同最优行动，但不知道玩家实际是否感到计划被打断。",
+      "ask": "回忆一次《Citizen Sleeper 2》或其他游戏中，你因为出现新的问题而主动改变原计划的时刻。原先准备做什么？新的问题改变了什么？你为何不继续原计划？",
+      "why": "用具体玩家经历校准 Agent 对“真正重新规划”和“固定应急动作”的区分。无需照着数学结果作答。",
+      "evidence": "目前是已知设计先例与抽象模型；没有这组规则的真人盲试玩。"
+    },
+    {
+      "id": "RQ-SELECT",
+      "title": "你在设计情境时会怎样挑选模式？",
+      "priority": "设计师使用",
+      "status": "征集设计反馈",
+      "related": [
+        "CS2-04",
+        "P03",
+        "P11"
+      ],
+      "context": "研究库已经包含基础关系、完整交锋结构和跨阶段组织，但这些结论未必能直接变成设计师可用的选择。",
+      "ask": "如果你正在构思一段调查、谈判、追逐或其他情境，你会先描述什么信息，才能从模式库中判断哪种结构合适？哪些说明是必需的，哪些是冗余的？",
+      "why": "检验模式语言是否真正能辅助场景创作，而不只是成为研究员内部分类。",
+      "evidence": "这是工作台使用方式的研究请求，不是玩法好坏的评分。"
+    }
+  ]
+}</script>
 <script type="application/json" id="atlas-data">{
   "version": 1,
   "updated": "2026-10-12",
@@ -1703,6 +2860,38 @@ async function request(method, route, body, overrideToken) {
   }
   return data;
 }
+
+/* Open-ended designer answers are separate from Rxx playtest feedback.
+   Each answer creates one immutable GitHub file; no researcher conclusions or
+   fake realtime chat replies are generated by this static webpage. */
+window.SSNoirResearchDialogue={
+  async submit(payload){
+    const questions=JSON.parse(document.getElementById("research-dialogue-data").textContent);
+    const question=questions.questions.find(q=>q.id===payload.questionId);
+    if(!question||payload.schema!=="ssnoir.research-dialogue/v1")
+      throw Error("未知的研究问题版本");
+    if(!token||!user)throw Error("请先到实验室的 GitHub 连接设置绑定最小权限Token，或导出JSON手工上传");
+    if(typeof payload.answer!=="string"||!payload.answer.trim()||payload.answer.length>12000)
+      throw Error("回答不能为空或超过12000字符");
+    // Do not trust the client payload for identity and field constraints.
+    const clean={
+      schema:"ssnoir.research-dialogue/v1",
+      questionId:question.id,questionTitle:question.title,
+      createdAt:new Date().toISOString(),
+      related:question.related,answer:payload.answer.trim(),context:question.context
+    };
+    const stamp=clean.createdAt.replace(/[-:]/g,"").replace(/\\..+$/,"").replace("T","-");
+    const random=crypto.getRandomValues(new Uint8Array(6));
+    const suffix=Array.from(random,x=>x.toString(16).padStart(2,"0")).join("");
+    const dest="docs/实验/机制研究/反馈/questions/SSNoir-dialogue-"+question.id+"-"+stamp+"-"+suffix+".json";
+    const result=await request("PUT","/repos/"+REPO+"/contents/"+endpoint(dest),
+      {message:"research: designer response to "+question.id,
+        content:encoded(safeJson(clean)),branch:"main"});
+    if(!result.content?.sha)throw Error("GitHub未确认反馈提交");
+    return dest.split("/").pop();
+  }
+};
+
 function showConnection() {
   const connected = !!token && !!user;
   $("cloud-connect").classList.toggle("hidden", connected);
@@ -2193,18 +3382,187 @@ function journal(){
  make(root,"div","plain-log-day",tasks.updated);
  tasks.current.forEach((v,i)=>{const entry=make(root,"article");make(entry,"span","log-number",String(i+1).padStart(2,"0"));make(entry,"p",null,v);});
 }
+
+/* Designer-facing catalog is a reading view over the complete, evidence-aware map.
+   It never promotes or changes canonical research status. */
+const graph=JSON.parse(document.getElementById("pattern-map-data").textContent);
+const dialogue=JSON.parse(document.getElementById("research-dialogue-data").textContent);
+const nodeById=new Map(graph.nodes.map(n=>[n.id,n]));
+let chosenId="CS2-08";
+const picked=new Set();
+let libSearch="",libLayer="all",libOrigin="all",libPickedOnly=false;
+const graphUrl=p=>"https://github.com/guopanqi/ssnoir/blob/main/"+p.split("/").map(encodeURIComponent).join("/");
+const layerName=n=>{
+ if(n.layer==="encounter-structure")return "交锋结构";
+ if(n.layer==="decision-relation")return "基础决策";
+ if(n.layer==="negative-boundary")return "反证边界";
+ if(n.layer==="open-hypothesis")return "开放问题";
+ if((n.layer||"").includes("combination"))return "组合关系";
+ return "研究关系";
+};
+const sourceName=n=>n.origin==="published-game-analysis"?"成熟作品设计归纳":n.origin==="ssnoir-research"?"SSNoir研究":"组合分析";
+function libraryVisible(n){
+ if(libPickedOnly&&!picked.has(n.id))return false;
+ if(libLayer!=="all"&&(libLayer==="combination"?!(["combination","boundary","hypothesis","variation"].some(t=>(n.layer||"").includes(t))):n.layer!==libLayer))return false;
+ if(libOrigin!=="all"&&(libOrigin==="other"?["published-game-analysis","ssnoir-research"].includes(n.origin):n.origin!==libOrigin))return false;
+ if(libSearch&&![n.id,n.name,n.idea,n.family,n.stage].filter(Boolean).join(" ").toLocaleLowerCase().includes(libSearch))return false;
+ return true;
+}
+function setChosen(id){
+ if(!nodeById.has(id))return;
+ chosenId=id;
+ drawLibrary();
+}
+function pick(id){
+ if(picked.has(id))picked.delete(id);else picked.add(id);
+ drawLibrary();
+}
+function drawLibrary(){
+ const list=$("lib-list");list.replaceChildren();
+ const visible=graph.nodes.filter(libraryVisible);
+ $("lib-count").textContent=visible.length+"/"+graph.nodes.length+" 项";
+ visible.forEach(n=>{
+  const item=make(list,"button","lib-item"+(n.id===chosenId?" active":""));
+  item.type="button";item.setAttribute("aria-pressed",String(n.id===chosenId));
+  const head=make(item,"div","lib-item-head");
+  make(head,"span","lib-id",n.id);
+  make(head,"span","lib-origin",sourceName(n));
+  make(item,"strong",null,n.name);
+  make(item,"small",null,n.idea||"");
+  item.addEventListener("click",()=>setChosen(n.id));
+ });
+ if(!visible.length)make(list,"p","wb-empty","没有匹配条目；可尝试清除筛选。");
+ drawLibraryDetail();drawPicked();
+}
+function drawLibraryDetail(){
+ const root=$("lib-detail");root.replaceChildren();
+ const n=nodeById.get(chosenId);if(!n)return;
+ make(root,"span","wb-kicker",sourceName(n)+" / "+layerName(n));
+ make(root,"h2",null,n.name);
+ make(root,"p","lib-idea",n.idea||"目前只有关联证据，尚未提炼独立玩法描述。");
+ const info=make(root,"div","lib-metadata");
+ make(info,"span",null,"研究编号："+n.id);
+ make(info,"span",null,"记录身份："+(n.stage||"待复查"));
+ if(n.curatedDisplay)make(info,"span",null,"收录于精选展示（不代表通用认证）");
+ if(n.evidence?.humanFeedbackAvailable||n.evidence?.humanRelated)make(info,"span",null,"存在相关真人反馈（不等于受控验证）");
+ const p=make(root,"p","lib-explainer",n.note||"目前缺乏可以外推到情境设计的完整体验证据。");
+ const btn=make(root,"button","button "+(picked.has(n.id)?"ghost":""));
+ btn.type="button";btn.textContent=picked.has(n.id)?"从情境组合中移除":"加入情境组合";
+ btn.addEventListener("click",()=>pick(n.id));
+ const related=graph.edges.filter(e=>e.from===n.id||e.to===n.id);
+ if(related.length){
+  make(root,"h3",null,"相关关系 · "+related.length);
+  const refs=make(root,"div","lib-relations");
+  related.forEach(e=>{
+   const other=nodeById.get(e.from===n.id?e.to:e.from);
+   if(!other)return;
+   const line=make(refs,"button","lib-relation");line.type="button";
+   make(line,"strong",null,other.name+" · "+e.relation);
+   make(line,"span",null,e.reason);
+   line.addEventListener("click",()=>setChosen(other.id));
+  });
+ }
+ make(root,"h3",null,"可追溯来源");
+ const sources=make(root,"div","wb-links");
+ (n.sources||[]).forEach(source=>{
+  const a=make(sources,"a",null,source.split("/").slice(-1)[0]+" ↗");
+  a.href=graphUrl(source);a.target="_blank";a.rel="noopener noreferrer";
+ });
+ if(n.id.startsWith("CS2-"))make(root,"p","minor","CS2九类是设计归纳，并非官方分类或每条模式独立的受控玩家验证。");
+}
+function drawPicked(){
+ const root=$("lib-picked");root.replaceChildren();
+ if(!picked.size){make(root,"p","minor","尚未选用模式。打开左侧任一项，可加入设计组合。");return;}
+ [...picked].forEach(id=>{
+  const n=nodeById.get(id);
+  const b=make(root,"button","lib-chip",n.name+" ×");b.type="button";
+  b.title="移除 "+n.name;b.addEventListener("click",()=>pick(id));
+ });
+}
+function buildBrief(){
+ const name=$("lib-scenario").value.trim()||"（待填写情境）";
+ const selection=[...picked].map(id=>nodeById.get(id));
+ const interactions=graph.edges.filter(e=>picked.has(e.from)&&picked.has(e.to));
+ const blocks=[
+  "SSNoir · 交锋设计材料（研究知识，不是实现要求）",
+  "情境："+name,"选用模式："+selection.map(n=>n.name+" ["+n.id+"]").join("、"),
+  ...selection.flatMap(n=>[
+   "\n"+n.id+" · "+n.name+"（"+sourceName(n)+"）",
+   "玩家可能进行的判断："+(n.idea||"仍需定义"),
+   "研究状态："+(n.stage||"未知"),
+   "限制："+(n.note||"尚待体验验证")
+  ]),
+  "\n已知的相互作用："+(interactions.length?interactions.map(e=>e.from+" → "+e.to+"："+e.reason).join("；"):"本知识图暂未记录这些模式之间经过检查的相互作用。"),
+  "\n设计时仍需回答：这些动作会怎样影响彼此？玩家在什么时刻重新考虑？最强固定策略是什么？缺少哪些体验证据？"
+ ];
+ return blocks.join("\n");
+}
+async function copyBrief(){
+ if(!picked.size){$("lib-copy-state").textContent="请先选择至少一项模式。";return;}
+ const txt=buildBrief();
+ try{
+  if(navigator.clipboard?.writeText)await navigator.clipboard.writeText(txt);
+  else{
+   const area=document.createElement("textarea");area.value=txt;document.body.append(area);
+   area.select();if(!document.execCommand("copy"))throw Error("copy unavailable");area.remove();
+  }
+  $("lib-copy-state").textContent="已复制设计简报。它保留研究来源、尚未验证的部分和组合问题。";
+ }catch(err){$("lib-copy-state").textContent="浏览器未允许复制。可在HTTPS页面重试。";}
+}
+function drawDialogue(){
+ const root=$("wb-dialogue-requests");root.replaceChildren();
+ dialogue.questions.forEach(q=>{
+  const section=make(root,"article","dialogue-card");
+  const h=make(section,"div","dialogue-heading");make(h,"span","wb-kicker",q.priority+" / "+q.id);make(h,"h3",null,q.title);
+  make(section,"p",null,q.context);
+  make(section,"p","dialogue-question",q.ask);
+  const links=make(section,"div","lib-dialogue-links");
+  q.related.forEach(id=>{const n=nodeById.get(id);if(!n)return;const a=make(links,"a",null,n.name+" ↗");a.href="#library";a.addEventListener("click",()=>setChosen(id));});
+  const field=make(section,"textarea","dialogue-answer");field.rows=3;field.placeholder="描述实际经历、判断或设计需求即可，不用打分。";field.setAttribute("aria-label",q.title+"的回答");
+  const controls=make(section,"div","dialogue-actions");
+  const submit=make(controls,"button","button tiny","提交给研究 Agent");submit.type="button";
+  const backup=make(controls,"button","button ghost tiny","导出回答 JSON");backup.type="button";
+  const result=make(section,"p","minor");result.setAttribute("role","status");
+  const response=()=>({schema:"ssnoir.research-dialogue/v1",questionId:q.id,questionTitle:q.title,createdAt:new Date().toISOString(),related:q.related,answer:field.value.trim(),context:q.context});
+  const validate=()=>{if(!field.value.trim()){result.textContent="先填写一个具体观察或问题。";return false;}return true;};
+  backup.addEventListener("click",()=>{
+   if(!validate())return;
+   const file=new Blob([JSON.stringify(response(),null,2)+"\n"],{type:"application/json"});
+   const url=URL.createObjectURL(file);const a=document.createElement("a");
+   a.href=url;a.download="SSNoir-dialogue-"+q.id+"-"+new Date().toISOString().slice(0,10)+".json";
+   a.click();URL.revokeObjectURL(url);result.textContent="JSON已导出。可上传到仓库的研究反馈 questions 目录。";
+  });
+  submit.addEventListener("click",async()=>{
+   if(!validate())return;
+   submit.disabled=true;result.textContent="提交中…";
+   try{if(!window.SSNoirResearchDialogue)throw Error("研究反馈连接尚未加载");const r=await window.SSNoirResearchDialogue.submit(response());result.textContent="已提交到GitHub："+r;}
+   catch(err){result.textContent="未提交："+err.message+"。你仍可导出JSON；首次使用需在实验室连接GitHub。";}
+   finally{submit.disabled=false;}
+  });
+ });
+}
+["lib-search","lib-layer","lib-origin","lib-picked-only"].forEach(id=>{
+ const element=$(id);
+ element.addEventListener(id==="lib-search"?"input":"change",()=>{
+  libSearch=$("lib-search").value.trim().toLocaleLowerCase();
+  libLayer=$("lib-layer").value;libOrigin=$("lib-origin").value;
+  libPickedOnly=$("lib-picked-only").checked;drawLibrary();
+ });
+});
+$("lib-copy").addEventListener("click",copyBrief);
+
 function route(){
  const h=decodeURIComponent(location.hash||"#overview"),m=/^#study-(R\d+)$/.exec(h);
- const page=m||h==="#experiments"||h==="#research-log"?"experiments":h==="#map"||h==="#research-findings"?"map":h==="#journal"?"journal":"overview";
- ["overview","experiments","map","journal"].forEach(id=>$(id).classList.toggle("hidden",id!==page));
- $("field-breadcrumb").textContent=({overview:"概览",experiments:"实验室",map:"研究地图",journal:"研究日志"})[page];
+ const page=m||h==="#experiments"||h==="#research-log"?"experiments":h==="#map"||h==="#research-findings"?"map":h==="#library"?"library":h==="#journal"?"journal":"overview";
+ ["overview","experiments","map","library","journal"].forEach(id=>$(id).classList.toggle("hidden",id!==page));
+ $("field-breadcrumb").textContent=({overview:"概览",experiments:"实验室",map:"研究地图",library:"模式目录",journal:"研究日志"})[page];
  document.querySelectorAll(".desk-nav a").forEach(a=>a.setAttribute("aria-current",a.getAttribute("href")==="#"+page?"page":"false"));
  if(m)app.selectStudy(m[1]);
  window.scrollTo(0,0);
 }
 window.addEventListener("ssnoir:feedback-progress",e=>{progress=e.detail.progress||null;syncError=e.detail.error||"";attention();});
 window.addEventListener("hashchange",route);
-home();map();journal();attention();route();
+home();map();journal();drawLibrary();drawDialogue();attention();route();
 })();
 </script>
 </body>
