@@ -1,0 +1,32 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CERT：已经做完，还是已经领到？</title>
+<style>:root{color-scheme:dark}*{box-sizing:border-box}body{font:16px/1.6 system-ui,"PingFang SC",sans-serif;color:#e9e8e3;background:#101114;max-width:800px;margin:0 auto;padding:30px 18px}h1{margin:0 0 8px;font-size:1.65rem}h2{font-size:1.05rem;margin:0 0 12px}.muted{font-size:.86rem;color:#b8b8b5}.eyebrow{font-size:.75rem;letter-spacing:.12em;color:#d8c18e}section{background:#1c1e20;border:1px solid #494b4d;border-radius:9px;padding:17px;margin:18px 0}.cols{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.stat{padding:10px;border:1px solid #515356;border-radius:7px}.stat strong{display:block;font-size:1.5rem}.actions{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}button,select,textarea{font:inherit;color:#e9e8e3;background:#292c30;border:1px solid #666;border-radius:6px;padding:10px;min-width:0}button{cursor:pointer}button:disabled{opacity:.32;cursor:default}select,textarea{width:100%}label{font-size:.85rem;color:#b8b8b5}.row{display:grid;grid-template-columns:2fr 1fr;gap:10px}.btnrow{display:flex;gap:10px;margin-top:12px}.btnrow button{flex:1}li{margin:5px 0}.end{border-left:3px solid #d8c18e;padding:10px;background:#292925}.tag{color:#d8c18e}@media(max-width:540px){.cols{grid-template-columns:1fr}.actions{grid-template-columns:repeat(2,1fr)}} </style></head><body>
+<p class="eyebrow">SSNOIR / INDEPENDENT PATTERN OBSERVATION</p><h1>CERT · 做完了，还是拿到了？</h1><p class="muted">独立的五手纸面原型，所有状态只在本机运行。不提示最佳策略，不上传行动日志。这不是正式游戏或已获真人认可的玩法。</p>
+<section><div class="row"><label>规则版本<select id="mode"><option value="helper">受托者：需领取成果</option><option value="robot">自动工具：需领取成果</option><option value="credential">普通注册：直接取得资格</option><option value="none">没有委托与资格</option></select></label><label>总行动数<select id="limit"><option value="5">5 手</option><option value="4">4 手</option></select></label></div><div class="btnrow"><button id="reset">重新开始</button><button id="copy">复制行动与理由</button></div><p class="muted">A 完成需3进度，奖励12；B 需2进度，奖励9；资格 C 需 A 完成且已经领取或注册，另奖励10。保底行动即时奖励1。SEND 占一手，GOOD 在之后两次行动各产A1，BAD只在第一次产A1；两种概率各半，发送时立即公布。至少经过两次后续行动才能另花一手 ACCEPT 领取。</p></section>
+<section><h2 id="turn">第 1 手</h2><div class="cols"><div class="stat">A · 有效进度<strong id="a">0 / 3</strong><span class="muted" id="aDetail"></span></div><div class="stat">B · 亲自推进<strong id="b">0 / 2</strong></div><div class="stat">C · 资格<strong id="c">未获得</strong><span class="muted">须同时完成 A</span></div></div><p class="muted" id="note"></p><div class="actions" id="actions"></div><p id="end" class="end" hidden></p></section>
+<section><h2>行动理由与记录</h2><label for="reason">这一手为什么这样做？可留空，之后可以复制记录。</label><textarea id="reason" rows="2" placeholder="我现在希望保住什么？下一手准备怎样处理？"></textarea><ol id="history"></ol></section>
+<script>
+(function(){
+'use strict';
+var $=function(id){return document.getElementById(id);},s;
+var names={A:'亲自做 A',B:'亲自做 B',SIDE:'做保底',SEND:'委托 A',ACCEPT:'领取并验收',REGISTER:'普通注册资格'};
+function reset(){s={mode:$('mode').value,limit:Number($('limit').value),turn:0,a:0,b:0,side:0,age:-1,quality:'',accepted:false,log:[]};$('reason').value='';render();}
+function acts(){var v=['A','B','SIDE'];if(s.mode==='helper'||s.mode==='robot'){if(s.age===-1)v.push('SEND');if(s.age>=2&&!s.accepted)v.push('ACCEPT');}else if(s.mode==='credential'&&!s.accepted)v.push('REGISTER');return v;}
+function received(){return (s.mode==='helper'||s.mode==='robot')&&s.accepted?Math.min(s.age,s.quality==='GOOD'?2:1):0;}
+function result(){var a=s.a+received()>=3,b=s.b>=2,c=s.accepted&&a;return{a:a,b:b,c:c,pts:(a?12:0)+(b?9:0)+(c?10:0)+s.side};}
+function take(ac){if(s.turn>=s.limit||acts().indexOf(ac)<0)return;var why=$('reason').value.trim(),detail='';
+if(ac==='SEND'){s.age=0;s.quality=Math.random()<.5?'GOOD':'BAD';detail='公开 '+s.quality+'（未领取不计A）';}
+else if(ac==='ACCEPT'){s.accepted=true;s.age++;detail='已领取后台工作和资格';}
+else if(ac==='REGISTER')s.accepted=true;
+else{if(ac==='A')s.a++;if(ac==='B')s.b++;if(ac==='SIDE')s.side++;if(s.age>=0)s.age++;}
+s.turn++;s.log.push({n:s.turn,ac:ac,why:why,detail:detail});$('reason').value='';render();}
+function render(){var r=result();$('turn').textContent=s.turn>=s.limit?'本局结束':'第 '+(s.turn+1)+' / '+s.limit+' 手';
+$('a').textContent=(s.a+received())+' / 3';$('aDetail').textContent='亲自 '+s.a+'；已领后台 '+received();$('b').textContent=s.b+' / 2';$('c').textContent=s.accepted?'已获得':'未获得';
+$('note').textContent=s.age<0?'尚未委托':('后台类型 '+s.quality+'；已过后续行动 '+s.age+' 手；'+(s.accepted?'已领取':'尚未领取'));
+$('actions').replaceChildren();['A','B','SIDE','SEND','ACCEPT','REGISTER'].forEach(function(ac){if((ac==='SEND'&&(s.mode!=='helper'&&s.mode!=='robot'))||(ac==='REGISTER'&&s.mode!=='credential'))return;var b=document.createElement('button');b.textContent=names[ac];b.disabled=s.turn>=s.limit||acts().indexOf(ac)<0;b.addEventListener('click',function(){take(ac);});$('actions').appendChild(b);});
+$('end').hidden=s.turn<s.limit;$('end').textContent=s.turn>=s.limit?('A '+(r.a?'完成':'未完成')+'；B '+(r.b?'完成':'未完成')+'；C '+(r.c?'取得':'未取得')+'；保底 '+s.side+'；总计 '+r.pts+'。这里不显示最优答案。'):'';
+$('history').replaceChildren();s.log.forEach(function(x){var li=document.createElement('li');li.textContent=names[x.ac]+(x.detail?' / '+x.detail:'')+(x.why?' / 理由：'+x.why:'');$('history').appendChild(li);});}
+$('reset').addEventListener('click',reset);
+$('copy').addEventListener('click',function(){var r=result(),text=['CERT '+s.mode+' / '+s.limit,'A '+Number(r.a)+' B '+Number(r.b)+' C '+Number(r.c)+' SIDE '+s.side+' SCORE '+r.pts].concat(s.log.map(function(x){return x.n+'. '+x.ac+' '+x.detail+' '+x.why;})).join('\n');if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(text).catch(function(){window.prompt('复制记录',text);});else window.prompt('复制记录',text);});
+reset();
+})();
+</script></body></html>
