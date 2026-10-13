@@ -489,6 +489,34 @@
       "question": "判断一个新增委托/改派/欠账动作有价值前，必须满足哪些比局部数值分叉更强的条件？",
       "source": "META04 2026-10-13",
       "summary": "来自HAND旧被支配验收、CERT真正新增C终局、ROUTE安全等待追平大部分改派、CARRY未承诺固定路线完全达到动态。后续先审新增可结算成果/独立资格、能否晚等消息再启动、是否无需领取/承诺/追加复杂动作就能达同结果；根同不能推全向量与动作同构。三个局部循环均未获真人认证。"
+    },
+    {
+      "family": "intervention-induced-observation-loss",
+      "kind": "mature-safety-vs-diagnostic-information-composition",
+      "question": "当玩家提前保护某目标会阻止事件留下直接观察痕迹时，信息的产生方式是否确实变成可计算的行动后果？",
+      "source": "INV01—03 2026-10-14",
+      "summary": "4手R/B原因等半、SHIELD无伤无痕迹、WATCH准确辨原因但1/2当次受损；3后续PROBE准确率3/4、STOP一次、SIDE。三向量(无伤,正确阻止,保底)=(1,3/4,1),(1,1/2,2),(1/2,1,2)均非支配。权重(6,12,1)动态17 WATCH vs固定14；(12,8,1)动态19 SHIELD vs固定18。完全信息与保护一同免费获得根20使WATCH被支配。独立结果不是法定证据；没有真人。"
+    },
+    {
+      "family": "noncompensable-protection-and-safe-information-baselines",
+      "kind": "hard-safety-choice-and-strong-alternative-controls",
+      "question": "在数学总分下选择WATCH暴露损害，若当事保护目标不可补偿，或存在安全精确调查会发生什么？",
+      "source": "INV04—05 2026-10-14",
+      "summary": "(6,12,1)原动态17 WATCH，但要求任何分支不伤A时WATCH非法、只能SHIELD配75% PROBE根16；保护后仍免费知道真原因根20，安全完美PROBE占一手根19，原WATCH不再最优。说明保护/观察矛盾需要真实的事件-信息因果约束和无等价安全菜单，且不能凭赋予未来STOP高收益覆写硬保护义务。"
+    },
+    {
+      "family": "future-horizon-outcome-tradeoff-without-new-game-loop",
+      "kind": "transparent-weight-proxy-not-multicycle-game",
+      "question": "未来正确阻止来源更长久的影响，会怎样改变现在愿否承担观测风险？",
+      "source": "INV06 2026-10-14",
+      "summary": "设当次安全价值8、SIDE1、正确STOP每未来周期折算4N，则N1/2/3/4时精确根12/15/18/22，N3 WATCH/SHIELD+PROBE平局，N4 WATCH严格更优。只是调对应真实目标的重要性权重，不包含未来多个周期的新增行动或他者反馈，更不属于真人伦理判断。"
+    },
+    {
+      "family": "belief-versus-recognized-proof-and-information-provenance",
+      "kind": "cross-source-evidence-level-method",
+      "question": "玩家知道真实原因、拥有概率线索、正确处理来源、取得外部认可证明，是否真正被模型分别表达？",
+      "source": "META05 2026-10-14",
+      "summary": "INV SHIELD内生造成无痕迹，DISC工作同时观察、TRL低型策略性伪装、INF-P01免费已知没价值、GRC信息改变他者同意分别不同。WATCH得信息不等于CERT独立C资格，STOP真正确也不等于司法证据；以后研究信息时优先记录由谁产生、行动是否改变其出现、何时知道、可信度、能否真正转为结果资格。"
     }
   ],
   "failedExplanations": [
@@ -547,7 +575,10 @@
     "更早得到后台工作的质量报告不总有边际价值：HAND即时与迟一手告知均根17，因为两类结果下第一项后续工作A是共同优选；迟两手根33/2，迟三手才下降到固定15，必须按剩余可改选容量定位真实信息窗口。",
     "旧HAND断言委托加完整验收不增产只成立于该版成果集合（A/B/SIDE）：CERT增加独立资格C且取得它不能被两手亲自A替代，则委托验收可在5手根27大于一手普通注册23、没有C21；去C后再退21。模型没有社交意志，换普通同条件robot全同构。",
     "ROUTE有真实需一手SWITCH的后到目标转线，动态53/2胜lock26却只多1/2；安全SIDE SIDE等待需求、再启动对应机器+WORK2已经26，若无正当早开始约束，不能拿局部改派片段宣称游戏整体必须重分配助手。",
-    "CARRY跨两日的PLEDGE让第二日存在随机1/2 FOLLOW负担并与随机U争手，局部可见多个选择，但全部根策略不承诺的固定A A→A U U已18，与允许PLEDGE的动态18相等，强制先PLEDGE SIDE只有33/2；一项会产生麻烦的行动若全局受普通路线支配，就不应继续调奖金来救成候选。"
+    "CARRY跨两日的PLEDGE让第二日存在随机1/2 FOLLOW负担并与随机U争手，局部可见多个选择，但全部根策略不承诺的固定A A→A U U已18，与允许PLEDGE的动态18相等，强制先PLEDGE SIDE只有33/2；一项会产生麻烦的行动若全局受普通路线支配，就不应继续调奖金来救成候选。",
+    "不能从INV WATCH在一组可补偿权重(6,12,1)下胜SHIELD推断理性玩家应以当次A的安全换取信息：如果A不得在任何状态受损，WATCH不合法，最优只能SHIELD根16；可补偿数学偏好与不可补偿保护义务是不同目标问题。",
+    "“保护就无法取得证据”只有事件确实因保护而不发生且没有同样可靠的安全替代时才产生张力。INV若SHIELD后免费得精确来源，根20且WATCH全局不优；若付一手安全100%调查，根19大于原17。禁止安全调查按钮必须有真实因果解释，不能靠删功能制造新颖性。",
+    "INV的准确WATCH痕迹只是玩家条件策略可用的信息，正确STOP只是事实结果，既没有独立可结算证明C、也没有对方自主伪装/否认/拒绝；不能把它与CERT或TRL/GRC完整社会证明语义混为一谈。"
   ],
   "frontier": [
     {
@@ -717,6 +748,18 @@
       "family": "global-commitment-dominance-check",
       "question": "其它主张跨轮承诺创造注意力管理的机制，是否在完整起点就被不承诺、直接做A或安全SIDE等待的固定流程支配？",
       "method": "沿CARRY先给出未承诺动作序列的真实可达终局，再对承诺后的动作信号作比较；不因某个局部欠债历史能重规划就认定整体好玩。必要时审真实不可补偿义务，不能仅将罚分提高。"
+    },
+    {
+      "id": "ABSTRACT-AG-OBSERVATION-DESTROYED-BY-INTERVENTION",
+      "family": "protective-action-removes-causal-evidence",
+      "question": "在抽象保护/调查两难中，干预本身会让潜在事件和直接痕迹消失，还是只是设计师禁了安全调查菜单以强迫冒险？玩家是否理解不发生的事件为什么无法再留下痕迹？",
+      "method": "用INV四手原型未提示先选SHIELD/WATCH，先看当事人是否把A当不可补偿目标；之后才公布普通100%安全PROBE或免费外生报告的强对照。数学已知原17、安全完美一手19、免费报告20；不再改50%损伤率制造数字优势。"
+    },
+    {
+      "id": "ABSTRACT-AH-BELIEF-VS-PROOF-RECOGNITION",
+      "family": "information-observation-vs-authorized-evidence",
+      "question": "某模式声称玩家已经查明真相时，具体是形成了可信猜测、拥有直接痕迹、物理上选对目标，还是获得了可对外提交且第三方承认的结果资格？",
+      "method": "先对照INV仅使STOP正确率提高、CERT C必须实际领取才能结算、TRL信号可被伪装、GRC他者可不同意。若还没有独立PROOF动作及接纳条件，不根据解谜文本宣布已有法律或社会证据成果。"
     }
   ],
   "method": {
@@ -795,8 +838,8 @@
     "noHumanTests": true,
     "interpretation": "X01、X02与另一批C01、C02是不同的已知组合条件反证，均不构成新独立模式或完整真人交锋认证",
     "historyCountUnchanged": 478,
-    "latestBatch": "docs/实验/机制研究/批次/2026-10-13-可交付成果与延续义务/研究记录.md",
-    "latestCounterfactual": "CERT加入一项A达标且有独立资格C才可结算的成果10，SEND+ACCEPT除后台A产出还可领取C；4/5/6手helper与完整同构robot动态45/2、27、63/2，普通一手REGISTER只给C动态22/23/31，禁止取得C13/21/22；无C成果奖励时4/5手HELP验收又退回与亲自工作相同13/21，原HAND验收无增益严格限于未额外提供独占资格。五手GOOD SEND,A,B,B,ACCEPT获A/B/C31，BAD SEND,A,A,SIDE,ACCEPT获A/C/SIDE23，动态27、固定23；成果向量PA1,PB1/2,PC1, E SIDE1/2。ROUTE五手后到A/B需求，START启动后台3个工作tick、SWITCH需1手重定向：动态redirect53/2，locked26，自动跟随普通工具27，全部7^5固定最佳17；locked可以前2手SIDE等待信号再START对应任务+2WORK得26。CARRY两阶段(2+3手)PLEDGE日1暂成A而日2需1/2FOLLOW手，U独立一半概率需日2两手；动态允许/禁止PLEDGE与最佳5^5固定都18，首日PLEDGE SIDE仅33/2；简单固定A A→A U U均值18，全局避开复杂负担。",
-    "crossFamilyAudit": "跨HAND/FOCUS/HEDGE/STAKE/ACT/GRC检查：CERT证明新增独立可结算资格C使已被直接A两手支配的领取流程取得额外结果，但与普通AUTO机器完整同构，仍不能称新社会自主原语；一手REGISTER也是C合法替代而不含产能。ROUTE付费改派仅比需求前安全SIDE等待高半点，重命名普通自动跟随工具还能得27，不能只演示局部切换就声称起点必须接受。CARRY局部不同FOLLOW与U确有分支，但从初始最强普通固定路线根18，PLEDGE不是最佳，所以更不能把跨周期新增问题直接当玩家会反复管理的玩法。数学/机读和页面不能替人类独立反馈；旧HAND记录已追加正式收窄校正。"
+    "latestBatch": "docs/实验/机制研究/批次/2026-10-14-干预改变证据可见性/研究记录.md",
+    "latestCounterfactual": "INV01—06改变证据是否产生而非只改变证据何时报告。4手先选SHIELD或WATCH：隐藏真实原因R/B各1/2；SHIELD避免当次损害但消灭直接来源痕迹，WATCH准确得来源、A当次有1/2不可逆损害；后3手PROBE一次正确率3/4、STOP_R/B一次、SIDE每手1。结果向量(P无伤,P正确STOP,E SIDE)透明三策略=(1,3/4,1),(1,1/2,2),(1/2,1,2)互无支配。Exact Fraction Bayesian DP：安全/正确/SIDE权重(6,12,1)动态17偏WATCH、128固定14；(12,8,1)动态19偏SHIELD、固定18；(8,8,1)动态15偏SHIELD、固定14。硬性任何伤害不可接受时WATCH失去合法性，(6,12,1)根16。SHIELD后仍免费得精确信息时根20、SHIELD后可花1手做100%安全PROBE根19、禁任何PROBE仍17。安全8、SIDE1、STOP未来影响折算每期4N时N1/2/3/4根12/15/18/22，N3平局、N4偏WATCH；并非真正多个周期的行动模拟。",
+    "crossFamilyAudit": "阅读旧DISC01生产性调查、TRL01/02策略性试做与伪装、INF-P01隐藏压力原因免费提前已知仍零行动价值、GRC03信息先公开通过他者决定参加、STAKE/META原标量与硬目标不同、CERT独立结算资格。INV特殊之处是玩家保护行动使事件不出现从而无法再观察当次痕迹；不像TRL有真实策略性伪装者，也没有GRC中他者拒绝。它仍可全部改名为条件观测菜单，属于P09风险兑现×P03信息与改道×STAKE非补偿安全的成熟组合，未认证新原语；WATCH只得到信息使STOP更准确，不等于被外部认可的证据凭证或司法证据。GitHub新四手无答案HTML和仅Syntax+精确Bayesian CI脚本已创建，真人未试玩。"
   }
 }
