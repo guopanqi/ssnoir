@@ -2152,6 +2152,89 @@
         "humanVerified": false
       },
       "note": "A3得9、B2得6、SIDE1、首次A SAFE或RISK2等概率，H2/L1效果确定。动态13>全部固定方案23/2，限制H不可FIX或FIX与骰品质无关时25/2。条件策略SAFE得16、RISK得10。与R37既有真人评价的‘质量好追目标、低骰先修’同族，但本模型反证此口诀不普适；不是R37实际骰面复刻或新真人证据。"
+    },
+    {
+      "id": "PL-FOCUS01",
+      "name": "前期已投入工作遇晚到需求，重聚焦需耗整手但同成本SETUP完全映射",
+      "layer": "switching-cost-and-conditional-demand-composition",
+      "origin": "new-local-exact-model-and-strong-menu-counterfactual",
+      "family": "工作焦点/转线行动税/后到需求/同成本工具映射",
+      "idea": "六手A/B各WORK3，完工基本5、命中需求另14；初始首两手不允许SIDE（第二手可TO），得知需求后换焦点消耗TO一手；从开局动态41/2，合法固定15，另对所有5^6含非法落空容错固定脚本仍15；免费转线固定可A3B3得24；同成本SETUP全部89可达(回合,状态)合法性和转移相同。",
+      "stage": "six-turn-Fraction-DP-valid-280-fixed-and-all-15625-with-legal-fallback-state-bfs; local-run-no-human",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-13-注意力切换与计划余裕/研究记录.md",
+        "tools/content-validator/experiments/pattern_focus_switching_20261013.py",
+        "docs/实验/机制研究/批次/2026-10-13-注意力切换与计划余裕/无答案观察卡.md"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      },
+      "note": "需求A/B等半，主动态20.5，固定15；首A,A后需求A续A+3SIDE得22，需求B TO_B+B3得19。免费换线可在6手内A3B3拿24，动态/固定24；同槽普通SETUP精确共享状态转移，不认证新专注力原语。"
+    },
+    {
+      "id": "PL-FOCUS02",
+      "name": "更晚的消息令最优准备提前重新配置焦点，即使两目标在每次信号后均还可达",
+      "layer": "prepositioning-and-residual-action-slack",
+      "origin": "new-local-exact-reveal-time-study",
+      "family": "后到信息/预置两条路线/最短完成手数/余裕",
+      "idea": "同一六手TO成本1、无前期SIDE规则，只移动需求揭示到t0..4，DP根22,21,41/2,20,19；t2前缀A,A需1/4手完成A/B，t3前缀A,TO_B,SIDE需3/3手，t4前缀A,A,TO_B,B需2/2手，两终局均可达，但已有SIDE及剩余空余动作不同。",
+      "stage": "five-revelation-times-exact-DP-public-policy-witnesses-and-BFS-min-remaining-actions; no-human",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-13-注意力切换与计划余裕/研究记录.md",
+        "tools/content-validator/experiments/pattern_focus_switching_20261013.py",
+        "docs/实验/机制研究/批次/2026-10-13-注意力切换与计划余裕/跨模式决策结构诊断.md"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      },
+      "note": "信号t2/3/4可达A/B同时都YES，但根20.5/20/19。t3预置A,TO_B,SIDE两事件都可终局20，t4预置A,A,TO_B,B两事件都可终局19。不能把“仍可完成目标”解读为“可以得到一样多的后续收益”。"
+    },
+    {
+      "id": "PL-FOCUS03",
+      "name": "安全等待信息全局支配过早转换投入：FOCUS优势依赖明确前期行动窗口",
+      "layer": "waiting-dominance-and-commitment-window-negative",
+      "origin": "new-local-exact-ablation",
+      "family": "安全SIDE等待/信息价值/提前投入必要性/全局固定旁路",
+      "idea": "只取消FOCUS前两手SIDE被禁规则，SIDE SIDE取得2之后揭需求、三手做命中目标19再SIDE1，总22严格高于主TO成本20.5；若缺少真实前期行动要求，早期专注与中途转换在此例不是全局最佳。",
+      "stage": "single-rule-ablation-complete-dp-and-strong-fixed-enumeration; no-human",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-13-注意力切换与计划余裕/研究记录.md",
+        "tools/content-validator/experiments/pattern_focus_switching_20261013.py"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      },
+      "note": "主模型最初两手SIDE非法，但TO第二手仍合法；完全开放SIDE早期等待22，最强固定仍15。不能从主局部切换分叉反推任意场景都要先押A。"
+    },
+    {
+      "id": "PL-META02",
+      "name": "物理终局可达以外应核查达成该结果后仍有多少行动余裕",
+      "layer": "research-method-residual-slack-and-encounter-causal-audit",
+      "origin": "cross-family-source-grounded-synthesis",
+      "family": "目标拓扑/行动非交换性/切换负担/信息窗口/余裕/玩家真实关心",
+      "idea": "跨ATN/OPS/HEDGE/CLOCK/FOCUS/STAKE与本项目CS2交锋决策模式设计归纳，提出六层检查：目标、顺序非交换、重配置成本、实际可达、完成后行动余裕、目标意义和他者意愿。FOCUS三条前缀虽A/B均可完成仍有不同SIDE余裕和根值。",
+      "stage": "cross-source-conceptual-diagnostic-not-new-numeric-or-human-experiment",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-13-注意力切换与计划余裕/跨模式决策结构诊断.md",
+        "docs/实验/机制研究/批次/2026-10-13-注意力切换与计划余裕/研究记录.md",
+        "docs/设计研究/Citizen_Sleeper_2_交锋决策模式梳理.md"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      },
+      "note": "CS2九类为仓库内作者分类、非游戏官方体系；可达性与余裕是数学/规则层指标，不等于玩家关心人物结果。曾经STAKE同分不同前沿的纠正说明切勿把某标量同根误写为玩法等价。"
     }
   ],
   "edges": [
@@ -3762,6 +3845,102 @@
       "to": "PL-DICE01",
       "relation": "two-distinct-sources-of-attention-cost",
       "reason": "CLOCK由同时LIVE导致可用时间缩短；DICE由突然危机改变同组骰子的边际用途，两者不应数值合并宣称一个创新原语"
+    },
+    {
+      "from": "PL-ATN01",
+      "to": "PL-FOCUS01",
+      "relation": "switching-cost-breaks-commutative-action-counts",
+      "reason": "ATN01不同顺序只按计数等价；FOCUS改方向需整手TO导致A/B同时完成须7手>总6手，工作动作不可随意相邻交换"
+    },
+    {
+      "from": "PL-OPS01",
+      "to": "PL-FOCUS01",
+      "relation": "ordinary-setup-complete-action-match",
+      "reason": "OPS持续工具维护已有同成本SET映射，FOCUS的TO与普通SETUP共用后续状态合法性，非原创原语"
+    },
+    {
+      "from": "P14",
+      "to": "PL-FOCUS02",
+      "relation": "late-information-requires-hedged-preparation",
+      "reason": "投入早期工作后需求时点未定，玩家通过预置焦点保持A/B两个终局，属成熟情报与押注/保留选项组合"
+    },
+    {
+      "from": "PL-HEDGE01",
+      "to": "PL-FOCUS02",
+      "relation": "fallback-preservation-with-different-switch-state",
+      "reason": "HEDGE保存LIVE A作为试B失败退路，FOCUS提前摆好目标与焦点以保后到需求仍可达，都是信息前置准备而非相同规则"
+    },
+    {
+      "from": "PL-FOCUS01",
+      "to": "PL-FOCUS02",
+      "relation": "revelation-timing-shifts-prepositioning",
+      "reason": "FOCUS转换成本为1时，公布t2/3/4准备前缀变A,A / A,TO_B,SIDE / A,A,TO_B,B，未来最短达标配置由1/4变3/3变2/2"
+    },
+    {
+      "from": "PL-FOCUS01",
+      "to": "PL-FOCUS03",
+      "relation": "early-safe-waiting-dominates-mandatory-retooling",
+      "reason": "一旦前两手也可SIDE，最强动态变22，大于原需早期投入工作的20.5，发生纯等待后按需求开工的全局旁路"
+    },
+    {
+      "from": "PL-SEM01",
+      "to": "PL-FOCUS03",
+      "relation": "strong-simple-menu-and-script-counterexample",
+      "reason": "SEM条件动作效果可被普通万能菜单/短条件脚本覆盖；FOCUS若早期有SIDE同样因不提前绑定对象而全局优于付费换向"
+    },
+    {
+      "from": "PL-RV03",
+      "to": "PL-FOCUS02",
+      "relation": "feasible-outcome-is-binary-only",
+      "reason": "RV03用剩余合法行动判断两个终局是否分别还可达；FOCUS继续证明各自可达YES时其完成后的余裕仍有差"
+    },
+    {
+      "from": "PL-GRC01",
+      "to": "PL-META02",
+      "relation": "extend-three-layer-reachability-with-slack",
+      "reason": "GRC合法/物理/伙伴参加三层机会之外，物理可达还需要区分剩余行动富余量与目标意义"
+    },
+    {
+      "from": "PL-STAKE01",
+      "to": "PL-META02",
+      "relation": "nonfungible-outcomes-not-scalar-scores",
+      "reason": "STAKE保护A目标约束令同根值不代表COPY无用；FOCUS的A/B终局和SIDE余裕也不能只用根值解释心理关切"
+    },
+    {
+      "from": "PL-META01",
+      "to": "PL-META02",
+      "relation": "claim-strength-ladder-augmented-with-slack",
+      "reason": "META区分同根/成果集合/逐动作同构；META02补充完成某一终局后剩余行动容量指标和实际玩家目标的独立证据层"
+    },
+    {
+      "from": "PL-FOCUS02",
+      "to": "PL-META02",
+      "relation": "reachable-both-but-different-slack",
+      "reason": "FOCUS前缀后三种状态A/B均物理可达，但标量根20.5→20→19，BFS最少行动1/4→3/3→2/2"
+    },
+    {
+      "from": "CS2-03",
+      "to": "PL-META02",
+      "relation": "target-topology-source-qualification",
+      "reason": "本项目CS2归纳的AND并行目标只表示拓扑，不独自证明动态注意力重分配；还要加时点与行动关系"
+    },
+    {
+      "from": "CS2-09",
+      "to": "PL-META02",
+      "relation": "reward-revaluation-is-not-narrative-reversal",
+      "reason": "FOCUS晚到A/B外部奖金改变理性目标，不等于CS2归纳的真正叙事/人物意义反转"
+    },
+    {
+      "from": "PL-CLOCK01",
+      "to": "PL-META02",
+      "relation": "cross-task-clock-cost-before-claiming-concurrency",
+      "reason": "CLOCK并发加速双方到期可吃掉保留A的好处，检查不是只看两个目标在UI同时可点"
+    },
+    {
+      "from": "PL-FOCUS03",
+      "to": "PL-META02",
+      "relation": "safe-waiting-as-global-policy-test",
+      "reason": "任何声称需要早投入/改投的情境都要先审SIDE等待情报之后才押方向是否能完全绕过机制"
     }
   ],
   "coverage": {
@@ -3769,7 +3948,7 @@
     "curatedDisplayMappedCount": 6,
     "cs2AnalyticalPatterns": 9,
     "unconvertedHistory": "关系索引中的其他R批次、数学负例和组合应按主题逐步纳入；不能据本地图未出现就认定没有价值",
-    "additionalExperimentalCompositions": "PL-C01/PL-C02/PL-C03已做最小模型、PL-C04仅概念问题；与另一研究线的C01/C02/C03区别命名；PL-Q01/D01/W01另有3个独立模型及消融和负面边界；PL-W02新增连续三天注意力容量组合，最强简明口诀和变更容量边界明确；F1/F2/D2三项同源跨家族与充分边界反证，不增精选；RGT01/ACT01用各自精确逆推补充许可资源与自利协作者正负证据，无真人；REL01/REL02四轮精确博弈与私有信号消融已完成（同原语条件组合；不改变精选六或Debug）；REL03后续通行凭据仅真实首手截止窗口有正准备选择价值、普通窗口弱支配；未证独立新玩法；NEG01—05双方自利协商五项精确反证；R342/R430/R478原生历史首次结构化归图，均非真人。；NEG06双回合私人回应DOM全十路，X01-LONG准备→事件→响应两段完整枚举及136条合法UI路径，均一行规则全优，无真人；X03 hard disable vs costly defiance两种不同动作合法性协议在完整可达子博弈仍同最优；无真人意义证据；STG01共4种规则组合×完整路径40，因果未来菜单5对纯文本菜单1，仅网页逻辑回归，不是互动/情感新模式认证；PT01四回合双目标压转与14短策略强对照/网页试玩；INF-P01 cap2/3贝叶斯模型覆盖72+96局部公开状态信息值0；未改变历史478；GOAL01七个p×可选/强制义务、同树强预列菜单；DISC01三手有理数belief-DP、单份可靠度q后验、三种时点/换路与网页合法路径，不动历史478或精选；REC01四手四分之一禁A/B×81信号历史、16条强固定序列、一步前瞻全优及六种因果消融；REC03各目标完成概率独立统计，且最优总体策略B完成率低于简单交替；无真人；SEM01—04动作产出对象改道与材料消费改道，两项均被同成本完整菜单追平，短条件程序全优，无真人。；横向读R366函数编辑与R422预编译强对照：持久编辑可超过固定日程却不一定超过同成本完整工具，源实验非本轮重复执行。；OPS01六手动态维护与同成本SET/一手前瞻全等（含2048独立实际输入历史），CLAIM四手付费撤回×真实A早窗口互补、已给HARD/无加成消融及无窗口强菜单；均不认证新独立原语。；COUP01七手把OPS操作实际变成A/B凭据、CLAIM A禁止制作B，仍在起始phase0三类需求先验下被RUN A→CLAIM A→SIDE×5一行策略全优；局部可达差异不等于有价值的双向注意力循环。；ATN01/02检测4手交换律、1296条件序列与20个Pareto成果向量仍由固定计划追平；ATN03/04双任务已投入进度遭公开单/双损5手模型动态33/2胜固定15，提前预知35/2，单损仍可保证双目标，归入成熟危机保全组合，真人缺席。；ACT-R01/02伙伴真自利救B(3)vs外部工作(2/4)使玩家双损低/高报价严格改选，默认动态51/4 vs迟揭49/4，却与条件备用B位逐动作同构；RV01简化4手R54式A3/B5可达上界t3仅18/64前缀两路线仍各有完成可能，结合旧R37/R50/R54真实反馈提出目标意义×改选容量双审核；RV02旧P18的极简上次路径追踪被固定ABABA全优。；RV03读原R54 Scene后用真实行动/追击次序穷举：第2手后33条活跃形式历史里9可分别达成双终局，第3手后196条中0可分别达成双终局（72仅甲、12仅乙、112无终局）；无骰面概率，非真人概率。；PS01将ATN03实际受损成果与ACT自利援助组合：五手动态71/4 vs ATN03无援33/2 vs五手固定17，分目标(1,7/8,3/4)；双损低报价可保两项目标，高报价必须放弃B，外部信号晚一手零价值；同条件B备用行动容量全状态完全替代。；GRC01/02自利伙伴最初愿帮（玩家11、伙伴3），玩家未来新增低于原成本3的BYPASS使伙伴初始EXIT（玩家3、伙伴5/2），可执行HIGH条件合同或排他承诺恢复11；GRC03/04同样提前公开HIGH/LOW在w5/2令玩家11跌至17/2、在w7/2令玩家3升至17/2；跨族审计区分动作合法、物理终局可达、伙伴策略同意、人类关切。；TRL01生产性试做提供真实产出1且耗时1，诚实信号下直接SIDE2、纯检验2、边做边看3；TRL02低能力主体花1修饰PASS(1/4→3/4)以谋求未来HIRE4，唯一纯均衡下两类型信号池化、试做总值退至2；TRL03修饰成本2存在两纯均衡值2或3、成本3诚实3，q诚实准确度1/2→1试做值2→4。属DISC/R478/NEG04成熟组合边界，不认证新原语。；PRF01 A真实工作副产C凭据3手DP29/2 vs固定14，A+ENABLE同成本同值，始终开放或由B工作附资格DP31/2；CUST01不可再造原件A/C局原件12、COPY15、可复用31/2，但开放独立B后所有版权制度动态19、固定17，证明目标旁路；PUB01公开证据让自利第三方撤B许可动态14 vs固定19/2，但普通排他菜单逐动作同构，取消互斥动态/固定16。均成熟组合/负例，无新人类/Unity。；STAKE01对原CUST不改数值的全条件策略和四维目标反证：original/copy旧根均19、固定均17，但可达向量68/82、Pareto18/23，保护A所有HIGH/LOW时原17/copy37/2/reusable19；STAKE04首手后公布保护A/B时copy75/4、原版18，提前公布无增益。META回归PRF22/PUB10状态真动作同构与CUST仅同根不同可行结果，纠正旧“COPY全无价值”的过强读法，无真人。；补充STAKE向量语义审计：C物理SHOW交付不等于HIGH时有价值交付。original/copy物理四维结果68/82、Pareto18/23；按HIGH∧SHOW有效C结果67/72、Pareto15/17；保A约束17 vs37/2不变。；TRIG01四手首次A推进引发SAFE/RISK修补责任，动态15胜固定14，首手前预知风险仍15，无风险19；一行公开条件计划全优，归入R37/P11而不是新原语。OPEN01五手两可认领工作高14低1，打开后三手未履行损失4，付一手DROP；动态47/4胜固定19/2，只许单工作19/2、无DROP41/4、无违约损失25/2、价值推迟到首次WORK39/4、提前知道双工作53/4、绝对必须履行19/2；都属于GOAL01×注意力/退出/信息时点的成熟组合，无新人类。；HEDGE01五手首手A唯一机会+LOW A5/LOW B0+三次行动后截止，允许双LIVE的动态51/4严格大于禁止并行47/4与最强固定23/2；A低时先OPEN B保留A，B高做B14、B低回来做A5。HEDGE02若A以后也可开，先B失败再开A的完全串行策略同得51/4，说明全局并发必要性依赖早窗口；同分方案PA/PB不同(并发3/4,1/4，串行1/2,1/2)，非动作同构。deadline2或无DROP/无B时并发优势消失。无真人。；CLOCK四语义冻结HEDGE任务而改时钟：global并发51/4/串行47/4，double_if_overlap两者47/4，neglect_only和contested_only仍51/4/47/4；去掉A早开窗口后四语义并发/串行都51/4，全部强固定23/2。DICE公开手牌H2,H2,L1,L1、A3奖励9、B2奖励6、首A有RISK2需修；动态13优于1536种强固定23/2，高骰不得FIX或修复质量不区分时25/2，SAFE分支A+B+SIDE16，RISK高骰FIX/低骰补A+SIDE10。熟悉P02×P11/R37模式边界，无新真人与新原语。",
+    "additionalExperimentalCompositions": "PL-C01/PL-C02/PL-C03已做最小模型、PL-C04仅概念问题；与另一研究线的C01/C02/C03区别命名；PL-Q01/D01/W01另有3个独立模型及消融和负面边界；PL-W02新增连续三天注意力容量组合，最强简明口诀和变更容量边界明确；F1/F2/D2三项同源跨家族与充分边界反证，不增精选；RGT01/ACT01用各自精确逆推补充许可资源与自利协作者正负证据，无真人；REL01/REL02四轮精确博弈与私有信号消融已完成（同原语条件组合；不改变精选六或Debug）；REL03后续通行凭据仅真实首手截止窗口有正准备选择价值、普通窗口弱支配；未证独立新玩法；NEG01—05双方自利协商五项精确反证；R342/R430/R478原生历史首次结构化归图，均非真人。；NEG06双回合私人回应DOM全十路，X01-LONG准备→事件→响应两段完整枚举及136条合法UI路径，均一行规则全优，无真人；X03 hard disable vs costly defiance两种不同动作合法性协议在完整可达子博弈仍同最优；无真人意义证据；STG01共4种规则组合×完整路径40，因果未来菜单5对纯文本菜单1，仅网页逻辑回归，不是互动/情感新模式认证；PT01四回合双目标压转与14短策略强对照/网页试玩；INF-P01 cap2/3贝叶斯模型覆盖72+96局部公开状态信息值0；未改变历史478；GOAL01七个p×可选/强制义务、同树强预列菜单；DISC01三手有理数belief-DP、单份可靠度q后验、三种时点/换路与网页合法路径，不动历史478或精选；REC01四手四分之一禁A/B×81信号历史、16条强固定序列、一步前瞻全优及六种因果消融；REC03各目标完成概率独立统计，且最优总体策略B完成率低于简单交替；无真人；SEM01—04动作产出对象改道与材料消费改道，两项均被同成本完整菜单追平，短条件程序全优，无真人。；横向读R366函数编辑与R422预编译强对照：持久编辑可超过固定日程却不一定超过同成本完整工具，源实验非本轮重复执行。；OPS01六手动态维护与同成本SET/一手前瞻全等（含2048独立实际输入历史），CLAIM四手付费撤回×真实A早窗口互补、已给HARD/无加成消融及无窗口强菜单；均不认证新独立原语。；COUP01七手把OPS操作实际变成A/B凭据、CLAIM A禁止制作B，仍在起始phase0三类需求先验下被RUN A→CLAIM A→SIDE×5一行策略全优；局部可达差异不等于有价值的双向注意力循环。；ATN01/02检测4手交换律、1296条件序列与20个Pareto成果向量仍由固定计划追平；ATN03/04双任务已投入进度遭公开单/双损5手模型动态33/2胜固定15，提前预知35/2，单损仍可保证双目标，归入成熟危机保全组合，真人缺席。；ACT-R01/02伙伴真自利救B(3)vs外部工作(2/4)使玩家双损低/高报价严格改选，默认动态51/4 vs迟揭49/4，却与条件备用B位逐动作同构；RV01简化4手R54式A3/B5可达上界t3仅18/64前缀两路线仍各有完成可能，结合旧R37/R50/R54真实反馈提出目标意义×改选容量双审核；RV02旧P18的极简上次路径追踪被固定ABABA全优。；RV03读原R54 Scene后用真实行动/追击次序穷举：第2手后33条活跃形式历史里9可分别达成双终局，第3手后196条中0可分别达成双终局（72仅甲、12仅乙、112无终局）；无骰面概率，非真人概率。；PS01将ATN03实际受损成果与ACT自利援助组合：五手动态71/4 vs ATN03无援33/2 vs五手固定17，分目标(1,7/8,3/4)；双损低报价可保两项目标，高报价必须放弃B，外部信号晚一手零价值；同条件B备用行动容量全状态完全替代。；GRC01/02自利伙伴最初愿帮（玩家11、伙伴3），玩家未来新增低于原成本3的BYPASS使伙伴初始EXIT（玩家3、伙伴5/2），可执行HIGH条件合同或排他承诺恢复11；GRC03/04同样提前公开HIGH/LOW在w5/2令玩家11跌至17/2、在w7/2令玩家3升至17/2；跨族审计区分动作合法、物理终局可达、伙伴策略同意、人类关切。；TRL01生产性试做提供真实产出1且耗时1，诚实信号下直接SIDE2、纯检验2、边做边看3；TRL02低能力主体花1修饰PASS(1/4→3/4)以谋求未来HIRE4，唯一纯均衡下两类型信号池化、试做总值退至2；TRL03修饰成本2存在两纯均衡值2或3、成本3诚实3，q诚实准确度1/2→1试做值2→4。属DISC/R478/NEG04成熟组合边界，不认证新原语。；PRF01 A真实工作副产C凭据3手DP29/2 vs固定14，A+ENABLE同成本同值，始终开放或由B工作附资格DP31/2；CUST01不可再造原件A/C局原件12、COPY15、可复用31/2，但开放独立B后所有版权制度动态19、固定17，证明目标旁路；PUB01公开证据让自利第三方撤B许可动态14 vs固定19/2，但普通排他菜单逐动作同构，取消互斥动态/固定16。均成熟组合/负例，无新人类/Unity。；STAKE01对原CUST不改数值的全条件策略和四维目标反证：original/copy旧根均19、固定均17，但可达向量68/82、Pareto18/23，保护A所有HIGH/LOW时原17/copy37/2/reusable19；STAKE04首手后公布保护A/B时copy75/4、原版18，提前公布无增益。META回归PRF22/PUB10状态真动作同构与CUST仅同根不同可行结果，纠正旧“COPY全无价值”的过强读法，无真人。；补充STAKE向量语义审计：C物理SHOW交付不等于HIGH时有价值交付。original/copy物理四维结果68/82、Pareto18/23；按HIGH∧SHOW有效C结果67/72、Pareto15/17；保A约束17 vs37/2不变。；TRIG01四手首次A推进引发SAFE/RISK修补责任，动态15胜固定14，首手前预知风险仍15，无风险19；一行公开条件计划全优，归入R37/P11而不是新原语。OPEN01五手两可认领工作高14低1，打开后三手未履行损失4，付一手DROP；动态47/4胜固定19/2，只许单工作19/2、无DROP41/4、无违约损失25/2、价值推迟到首次WORK39/4、提前知道双工作53/4、绝对必须履行19/2；都属于GOAL01×注意力/退出/信息时点的成熟组合，无新人类。；HEDGE01五手首手A唯一机会+LOW A5/LOW B0+三次行动后截止，允许双LIVE的动态51/4严格大于禁止并行47/4与最强固定23/2；A低时先OPEN B保留A，B高做B14、B低回来做A5。HEDGE02若A以后也可开，先B失败再开A的完全串行策略同得51/4，说明全局并发必要性依赖早窗口；同分方案PA/PB不同(并发3/4,1/4，串行1/2,1/2)，非动作同构。deadline2或无DROP/无B时并发优势消失。无真人。；CLOCK四语义冻结HEDGE任务而改时钟：global并发51/4/串行47/4，double_if_overlap两者47/4，neglect_only和contested_only仍51/4/47/4；去掉A早开窗口后四语义并发/串行都51/4，全部强固定23/2。DICE公开手牌H2,H2,L1,L1、A3奖励9、B2奖励6、首A有RISK2需修；动态13优于1536种强固定23/2，高骰不得FIX或修复质量不区分时25/2，SAFE分支A+B+SIDE16，RISK高骰FIX/低骰补A+SIDE10。熟悉P02×P11/R37模式边界，无新真人与新原语。；FOCUS 六手A/B各需3手、焦点改向耗1、需求A/B后公布，前两手SIDE非法，动态41/2胜280合法固定及15625条容错固定全最优15；TO与同成本SETUP在89个可达状态完全相同，免费改向A3+B3固定24；开放早期SIDE等待22>主20.5，证明安全等待旁路。需求t0/1/2/3/4公布DP 22/21/41/2/20/19；t2/3/4最优前缀后BFS两目标均可达，剩余手数与最短用手依次(4;1,4),(3;3,3),(2;2,2)，需要记录达成某结局后行动余裕而非仅二元可达。META02六层抽象交锋审计，仅设计归纳，不当真人反馈和新原语。",
     "humanFeedbackNote": "目前有关稳险/R06、边做边看/R10、压力/R37、R54、R50的有限设计者反馈；原记录各不等价于受控盲试玩；P02/R13仍没有真人反馈。",
     "thirdComparison": "PL-C05 supplies a tested negative boundary; not a new curated or debug pattern"
   },
