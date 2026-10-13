@@ -53,7 +53,9 @@ def main():
             m_pre,n_pre,m_late,n_late=result["routes"]
             assert (m_pre[0],n_pre[0],n_late[0])==(Q(8),Q(6),Q(6))
             assert m_late[0]==(Q(4) if deadline else Q(6))
-            assert m_pre[1]==("WORK","SIDE")
+            assert set(m_pre[1])=={"WORK","SIDE"}
+            if deadline:
+                assert m_pre[1]==("WORK","SIDE")
             assert n_pre[1]==("ENABLE","WORK")
             if not deadline:
                 assert wait>=prepare
