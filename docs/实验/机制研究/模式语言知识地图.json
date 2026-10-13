@@ -1862,6 +1862,68 @@
         "humanVerified": false
       },
       "note": "B伪装成本c1，池化均衡玩家2；c2可池化或分离，玩家2或3；c3只有分离纯均衡玩家3。冻结诚实观察q=1/2,5/8,3/4,1时试做期望2,5/2,3,4，均是工具收益而非趣味评分。"
+    },
+    {
+      "id": "PL-PRF01",
+      "name": "真实A工作副产凭据打开C目标，仍被同成本A+资格菜单完全复刻",
+      "layer": "productive-evidence-and-goal-access",
+      "origin": "new-local-exact-model",
+      "family": "生产副产物/特定目标资格/后到需求/普通同槽位解锁",
+      "idea": "首次真实工作A给A进度+1并留下以后SHOW C所需的凭据，后到C高低使玩家决定继续A或改用凭据；生成物可保持而不被SHOW消耗。普通同成本A_AND_ENABLE转移逐状态完全一致。",
+      "stage": "3-turn-two-demand-Fraction-DP-all-legal-fixed-schedules-six-controls; no-human",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-13-行动凭据与原件保全/研究记录.md",
+        "tools/content-validator/experiments/pattern_endogenous_proof_20261013.py",
+        "docs/实验/机制研究/批次/2026-10-13-行动凭据与原件保全/无答案观察卡.md"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      },
+      "note": "A/B各需2，末手8/9，C高12低0、HIGH/LOW第一手后等概率；A凭据动态29/2、最强固定14，plain10，独立付费ENABLE23/2，同效果A+资格29/2，始终开放C与B工作附许可均31/2。最优首手A，高则继续A+SHOW得20，低则A+SIDE得9；成熟工作副产/许可而非原创。"
+    },
+    {
+      "id": "PL-CUST01",
+      "name": "唯一原件复制能使A/C同时达成，但独立B任务让原件冲突全部被旁路",
+      "layer": "nonfungible-resource-tradeoff-and-bypass",
+      "origin": "new-local-exact-model",
+      "family": "原件不可再生/保有条件/复制成本/第三任务替代路线",
+      "idea": "唯一不可再制原件本身既是A完成必要条件也可交付C；耗一手COPY保留原件可同时达成A/C，但B是与原件无关的真实目标时，完整最优计划无需COPY且四种版权版本根值相同。",
+      "stage": "4-turn-Fraction-DP-full-fixed-plans-two-task-scope-ablation-original-copy-equivalent-preserve-reusable; no-human",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-13-行动凭据与原件保全/研究记录.md",
+        "tools/content-validator/experiments/pattern_evidence_custody_20261013.py",
+        "docs/实验/机制研究/批次/2026-10-13-行动凭据与原件保全/无答案观察卡.md"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      },
+      "note": "只含A/C时原件动态12、COPY15、同成本普通PRESERVE15、SHOW不耗原件31/2；最强固定分别10/14/14/15。加入B进度2得9，四版根动态均19、固定17：HIGH A SHOW B B得21，LOW A A B B得17。一份原件不可再造仍不足以让复制在整个目标空间有独立价值。"
+    },
+    {
+      "id": "PL-PUB01",
+      "name": "公开证据使自利第三方撤销私人许可，完整普通排他菜单逐动作同构",
+      "layer": "cross-actor-publicity-and-consent-negative",
+      "origin": "new-local-exact-model",
+      "family": "公开/保密证据/持续许可/互斥成果/自利退出",
+      "idea": "私人时对方GRANT B自利收益3大于EXIT2，公开后GRANT只得-1故退出并撤销旧许可；玩家需要按后到A/B需求在公开与私下请求间选择，但其实际终局结果和普通互斥提交规则逐状态一致。",
+      "stage": "3-turn-Fraction-DP-27-fixed-schedules-all-reachable-state-transition-equivalence-three-rights-regimes; no-human",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-13-行动凭据与原件保全/研究记录.md",
+        "tools/content-validator/experiments/pattern_disclosure_consent_20261013.py"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      },
+      "note": "公开需求第一手后等概率，匹配成果12不匹配3，SIDE1；自利npc与通用互斥菜单动态14、固定19/2，取消互斥让两成果可兼得则动态/固定均16。完全公开确定的撤权理由不能独自证明新社交原语。"
     }
   ],
   "edges": [
@@ -3094,6 +3156,84 @@
       "to": "PL-DIAG01",
       "relation": "strategic-validity-of-observed-outcomes",
       "reason": "合法执行试做不等于结果是外生可信信号；还需要检查另一主体在被评估时主动改变可观察表现"
+    },
+    {
+      "from": "PL-DISC01",
+      "to": "PL-PRF01",
+      "relation": "productive-action-vs-additional-use",
+      "reason": "DISC生产行动同步给信息，PRF生产行动留下后续资格，但都是成熟工作副产物组合"
+    },
+    {
+      "from": "PL-TRL01",
+      "to": "PL-PRF01",
+      "relation": "signal-of-ability-vs-certificate-of-past-work",
+      "reason": "TRL只见PASS可能受伪装；PRF凭据证明曾做A并作为C合法门槛，不自动预测另一种能力"
+    },
+    {
+      "from": "R502",
+      "to": "PL-PRF01",
+      "relation": "ordinary-enable-complete-match",
+      "reason": "PRF的A工作附资格被同成本A_AND_ENABLE逐状态复刻，不能用真实凭据名义回避ENABLE反证"
+    },
+    {
+      "from": "PL-SEM04",
+      "to": "PL-CUST01",
+      "relation": "consume-real-work-vs-unique-original",
+      "reason": "SEM04已有材料守恒与用途转换；CUST增加唯一原件若交出便永不能达A的真实占有条件，仍只是经典存量/保全"
+    },
+    {
+      "from": "PL-CLAIM03",
+      "to": "PL-CUST01",
+      "relation": "irreversible-attribution-and-expensive-preservation",
+      "reason": "CLAIM撤回和唯一原件复制都令成果占有与另一条路线竞争行动机会，不必另认新承诺原语"
+    },
+    {
+      "from": "PL-CUST01",
+      "to": "PL-COUP01",
+      "relation": "global-optimal-bypass-even-with-causal-links",
+      "reason": "CUST在只有A/C时COPY有价值，但完整加入B任务后四版复制权全部同根19；COUP也表明图边增多不代表最优路线用到关系"
+    },
+    {
+      "from": "P02",
+      "to": "PL-CUST01",
+      "relation": "pareto-and-goal-relevance",
+      "reason": "A原件与C出示可有真实排他，但若B是可接受替代成果，具体玩家就可能没有理由保护原件；数学不知人类如何重视A"
+    },
+    {
+      "from": "PL-ACT01",
+      "to": "PL-PUB01",
+      "relation": "self-interested-consent-ancestor",
+      "reason": "ACT01已研究自利伙伴回应；PUB仅将其映射到公开证据是否保持B许可"
+    },
+    {
+      "from": "PL-GRC01",
+      "to": "PL-PUB01",
+      "relation": "future-license-participation",
+      "reason": "GRC未来替代权可影响初始合作；PUB公开条件下伙伴许可可撤回，仍可能等同完整预设互斥菜单"
+    },
+    {
+      "from": "PL-CLAIM03",
+      "to": "PL-PUB01",
+      "relation": "exclusive-claim-strong-control",
+      "reason": "与CLAIM排他承诺同族，PUB固定后果逐项映射为普通互斥目标菜单；后到需求的适应优势不能证明许可原语创新"
+    },
+    {
+      "from": "PL-DIAG01",
+      "to": "PL-PUB01",
+      "relation": "strategic-consent-vs-public-menu",
+      "reason": "合法ASK按钮不意味着公开后他者愿意GRANT，PUB给出自利拒绝和普通排他菜单完全相同的可执行效果"
+    },
+    {
+      "from": "PL-PRF01",
+      "to": "PL-CUST01",
+      "relation": "byproduct-to-irreplaceable-custody",
+      "reason": "证明生产事实的同一凭据若又成为不可再造原件，会出现保留/交付，但COPY价值仍可能被B另一路径压倒"
+    },
+    {
+      "from": "PL-CUST01",
+      "to": "PL-PUB01",
+      "relation": "custody-vs-publicity-are-different-relations",
+      "reason": "拿在手里的唯一原件要不要交付，与公开后对方失去继续授权的自利理由并非同一种动作反馈"
     }
   ],
   "coverage": {
@@ -3101,7 +3241,7 @@
     "curatedDisplayMappedCount": 6,
     "cs2AnalyticalPatterns": 9,
     "unconvertedHistory": "关系索引中的其他R批次、数学负例和组合应按主题逐步纳入；不能据本地图未出现就认定没有价值",
-    "additionalExperimentalCompositions": "PL-C01/PL-C02/PL-C03已做最小模型、PL-C04仅概念问题；与另一研究线的C01/C02/C03区别命名；PL-Q01/D01/W01另有3个独立模型及消融和负面边界；PL-W02新增连续三天注意力容量组合，最强简明口诀和变更容量边界明确；F1/F2/D2三项同源跨家族与充分边界反证，不增精选；RGT01/ACT01用各自精确逆推补充许可资源与自利协作者正负证据，无真人；REL01/REL02四轮精确博弈与私有信号消融已完成（同原语条件组合；不改变精选六或Debug）；REL03后续通行凭据仅真实首手截止窗口有正准备选择价值、普通窗口弱支配；未证独立新玩法；NEG01—05双方自利协商五项精确反证；R342/R430/R478原生历史首次结构化归图，均非真人。；NEG06双回合私人回应DOM全十路，X01-LONG准备→事件→响应两段完整枚举及136条合法UI路径，均一行规则全优，无真人；X03 hard disable vs costly defiance两种不同动作合法性协议在完整可达子博弈仍同最优；无真人意义证据；STG01共4种规则组合×完整路径40，因果未来菜单5对纯文本菜单1，仅网页逻辑回归，不是互动/情感新模式认证；PT01四回合双目标压转与14短策略强对照/网页试玩；INF-P01 cap2/3贝叶斯模型覆盖72+96局部公开状态信息值0；未改变历史478；GOAL01七个p×可选/强制义务、同树强预列菜单；DISC01三手有理数belief-DP、单份可靠度q后验、三种时点/换路与网页合法路径，不动历史478或精选；REC01四手四分之一禁A/B×81信号历史、16条强固定序列、一步前瞻全优及六种因果消融；REC03各目标完成概率独立统计，且最优总体策略B完成率低于简单交替；无真人；SEM01—04动作产出对象改道与材料消费改道，两项均被同成本完整菜单追平，短条件程序全优，无真人。；横向读R366函数编辑与R422预编译强对照：持久编辑可超过固定日程却不一定超过同成本完整工具，源实验非本轮重复执行。；OPS01六手动态维护与同成本SET/一手前瞻全等（含2048独立实际输入历史），CLAIM四手付费撤回×真实A早窗口互补、已给HARD/无加成消融及无窗口强菜单；均不认证新独立原语。；COUP01七手把OPS操作实际变成A/B凭据、CLAIM A禁止制作B，仍在起始phase0三类需求先验下被RUN A→CLAIM A→SIDE×5一行策略全优；局部可达差异不等于有价值的双向注意力循环。；ATN01/02检测4手交换律、1296条件序列与20个Pareto成果向量仍由固定计划追平；ATN03/04双任务已投入进度遭公开单/双损5手模型动态33/2胜固定15，提前预知35/2，单损仍可保证双目标，归入成熟危机保全组合，真人缺席。；ACT-R01/02伙伴真自利救B(3)vs外部工作(2/4)使玩家双损低/高报价严格改选，默认动态51/4 vs迟揭49/4，却与条件备用B位逐动作同构；RV01简化4手R54式A3/B5可达上界t3仅18/64前缀两路线仍各有完成可能，结合旧R37/R50/R54真实反馈提出目标意义×改选容量双审核；RV02旧P18的极简上次路径追踪被固定ABABA全优。；RV03读原R54 Scene后用真实行动/追击次序穷举：第2手后33条活跃形式历史里9可分别达成双终局，第3手后196条中0可分别达成双终局（72仅甲、12仅乙、112无终局）；无骰面概率，非真人概率。；PS01将ATN03实际受损成果与ACT自利援助组合：五手动态71/4 vs ATN03无援33/2 vs五手固定17，分目标(1,7/8,3/4)；双损低报价可保两项目标，高报价必须放弃B，外部信号晚一手零价值；同条件B备用行动容量全状态完全替代。；GRC01/02自利伙伴最初愿帮（玩家11、伙伴3），玩家未来新增低于原成本3的BYPASS使伙伴初始EXIT（玩家3、伙伴5/2），可执行HIGH条件合同或排他承诺恢复11；GRC03/04同样提前公开HIGH/LOW在w5/2令玩家11跌至17/2、在w7/2令玩家3升至17/2；跨族审计区分动作合法、物理终局可达、伙伴策略同意、人类关切。；TRL01生产性试做提供真实产出1且耗时1，诚实信号下直接SIDE2、纯检验2、边做边看3；TRL02低能力主体花1修饰PASS(1/4→3/4)以谋求未来HIRE4，唯一纯均衡下两类型信号池化、试做总值退至2；TRL03修饰成本2存在两纯均衡值2或3、成本3诚实3，q诚实准确度1/2→1试做值2→4。属DISC/R478/NEG04成熟组合边界，不认证新原语。",
+    "additionalExperimentalCompositions": "PL-C01/PL-C02/PL-C03已做最小模型、PL-C04仅概念问题；与另一研究线的C01/C02/C03区别命名；PL-Q01/D01/W01另有3个独立模型及消融和负面边界；PL-W02新增连续三天注意力容量组合，最强简明口诀和变更容量边界明确；F1/F2/D2三项同源跨家族与充分边界反证，不增精选；RGT01/ACT01用各自精确逆推补充许可资源与自利协作者正负证据，无真人；REL01/REL02四轮精确博弈与私有信号消融已完成（同原语条件组合；不改变精选六或Debug）；REL03后续通行凭据仅真实首手截止窗口有正准备选择价值、普通窗口弱支配；未证独立新玩法；NEG01—05双方自利协商五项精确反证；R342/R430/R478原生历史首次结构化归图，均非真人。；NEG06双回合私人回应DOM全十路，X01-LONG准备→事件→响应两段完整枚举及136条合法UI路径，均一行规则全优，无真人；X03 hard disable vs costly defiance两种不同动作合法性协议在完整可达子博弈仍同最优；无真人意义证据；STG01共4种规则组合×完整路径40，因果未来菜单5对纯文本菜单1，仅网页逻辑回归，不是互动/情感新模式认证；PT01四回合双目标压转与14短策略强对照/网页试玩；INF-P01 cap2/3贝叶斯模型覆盖72+96局部公开状态信息值0；未改变历史478；GOAL01七个p×可选/强制义务、同树强预列菜单；DISC01三手有理数belief-DP、单份可靠度q后验、三种时点/换路与网页合法路径，不动历史478或精选；REC01四手四分之一禁A/B×81信号历史、16条强固定序列、一步前瞻全优及六种因果消融；REC03各目标完成概率独立统计，且最优总体策略B完成率低于简单交替；无真人；SEM01—04动作产出对象改道与材料消费改道，两项均被同成本完整菜单追平，短条件程序全优，无真人。；横向读R366函数编辑与R422预编译强对照：持久编辑可超过固定日程却不一定超过同成本完整工具，源实验非本轮重复执行。；OPS01六手动态维护与同成本SET/一手前瞻全等（含2048独立实际输入历史），CLAIM四手付费撤回×真实A早窗口互补、已给HARD/无加成消融及无窗口强菜单；均不认证新独立原语。；COUP01七手把OPS操作实际变成A/B凭据、CLAIM A禁止制作B，仍在起始phase0三类需求先验下被RUN A→CLAIM A→SIDE×5一行策略全优；局部可达差异不等于有价值的双向注意力循环。；ATN01/02检测4手交换律、1296条件序列与20个Pareto成果向量仍由固定计划追平；ATN03/04双任务已投入进度遭公开单/双损5手模型动态33/2胜固定15，提前预知35/2，单损仍可保证双目标，归入成熟危机保全组合，真人缺席。；ACT-R01/02伙伴真自利救B(3)vs外部工作(2/4)使玩家双损低/高报价严格改选，默认动态51/4 vs迟揭49/4，却与条件备用B位逐动作同构；RV01简化4手R54式A3/B5可达上界t3仅18/64前缀两路线仍各有完成可能，结合旧R37/R50/R54真实反馈提出目标意义×改选容量双审核；RV02旧P18的极简上次路径追踪被固定ABABA全优。；RV03读原R54 Scene后用真实行动/追击次序穷举：第2手后33条活跃形式历史里9可分别达成双终局，第3手后196条中0可分别达成双终局（72仅甲、12仅乙、112无终局）；无骰面概率，非真人概率。；PS01将ATN03实际受损成果与ACT自利援助组合：五手动态71/4 vs ATN03无援33/2 vs五手固定17，分目标(1,7/8,3/4)；双损低报价可保两项目标，高报价必须放弃B，外部信号晚一手零价值；同条件B备用行动容量全状态完全替代。；GRC01/02自利伙伴最初愿帮（玩家11、伙伴3），玩家未来新增低于原成本3的BYPASS使伙伴初始EXIT（玩家3、伙伴5/2），可执行HIGH条件合同或排他承诺恢复11；GRC03/04同样提前公开HIGH/LOW在w5/2令玩家11跌至17/2、在w7/2令玩家3升至17/2；跨族审计区分动作合法、物理终局可达、伙伴策略同意、人类关切。；TRL01生产性试做提供真实产出1且耗时1，诚实信号下直接SIDE2、纯检验2、边做边看3；TRL02低能力主体花1修饰PASS(1/4→3/4)以谋求未来HIRE4，唯一纯均衡下两类型信号池化、试做总值退至2；TRL03修饰成本2存在两纯均衡值2或3、成本3诚实3，q诚实准确度1/2→1试做值2→4。属DISC/R478/NEG04成熟组合边界，不认证新原语。；PRF01 A真实工作副产C凭据3手DP29/2 vs固定14，A+ENABLE同成本同值，始终开放或由B工作附资格DP31/2；CUST01不可再造原件A/C局原件12、COPY15、可复用31/2，但开放独立B后所有版权制度动态19、固定17，证明目标旁路；PUB01公开证据让自利第三方撤B许可动态14 vs固定19/2，但普通排他菜单逐动作同构，取消互斥动态/固定16。均成熟组合/负例，无新人类/Unity。",
     "humanFeedbackNote": "目前有关稳险/R06、边做边看/R10、压力/R37、R54、R50的有限设计者反馈；原记录各不等价于受控盲试玩；P02/R13仍没有真人反馈。",
     "thirdComparison": "PL-C05 supplies a tested negative boundary; not a new curated or debug pattern"
   },
