@@ -8,8 +8,20 @@
         (if (equal? who "尼尔") "#F0CF8A" "#8FD9D0"))
       (theatre-sound "对白" (string-append "Voices/" voice) #f 1 0)
       (theatre-tween "焦点" 'x (+ 800 (* (- x 800) .5)) .4 'smooth)))
+  ;; 假信封路线不假装存在配音；旧筹款路线原有语音保持不动。
+  (define (说文字 who text seconds)
+    (define x (if (equal? who "尼尔") 840 560))
+    (theatre-during
+      (theatre-caption-for who text seconds
+        (if (equal? who "尼尔") "#F0CF8A" "#8FD9D0"))
+      (theatre-tween "焦点" 'x (+ 800 (* (- x 800) .5)) .4 'smooth)))
   (define 对白
     (cond
+      ((equal? 筹款 '诱饵)
+       (theatre-sequence
+         (说文字 "尼尔" "里面是旧报纸。你投进去就走，别回头。" 3)
+         (说文字 "夜莺" "他要是当场拆开呢？" 2)
+         (说文字 "尼尔" "那就看谁先发现谁了。" 2)))
       ((equal? 筹款 '足额)
        (theatre-sequence
         (说 "夜莺" "一百整。" "三封信/码头/投信/足额/01/夜莺" 1.15)
