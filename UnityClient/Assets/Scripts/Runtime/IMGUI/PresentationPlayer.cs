@@ -35,6 +35,22 @@ namespace SSNoir.IMGUI
             _isPlaying = true;
             ProgressText = string.Empty;
             Progress01 = 0f;
+
+            // 卡下判定从按钮原位直接开始。将执行前奏并入同一根进度，避免消费骰子后
+            // 先画一块没有概率区的执行面板，再切回完整判定抽屉，进度也不重复从零开始。
+            if (report.Type == ActionType.Roll && !OutcomePresentationPolicy.ShouldUseRollModal(report, actionName))
+            {
+                float duration = IMGUIAnimationPlayer.LocalRollSeconds;
+                var hints = report.PresentationHints;
+                while (_stepIndex < hints.Count && hints[_stepIndex].Kind == PresentationHintKind.ExecuteProgress)
+                {
+                    duration += Math.Max(0f, hints[_stepIndex].DurationSeconds);
+                    _stepIndex++;
+                }
+                if (_stepIndex >= hints.Count || hints[_stepIndex].Kind != PresentationHintKind.RollDice)
+                    throw new InvalidOperationException("A local roll must follow execute progress with a roll hint.");
+                _animator.StartRoll(report, actionName, duration);
+            }
         }
 
         public void Update(float dt)

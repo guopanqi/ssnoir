@@ -15,9 +15,10 @@ namespace SSNoir.IMGUI
         public RollOutcome FinalOutcome { get; private set; }
         public int ChosenDie { get; private set; }
         public int Phase => _phase;
-        private const float LocalRollSeconds = 0.43f;
+        public const float LocalRollSeconds = 0.43f;
+        private float _localRollDuration = LocalRollSeconds;
         public float LocalRollProgress => _phase >= 2 ? 1f
-            : Mathf.Clamp01((Time.unscaledTime - _phaseStartTime) / LocalRollSeconds);
+            : Mathf.Clamp01((Time.unscaledTime - _phaseStartTime) / _localRollDuration);
         public string ActionName { get; private set; } = "";
         public ActionReport? CurrentReport { get; private set; }
         public bool UsesModal =>
@@ -28,8 +29,11 @@ namespace SSNoir.IMGUI
         private float _phaseStartTime;
         private int _phase; // 0: 概率判定中, 1: 结果档位浮现, 2: 结果, 3: 已确认
 
-        public void StartRoll(ActionReport report, string actionName)
+        public void StartRoll(ActionReport report, string actionName, float localRollDuration = LocalRollSeconds)
         {
+            if (localRollDuration <= 0f)
+                throw new ArgumentOutOfRangeException(nameof(localRollDuration));
+            _localRollDuration = localRollDuration;
             IsPlaying = true;
             _phase = 0;
             _phaseStartTime = Time.unscaledTime;
@@ -50,7 +54,7 @@ namespace SSNoir.IMGUI
             // 卡下判定只把原执行按钮填满，完成后直接交给结果抽屉；不再单独定格档位。
             if (!UsesModal)
             {
-                if (elapsed >= LocalRollSeconds) _phase = 2;
+                if (elapsed >= _localRollDuration) _phase = 2;
                 return;
             }
 
