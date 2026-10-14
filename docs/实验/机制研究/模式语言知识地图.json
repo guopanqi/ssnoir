@@ -3555,6 +3555,26 @@
         "tools/content-validator/experiments/pattern_paid_mode_switch_20261015.py"
       ],
       "note": "固定/条件根19，同构于简单公开有限状态模式；非新原语，未真人验证。"
+    },
+    {
+      "id": "PL-OPTION-AUDIT01",
+      "name": "早期窗口与不能免费重开才使旧退路有严格意义",
+      "layer": "cross-family-evidence-synthesis",
+      "origin": "ssnoir-research",
+      "family": "选择权与并发责任",
+      "idea": "跨HEDGE/FOCUS/CLAIM及固定策略负例建立九问、分成果及残余行动余裕筛选",
+      "stage": "archive-synthesis-not-new-experiment",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-保留选择权跨族审计/研究记录.md",
+        "docs/实验/机制研究/批次/2026-10-15-保留选择权跨族审计/反证矩阵.json"
+      ],
+      "evidence": {
+        "sourceAudit": true,
+        "newSimulation": false,
+        "newHuman": false,
+        "native": false
+      },
+      "note": "HEDGE 51/4 vs 无重叠47/4；无早窗口后串行追回51/4；FOCUS安全等待22大于早押20.5；CLAIM撤销与及时奖金必须组合；动作模式连续负例。"
     }
   ],
   "edges": [
