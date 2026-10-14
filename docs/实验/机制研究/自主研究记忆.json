@@ -1,8 +1,8 @@
 {
   "schema": "ssnoir.autonomous-pattern-memory/v1",
   "updated": "2026-10-15",
-  "batch": "INFO-PROD01 生产性调查与全树同构边界",
-  "rounds": 52,
+  "batch": "EVIDENCE-STOP01 序贯证据的自适应停查与固定次数强反证",
+  "rounds": 55,
   "totalArchivedRounds": 478,
   "objective": "长期自主发展可复用的玩法模式语言，覆盖已知作品先例、基础原语、完整交锋、跨阶段结构、组合条件与重要负例；评价玩家实际反复作出的判断、反馈、后果。历史20是广度愿景，不是价值认证名单或完成配额。",
   "policy": "从成熟作品、旧实验、新假设三向吸收；先去剧情定义玩家活动，再独立批评同构/最强简单策略，按需模型与盲Agent试玩。数学、作品先例、Agent、原生与真人是正交证据。知识图谱收录不等真人认可，精选展示与Debug独立把关，真人反馈异步且不阻塞。",
@@ -337,6 +337,6 @@
     "latestCounterfactual": "IWT01：四手Hidden A/B各半，3份正确WORK得10/8，TRACK工作必+1并有75%准确类型线索；纯INSPECT100%占一手。无信息6、只TRACK119/16、INSPECT9；INSPECT耗时两手TRACK重新胜119/16；完美TRACK19/2、50%TRACK6、TRACK首手限定29/4。正向枚举核对全部潜在真实类型；保留已有DISC/FOCUS/SIG组合。",
     "crossFamilyAudit": "PL-IWT01→PL-DISC01（工作+信息两种不同产出）、FOCUS02/03（及时兑现行动窗口、完美检查强旁路）、SIG01（非战略性线索噪声有别于他者可伪装的行动信号）。"
   },
-  "lastFinding": "INFO-PROD01复用INFO-WINDOW01四手紧急目标第3手截止的同一任务协议。无主动调查根25/2；额外纯I消耗整手公布完美T，最优仍可不查而根25/2；P动作同时完成一份A工作并完美公布T，或P/Q二选一，最优16；第2手后免费完美T信息也根16，但只是根同分、非全树同构。P可逐状态完全映射同成本WORK_A+REVEAL，是TRL工作顺带反馈与OPTION后到需求成熟组合，尚无多次停查心理循环，非新原语。标准库Fraction DP脚本及报告提交，尚无独立求解器、真人、盲Agent或原生验证。",
-  "nextResearchQuestion": "下一阶段不调准确率/行动奖励；检验部分信息在工作中积累时玩家能否真正选择停止搜索、利用不确定判断，先和TRL/DISC以及安全普通菜单对照；若行动仍为开局必查、已知条件攻略，则归并或横向转题。"
+  "lastFinding": "EVIDENCE-STOP01：隐藏A/B各半，最多3份独立准确率3/4信号，每次成本1；CLAIM正确+10错误-6，SAFE3。Fraction DP灵活根41/8=5.125；固定N=0/1/2/3调查后仍可SAFE，期望3、5、35/8、9/2。两份一致后后验9/10应CLAIM，两份冲突后验1/2应继续SAMPLE(收益5)。灵活相对最强固定样本次数仅增1/8，成熟optimal stopping；成本0根15/2、1/4根221/32、2根4。修复固定N=2末尾没有SAFE的初次回归口径问题并在本地执行8组断言。无真人、独立Agent或Unity。",
+  "nextResearchQuestion": "先与INFO-PROD01、TRL/OPTION/DISC对照：多次局部线索若兼有真实产出且需在窗口内利用，是否仍只是统一开局调查或普通复合菜单？不可机械添加信号数量/概率；若模型很快被简单最优策略支配则换族。"
 }
