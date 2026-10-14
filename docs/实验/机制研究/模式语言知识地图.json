@@ -3186,6 +3186,26 @@
         "native": false
       },
       "note": "前期6后期2一SUB根13、二SUB根14；前期6后期3一/二SUB均15但最优成果向量可不同。普通容量×后到信息×截止窗口，不认证新原语。"
+    },
+    {
+      "id": "PL-SUBMIT02",
+      "name": "有限提交权的同分成果差异：期望收益15不代表保留双成果与四次SIDE等价",
+      "layer": "evidence-boundary",
+      "origin": "ssnoir-research",
+      "family": "非标量兑现与玩家自选关切",
+      "idea": "完整枚举6+3条件策略，对比单/双提交权的物理A/B提交率及SIDE收益向量",
+      "stage": "exact-enumeration",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-14-成果向量与有限提交审计/研究记录.md",
+        "tools/content-validator/experiments/pattern_submission_vectors_20261014.py"
+      ],
+      "evidence": {
+        "completeConditionalPolicyEnumeration": true,
+        "independentAgentBlind": false,
+        "humanFeedbackAvailable": false,
+        "native": false
+      },
+      "note": "一SUB 73四元组9三维非支配；二SUB 86四元组14非支配；两者最高标量15。旧STAKE式可达性证据，非新原语。"
     }
   ],
   "edges": [
@@ -5876,6 +5896,24 @@
       "to": "PL-VOL02",
       "relation": "realized-value-depends-on-submission-window",
       "reason": "物理完工和提交兑现资格分离；SIDE强替代可压平额外提交名额，同时保留非等价成果向量"
+    },
+    {
+      "from": "PL-SUBMIT02",
+      "to": "PL-SUBMIT01",
+      "relation": "scalar-tie-not-outcome-equivalence",
+      "reason": "两种相同期望总分的条件策略在是否提交A/B和可保留SIDE上并不相互支配；真人自选关切尚无证据"
+    },
+    {
+      "from": "PL-SUBMIT02",
+      "to": "PL-VOL02",
+      "relation": "scalar-tie-not-outcome-equivalence",
+      "reason": "两种相同期望总分的条件策略在是否提交A/B和可保留SIDE上并不相互支配；真人自选关切尚无证据"
+    },
+    {
+      "from": "PL-SUBMIT02",
+      "to": "PL-DUALCLEAR01",
+      "relation": "scalar-tie-not-outcome-equivalence",
+      "reason": "两种相同期望总分的条件策略在是否提交A/B和可保留SIDE上并不相互支配；真人自选关切尚无证据"
     }
   ],
   "coverage": {
