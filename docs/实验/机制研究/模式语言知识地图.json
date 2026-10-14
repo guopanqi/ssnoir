@@ -3045,6 +3045,27 @@
         "native": false
       },
       "note": "E0同成本INSPECT拥有更强信息且TRACK有效进度为0；E2/E3是冻结公开4手模型的可行策略反例而不是双人均衡。非新精选，不进Debug。"
+    },
+    {
+      "id": "PL-OPTION01",
+      "name": "晚来信息与批量转换：可转移准备有条件价值，但单份转换和早揭晓易被安全方案覆盖",
+      "layer": "combination-boundary",
+      "origin": "ssnoir-research",
+      "family": "准备储备与兑现窗口",
+      "idea": "行动前存FLEX、揭晓真实A/B后付费批量转换；信息晚到时改变可完成性，早到时SIDE等待或专用工作同优",
+      "stage": "mathematical-local-combination",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-14-可转移准备与兑现窗口/研究记录.md",
+        "tools/content-validator/experiments/pattern_convertible_preparation_20261014.py"
+      ],
+      "evidence": {
+        "exactRationalExhaustive": true,
+        "independentForward": false,
+        "independentAgentBlind": false,
+        "humanFeedbackAvailable": false,
+        "native": false
+      },
+      "note": "揭晓在完成0..4手后：NONE 10/10/9/13/2/6，SINGLE相同；BULK 10/10/9/9/6；FREE恒10。非新原语，不入精选或Debug。"
     }
   ],
   "edges": [
@@ -5609,6 +5630,24 @@
       "to": "PL-SIG01",
       "relation": "visible-investment-is-not-private-type-evidence",
       "reason": "公开工作方向不是隐藏真相；只有策略性主体响应的合法动作和效用发生真实变化才产生信号推断"
+    },
+    {
+      "from": "PL-OPTION01",
+      "to": "PL-IWT01",
+      "relation": "timing-controls-information-use",
+      "reason": "信息真相精度固定100%，可兑现窗口改变工作资格价值而非信息准确率"
+    },
+    {
+      "from": "PL-OPTION01",
+      "to": "PL-EXPOSE01",
+      "relation": "strong-safe-option-counterfactual",
+      "reason": "与公开暴露分支同样保留最强普通选择；SIDE等待和无成本工具可压平新机制"
+    },
+    {
+      "from": "PL-OPTION01",
+      "to": "PL-CROSS01",
+      "relation": "convertible-inventory-variant",
+      "reason": "提前准备储备、后到真实需求与批量转换连接，属于跨阶段库存的结构组合"
     }
   ],
   "coverage": {
