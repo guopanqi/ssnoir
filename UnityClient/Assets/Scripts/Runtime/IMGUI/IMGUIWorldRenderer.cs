@@ -2177,7 +2177,7 @@ namespace SSNoir.IMGUI
                     host = ActionNodeDrawer.DrawFloatingHost(pair.Key);
                     spacious = true;
                 }
-                ActionNodeDrawer.DrawAttachmentOverlay(host, null, 0, 0, 1f, residue, ui, spacious, residue.AttachAbove);
+                ActionNodeDrawer.DrawAttachmentOverlay(host, null, 0, 1f, residue, ui, spacious, residue.AttachAbove);
                 TryDismissResidueByTap(residue, ActionNodeDrawer.ResidueAttachmentRect(host, residue, spacious, residue.AttachAbove), ui);
             }
         }
