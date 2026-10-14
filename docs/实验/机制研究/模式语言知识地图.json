@@ -3105,6 +3105,26 @@
         "native": false
       },
       "note": "根AA38/3，完整9种首两手对照最强非AA为AS/SA35/3。危机仅固定多花一手则退化为行动税，属既有CS2危机×替代路径组合。"
+    },
+    {
+      "id": "PL-CRISIS02",
+      "name": "内生危机使已投进度与安全备选争夺行动；提前防护有条件收益但并非必先执行",
+      "layer": "encounter-combination",
+      "origin": "ssnoir-research",
+      "family": "内生压力与目标重排",
+      "idea": "A推进同时可能封锁后续A；玩家可CLEAR、改B或SIDE，有限行动决定旧目标可救与否",
+      "stage": "exact-local-model",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-14-内生危机与备选目标/研究记录.md"
+      ],
+      "evidence": {
+        "exactFractionBackward": true,
+        "independentForward": false,
+        "independentAgentBlind": false,
+        "humanFeedbackAvailable": false,
+        "native": false
+      },
+      "note": "四行动根：无危机15，内生危机B可用101/8，加入GUARD13，删B10，删B但GUARD45/4；只是既有压力预算×替代路径，未认证新原语。"
     }
   ],
   "edges": [
@@ -5723,6 +5743,24 @@
       "to": "PL-FOCUS03",
       "relation": "remaining-time-determines-repair-value",
       "reason": "危机成本达到不可在剩余时点完成旧目标时，转向仍可完成的备用目标而非只是支付清障费用"
+    },
+    {
+      "from": "PL-CRISIS02",
+      "to": "PL-CRISIS01",
+      "relation": "endogenous-risk-changes-future-action-value",
+      "reason": "A本手推动目标且触发风险，清障或转投B的预算与已投入工作相互作用；强安全BB仍可用"
+    },
+    {
+      "from": "PL-CRISIS02",
+      "to": "P11",
+      "relation": "endogenous-risk-changes-future-action-value",
+      "reason": "A本手推动目标且触发风险，清障或转投B的预算与已投入工作相互作用；强安全BB仍可用"
+    },
+    {
+      "from": "PL-CRISIS02",
+      "to": "PL-OPTION02",
+      "relation": "endogenous-risk-changes-future-action-value",
+      "reason": "A本手推动目标且触发风险，清障或转投B的预算与已投入工作相互作用；强安全BB仍可用"
     }
   ],
   "coverage": {
