@@ -566,35 +566,44 @@ namespace SSNoir.Testing
         {
             Console.WriteLine("=== Fate Strip Contract Test ===");
 
-            static (int fail, int neutral, int success) ExpectedCounts(int prepared)
+            static (int fail, int neutral, int success) ExpectedPercentages(int prepared)
             {
-                if (prepared <= 1) return (3, 3, 0);
+                if (prepared <= 1) return (60, 40, 0);
                 return prepared switch
                 {
-                    2 => (2, 3, 1),
-                    3 => (1, 3, 2),
-                    4 => (1, 2, 3),
-                    5 => (0, 2, 4),
-                    6 => (0, 1, 5),
-                    _ => (0, 0, 6), // ≥7
+                    2 => (45, 45, 10),
+                    3 => (35, 45, 20),
+                    4 => (20, 35, 45),
+                    5 => (0, 40, 60),
+                    6 => (0, 25, 75),
+                    7 => (0, 10, 90),
+                    _ => (0, 0, 100),
                 };
             }
 
-            for (int prepared = -2; prepared <= 10; prepared++)
+            for (int prepared = -2; prepared <= 12; prepared++)
             {
-                int mod = prepared - 4; // placed die 4 + skill 0 + mod = prepared
+                int mod = prepared - 4;
                 var strip = FateStrip.Compute(placedDie: 4, skill: 0, modSum: mod);
+                AssertEq($"B={prepared} strip length", 100, strip.Length);
+                var odds = FateStrip.PercentagesForPrepared(prepared);
+                AssertEq($"B={prepared} percentages", ExpectedPercentages(prepared), odds);
+                AssertEq($"B={prepared} sum", 100, odds.Fail + odds.Neutral + odds.Success);
                 int fail = 0, neutral = 0, success = 0;
-                for (int fate = 1; fate <= 6; fate++)
+                for (int roll = 1; roll <= 100; roll++)
                 {
-                    AssertEq($"B={prepared} face={fate} resolve", strip[fate - 1],
-                        FateStrip.Resolve(4, 0, mod, fate));
-                    if (strip[fate - 1] == RollOutcome.Fail) fail++;
-                    else if (strip[fate - 1] == RollOutcome.Neutral) neutral++;
+                    AssertEq($"B={prepared} roll={roll} resolve", strip[roll - 1],
+                        FateStrip.Resolve(4, 0, mod, roll));
+                    if (strip[roll - 1] == RollOutcome.Fail) fail++;
+                    else if (strip[roll - 1] == RollOutcome.Neutral) neutral++;
                     else success++;
                 }
-                AssertEq($"B={prepared} counts", ExpectedCounts(prepared), (fail, neutral, success));
+                AssertEq($"B={prepared} counts", ExpectedPercentages(prepared), (fail, neutral, success));
+                AssertEq($"B={prepared} description", $"坏 {fail}% · 中 {neutral}% · 好 {success}%",
+                    FateStrip.Describe(strip));
             }
+            AssertThrows(() => FateStrip.Resolve(4, 0, 0, 0), "percentile zero invalid");
+            AssertThrows(() => FateStrip.Resolve(4, 0, 0, 101), "percentile 101 invalid");
 
             // 冷静击穿溢出是主角唯一的第二受伤口来源，容易在重构中静默改坏，值得覆盖。
             // 一比一：垫子用完，代价照原价打在身上。
