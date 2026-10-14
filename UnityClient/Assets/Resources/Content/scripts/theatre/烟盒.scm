@@ -5,7 +5,9 @@
 ;; 保留现有独立试演入口，正式剧情由明确的线索状态选择演出。
 (define (烟盒-演出) (老街启程-演出 #t))
 
-(define (老街启程-演出 有烟?)
+(define (老街启程-演出 有烟? . 路线参数)
+  ;; 无参数仍是原独立试演；正式剧情提供此次交锋的具体结果。
+  (define 路线 (if (null? 路线参数) "" (car 路线参数)))
   (define 图形 '())
   (define 描绘 '())
   (define (加入 object) (set! 图形 (append 图形 (list object))))
@@ -16,6 +18,15 @@
         (theatre-wait (+ .001 delay))
         (theatre-tween id 'reveal 1 2.2 'smooth))))))
   (define (说 who x text seconds)
+    (theatre-during
+      (theatre-caption-for who text seconds
+        (if (equal? who "尼尔") "#F0CF8A" "#8FD9D0"))
+      (theatre-parallel
+        (theatre-tween "焦点" 'x (+ 800 (* (- x 800) .5)) 1 'smooth)
+        (theatre-tween "说话柔光" 'x x 1.2 'smooth)
+        (theatre-tween "说话柔光" 'opacity .13 1.2 'smooth))))
+  ;; 新的抓捕/追踪分支尚无语音，用字幕演出；旧路线保留原配音文件。
+  (define (说文字 who x text seconds)
     (theatre-during
       (theatre-caption-for who text seconds
         (if (equal? who "尼尔") "#F0CF8A" "#8FD9D0"))
@@ -87,9 +98,23 @@
           (theatre-wait 2))))
     (if 有烟?
       (theatre-sequence
-        (说 "尼尔" 470 "我没追到他，该死，在路口的时候突然窜出一辆摩托，我把它跟丢了" 3.600)
-        (theatre-tween "夜莺位置" 'x 1090 .3 'smooth)
-        (说 "夜莺" 1090 "你人没事儿就好" 1.185)
+        (cond
+          ((equal? 路线 "截住")
+           (theatre-sequence
+             (说文字 "尼尔" 470 "我抓住了取信的人，假信封也拿回来了。" 3)
+             (theatre-tween "夜莺位置" 'x 1090 .3 'smooth)
+             (说文字 "夜莺" 1090 "问出是谁干的了吗？" 1.8)
+             (说文字 "尼尔" 470 "是雇来的跑腿。他连雇主的名字都不知道。" 3)))
+          ((equal? 路线 "追踪")
+           (theatre-sequence
+             (说文字 "尼尔" 470 "我追到老街，还是让他跑了。" 2.5)
+             (theatre-tween "夜莺位置" 'x 1090 .3 'smooth)
+             (说文字 "夜莺" 1090 "你人没事儿就好。" 1.8)))
+          (else
+           (theatre-sequence
+             (说 "尼尔" 470 "我没追到他，该死，在路口的时候突然窜出一辆摩托，我把它跟丢了" 3.600)
+             (theatre-tween "夜莺位置" 'x 1090 .3 'smooth)
+             (说 "夜莺" 1090 "你人没事儿就好" 1.185))))
         ;; 亮盒：小尺寸在尼尔手边显现。
         (theatre-wait .4)
         (theatre-parallel
@@ -117,7 +142,13 @@
         (theatre-tween "烟盒残影" 'opacity 0 .3)
         (theatre-image-to "夜莺" "Portraits/Neon/夜莺_恳求")
         (说 "夜莺" 1090 "这是...他的？" 1.100)
-        (说 "尼尔" 470 "追的时候从他身上掉下来的，“金牌”香烟" 2.445)
+        (cond
+          ((equal? 路线 "截住")
+           (说文字 "尼尔" 470 "从取信者衣袋里找到的。「金牌」香烟。" 2.5))
+          ((equal? 路线 "追踪")
+           (说文字 "尼尔" 470 "他翻墙的时候掉下来的。「金牌」香烟。" 2.5))
+          (else
+           (说 "尼尔" 470 "追的时候从他身上掉下来的，“金牌”香烟" 2.445)))
         (说 "夜莺" 1090 "...这个烟" 0.900)
         (说 "尼尔" 470 "你见过？" 0.800)
         ;; 推近一点，关键情报落在这句：贵，老街抽的人不多。
@@ -136,7 +167,13 @@
           (theatre-tween "烟盒" 'rotation 0 .7)
           (theatre-tween "烟盒" 'opacity 0 .7)
           (theatre-image-to "尼尔" "Portraits/Neon/尼尔_抱臂")
-          (说 "尼尔" 470 "他从街道的桥上跳下去，应该对这一带很熟，我准备去问问。" 3.400))
+          (cond
+            ((equal? 路线 "截住")
+             (说文字 "尼尔" 470 "他不知道幕后是谁，但烟盒也许能帮我查到。我准备去老街问问。" 4.2))
+            ((equal? 路线 "追踪")
+             (说文字 "尼尔" 470 "他钻进老街的小巷不见了。我准备去那儿问问。" 3.2))
+            (else
+             (说 "尼尔" 470 "他从街道的桥上跳下去，应该对这一带很熟，我准备去问问。" 3.400))))
         (theatre-image-to "夜莺" "Portraits/Neon/夜莺_恳求")
         (theatre-tween "夜莺位置" 'x 1150 .5 'smooth)
         (说 "夜莺" 1150 "你要去老街？" 1.000)
@@ -150,13 +187,21 @@
         (theatre-wait 2.4))
       ;; 无烟版：没有烟盒情报，只剩方向。结构与有烟版同构，同样落在“她不回去”。
       (theatre-sequence
-        (说 "夜莺" 1090 "你受伤了？" 1.300)
-        (说 "尼尔" 470 "不要紧，就是让他给跑了。" 1.600)
-        (说 "夜莺" 1090 "钱呢？也让他拿走了？" 1.400)
-        (说 "尼尔" 470 "嗯。路口突然窜出一辆摩托，再看人就没了。" 2.600)
-        (说 "夜莺" 1090 "那就一点办法也没了？" 1.400)
-        (theatre-image-to "尼尔" "Portraits/Neon/尼尔_逼近")
-        (说 "尼尔" 470 "他往码头居民区去了。那一片，我得去一趟。" 2.600)
+        (if (equal? 路线 "跟丢")
+          (theatre-sequence
+            (说文字 "夜莺" 1090 "找到取信的人了吗？" 2)
+            (说文字 "尼尔" 470 "没抓到。他拿走的只是个假信封。" 2.6)
+            (说文字 "夜莺" 1090 "那现在怎么办？" 1.8)
+            (theatre-image-to "尼尔" "Portraits/Neon/尼尔_逼近")
+            (说文字 "尼尔" 470 "只知道他往老街去了。我得去那边找找。" 3.2))
+          (theatre-sequence
+            (说 "夜莺" 1090 "你受伤了？" 1.300)
+            (说 "尼尔" 470 "不要紧，就是让他给跑了。" 1.600)
+            (说 "夜莺" 1090 "钱呢？也让他拿走了？" 1.400)
+            (说 "尼尔" 470 "嗯。路口突然窜出一辆摩托，再看人就没了。" 2.600)
+            (说 "夜莺" 1090 "那就一点办法也没了？" 1.400)
+            (theatre-image-to "尼尔" "Portraits/Neon/尼尔_逼近")
+            (说 "尼尔" 470 "他往码头居民区去了。那一片，我得去一趟。" 2.600)))
         (theatre-image-to "夜莺" "Portraits/Neon/夜莺_恳求")
         (theatre-tween "夜莺位置" 'x 1150 .5 'smooth)
         (说 "夜莺" 1150 "你要去老街？" 1.000)
