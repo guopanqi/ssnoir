@@ -14,11 +14,11 @@ TYPES = {'TARGET_A': (5, 3), 'TARGET_B': (3, 5)}
 def pre_state(early):
     return (early.count('A'), early.count('B'), early.count('SIDE')), 'SHIELD' in early
 
-def foe(state, typ):
+def foe(state, typ, shield=False):
     a, b, _ = state
     av, bv = TYPES[typ]
-    options = {'STRIKE_A':F(av if a else 0),
-               'STRIKE_B':F(bv if b else 0), 'EXIT':F(1)}
+    options = {'STRIKE_A':F(av if a and not shield else 0),
+               'STRIKE_B':F(bv if b and not shield else 0), 'EXIT':F(1)}
     op = max(options, key=lambda k:(options[k], -list(options).index(k)))
     assert options[op] > max(v for k,v in options.items() if k != op)
     return op, options[op]
@@ -43,7 +43,7 @@ def branches(early, mode='erase', allow_shield=False):
     state, shield=pre_state(early)
     result={}
     for typ in TYPES:
-        strike,opp_pay=foe(state,typ)
+        strike,opp_pay=foe(state,typ,shield)
         post=apply(state,strike,mode,shield)
         best=max(((*score(post,late),late) for late in product(MOVES,repeat=2)),
                  key=lambda x:x[0])
@@ -100,6 +100,7 @@ def adversarial():
     assert (fixed[0],fixed[1],fixed[2])==(F(5),('A','B'),('A','A'))
     assert (chip[0],chip[1])==(F(10),('A','A'))
     assert (shield[0],shield[1])==(F(10),('A','SHIELD'))
+    assert all(z[0]=='EXIT' for z in shield[2].values())
     ta=destroyed[2]['TARGET_A'];tb=destroyed[2]['TARGET_B']
     assert (ta[0],ta[5],ta[4])==('STRIKE_A',('B','B'),(0,1,0))
     assert (tb[0],tb[5],tb[4])==('STRIKE_B',('A','A'),(1,0,0))
