@@ -258,7 +258,7 @@ namespace SSNoir.IMGUI
             };
             IMGUIStyles.ApplyStrongFont(tabStyle);
 
-            var items = new List<(string text, Color stripe)>();
+            var items = new List<string>();
             if (node.Tags != null)
             {
                 foreach (var tag in node.Tags)
@@ -271,18 +271,17 @@ namespace SSNoir.IMGUI
                         "交锋" => UiText.Get("交锋"),
                         _ => tag,
                     };
-                    items.Add((shownTag, TagStripe(tag)));
+                    items.Add(shownTag);
                 }
             }
             foreach (var mod in effectiveModifiers)
             {
                 string modText = $"{mod.Reason} {(mod.Value > 0 ? "+" : "")}{mod.Value}";
-                items.Add((modText, ModifierStripe(mod.Value)));
+                items.Add(modText);
             }
-            // 「必须处理」不再是卡外另挂的一块牌子，就是一张金色条的签，和类别签排在一起：
-            // 它说的也是「这件事」——这件事在等你。
+            // 「必须处理」和类别签一起排，统一白纸底，用文字说明用途。
             if (mustHandle)
-                items.Add((UiText.Get("必须处理"), IMGUIStyles.Gold));
+                items.Add(UiText.Get("必须处理"));
             if (items.Count == 0) return;
 
             // 从左上角起横排；一排放不下就往上再起一排——签可以多一排，不可以少一张或裁一半。
@@ -292,27 +291,24 @@ namespace SSNoir.IMGUI
             float rowRight = rect.xMax - TabInset;
             foreach (var item in items)
             {
-                float w = Mathf.Ceil(tabStyle.CalcSize(new GUIContent(item.text)).x) + TabPadding * 2f
-                    + (item.stripe.a > 0f && !disabled ? TabStripeWidth : 0f);
+                float w = Mathf.Ceil(tabStyle.CalcSize(new GUIContent(item)).x) + TabPadding * 2f;
                 w = Mathf.Min(w, rowRight - (rect.x + TabInset));
                 if (x + w > rowRight && x > rect.x + TabInset)
                 {
                     x = rect.x + TabInset;
                     rowY -= tabH - TabSink + TabRowGap;
                 }
-                DrawTopTab(new Rect(x, rowY, w, tabH), item.text, disabled ? TabStripeNone : item.stripe, disabled, tabStyle);
+                DrawTopTab(new Rect(x, rowY, w, tabH), item, disabled, tabStyle);
                 x += w + TabGap;
             }
         }
 
-        // 一张书签：1px 硬影 + Paper 纸 + 三边描边（上、左、右）+ 墨字 + 左侧一道色条。
+        // 一张书签：1px 硬影 + Paper 纸 + 三边描边（上、左、右）+ 墨字。
         // 底边不描：那里沉进卡内，一描就成了「搁在卡上的另一张纸」而不是「长在卡上的签」。
         // 整块按物理像素对齐（PixelSnap）：非整数缩放下不对齐会让纸边和字一起发虚。
-        private const float TabStripeWidth = 4f;
-
-        private static void DrawTopTab(Rect tab, string text, Color stripe, bool disabled, GUIStyle baseStyle)
+        private static void DrawTopTab(Rect tab, string text, bool disabled, GUIStyle baseStyle)
         {
-            var paper = disabled ? IMGUIStyles.TabMutedPaper : IMGUIStyles.TabPaper;
+            var paper = IMGUIStyles.TabPaper;
             var ink = disabled ? IMGUIStyles.TabMutedInk : IMGUIStyles.TabInk;
             var style = new GUIStyle(baseStyle) { normal = { textColor = ink } };
             style.hover.textColor = ink;
@@ -328,13 +324,6 @@ namespace SSNoir.IMGUI
             IMGUIStyles.SetColor(paper);
             GUI.DrawTexture(tab, Texture2D.whiteTexture);
 
-            bool hasStripe = stripe.a > 0f;
-            if (hasStripe)
-            {
-                IMGUIStyles.SetColor(stripe);
-                GUI.DrawTexture(new Rect(tab.x, tab.y, TabStripeWidth, tab.height), Texture2D.whiteTexture);
-            }
-
             var edge = new Color(ink.r, ink.g, ink.b, 0.5f);
             IMGUIStyles.SetColor(edge);
             GUI.DrawTexture(new Rect(tab.x, tab.y, tab.width, 1f), Texture2D.whiteTexture);
@@ -342,8 +331,8 @@ namespace SSNoir.IMGUI
             GUI.DrawTexture(new Rect(tab.xMax - 1f, tab.y, 1f, tab.height), Texture2D.whiteTexture);
             IMGUIStyles.ResetColor();
 
-            // 字在色条右侧的纸面上居中；只用探出卡外的那一段，沉进卡里的几像素不算——否则字会往下坠。
-            float textX = tab.x + TabPadding + (hasStripe ? TabStripeWidth : 0f);
+            // 字在白纸上居中；只用探出卡外的那一段，沉进卡里的几像素不算——否则字会往下坠。
+            float textX = tab.x + TabPadding;
             IMGUIStyles.DrawLabel(
                 new Rect(textX, tab.y, Mathf.Max(1f, tab.xMax - TabPadding - textX), tab.height - TabSink),
                 text, style);
@@ -1559,37 +1548,6 @@ namespace SSNoir.IMGUI
                 };
             }
             return _rollDetailStyle;
-        }
-
-        // ── 书签配色（DESIGN.md 书签色板）──────────────────────────────
-
-        // 纸和字一律取 IMGUIStyles 的 Tab* 令牌，这里只决定色条。
-        // 同一语义永远同一道色条：工作 / 低风险=苔绿、中风险=赭黄、高风险 / 交锋 / 非法=陶红、
-        // 机遇=金、交涉等中性类别不带色条。禁用态整张褪灰、也不带色条。
-        private static readonly Color TabStripeNone = Color.clear;
-
-        private static Color ModifierStripe(int value)
-            => value < 0 ? IMGUIStyles.OddsFail : (value > 0 ? IMGUIStyles.OddsSuccess : TabStripeNone);
-
-        private static Color TagStripe(string label)
-        {
-            switch (label)
-            {
-                case "工作":
-                case "低风险":
-                    return IMGUIStyles.OddsSuccess;
-                case "中风险":
-                    return IMGUIStyles.OddsNeutral;
-                case "交锋":
-                case "高风险":
-                case "非法":
-                case "不可休息":
-                    return IMGUIStyles.OddsFail;
-                case "机遇":
-                    return IMGUIStyles.Gold;
-                default:
-                    return TabStripeNone;
-            }
         }
 
         private static string FormatOutcome(RollOutcome outcome)

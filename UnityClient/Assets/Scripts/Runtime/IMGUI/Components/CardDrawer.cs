@@ -717,8 +717,6 @@ namespace SSNoir.IMGUI
         {
             IMGUIStyles.SetColor(new Color(accent.r, accent.g, accent.b, 0.16f));
             GUI.DrawTexture(row, Texture2D.whiteTexture);
-            IMGUIStyles.SetColor(accent);
-            GUI.DrawTexture(new Rect(row.x, row.y, 3f, row.height), Texture2D.whiteTexture);
             IMGUIStyles.ResetColor();
         }
 

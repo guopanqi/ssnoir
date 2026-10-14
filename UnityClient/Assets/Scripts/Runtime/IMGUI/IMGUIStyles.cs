@@ -117,13 +117,11 @@ namespace SSNoir.IMGUI
         public static readonly Color SealRed = new Color(0.702f, 0.251f, 0.165f, 1f); // #B3402A
 
         // ── 书签色板（卡顶的类别 / 风险签，DESIGN.md）──
-        // 签就是一张 Paper：纸底 + 墨字，和弹出纸层、白底数值格同一张纸。语义不靠换纸色说，
-        // 只靠左侧一道色条——色条取结果三色 / 金，和进度格、生命条的阈值上色是同一套语言。
-        // 之前那组马卡龙彩纸（鼠尾草绿 / 粉橘 / 粉蓝 / 淡紫）在「墨与纸」色板里谁也不认识，故废。
+        // 所有类别、风险与修正签统一白纸底、墨字，不加左侧色条。
         public static readonly Color TabPaper = Paper;
         public static readonly Color TabInk   = PaperInk;
-        // 禁用态：褪成灰纸、不带色条，而不是压暗——压暗会立刻和深色卡糊在一起。
-        public static readonly Color TabMutedPaper = new Color(0.796f, 0.812f, 0.839f, 1f); // #CBCFD6
+        // 禁用态保留白纸底，只弱化墨字。
+        public static readonly Color TabMutedPaper = new Color(0.796f, 0.812f, 0.839f, 1f); // 灰纸，仍用于其他控件的禁用底
         public static readonly Color TabMutedInk   = new Color(0.290f, 0.271f, 0.235f, 1f); // #4A453C
 
         // ── 概率/结果三色（沉着版）──
