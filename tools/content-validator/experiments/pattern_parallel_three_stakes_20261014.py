@@ -41,3 +41,25 @@ if __name__=='__main__':
                dp(1,first,shock,first) for first in ACTIONS for shock in (0,1))
     print('fixed',fixed,'adaptive',best)
     print('PASS 5-action complete enumeration and suffix recursion')
+
+def constrained_best(required):
+    paths=[''.join(s) for s in product(ACTIONS,repeat=5)]
+    candidates=[]
+    for first in ACTIONS:
+        best=[]
+        for shock in (0,1):
+            valid=[(evaluate(s,shock)[0],s) for s in paths
+                   if s[0]==first and evaluate(s,shock)[1]['ABC'.index(required)]]
+            if not valid: break
+            best.append(max(valid))
+        if len(best)==2:
+            candidates.append((Fraction(best[0][0]+best[1][0],2),first,best))
+    return max(candidates)
+
+if __name__=='__main__':
+    for required in 'ABC':
+        answer=constrained_best(required)
+        assert answer[0]==23,(required,answer)
+        print('mandatory',required,answer)
+    assert evaluate('AASCC',0)==(19,(1,0,1,1))
+    print('PASS: every individually mandatory outcome retains root 23')
