@@ -3225,6 +3225,26 @@
         "native": false
       },
       "note": "隐藏类型转让根4，事先准确私人知道H/L根11/2，公开降低接收效用后KEEP根3。此模型无真正推断与对手响应学习，PUB/GRC/CUST同构负例。"
+    },
+    {
+      "id": "PL-TRANSFER02",
+      "name": "成果移交前伪装信号与静态持有权仅重现TRL和普通SETUP菜单",
+      "layer": "negative-boundary",
+      "origin": "ssnoir-research",
+      "family": "策略信息与成果权限",
+      "idea": "PASS/FAIL若可低成本修饰，则TRL信号混同适用；静态移交X只解锁ASK则与普通一手SETUP逐动作同构",
+      "stage": "source-comparison-paper-counterexample",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-14-策略伪装与使用权分离/研究记录.md"
+      ],
+      "evidence": {
+        "historicalTRLProofReused": true,
+        "independentFullStateCode": false,
+        "independentAgentBlind": false,
+        "humanFeedbackAvailable": false,
+        "native": false
+      },
+      "note": "静态三手菜单TRANSFER-ASK-SIDE终值9 vs REDEEM+SIDE×2得8；不把不同效用的TRL数值冒充TRANSFER数值。权利拆分仅诊断词汇，非认证创新。"
     }
   ],
   "edges": [
@@ -5951,6 +5971,24 @@
       "to": "PL-VOL02",
       "relation": "third-party-response-collapses-to-known-conditional-menu",
       "reason": "明确收益和退出权下，接受/拒绝是可预先知道的条件转移，而非新增玩家心理决策原语"
+    },
+    {
+      "from": "PL-TRANSFER02",
+      "to": "PL-TRANSFER01",
+      "relation": "known-signaling-and-enablement-boundary",
+      "reason": "有意伪装让信号后验不可信；持有权若仅改变ASK合法性则普通SETUP完全覆盖"
+    },
+    {
+      "from": "PL-TRANSFER02",
+      "to": "PL-SIG01",
+      "relation": "known-signaling-and-enablement-boundary",
+      "reason": "有意伪装让信号后验不可信；持有权若仅改变ASK合法性则普通SETUP完全覆盖"
+    },
+    {
+      "from": "PL-TRANSFER02",
+      "to": "PL-SUBMIT02",
+      "relation": "known-signaling-and-enablement-boundary",
+      "reason": "有意伪装让信号后验不可信；持有权若仅改变ASK合法性则普通SETUP完全覆盖"
     }
   ],
   "coverage": {
