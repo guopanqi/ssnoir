@@ -2278,7 +2278,9 @@
         ((= story-stage 1)
          (string-append
            "她在老街的酒馆唱歌，刚被一个剧院经理看中。首演是她等了多年的那一步——如果走得到的话。"
-           "写信的人挑的就是这个时候。四天后，邮箱里得有一百金。"
+           (if (ambush-ready?)
+             "写信的人挑的就是这个时候。你已经布置好诱捕，将用假信封引出取信的人。"
+             "写信的人挑的就是这个时候。四天后，邮箱里得有一百金。")
            "她要你别报警，也别让剧院知道：他们不会去查是谁写的，他们会换一个不惹事的人。"))
         ((= story-stage 2)
          (if bridge-identified?
@@ -2290,7 +2292,9 @@
              (string-append
                "取信的人往码头居民区去了。那一片是她长大的地方，也是她再没回去过的地方。"
                (if (found-cigarettes?)
-                   "取信的人逃走时落下半包烟——那个牌子在老街买不起。"
+                   (if (equal? ambush-route-result "截住")
+                     "你抓住了跑腿者，从他身上找到了半包「老金牌」香烟。"
+                     "你捡到取信者掉下的半包「老金牌」香烟。")
                    "那个人跟丢了，你手上只有一个方向。"))))
         ((= story-stage 3)
          (if lesson-done?
@@ -2325,10 +2329,12 @@
       (list 'clock "勒索日" (days-to-delivery) letter-deadline 'countdown
             (if delivery-pending?
                 "就是今天。还能先在城里做事；去码头投信后才能结束这一天。"
-                (string-append
-                  "信上写的日子。到期当天必须去码头盯住邮箱。"
-                  "夜莺最多替你补 " (number->string nightingale-cover-max)
-                  " 金，再多她也拿不出来。"))))
+                (if (ambush-ready?)
+                  "准备已经就绪。到期当天投假信封引出取信者，不用再筹集赎金。"
+                  (string-append
+                    "信上写的日子。到期当天必须去码头盯住邮箱。"
+                    "夜莺最多替你补 " (number->string nightingale-cover-max)
+                    " 金，再多她也拿不出来。")))))
 
     ;; 等她回老街的日子已经由 singer-guiding-day 持有；这里仅把同一事实
     ;; 投影成卷宗可读的倒计时，不另建一根会和世界日脱节的存档时钟。
