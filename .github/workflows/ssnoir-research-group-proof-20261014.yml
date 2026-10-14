@@ -12,6 +12,8 @@ on:
       - 'tools/content-validator/experiments/pattern_b_affordance_20261014.py'
       - 'tools/content-validator/experiments/pattern_bilateral_decisions_20261014.py'
       - 'tools/content-validator/experiments/pattern_evidence_silence_20261014.py'
+      - 'tools/content-validator/experiments/pattern_partner_outcome_commitment_20261014.py'
+      - 'docs/实验/机制研究/批次/2026-10-14-双目标协作者与跨期承诺/**'
       - 'docs/实验/机制研究/批次/2026-10-14-证据与策略性沉默/**'
       - 'docs/实验/机制研究/批次/2026-10-14-行动依赖边与保全税/**'
       - 'docs/实验/机制研究/批次/2026-10-14-B行动资格与延期兑现/**'
@@ -51,3 +53,7 @@ jobs:
         run: |
           set -euo pipefail
           python3 tools/content-validator/experiments/pattern_evidence_silence_20261014.py
+      - name: Strategic multi-outcome helper, whole-tree tool equivalence and nine complete binding contracts
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/pattern_partner_outcome_commitment_20261014.py
