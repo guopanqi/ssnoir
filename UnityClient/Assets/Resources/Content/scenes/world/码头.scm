@@ -34,10 +34,9 @@
 
     ;; ── 工作状态 ───────────────────────────
     (define opening-talk-heard? #f)
-    ;; 工友熟络是正常搬运的副进度，每个工作日只加一次。
-    (define worker-familiarity (make-clock "工友熟络" 2 'gauge
-      "一起工作过两个不同的日子，才好开口请工友帮忙。"))
-    (define worker-last-day 0)
+    ;; 仅在勒索信筹备中开放；每次搬运附加推进一格，完成后停止。
+    (define worker-familiarity (make-clock "工友之间的消息" 4 'gauge
+      "搬运时与工友交换消息；满四格后可以请工友帮忙。"))
     (define worker-asked? #f)
     (define worker-joined? #f)
     (define worker-shift (make-clock "替工友顶班" 4 'gauge
@@ -140,12 +139,16 @@
     ;;   陌生人   15      8 / −1    0 / −2
     ;;   乔       15      8 / −1    0 / 0     他接了重的那头，你一点没伤着
     ;;   艾迪     22      8 / −1    0 / −2    第三车记在你俩名下
+    (define (worker-messages-active?)
+      (and (= (three-letters 'story-stage) 1)
+           (three-letters 'ambush-known?)
+           (not worker-asked?) (not worker-joined?)
+           (not (worker-familiarity 'full?))))
+
     (define (finish-haul! grade)
       (let ((partner (random-choice (partner-pool))))
-        (if (and (not (= worker-last-day world-day))
-                 (not (worker-familiarity 'full?)))
+        (if (worker-messages-active?)
           (begin
-            (set! worker-last-day world-day)
             (worker-familiarity 'tick!)
             (if (worker-familiarity 'full?)
               (play-dialogue!
@@ -184,14 +187,14 @@
         "扛一班货，挣一晚的钱"
         :anchor "码头-货堆"))
 
-    ;; 工友熟络随搬运推进；顶班单独消耗骰子，不领工资。
+    ;; 工友之间的消息随搬运推进；顶班单独消耗骰子，不领工资。
     (define (worker-ambush-nodes)
       (if (and (= (three-letters 'story-stage) 1)
                (three-letters 'ambush-known?))
         (append
-          (if (worker-familiarity 'full?) '()
+          (if (not (worker-messages-active?)) '()
             (list (at-anchor "码头-货堆"
-              (clock-node "标注：工友熟络" (worker-familiarity 'render-data)))))
+              (clock-node "标注：工友之间的消息" (worker-familiarity 'render-data)))))
           (if (and (worker-familiarity 'full?) (not worker-asked?))
             (list (node "请工友帮忙"
               :anchor "码头-岸口"
@@ -249,7 +252,6 @@
            (list
              (list "opening-talk-heard?" opening-talk-heard?)
              (list "worker-familiarity" (worker-familiarity 'save))
-             (list "worker-last-day" worker-last-day)
              (list "worker-asked?" worker-asked?)
              (list "worker-joined?" worker-joined?)
              (list "worker-shift" (worker-shift 'save))
@@ -259,7 +261,6 @@
            (let ((data (cadr args)))
              (set! opening-talk-heard? (assoc-get data "opening-talk-heard?" #f))
              (worker-familiarity 'load! (assoc-get data "worker-familiarity" 0))
-             (set! worker-last-day (assoc-get data "worker-last-day" 0))
              (set! worker-asked? (assoc-get data "worker-asked?" #f))
              (set! worker-joined? (assoc-get data "worker-joined?" #f))
              (worker-shift 'load! (assoc-get data "worker-shift" 0))

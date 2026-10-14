@@ -253,13 +253,13 @@
 ;; 片段返回 line 列表；以 append 合并，再一次性播放 Dialogue。
 ;; 以后增加人物，只补人物片段及回应，不复制整场对白。
 (define (雨夜-艾迪开场)
-  (if (member "艾迪" 帮手名单)
+  (if (member? "艾迪" 帮手名单)
     (append
       (list (line "世界"
-        (if (member "工友" 帮手名单)
+        (if (member? "工友" 帮手名单)
           "雨夜。艾迪在屋檐下活动肩膀，工友站在旁边看着他。"
           "艾迪站在屋檐下，看着街对面的邮箱。")))
-      (if (member "工友" 帮手名单)
+      (if (member? "工友" 帮手名单)
         (list
           (line "工友" "你这是干什么？")
           (line "艾迪" "活动活动。那小子什么时候来？我都快等不及了。"))
@@ -272,7 +272,7 @@
     '()))
 
 (define (雨夜-工友开场)
-  (if (and (member "工友" 帮手名单) (not (member "艾迪" 帮手名单)))
+  (if (and (member? "工友" 帮手名单) (not (member? "艾迪" 帮手名单)))
     (list
       (line "世界" "工友把帽檐压低，望向街对面的邮箱。")
       (line "工友" "就是这儿？看起来跟平时没什么两样。"))
@@ -281,32 +281,32 @@
 (define (雨夜-公布计划)
   (append
     (list (line "尼尔" "我们还是按计划来，先看清楚谁去邮箱附近拿信，再按计划行动。"))
-    (if (and (member "艾迪" 帮手名单) (member "工友" 帮手名单))
+    (if (and (member? "艾迪" 帮手名单) (member? "工友" 帮手名单))
       (list (line "艾迪" "我知道，我知道。你给个信号，我就出来。"))
       '())
-    (if (and (member "工友" 帮手名单) (not (member "艾迪" 帮手名单)))
+    (if (and (member? "工友" 帮手名单) (not (member? "艾迪" 帮手名单)))
       (list (line "工友" "我要在哪儿待着？"))
       '())
     (list (line "尼尔"
       (cond
-        ((and (member "艾迪" 帮手名单) (member "工友" 帮手名单))
+        ((and (member? "艾迪" 帮手名单) (member? "工友" 帮手名单))
           "我先安排位置，你们在自己的位置上，看我的信号行事。")
-        ((member "工友" 帮手名单)
+        ((member? "工友" 帮手名单)
           "我去报摊那坐着，你一会听我安排。")
         (else
           "站好位置。剩下的等我的信号。"))))))
 
 (define (雨夜-帮手回应)
   (append
-    (if (member "艾迪" 帮手名单)
-      (list (line "艾迪" (if (member "工友" 帮手名单) "太好了。" "好嘞。")))
+    (if (member? "艾迪" 帮手名单)
+      (list (line "艾迪" (if (member? "工友" 帮手名单) "太好了。" "好嘞。")))
       '())
-    (if (member "工友" 帮手名单)
-      (list (line "工友" (if (member "艾迪" 帮手名单) "好。" "行，我听你的。")))
+    (if (member? "工友" 帮手名单)
+      (list (line "工友" (if (member? "艾迪" 帮手名单) "好。" "行，我听你的。")))
       '())))
 
 (define (雨夜-集合对白)
-  (if (or (member "艾迪" 帮手名单) (member "工友" 帮手名单))
+  (if (or (member? "艾迪" 帮手名单) (member? "工友" 帮手名单))
     (append
       (雨夜-艾迪开场)
       (雨夜-工友开场)

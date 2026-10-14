@@ -1,13 +1,15 @@
 ;; 一次性的小侦探委托。酒馆接案、码头寻找、酒馆归还；状态纳入世界存档。
 (define lost-property
   (let ()
+    ;; 暂时隐藏整条委托，保留内容与存档。
+    (define enabled? #f)
     (define lunch-checked? #f)
     (define stage 0) ; 0 可接 / 1 已接 / 2 已找到 / 3 已归还
     (define rumours
       (make-clock "小道消息" 4 'gauge
         "喝酒 +3，做服务员 +1；填满后听到一件找东西的委托。"))
     (define (available?)
-      (and (= stage 0) (= (three-letters 'story-stage) 1)))
+      (and enabled? (= stage 0) (= (three-letters 'story-stage) 1)))
     (define (hear-rumours! amount)
       (if (and (available?) (not (rumours 'full?)))
           (begin
@@ -62,7 +64,7 @@
             (line "修理工" "三十块。你那张告示，我替你留意着。" :at "老街酒馆"))))))
 
     (define (nodes-at location)
-      (if (and (= stage 0) (not (= (three-letters 'story-stage) 1))) '()
+      (if (or (not enabled?) (and (= stage 0) (not (= (three-letters 'story-stage) 1)))) '()
           (cond
             ((equal? location "老街酒馆")
              (cond ((= stage 0)
