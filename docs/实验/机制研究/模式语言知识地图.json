@@ -3066,6 +3066,26 @@
         "native": false
       },
       "note": "揭晓在完成0..4手后：NONE 10/10/9/13/2/6，SINGLE相同；BULK 10/10/9/9/6；FREE恒10。非新原语，不入精选或Debug。"
+    },
+    {
+      "id": "PL-OPTION02",
+      "name": "中途撤销通用准备转换资格：真实改道但固定开关口诀仍能概括",
+      "layer": "combination-boundary",
+      "origin": "ssnoir-research",
+      "family": "行动资格与沉没准备",
+      "idea": "手1投入F后观察OPEN/CLOSED，OPEN续存F并转换，CLOSED舍弃F转投专用A；安全动作合法，改变后续有效动作",
+      "stage": "exploratory-paper-counterexample",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-14-转换资格变化与目标重估/研究记录.md"
+      ],
+      "evidence": {
+        "finitePolicyEnumerationClaim": true,
+        "independentCodeVerification": false,
+        "independentAgentBlind": false,
+        "humanFeedbackAvailable": false,
+        "native": false
+      },
+      "note": "单人四手环境，OPEN/CLOSED各半，首手F收益29/4；首手A和SIDE各13/2、B11/2；提前知道许可提升到15/2，属于沉没投资/后到许可组合，未认证新原语。"
     }
   ],
   "edges": [
@@ -5648,6 +5668,24 @@
       "to": "PL-CROSS01",
       "relation": "convertible-inventory-variant",
       "reason": "提前准备储备、后到真实需求与批量转换连接，属于跨阶段库存的结构组合"
+    },
+    {
+      "from": "PL-OPTION02",
+      "to": "PL-OPTION01",
+      "relation": "event-changes-conversion-legality",
+      "reason": "资格公开结果能使首手F后的第二手从F改为安全A；但是固定OPEN/CLOSED口诀仍可解释，无真人体验"
+    },
+    {
+      "from": "PL-OPTION02",
+      "to": "PL-CROSS01",
+      "relation": "sunk-investment-and-preserved-alternatives",
+      "reason": "资格公开结果能使首手F后的第二手从F改为安全A；但是固定OPEN/CLOSED口诀仍可解释，无真人体验"
+    },
+    {
+      "from": "PL-OPTION02",
+      "to": "PL-FOCUS03",
+      "relation": "decision-window-and-late-information",
+      "reason": "资格公开结果能使首手F后的第二手从F改为安全A；但是固定OPEN/CLOSED口诀仍可解释，无真人体验"
     }
   ],
   "coverage": {
