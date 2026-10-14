@@ -104,7 +104,7 @@
 (define (on-encounter-collapse)
   (collapse-result (list '倒下 (result-tier) (photos 'current) (identity 'current))))
 (define (get-render-data)
-  (node "双目标跟拍"
+  (node "饭店秘闻"
     :anchor (if (and meeting? (not crisis?)) "双目标跟拍-餐桌" "双目标跟拍")
     :children (append
       (clock-nodes (alertness 'render-data))
