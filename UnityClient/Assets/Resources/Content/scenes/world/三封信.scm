@@ -566,14 +566,14 @@
 
 
     (define (delivery-fund-clock)
-      (list
+      (if (ambush-ready?) '() (list
         (list 'clock "勒索款筹集" (min delivery-price (item-count "金钱"))
               delivery-price 'readout
               (string-append
                 "投信时要从库存里拿出一百金。钱仍可挪作房租和生活开销。"
                 "夜莺最多只能当掉 " (number->string nightingale-cover-max)
                 " 金替你补：差在这个数以内，她当首饰，处境差一档；"
-                "差得更多，信封就是薄的，写信的人清点之后会先动手。"))))
+                "差得更多，信封就是薄的，写信的人清点之后会先动手。")))))
 
     (begin
     (define (ambush-helpers)
@@ -646,19 +646,28 @@
       (at-anchor "勒索信"
        (encounter-action "去码头盯着邮箱"
         (lambda ()
-          (prepare-delivery-money!)
+          (if (ambush-ready?)
+            (begin
+              ;; 有人手且踩点完成：诱饵是塞报纸的假信封，不动用任何现金。
+              (set! delivery-shortfall 0)
+              (set! envelope-thin? #f)
+              (set-global! '邮箱街角已观察 #t)
+              (set-global! '退路已查看 #f))
+            ;; 没准备诱捕时，沿用正常的筹款交付路线。
+            (prepare-delivery-money!))
           (load-file "scripts/theatre/邮箱相见.scm")
           (邮箱相见-演出
-            (cond ((= delivery-shortfall 0) '足额)
-                  ((= (envelope-short) 0) '她补)
-                  (else '塞报纸)))
+            (if (ambush-ready?) '诱饵
+              (cond ((= delivery-shortfall 0) '足额)
+                    ((= (envelope-short) 0) '她补)
+                    (else '塞报纸))))
           (if (ambush-ready?)
             (begin
               (set-global! '雨夜收网帮手名单 (ambush-helpers))
               (start-encounter "雨夜收网" on-ambush-result))
             (start-encounter "勒索信" on-delivery-result))))))
 
-    ;; 委派交锋返回 (结果 部署)，转换成城市原有的「人 钱」口径。
+    ;; 委派交锋用的是假信封，回调沿用城市契约，但追回现金必为 0。
     (define (on-ambush-result result)
       (if (and (list? result) (= (length result) 2)) #t
         (error "三封信：雨夜收网结果格式非法"))
@@ -708,9 +717,9 @@
         (log! "勒索信"
           (cond
             ((equal? ambush-route-result "截住")
-             "邮箱那一夜：帮手拦住了取信者，他说自己只负责跑腿。")
+             "邮箱那一夜：假信封取回了。跑腿者不认识雇主，尼尔从他衣袋里找到半包「老金牌」香烟。")
             ((equal? ambush-route-result "追踪")
-             "邮箱那一夜：取信者逃了，但街口接应保住了他的去向。")
+             "邮箱那一夜：取信者逃进老街。翻墙时他掉下半包「老金牌」香烟，尼尔捡到了。")
             ((equal? caught '拿到线索)
              "邮箱那一夜：一辆摩托车截断了追逐。取信的人逃走，落下半包「老金牌」香烟。")
             ((equal? caught '倒下)
@@ -719,9 +728,9 @@
         (spotlight! "投信之后"
           (cond
             ((equal? ambush-route-result "截住")
-             "你们拦下取信的人。但幕后是谁，他并不知道。")
+             "你们截住了跑腿者，取回假信封。他不知道幕后是谁，但尼尔找到了他的烟盒。")
             ((equal? ambush-route-result "追踪")
-             "虽然没能截住他，街口的人替你保住了去向线索。")
+             "取信者翻墙钻进老街小巷，没抓到人，却捡到了掉落的烟盒。")
             ((equal? caught '拿到线索)
              "一个摩托驶过，那个人已经逃远了，你回过头来只捡到他落下的一包「老金牌」香烟。")
             ((equal? caught '倒下)
@@ -735,7 +744,7 @@
     ;; 伤后探望共用桥边剧场：有烟辨认线索，无烟只讲逃往老街的方向。
     (define (烟盒-theatre! 有烟?)
       (load-file "scripts/theatre/烟盒.scm")
-      (老街启程-演出 有烟?))
+      (老街启程-演出 有烟? ambush-route-result))
 
     (define (node-her-visit)
       (anchored-instant-action "她来看你" "门口"
@@ -2363,8 +2372,7 @@
 
     (define (card-clocks)
       (cond
-        ;; 踩点那根钟不进卷宗：它挂在码头那张踩点卡上，站在那儿就看得见，
-        ;; 而卷宗要回答的是「现在去干什么」——勒索日和勒索款筹集就够了。
+        ;; 踩点钟挂在码头；完整诱捕改用假信封，筹款钟也就不显示。
         ((= story-stage 1)
          (append (list (delivery-deadline-clock))
                  (delivery-fund-clock)))
