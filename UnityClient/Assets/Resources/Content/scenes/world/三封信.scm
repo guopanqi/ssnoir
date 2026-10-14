@@ -101,11 +101,13 @@
     (define story-stage 0)
     (define opening-heard? #f)
     ;; 第一节雨夜诱捕的城市准备状态。
+    (begin
     (define ambush-known? #f)
     (define ambush-eddie? #f)
     (define ambush-route-result "")
     (define ambush-survey (make-clock "邮箱踩点" 8 'gauge
       "有人愿意帮忙以后，尼尔才开始为埋伏摸清街角。"))
+    )
     (define mail-preparations '())
     ;; 履历：已经发生过什么，一拍一句，最新在前。显式写，不自动抽。
     ;; 第一章拆成四张卷宗卡（见文末「卷宗」），每张卡自己一份履历，写的时候点名。
@@ -557,6 +559,7 @@
                 " 金替你补：差在这个数以内，她当首饰，处境差一档；"
                 "差得更多，信封就是薄的，写信的人清点之后会先动手。"))))
 
+    (begin
     (define (ambush-helpers)
       (append (if ambush-eddie? (list "艾迪") '())
               (if (dock 'ambush-worker?) (list "工友") '())))
@@ -588,6 +591,7 @@
             (outcome (lambda () (ambush-survey-step! 2)))))
         '()))
 
+    )
     ;; ── 勒索日 ──────────────────────────────────────
     ;; 到期当天不自动播放:它是必看事件,用阻塞休息逼玩家亲自去。
     (define (begin-delivery!)
