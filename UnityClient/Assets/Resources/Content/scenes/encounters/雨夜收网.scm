@@ -1,11 +1,10 @@
 ;; 独立岗位委派交锋；不接管《勒索信》的城市结算。
 ;; 两名场景帮手各占一个岗位，不入队、不发骰、不在场内重新部署。
 ;; 阶段：部署 → 辨认 → 一回合拦截 →（有追踪接应才保留的）追逐。
-;; 回传 (结果 部署)：截住取信者 / 追到线索 / 跟丢 / 撤离 / 倒下。
-;; 普通收场保留人物节点，供动作后 Bubble 落点；点击离场后才回传结果。
+;; 回传 (结果 部署)：截住取信者 / 追到线索 / 跟丢 / 倒下。
+;; 成功或失败立即回传；最终协同对白在切场前播放，过程汇报使用空间 Bubble。
 (define 阶段 '部署)
 (define 已结束? #f)
-(define 收场结果 #f)
 (define 部署 '()) ; (("山姆" 观察) ("诺拉" 追踪))
 (define 已排除 '())
 (define 观察报告 "每回合随机观察一名未排除的对象，推进1格。")
@@ -41,8 +40,8 @@
 (define (结束! reason title text)
   (if 已结束? (error "雨夜收网：重复结算") #t)
   (set! 已结束? #t)
-  (set! 收场结果 reason)
-  (spotlight! title text))
+  (spotlight! title text)
+  (end-encounter (list reason 部署)))
 
 (define (委派! job)
   (要求阶段! '部署)
@@ -126,10 +125,11 @@
   (要求阶段! '拦截)
   (拦截 'advance! n)
   (if cooperative?
-    (play-bubble! (line (岗位人员 '拦截)
-      (cond ((拦截 'full?) "这边堵住了。他跑不了了。")
-            ((= n 0) "我守着这边，再试一次！")
-            (else "退路封住了，再逼近一点！")))) #f)
+    (if (拦截 'full?)
+      ;; 结算即退出，末句在切场前播放；不能把 Bubble 留给已消失的人物。
+      (play-dialogue! (line (岗位人员 '拦截) "这边堵住了。他跑不了了。"))
+      (play-bubble! (line (岗位人员 '拦截)
+        (if (= n 0) "我守着这边，再试一次！" "退路封住了，再逼近一点！")))) #f)
   (if (拦截 'full?) (截住!) #f))
 (define (截住!)
   (结束! '截住取信者 "截住了"
@@ -212,17 +212,12 @@
       (at-anchor (帮手锚点 job)
         (note-node name name
           (cond
-            (已结束? (if (eq? job '拦截) "守在一旁，等你收场。" "留在接应位置，等你离开。"))
             ((eq? 阶段 '追逐) "接着踪迹，指引下一段去向。")
             ((eq? job '观察) 观察报告)
             ((eq? job '拦截) "伏在近处，等你动手时封住另一边。")
             (else "守着街口；目标挣脱时接住去向。"))))))
     (filter (lambda (entry)
       (or (not (eq? 阶段 '追逐)) (eq? (cadr entry) '追踪))) 部署)))
-(define (离场节点)
-  (instant-action "离开现场" (lambda ()
-    (if (and 已结束? 收场结果) #t (error "雨夜收网：尚未收场"))
-    (end-encounter (list 收场结果 部署)))))
 (define (委派节点 job title text)
   (node title :subtitle text :resolve (instant (lambda () (委派! job)))))
 (define (部署节点)
@@ -239,12 +234,11 @@
         (帮手节点)
         (map (lambda (n) (at-anchor (街景锚点) n))
              (clock-nodes (追上 'render-data) (逃脱 'render-data)))
-        (if 已结束? (list (离场节点)) (list (追逐动作 #f) (追逐动作 #t)))))
+        (list (追逐动作 #f) (追逐动作 #t))))
     (node "勒索信-报摊" :anchor "勒索信-报摊"
       :children (append
         (帮手节点)
         (cond
-          (已结束? (list (离场节点)))
           ((eq? 阶段 '部署) (部署节点))
           ((eq? 阶段 '辨认)
            (map 对象节点 (待辨认对象)))
