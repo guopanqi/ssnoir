@@ -3327,6 +3327,26 @@
         "native": false
       },
       "note": "最优向量(1,1/2,1,1/2)与(1/2,1,1,0)均为23；前沿数量只表明可达，不证明玩家关切或创新。"
+    },
+    {
+      "id": "PL-OBLIGATION04",
+      "name": "第一场完成的义务开放第二场动作，但普通资格位可完全复现",
+      "layer": "cross-stage-combination",
+      "origin": "ssnoir-research",
+      "family": "跨交锋责任与合法行动",
+      "idea": "前一场完成A/B分别解锁第二场单次Q/R，改变前期普通分支最优结果身份；安全X/SIDE保留",
+      "stage": "exact-conditional-enumeration",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-14-跨交锋责任与行动许可/研究记录.md",
+        "tools/content-validator/experiments/pattern_cross_stage_gates_20261014.py"
+      ],
+      "evidence": {
+        "exhaustiveConditionalPolicy": true,
+        "humanFeedbackAvailable": false,
+        "independentAgentBlind": false,
+        "native": false
+      },
+      "note": "条件许可根73/2，始终开放37；普通结果条件A+B对比无条件B+C。可由has_A/has_B状态位逐状态复现，不是独立新机制。"
     }
   ],
   "edges": [
@@ -6143,6 +6163,24 @@
       "to": "PL-SUBMIT02",
       "relation": "scalar-tied-obligation-identity",
       "reason": "最优期望分数相等，却保留不同义务身份；并行完成事实不能由总分唯一表达"
+    },
+    {
+      "from": "PL-OBLIGATION04",
+      "to": "PL-OBLIGATION03",
+      "relation": "completed-outcome-gates-next-encounter-action",
+      "reason": "阶段一成果身份影响Q/R合法性，但预编译和普通条件菜单已充分解释全部行动树"
+    },
+    {
+      "from": "PL-OBLIGATION04",
+      "to": "PL-OBLIGATION02",
+      "relation": "completed-outcome-gates-next-encounter-action",
+      "reason": "阶段一成果身份影响Q/R合法性，但预编译和普通条件菜单已充分解释全部行动树"
+    },
+    {
+      "from": "PL-OBLIGATION04",
+      "to": "PL-TRANSFER02",
+      "relation": "completed-outcome-gates-next-encounter-action",
+      "reason": "阶段一成果身份影响Q/R合法性，但预编译和普通条件菜单已充分解释全部行动树"
     }
   ],
   "coverage": {
