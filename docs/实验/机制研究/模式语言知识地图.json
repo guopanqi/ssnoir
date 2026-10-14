@@ -3367,6 +3367,25 @@
         "native": false
       },
       "note": "条件许可P+R+C不可行；ALWAYS许可根37且可行；仍同构普通条件状态位，真人自选价值未经验证。"
+    },
+    {
+      "id": "PL-OBSERVE01",
+      "name": "跨交锋自选关切的盲测协议：预先声明、行动、无提示回顾、同构菜单对照",
+      "layer": "research-protocol",
+      "origin": "ssnoir-research",
+      "family": "自选责任与人类体验验证",
+      "idea": "将OBLIGATION跨交锋可达性命题转化为可证伪的人类行为观察，并与相同规则的普通凭据菜单并列",
+      "stage": "untested-protocol",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-14-自选关切与责任兑现观察协议/研究记录.md"
+      ],
+      "evidence": {
+        "protocolOnly": true,
+        "humanFeedbackAvailable": false,
+        "independentAgentBlind": false,
+        "native": false
+      },
+      "note": "旧VOL02已有自选成果HTML，本批不再重复造页；全部结论只属实验设计，不是新的试玩结果。"
     }
   ],
   "edges": [
@@ -6219,6 +6238,24 @@
       "to": "PL-SUBMIT02",
       "relation": "joint-outcome-reachability-via-earlier-completion",
       "reason": "单项可达与多项共同可达不同，首场结果控制次场动作；普通解锁规则可完整表达"
+    },
+    {
+      "from": "PL-OBSERVE01",
+      "to": "PL-OBLIGATION05",
+      "relation": "proposed-human-validation-of-outcome-identity",
+      "reason": "数学向量、条件许可能算出，但不能确定玩家是否关心、理解或主动重规划；须无提示观察并提供同构菜单对照"
+    },
+    {
+      "from": "PL-OBSERVE01",
+      "to": "PL-OBLIGATION03",
+      "relation": "proposed-human-validation-of-outcome-identity",
+      "reason": "数学向量、条件许可能算出，但不能确定玩家是否关心、理解或主动重规划；须无提示观察并提供同构菜单对照"
+    },
+    {
+      "from": "PL-OBSERVE01",
+      "to": "PL-SUBMIT02",
+      "relation": "proposed-human-validation-of-outcome-identity",
+      "reason": "数学向量、条件许可能算出，但不能确定玩家是否关心、理解或主动重规划；须无提示观察并提供同构菜单对照"
     }
   ],
   "coverage": {
