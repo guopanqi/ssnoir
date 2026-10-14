@@ -38,7 +38,7 @@ function boot(random){
   assert(p.$('outcome').textContent.includes('C 完整'));
   assert(p.$('outcome').textContent.includes('原规则综合值：16'));
   assert(p.$('outcome').textContent.includes('你选定的目标得到保留'));
-  assert(p.$('timeline').textContent.includes('第3手')===false); // hidden after end, no update: game ends from last action
+  assert(p.$('timeline').textContent.includes('第3手')); // stage redraw occurs before final action
   p.$('reflection').value='自行选择了保A';p.$('copy').onclick();
 }
 {
