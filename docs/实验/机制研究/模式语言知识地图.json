@@ -3636,6 +3636,26 @@
         "native": false
       },
       "note": "有早窗/并行51/4，有早窗/禁并行47/4，无早窗两组均51/4；并行收益差中差为1。旧HEDGE数学跨实现确认，不是新原语。"
+    },
+    {
+      "id": "PL-CROSS-SCALE01",
+      "name": "跨交锋单向解锁缩小行动顺序却不产生双层循环",
+      "layer": "negative-boundary",
+      "origin": "ssnoir-research",
+      "family": "多层目标选择与局部交锋",
+      "idea": "世界任务B仅在完成局部任务A后有效；与无依赖任务比较固定路径及可达结果，提出双向回路的反证准入",
+      "stage": "exhaustive-16-sequence-audit",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-跨尺度目标组织反证/研究记录.md",
+        "tools/content-validator/experiments/pattern_crossscale_order_20261015.py"
+      ],
+      "evidence": {
+        "exhaustiveEnumeration": true,
+        "humanFeedbackAvailable": false,
+        "independentAgentBlind": false,
+        "native": false
+      },
+      "note": "无依赖有6条四手双完成顺序，A先B锁链仅AABB一条；两模型根同为16。真实许可改变不等于动态重规划，更不等于双层玩法。"
     }
   ],
   "edges": [
