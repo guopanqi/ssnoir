@@ -3245,6 +3245,27 @@
         "native": false
       },
       "note": "静态三手菜单TRANSFER-ASK-SIDE终值9 vs REDEEM+SIDE×2得8；不把不同效用的TRL数值冒充TRANSFER数值。权利拆分仅诊断词汇，非认证创新。"
+    },
+    {
+      "id": "PL-RIGHTS01",
+      "name": "可撤权资格被等待与行动顺序绕开：风险时点先于风险概率",
+      "layer": "negative-boundary",
+      "origin": "ssnoir-research",
+      "family": "跨合同使用权与撤销窗口",
+      "idea": "X可TRANSFER/ASK，手2末可能撤销未兑现许可，但B或SIDE保底能先度过检测时点再交X",
+      "stage": "exact-dynamic-enumeration",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-14-跨合同可撤权与安全顺序旁路/研究记录.md",
+        "tools/content-validator/experiments/pattern_revocable_rights_20261014.py"
+      ],
+      "evidence": {
+        "exactFractionDP": true,
+        "independentForward": false,
+        "independentAgentBlind": false,
+        "humanFeedbackAvailable": false,
+        "native": false
+      },
+      "note": "四行动含B根22，无撤权/禁取回仍22；无B根14。安全等待绕开权限风险，不能称独立新原语。"
     }
   ],
   "edges": [
@@ -5989,6 +6010,24 @@
       "to": "PL-SUBMIT02",
       "relation": "known-signaling-and-enablement-boundary",
       "reason": "有意伪装让信号后验不可信；持有权若仅改变ASK合法性则普通SETUP完全覆盖"
+    },
+    {
+      "from": "PL-RIGHTS01",
+      "to": "PL-TRANSFER02",
+      "relation": "timing-window-avoided-by-safe-alternative",
+      "reason": "许可撤销只影响在手2仍暴露的X；先完成B或SIDE后转让、ASK可完全规避，玩家没有必要处理撤权"
+    },
+    {
+      "from": "PL-RIGHTS01",
+      "to": "PL-TRANSFER01",
+      "relation": "timing-window-avoided-by-safe-alternative",
+      "reason": "许可撤销只影响在手2仍暴露的X；先完成B或SIDE后转让、ASK可完全规避，玩家没有必要处理撤权"
+    },
+    {
+      "from": "PL-RIGHTS01",
+      "to": "PL-CRISIS03",
+      "relation": "timing-window-avoided-by-safe-alternative",
+      "reason": "许可撤销只影响在手2仍暴露的X；先完成B或SIDE后转让、ASK可完全规避，玩家没有必要处理撤权"
     }
   ],
   "coverage": {
