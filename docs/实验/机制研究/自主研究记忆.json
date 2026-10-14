@@ -1,8 +1,8 @@
 {
   "schema": "ssnoir.autonomous-pattern-memory/v1",
   "updated": "2026-10-15",
-  "batch": "OPTION-AUDIT01 保留退路的跨族强反证与实际结果身份",
-  "rounds": 66,
+  "batch": "HEDGE-REPLAY01 退路同分异果独立执行回归",
+  "rounds": 69,
   "totalArchivedRounds": 478,
   "objective": "长期自主发展可复用的玩法模式语言，覆盖已知作品先例、基础原语、完整交锋、跨阶段结构、组合条件与重要负例；评价玩家实际反复作出的判断、反馈、后果。历史20是广度愿景，不是价值认证名单或完成配额。",
   "policy": "从成熟作品、旧实验、新假设三向吸收；先去剧情定义玩家活动，再独立批评同构/最强简单策略，按需模型与盲Agent试玩。数学、作品先例、Agent、原生与真人是正交证据。知识图谱收录不等真人认可，精选展示与Debug独立把关，真人反馈异步且不阻塞。",
@@ -337,6 +337,6 @@
     "latestCounterfactual": "IWT01：四手Hidden A/B各半，3份正确WORK得10/8，TRACK工作必+1并有75%准确类型线索；纯INSPECT100%占一手。无信息6、只TRACK119/16、INSPECT9；INSPECT耗时两手TRACK重新胜119/16；完美TRACK19/2、50%TRACK6、TRACK首手限定29/4。正向枚举核对全部潜在真实类型；保留已有DISC/FOCUS/SIG组合。",
     "crossFamilyAudit": "PL-IWT01→PL-DISC01（工作+信息两种不同产出）、FOCUS02/03（及时兑现行动窗口、完美检查强旁路）、SIG01（非战略性线索噪声有别于他者可伪装的行动信号）。"
   },
-  "lastFinding": "从ACTION-SWITCH跨族转向保留未来选择权，复核HEDGE01—05、FOCUS01—06、CLAIM01—03、OPS01及ACTION-MODE/SWITCH原报告，未新运行其数学模型。HEDGE在早窗口且可同时LIVE根51/4，禁重叠47/4，取消早窗完全串行也达51/4；重叠与串行同根也可有不同A/B完成概率。FOCUS主动态20.5却被早期SAFE等待方案22旁路；CLAIM及时申报奖金和付费撤回组合才提高。建立九个证伪问题、五案例结构化对照矩阵与字段一致性检验，记录知识图PL-OPTION-AUDIT01。此批是历史证据综合，不冒称新仿真、真人、独立Agent或Unity。",
-  "nextResearchQuestion": "优先用现有HEDGE/FOCUS/OBSERVE无答案观察协议获取真人对于退路、未完成责任、分目标损失与残余行动余裕的独立证据；没有真人时应从不同的重复玩家活动起点横向探索，而非继续沿OPTION/HEDGE变更奖励或编造新开关。"
+  "lastFinding": "OPTION-AUDIT后对GOAL/DISC/ATN/HEDGE历史先例交叉去重，没有再次发明目标生成。建立独立前向HEDGE行动执行器，含5手OPEN/WORK/DROP/SIDE、OPEN后3次全局行动超时惩罚、真实成果；3套已知条件政策×4个独立事件=12条回放，在本地运行通过断言。早窗并行51/4，P(A)=3/4、P(B)=1/4；早窗禁重叠47/4，A1/2 B1/4；取消早窗串行51/4，A1/2 B1/2。两同分策略结果身份不同。此证据独立复核代表性执行轨迹，不重求最优DP，更不等于人类/盲Agent/Unity。已保存研究报告、脚本、地图、队列、状态。",
+  "nextResearchQuestion": "优先真实无答案体验验证：玩家自由声明A/B关切、无提示逐手做事、在知道B时观察是否保留旧A或放弃、终局不先显示总分而让其解释失去的退路。可使用HEDGE旧观察卡/OBSERVE01协议，不新造试玩入口，不把同分数学推成人类喜好。"
 }
