@@ -2791,6 +2791,46 @@
         "native": false,
         "humanVerified": false
       }
+    },
+    {
+      "id": "PL-EP01",
+      "name": "事前保存负证据的价值，可能来自被拒后仍有独立补救行动，而非登记本身",
+      "layer": "evidence-admissibility-and-autonomous-partner-option-value",
+      "family": "选择性介入/负观察来源/登记资格/伙伴真实外部机会/事后补办与安全调查旁路",
+      "idea": "四手X=R/B各半，必发事件q1；SELECT_R挡R、让B留下TRACE；R缺席仅预先REGISTER才可对外证明。伙伴遇低外部机会1会HELP（自身证实正确得4）、遇高外部6会EXIT；CONTACT在第2手被拒尚能第3手DIRECT，事后REGISTER_AFTER会占去补救时间。p=1/2根25/2，禁预登记12，仅事后补办49/4，SAFE单手无伤完美调查15；p=3/4转为按实际缺席再登记最优117/8，p=0或1/4选择全面保护/独立解决12。登记的是事件未发生的真实性，不会在q<1时自动证实R真源；q=1/2无事后验R2/3，合作方自身正确收益期望2/3<外部1。",
+      "stage": "local-Fraction-exhaustive-initial-menu-with-independent-source-harm-outside-forward-enumeration-and-safe/posthoc-controls; no-human",
+      "origin": "author-Fraction-four-action-evidence-and-two-type-public-disclosure-comparison",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-14-证据与策略性沉默/研究记录.md",
+        "tools/content-validator/experiments/pattern_evidence_silence_20261014.py"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      },
+      "note": "联系旧PART/RECORD/GRC；在p1/2提前登记比事后仅高1/4，需真人理解证据资格和独立修补的价值，非独立新原语。"
+    },
+    {
+      "id": "PL-EP02",
+      "name": "可信选择性披露使沉默成为信号，可损害原本可达的合作；可信保密承诺又能恢复",
+      "layer": "verifiable-selective-disclosure-bayesian-silence-and-partner-autonomy",
+      "family": "自愿披露/验证来源/沉默后验/他者独立效用/预先承诺与备用路线",
+      "idea": "两类型R/B等概率，只有R能公开不可伪造R证明，若投资者在真R/B INVEST自益分别5/−2，EXIT收益1；玩家在沉默获INVEST得8，公开R后INVEST得10，拒绝则BACKUP4。无提前承诺的唯一纯策略均衡：R公开INVEST，B沉默但被推断B而EXIT，玩家期待7、伙伴3，P(BACKUP)=1/2；可信承诺完全不公开时伙伴按各半先验INVEST，两类都得8，伙伴期待3/2；固定无条件INVEST机器时玩家9。若可花成本c提前可信封口，c<1选择承诺，c>1放任披露，c=1平局；伙伴EXIT外部值2时原保密池不再获得合作，披露反而提高玩家4→7。R披露额外收益取消时有两种弱纯策略均衡，不可假称唯一。",
+      "stage": "two-private-type-exhaustive-pure-equilibrium-with-sequential-best-reply-posterior-updating-and-four-strong-controls; no-human",
+      "origin": "author-Fraction-four-action-evidence-and-two-type-public-disclosure-comparison",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-14-证据与策略性沉默/研究记录.md",
+        "tools/content-validator/experiments/pattern_evidence_silence_20261014.py"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      },
+      "note": "与GRC03提早公开会改变参加的成熟关系相邻，但此处信息释放由知情玩家选择、对方由沉默反推策略。不是富有人格的NPC系统，完整工具自动回应对照仍需明确。"
     }
   ],
   "edges": [
@@ -5115,6 +5155,42 @@
       "to": "PL-AB02",
       "relation": "refutes-inference-from-availability-to-strategic-necessity",
       "reason": "PL-AB02的资格在实际正常最优路径中使用；BIL01的A预先授权B在完整路径中可移除且不改行动，需区分"
+    },
+    {
+      "from": "PL-EP01",
+      "to": "PL-PART02",
+      "relation": "absence-evidence-requires-reliably-occurring-event",
+      "reason": "选择性保护R导致无痕迹只有q1才能精确识源，q=1/2后验R仅2/3，真实记录不等于真源证明"
+    },
+    {
+      "from": "PL-EP01",
+      "to": "PL-RECORD02",
+      "relation": "posthoc-proof-can-lose-to-preparation-when-refusal-preserves-last-rescue",
+      "reason": "单独改变了是否有真正可拒绝的伙伴；事后补登记耗掉最后能在被拒后做DIRECT的行动，p=1/2预登记25/2高于仅事后49/4；p1则事后17高于前置33/2"
+    },
+    {
+      "from": "PL-EP01",
+      "to": "PL-GRC03",
+      "relation": "individual-agent-acceptance-limits-evidence-option",
+      "reason": "证明可用不等于伙伴参加；其自身HELP4与高外部6的严格比较使证明使用权不稳定"
+    },
+    {
+      "from": "PL-EP02",
+      "to": "PL-GRC03",
+      "relation": "endogenous-selective-release-makes-silence-an-informative-action",
+      "reason": "旧GRC03更早公共信息改变他者参加，本例R自愿发布不可伪造材料、B沉默揭示类型，玩家期望8退化7；可信封口则恢复8"
+    },
+    {
+      "from": "PL-EP02",
+      "to": "PL-META07",
+      "relation": "opportunity-to-disclose-is-not-just-a-new-menu-edge",
+      "reason": "合法公布后有无行动会改变观察者后验，再改变自利参加；机器忽略这条反向推理时玩家变为9而非7"
+    },
+    {
+      "from": "PL-EP02",
+      "to": "PL-AB02",
+      "relation": "credible-precommitment-protects-a-future-option-not-as-an-inventory-token",
+      "reason": "R类型未来想披露获得个人优势，导致B类型沉默被识别；只有真实事先禁止未来公布才恢复全部合作，不是简单消耗凭证"
     }
   ],
   "coverage": {
