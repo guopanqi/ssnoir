@@ -3616,6 +3616,26 @@
         "native": false
       },
       "note": "发现旧观察顺序的学习混淆；四组EW-P/EW-S/NW-P/NW-S; 12条代表性轨迹交叉结算；仍需真正招募独立参与者。"
+    },
+    {
+      "id": "PL-HEDGE-FACTOR01",
+      "name": "HEDGE早期机会与并行资格的严格交互效应",
+      "layer": "independent-exact-solver-confirmation",
+      "origin": "ssnoir-research",
+      "family": "并发保留退路",
+      "idea": "独立Fraction动态规划逐状态求解A早窗口×可并行LIVE两个独立规则，确认并行仅在有早窗时提供根值提升",
+      "stage": "independent-full-dp-2x2",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-HEDGE双因子完整求解/研究记录.md",
+        "tools/content-validator/experiments/pattern_hedge_full_factorial_20261015.py"
+      ],
+      "evidence": {
+        "independentDP": true,
+        "forwardReplayCrossCheck": true,
+        "humanFeedbackAvailable": false,
+        "native": false
+      },
+      "note": "有早窗/并行51/4，有早窗/禁并行47/4，无早窗两组均51/4；并行收益差中差为1。旧HEDGE数学跨实现确认，不是新原语。"
     }
   ],
   "edges": [
