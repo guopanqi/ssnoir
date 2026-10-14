@@ -1,8 +1,8 @@
 {
   "schema": "ssnoir.autonomous-pattern-memory/v1",
   "updated": "2026-10-14",
-  "batch": "OBSERVE01 跨交锋自选责任的无答案观察协议",
-  "rounds": 44,
+  "batch": "INTERRUPT01 中断可恢复性与强防护压平改道",
+  "rounds": 47,
   "totalArchivedRounds": 478,
   "objective": "长期自主发展可复用的玩法模式语言，覆盖已知作品先例、基础原语、完整交锋、跨阶段结构、组合条件与重要负例；评价玩家实际反复作出的判断、反馈、后果。历史20是广度愿景，不是价值认证名单或完成配额。",
   "policy": "从成熟作品、旧实验、新假设三向吸收；先去剧情定义玩家活动，再独立批评同构/最强简单策略，按需模型与盲Agent试玩。数学、作品先例、Agent、原生与真人是正交证据。知识图谱收录不等真人认可，精选展示与Debug独立把关，真人反馈异步且不阻塞。",
@@ -337,6 +337,6 @@
     "latestCounterfactual": "IWT01：四手Hidden A/B各半，3份正确WORK得10/8，TRACK工作必+1并有75%准确类型线索；纯INSPECT100%占一手。无信息6、只TRACK119/16、INSPECT9；INSPECT耗时两手TRACK重新胜119/16；完美TRACK19/2、50%TRACK6、TRACK首手限定29/4。正向枚举核对全部潜在真实类型；保留已有DISC/FOCUS/SIG组合。",
     "crossFamilyAudit": "PL-IWT01→PL-DISC01（工作+信息两种不同产出）、FOCUS02/03（及时兑现行动窗口、完美检查强旁路）、SIG01（非战略性线索噪声有别于他者可伪装的行动信号）。"
   },
-  "lastFinding": "OBLIGATION05已有跨阶段联合可达性精确证据，但没有人类玩家自选责任的证据。核对旧VOL02无答案自选成果HTML和历史R37/R50/R54；建立OBSERVE01可证伪测试：开放自由语言事先承诺、行动逐手记录、事件后是否自主改计划、结束前无提示解释为何Q/R失效、比对同状态转移普通菜单；负反馈接受归并。仅研究协议无真人、独立盲Agent、原生，知识地图untested-protocol，不新建重复试玩网页。",
-  "nextResearchQuestion": "若反馈仍无新增，不无限扩展跨交锋许可、结算位和数学收益；可以开展跨机制族的其他新假设；待有人类使用协议时收集真正原始回答并比对VOL/STAKE与条件菜单，而非用旧R37替本批验证。"
+  "lastFinding": "OBSERVE01无新人类反馈，本批跨族INTERRUPT01：四行动A3得12、B2得8、SIDE1，第二手后公开等概率外源冲击。RESUMABLE保持A进度时固定/动态根13/13；FRAGILE冲击抹除A历史进度时固定10、动态11，SA首两手，无冲击AA得13、冲击转BB得9；可一手P全局防护时固定/动态12/12，PAAA彻底消除重规划需要。标准库Fraction全行动树枚举、已提交脚本；与CRISIS/REACTIVE/SHIELD成熟组合重叠，非新原语。无真人/独立盲Agent/Unity。",
+  "nextResearchQuestion": "不再反复增加条件许可或调整冲击概率；探索不同机制家族的真正心理活动，或使用已有VOL02/OBSERVE01开展真正的人类体验反馈；若继续纯模型，先写明和CRISIS/REACTIVE的结构差异与最强替代。"
 }
