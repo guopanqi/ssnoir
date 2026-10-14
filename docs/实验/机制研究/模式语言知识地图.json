@@ -3446,6 +3446,27 @@
         "native": false
       },
       "note": "晚公开与纯I均25/2，P或PQ根16，早免费完美揭晓根同16但并非全树同构；复合WORK_A+REVEAL是P全树同构，非新原语。"
+    },
+    {
+      "id": "PL-EVIDENCE-STOP01",
+      "name": "相同调查次数下证据冲突与一致产生相反停查策略",
+      "layer": "mature-combination",
+      "origin": "ssnoir-research",
+      "family": "序贯证据与停止调查",
+      "idea": "最多三次各成本1、准确率3/4的独立信号；可CLAIM正确10错误-6，或SAFE3。两份同向停查，两份冲突继续调查",
+      "stage": "exact-fraction-dp",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-序贯证据与停查选择/研究记录.md",
+        "tools/content-validator/experiments/pattern_sequential_evidence_20261015.py"
+      ],
+      "evidence": {
+        "exactDP": true,
+        "fixedCountControls": true,
+        "humanFeedbackAvailable": false,
+        "independentAgentBlind": false,
+        "native": false
+      },
+      "note": "灵活停查41/8；固定0、1、2、3次为3、5、35/8、9/2；最高强基线仅差1/8，成熟optimal stopping非新原语。"
     }
   ],
   "edges": [
@@ -6370,6 +6391,24 @@
       "to": "PL-INTERRUPT01",
       "relation": "productive-information-action-matched-composite",
       "reason": "生产工作与公布真相同时发生，解决截止前行动机会成本；仍等价明确的同成本状态复合动作"
+    },
+    {
+      "from": "PL-EVIDENCE-STOP01",
+      "to": "PL-INFO-PROD01",
+      "relation": "iterated-imperfect-evidence-not-once-perfect",
+      "reason": "独立有噪声证据改变后验及继续搜索收益，现有策略性伪装/一次全知不是本次规则"
+    },
+    {
+      "from": "PL-EVIDENCE-STOP01",
+      "to": "PL-INFO-WINDOW01",
+      "relation": "iterated-imperfect-evidence-not-once-perfect",
+      "reason": "独立有噪声证据改变后验及继续搜索收益，现有策略性伪装/一次全知不是本次规则"
+    },
+    {
+      "from": "PL-EVIDENCE-STOP01",
+      "to": "PL-TRANSFER02",
+      "relation": "iterated-imperfect-evidence-not-once-perfect",
+      "reason": "独立有噪声证据改变后验及继续搜索收益，现有策略性伪装/一次全知不是本次规则"
     }
   ],
   "coverage": {
