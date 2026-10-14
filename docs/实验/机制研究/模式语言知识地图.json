@@ -3125,6 +3125,26 @@
         "native": false
       },
       "note": "四行动根：无危机15，内生危机B可用101/8，加入GUARD13，删B10，删B但GUARD45/4；只是既有压力预算×替代路径，未认证新原语。"
+    },
+    {
+      "id": "PL-CRISIS03",
+      "name": "相同封锁在不同已投入进度下反转最优首行动：可达性而非危机强度本身决定救援",
+      "layer": "combination-boundary",
+      "origin": "ssnoir-research",
+      "family": "危机与有限兑现窗口",
+      "idea": "同剩余2手一级封锁，A进度1时转B收益9，A进度2时CLEAR再A得14；加重封锁又转B",
+      "stage": "exact-state-audit",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-14-危机进度与重规划边界/研究记录.md"
+      ],
+      "evidence": {
+        "exhaustiveStates": 48,
+        "independentLegalSequenceEnumeration": true,
+        "independentAgentBlind": false,
+        "humanFeedbackAvailable": false,
+        "native": false
+      },
+      "note": "本地双算法48状态最优值及动作集合一致；简单救A工期vs B工期仍可解释，非独立新原语。"
     }
   ],
   "edges": [
@@ -5761,6 +5781,24 @@
       "to": "PL-OPTION02",
       "relation": "endogenous-risk-changes-future-action-value",
       "reason": "A本手推动目标且触发风险，清障或转投B的预算与已投入工作相互作用；强安全BB仍可用"
+    },
+    {
+      "from": "PL-CRISIS03",
+      "to": "PL-CRISIS02",
+      "relation": "remaining-work-and-repair-budget-replan",
+      "reason": "同危机下已投份额与剩余手数决定清障是否可兑现，安全B真实可达；可以被工期比较口诀解释"
+    },
+    {
+      "from": "PL-CRISIS03",
+      "to": "PL-CRISIS01",
+      "relation": "remaining-work-and-repair-budget-replan",
+      "reason": "同危机下已投份额与剩余手数决定清障是否可兑现，安全B真实可达；可以被工期比较口诀解释"
+    },
+    {
+      "from": "PL-CRISIS03",
+      "to": "P11",
+      "relation": "remaining-work-and-repair-budget-replan",
+      "reason": "同危机下已投份额与剩余手数决定清障是否可兑现，安全B真实可达；可以被工期比较口诀解释"
     }
   ],
   "coverage": {
