@@ -1,7 +1,7 @@
 {
   "schema": "ssnoir.autonomous-pattern-memory/v1",
   "updated": "2026-10-14",
-  "batch": "MUT01/CROSS01 目标变化可达性与跨交锋凭据适应性",
+  "batch": "VOL01/ADV01 自选承诺与对抗性注意力分配",
   "rounds": 2,
   "totalArchivedRounds": 478,
   "objective": "长期自主发展可复用的玩法模式语言，覆盖已知作品先例、基础原语、完整交锋、跨阶段结构、组合条件与重要负例；评价玩家实际反复作出的判断、反馈、后果。历史20是广度愿景，不是价值认证名单或完成配额。",
@@ -38,34 +38,6 @@
     "currentCalibrationCreatedNewTrials": false
   },
   "results": [
-    {
-      "family": "reversible-exclusive-claim-with-early-window",
-      "kind": "known-real-option-combination-verified-complementarity",
-      "question": "先声明一个互斥成果再花真实行动撤回，需要哪些成立条件？",
-      "source": "CLAIM01—03 2026-10-13",
-      "summary": "4手在A早报时获得真实早窗口收益、后到A/B需求时可耗完整一手REVOKE再一手CLAIM_B，p1/4 SOFT25/2>HARD23/2=SOFT无及时奖励23/2；最强固定SOFT23/2。无窗口且无及时奖金完整菜单13，此处是联合消融。不新增独立承诺原语。"
-    },
-    {
-      "family": "reciprocal-cooperation-cheaper-option-hold-up",
-      "kind": "mature-strategic-commitment-composition-and-counterexample",
-      "question": "当玩家获得更便宜未来合作替代权，另一人为何今天反而退出？什么真实承诺能恢复？",
-      "source": "GRC01—02 2026-10-13",
-      "summary": "HELP现在玩家得8，未来HIGH9/LOW1，REP​AY行动成本3，伙伴GRANT自身4 vs晚EXIT2，当前EXIT外部5/2。无BYPASS玩家11伙伴3，新增未来k<3的BYPASS后伙伴提前拒绝玩家只得3，强制帮助玩家可23/2；k=3依平局原则，k>3合作恢复。可执行排他或HIGH条件合同恢复11。成熟NEG可信履约×持久许可结构，非新原语。"
-    },
-    {
-      "family": "late-revealed-nonfungible-obligations",
-      "kind": "zero-early-information-value-under-robust-first-action",
-      "question": "受保护目标A/B的要求到首手后才揭晓，是否必需更早获取信息？",
-      "source": "STAKE04 2026-10-13",
-      "summary": "不改CUST规则、另定义当局必须完成随机A或B约束（各半），HIGH/LOW独立各半，首手后揭示，完整条件逆推：原件18、copy75/4、reusable19；首手前揭示完全相同。首手统一A为四情况保留行动可达，早信息边际收益零。无真人。"
-    },
-    {
-      "family": "early-window-overlap-with-real-fallback-preservation",
-      "kind": "mature-multi-live-portfolio-positive-and-global-serial-negative",
-      "question": "什么时候并发完成中的两项事务不仅合法存在，而且根优化严格需要暂时同时保留？",
-      "source": "HEDGE01—05 2026-10-13",
-      "summary": "五手A只在首手可OPEN，A高14/低5而B高14/低0；允许两任务LIVE动态51/4、禁止同时LIVE47/4、固定23/2。可行公开计划首手A，若高做完16；A低先OPEN B并暂保A，B高DROP A完成B14，B低继续A完成5；条件期望51/4。取消A首手窗口后先试B的完全串行计划也得51/4，因此早窗口是该原标量下并发正价值的必要控制。并发PA3/4 PB1/4 vs同分串行PA1/2 PB1/2，不可称向量同构；deadline2双方47/4，禁DROP/B23/2。数学验证，不真人。"
-    },
     {
       "family": "intervention-induced-observation-loss",
       "kind": "mature-safety-vs-diagnostic-information-composition",
@@ -184,13 +156,23 @@
       "question": "早期A/B各留一份可继续工作的半成品，后到真实A/B需求能否改变下一场可做的动作及完成的结果，而非只调得分？",
       "source": "CROSS01 2026-10-14",
       "summary": "两阶段各2手，A/B各需2工作、完成A6/B5，第2场A/B需求等概率；MATCH SUBMIT一手得完整C10，DIRECT两手仅部分C6，SIDE/继续工作全合法。先AB各半、第2场需要A补A提交得16，需要B补B提交得15，完整动态根31/2；固定全部四手最强25/2、无SUBMIT12、另增无害一手万能SAFE17并令AA最优。所有已测动作/结果只依类型工作计数上限2等可观察状态，成熟FOCUS×AB02×STAKE组合而非新原语。 补充相同菜单但每一公开分支必须实现的非补偿目标：保A最优29/2先AA，保B27/2先BB，同时保A/B得11且无C，保完整C31/2先AB；这是设计目标不同导致策略不同，不是玩家真实偏好已验证。"
+    },
+    {
+      "family": "private-voluntary-outcome-binding-versus-autonomous-participation",
+      "kind": "strict-strategy-set-inclusion-negative-and-existing-public-contract-control",
+      "source": "VOL01 2026-10-14",
+      "question": "玩家自愿保证保A/B是否能在没有外部行为变化下提供同一综合收益增益？",
+      "summary": "原CROSS完整规则原值31/2。BIND_A29/2、BIND_B27/2、BOTH11、BIND_FULL_C31/2。私下绑定合法政策为FLEX子集，因此相同目标函数与信息成本时不可能因自限行动而增加最优值；非负手续费更不可能。用户真正想保护哪种不可补偿目标是另一个偏好而非收益幻觉。以前COA/GRC的公开可信绑定改变另一个行动者初始参加意愿，属于不同博弈，不可混为承诺普遍获利。"
+    },
+    {
+      "family": "self-interested-attacker-investment-erasure-and-observed-recovery",
+      "kind": "exact-normal-root-contingent-adaptive-vs-fixed-with-weak-damage-shield-and-early-type-information-controls",
+      "source": "ADV01 2026-10-14",
+      "question": "敌手会针对玩家前两手可见进度择目标毁掉时，玩家是否真的后续改选？它是否被普通防护、轻度损失或提前信息轻易压平？",
+      "summary": "4手两段，敌手私有TYPE_A/B各半，自己破坏A/B收益5/3或3/5、无收益时EXIT1。全部ERASE工作，先AB：TYPE_A STRIKE_A后玩家BB得8；TYPE_B STRIKE_B后玩家AA得10，根9、A/B终局各半；固定全四手最优5。若只CHIP一份，固定AAAA根10；若一手公开SHIELD挡所有1次袭击，敌手自利EXIT，固定A/SHIELD/AA根10。提前知道私有类型根增益0，原ERASE无盾不能保证A全部分支成功。有真正适应性但不是新独立敌手原语/人格学习。"
     }
   ],
   "failedExplanations": [
-    "不能从INV WATCH在一组可补偿权重(6,12,1)下胜SHIELD推断理性玩家应以当次A的安全换取信息：如果A不得在任何状态受损，WATCH不合法，最优只能SHIELD根16；可补偿数学偏好与不可补偿保护义务是不同目标问题。",
-    "“保护就无法取得证据”只有事件确实因保护而不发生且没有同样可靠的安全替代时才产生张力。INV若SHIELD后免费得精确来源，根20且WATCH全局不优；若付一手安全100%调查，根19大于原17。禁止安全调查按钮必须有真实因果解释，不能靠删功能制造新颖性。",
-    "INV的准确WATCH痕迹只是玩家条件策略可用的信息，正确STOP只是事实结果，既没有独立可结算证明C、也没有对方自主伪装/否认/拒绝；不能把它与CERT或TRL/GRC完整社会证明语义混为一谈。",
-    "INV旧首手菜单只有FULL SHIELD和WATCH，WATCH权重(6,12,1)下最优17不能外推到所有可想象保护动作。PART加入同成本仅保护R，在原事件必然q=1时未见事件恰能反向确认R，PART根37/2且结果向量(3/4,1,2)严格优于旧WATCH(1/2,1,2)。这改变协议不是推翻旧DP；以后必须审部分保护/非侵入安全观测的强替代。",
     "PART中直接猜测STOP的正确率WATCH与PARTIAL_R对任意q均(1+q)/2，PARTIAL还更安全，但不能直接宣称完整最优时PARTIAL弱支配WATCH。当q=1/2，WATCH无事R/B均匀使后续PROBE能显著提高准确率，PART无事后验R2/3则PROBE与直接STOP平局，完整DP WATCH33/2反超PARTIAL65/4；同一次指标准确率不等于后续信息价值相等。",
     "GROUP可画出许多连续保护子集与贝叶斯状态，却不能因此宣称玩家需要反复缩圈：q1且暴露真实来源准确时，四源一个单点保护就根据事件出现/未出现完美辨源，完整三手DP任意子集67/4与每次单点67/4相同。只有新信息制度/保护限制才值得重开。",
     "RECORD玩家对R/B源的私人知识在有无REGISTER时同为100%（q1），但NO_EVENT是否可提交PROOF不同；事前REGISTER根45/2优于只取正面TRACE22，却被同成本普通LICENSE完全同构，事后仅必要时登记23、安全无风险完整证明25分别更强。不能把知道事实、被允许提交和另一个真正愿意接受的主体混作一个结果。",
@@ -201,7 +183,9 @@
     "COA01虽然伙伴有自己A/B目的、玩家从正常起点采取不同AA/BB并形成A/B/C独立结果，同成本公开AUTO条件工作+共同认证已可整树复刻。社交自主目标是人物含义材料，不是新玩家操作原语的证明。",
     "COA02全9份信号条件合同与预编译普通动作映射一致；FLEX被拒根3只是伙伴真实预见后续BYPASS的自利回应。COA03若伙伴在新阶段自己仍有EXIT，单方合同只有21/2、双边15；必须逐主体按合法阶段检查承诺而非凭口头合作概念推断。",
     "MUT01：直接写NPC偏好M较高就改HELP_B，会忽略B从正常初始投入后是否可在剩余手数完工；阈值4时B无法兑现，理性伙伴仍支持A。若无真实首手共同工作资格，SIDE开局25/2压平先期投入理由。",
-    "CROSS01：AB半成品→下一场匹配提交虽完整动态31/2>固定25/2且实际A/B结果不同，整体仍是类型化库存；普通SAFE一手通用无害取得完整C使AA→SAFE→SIDE17高于AB15.5，不因流程复杂就叫创新。"
+    "CROSS01：AB半成品→下一场匹配提交虽完整动态31/2>固定25/2且实际A/B结果不同，整体仍是类型化库存；普通SAFE一手通用无害取得完整C使AA→SAFE→SIDE17高于AB15.5，不因流程复杂就叫创新。",
+    "VOL01：若私下承诺不改变对方合法行动、不新增个人效用或其他未来信号，自我束缚仅缩小策略集合，同原目标函数不可能提高最优值。不要把玩家可能自发关心A与纯数学承诺按钮混同。",
+    "ADV01：一次私人偏好敌手对已投目标全额ERASE会让AB保留幸存目标根9>固定5，但CHIP一份时AAAA固定10、SHIELD同成本A/SHIELD/AA固定10；提前知道对方TYPE不改根，不能把本轮一次遭遇冒称长期人物意图学习。"
   ],
   "frontier": [
     {
@@ -265,16 +249,16 @@
       "method": "用META07动作依赖边方法比照已有成熟PRF/FOCUS/GRC/HEDGE/CUST/GOAL，先给一个玩家能解释的前后状态及动作，再给强安全等待、固定优先级和普通同成本菜单；没有真人反馈时只记成熟组合/负例，不因图谱边数晋升候选。"
     },
     {
-      "id": "ABSTRACT-AT-ENDOGENOUS-OTHER-PREFERENCE",
-      "family": "player-caused-other-objective-update",
-      "question": "MUT01偏好变化来自外生N/M，只是能力可达性引起行为改变；若玩家的行动本身真正改变对方从A到B的利益，他之后能否产生不同后续合法动作/反馈，而非简单AUTO阈值表？",
-      "method": "先用SIDE等待、公开AUTO、免费共同资格、可见工作进度和伙伴真正自身收益的完整控制；若本质仍是一条条件转移，则归入ACT/COA成熟模式。"
+      "id": "ABSTRACT-AV-VOLUNTARY-STAKE-ELICITATION",
+      "family": "player-chosen-nonfungible-obligations-and-outcome-preferences",
+      "question": "当一项结果真由玩家自愿承诺不可牺牲，而不是研究者指定A硬约束，实际行动与体验是否变化？",
+      "method": "明确私下保证只删未来合法动作不会增加原同一综合效用，不能把承诺效用当免费奖励。使用无答案纸面观察卡先记录参与者自写目标，再比较原四手CROSS、强SAFE及不同必保A/B/C方案。真人反馈独立，不从DP推导偏好。"
     },
     {
-      "id": "ABSTRACT-AU-CROSS-OPERATION-MODE-SHIFT",
-      "family": "nonfungible-outcomes-cross-contract-verb-change",
-      "question": "CROSS01虽出现A/B不同终局与第2段匹配SUBMIT，但严格等价类型库存。能否令上场两种成果影响下一场玩家实际持续做的活动类型（观察、保护、协商）而不是提交一次匹配物？",
-      "method": "从起点且含合理安全直接处理完整菜单反证；检查结果向量、后到信息价值、强普通万能资格、安全等待，不能改数字救机制。"
+      "id": "ABSTRACT-AW-REPEATED-STRATEGIC-OPPONENT-LEARNING",
+      "family": "strategic-counterparty-belief-use-across-contracts",
+      "question": "只遭一次攻击时，对方私有偏好虽能从结果得知，提前知道类型仍对玩家根零价值。若敌手在下一场再出手，玩家能否真正使用先前记录改变后续保护/应对方式？",
+      "method": "先与P16/INF-P01及普通条件工具、公开免费强盾/可做完整无损调查、固定可读脚本比较；明示敌手能看到什么、是否会策略性伪装，不能只放随机坏人。"
     }
   ],
   "method": {
@@ -324,12 +308,12 @@
     }
   ],
   "crossRoundMemory": [
+    "2026-10-14 VOL01/ADV01：在不改变CROSS信息、目标函数、其他人行为时，私下自愿保证保A/B是原FLEX条件策略的真子集，根31/2≥保A29/2、保B27/2、保双方11；不是玩家的真实非补偿偏好受到否定。对抗模型：敌手按私有目标5/3或3/5自利攻击玩家可见A/B已投入进度；一次全ERASE时先AB，再看打A后BB得8或打B后AA得10，期望9（固定四手最强5）；若攻击只减一份则固定AAAA根10，或允许整手公开万能盾则敌手EXIT且固定A/盾/AA根10。提前知道敌手类型零价值、无盾不可能保证A所有分支成功。数学模型+作者批评，无真人/独立盲Agent/Unity。源：docs/实验/机制研究/批次/2026-10-14-自选承诺与对抗性注意力/研究记录.md",
     "2026-10-14 MUT01/CROSS01：公开N/M令自利伙伴A/B收益翻转，但真正HELP受玩家剩余2手+伙伴1手的可完工性约束；A/B门槛3时首手A后N帮A玩家13、M帮B玩家11，根12；门槛4时M更想B仍因B不可达而帮A、根12。禁资格消融：SIDE后免费伙伴根25/2。CROSS两阶段各2手：先AB各半，见需求A补A+SUBMIT得16、B补B+SUBMIT得15，根31/2；固定25/2、去SUBMIT12、通用一手SAFE17压平；结果向量互异，但状态完全由A/B类型进度决定，归并FOCUS/AB02/STAKE。两者均旧关系组合和反证，数学/作者校验，无真人。",
     "2026-10-14 COA01/02/03：有自利A/B偏好的伙伴导致玩家正常初态公开改选A/A或B/B，A/B完成率各1/2且共同C=1，根27/2对SELF10，但条件AUTO完全复制所有续行与向量；C取消邀请19/2低于自做10。COMMIT先期投资在无绑定时因对方预见未来便宜路线而EXIT根3，固定PAY14.5，9种完整H/L可执行合同15，且全同构预编译条件菜单。CONSENT为新协议：伙伴有t1真实EXIT，玩家单方约束仅21/2、双方都受约束15，自由9；双边成本阈值9/2。是ACT/PS/NEG/GRC成熟组合和反证，非新的社交原语；无人类/独立Agent/Unity。源 docs/实验/机制研究/批次/2026-10-14-双目标协作者与跨期承诺/研究记录.md",
     "2026-10-14 EP01/EP02：行动生成的真实负观察≠自己正确推断≠可提交证据≠他人实际同意；四手登记+R部分保护+伙伴独立拒绝p1/2根25/2，比只有posthoc49/4多1/4，但SAFE一手15强支配、q<1沉默不证真源。另两类型自愿公开：只有R能真发表，伙伴因R确实公开推断沉默来自B，选择退场；玩家7低于事前可信封口8，若固定工具无条件合作则9。若封口成本c<1恢复池化合作；这仅为GRC/RECORD/PART成熟关系新互作，数学和作者反证，无真人/盲Agent/Unity。源 docs/实验/机制研究/批次/2026-10-14-证据与策略性沉默/研究记录.md",
     "2026-10-14 BIL01—03从初态三族严格因果反证：三日GATE的A→B表面许可删除后，根29/2、最优正常路径和结果分布完全不变；真正需要重判的边是B高报价提前领取会关闭未完A，删关闭根18、删早价根14。四日REOPEN可付行动恢复A，遇后到U则接受失去A；根21、禁重开39/2，双目标完成率3/4对1/2，短策略全优。六日BURDEN由B制造待清负担、A_CLEAR恢复被容量封禁B，根21415/1024，A清理期望4103/2048次；五条简明公开规则最强166859/8192，仅差4461/8192，属于已有P11负担/容量而非新原语。数学脚本CI success，无新人类、独立Agent或正式Unity。源 docs/实验/机制研究/批次/2026-10-14-双向因果与操作回流/研究记录.md。关键新增研究审计：画箭头的‘菜单有效’≠从真实开局行动政策真的变化；须逐边消融、正概率可达轨迹、独立终局结果向量、同成本普通替代。",
-    "2026-10-14 EDGE-B：六日A准备类型化B资格，TOKEN用后消耗的完整初态DP1977459/65536，比禁准备27有严格收益；初日低价值准备/高价值普通B，后日持匹配资格低值反而NORMAL保留，高值SPECIAL消费，且四句公开规则全局最优。永久LICENSE37161/1024却匹配SPECIAL支配NORMAL；禁止RETOOL时TOKEN同根，晚公开高低信息使其根退回27；本质与类型化库存兑换全树同构，非新独立原语，无真人/第二Agent/Unity。源docs/实验/机制研究/批次/2026-10-14-B行动资格与延期兑现/研究记录.md",
-    "2026-10-13 REC01—03双向动作生产余效、可执行时窗及目标结果向量：完整81公共信号历史，1-step lookahead over easy alternate完全复现DP939/64，保留简短心理规则而非数学难度创新；动态最优使A更可能完成却牺牲B完成几率，累计加权分数不能替代不同目标的真实关切。证据为Python Fraction，无真人。"
+    "2026-10-14 EDGE-B：六日A准备类型化B资格，TOKEN用后消耗的完整初态DP1977459/65536，比禁准备27有严格收益；初日低价值准备/高价值普通B，后日持匹配资格低值反而NORMAL保留，高值SPECIAL消费，且四句公开规则全局最优。永久LICENSE37161/1024却匹配SPECIAL支配NORMAL；禁止RETOOL时TOKEN同根，晚公开高低信息使其根退回27；本质与类型化库存兑换全树同构，非新独立原语，无真人/第二Agent/Unity。源docs/实验/机制研究/批次/2026-10-14-B行动资格与延期兑现/研究记录.md"
   ],
   "focusedAudits": [],
   "parallelBatches": [],
@@ -349,8 +333,8 @@
     "noHumanTests": true,
     "interpretation": "X01、X02与另一批C01、C02是不同的已知组合条件反证，均不构成新独立模式或完整真人交锋认证",
     "historyCountUnchanged": 478,
-    "latestBatch": "docs/实验/机制研究/批次/2026-10-14-目标改变与跨交锋凭据/研究记录.md",
-    "latestCounterfactual": "MUT：N/M伙伴A8/B4→A4/B8，但A/B门槛从3到4便让M下HELP_B因无法完成而变为HELP_A；玩家根均12，SIDE无资格→有资格根25/2。CROSS：两阶段各2手，先AB半品，下场配需求完成相应并提交，根31/2，固定25/2，禁SUBMIT12，增加一手万能SAFE17；可达A/B不同结果而资源状态严格类型化同构。 补充相同菜单但每一公开分支必须实现的非补偿目标：保A最优29/2先AA，保B27/2先BB，同时保A/B得11且无C，保完整C31/2先AB；这是设计目标不同导致策略不同，不是玩家真实偏好已验证。",
-    "crossFamilyAudit": "MUT01→COA01/ACT01/FOCUS03：偏好和可达完工的因果区分。CROSS01→FOCUS02/AB02/STAKE01/FOCUS03：后到需求匹配操控不同结果，但SAFE强旁路和全部可达计数压缩反证原语新颖性。"
+    "latestBatch": "docs/实验/机制研究/批次/2026-10-14-自选承诺与对抗性注意力/研究记录.md",
+    "latestCounterfactual": "VOL01：同CROSS原规则FLEX31/2、硬保A29/2、硬保B27/2、双方11、完整C31/2，私下承诺策略子集不能提高同一综合效用；公开可信合同影响他人参加属另一协议。ADV01：自利私有TARGET_A/B敌手全ERASE时先AB、敌手打A则BB得8、打B则AA得10，根9、固定全程5；若CHIP只毁一份固定AAAA根10；公开整手SHIELD使敌手理性EXIT，固定A/SHIELD/AA根10；提前知道敌手TYPE根仍9。",
+    "crossFamilyAudit": "PL-VOL01→CROSS01/STAKE01/COA02：目标偏好、私下行动缩减、对外可执行行为导致别人自行参加不同。PL-ADV01→P16/FOCUS03/INF-P01：针对真实进度的策略性破坏造成后续改道，但如果损失可恢复或万能护盾存在，策略压平；对手只出手一次则人物类型信息并非未来必需。"
   }
 }
