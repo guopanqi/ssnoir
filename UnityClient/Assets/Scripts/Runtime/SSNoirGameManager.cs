@@ -89,7 +89,6 @@ namespace SSNoir
         private const float RestCooldownSeconds = 2f;
 
         private bool _resourceDragActive;
-        private bool _resourceDropHandled;
         private ResourceDragOriginKind _resourceDragOrigin = ResourceDragOriginKind.None;
         private string _resourceOriginNodeName = string.Empty;
         private int _resourceOriginSlotIndex = -1;
@@ -1870,16 +1869,14 @@ namespace SSNoir
             BeginResourceDrag(CreateSelectedResourceFromSlot(existing), ResourceDragOriginKind.Slot);
         }
 
-        public void MarkResourceDropHandled() => _resourceDropHandled = true;
-
-        public void EndResourceDrag(Vector2 mouse)
+        public void EndResourceDrag()
         {
             if (!_resourceDragActive) return;
             _resourceDragActive = false;
 
-            if (!_resourceDropHandled)
-                RestoreResourceDragOrigin();
-
+            // 拿起时已经清空原卡槽；放到有效槽位由控件装填，否则松手即回手牌。
+            // 手牌可用数量由快照减去占槽推导，不需要再把骰子或物品写回存档。
+            // 只有 Esc 取消拖动（ClearSelectedResource）才恢复原槽。
             ClearResourceDragState();
         }
 
@@ -1888,7 +1885,6 @@ namespace SSNoir
             ReleaseRestCooldown();
             _selectedResource = resource;
             _resourceDragActive = true;
-            _resourceDropHandled = false;
             _resourceDragOrigin = origin;
             if (origin != ResourceDragOriginKind.Slot)
             {
@@ -1937,7 +1933,6 @@ namespace SSNoir
         private void ClearResourceDragState()
         {
             _selectedResource = null;
-            _resourceDropHandled = false;
             _resourceDragOrigin = ResourceDragOriginKind.None;
             _resourceOriginNodeName = string.Empty;
             _resourceOriginSlotIndex = -1;

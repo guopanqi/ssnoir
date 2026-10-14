@@ -1294,8 +1294,8 @@ namespace SSNoir.IMGUI
                     slotRect, node, i, requirements[i], resource, disabled, ui, gameManager);
                 if (interaction.ClickedSlotIndex != -1)
                     gameManager.OnSlotClicked(node, i);
-                if (interaction.DroppedSlotIndex != -1 && gameManager.TryPlaceSelectedResource(node, i))
-                    gameManager.MarkResourceDropHandled();
+                if (interaction.DroppedSlotIndex != -1)
+                    gameManager.TryPlaceSelectedResource(node, i);
             }
 
             bool allFilled = count == 0 || (slots.Count == count && slots.All(slot => slot != null));

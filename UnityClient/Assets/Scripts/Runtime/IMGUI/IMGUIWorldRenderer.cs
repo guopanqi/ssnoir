@@ -1423,7 +1423,7 @@ namespace SSNoir.IMGUI
             // fires when a slot already consumed the MouseUp to place the token.
             if (Event.current.rawType == EventType.MouseUp && _gameManager.IsDraggingResource)
             {
-                _gameManager.EndResourceDrag(Event.current.mousePosition);
+                _gameManager.EndResourceDrag();
             }
 
             IMGUIInteractionContext.FinishPointerEvent(Event.current);
@@ -2554,8 +2554,7 @@ namespace SSNoir.IMGUI
                 }
                 if (interaction.DroppedSlotIndex != -1 && slotted != null && node.Requires != null)
                 {
-                    if (_gameManager.TryPlaceSelectedResource(node, interaction.DroppedSlotIndex))
-                        _gameManager.MarkResourceDropHandled();
+                    _gameManager.TryPlaceSelectedResource(node, interaction.DroppedSlotIndex);
                 }
                 if (interaction.ExecuteClicked)
                 {
@@ -2670,8 +2669,7 @@ namespace SSNoir.IMGUI
 
             if (interaction.DroppedSlotIndex != -1 && slotted != null && node.Requires != null)
             {
-                if (_gameManager.TryPlaceSelectedResource(node, interaction.DroppedSlotIndex))
-                    _gameManager.MarkResourceDropHandled();
+                _gameManager.TryPlaceSelectedResource(node, interaction.DroppedSlotIndex);
             }
 
             if (interaction.ExecuteClicked)
