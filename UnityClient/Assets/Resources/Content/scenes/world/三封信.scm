@@ -606,10 +606,9 @@
           :resolve (roll 'sharpness
             (outcome (lambda () (spend-composure! 1) (ambush-survey-step! 1)))
             (outcome (lambda () (ambush-survey-step! 1)))
-            (outcome (lambda () (ambush-survey-step! 2)))))
+            (outcome (lambda () (ambush-survey-step! 2))))))
         '()))
 
-    )
     ;; ── 勒索日 ──────────────────────────────────────
     ;; 到期当天不自动播放:它是必看事件,用阻塞休息逼玩家亲自去。
     (define (begin-delivery!)
