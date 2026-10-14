@@ -1180,7 +1180,7 @@ namespace SSNoir.IMGUI
             DrawOddsTiles(new Rect(lineRect.x, lineRect.yMax, lineRect.width, 38f), strip);
         }
 
-        // 非零档位等宽排列，百分比用文字表达；不让小概率被挤成不可读的细缝。
+        // 非零档位按概率比例分配宽度；间隔不计入概率面积，标签随可用宽度缩小字号。
         private static void DrawOddsTiles(Rect area, RollOutcome[] strip)
         {
             var counts = new int[3];
@@ -1196,12 +1196,13 @@ namespace SSNoir.IMGUI
             if (strip.Length != 100 || visible == 0)
                 throw new System.ArgumentException("Expected 100 percentage outcomes.", nameof(strip));
             const float gap = 3f;
-            float width = (area.width - gap * (visible - 1)) / visible;
+            float available = Mathf.Max(0f, area.width - gap * (visible - 1));
             float x = area.x;
             for (int i = 0; i < counts.Length; i++)
             {
                 if (counts[i] == 0) continue;
                 var outcome = i == 0 ? RollOutcome.Fail : i == 1 ? RollOutcome.Neutral : RollOutcome.Success;
+                float width = available * counts[i] / strip.Length;
                 var tile = new Rect(x, area.y, width, area.height);
                 IMGUIStyles.SetColor(OutcomeColor(outcome));
                 GUI.DrawTexture(tile, Texture2D.whiteTexture);
