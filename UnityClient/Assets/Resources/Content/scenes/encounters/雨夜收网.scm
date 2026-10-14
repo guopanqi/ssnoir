@@ -7,8 +7,16 @@
 (define 已结束? #f)
 ;; 仅确认当前布置；真正改变委派后重置，浏览岗位不会重置。
 (define 已提醒待命? #f)
-(define 帮手名单 (list "山姆" "诺拉"))
-(define 待命位置 (list (list "山姆" "勒索信-报摊") (list "诺拉" "勒索信-街沿")))
+;; 正式入口由城市传来当前已招募人员；独立 Debug 则用原先两名测试帮手。
+(define 城市人手 (get-global '雨夜收网帮手名单))
+(define 帮手名单
+  (if (and (list? 城市人手) (not (null? 城市人手))) 城市人手
+    (list "山姆" "诺拉")))
+(define 待命位置
+  (let loop ((names 帮手名单) (index 0))
+    (if (null? names) '()
+      (cons (list (car names) (if (= index 0) "勒索信-报摊" "勒索信-街沿"))
+        (loop (cdr names) (+ index 1))))))
 ;; 岗位定义：短名、场景标题、空间 Anchor、职责、到岗回应。
 ;; 名单与岗位定义决定菜单；部署只保存当前分配，不为人物组合另写分支。
 (define 岗位定义
