@@ -18,10 +18,10 @@ def m_end(first,helper,path,threshold):
     side=aa.count('SIDE')
     return F(10*win_a+9*win_b+2*joint+side),(win_a,win_b,joint,side)
 
-def m_reply(first,shock,threshold):
+def m_reply(first,shock,threshold,allow_unqualified=False):
     choices=[]
     for op in ACTOR:
-        if first=='SIDE' and op!='EXIT':
+        if first=='SIDE' and op!='EXIT' and not allow_unqualified:
             continue # free unrelated SIDE has no shared investment; actor declines
         value,route=max(((m_end(first,op,seq,threshold),seq)
                          for seq in product(PLAYER,repeat=2)),key=lambda r:r[0][0])
@@ -31,10 +31,10 @@ def m_reply(first,shock,threshold):
     # On equal utility, choose EXIT; no equality of participation is silently trusted.
     return max(choices,key=lambda r:(r[0],r[1]=='EXIT',-ACTOR.index(r[1])))
 
-def m_full(threshold):
+def m_full(threshold,allow_unqualified=False):
     rows=[]
     for first in PLAYER:
-        branches={s:m_reply(first,s,threshold) for s in ('N','M')}
+        branches={s:m_reply(first,s,threshold,allow_unqualified) for s in ('N','M')}
         root=sum((r[2] for r in branches.values()),F())/2
         rows.append((root,first,branches))
     return max(rows,key=lambda r:(r[0],-PLAYER.index(r[1]))),rows
@@ -152,6 +152,12 @@ def verify():
     assert (m3[2]['N'][2],m3[2]['M'][2])==(13,11)
     assert m4[0]==12 and m4[1]=='A'
     assert (m4[2]['N'][1],m4[2]['M'][1])==('HELP_A','HELP_A')
+    # Remove qualification: a free helper may cooperate even after unrelated
+    # SIDE. Then the fixed first-work prerequisite, not social cognition,
+    # caused SIDE to be unattractive in the original.
+    free_help,_=m_full(3,allow_unqualified=True)
+    assert free_help[0]==F(25,2) and free_help[1]=='SIDE'
+    assert (free_help[2]['N'][1],free_help[2]['M'][1])==('HELP_A','HELP_B')
     # Under shock M the actor values B=8>A=4, but B is unreachable after
     # WORK_A when threshold4. Helping A obtains actual own4 > EXIT3.
     assert OWN['M']['B']>OWN['M']['A']>3
