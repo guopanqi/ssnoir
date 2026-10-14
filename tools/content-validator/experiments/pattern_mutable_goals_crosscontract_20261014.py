@@ -144,6 +144,35 @@ def provenance_state_test():
                 states=following
     return checks
 
+
+def hard_goal(required):
+    """Re-evaluate *identical* frozen action menu with a non-compensable goal.
+    Goal is A, B, BOTH, or FULL_C. Every possible public demand branch must
+    satisfy it; otherwise the policy is illegal, not merely given extra points.
+    """
+    assert required in ('A','B','BOTH','FULL_C')
+    rows=[]
+    for prep in product(P1,repeat=2):
+        s=START
+        for a in prep:s=action(s,a,None,1)
+        branches={}
+        for need in ('A','B'):
+            valid=[]
+            for moves in product(P2,repeat=2):
+                now=s
+                for v in moves:
+                    now=action(now,v,need,2) if now is not None else None
+                if now is None:continue
+                value,vec=result(now)
+                yes=(vec[0] if required=='A' else vec[1] if required=='B'
+                     else (vec[0] and vec[1]) if required=='BOTH' else vec[3])
+                if yes:valid.append((value,moves,vec))
+            if valid:branches[need]=max(valid,key=lambda row:row[0])
+        if len(branches)==2:
+            rows.append(((branches['A'][0]+branches['B'][0])/2,prep,branches))
+    assert rows
+    return max(rows,key=lambda row:row[0])
+
 def verify():
     m3=m_machine(3)
     m4=m_machine(4)
@@ -183,6 +212,13 @@ def verify():
         for need in ('A','B'):
             direct=result(action(action(s,'DIRECT',need,2),'DIRECT',need,2))[0]
             assert phase_two(s,need)[0]>=direct
+    # Scalar maximum is not an endorsement of all nonfungible outcomes.
+    goals={g:hard_goal(g) for g in ('A','B','BOTH','FULL_C')}
+    assert goals['A'][0]==F(29,2) and goals['A'][1]==('WORK_A','WORK_A')
+    assert goals['B'][0]==F(27,2) and goals['B'][1]==('WORK_B','WORK_B')
+    assert goals['BOTH'][0]==11
+    assert goals['FULL_C'][0]==F(31,2)
+    print('CROSS_HARD_GOALS',[(g,str(row[0]),row[1]) for g,row in goals.items()])
     checks=provenance_state_test()
     assert checks>150
     print('CROSS',{'optimal':str(root[0]),'prep':root[1],
