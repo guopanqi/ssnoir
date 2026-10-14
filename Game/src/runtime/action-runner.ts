@@ -61,7 +61,7 @@ const DISPATCH = `
 
 export interface ActionResult {
   name:string; mode:"instant"|"roll"; outcome?:RollOutcome;
-  chosenDie?:number; fateDie?:number; prepared?:number;
+  chosenDie?:number; percentageRoll?:number; prepared?:number;
   before:ReturnType<GameRuntimeState["snapshot"]>;
   after:ReturnType<GameRuntimeState["snapshot"]>;
   clockEffects:ReturnType<GameRuntimeState["takeActionReport"]>;
@@ -193,7 +193,7 @@ export class GameActionRunner {
             SITES.find(p=>p.part===s.part)?.skill===skill).length;
         }
         roll=resolveFate(dice[0].value,this.state.team.stat(actorId,skill),
-          modifier,this.turn.rollFate());
+          modifier,this.turn.rollPercentage());
       }
       await this.scripts.evaluate("(__ssnoir-run-captured-node! "+
         JSON.stringify(name)+" "+JSON.stringify(roll?.outcome??"success")+")");
@@ -203,7 +203,7 @@ export class GameActionRunner {
       }
       if(!this.state.hasPendingHospitalization())await this.scripts.evaluate("(on-action)");
       return {name,mode:node.resolve.kind,outcome:roll?.outcome,
-        chosenDie:dice[0]?.value,prepared:roll?.prepared,fateDie:roll?.fateDie,
+        chosenDie:dice[0]?.value,prepared:roll?.prepared,percentageRoll:roll?.percentageRoll,
         before,after:this.state.snapshot(),clockEffects:this.state.takeActionReport()};
     }catch(error){
       this.state.cancelActionReport();this.state.restore(before);throw error;
@@ -233,7 +233,7 @@ export class GameActionRunner {
     try {
       let result:ReturnType<typeof resolveFate>|undefined;
       if(node.resolve.kind==="roll")result=resolveFate(
-        selected!.value,this.turn.stat(node.resolve.skill!),0,this.turn.rollFate()
+        selected!.value,this.turn.stat(node.resolve.skill!),0,this.turn.rollPercentage()
       );
       const outcome=result?.outcome??"success";
       await this.scripts.evaluate("(__ssnoir-run-captured-node! "+JSON.stringify(name)+" "+JSON.stringify(outcome)+")");
@@ -245,7 +245,7 @@ export class GameActionRunner {
       // consumption, in the initiating interpreter's original VM.
       if(!this.state.hasPendingHospitalization()) await this.scripts.evaluate("(on-action)");
       return { name, mode:node.resolve.kind, outcome:result?.outcome,
-        chosenDie:selected?.value,fateDie:result?.fateDie,prepared:result?.prepared,
+        chosenDie:selected?.value,percentageRoll:result?.percentageRoll,prepared:result?.prepared,
         before,after:this.state.snapshot(),clockEffects:this.state.takeActionReport() };
     }catch(error){
       this.state.cancelActionReport();
