@@ -1187,7 +1187,7 @@ namespace SSNoir.IMGUI
             IMGUIStyles.DrawLabel(lineRect, caption, summaryStyle);
             lineRect.y += 14f;
             lineRect.height = 16f;
-            IMGUIStyles.DrawLabel(lineRect, FateStrip.Describe(strip), summaryStyle);
+            IMGUIStyles.DrawLabel(lineRect, UiText.Odds(strip), summaryStyle);
 
             float stripW = Mathf.Min(rect.width - pad * 2f, 178f);
             DrawOddsStrip(new Rect(rect.center.x - stripW / 2f, executeBottomY + 30f, stripW, 17f),
