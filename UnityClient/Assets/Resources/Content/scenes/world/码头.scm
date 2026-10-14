@@ -34,7 +34,16 @@
 
     ;; ── 每日一次的额度 ──────────────────────
     (define opening-talk-heard? #f)
-    (define haul-day 0)             ; Phase B 起，普通搬运每天只能做一次
+    (define haul-day 0)
+    ;; 工友熟络是正常搬运的副进度，每个工作日只加一次。
+    (define worker-familiarity (make-clock "工友熟络" 2 'gauge
+      "一起工作过两个不同的日子，才好开口请工友帮忙。"))
+    (define worker-last-day 0)
+    (define worker-asked? #f)
+    (define worker-joined? #f)
+    (define worker-shift (make-clock "替工友顶班" 4 'gauge
+      "这班活替他做完，他才有空在取信那晚帮忙。"))
+             ; Phase B 起，普通搬运每天只能做一次
 
     ;; ── 码头回声 ──────────────────────────
     ;; 跟陌生人一组时才可能听见：码头是背景，陌生人是背景里的声音。
@@ -135,6 +144,12 @@
     (define (finish-haul! grade)
       (let ((partner (random-choice (partner-pool))))
         (set! haul-day world-day)
+        (if (and (not (= worker-last-day world-day))
+                 (not (worker-familiarity 'full?)))
+          (begin
+            (set! worker-last-day world-day)
+            (worker-familiarity 'tick!))
+          #f)
         (cond
           ((equal? grade '好)
            (add-item! "金钱" (if (< (three-letters 'story-stage) 2) 20
@@ -165,9 +180,47 @@
         "扛一班货，挣一晚的钱"
         :anchor "码头-货堆"))
 
+    ;; 人情来自过去真实工作的日子；顶班另占骰子而不产生工资。
+    ;; TODO：工友请托和顶班后的 Dialogue 由作者补写，当前只保留最低限度的文本。
+    (define (worker-ambush-nodes)
+      (if (and (= (three-letters 'story-stage) 1)
+               (three-letters 'ambush-known?))
+        (append
+          (if (worker-familiarity 'full?) '()
+            (list (at-anchor "码头-货堆"
+              (clock-node "标注：工友熟络" (worker-familiarity 'render-data)))))
+          (if (and (worker-familiarity 'full?) (not worker-asked?))
+            (list (node "请工友帮忙"
+              :anchor "码头-岸口"
+              :subtitle "他那晚有班；替他干完才肯来"
+              :resolve (instant (lambda ()
+                (set! worker-asked? #t)
+                (play-dialogue!
+                  (line "工友" "那晚我有班。你替我做完，我就去。"))))))
+            '())
+          (if (and worker-asked? (not worker-joined?))
+            (list (node "替工友顶班"
+              :anchor "码头-货堆"
+              :subtitle "不领工资；做完四格才算顶班"
+              :clocks (list (worker-shift 'render-data))
+              :requires (list (req-die))
+              :resolve (roll 'violence
+                (outcome (lambda () (spend-composure! 1)))
+                (outcome (lambda () (finish-worker-shift! 1)))
+                (outcome (lambda () (finish-worker-shift! 2))))))
+            '()))
+        '()))
+    (define (finish-worker-shift! amount)
+      (worker-shift 'advance! amount)
+      (if (worker-shift 'full?)
+        (begin
+          (set! worker-joined? #t)
+          (play-dialogue! (line "工友" "这班算你替了。我会去。")))
+        #f))
+
     ;; ── 组装 ─────────────────────────────────────
     (define (livelihood-nodes)
-      (if (and (equal? (第二章 'phase) "B") (= haul-day world-day))
+      (if (= haul-day world-day)
           '()
           (list (node-haul))))
 
