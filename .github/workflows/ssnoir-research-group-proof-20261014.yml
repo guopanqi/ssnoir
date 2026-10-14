@@ -16,6 +16,7 @@ on:
       - 'tools/content-validator/experiments/pattern_mutable_goals_crosscontract_20261014.py'
       - 'tools/content-validator/experiments/pattern_self_pledge_and_adversarial_attention_20261014.py'
       - 'tools/content-validator/experiments/pattern_strategic_signal_against_voluntary_goals_20261014.py'
+      - 'tools/content-validator/experiments/test_stake_observer_20261014.js'
       - 'docs/实验/机制研究/批次/2026-10-14-策略性伪装与自选成果/**'
       - 'docs/实验/机制研究/批次/2026-10-14-自选承诺与对抗性注意力/**'
       - 'docs/实验/机制研究/批次/2026-10-14-目标改变与跨交锋凭据/**'
@@ -75,3 +76,7 @@ jobs:
         run: |
           set -euo pipefail
           python3 tools/content-validator/experiments/pattern_strategic_signal_against_voluntary_goals_20261014.py
+      - name: Offline observation prototype legal-action and result traces
+        run: |
+          set -euo pipefail
+          node tools/content-validator/experiments/test_stake_observer_20261014.js
