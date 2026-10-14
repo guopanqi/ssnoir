@@ -14,6 +14,8 @@ on:
       - 'tools/content-validator/experiments/pattern_evidence_silence_20261014.py'
       - 'tools/content-validator/experiments/pattern_partner_outcome_commitment_20261014.py'
       - 'tools/content-validator/experiments/pattern_mutable_goals_crosscontract_20261014.py'
+      - 'tools/content-validator/experiments/pattern_self_pledge_and_adversarial_attention_20261014.py'
+      - 'docs/实验/机制研究/批次/2026-10-14-自选承诺与对抗性注意力/**'
       - 'docs/实验/机制研究/批次/2026-10-14-目标改变与跨交锋凭据/**'
       - 'docs/实验/机制研究/批次/2026-10-14-双目标协作者与跨期承诺/**'
       - 'docs/实验/机制研究/批次/2026-10-14-证据与策略性沉默/**'
@@ -63,3 +65,7 @@ jobs:
         run: |
           set -euo pipefail
           python3 tools/content-validator/experiments/pattern_mutable_goals_crosscontract_20261014.py
+      - name: Voluntary outcome pledge, adversarial target response and full ordinary baselines
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/pattern_self_pledge_and_adversarial_attention_20261014.py
