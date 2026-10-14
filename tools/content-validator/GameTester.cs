@@ -783,13 +783,13 @@ namespace SSNoir.Testing
             AssertEq("smoke composure restore", 2, consumableState.Team.FindActor("player")!.Composure);
             // 它要投一颗行动骰：角落里那种一按就生效的按钮已经不存在了。
             AssertEq("smoke spends an action die", diceBeforeSmoke - 1, consumablePlayer.ActionDice.Count);
-            AssertEq("B=1 summary", "1–3 坏 · 4–6 中", FateStrip.Describe(FateStrip.Compute(1, 0, 0)));
-            AssertEq("B=4 summary", "1 坏 · 2–3 中 · 4–6 好", FateStrip.Describe(FateStrip.Compute(4, 0, 0)));
-            AssertEq("B=7 summary", "1–6 好", FateStrip.Describe(FateStrip.Compute(6, 1, 0)));
+            AssertEq("B=1 summary", "坏 60% · 中 40% · 好 0%", FateStrip.Describe(FateStrip.Compute(1, 0, 0)));
+            AssertEq("B=4 summary", "坏 20% · 中 35% · 好 45%", FateStrip.Describe(FateStrip.Compute(4, 0, 0)));
+            AssertEq("B=7 summary", "坏 0% · 中 10% · 好 90%", FateStrip.Describe(FateStrip.Compute(6, 1, 0)));
 
             AssertThrows(() => FateStrip.Compute(0, 0, 0), "invalid placed die");
             AssertThrows(() => FateStrip.Compute(1, -2, 0), "skill below minimum");
-            AssertThrows(() => FateStrip.Resolve(1, 0, 0, 7), "invalid fate die");
+            AssertThrows(() => FateStrip.Resolve(1, 0, 0, 101), "invalid percentage roll");
 
             Console.WriteLine("[fate-strip] All contract assertions passed.");
         }
