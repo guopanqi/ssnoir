@@ -3266,6 +3266,26 @@
         "native": false
       },
       "note": "四行动含B根22，无撤权/禁取回仍22；无B根14。安全等待绕开权限风险，不能称独立新原语。"
+    },
+    {
+      "id": "PL-OBLIGATION01",
+      "name": "并行义务受早期截止冲击时改投仍可完成的目标与SIDE",
+      "layer": "encounter-combination",
+      "origin": "ssnoir-research",
+      "family": "并行义务与不可挽回截止",
+      "idea": "A到第二手须2份，B到第四手须2份；首手后冲击让A门槛涨至3，后续不可挽回而改B/SIDE",
+      "stage": "exact-enumeration",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-14-并行义务与不可挽回窗口/研究记录.md",
+        "tools/content-validator/experiments/pattern_parallel_obligations_20261014.py"
+      ],
+      "evidence": {
+        "completeConditionalEnumeration": true,
+        "humanFeedbackAvailable": false,
+        "independentAgentBlind": false,
+        "native": false
+      },
+      "note": "最优条件29/2，最强固定14，安全B开局12。成熟期限×并发注意力×不可挽回目标组合，非新原语。"
     }
   ],
   "edges": [
@@ -6028,6 +6048,24 @@
       "to": "PL-CRISIS03",
       "relation": "timing-window-avoided-by-safe-alternative",
       "reason": "许可撤销只影响在手2仍暴露的X；先完成B或SIDE后转让、ASK可完全规避，玩家没有必要处理撤权"
+    },
+    {
+      "from": "PL-OBLIGATION01",
+      "to": "PL-RIGHTS01",
+      "relation": "deadline-shock-redirects-attention",
+      "reason": "两个结果分别存在，不可挽回的A使玩家把原计划剩余手数转往B和SIDE，仍受短工期口诀解释"
+    },
+    {
+      "from": "PL-OBLIGATION01",
+      "to": "PL-CRISIS03",
+      "relation": "deadline-shock-redirects-attention",
+      "reason": "两个结果分别存在，不可挽回的A使玩家把原计划剩余手数转往B和SIDE，仍受短工期口诀解释"
+    },
+    {
+      "from": "PL-OBLIGATION01",
+      "to": "PL-SUBMIT02",
+      "relation": "deadline-shock-redirects-attention",
+      "reason": "两个结果分别存在，不可挽回的A使玩家把原计划剩余手数转往B和SIDE，仍受短工期口诀解释"
     }
   ],
   "coverage": {
