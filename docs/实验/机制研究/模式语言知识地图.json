@@ -3595,6 +3595,27 @@
         "native": false
       },
       "note": "并行早窗51/4、A完成3/4 B完成1/4；禁止重叠47/4；无早窗串行51/4、A完成1/2 B完成1/2。只交叉复核代表性策略，未重求DP。"
+    },
+    {
+      "id": "PL-HEDGE-OBSERVE02",
+      "name": "HEDGE四条件无提示观察和规则判定",
+      "layer": "untested-human-observation-protocol",
+      "origin": "ssnoir-research",
+      "family": "保留退路与真实关切的体验验证",
+      "idea": "2×2交叉操控A早窗口与是否允许同时LIVE；记录初次声明关切、实际行动、无提示因果理解，前向规则判定器检查合法性",
+      "stage": "protocol-plus-forward-regression-no-human",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-四条件退路体验验证/研究记录.md",
+        "tools/content-validator/experiments/hedge_observation_protocol_20261015.py"
+      ],
+      "evidence": {
+        "protocol": true,
+        "ruleRegression": true,
+        "actualHuman": false,
+        "independentAgentBlind": false,
+        "native": false
+      },
+      "note": "发现旧观察顺序的学习混淆；四组EW-P/EW-S/NW-P/NW-S; 12条代表性轨迹交叉结算；仍需真正招募独立参与者。"
     }
   ],
   "edges": [
