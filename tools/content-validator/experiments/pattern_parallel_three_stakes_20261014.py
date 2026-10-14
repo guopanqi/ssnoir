@@ -63,3 +63,23 @@ if __name__=='__main__':
         print('mandatory',required,answer)
     assert evaluate('AASCC',0)==(19,(1,0,1,1))
     print('PASS: every individually mandatory outcome retains root 23')
+
+def constrained_pair(pair):
+    paths=[''.join(s) for s in product(ACTIONS,repeat=5)]
+    candidates=[]
+    for first in ACTIONS:
+        branches=[]
+        for shock in (0,1):
+            choices=[(evaluate(s,shock)[0],s) for s in paths if s[0]==first
+                     and all(evaluate(s,shock)[1]['ABC'.index(k)] for k in pair)]
+            if not choices: break
+            branches.append(max(choices))
+        if len(branches)==2:
+            candidates.append((Fraction(branches[0][0]+branches[1][0],2),first,branches))
+    return max(candidates) if candidates else None
+
+if __name__=='__main__':
+    assert constrained_pair('AB')[0]==Fraction(45,2)
+    assert constrained_pair('AC')[0]==23
+    assert constrained_pair('BC')[0]==23
+    print('PASS pair constraints: AB=45/2, AC=23, BC=23')
