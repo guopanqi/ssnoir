@@ -1,0 +1,65 @@
+name: SSNoir Abstract Group Proof and Retention Evidence
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-research-group-proof-20261014.yml'
+      - 'tools/content-validator/experiments/pattern_shield_group_testing_20261014.py'
+      - 'tools/content-validator/experiments/pattern_registered_negative_evidence_20261014.py'
+      - 'docs/实验/机制研究/批次/2026-10-14-重复试探与可被承认的负证据/**'
+      - 'tools/content-validator/experiments/pattern_rolling_work_retention_20261014.py'
+      - 'tools/content-validator/experiments/pattern_b_affordance_20261014.py'
+      - 'tools/content-validator/experiments/pattern_bilateral_decisions_20261014.py'
+      - 'tools/content-validator/experiments/pattern_evidence_silence_20261014.py'
+      - 'tools/content-validator/experiments/pattern_partner_outcome_commitment_20261014.py'
+      - 'tools/content-validator/experiments/pattern_mutable_goals_crosscontract_20261014.py'
+      - 'docs/实验/机制研究/批次/2026-10-14-目标改变与跨交锋凭据/**'
+      - 'docs/实验/机制研究/批次/2026-10-14-双目标协作者与跨期承诺/**'
+      - 'docs/实验/机制研究/批次/2026-10-14-证据与策略性沉默/**'
+      - 'docs/实验/机制研究/批次/2026-10-14-行动依赖边与保全税/**'
+      - 'docs/实验/机制研究/批次/2026-10-14-B行动资格与延期兑现/**'
+      - 'docs/实验/机制研究/批次/2026-10-14-双向因果与操作回流/**'
+permissions:
+  contents: read
+jobs:
+  exact-decision-models:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Exact group probe, singleton control, and exposure bound
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/pattern_shield_group_testing_20261014.py
+      - name: Complete record-admissibility policy, fixed instructions, and ordinary-license matching
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/pattern_registered_negative_evidence_20261014.py
+      - name: Rolling work loss, rare voluntary LOCK and split access-window ablation
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/pattern_rolling_work_retention_20261014.py
+      - name: Exact A-to-B authorization and option-value counterfactuals
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/pattern_b_affordance_20261014.py
+      - name: Bidirectional gates, recovery cost, and endogenous burden against strong policies
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/pattern_bilateral_decisions_20261014.py
+      - name: Evidence admissibility, partner's own payoff, and Bayesian silence equilibrium
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/pattern_evidence_silence_20261014.py
+      - name: Strategic multi-outcome helper, whole-tree tool equivalence and nine complete binding contracts
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/pattern_partner_outcome_commitment_20261014.py
+      - name: Mutable agent goals, feasible decisions and cross-contract provenance
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/pattern_mutable_goals_crosscontract_20261014.py

@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>调查，还是先动手？｜DISC-01</title><style>
+:root{color-scheme:dark;--bg:#121b1c;--panel:#1e2b2c;--edge:#435756;--txt:#e8ebe4;--muted:#b3c0b8;--accent:#c3dcc5}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.65 system-ui,-apple-system,sans-serif}
+main{max-width:810px;margin:auto;padding:23px 17px 65px}
+h1{font-size:1.7rem;line-height:1.23;margin:4px 0 13px}h2{font-size:1.14rem;margin:0 0 8px}
+p{margin:7px 0 13px}.muted,small{color:var(--muted)}
+.card{background:var(--panel);border:1px solid var(--edge);border-radius:8px;padding:18px 19px;margin:13px 0}
+button,select{background:#344949;color:var(--txt);border:1px solid #94a59b;border-radius:5px;font:inherit;padding:9px 14px;cursor:pointer}
+button.primary{background:var(--accent);color:#11231a;font-weight:700}
+button:disabled{opacity:.4;cursor:not-allowed}
+button:focus-visible,select:focus-visible{outline:3px solid #ffdf86;outline-offset:2px}
+label{display:block;margin:9px 0}select{width:100%}
+.controls{display:flex;flex-wrap:wrap;gap:9px;margin-top:12px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.stats span{display:block;background:#111f20;padding:9px;text-align:center;border-radius:5px}
+.stats b{display:block;font-size:1.35rem}
+.notice{padding:9px 12px;border-left:3px solid var(--accent);margin:12px 0;min-height:2em}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#122122;padding:12px;font:13px/1.6 ui-monospace,Menlo,monospace}
+details summary{cursor:pointer;color:#d0e8cc}#stage{display:none}
+@media(max-width:520px){.stats{grid-template-columns:1fr 1fr}}
+</style></head><body><main>
+<header><small>SSNoir · 抽象玩法研究 · DISC-01 · 非正式游戏</small><h1>调查，还是先动手？</h1>
+<p class="muted">只有三手行动。你要在 A/B 两项工作中完成真正有用的那一项。信息可能来自调查，也可能来自你已经投入的工作；但有时信息会出现得太晚。</p></header>
+<div class="card"><h2>共同规则</h2>
+<p>A、B 都需要两次 WORK 才能完成。真正目标可能是 A 或 B，概率各 1/2，只有完成正确目标才得<strong>8</strong>，错误目标得0。任何一手也可选择 SIDE，立即得2。</p>
+<p>INSPECT 花一手直接揭示正确目标、不推进任何工作。执行 WORK 同样花一手并推进对应目标，还可能从工作现场得知正确目标。所有已完成的工作不退还行动；一次 WORK 不等于完整成果。</p>
+</div>
+<div class="card" id="setup">
+<h2>实验条件</h2>
+<label>反馈时点及改换路线成本<select id="variant">
+<option value="early-free">及时反馈 · 可直接换路线</option>
+<option value="late-free">迟来反馈 · 第二次工作后才知道</option>
+<option value="early-tax">及时反馈 · 换路线要额外一手适应</option>
+<option value="noisy-75">有噪声的工作线索 · 准确率75%</option>
+<option value="noisy-90">有噪声的工作线索 · 准确率90%</option>
+</select></label>
+<div class="controls"><button id="random" class="primary">随机开始</button>
+<button id="force-a">固定真实目标 A</button><button id="force-b">固定真实目标 B</button></div>
+<p class="muted">固定目标用于复现；随机试玩时请先独立选择。不同条件每次开始都重置全部进度。</p></div>
+<section id="stage"><div class="card"><h2 id="day">行动 1 / 3</h2>
+<p class="notice" id="info" aria-live="polite">你还不知道真正需要完成哪一项。</p>
+<div class="stats"><span><b id="a">0 / 2</b>工作 A</span><span><b id="b">0 / 2</b>工作 B</span>
+<span><b id="score">0</b>已得成果</span></div>
+<p id="advice">下一手准备做什么？</p>
+<div class="controls"><button id="work-a" class="primary">WORK A</button><button id="work-b">WORK B</button>
+<button id="inspect">INSPECT · 调查</button><button id="side">SIDE · 2</button><button id="adapt">ADAPT · 转换路线</button></div>
+<p class="notice" id="reaction" aria-live="polite"></p></div>
+<div class="card"><h2>行动轨迹</h2><pre id="trace" aria-live="polite"></pre>
+<div class="controls"><button id="copy">复制轨迹</button><button id="reset">重新开始</button></div>
+<p class="muted">没有服务器、不采集行为。这里只验证短期动作结构，不是玩家心理学试验或剧情内容。</p></div></section>
+<div class="card"><details><summary>研究假设与证据范围（建议先玩再看）</summary>
+<p>冻结数学模型以精确最优策略比较五组：先动手并及时得知类型、第二次工作后才知道、换方向多耗一手、可靠度75%或90%的有噪声工作线索。概率1/2时，最优收益分别是9、8、8、8、8.2，但“先做偏好的目标，一旦看清马上调整”是一条足以全优的简短策略。由此不能认证新玩法；它只是P03“边做边看”的具体信息时点与路线成本边界。</p>
+<p>该网页进行确定性动作模拟；对错概率只在开局决定隐藏类型。真人是否愿意探索、是否更有代入感，仍没有新数据。</p></details></div></main>
+<script>
+"use strict";
+(function(){
+const $=id=>document.getElementById(id);
+let g=null,rows=[];
+function print(s){rows.push(s);$("trace").textContent=rows.join("\n");}
+function allowed(action){
+ if(!g||g.t>=3)return false;
+ if(action==="SIDE")return true;
+ if(action==="INSPECT")return g.known===null;
+ if(action==="ADAPT")return g.tax&&g.last!==null&&!g.adapted;
+ if(action==="A"||action==="B"){
+  if(g["done"+action])return false;
+  if(g.tax&&g.last!==null&&g.last!==action&&!g.adapted)return false;
+  return true;
+ }
+ return false;
+}
+function reveal(){
+ if(g.known===null){g.known=g.hidden;print("调查/工作反馈：正确目标是 "+g.known+"。");}
+}
+function start(hidden){
+ const v=$("variant").value;
+ g={variant:v,t:0,a:0,b:0,doneA:false,doneB:false,
+    score:0,last:null,adapted:false,works:0,tax:v.endsWith("tax"),
+    hidden:hidden===null?(Math.random()<.5?"A":"B"):hidden,known:null,
+    report:null,accuracy:v==="noisy-75"?.75:v==="noisy-90"?.90:null};
+ rows=[];
+ $("setup").style.display="none";$("stage").style.display="block";
+ $("reaction").textContent="一旦完成某项工作，才知道它是否属于真正目标。";
+ print("版本："+v+"；正确目标尚未揭晓。");
+ render();
+}
+function act(a){
+ if(!allowed(a))return;
+ const previous=g.t;
+ if(a==="SIDE"){g.score+=2;print("第"+(previous+1)+"手 SIDE：获得2。");}
+ else if(a==="INSPECT"){print("第"+(previous+1)+"手 INSPECT：不推进工作。");reveal();}
+ else if(a==="ADAPT"){g.adapted=true;print("第"+(previous+1)+"手 ADAPT：允许下一手转换工作方向。");}
+ else{
+  g[a.toLowerCase()]++;
+  g.works++;
+  const finished=g[a.toLowerCase()]===2;
+  g.last=a;g.adapted=false;
+  print("第"+(previous+1)+"手 WORK "+a+"：该工作进度="+g[a.toLowerCase()]+"。");
+  if(finished){
+   g["done"+a]=true;
+   if(a===g.hidden){g.score+=8;print("完成有效目标 "+a+"，获得8。");}
+   else print("完成的是无效目标 "+a+"，成果为0。");
+   reveal();
+  }else if(g.accuracy!==null&&g.report===null){
+    const match=Math.random()<g.accuracy;
+    g.report=match?g.hidden:(g.hidden==="A"?"B":"A");
+    print("工作得到一次有噪声的判断：可能是 "+g.report+"；该判断的准确率为"+Math.round(100*g.accuracy)+"%。");
+  }else if(g.variant.startsWith("early")||(g.variant==="late-free"&&g.works>=2)){reveal();}
+ }
+ g.t++;
+ $("reaction").textContent=g.known!==null?"已经证实真正目标："+g.known+"。":
+    g.report!==null?"目前仅有工作线索："+g.report+"；准确率"+Math.round(100*g.accuracy)+"%，并非事实确认。":"当前仍不知道真正目标。";
+ if(g.t===3){print("三手结束；真实目标="+g.hidden+"；最终成果="+g.score+"。");}
+ render();
+}
+function render(){
+ $("day").textContent=g.t===3?"三手行动已结束":"行动 "+(g.t+1)+" / 3";
+ $("a").textContent=g.a+" / 2";$("b").textContent=g.b+" / 2";$("score").textContent=String(g.score);
+ $("info").textContent=g.known!==null?"当前已知正确目标："+g.known+"。":
+    g.report!==null?"线索提示："+g.report+"（准确率"+Math.round(100*g.accuracy)+"%），真实目标仍未确定。":"真正目标仍未知。";
+ $("advice").textContent=g.t===3?"本局结算："+g.score+"。":"接下来把这一手投入哪项行动？";
+ for(const [name,id] of [["A","work-a"],["B","work-b"],["INSPECT","inspect"],["SIDE","side"],["ADAPT","adapt"]])
+   $(id).disabled=!allowed(name);
+ $("adapt").style.display=g.tax?"inline-block":"none";
+}
+$("random").onclick=()=>start(null);
+$("force-a").onclick=()=>start("A");
+$("force-b").onclick=()=>start("B");
+for(const [name,id] of [["A","work-a"],["B","work-b"],["INSPECT","inspect"],["SIDE","side"],["ADAPT","adapt"]])
+ $(id).onclick=()=>act(name);
+$("reset").onclick=()=>{$("stage").style.display="none";$("setup").style.display="block";g=null;};
+$("copy").onclick=async()=>{try{await navigator.clipboard.writeText($("trace").textContent);$("copy").textContent="已复制";}catch(_){$("copy").textContent="请手动选中日志";}};
+})();
+</script></body></html>

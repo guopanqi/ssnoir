@@ -24,6 +24,12 @@ on:
       - 'tools/content-validator/experiments/test_strategic_refusal_field_study.js'
       - 'docs/实验/机制研究/批次/2026-10-13-策略回应与危机可达性/危机试玩.html'
       - 'tools/content-validator/experiments/test_crisis_opening_study.js'
+      - 'docs/实验/机制研究/批次/2026-10-13-情境选择与注意力验证/证词与时限.html'
+      - 'tools/content-validator/experiments/test_witness_vignette.js'
+      - 'docs/实验/机制研究/批次/2026-10-13-压力转移与隐藏触发/压力分配.html'
+      - 'tools/content-validator/experiments/test_pressure_transfer_prototype.js'
+      - 'docs/实验/机制研究/批次/2026-10-13-目标生成与生产性发现/试玩.html'
+      - 'tools/content-validator/experiments/test_productive_discovery_prototype.js'
       - 'Game/**'
 permissions:
   contents: read
@@ -81,6 +87,18 @@ jobs:
           mkdir -p pages-dist/crisis
           cp docs/实验/机制研究/批次/2026-10-13-策略回应与危机可达性/危机试玩.html pages-dist/crisis/index.html
           test -s pages-dist/crisis/index.html
+          node tools/content-validator/experiments/test_witness_vignette.js
+          mkdir -p pages-dist/witness
+          cp docs/实验/机制研究/批次/2026-10-13-情境选择与注意力验证/证词与时限.html pages-dist/witness/index.html
+          test -s pages-dist/witness/index.html
+          node tools/content-validator/experiments/test_pressure_transfer_prototype.js
+          mkdir -p pages-dist/pressure
+          cp docs/实验/机制研究/批次/2026-10-13-压力转移与隐藏触发/压力分配.html pages-dist/pressure/index.html
+          test -s pages-dist/pressure/index.html
+          node tools/content-validator/experiments/test_productive_discovery_prototype.js
+          mkdir -p pages-dist/discovery
+          cp docs/实验/机制研究/批次/2026-10-13-目标生成与生产性发现/试玩.html pages-dist/discovery/index.html
+          test -s pages-dist/discovery/index.html
           mkdir -p pages-dist/game
           cp -R Game/dist/web/. pages-dist/game/
           test -s pages-dist/game/index.html

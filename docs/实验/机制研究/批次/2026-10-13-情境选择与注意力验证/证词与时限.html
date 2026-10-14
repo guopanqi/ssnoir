@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>明天之前 · 可玩情境结构实验</title>
+<style>
+:root{color-scheme:dark;--bg:#111719;--panel:#1b2527;--ink:#ebe9df;--muted:#b8c4bc;--edge:#455957;--accent:#d0d9bf}
+*{box-sizing:border-box}body{background:var(--bg);color:var(--ink);margin:0;font:16px/1.7 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+main{max-width:820px;padding:24px 16px 60px;margin:auto}
+header{padding:0 0 16px;border-bottom:1px solid var(--edge);margin-bottom:18px}
+h1{font:500 clamp(1.7rem,4vw,2.55rem)/1.25 Georgia,serif;margin:.4rem 0 1rem}
+h2{font-size:1.12rem;margin:0 0 12px;font-weight:650}
+p{margin:8px 0 12px}small,.muted{color:var(--muted)}
+.panel{background:var(--panel);border:1px solid var(--edge);border-radius:8px;margin:14px 0;padding:19px 21px}
+.scene{border-left:3px solid #c0d0ba;padding:7px 0 7px 17px;margin:15px 0;white-space:pre-line}
+.option{display:block;width:100%;text-align:left;padding:14px 16px;border:1px solid #75847d;border-radius:7px;background:#28393a;color:var(--ink);margin:10px 0;font:inherit;cursor:pointer}
+.option:hover:not(:disabled){background:#364d4c}
+.option strong{display:block;line-height:1.45}
+.option small{display:block;margin-top:5px}
+.option:disabled{opacity:.47;cursor:not-allowed}
+button:focus-visible,textarea:focus-visible{outline:3px solid #f1d58e;outline-offset:2px}
+input,textarea{font:inherit}textarea{width:100%;min-height:88px;background:#0f1819;border:1px solid #7f968a;border-radius:6px;color:var(--ink);padding:11px;resize:vertical}
+.controls{display:flex;gap:9px;flex-wrap:wrap}
+.controls button{padding:10px 14px;border:1px solid #90a99a;border-radius:5px;color:var(--ink);background:#2a403c;cursor:pointer;font:inherit}
+.controls button:disabled{opacity:.4}.controls button.primary{background:var(--accent);color:#14221c;font-weight:700}
+.invisible{display:none!important}pre{white-space:pre-wrap;word-break:break-word;background:#101b1b;padding:13px;font:13px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace}
+details summary{cursor:pointer;color:#d7e8ce}
+.notice{border-top:1px solid var(--edge);margin-top:17px;padding-top:13px;font-size:.91rem}
+@media(max-width:540px){.panel{padding:16px}.option{padding:12px}}
+</style></head><body><main>
+<header><small>SSNoir · 独立研究 · 叙事情境验证 / 非正式剧情</small>
+<h1>明天之前</h1>
+<p class="muted">一份证词，两件值得关心的事，以及一个难以撤回的选择。全程三次相互关联的行动，没有数值评分；选择将决定下一幕出现什么事实。请尽量在不知道实验假说的情况下完成首次试玩。</p>
+</header>
+<section id="setup" class="panel">
+<h2>开始实验</h2>
+<p>明天上午有一场关于旧街仓库清退的临时听证。居民需要证据，一名愿意作证的职员则要求隐藏身份。今晚只够认真办好其中一件事。</p>
+<div class="controls"><button class="primary" id="start">开始一次未知版本</button></div>
+<details class="notice"><summary>研究者复现入口（首次试玩不建议展开）</summary>
+<p class="muted">A：规则直接阻止泄露；B：仍可泄露，但它会成为一种玩家可以拒绝或承担的行为。两个版本故事事实与文字结果保持一致，只改变是否允许提交具名证词。</p>
+<div class="controls"><button id="hardStart">强制 A</button><button id="softStart">强制 B</button></div>
+</details>
+</section>
+<section id="play" class="invisible">
+<div class="panel">
+<small id="chapter">第一幕 · 17:00</small>
+<h2 id="sceneTitle">今晚只能办好一件事</h2>
+<div class="scene" id="scene" aria-live="polite"></div>
+<label for="reason"><small>作决定之前，你在担心什么？（可不填）</small></label>
+<textarea id="reason" placeholder="一两句话就够；文字只保存在本页的行动记录里。"></textarea>
+<div id="choices"></div>
+</div>
+<div class="panel">
+<h2>行动记录</h2>
+<pre id="trail" aria-live="polite"></pre>
+<div class="controls"><button id="copy">复制记录</button><button id="restart">重新开始</button></div>
+<p class="muted">没有后台采集、没有登录和统计。你可以选择是否把复制的记录提供给研究者。第二次试玩不等于首次盲测。</p>
+</div>
+</section>
+<section class="panel">
+<details><summary>关于这份实验的边界</summary>
+<p>两种版本只改变一项行动权：收到新的危险消息后，是否仍能把具名证词交出去。所有主要结局文字来自同一份情境表，不使用隐藏加分来诱导“正确答案”。这里不是玩家道德测量或正式游戏剧本。</p>
+<p>故事使用虚构身份和地点，不引用 SSNoir 已确定的人物与剧情。它用于观察两件独立的心理问题：前期注意力投向谁，以及得到新的后果信息后，玩家是否觉得自己仍拥有违背原承诺的行动权。没有人的实际反应，不能声称更有责任感或更喜欢某版本。</p>
+</details>
+</section>
+</main>
+<script>
+"use strict";
+(function(){
+const $=id=>document.getElementById(id);
+let g=null, log=[];
+const FLAT_MENU=(typeof window!=="undefined") && window.location.search.includes("flat-menu=1");
+const SCENE={
+  prepare:[
+    {id:"records",name:"去查仓库的登记簿",desc:"取得一个可以公开引用的日期戳，但来不及当面解释证词会如何被使用。"},
+    {id:"witness",name:"去见那名职员",desc:"核对口供，听清她的顾虑；今晚就拿不到独立的公共记录。"}
+  ],
+  decide:[
+    {id:"redact",name:"隐去姓名，提交有限证据",desc:"守住对方要求；如果缺乏其他材料，听证会可能认为证据不足。"},
+    {id:"delay",name:"暂时不提交，改在明天继续调查",desc:"错过明日上午的窗口，但有机会补齐信息。"},
+    {id:"release",name:"交出具名原文，让证据立刻公开",desc:"证词可能更有分量，但会暴露一个明确反对曝光的人。"}
+  ]
+};
+const ENDINGS={
+  "records:redact":{
+    title:"听证被暂缓",
+    text:"登记簿的日期戳足以证明清退通知存在程序缺口。委员会暂缓作决定，但还没有正式撤销清退。\n\n职员的名字没有进入公共记录。你没有时间当面告诉她，你终于找到了不必依赖她身份的证据。",
+    consequences:["一份可引用的公共记录","身份受到保护","关系尚未当面修复"]
+  },
+  "witness:redact":{
+    title:"证词留下了，听证没能停下",
+    text:"匿名证词进入卷宗，却因缺少独立佐证而无法影响临时听证。清退程序仍继续。\n\n职员看见你履行承诺。她说，明天还愿意一起找可以公开的材料。",
+    consequences:["证词被保留","清退未暂缓","职员仍愿意合作"]
+  },
+  "records:delay":{
+    title:"你留下证据，错过了窗口",
+    text:"你把登记簿复印件装进档案袋，打算明天核对原始签章。上午听证将缺少这份材料，居民仍需面对清退决定。\n\n证人的身份没有外泄，但你也没有和她建立起能够继续求助的关系。",
+    consequences:["程序证据仍可继续核实","上午听证错过","证人暂未得到回访"]
+  },
+  "witness:delay":{
+    title:"她明天会带来另一个人",
+    text:"你先把具名证词收好，没有让它进入会公开的卷宗。职员答应明天联系第二名知情者。\n\n你们拥有了继续调查的机会，却错过了可能暂停清退的明日上午。",
+    consequences:["职员愿带来第二证人","身份暂未公开","关键听证窗口错过"]
+  },
+  "records:release":{
+    title:"委员会暂停清退，她的名字出现了",
+    text:"登记簿与具名证词共同迫使委员会暂缓决定。报道在傍晚传播，居民暂时保住住所。\n\n职员的身份随后被认出。她没有回应你发去的解释，也不再愿意提供仓库内部材料。",
+    consequences:["程序被暂缓","证人姓名外泄","合作来源断裂"]
+  },
+  "witness:release":{
+    title:"清退暂停了，信任也结束了",
+    text:"具名证词引起听证会的紧急复核，清退暂缓。你得到了居民眼前最迫切的结果。\n\n你答应过职员不透露姓名，她却从公开报道上看见自己的名字。她回了一句话：‘我以为你会先来问我。’",
+    consequences:["清退被暂缓","承诺被违反","职员拒绝继续合作"]
+  }
+};
+const FOLLOWUPS={
+  "records:redact":["appeal","tell"],
+  "witness:redact":["second","neighbors"],
+  "records:delay":["verify","neighbors"],
+  "witness:delay":["second","neighbors"],
+  "records:release":["appeal","apology"],
+  "witness:release":["apology","neighbors"]
+};
+const FOLLOWUP_DETAILS={
+  appeal:{name:"带登记簿去正式申诉",desc:"你能提交可公开核对的时间记录，不能再索取已失去的证人配合。",after:"你把登记簿交给受理申诉的书记员。她要求再核实原件，尚未答应撤销决定。"},
+  tell:{name:"亲自告诉证人结果",desc:"让对方知道你履行了匿名承诺，不把沉默当成信任。",after:"你找到那名职员，告诉她公开使用了什么、没使用什么。她听完后说：‘至少这一次，我知道是谁作了决定。’"},
+  second:{name:"与职员去见第二名知情者",desc:"继续保留合作渠道；新的口供未必赶得上眼前时限。",after:"职员带你找到另一个见过仓库内部记录的人。对方愿意谈，但要求先知道证据会交给谁。"},
+  neighbors:{name:"去居民会议说明当前情况",desc:"面对听证窗口已经发生的后果，不能凭一次演说修改它。",after:"居民问你明天还有哪些实际可走的途径。你说出了目前能证明的事实，也承认没能做到的事情。"},
+  verify:{name:"核对登记簿原始签章",desc:"继续做证据工作，承担错过今天听证的事实。",after:"你在原始卷宗中找到了第二处签章。它不改变已经错过的听证，却让后续申诉不再只靠一张复印件。"},
+  summarize:{name:"把目前的事实整理成时间表",desc:"总结已知资料，不会凭空取得新的文件或恢复任何人的同意。",after:"你把今晚经过的事写成一张时间表。它能帮助你解释自己做过什么，但还不是新的可公开证据。"},
+  apology:{name:"尝试当面解释并道歉",desc:"证人的身份已公开；你不能用一句歉意恢复之前的许可。",after:"你到了职员工作的街区，没有得到答复。你仍然可以写下解释，但她是否愿意继续与你交谈，不由你决定。"}
+};
+function say(x){log.push(x);$("trail").textContent=log.join("\n");}
+function copyReason(){const v=$("reason").value.trim();say("当时的想法："+(v||"(未填写)"));$("reason").value="";}
+function showChoices(options){
+ const el=$("choices");el.innerHTML="";
+ for(const it of options){
+   const b=document.createElement("button");b.type="button";b.className="option";b.id="choice-"+it.id;b.disabled=!!it.disabled;
+   const strong=document.createElement("strong");strong.textContent=it.name;b.appendChild(strong);
+   const desc=document.createElement("small");desc.textContent=it.desc;b.appendChild(desc);
+   if(it.disabled)b.setAttribute("aria-disabled","true");
+   else b.onclick=()=>choose(it.id);
+   el.appendChild(b);
+ }
+}
+function begin(mode){
+ g={mode,prep:null,done:false};log=[];
+ $("setup").classList.add("invisible");$("play").classList.remove("invisible");
+ $("reason").value="";$("reason").disabled=false;
+ say("独立虚构情境实验已开始；没有数值评分，条件编号将在完成第三幕后记录。");
+ render();
+}
+function render(){
+ if(!g)return;
+ if(g.done){
+   $("chapter").textContent="尾声 · 次日上午";
+   const key=g.prep+":"+g.decision;
+   $("sceneTitle").textContent="你决定继续做什么";
+   $("scene").textContent=ENDINGS[key].text+"\n\n你最后选择："+FOLLOWUP_DETAILS[g.next].name+"\n\n"+FOLLOWUP_DETAILS[g.next].after;
+   $("choices").innerHTML="";$("reason").disabled=true;
+   return;
+ }
+ if(g.prep===null){
+   $("chapter").textContent="第一幕 · 17:00";
+   $("sceneTitle").textContent="今晚只能认真办好一件事";
+   $("scene").textContent="明天上午的临时听证可能决定旧街仓库周围住户是否必须搬离。居民要求你找到能公开的证据。\n\n一名仓库职员把签过字的陈述交给你。她说：‘请别公开我的名字。’\n\n现在已经17点，你今晚只能办好下面其中一件事。";
+   showChoices(SCENE.prepare);
+ }else if(g.decision===undefined){
+   $("chapter").textContent="第二幕 · 21:30";
+   $("sceneTitle").textContent="你现在知道了另一件事";
+   const background=g.prep==="records"?
+     "你从仓库拿到一份登记簿复印件，里面有关键的日期戳。但你今晚没来得及再次见那名职员。":
+     "你和那名职员核对了整整一晚，确信她的口供真实。但你没有取得能公开使用的独立记录。";
+   $("scene").textContent=background+"\n\n递交系统提示：具名证词会被公开，媒体能够直接识别她。职员再次传来消息：‘我愿意说清楚事实，但不要让我被认出来。’\n\n明日上午是最后一次临时听证。你只能选择一种处理方式。";
+   const options=SCENE.decide.map(c=>({
+     ...c,disabled:c.id==="release"&&g.mode==="hard",
+     desc:c.id==="release"&&g.mode==="hard"?"具名文件已被本实验的封存规则禁用，无法递交。":c.desc
+   }));
+   showChoices(options);
+ }else{
+   $("chapter").textContent="第三幕 · 次日上午";
+   const key=g.prep+":"+g.decision,ending=ENDINGS[key];
+   $("sceneTitle").textContent=ending.title;
+   $("scene").textContent=ending.text+"\n\n已经产生的后果："+ending.consequences.join(" / ")+"\n\n现在你还有时间继续办一件事。旧的准备和交付方式，决定了哪些途径还能使用。";
+   const legal=FLAT_MENU?["neighbors","summarize"]:FOLLOWUPS[key];
+   showChoices(legal.map(id=>({id,name:FOLLOWUP_DETAILS[id].name,desc:FOLLOWUP_DETAILS[id].desc})));
+ }
+}
+function choose(id){
+ if(!g||g.done)return;
+ if(g.prep===null){
+   if(!SCENE.prepare.some(x=>x.id===id))return;
+   copyReason();g.prep=id;say("第一幕行动："+id);render();return;
+ }
+ if(g.decision===undefined){
+   const option=SCENE.decide.find(x=>x.id===id);
+   if(!option||(id==="release"&&g.mode==="hard"))return;
+   copyReason();g.decision=id;say("第二幕行动："+id);
+   const ending=ENDINGS[g.prep+":"+id];
+   say("已发生的后果："+ending.title+"；"+ending.consequences.join("、"));
+   render();return;
+ }
+ const key=g.prep+":"+g.decision;
+ const legal=FLAT_MENU?["neighbors","summarize"]:FOLLOWUPS[key];
+ if(!legal.includes(id))return;
+ copyReason();g.next=id;g.done=true;
+ say("第三幕行动："+id+"；新的情况："+FOLLOWUP_DETAILS[id].after);
+ say("实验条件："+(g.mode==="hard"?"A":"B")+"；菜单版："+(FLAT_MENU?"平坦":"历史条件化")+"。");
+ render();
+}
+$("start").onclick=()=>begin(Math.random()<.5?"hard":"soft");
+$("hardStart").onclick=()=>begin("hard");
+$("softStart").onclick=()=>begin("soft");
+$("restart").onclick=()=>{$("setup").classList.remove("invisible");$("play").classList.add("invisible");g=null;log=[];};
+$("copy").onclick=async()=>{try{await navigator.clipboard.writeText($("trail").textContent);$("copy").textContent="已复制";}catch(_){$("copy").textContent="可选中记录手动复制";}};
+})();
+</script>
+</body></html>

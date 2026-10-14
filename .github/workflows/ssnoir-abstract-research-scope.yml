@@ -32,6 +32,21 @@ on:
       - 'docs/实验/机制研究/批次/2026-10-13-关系许可与成果保全/**'
       - 'tools/content-validator/experiments/test_partner_prototype.js'
       - 'tools/content-validator/experiments/pattern_crisis_from_opening_20261013.py'
+      - 'tools/content-validator/experiments/pattern_objective_affordance_20261013.py'
+      - 'tools/content-validator/experiments/pattern_pressure_transfer_20261013.py'
+      - 'tools/content-validator/experiments/pattern_pressure_information_20261013.py'
+      - 'tools/content-validator/experiments/pattern_generated_obligations_20261013.py'
+      - 'tools/content-validator/experiments/pattern_productive_discovery_20261013.py'
+      - 'tools/content-validator/experiments/pattern_noisy_discovery_20261013.py'
+      - 'tools/content-validator/experiments/pattern_reciprocal_actions_20261013.py'
+      - 'docs/实验/机制研究/批次/2026-10-13-双向动作余效与操作顺序/**'
+      - 'tools/content-validator/experiments/test_productive_discovery_prototype.js'
+      - 'docs/实验/机制研究/批次/2026-10-13-目标生成与生产性发现/**'
+      - 'tools/content-validator/experiments/test_pressure_transfer_prototype.js'
+      - 'docs/实验/机制研究/批次/2026-10-13-压力转移与隐藏触发/**'
+      - 'tools/content-validator/experiments/test_witness_vignette.js'
+      - 'docs/实验/机制研究/批次/2026-10-13-情境选择与注意力验证/**'
+      - 'docs/实验/机制研究/批次/2026-10-13-目标语义与行动权对照/**'
       - 'tools/content-validator/experiments/test_strategic_refusal_field_study.js'
       - 'tools/content-validator/experiments/test_crisis_opening_study.js'
       - 'docs/实验/机制研究/批次/2026-10-13-策略回应与危机可达性/**'
@@ -61,6 +76,16 @@ jobs:
           python3 tools/content-validator/experiments/pattern_portable_salvage_20261013.py
           python3 tools/content-validator/experiments/pattern_bargaining_incentives_20261013.py
           python3 tools/content-validator/experiments/pattern_crisis_from_opening_20261013.py
+          python3 tools/content-validator/experiments/pattern_objective_affordance_20261013.py
+          python3 tools/content-validator/experiments/pattern_pressure_transfer_20261013.py
+          python3 tools/content-validator/experiments/pattern_pressure_information_20261013.py
+          python3 tools/content-validator/experiments/pattern_generated_obligations_20261013.py
+          python3 tools/content-validator/experiments/pattern_productive_discovery_20261013.py
+          python3 tools/content-validator/experiments/pattern_noisy_discovery_20261013.py
+          python3 tools/content-validator/experiments/pattern_reciprocal_actions_20261013.py
+          node tools/content-validator/experiments/test_productive_discovery_prototype.js
+          node tools/content-validator/experiments/test_pressure_transfer_prototype.js
+          node tools/content-validator/experiments/test_witness_vignette.js
           node tools/content-validator/experiments/test_strategic_refusal_field_study.js
           node tools/content-validator/experiments/test_crisis_opening_study.js
           node tools/content-validator/experiments/test_relational_field_study.js

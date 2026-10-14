@@ -1,0 +1,62 @@
+name: SSNoir Abstract Mechanism Evidence 20261013
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ssnoir-abstract-20261013-evidence.yml'
+      - 'tools/content-validator/experiments/pattern_certified_delivery_20261013.py'
+      - 'tools/content-validator/experiments/pattern_inflight_redirection_20261013.py'
+      - 'tools/content-validator/experiments/pattern_carryover_obligation_20261013.py'
+      - 'docs/实验/机制研究/批次/2026-10-13-可交付成果与延续义务/试玩.html'
+permissions:
+  contents: read
+jobs:
+  exact-pattern-evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Exact rational results, all strong fixed comparisons and reference branches
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/pattern_certified_delivery_20261013.py
+          python3 tools/content-validator/experiments/pattern_inflight_redirection_20261013.py
+          python3 tools/content-validator/experiments/pattern_carryover_obligation_20261013.py
+      - name: Static HTML script syntax and research-atlas reference validation
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/validate_pattern_language_map.py
+          python3 - <<'PY'
+          from html.parser import HTMLParser
+          from pathlib import Path
+          import subprocess
+          class Extract(HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.inside=False
+                  self.scripts=[]
+              def handle_starttag(self, tag, attrs):
+                  if tag=='script':
+                      self.inside=True
+              def handle_endtag(self, tag):
+                  if tag=='script':
+                      self.inside=False
+              def handle_data(self, data):
+                  if self.inside:
+                      self.scripts.append(data)
+          page=Path('docs/实验/机制研究/批次/2026-10-13-可交付成果与延续义务/试玩.html').read_text(encoding='utf-8')
+          parser=Extract()
+          parser.feed(page)
+          assert len(parser.scripts)==1
+          assert all(x in page for x in ('id="actions"','id="history"','id="mode"','id="limit"','id="end"'))
+          script=parser.scripts[0]
+          check=subprocess.run(['node','--check','-'],input=script,text=True,check=True,capture_output=True)
+          print('Offline CERT playtest inline JS syntax and required controls: PASS')
+          PY
