@@ -585,7 +585,7 @@
           :resolve (roll 'sharpness
             (outcome (lambda () (spend-composure! 1) (ambush-survey-step! 1)))
             (outcome (lambda () (ambush-survey-step! 1)))
-            (outcome (lambda () (ambush-survey-step! 2))))))
+            (outcome (lambda () (ambush-survey-step! 2)))))
         '()))
 
     ;; ── 勒索日 ──────────────────────────────────────
