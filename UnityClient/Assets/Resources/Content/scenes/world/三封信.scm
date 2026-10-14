@@ -2706,6 +2706,8 @@
           ((equal? msg 'night-visit!) (receive-night-visit!))
           ((equal? msg 'opening-sleep!) (opening-sleep!))
           ((equal? msg 'story-stage) story-stage)
+          ((equal? msg 'ambush-known?) ambush-known?)
+          ((equal? msg 'tavern-ambush-nodes) (tavern-ambush-nodes))
           ((equal? msg 'days-to-premiere) (days-to-premiere))
           ((equal? msg 'singer-present?) (singer-present?))
           ((equal? msg 'old-street-open?) (old-street-open?))
