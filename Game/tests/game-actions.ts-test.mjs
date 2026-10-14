@@ -12,19 +12,26 @@ const sources={"scripts/stdlib.scm":src("scripts/stdlib.scm"),
  "scripts/engine.scm":src("scripts/engine.scm"),"scripts/theatre.scm":src("scripts/theatre.scm")};
 const binary=readFileSync("node_modules/lips/dist/std.xcb");
 
-test("FateStrip faithfully reproduces all authored C# probability rows",()=>{
- const expected=[
-  [0,["fail","fail","fail","neutral","neutral","neutral"]],
-  [2,["fail","fail","neutral","neutral","neutral","success"]],
-  [3,["fail","neutral","neutral","neutral","success","success"]],
-  [4,["fail","neutral","neutral","success","success","success"]],
-  [5,["neutral","neutral","success","success","success","success"]],
-  [6,["neutral","success","success","success","success","success"]],
-  [7,["success","success","success","success","success","success"]]
+test("A+ percentage rows match C# and every percentile resolves consistently",()=>{
+ const rows=[
+  [0,[60,40,0]],[1,[60,40,0]],[2,[45,45,10]],[3,[35,45,20]],
+  [4,[20,35,45]],[5,[0,40,60]],[6,[0,25,75]],
+  [7,[0,10,90]],[8,[0,0,100]],[10,[0,0,100]]
  ];
- for(const [prepared,row] of expected)assert.deepEqual(fateStrip(prepared),row);
+ for(const [prepared,[fail,neutral,success]] of rows){
+  const strip=fateStrip(prepared);
+  assert.equal(strip.length,100);
+  assert.equal(strip.filter(x=>x==="fail").length,fail);
+  assert.equal(strip.filter(x=>x==="neutral").length,neutral);
+  assert.equal(strip.filter(x=>x==="success").length,success);
+  for(let roll=1;roll<=100;roll++)
+    assert.equal(resolveFate(4,0,prepared-4,roll).outcome,strip[roll-1]);
+ }
  assert.equal(resolveFate(3,1,0,1).outcome,"fail");
- assert.equal(resolveFate(3,1,0,4).outcome,"success");
+ assert.equal(resolveFate(3,1,0,21).outcome,"neutral");
+ assert.equal(resolveFate(3,1,0,56).outcome,"success");
+ assert.throws(()=>resolveFate(4,0,0,0),/percentage roll/);
+ assert.throws(()=>resolveFate(4,0,0,101),/percentage roll/);
 });
 test("fixed dice slots survive spending without index confusion",()=>{
  const rolls=[0,0.2,0.4,0.8];
