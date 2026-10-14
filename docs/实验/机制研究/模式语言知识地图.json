@@ -3467,6 +3467,26 @@
         "native": false
       },
       "note": "灵活停查41/8；固定0、1、2、3次为3、5、35/8、9/2；最高强基线仅差1/8，成熟optimal stopping非新原语。"
+    },
+    {
+      "id": "PL-EVIDENCE-WORK01",
+      "name": "有噪声证据加绑定工作仍压制通用准备的负例",
+      "layer": "negative-boundary",
+      "origin": "ssnoir-research",
+      "family": "生产性证据与选择权",
+      "idea": "IA/IB生成各自绑定工作和3/4可信证据，W生成可用于任何目标的通用工作但无信息；三手后终局",
+      "stage": "exact-fraction-dp",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-证据绑定工作与通用准备/研究记录.md",
+        "tools/content-validator/experiments/pattern_evidence_work_binding_20261015.py"
+      ],
+      "evidence": {
+        "exactFractionDP": true,
+        "humanFeedbackAvailable": false,
+        "independentAgentBlind": false,
+        "native": false
+      },
+      "note": "仅W根3，仅IA/IB根451/64，全部动作仍451/64；增加通用准备没有改善根最优，非持续注意力新循环。"
     }
   ],
   "edges": [
@@ -6409,6 +6429,24 @@
       "to": "PL-TRANSFER02",
       "relation": "iterated-imperfect-evidence-not-once-perfect",
       "reason": "独立有噪声证据改变后验及继续搜索收益，现有策略性伪装/一次全知不是本次规则"
+    },
+    {
+      "from": "PL-EVIDENCE-WORK01",
+      "to": "PL-EVIDENCE-STOP01",
+      "relation": "productive-evidence-dominates-flexible-work-at-root",
+      "reason": "噪声信息和绑定工作组合足以实现全部动作菜单的最优根；通用工作未提升收益"
+    },
+    {
+      "from": "PL-EVIDENCE-WORK01",
+      "to": "PL-INFO-PROD01",
+      "relation": "productive-evidence-dominates-flexible-work-at-root",
+      "reason": "噪声信息和绑定工作组合足以实现全部动作菜单的最优根；通用工作未提升收益"
+    },
+    {
+      "from": "PL-EVIDENCE-WORK01",
+      "to": "PL-INFO-WINDOW01",
+      "relation": "productive-evidence-dominates-flexible-work-at-root",
+      "reason": "噪声信息和绑定工作组合足以实现全部动作菜单的最优根；通用工作未提升收益"
     }
   ],
   "coverage": {
