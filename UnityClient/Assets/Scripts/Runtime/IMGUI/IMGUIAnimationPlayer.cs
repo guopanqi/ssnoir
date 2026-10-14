@@ -134,7 +134,7 @@ namespace SSNoir.IMGUI
                     fontSize = IMGUIStyles.FontSize(12),
                     normal = { textColor = IMGUIStyles.PaperTextSecondary }
                 };
-                IMGUIStyles.DrawLabel(new Rect(contentX, contentY, contentW, 16), FateStrip.Describe(strip), summaryStyle);
+                IMGUIStyles.DrawLabel(new Rect(contentX, contentY, contentW, 16), UiText.Odds(strip), summaryStyle);
                 contentY += 18;
 
                 RollOutcome? highlighted = _phase >= 1 ? FinalOutcome : (RollOutcome?)null;
