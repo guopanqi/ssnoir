@@ -110,6 +110,50 @@ def forward_commit(policy,outside=F(13,4),p_high=F(1,2)):
         money+=prob*(t1+t2)
     return money,own,True
 
+
+def partner_second_veto(policy,bilateral=False):
+    """Third, deliberately different protocol: partner retains a t1 EXIT right.
+    After START the actor spent 1 and compares t1 outside w_H=5, w_L=2
+    against the actually promised t1 payoff. Partner initial outside=9/4.
+    If it later exits, t1+t2 player residual=1, yet already-earned initial A8 remains.
+    Bilateral agreement also constrains the actor's t1 exit option, not just player.
+    """
+    first_outside=F(9,4)
+    opportunity={"H":F(5),"L":F(2)}
+    paths=[]
+    for s in ("H","L"):
+        action=policy[s]
+        retains=bilateral or OWN[action]>opportunity[s]
+        actor=OWN[action] if retains else opportunity[s]
+        player=branch(s,action)[0] if retains else F(1)
+        paths.append((actor,player,retains))
+    self_expect=(paths[0][0]+paths[1][0])/2-F(1) # irreversible START investment
+    start=self_expect>first_outside
+    player=F(8)+(paths[0][1]+paths[1][1])/2 if start else F(3)
+    return player,self_expect if start else first_outside,start,tuple(p[2] for p in paths)
+
+def partner_second_veto_menu(bilateral=False):
+    choices=[(policy,partner_second_veto(policy,bilateral))
+             for policy,_ in available_contracts()]
+    return max(choices,key=lambda r:r[1][0]),choices
+
+def partner_second_veto_forward(policy,bilateral=False):
+    """Separate forward enumeration: public t1 outside options are independent
+    of the previous protocol's fixed t0 alternative; no hidden lookahead.
+    """
+    p=F(0);a=F(0);states=[]
+    for s in ("H","L"):
+        offer=policy[s]
+        opportunity=F(5) if s=="H" else F(2)
+        consent=bilateral or OWN[offer]>opportunity
+        actor=OWN[offer] if consent else opportunity
+        stage=FIRST[offer]+(F(9 if s=="H" else 2)-1 if offer!="BYPASS" else F(1)) if consent else F(1)
+        p+=stage/2;a+=actor/2
+        states.append(consent)
+    a-=F(1)
+    if a<=F(9,4):return F(3),F(9,4),False,tuple(states)
+    return F(8)+p,a,True,tuple(states)
+
 def check():
     dynamic=multi()
     assert dynamic[0]==F(27,2),dynamic
@@ -161,5 +205,27 @@ def check():
                     "best_contingent":str(best[1][0]),"policy":best[0],
                     "no_early_forecast":str(F(29,2)),
                     "all9_checked":len(all9)})
+    # Partner's LATE opt-out is distinct from player-only commitments.
+    # This explicitly changes the time and utility protocol; figures must
+    # not be mistaken for a single-variable ablation of the preceding model.
+    veto_free=partner_second_veto({"H":"COMP","L":"BYPASS"})
+    best_one,all_one=partner_second_veto_menu(bilateral=False)
+    best_both,all_both=partner_second_veto_menu(bilateral=True)
+    assert veto_free==(F(9),F(5,2),True,(False,False))
+    assert best_one[1][0]==F(21,2)
+    assert best_both[1][0]==F(15)
+    assert best_one[1][3]==(False,True) and best_both[1][3]==(True,True)
+    for policy,result in all_one:
+        assert partner_second_veto_forward(policy)==result
+    for policy,result in all_both:
+        assert partner_second_veto_forward(policy,True)==result
+    # If mutual enforcement costs the player c, bilateral15-c can be beaten
+    # by the unconstrained best player-only contract21/2 when c>9/2.
+    assert F(15)-F(4)>best_one[1][0]
+    assert F(15)-F(5)<best_one[1][0]
+    print("SECOND_VETO",{"unbound":str(veto_free[0]),"player_bound_only":str(best_one[1][0]),
+                          "mutually_bound":str(best_both[1][0]),
+                          "new_actor_EXIT_after_public_H":True,
+                          "bilateral_cost_threshold":"9/2"})
     print("PASS: exact rational choices, 9 complete binding menus, strong mechanical controls")
 if __name__=="__main__":check()
