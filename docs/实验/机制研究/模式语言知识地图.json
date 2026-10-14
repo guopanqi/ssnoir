@@ -3511,7 +3511,8 @@
       "stage": "exhaustive-enumeration",
       "sources": [
         "docs/实验/机制研究/批次/2026-10-15-动作切换与后到目标/研究记录.md",
-        "tools/content-validator/experiments/pattern_action_coupling_20261015.py"
+        "tools/content-validator/experiments/pattern_action_coupling_20261015.py",
+        "docs/实验/机制研究/批次/2026-10-13-双向动作余效与操作顺序/研究记录.md"
       ],
       "evidence": {
         "enumeration": true,
@@ -3519,7 +3520,7 @@
         "humanFeedbackAvailable": false,
         "native": false
       },
-      "note": "固定计划根7，条件后到信息根10；移除切换增效后两种制度均7。最优策略仍为简单先AB后按目标调整，不认证新原语。"
+      "note": "固定计划根7，条件后到信息根10；移除切换增效后两种制度均7。最优策略仍为简单先AB后按目标调整，不认证新原语。 原始REC01—03已验证更丰富的双向余效×临时阻塞，且一手前瞻交替完全达到全DP。本批仅增加后到目标时保留双方向可兑现选项的小例。"
     }
   ],
   "edges": [
