@@ -3487,6 +3487,19 @@
         "native": false
       },
       "note": "仅W根3，仅IA/IB根451/64，全部动作仍451/64；增加通用准备没有改善根最优，非持续注意力新循环。"
+    },
+    {
+      "id": "PL-LEAD01",
+      "name": "线索引导与条件核实",
+      "layer": "mature-combination",
+      "origin": "ssnoir-research",
+      "family": "序贯信息",
+      "idea": "线索反馈影响核实对象，仍可由条件动作许可复制",
+      "stage": "exact-enumeration",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-线索引导与调查对象转换/研究记录.md"
+      ],
+      "note": "仅扫描251/64，条件深入核实7，始终开放31/3；非新原语。"
     }
   ],
   "edges": [
