@@ -2734,6 +2734,63 @@
         "humanVerified": false
       },
       "note": "在q=7/8时RETOOL有22557/131072严格边际，不能推广为永远无用；收益仍为单一可加分数。"
+    },
+    {
+      "id": "PL-BIL01",
+      "name": "A开启B、B关闭A：真实改选来自早报价和撤权，A前置在正常开局竟无作用",
+      "layer": "early-claim-revokes-unfinished-work-with-causal-gate-ablation",
+      "family": "提前机会/不可逆结算/合法菜单边与最佳路线归因",
+      "idea": "三日A需2手得8，完成B一手普通6，第1日高14/低4各半，过早B关闭未完A；完整根29/2，先A后高B或低时完成A，两者终局(A真,B真)与(A假,B真)各半。撤B关闭根18，取消早价根14；只撤A→B前置仍29/2且最优正常可达策略与结果完全不变。证明表面两箭头不等于两条真正影响选择的因果边。",
+      "stage": "fraction-dp-positive-reach-forward-outcome-and-single-rule-ablation; author-only; not-new-primitive",
+      "origin": "local-20261014-three-cross-family-Fraction-policy-and-reachability-controls",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-14-双向因果与操作回流/研究记录.md",
+        "tools/content-validator/experiments/pattern_bilateral_decisions_20261014.py"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      }
+    },
+    {
+      "id": "PL-BIL02",
+      "name": "B关闭A后的付费重开权：仅有外来U竞争才需要决定是否补救",
+      "layer": "post-commitment-reopening-and-competing-public-opportunity",
+      "family": "有损撤回/挽救原工作/新机会/结果向量",
+      "idea": "四日A两手得8，B第1日报价高14低4，提前B使A关闭；可花一手REOPEN_A再补工作；第2日U以1/2出现得9。动态根21，禁REOPEN39/2，去B关闭23，去U37/2，去A→B前置仍21且同最优轨迹。高B分支无U则付费REOPEN+WORK_A、有U则取U并放弃A；A/B双完成概率有补救3/4、禁补救1/2。简单条件政策全优，关联旧CLAIM03。",
+      "stage": "fraction-dp-four-public-histories-forward-terminal-vector-strong-simple-policy; author-only",
+      "origin": "local-20261014-three-cross-family-Fraction-policy-and-reachability-controls",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-14-双向因果与操作回流/研究记录.md",
+        "tools/content-validator/experiments/pattern_bilateral_decisions_20261014.py"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      }
+    },
+    {
+      "id": "PL-BIL03",
+      "name": "B制造待处理负担、A清理重开B：真实往返但同构P11压力与容量管理",
+      "layer": "endogenous-burden-clearing-reopens-production-capacity",
+      "family": "生产性负担/容量阻塞/清理行动/紧急事件/短条件策略",
+      "idea": "六日每日高B8/低3各半、U5概率1/4、SIDE1；B一次产生一份待清d，上限2禁止继续B，A_CLEAR耗一日使d减1，终局d每份罚7。完整开局根21415/1024，无负担69/2、禁清理12、去终局罚439527/16384；最优期望A_CLEAR4103/2048次，未清债1833/16384。最强5条简单公开优先级的最好166859/8192，与DP差4461/8192；操作反复出现，但全树可重命名P11的容量负担/恢复，不认证新玩法。",
+      "stage": "fraction-dp-forward-state-legality-expected-action-vector-five-readable-priority-baselines; author-only",
+      "origin": "local-20261014-three-cross-family-Fraction-policy-and-reachability-controls",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-14-双向因果与操作回流/研究记录.md",
+        "tools/content-validator/experiments/pattern_bilateral_decisions_20261014.py"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      }
     }
   ],
   "edges": [
@@ -5022,6 +5079,42 @@
       "to": "PL-OPS01",
       "relation": "operation-unlocked-without-cost-becomes-passive-conditional-upgrade",
       "reason": "与已有OPS完整SET对照同为菜单/模式变多但可能不新增值得反复思考的决策"
+    },
+    {
+      "from": "PL-BIL01",
+      "to": "PL-META07",
+      "relation": "causal-affordance-edge-can-be-optimal-policy-irrelevant",
+      "reason": "删除A→B许可关系改变法律菜单但不改变最优开局策略或终局；必须给每支因果箭头单独消融"
+    },
+    {
+      "from": "PL-BIL01",
+      "to": "PL-D02",
+      "relation": "existing-irreversible-early-settlement-family",
+      "reason": "过早B结算会关闭未完A，早高价机会引发舍A选择；属于已有D02目标关闭语法"
+    },
+    {
+      "from": "PL-BIL02",
+      "to": "PL-CLAIM03",
+      "relation": "existing-costly-reversal-with-late-public-opportunity",
+      "reason": "REOPEN付一行动才恢复A工作权，U事后到来使是否补救取决于后续竞争；已知带代价撤回结构"
+    },
+    {
+      "from": "PL-BIL03",
+      "to": "P11",
+      "relation": "same-endogenous-pressure-and-repair-family",
+      "reason": "B自己生成负担且封住未来B，A清理重开容量；同构推进生成待处理问题的压力预算"
+    },
+    {
+      "from": "PL-BIL03",
+      "to": "PL-REC01",
+      "relation": "bidirectional-causality-not-equivalent-to-reciprocal-productivity",
+      "reason": "REC利用换动作生产加倍，本批B制造义务/A重开容量；均有正常状态改选，但不是自动的原创因果语法"
+    },
+    {
+      "from": "PL-BIL01",
+      "to": "PL-AB02",
+      "relation": "refutes-inference-from-availability-to-strategic-necessity",
+      "reason": "PL-AB02的资格在实际正常最优路径中使用；BIL01的A预先授权B在完整路径中可移除且不改行动，需区分"
     }
   ],
   "coverage": {
