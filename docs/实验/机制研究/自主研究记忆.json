@@ -1,8 +1,8 @@
 {
   "schema": "ssnoir.autonomous-pattern-memory/v1",
   "updated": "2026-10-15",
-  "batch": "CROSS-SCALE01 世界任务单向锁链并不是双层注意力循环",
-  "rounds": 74,
+  "batch": "CROSS-SCALE03 地点行动成本与后到反馈",
+  "rounds": 76,
   "totalArchivedRounds": 478,
   "objective": "长期自主发展可复用的玩法模式语言，覆盖已知作品先例、基础原语、完整交锋、跨阶段结构、组合条件与重要负例；评价玩家实际反复作出的判断、反馈、后果。历史20是广度愿景，不是价值认证名单或完成配额。",
   "policy": "从成熟作品、旧实验、新假设三向吸收；先去剧情定义玩家活动，再独立批评同构/最强简单策略，按需模型与盲Agent试玩。数学、作品先例、Agent、原生与真人是正交证据。知识图谱收录不等真人认可，精选展示与Debug独立把关，真人反馈异步且不阻塞。",
@@ -337,6 +337,6 @@
     "latestCounterfactual": "IWT01：四手Hidden A/B各半，3份正确WORK得10/8，TRACK工作必+1并有75%准确类型线索；纯INSPECT100%占一手。无信息6、只TRACK119/16、INSPECT9；INSPECT耗时两手TRACK重新胜119/16；完美TRACK19/2、50%TRACK6、TRACK首手限定29/4。正向枚举核对全部潜在真实类型；保留已有DISC/FOCUS/SIG组合。",
     "crossFamilyAudit": "PL-IWT01→PL-DISC01（工作+信息两种不同产出）、FOCUS02/03（及时兑现行动窗口、完美检查强旁路）、SIG01（非战略性线索噪声有别于他者可伪装的行动信号）。"
   },
-  "lastFinding": "从已经跨求解器证实的HEDGE转向Gameplay Architecture层的世界目标×局部交锋。研读探索地图、研究定位及GOAL/ATN/FOCUS/COUP01。四手A/B各需两次、完成各得8；无依赖时16个行动序列中有6个完成双目标；完成A才准有效做B时只剩AABB 1个完整成果顺序；但两版本最优总值仍16，固定AABB全优，没有反馈后改道，更不是双向注意力循环。以完整枚举与独立本地复核沉淀弱条件解锁的跨尺度负面边界，非新机制。无真人/独立Agent/Unity。",
-  "nextResearchQuestion": "检验真正双向且会被最优策略实际使用的跨交锋因果循环：局部反馈必须严格改变下一次世界层选择，而世界层选择真实改变重入局部交锋的合法动作或后果；对照共享行动预算、单向解锁、无反馈双向连接与固定AABB/安全等待/单轨旁路，先去重COUP01/OBLIGATION。"
+  "lastFinding": "CROSS-SCALE03：四手A起点，TEST令A进度1并公开品质H10/L4。B需两WORK得8，GO_B花一手，SIDE得1。精确DP动态10、固定9；取消地点转移费，动态与固定均15。地点约束影响路线却可用含地点状态的单层MDP逐动作复刻；非新原语，无人类试玩。",
+  "nextResearchQuestion": "检验跨日窗口和多个世界目标的真实机会成本、成果身份；先排除固定巡回与安全等待策略。"
 }
