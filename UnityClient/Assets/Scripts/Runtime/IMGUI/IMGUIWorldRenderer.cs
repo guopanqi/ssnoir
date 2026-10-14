@@ -2048,7 +2048,7 @@ namespace SSNoir.IMGUI
             {
                 _cardAttachmentOverlays.Add(CardAttachmentOverlay.ForLocalRoll(
                     cardRect, node.Name, _animator.CurrentReport!, _animator.Phase,
-                    _animator.DisplayedDieValue, _animator.DisplayScale, spacious));
+                    _animator.DisplayScale, spacious));
             }
             else if (_cardResidues.TryGetValue(node.Name, out var residue))
             {
@@ -2078,7 +2078,7 @@ namespace SSNoir.IMGUI
                 }
                 ActionNodeDrawer.DrawAttachmentOverlay(
                     attachment.CardRect, attachment.LocalRoll, attachment.LocalRollPhase,
-                    attachment.LocalRollDieValue, attachment.LocalRollScale, attachment.Residue,
+                    attachment.LocalRollScale, attachment.Residue,
                     ui, attachment.Spacious, attachment.Above);
             }
         }
@@ -2119,7 +2119,7 @@ namespace SSNoir.IMGUI
                 {
                     _cardAttachmentOverlays.Add(CardAttachmentOverlay.ForLocalRoll(
                         pair.Value, pair.Key, _animator.CurrentReport!, _animator.Phase,
-                        _animator.DisplayedDieValue, _animator.DisplayScale, spacious: false, above: true));
+                        _animator.DisplayScale, spacious: false, above: true));
                 }
                 else if (_cardResidues.TryGetValue(pair.Key, out var residue))
                 {
@@ -2146,7 +2146,7 @@ namespace SSNoir.IMGUI
             {
                 var host = ActionNodeDrawer.DrawFloatingHost(_animator.ActionName);
                 ActionNodeDrawer.DrawAttachmentOverlay(host, _animator.CurrentReport!, _animator.Phase,
-                    _animator.DisplayedDieValue, _animator.DisplayScale, null, ui, spacious: true);
+                    _animator.DisplayScale, null, ui, spacious: true);
                 return;
             }
 
@@ -2579,7 +2579,6 @@ namespace SSNoir.IMGUI
             public List<SlottedResource?>? ConsoleSlots { get; }
             public ActionReport? LocalRoll { get; }
             public int LocalRollPhase { get; }
-            public int LocalRollDieValue { get; }
             public float LocalRollScale { get; }
             public CardPresentationResidue? Residue { get; }
             public bool Spacious { get; }
@@ -2589,7 +2588,7 @@ namespace SSNoir.IMGUI
             private CardAttachmentOverlay(
                 Rect cardRect, string hostNodeName, GameNode? consoleNode, List<SlottedResource?>? consoleSlots,
                 ActionReport? localRoll, int localRollPhase,
-                int localRollDieValue, float localRollScale, CardPresentationResidue? residue, bool spacious,
+                float localRollScale, CardPresentationResidue? residue, bool spacious,
                 bool above = false)
             {
                 Above = above;
@@ -2599,22 +2598,21 @@ namespace SSNoir.IMGUI
                 ConsoleSlots = consoleSlots;
                 LocalRoll = localRoll;
                 LocalRollPhase = localRollPhase;
-                LocalRollDieValue = localRollDieValue;
                 LocalRollScale = localRollScale;
                 Residue = residue;
                 Spacious = spacious;
             }
 
             public static CardAttachmentOverlay ForConsole(Rect cardRect, GameNode node, List<SlottedResource?> slots)
-                => new CardAttachmentOverlay(cardRect, node.Name, node, slots, null, 0, 0, 1f, null, false);
+                => new CardAttachmentOverlay(cardRect, node.Name, node, slots, null, 0, 1f, null, false);
 
             public static CardAttachmentOverlay ForLocalRoll(
-                Rect cardRect, string hostNodeName, ActionReport report, int phase, int dieValue, float scale, bool spacious,
+                Rect cardRect, string hostNodeName, ActionReport report, int phase, float scale, bool spacious,
                 bool above = false)
-                => new CardAttachmentOverlay(cardRect, hostNodeName, null, null, report, phase, dieValue, scale, null, spacious, above);
+                => new CardAttachmentOverlay(cardRect, hostNodeName, null, null, report, phase, scale, null, spacious, above);
 
             public static CardAttachmentOverlay ForResidue(Rect cardRect, CardPresentationResidue residue, bool spacious)
-                => new CardAttachmentOverlay(cardRect, residue.HostNodeName, null, null, null, 0, 0, 1f, residue, spacious, residue.AttachAbove);
+                => new CardAttachmentOverlay(cardRect, residue.HostNodeName, null, null, null, 0, 1f, residue, spacious, residue.AttachAbove);
         }
 
         // 引线不在这里画：它是所有卡片之前的一整层，见 CardLeaderLineDrawer。
@@ -2913,7 +2911,6 @@ namespace SSNoir.IMGUI
             {
                 HostNodeName = actionName,
                 RollOutcome = report.Type == ActionType.Roll ? report.Outcome : null,
-                FateDieValue = report.Type == ActionType.Roll ? report.FateDieValue : null,
                 PreparedValue = report.Type == ActionType.Roll ? report.PreparedValue : 0,
                 Effects = new List<ActionEffectRecord>(report.Effects),
                 SourceNode = sourceNode,
