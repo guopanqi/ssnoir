@@ -1,4 +1,4 @@
-name: SSNoir Group Test and Negative Proof Evidence
+name: SSNoir Abstract Group Proof and Retention Evidence
 on:
   workflow_dispatch:
   push:
@@ -8,6 +8,8 @@ on:
       - 'tools/content-validator/experiments/pattern_shield_group_testing_20261014.py'
       - 'tools/content-validator/experiments/pattern_registered_negative_evidence_20261014.py'
       - 'docs/实验/机制研究/批次/2026-10-14-重复试探与可被承认的负证据/**'
+      - 'tools/content-validator/experiments/pattern_rolling_work_retention_20261014.py'
+      - 'docs/实验/机制研究/批次/2026-10-14-行动依赖边与保全税/**'
 permissions:
   contents: read
 jobs:
@@ -27,3 +29,7 @@ jobs:
         run: |
           set -euo pipefail
           python3 tools/content-validator/experiments/pattern_registered_negative_evidence_20261014.py
+      - name: Rolling work loss, rare voluntary LOCK and split access-window ablation
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/pattern_rolling_work_retention_20261014.py
