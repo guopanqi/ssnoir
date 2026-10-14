@@ -1637,10 +1637,11 @@ namespace SSNoir.Core
                     report.SkillLevel = skillLevel;
                     report.ModifierTotal = modifierSum;
 
-                    int fateDie = rand.Next(1, 7);
+                    // 行动骰在本回合开始时已经掷出；这里只按行动前公开的百分比抽样。
+                    int percentageRoll = rand.Next(1, 101);
                     report.PreparedValue = FateStrip.PreparedValue(chosenDieVal, skillLevel, modifierSum);
-                    report.FateDieValue = fateDie;
-                    report.Outcome = FateStrip.Resolve(chosenDieVal, skillLevel, modifierSum, fateDie);
+                    report.PercentageRoll = percentageRoll;
+                    report.Outcome = FateStrip.Resolve(chosenDieVal, skillLevel, modifierSum, percentageRoll);
 
                     if (report.Outcome == RollOutcome.Fail)
                     {
