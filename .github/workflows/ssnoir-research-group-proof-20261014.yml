@@ -11,6 +11,8 @@ on:
       - 'tools/content-validator/experiments/pattern_rolling_work_retention_20261014.py'
       - 'tools/content-validator/experiments/pattern_b_affordance_20261014.py'
       - 'tools/content-validator/experiments/pattern_bilateral_decisions_20261014.py'
+      - 'tools/content-validator/experiments/pattern_evidence_silence_20261014.py'
+      - 'docs/实验/机制研究/批次/2026-10-14-证据与策略性沉默/**'
       - 'docs/实验/机制研究/批次/2026-10-14-行动依赖边与保全税/**'
       - 'docs/实验/机制研究/批次/2026-10-14-B行动资格与延期兑现/**'
       - 'docs/实验/机制研究/批次/2026-10-14-双向因果与操作回流/**'
@@ -45,3 +47,7 @@ jobs:
         run: |
           set -euo pipefail
           python3 tools/content-validator/experiments/pattern_bilateral_decisions_20261014.py
+      - name: Evidence admissibility, partner's own payoff, and Bayesian silence equilibrium
+        run: |
+          set -euo pipefail
+          python3 tools/content-validator/experiments/pattern_evidence_silence_20261014.py
