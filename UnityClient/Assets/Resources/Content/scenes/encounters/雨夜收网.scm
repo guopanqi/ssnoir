@@ -5,6 +5,8 @@
 ;; 成功或失败立即回传；最终协同对白在切场前播放，过程汇报使用空间 Bubble。
 (define 阶段 '部署)
 (define 已结束? #f)
+;; 仅确认当前布置；真正改变委派后重置，浏览岗位不会重置。
+(define 已提醒待命? #f)
 (define 帮手名单 (list "山姆" "诺拉"))
 (define 待命位置 (list (list "山姆" "勒索信-报摊") (list "诺拉" "勒索信-街沿")))
 ;; 岗位定义：短名、场景标题、空间 Anchor、职责、到岗回应。
@@ -66,6 +68,7 @@
   (if (岗位有人? job) (error "雨夜收网：请先解除当前岗位人员") #t)
   (if (人员岗位 name) (error "雨夜收网：该人员已在其他岗位，请先解除") #t)
   (set! 部署 (append 部署 (list (list name job))))
+  (set! 已提醒待命? #f)
   (play-bubble! (line name (list-ref (岗位数据 job) 4))))
 (define (解除! job)
   (要求阶段! '部署)
@@ -73,12 +76,24 @@
   (if (岗位有人? job) #t (error "雨夜收网：不能解除空岗位"))
   (let ((name (岗位人员 job)))
     (set! 部署 (filter (lambda (entry) (not (eq? (cadr entry) job))) 部署))
+    (set! 已提醒待命? #f)
     ;; 人物节点已撤回，不向消失的空间人物发送 Bubble。
     (result-supplement! (string-append name "撤回待命"))))
+(define (待命人员)
+  (filter (lambda (name) (not (人员岗位 name))) 帮手名单))
+(define (待命姓名)
+  (let join ((names (待命人员)))
+    (cond ((null? names) "") ((null? (cdr names)) (car names))
+          (else (string-append (car names) "、" (join (cdr names)))))))
 (define (开始行动!)
   (要求阶段! '部署)
-  (set! 阶段 '辨认)
-  (play-dialogue! (line "世界" "布置妥当。你坐回报摊，留意邮箱旁的人。")))
+  (if (and (not (null? (待命人员))) (not 已提醒待命?))
+    (begin
+      (set! 已提醒待命? #t)
+      (result-supplement! "仍有帮手尚未委派"))
+    (begin
+      (set! 阶段 '辨认)
+      (play-dialogue! (line "世界" "行动开始。你坐回报摊，留意邮箱旁的人。")))))
 
 (define (观察推进! c n)
   (要求阶段! '辨认)
@@ -272,7 +287,13 @@
 (define (部署节点)
   (append
     (map (lambda (entry) (岗位节点 (car entry))) 岗位定义)
-    (list (node "开始行动" :anchor "勒索信-报摊" :button-text "开始行动"
+    (list (node "委派人员" :anchor "勒索信-报摊"
+      :title (if 已提醒待命? "仍有人待命" "委派人员")
+      :subtitle (cond
+        (已提醒待命? (string-append (待命姓名) "尚未委派；仍要开始吗？"))
+        ((null? (待命人员)) "人员已就位；开始后进入蹲守阶段")
+        (else "当前为委派阶段；点岗位安排人手，再开始行动"))
+      :button-text (if 已提醒待命? "仍然开始" "开始行动")
       :resolve (instant 开始行动!)))))
 (define (get-render-data)
   (if (eq? 阶段 '部署)
