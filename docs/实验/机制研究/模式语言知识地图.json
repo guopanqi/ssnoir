@@ -3386,6 +3386,26 @@
         "native": false
       },
       "note": "旧VOL02已有自选成果HTML，本批不再重复造页；全部结论只属实验设计，不是新的试玩结果。"
+    },
+    {
+      "id": "PL-INTERRUPT01",
+      "name": "中断可恢复性决定条件改道价值，强防护又可消除改道",
+      "layer": "mechanism-boundary",
+      "origin": "ssnoir-research",
+      "family": "进度脆弱性与风险防护",
+      "idea": "四手A3=12、B2=8、SIDE1；二手后外源冲击可清空A，预防P一手可免损",
+      "stage": "exact-exhaustive-enumeration",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-14-中断可恢复与防护决策/研究记录.md",
+        "tools/content-validator/experiments/pattern_interrupt_resume_20261014.py"
+      ],
+      "evidence": {
+        "exactEnumeration": true,
+        "humanFeedbackAvailable": false,
+        "independentAgentBlind": false,
+        "native": false
+      },
+      "note": "RESUMABLE固定/动态13/13；FRAGILE10/11；PROTECT12/12，强P压平重规划，已知CRISIS/REACTIVE/SHIELD组合非新原语。"
     }
   ],
   "edges": [
@@ -6256,6 +6276,24 @@
       "to": "PL-SUBMIT02",
       "relation": "proposed-human-validation-of-outcome-identity",
       "reason": "数学向量、条件许可能算出，但不能确定玩家是否关心、理解或主动重规划；须无提示观察并提供同构菜单对照"
+    },
+    {
+      "from": "PL-INTERRUPT01",
+      "to": "PL-CRISIS03",
+      "relation": "interruption-resumability-and-protection",
+      "reason": "保留进度使冲击无意义，失去进度使动态转向安全B有利，强P又恢复固定确定性计划"
+    },
+    {
+      "from": "PL-INTERRUPT01",
+      "to": "PL-OBLIGATION01",
+      "relation": "interruption-resumability-and-protection",
+      "reason": "保留进度使冲击无意义，失去进度使动态转向安全B有利，强P又恢复固定确定性计划"
+    },
+    {
+      "from": "PL-INTERRUPT01",
+      "to": "PL-OBSERVE01",
+      "relation": "interruption-resumability-and-protection",
+      "reason": "保留进度使冲击无意义，失去进度使动态转向安全B有利，强P又恢复固定确定性计划"
     }
   ],
   "coverage": {
