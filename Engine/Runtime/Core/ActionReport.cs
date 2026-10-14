@@ -112,6 +112,7 @@ namespace SSNoir.Core
         public int SkillLevel { get; set; }
         public int ModifierTotal { get; set; }
         public int PreparedValue { get; set; }
-        public int FateDieValue { get; set; } = 1;
+        // 仅用于诊断与回归测试；客户端不展示第二次抽样的数值。
+        public int PercentageRoll { get; set; }
     }
 }
