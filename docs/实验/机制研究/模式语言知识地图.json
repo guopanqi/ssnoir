@@ -3656,6 +3656,25 @@
         "native": false
       },
       "note": "无依赖有6条四手双完成顺序，A先B锁链仅AABB一条；两模型根同为16。真实许可改变不等于动态重规划，更不等于双层玩法。"
+    },
+    {
+      "id": "PL-CROSS-SCALE03",
+      "name": "地点移动成本使局部反馈改变下一目的地",
+      "layer": "mature-combination",
+      "origin": "ssnoir-research",
+      "family": "跨尺度世界目标与局部反馈",
+      "idea": "首手试做揭晓高低，旅途花一手并限制工作地点；反馈后留原地或转到另一地",
+      "stage": "exact-DP-and-fixed-schedule-audit",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-跨尺度地点成本与反馈/研究记录.md",
+        "tools/content-validator/experiments/pattern_crossscale_location_20261015.py"
+      ],
+      "note": "地点约束：动态10，固定9；删除地点/移动成本：动态与固定15。世界约束具有因果作用但可用普通单层状态机完整展开，非新原语。",
+      "evidence": {
+        "exactDP": true,
+        "humanFeedbackAvailable": false,
+        "native": false
+      }
     }
   ],
   "edges": [
