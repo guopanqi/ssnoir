@@ -2,8 +2,10 @@
 ;; 两名场景帮手各占一个岗位，不入队、不发骰、不在场内重新部署。
 ;; 阶段：部署 → 辨认 → 一次拦截 →（有追踪接应才保留的）追逐。
 ;; 回传 (结果 部署)：截住取信者 / 追到线索 / 跟丢 / 撤离 / 倒下。
+;; 普通收场保留人物节点，供动作后 Bubble 落点；点击离场后才回传结果。
 (define 阶段 '部署)
 (define 已结束? #f)
+(define 收场结果 #f)
 (define 部署 '()) ; (("山姆" 观察) ("诺拉" 追踪))
 (define 已排除 '())
 (define 观察报告 "每回合随机观察一名未排除的对象，推进1格。")
@@ -37,8 +39,8 @@
 (define (结束! reason title text)
   (if 已结束? (error "雨夜收网：重复结算") #t)
   (set! 已结束? #t)
-  (spotlight! title text)
-  (end-encounter (list reason 部署)))
+  (set! 收场结果 reason)
+  (spotlight! title text))
 
 (define (委派! job)
   (要求阶段! '部署)
@@ -48,7 +50,11 @@
   (let ((name (下位帮手)))
     (set! 部署 (append 部署 (list (list name job))))
     (result-supplement! (string-append name "负责"
-      (cond ((eq? job '观察) "观察") ((eq? job '拦截) "拦截") (else "追踪")))))
+      (cond ((eq? job '观察) "观察") ((eq? job '拦截) "拦截") (else "追踪"))))
+    (play-bubble! (line name
+      (cond ((eq? job '观察) "我在报摊盯着，有动静就告诉你。")
+            ((eq? job '拦截) "我守住这边。你一动手，我就出来。")
+            (else "街口交给我，跑了也有人跟。")))))
   (if (= (length 部署) 2)
     (begin
       (set! 阶段 '辨认)
@@ -110,9 +116,16 @@
         (line "世界" "他挣开你的手，钻过路边的车流。")
         (line "世界" (string-append (岗位人员 '追踪) "守在街口，指向他拐进去的巷子。"))
         (line "世界" "你没有截住他，但踪迹还在。现在追上去。"))
+      (play-bubble! (line (岗位人员 '追踪) "他进巷子了！跟我来！"))
       (refresh-encounter-dice!))
     (结束! '跟丢 "没人接住踪迹"
       "他挣脱后钻进车流。街口没有接应的人，你再也找不到那身制服。")))
+(define (拦截反馈! cooperative? caught?)
+  (if cooperative?
+    ;; Bubble 随动作后快照落点；转入追逐后由街口接应人开口。
+    (if (or caught? (not (岗位有人? '追踪)))
+      (play-bubble! (line (岗位人员 '拦截)
+        (if caught? "这边堵住了。他跑不了了。" "没拦住！他撞开我跑了！"))) #f) #f))
 (define (截住!)
   (结束! '截住取信者 "截住了"
     "你扣住他的手腕，取回信封。他说自己只是跑腿的。这个说法还得查。"))
@@ -123,9 +136,11 @@
     :resolve (roll 'violence
       (outcome (lambda ()
         (if cooperative? #f (spend-composure! 1))
-        (if (hospitalization-pending?) #f (失手!))))
-      (outcome (lambda () (if cooperative? (截住!) (失手!))))
-      (outcome (lambda () (截住!))))))
+        (if (hospitalization-pending?) #f
+          (begin (拦截反馈! cooperative? #f) (失手!)))))
+      (outcome (lambda ()
+        (if cooperative? (begin (拦截反馈! #t #t) (截住!)) (失手!))))
+      (outcome (lambda () (拦截反馈! cooperative? #t) (截住!))))))
 
 (define (追逐推进! n)
   (要求阶段! '追逐)
@@ -151,6 +166,8 @@
       (结束! '跟丢 "踪迹断了" "他穿过邮局后街。等你转过墙角，街上已没有人。")
       (begin
         (set! 街段 (逃脱 'current))
+        (play-bubble! (line (岗位人员 '追踪)
+          (if (= 街段 1) "往货栈去了，别让货堆挡住你！" "他在邮局后面！这是最后一段！")))
         (spotlight! "他还在前面" (if (= 街段 1) "他钻进货栈区，你得换条路跟上。" "到了邮局后街，这是最后一段。"))))))
 (define-opponent-rule "取信者离开邮箱"
   (lambda () (and (not 已结束?) (eq? 阶段 '拦截)))
@@ -161,8 +178,12 @@
     (let ((objects (待辨认对象)))
       (if (null? objects) (error "雨夜收网：没有可观察对象却尚未确认目标") #t)
       (let ((c (random-choice objects)))
-        (set! 观察报告 (string-append (岗位人员 '观察) "刚观察了" (car c) "；辨认推进1格。"))
-        (观察推进! c 1)))))
+        (set! 观察报告 (string-append "正在留意" (car c) "。"))
+        (观察推进! c 1)
+        (play-bubble! (line (岗位人员 '观察)
+          (cond ((eq? 阶段 '拦截) "就是那个穿制服的！他取走了信！")
+                ((member? (car c) 已排除) (string-append (car c) "不是取信的。"))
+                (else (string-append "我再盯盯" (car c) "。")))))))))
 
 (define (on-encounter-enter)
   (play-dialogue!
@@ -171,10 +192,34 @@
     (line "世界" "只有两个人，三个岗位只能覆盖两个。")))
 (define (on-encounter-collapse) (collapse-result (list '倒下 部署)))
 
-(define (岗位标注)
-  (note-node "标注：现场委派" "现场委派"
-    (string-append "观察：" (岗位人员 '观察) "　拦截：" (岗位人员 '拦截)
-                   "　追踪：" (岗位人员 '追踪))))
+(define (帮手锚点 job)
+  (if (eq? 阶段 '追逐)
+    (cond ((= 街段 0) "雨夜收网-接应-巷口")
+          ((= 街段 1) "雨夜收网-接应-货栈区")
+          ((= 街段 2) "雨夜收网-接应-邮局后街")
+          (else (error "雨夜收网：接应位置越界")))
+    (cond ((eq? job '观察) "雨夜收网-观察")
+          ((eq? job '拦截) "雨夜收网-拦截")
+          ((eq? job '追踪) "雨夜收网-追踪")
+          (else (error "雨夜收网：未知帮手岗位")))))
+(define (帮手节点)
+  (map (lambda (entry)
+    (let ((name (car entry)) (job (cadr entry)))
+      ;; 节点身份直接用人物名字，Bubble 按同名节点解析空间位置。
+      (at-anchor (帮手锚点 job)
+        (note-node name name
+          (cond
+            (已结束? (if (eq? job '拦截) "守在一旁，等你收场。" "留在接应位置，等你离开。"))
+            ((eq? 阶段 '追逐) "接着踪迹，指引下一段去向。")
+            ((eq? job '观察) 观察报告)
+            ((eq? job '拦截) "伏在近处，等你动手时封住另一边。")
+            (else "守着街口；目标挣脱时接住去向。"))))))
+    (filter (lambda (entry)
+      (or (not (eq? 阶段 '追逐)) (eq? (cadr entry) '追踪))) 部署)))
+(define (离场节点)
+  (instant-action "离开现场" (lambda ()
+    (if (and 已结束? 收场结果) #t (error "雨夜收网：尚未收场"))
+    (end-encounter (list 收场结果 部署)))))
 (define (委派节点 job title text)
   (node title :subtitle text :resolve (instant (lambda () (委派! job)))))
 (define (部署节点)
@@ -188,20 +233,18 @@
     ;; 原巷子 Stage 的根身份与分区锚点，保持原来的 Portal 转场。
     (node "巷子" :anchor (街景锚点)
       :children (append
-        (list (岗位标注))
+        (帮手节点)
         (map (lambda (n) (at-anchor (街景锚点) n))
              (clock-nodes (追上 'render-data) (逃脱 'render-data)))
-        (list (追逐动作 #f) (追逐动作 #t))))
+        (if 已结束? (list (离场节点)) (list (追逐动作 #f) (追逐动作 #t)))))
     (node "勒索信-报摊" :anchor "勒索信-报摊"
       :children (append
-        (list (岗位标注))
+        (帮手节点)
         (cond
+          (已结束? (list (离场节点)))
           ((eq? 阶段 '部署) (部署节点))
           ((eq? 阶段 '辨认)
-           (append
-             (if (岗位有人? '观察)
-               (list (note-node "标注：观察人员" "观察报告" 观察报告)) '())
-             (map 对象节点 (待辨认对象))))
+           (map 对象节点 (待辨认对象)))
           ((eq? 阶段 '拦截)
            (append
              (list (note-node "标注：截人窗口" "取信者正要离开"
