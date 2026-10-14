@@ -557,34 +557,36 @@
                 " 金替你补：差在这个数以内，她当首饰，处境差一档；"
                 "差得更多，信封就是薄的，写信的人清点之后会先动手。"))))
 
-    (define (node-preparation id title description skill lines)
-      (node title
-        :anchor "勒索信-报摊"
-        :subtitle description
-        :requires (list (req-die))
-        :resolve (roll skill
-          (outcome (lambda ()
-              (spend-composure! 1)
-              (play-bubble! (line "尼尔" "没弄明白。得换个时候再来。"))))
-          (outcome (lambda ()
-              (set! mail-preparations (cons id mail-preparations))
-              (apply play-bubble! lines)))
-          (outcome (lambda ()
-              (set! mail-preparations (cons id mail-preparations))
-              (apply play-bubble! lines))))))
-
+    (define (ambush-helpers)
+      (append (if ambush-eddie? (list "艾迪") '())
+              (if (dock 'ambush-worker?) (list "工友") '())))
+    (define (ambush-ready?)
+      (and (not (null? (ambush-helpers))) (ambush-survey 'full?)))
+    (define (ambush-survey-step! amount)
+      (let ((before (ambush-survey 'current)))
+        (ambush-survey 'advance! amount)
+        (let ((after (ambush-survey 'current)))
+          ;; 三处简短独白暂占 Dialogue，等待作者后续替换正式文本。
+          (if (and (< before 2) (>= after 2))
+            (play-dialogue! (line "尼尔" "报摊能看见邮箱。")) #f)
+          (if (and (< before 5) (>= after 5))
+            (play-dialogue! (line "尼尔" "这边离邮箱近，容易让对方警觉。")) #f)
+          (if (and (< before 8) (>= after 8))
+            (play-dialogue! (line "尼尔" "街口通向大路。地方摸清了。")) #f)))))
     (define (beat1-dock-nodes)
-      (if (beat1-open?)
-          (append
-            (if (preparation-done? "街角") '()
-                (list (node-preparation "街角" "观察邮箱街角" "认清附近常来的人与蹲守位置" 'sharpness
-                  (list (line "尼尔" "骑旧车的老邮差，每回都在报摊停一下。")
-                        (line "尼尔" "报摊背后看得见箱口，路人看不见我。")))))
-            (if (preparation-done? "退路") '()
-                (list (node-preparation "退路" "查看退路" "查清邮箱后面的货栈通道" 'knowledge
-                  (list (line "尼尔" "货栈边门的锁舌坏了。")
-                        (line "尼尔" "他要往里跑，我可以从这里抄过去。"))))))
-          '()))
+      (if (and (= story-stage 1) ambush-known?
+               (not (null? (ambush-helpers)))
+               (not (ambush-survey 'full?)))
+        (list (node "摸清邮箱街角"
+          :anchor "勒索信-报摊"
+          :subtitle "为雨夜布置踩点"
+          :clocks (list (ambush-survey 'render-data))
+          :requires (list (req-die))
+          :resolve (roll 'sharpness
+            (outcome (lambda () (spend-composure! 1) (ambush-survey-step! 1)))
+            (outcome (lambda () (ambush-survey-step! 1)))
+            (outcome (lambda () (ambush-survey-step! 2))))))
+        '()))
 
     ;; ── 勒索日 ──────────────────────────────────────
     ;; 到期当天不自动播放:它是必看事件,用阻塞休息逼玩家亲自去。
@@ -614,8 +616,8 @@
             (set! envelope-thin? #t)
             #f)
         ;; 将具体准备事实交给交锋；城市不再用重复踩点的总进度代替它们。
-        (set-global! '邮箱街角已观察 (preparation-done? "街角"))
-        (set-global! '退路已查看 (preparation-done? "退路"))))
+        (set-global! '邮箱街角已观察 (ambush-survey 'full?))
+        (set-global! '退路已查看 #f)))
 
     ;; 邮箱相见、投信与离场属于城市侧；剧场播完才切入蹲守交锋。
     (define (node-delivery-entry)
