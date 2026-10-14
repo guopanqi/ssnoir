@@ -3526,6 +3526,65 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
         "native": false,
         "humanVerified": false
       }
+    },
+    {
+      "id": "PL-SIG01",
+      "name": "敌手两次相遇仍可让首次攻击零信息：玩家未来防护使对方策略性伪装",
+      "layer": "strategic-reencounter-signal-and-costly-verification",
+      "family": "稳定对手私有偏好/行为作为策略信号/贝叶斯后验/可信证明/防护动作窗口/全保险强反例",
+      "idea": "两种等可能私人A/B偏好，首阶段真实目标额外自利值r1、虚假0；第二阶段打偏好目标8、另一目标1、对被保护目标减5，故任意保护时敌手都严格打真实偏好。玩家见首次指向哪边再保护一边。证明一份对称混合序贯均衡：各类型首手A/B各1/2，消息与类型独立，后验仍各1/2，玩家见消息以q=(r+5)/10=3/5保护消息侧；敌手两种首招都自利无差异，玩家第二阶段预期损失11/2。天真总保护首次目标会让敌手严格伪装，导致损失8而非均衡；若更改首阶段真实目标自利收益r6，可得严格可信的分离首次行为，损失3（不同私人收益协议）。原r1下及时真类型报告成本1使总损失4，报告迟到需6.5，一手全保盾成本3可支配报告。这里只证明存在一种对称混合均衡，不是所有均衡唯一。",
+      "stage": "verified-Fraction-symmetric-mixed-sequential-equilibrium-witness-with-two-type-best-responses-on-path-Bayes-independent-info-and-timely-report-safe-substitutes; author-only-no-human",
+      "origin": "author-exact-two-encounter-signalling-equilibrium-and-voluntary-stake-replay-20261014",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-14-策略性伪装与自选成果/研究记录.md",
+        "tools/content-validator/experiments/pattern_strategic_signal_against_voluntary_goals_20261014.py"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      }
+    },
+    {
+      "id": "PL-VOL02",
+      "name": "自选不可补偿结果的可试玩观察入口：同菜单中个人目标不同会换策略，但数学不能证明玩家在乎什么",
+      "layer": "elicitation-observability-and-hard-stake-policy-mapping",
+      "family": "自愿目标/不可交换成果/跨场合法动作/完整条件策略/无答案体验/万能SAFE同规则对照",
+      "idea": "原样重算CROSS两阶段各2手、A/B需求公开时点、合法WORK/SIDE/DIRECT/SUBMIT和普通结果。无人类参与时只能模拟目标A/B/BOTH/FULL_C/FLEX：原根依次29/2、27/2、11、31/2、31/2；增加一次完整C的普通SAFE后依次17、16、11、17、17。硬目标路径全部仍是无约束FLEX子集。新增自包含HTML参与者先自述关切而非先看数学最优，再玩4手、记录后到需求与结果、可复制纯本机观察轨迹；Node三条真实脚本离线行为验证。没有实际用户反馈，所以不能认证玩家自愿想保哪一项；它是研究的体验工具而非新原语、正式Debug或已部署Pages。",
+      "stage": "verified-Fraction-complete-same-CROSS-policy-trees-and-Node-vm-three-trace-html-logic-smoke; untested-by-human-real-browser-or-native",
+      "origin": "author-exact-two-encounter-signalling-equilibrium-and-voluntary-stake-replay-20261014",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-14-策略性伪装与自选成果/研究记录.md",
+        "tools/content-validator/experiments/pattern_strategic_signal_against_voluntary_goals_20261014.py",
+        "docs/实验/机制研究/批次/2026-10-14-策略性伪装与自选成果/试玩.html",
+        "tools/content-validator/experiments/test_stake_observer_20261014.js"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      }
+    },
+    {
+      "id": "PL-IWT01",
+      "name": "双用途调查把工作进度与类型线索结合：准确证据因兑现时限过长而被不完全工作线索取代",
+      "layer": "dual-purpose-investigation-versus-perfect-evidence-work-window",
+      "family": "边工作边取证/贝叶斯追加线索/信息时间税/后续行动窗口/强安全调查",
+      "idea": "4手隐藏A/B各半，正确目标三工作才得A10/B8，SIDE1。TRACK_X必产一份对应工作并报告75%准确类型；INSPECT一手取得100%类型报告。完整Fraction逆推及按真实隐藏类型正向枚举：无信息6；纯完美INSPECT9，且同菜单下压过TRACK；只能TRACK根119/16，先TRACK_A，报告A直接AA+SIDE，报告B再TRACK_B并用第二报告改投；INSPECT需要两手时根仍119/16，改用TRACK；TRACK完美19/2、随机无信息准确50%根6、只能首手TRACK根29/4。没有下一阶段足够工作手数时即使100%证据也不可兑现。属于DISC×FOCUS×SIG成熟组合，非新原语。",
+      "stage": "exact-Fraction-full-four-turn-policy-Bayes-plus-independent-hidden-type-forward-enumeration; author-only/no-human",
+      "origin": "author-abstract-exact-information-work-time-20261014",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-14-边调查边工作与信息兑现窗口/研究记录.md",
+        "tools/content-validator/experiments/pattern_investigation_work_time_20261014.py"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      }
     }
   ],
   "edges": [
@@ -6000,6 +6059,78 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
       "to": "PL-INF-P01",
       "relation": "revealed-opponent-type-can-have-zero-advance-information-value",
       "reason": "虽然AB下攻击目标透露敌手偏好，敌手只有一次动作且AB事前对两类型同最优，提前公开类型根仍9；后续只需见哪个目标实际没被毁"
+    },
+    {
+      "from": "PL-SIG01",
+      "to": "PL-ADV01",
+      "relation": "second-encounter-opponent-incentives-can-nullify-first-behavior-information",
+      "reason": "ADV一次攻击的最优准备不需提前类型；SIG延长成两次出手后，对方若预见玩家将按第一次保护，首招信号完全可能与类型独立（均衡后验各1/2），不能把二次出现自动说成学习。"
+    },
+    {
+      "from": "PL-SIG01",
+      "to": "PL-NEG03",
+      "relation": "strategic-first-action-is-not-an-honest-type-sensor",
+      "reason": "NEG低报价会因对方策略等待而不揭真实保留价；SIG即使稳定私人偏好真实存在，未来防护反应会让第一次攻击策略性伪装，只有实际分离激励才能可信。"
+    },
+    {
+      "from": "PL-SIG01",
+      "to": "PL-NEG04",
+      "relation": "credible-type-dependent-signal-cost-threshold",
+      "reason": "原r1诚实公开不稳定，若改敌手早期真正命中喜好目标的自利价值r>5，诚实比伪装严格更优；与NEG伪造/证据成本存在实质类型差异同为已知可信信号原则。"
+    },
+    {
+      "from": "PL-SIG01",
+      "to": "PL-INF-P01",
+      "relation": "received-signal-versus-decision-useful-information",
+      "reason": "混合均衡第一次看见动作却不更新私人类型后验；及时不可伪造报告的价值5/2，迟到报告失去兑现窗口还花真实成本。"
+    },
+    {
+      "from": "PL-SIG01",
+      "to": "PL-EP02",
+      "relation": "strategic-disclosure-and-defender-response-incentives",
+      "reason": "EP02沉默通过策略性公开规则改变别人后验，SIG公开第一动作受第二次防护影响，观察信号必须分析他者的真实最大化目标而非表面动作标签。"
+    },
+    {
+      "from": "PL-VOL02",
+      "to": "PL-VOL01",
+      "relation": "player-chosen-outcome-is-preference-elicitation-not-free-action-bonus",
+      "reason": "VOL01严格证明私下行动承诺为FLEX子集；VOL02使用同原始规则给独立参与者先声明A/B/C个人关切，数学只是其不同必保目标可行策略映射，不冒称已观察到偏好。"
+    },
+    {
+      "from": "PL-VOL02",
+      "to": "PL-CROSS01",
+      "relation": "same-frozen-cross-contract-rules-with-real-observation-instrument",
+      "reason": "复用CROSS全部A/B工作进度与第二阶段需A/B的SUBMIT，一页离线自包含4手无答案实验、3条Node纯逻辑轨迹；增强异步体验入口而非新增研究原语。"
+    },
+    {
+      "from": "PL-VOL02",
+      "to": "PL-STAKE01",
+      "relation": "nonfungible-goals-should-be-elicited-before-numerical-optimization",
+      "reason": "同一合法行动菜单保A/B/BOTH/FULL_C的不同最优必须先问玩家真正想保哪个；SAFE增强C操作但不能使四手同时完成A+B+完整C。"
+    },
+    {
+      "from": "PL-IWT01",
+      "to": "PL-DISC01",
+      "relation": "dual-use-signal-plus-real-work-progress",
+      "reason": "跟踪行动始终增加对应目标1份工作，同时线索有独立75%类型准确率；工作必成功与类型猜对不能混同"
+    },
+    {
+      "from": "PL-IWT01",
+      "to": "PL-FOCUS02",
+      "relation": "evidence-can-arrive-before-the-work-window-closes",
+      "reason": "一手INSPECT报告100%可靠，余下3手足以完成类型目标得9；检验消耗2手则仅剩2手不能完成，TRACK反而取得119/16"
+    },
+    {
+      "from": "PL-IWT01",
+      "to": "PL-SIG01",
+      "relation": "reliable-observation-versus-strategically-poolable-signal",
+      "reason": "SIG首次行动被对方战略操控而可能零类型信息；IWT固定误差75%且可独立复核，研究差异是线索时间税与进展，而非对方伪装"
+    },
+    {
+      "from": "PL-IWT01",
+      "to": "PL-FOCUS03",
+      "relation": "ordinary-perfect-inspection-is-strong-bypass",
+      "reason": "一手可信完美INSPECT可直接取得9且胜双用途但75%准确率的TRACK119/16，不得为证明复杂性隐瞒合理安全调查"
     }
   ],
   "coverage": {

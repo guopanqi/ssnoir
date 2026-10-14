@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SSNoir 独立纸面实验｜你要保住什么</title>
+<style>
+:root{color-scheme:dark;--ink:#e9e6df;--sub:#a9a79f;--bg:#151719;--panel:#222427;--line:#494b50;--gold:#e6cf9e}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 system-ui,-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif}
+main{max-width:850px;margin:34px auto;padding:0 24px 64px}h1{font-size:26px;font-weight:600;letter-spacing:.04em;margin:12px 0}h2{font-size:17px;margin:0 0 10px}.sub{color:var(--sub)}small{font-size:12px}.tag{display:inline-block;border:1px solid var(--line);padding:3px 9px;font-size:12px;color:var(--gold);letter-spacing:.08em}
+section{border-top:1px solid var(--line);padding:20px 0}p{margin:8px 0 12px}label{display:block;margin:10px 0 5px}
+select,textarea,button{font:inherit;color:var(--ink);border:1px solid var(--line);background:var(--panel);border-radius:3px}select{width:100%;padding:10px}textarea{width:100%;min-height:85px;resize:vertical;padding:10px}button{cursor:pointer;padding:11px 16px}button:hover:not(:disabled){background:#353639;border-color:var(--gold)}button:disabled{opacity:.4;cursor:not-allowed}.row{display:flex;gap:9px;flex-wrap:wrap;margin:12px 0}.primary{border-color:var(--gold);color:var(--gold)}
+.panel{background:var(--panel);border:1px solid var(--line);padding:16px;margin:12px 0}.status{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.status div{border:1px solid var(--line);padding:8px 12px}.status strong{display:block;font-size:20px;color:var(--gold)}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#1b1e20;border:1px solid var(--line);padding:12px;font-size:13px;color:#d1d3d0}
+[hidden]{display:none!important}@media(max-width:530px){main{padding:0 15px;margin:18px auto}.status{grid-template-columns:1fr 1fr}}
+</style></head>
+<body><main>
+<div class="tag">独立实验 · 无预设正确答案</div>
+<h1>你要保住什么？</h1>
+<p class="sub">测试“自行关心某个成果”与“只追求总收益”之间的差别。不是正式游戏，不上传任何记录；所有操作和结果都留在当前页面。请先凭自己的理解选择目标，直到结束才会显示计算结果。</p>
+<section id="setup"><h2>1 · 先决定你关心哪一种结果</h2>
+<p>共有四次行动，前两次属于准备阶段；第三次开始前才会公布本次真正需要 A 还是 B。A、B 各需要两份工作才能形成成果。第二阶段可将恰好匹配本次需要的完整成果提交，解决 C；没有匹配材料，也能直接处理 C，只是结果较弱。可以继续完成 A/B，也可以每手获得一份 SIDE 小成果。</p>
+<label for="priority">你现在愿意优先保住什么？</label>
+<select id="priority"><option value="">请先选择</option><option value="A">必须保住 A</option><option value="B">必须保住 B</option><option value="BOTH">必须同时保住 A 和 B</option><option value="FULL_C">无论需要哪种材料，都必须完整处理 C</option><option value="FLEX">不提前承诺，按实际需要决定</option></select>
+<label for="why">为什么选这一项？（可写一句你的理由，保留原话）</label>
+<textarea id="why" placeholder="例如：我已经答应过 A；或者我不喜欢把尚未确定的事情都押在同一个结果上。"></textarea>
+<label for="variant">本局可用操作</label>
+<select id="variant"><option value="ordinary">普通：无通用证明</option><option value="safe">强替代：第二阶段额外允许 SAFE（1手即可完整处理C）</option></select>
+<div class="row"><button class="primary" id="start">开始 · 不看答案</button></div></section>
+<section id="play" hidden><h2 id="stage">2 · 准备阶段</h2><p class="sub" id="requirement">第二阶段的需求尚未公开。</p>
+<div class="status"><div>A 工作<strong id="a">0 / 2</strong></div><div>B 工作<strong id="b">0 / 2</strong></div><div>行动剩余<strong id="turn">4</strong></div></div>
+<div class="panel"><p id="prompt">请选择今天的一次行动。</p><div id="actions" class="row"></div></div>
+<h2>已做过的事</h2><pre id="timeline"></pre></section>
+<section id="done" hidden><h2>3 · 结果与你最初的承诺</h2><div class="panel" id="outcome"></div>
+<p class="sub">回看你一开始选择的目标与理由。若这不是你愿意交换的目标，不要用某个总分压过它；若中途改变了想法，也请把变化如实记在记录中。</p>
+<label for="reflection">回顾：哪一次行动最难决定？为什么？</label><textarea id="reflection"></textarea>
+<div class="row"><button id="copy" class="primary">复制完整观察记录</button><button id="again">重新开局</button></div>
+<pre id="export" hidden></pre></section>
+<section><h2>规则与验证边界</h2>
+<p>每行动作耗一手。WORK_A / WORK_B 各加一格，任一累计达到2即完成该项独立成果。SIDE 即时+1。仅第二阶段可以 DIRECT（累计两次得到C的部分成果）或 SUBMIT（匹配且已完成的A/B成果，以一手得到C完整成果）。强替代版还可SAFE，一手无条件取得完整C。需求A/B等概率，并在本局开始时抽取但直到第二阶段才显示。</p>
+<p class="sub"><small>此实验不自动生成“好玩”结论，不传输人类反馈，不替换研究室已有正式Debug任务。源规则与全部条件策略参见本批报告和对应Fraction脚本；页面是等待真人使用的无答案体验材料，页面自身不等于任何真人试玩证据。</small></p></section>
+</main>
+<script>
+(()=>{'use strict';
+const $=id=>document.getElementById(id);let s=null;
+const names={A:'必须保A',B:'必须保B',BOTH:'A与B都必须完成',FULL_C:'C必须完整',FLEX:'根据事态决定'};
+$('start').onclick=()=>{
+ const priority=$('priority').value;if(!priority){$('priority').focus();return;}
+ s={goal:priority,why:$('why').value,variant:$('variant').value,need:Math.random()<.5?'A':'B',a:0,b:0,side:0,direct:0,c:0,submitted:false,turn:0,log:[]};
+ $('setup').hidden=true;$('play').hidden=false;$('done').hidden=true;draw();
+};
+function legal(act){
+ if(!s||s.turn>=4)return false;
+ if(['WORK_A','WORK_B','SIDE'].includes(act))return true;
+ if(s.turn<2)return false;
+ if(act==='DIRECT')return true;
+ if(act==='SAFE')return s.variant==='safe';
+ if(act==='SUBMIT')return (s.need==='A'?s.a:s.b)>=2&&!s.submitted;
+ return false;
+}
+function draw(){
+ $('stage').textContent=s.turn<2?'2 · 准备阶段':'2 · 需求已揭晓';
+ $('requirement').textContent=s.turn<2?'尚未知道下阶段具体需要 A 还是 B。':'本局已公布：需要 '+s.need+' 类型的证明。';
+ $('a').textContent=s.a+' / 2';$('b').textContent=s.b+' / 2';$('turn').textContent=4-s.turn;
+ $('prompt').textContent=s.turn<2?'现在如何准备？':'这次需要 '+s.need+'。当前进度允许你怎样回应？';
+ const a=$('actions');a.replaceChildren();
+ for(const [act,label] of [['WORK_A','做一份 A 工作'],['WORK_B','做一份 B 工作'],['SIDE','取得 SIDE 小成果'],['DIRECT','直接处理 C（两次才能得到部分成果）'],['SUBMIT','提交本次需求匹配的完整成果'],['SAFE','SAFE：一手完整处理 C']]){
+  if(act==='SAFE'&&s.variant!=='safe')continue;
+  if(s.turn<2&&['DIRECT','SUBMIT','SAFE'].includes(act))continue;
+  const b=document.createElement('button');b.textContent=label;b.disabled=!legal(act);b.onclick=()=>actNow(act);a.append(b);
+ }
+ $('timeline').textContent=s.log.length?s.log.join('\n'):'尚未执行行动。';
+}
+function actNow(act){
+ if(!legal(act))return;
+ if(act==='WORK_A')s.a++;
+ if(act==='WORK_B')s.b++;
+ if(act==='SIDE')s.side++;
+ if(act==='DIRECT'){s.direct++;if(s.direct>=2)s.c=Math.max(s.c,6);}
+ if(act==='SUBMIT'){s.c=10;s.submitted=true;}
+ if(act==='SAFE')s.c=10;
+ s.log.push('第'+(s.turn+1)+'手 ['+(s.turn<2?'准备':'应对')+'] '+act+(s.turn>=2?' · 当前需要 '+s.need:''));
+ s.turn++;
+ if(s.turn===2)s.log.push('--- 公布需求：'+s.need+' ---');
+ if(s.turn===4){finish();return;}draw();
+}
+function exportText(){
+ const a=s.a>=2,b=s.b>=2,full=s.c===10;
+ const preserved={A:a,B:b,BOTH:a&&b,FULL_C:full,FLEX:true}[s.goal];
+ const value=(a?6:0)+(b?5:0)+s.c+s.side;
+ return ['SSNoir 研究观察记录（尚未上传）',
+ '自选目标：'+names[s.goal],'自述理由：'+(s.why||'未填写'),
+ '规则版本：'+(s.variant==='safe'?'带SAFE':'普通'),
+ '后到需求：'+s.need,'行动：',...s.log,
+ '结果：A完成='+a+'；B完成='+b+'；C质量='+s.c+'；SIDE='+s.side,
+ '达成自选目标：'+preserved,'本规则供对照的综合值：'+value,
+ '事后想法：'+($('reflection').value||'未填写')].join('\n');
+}
+function finish(){
+ $('play').hidden=true;$('done').hidden=false;
+ const a=s.a>=2,b=s.b>=2,full=s.c===10;
+ const preserved={A:a,B:b,BOTH:a&&b,FULL_C:full,FLEX:true}[s.goal];
+ $('outcome').textContent='你先前选择“'+names[s.goal]+'”。结果：A '+(a?'完成':'未完成')+'；B '+(b?'完成':'未完成')+'；C '+(full?'完整':s.c===6?'部分':'未解决')+'；SIDE '+s.side+'。'+
+  (s.goal==='FLEX'?'此局没有预先承诺需满足的目标。':preserved?'你选定的目标得到保留。':'你选定的目标没有保住。')+
+  '  原规则综合值：'+((a?6:0)+(b?5:0)+s.c+s.side)+'（用于数学对照，不等于你的真实偏好）。';
+}
+$('copy').onclick=async()=>{
+ if(!s)return;const text=exportText();
+ try{await navigator.clipboard.writeText(text);$('copy').textContent='已复制';}
+ catch(e){$('export').hidden=false;$('export').textContent=text;$('copy').textContent='请手动复制下方文字';}
+};
+$('again').onclick=()=>{$('done').hidden=true;$('setup').hidden=false;$('copy').textContent='复制完整观察记录';$('export').hidden=true;};
+})();
+</script></body></html>

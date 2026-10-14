@@ -1,8 +1,8 @@
 {
   "schema": "ssnoir.autonomous-pattern-memory/v1",
   "updated": "2026-10-14",
-  "batch": "VOL01/ADV01 自选承诺与对抗性注意力分配",
-  "rounds": 2,
+  "batch": "SUBMIT02：完整政策的非标量成果向量复核",
+  "rounds": 24,
   "totalArchivedRounds": 478,
   "objective": "长期自主发展可复用的玩法模式语言，覆盖已知作品先例、基础原语、完整交锋、跨阶段结构、组合条件与重要负例；评价玩家实际反复作出的判断、反馈、后果。历史20是广度愿景，不是价值认证名单或完成配额。",
   "policy": "从成熟作品、旧实验、新假设三向吸收；先去剧情定义玩家活动，再独立批评同构/最强简单策略，按需模型与盲Agent试玩。数学、作品先例、Agent、原生与真人是正交证据。知识图谱收录不等真人认可，精选展示与Debug独立把关，真人反馈异步且不阻塞。",
@@ -38,27 +38,6 @@
     "currentCalibrationCreatedNewTrials": false
   },
   "results": [
-    {
-      "family": "intervention-induced-observation-loss",
-      "kind": "mature-safety-vs-diagnostic-information-composition",
-      "question": "当玩家提前保护某目标会阻止事件留下直接观察痕迹时，信息的产生方式是否确实变成可计算的行动后果？",
-      "source": "INV01—03 2026-10-14",
-      "summary": "4手R/B原因等半、SHIELD无伤无痕迹、WATCH准确辨原因但1/2当次受损；3后续PROBE准确率3/4、STOP一次、SIDE。三向量(无伤,正确阻止,保底)=(1,3/4,1),(1,1/2,2),(1/2,1,2)均非支配。权重(6,12,1)动态17 WATCH vs固定14；(12,8,1)动态19 SHIELD vs固定18。完全信息与保护一同免费获得根20使WATCH被支配。独立结果不是法定证据；没有真人。"
-    },
-    {
-      "family": "registered-negative-observation-and-proof-eligibility",
-      "kind": "mature-ex-ante-commitment-for-admissible-evidence",
-      "question": "已经通过事件缺席准确推断来源，但外部要求可提交证明时，事前登记有没有独立行动价值？",
-      "source": "RECORD01—04 2026-10-14",
-      "summary": "四手R/B q1可选择性TEST，NO_EVENT本身对玩家正确辨源但缺少外部PROOF资格。事前REGISTER1手给缺席记录合法SUBMIT，安全6/正确STOP8/PROOF10/SIDE1，none根22/固定18，prereg45/2/固定37/2；REGISTER完全同构普通LICENSE，保留一种成熟资格动作组合而非新原语。"
-    },
-    {
-      "family": "belief-versus-recognized-proof-and-information-provenance",
-      "kind": "cross-source-evidence-level-method",
-      "question": "玩家知道真实原因、拥有概率线索、正确处理来源、取得外部认可证明，是否真正被模型分别表达？",
-      "source": "META05 2026-10-14",
-      "summary": "INV SHIELD内生造成无痕迹，DISC工作同时观察、TRL低型策略性伪装、INF-P01免费已知没价值、GRC信息改变他者同意分别不同。WATCH得信息不等于CERT独立C资格，STOP真正确也不等于司法证据；以后研究信息时优先记录由谁产生、行动是否改变其出现、何时知道、可信度、能否真正转为结果资格。"
-    },
     {
       "family": "negative-evidence-created-by-selective-protection",
       "kind": "mature-causal-intervention-composition-with-strong-new-menu-counterexample",
@@ -170,12 +149,30 @@
       "source": "ADV01 2026-10-14",
       "question": "敌手会针对玩家前两手可见进度择目标毁掉时，玩家是否真的后续改选？它是否被普通防护、轻度损失或提前信息轻易压平？",
       "summary": "4手两段，敌手私有TYPE_A/B各半，自己破坏A/B收益5/3或3/5、无收益时EXIT1。全部ERASE工作，先AB：TYPE_A STRIKE_A后玩家BB得8；TYPE_B STRIKE_B后玩家AA得10，根9、A/B终局各半；固定全四手最优5。若只CHIP一份，固定AAAA根10；若一手公开SHIELD挡所有1次袭击，敌手自利EXIT，固定A/SHIELD/AA根10。提前知道私有类型根增益0，原ERASE无盾不能保证A全部分支成功。有真正适应性但不是新独立敌手原语/人格学习。"
+    },
+    {
+      "family": "two-encounter-incentive-compatible-signaling-and-timely-proof",
+      "kind": "symmetric-mixed-sequential-equilibrium-witness-with-zero-private-type-information",
+      "source": "SIG01 2026-10-14",
+      "question": "私人偏好稳定且敌手两次出现，首次动作是否一定能帮助玩家判断下次保护哪一侧？",
+      "summary": "第一次诚实选择偏好目标敌手得私人收益r1、伪装0，第二次攻击真实喜好8/另一1，玩家盾一侧扣对方5。证明一种对称混合均衡：两类型首次指向A/B各1/2，故行为与类型独立，防守者见首次目标以q=3/5保护它，敌手两首招收益同为6；玩家下次损失11/2。天真总保护首次目标非均衡，敌手会严格伪装令损失8；当r>5时诚实分离可信，r6损失3（不同自利效用协议）。r1下及时且可核验报告费用1使总损失4，迟报6.5，一手万能全防护成本3支配报告。只宣称一个对称混合均衡存在，不唯一，无真人。"
+    },
+    {
+      "family": "self-selected-nonfungible-goals-actual-minimal-observation-interface",
+      "kind": "research-instrument-not-human-playtest-with-complete-hard-goal-and-safe-ablations",
+      "source": "VOL02 2026-10-14",
+      "question": "没有人的真实关切时，能否构建一个不灌输最优策略的观察入口，分离玩家自发保目标与作者定义的硬结局？",
+      "summary": "同CROSS2×2手工作A6/B5、提交匹配完整C10、普通DIRECT两手部分C6；无SAFE时保A29/2、B27/2、A+B11、保完整C31/2、自由31/2；加入一手万能SAFE后依次17/16/11/17/17。新自包含HTML先收自述目标及理由、隐藏需求到第二阶段、可复制实际行动与反思、不上传。Node离线vm三轨迹覆盖匹配提交16、SAFE路线17、直接处理部分C6；没有真实人类或浏览器验证。私下承诺仍仅缩小FLEX动作集合，不表示自觉关切已得到体验支持。"
+    },
+    {
+      "family": "dual-use-investigative-work-and-evidence-time-window",
+      "kind": "reliable-information-can-be-dominated-by-less-accurate-progress-if-too-late",
+      "source": "IWT01 2026-10-14",
+      "question": "同一行动能真正做一份工作并取得准确度75%的类型线索，何时比完全正确但耗时的纯调查更值得用？",
+      "summary": "4手，隐藏A/B各半，只有正确目标累积3工作才得A10/B8，SIDE1。无证据WORK6；一手100%纯INSPECT9；仅75%TRACK_X兼一份工作119/16；同菜单INSPECT9优于TRACK。INSPECT改花两手，准确报告后无法补足3工作，TRACK119/16胜出；完美TRACK19/2，50%无信息TRACK6；TRACK仅首手开放29/4。报告A/B经贝叶斯更新，TRACK_A初见B可再TRACK_B后改投；所有结果Fraction DP与按真实类型和独立噪声的正向轨迹复算一致。已有DISC/FOCUS/SIG成熟组合，非新原语/真人证据。"
     }
   ],
   "failedExplanations": [
-    "PART中直接猜测STOP的正确率WATCH与PARTIAL_R对任意q均(1+q)/2，PARTIAL还更安全，但不能直接宣称完整最优时PARTIAL弱支配WATCH。当q=1/2，WATCH无事R/B均匀使后续PROBE能显著提高准确率，PART无事后验R2/3则PROBE与直接STOP平局，完整DP WATCH33/2反超PARTIAL65/4；同一次指标准确率不等于后续信息价值相等。",
-    "GROUP可画出许多连续保护子集与贝叶斯状态，却不能因此宣称玩家需要反复缩圈：q1且暴露真实来源准确时，四源一个单点保护就根据事件出现/未出现完美辨源，完整三手DP任意子集67/4与每次单点67/4相同。只有新信息制度/保护限制才值得重开。",
-    "RECORD玩家对R/B源的私人知识在有无REGISTER时同为100%（q1），但NO_EVENT是否可提交PROOF不同；事前REGISTER根45/2优于只取正面TRACE22，却被同成本普通LICENSE完全同构，事后仅必要时登记23、安全无风险完整证明25分别更强。不能把知道事实、被允许提交和另一个真正愿意接受的主体混作一个结果。",
     "RETENTION的进度衰减和自愿LOCK并不自动形成持续维护需求：A3完成即永久入账，玩家可直接连续3手做完，5/6/7天LOCK根完全不比无LOCK强，8天只多1/32；局部某次LOCK确实最优不代表整局重复保全有高价值。",
     "当A只允许分段第0/1/4天WORK时，LOCK能使A由不可达变可达，但全优路线第0/1 WORK、第2 LOCK、第3 U或SIDE、第4 WORK是一条固定菜谱；新增结果合法性与新增长期决策模式不能混为一谈。",
     "EP01早REGISTER的p1/2根25/2仅比只有事后许可的49/4高1/4，依赖伙伴会以概率1/2严格拒绝且被拒还有一手DIRECT；SAFE单手无伤且认可的完整检测根15，强旁路所有事前保护-登记玩法。不可用数值微差叫新原语。",
@@ -185,15 +182,12 @@
     "MUT01：直接写NPC偏好M较高就改HELP_B，会忽略B从正常初始投入后是否可在剩余手数完工；阈值4时B无法兑现，理性伙伴仍支持A。若无真实首手共同工作资格，SIDE开局25/2压平先期投入理由。",
     "CROSS01：AB半成品→下一场匹配提交虽完整动态31/2>固定25/2且实际A/B结果不同，整体仍是类型化库存；普通SAFE一手通用无害取得完整C使AA→SAFE→SIDE17高于AB15.5，不因流程复杂就叫创新。",
     "VOL01：若私下承诺不改变对方合法行动、不新增个人效用或其他未来信号，自我束缚仅缩小策略集合，同原目标函数不可能提高最优值。不要把玩家可能自发关心A与纯数学承诺按钮混同。",
-    "ADV01：一次私人偏好敌手对已投目标全额ERASE会让AB保留幸存目标根9>固定5，但CHIP一份时AAAA固定10、SHIELD同成本A/SHIELD/AA固定10；提前知道对方TYPE不改根，不能把本轮一次遭遇冒称长期人物意图学习。"
+    "ADV01：一次私人偏好敌手对已投目标全额ERASE会让AB保留幸存目标根9>固定5，但CHIP一份时AAAA固定10、SHIELD同成本A/SHIELD/AA固定10；提前知道对方TYPE不改根，不能把本轮一次遭遇冒称长期人物意图学习。",
+    "SIG01：同一敌手重复出现且有稳定A/B偏好，也可能因对方能预见未来保护而伪装；在一份对称混合均衡中首攻动作与类型独立。天真认定攻A则偏爱A会被对方严格利用；正确情报迟到无法兑现，强普通万能盾可完全压掉调查价值。",
+    "VOL02：自选目标的HTML和Node三种轨迹只证明软件操作/条件规则可用，不代表真人自然在乎A/B；能编出不同结果向量或得到更高数学根值均不能替用户提供实际偏好/情感理由。",
+    "IWT01：不能把TRACK固定得到的一份工作和75%准确的类型报告解释成又摇一次成功骰；工作永远+1，线索才不确定。若可靠INSPECT只花一手，根9支配TRACK119/16；两手完美报告反被TRACK支配是剩余行动不能凑三工作，不是准确度变差。50%报告无信息，根退回6。"
   ],
   "frontier": [
-    {
-      "id": "ABSTRACT-B-ACTOR-CLEAR-CONTINGENCY",
-      "family": "independent-other-belief-replanning",
-      "question": "R510持续看行动历史的29/4确实高于上一事件口诀105/16，但能否将伙伴自主自利选择压缩成**玩家可理解的几条公开规则**，而不是隐藏的四期均匀预测Bayes优化？",
-      "method": "保持自有目标、REST/OUT/ACCEPT，简化为公开可读的私人机会表并检查同样有多次改变判断的正常轨迹；与R494一行RESTORE→ASK及R462公开一行策略对照。把伙伴未来玩家动作为均匀预测的局限明确标注，未来需真双向博弈/可观测行动反证。先纸面再代码，禁被推断成真人。"
-    },
     {
       "id": "ABSTRACT-C-NONLOCAL-REWIRE-OPERATION",
       "family": "causal-relation-editing",
@@ -249,16 +243,22 @@
       "method": "用META07动作依赖边方法比照已有成熟PRF/FOCUS/GRC/HEDGE/CUST/GOAL，先给一个玩家能解释的前后状态及动作，再给强安全等待、固定优先级和普通同成本菜单；没有真人反馈时只记成熟组合/负例，不因图谱边数晋升候选。"
     },
     {
-      "id": "ABSTRACT-AV-VOLUNTARY-STAKE-ELICITATION",
-      "family": "player-chosen-nonfungible-obligations-and-outcome-preferences",
-      "question": "当一项结果真由玩家自愿承诺不可牺牲，而不是研究者指定A硬约束，实际行动与体验是否变化？",
-      "method": "明确私下保证只删未来合法动作不会增加原同一综合效用，不能把承诺效用当免费奖励。使用无答案纸面观察卡先记录参与者自写目标，再比较原四手CROSS、强SAFE及不同必保A/B/C方案。真人反馈独立，不从DP推导偏好。"
+      "id": "ABSTRACT-AX-TIMELY-CREDIBLE-INFORMATION",
+      "family": "strategic-signaling-and-action-window",
+      "question": "若行为可被未来反应操纵，玩家能否在真正可兑现的窗口内付合理成本取得不可伪造信息，并因此改变至少两手不同性质的操作？",
+      "method": "SIG01均衡首次行动零信息，及时可验报告总损失4优于5.5，晚报6.5，普通全盾费3再支配报告。下一题避免再改r、q，改状态合法窗口、再访行动与真正可保全的非补偿结果，严格检验万能防护和可达普通路线。"
     },
     {
-      "id": "ABSTRACT-AW-REPEATED-STRATEGIC-OPPONENT-LEARNING",
-      "family": "strategic-counterparty-belief-use-across-contracts",
-      "question": "只遭一次攻击时，对方私有偏好虽能从结果得知，提前知道类型仍对玩家根零价值。若敌手在下一场再出手，玩家能否真正使用先前记录改变后续保护/应对方式？",
-      "method": "先与P16/INF-P01及普通条件工具、公开免费强盾/可做完整无损调查、固定可读脚本比较；明示敌手能看到什么、是否会策略性伪装，不能只放随机坏人。"
+      "id": "ABSTRACT-AY-REAL-PLAYER-STAKE-OBSERVATION",
+      "family": "actual-unprompted-preference-elicitation",
+      "question": "VOL02网页能收独立参与者原话，但有没有真人真的自行选保A/B或因后到需求修订优先级？",
+      "method": "先寻求可独立执行的非提示网页试玩与外部原话，审查四手可读性/思考体验；人类反馈尚未到来时不得冒称。小游戏不自动进入正式Debug。"
+    },
+    {
+      "id": "ABSTRACT-AY-TRACK-REVEALS-INVESTMENT-TO-ACTOR",
+      "family": "progress-and-information-with-strategic-exposure",
+      "question": "同一TRACK能贡献真实工作与类型线索，但在他者眼中也显示了玩家投注哪个目标时，何时仍值得边调查边做？",
+      "method": "先比完全安全INSPECT一手、隐蔽WORK、普通SHIELD、信息迟到后无行动空间及自动条件对手；从真正常态根验证反馈，避免增加随意人物复杂度。"
     }
   ],
   "method": {
@@ -308,12 +308,12 @@
     }
   ],
   "crossRoundMemory": [
+    "2026-10-14 IWT01：四行动隐藏A/B各半，各要3匹配WORK才得10/8，SIDE1。TRACK_X必进一份工作，同时有75%准确报告；INSPECT完美报告占一手。完整动态及正向枚举：无信息6，完美INSPECT9、只TRACK119/16、均允许9、INSPECT占两手而TRACK开放119/16、完美TRACK19/2、50%TRACK6、TRACK只首手29/4。完美报告要时间兑现，不应虚构双重随机成功。DISC/FOCUS/SIG成熟组合，没人类盲测，源 docs/实验/机制研究/批次/2026-10-14-边调查边工作与信息兑现窗口/研究记录.md",
+    "2026-10-14 SIG01/VOL02：对手两次相遇，r1首招诚实收益1、伪装0，第二回合喜好目标8、另目标1、盾扣5，存在对称混合序贯均衡：双方类型首招A/B各半、行为与类型独立；玩家见首次信号以3/5保护该侧、第二次损失11/2。天真总信则对手会伪装而损失8；提高敌手首次真诚效用r6可使严格分离、损失3，但改变敌手效用。及时真报告费1总损失4、迟报6.5、一手全盾费3更优；不宣称唯一。VOL02依原CROSS规则建自包含无答案网页：用户先自述保A/B/AB/C或灵活，后需求A/B揭晓再行动；无SAFE根保A29/2/B27/2/AB11/C31/2/FLEX31/2，有SAFE保A17/B16/AB11/C17/FLEX17；Node三轨迹离线通过，尚无人类/真实浏览器/Unity验证。研究文件 docs/实验/机制研究/批次/2026-10-14-策略性伪装与自选成果/研究记录.md",
     "2026-10-14 VOL01/ADV01：在不改变CROSS信息、目标函数、其他人行为时，私下自愿保证保A/B是原FLEX条件策略的真子集，根31/2≥保A29/2、保B27/2、保双方11；不是玩家的真实非补偿偏好受到否定。对抗模型：敌手按私有目标5/3或3/5自利攻击玩家可见A/B已投入进度；一次全ERASE时先AB，再看打A后BB得8或打B后AA得10，期望9（固定四手最强5）；若攻击只减一份则固定AAAA根10，或允许整手公开万能盾则敌手EXIT且固定A/盾/AA根10。提前知道敌手类型零价值、无盾不可能保证A所有分支成功。数学模型+作者批评，无真人/独立盲Agent/Unity。源：docs/实验/机制研究/批次/2026-10-14-自选承诺与对抗性注意力/研究记录.md",
     "2026-10-14 MUT01/CROSS01：公开N/M令自利伙伴A/B收益翻转，但真正HELP受玩家剩余2手+伙伴1手的可完工性约束；A/B门槛3时首手A后N帮A玩家13、M帮B玩家11，根12；门槛4时M更想B仍因B不可达而帮A、根12。禁资格消融：SIDE后免费伙伴根25/2。CROSS两阶段各2手：先AB各半，见需求A补A+SUBMIT得16、B补B+SUBMIT得15，根31/2；固定25/2、去SUBMIT12、通用一手SAFE17压平；结果向量互异，但状态完全由A/B类型进度决定，归并FOCUS/AB02/STAKE。两者均旧关系组合和反证，数学/作者校验，无真人。",
     "2026-10-14 COA01/02/03：有自利A/B偏好的伙伴导致玩家正常初态公开改选A/A或B/B，A/B完成率各1/2且共同C=1，根27/2对SELF10，但条件AUTO完全复制所有续行与向量；C取消邀请19/2低于自做10。COMMIT先期投资在无绑定时因对方预见未来便宜路线而EXIT根3，固定PAY14.5，9种完整H/L可执行合同15，且全同构预编译条件菜单。CONSENT为新协议：伙伴有t1真实EXIT，玩家单方约束仅21/2、双方都受约束15，自由9；双边成本阈值9/2。是ACT/PS/NEG/GRC成熟组合和反证，非新的社交原语；无人类/独立Agent/Unity。源 docs/实验/机制研究/批次/2026-10-14-双目标协作者与跨期承诺/研究记录.md",
-    "2026-10-14 EP01/EP02：行动生成的真实负观察≠自己正确推断≠可提交证据≠他人实际同意；四手登记+R部分保护+伙伴独立拒绝p1/2根25/2，比只有posthoc49/4多1/4，但SAFE一手15强支配、q<1沉默不证真源。另两类型自愿公开：只有R能真发表，伙伴因R确实公开推断沉默来自B，选择退场；玩家7低于事前可信封口8，若固定工具无条件合作则9。若封口成本c<1恢复池化合作；这仅为GRC/RECORD/PART成熟关系新互作，数学和作者反证，无真人/盲Agent/Unity。源 docs/实验/机制研究/批次/2026-10-14-证据与策略性沉默/研究记录.md",
-    "2026-10-14 BIL01—03从初态三族严格因果反证：三日GATE的A→B表面许可删除后，根29/2、最优正常路径和结果分布完全不变；真正需要重判的边是B高报价提前领取会关闭未完A，删关闭根18、删早价根14。四日REOPEN可付行动恢复A，遇后到U则接受失去A；根21、禁重开39/2，双目标完成率3/4对1/2，短策略全优。六日BURDEN由B制造待清负担、A_CLEAR恢复被容量封禁B，根21415/1024，A清理期望4103/2048次；五条简明公开规则最强166859/8192，仅差4461/8192，属于已有P11负担/容量而非新原语。数学脚本CI success，无新人类、独立Agent或正式Unity。源 docs/实验/机制研究/批次/2026-10-14-双向因果与操作回流/研究记录.md。关键新增研究审计：画箭头的‘菜单有效’≠从真实开局行动政策真的变化；须逐边消融、正概率可达轨迹、独立终局结果向量、同成本普通替代。",
-    "2026-10-14 EDGE-B：六日A准备类型化B资格，TOKEN用后消耗的完整初态DP1977459/65536，比禁准备27有严格收益；初日低价值准备/高价值普通B，后日持匹配资格低值反而NORMAL保留，高值SPECIAL消费，且四句公开规则全局最优。永久LICENSE37161/1024却匹配SPECIAL支配NORMAL；禁止RETOOL时TOKEN同根，晚公开高低信息使其根退回27；本质与类型化库存兑换全树同构，非新独立原语，无真人/第二Agent/Unity。源docs/实验/机制研究/批次/2026-10-14-B行动资格与延期兑现/研究记录.md"
+    "2026-10-14 EP01/EP02：行动生成的真实负观察≠自己正确推断≠可提交证据≠他人实际同意；四手登记+R部分保护+伙伴独立拒绝p1/2根25/2，比只有posthoc49/4多1/4，但SAFE一手15强支配、q<1沉默不证真源。另两类型自愿公开：只有R能真发表，伙伴因R确实公开推断沉默来自B，选择退场；玩家7低于事前可信封口8，若固定工具无条件合作则9。若封口成本c<1恢复池化合作；这仅为GRC/RECORD/PART成熟关系新互作，数学和作者反证，无真人/盲Agent/Unity。源 docs/实验/机制研究/批次/2026-10-14-证据与策略性沉默/研究记录.md"
   ],
   "focusedAudits": [],
   "parallelBatches": [],
@@ -333,8 +333,10 @@
     "noHumanTests": true,
     "interpretation": "X01、X02与另一批C01、C02是不同的已知组合条件反证，均不构成新独立模式或完整真人交锋认证",
     "historyCountUnchanged": 478,
-    "latestBatch": "docs/实验/机制研究/批次/2026-10-14-自选承诺与对抗性注意力/研究记录.md",
-    "latestCounterfactual": "VOL01：同CROSS原规则FLEX31/2、硬保A29/2、硬保B27/2、双方11、完整C31/2，私下承诺策略子集不能提高同一综合效用；公开可信合同影响他人参加属另一协议。ADV01：自利私有TARGET_A/B敌手全ERASE时先AB、敌手打A则BB得8、打B则AA得10，根9、固定全程5；若CHIP只毁一份固定AAAA根10；公开整手SHIELD使敌手理性EXIT，固定A/SHIELD/AA根10；提前知道敌手TYPE根仍9。",
-    "crossFamilyAudit": "PL-VOL01→CROSS01/STAKE01/COA02：目标偏好、私下行动缩减、对外可执行行为导致别人自行参加不同。PL-ADV01→P16/FOCUS03/INF-P01：针对真实进度的策略性破坏造成后续改道，但如果损失可恢复或万能护盾存在，策略压平；对手只出手一次则人物类型信息并非未来必需。"
-  }
+    "latestBatch": "docs/实验/机制研究/批次/2026-10-14-边调查边工作与信息兑现窗口/研究记录.md",
+    "latestCounterfactual": "IWT01：四手Hidden A/B各半，3份正确WORK得10/8，TRACK工作必+1并有75%准确类型线索；纯INSPECT100%占一手。无信息6、只TRACK119/16、INSPECT9；INSPECT耗时两手TRACK重新胜119/16；完美TRACK19/2、50%TRACK6、TRACK首手限定29/4。正向枚举核对全部潜在真实类型；保留已有DISC/FOCUS/SIG组合。",
+    "crossFamilyAudit": "PL-IWT01→PL-DISC01（工作+信息两种不同产出）、FOCUS02/03（及时兑现行动窗口、完美检查强旁路）、SIG01（非战略性线索噪声有别于他者可伪装的行动信号）。"
+  },
+  "lastFinding": "复核STAKE/CUST/VOL证据：标量最优同分不意味着完成/保全/提交成果向量等价；真人是否自选关切另待验证。SUBMIT01原6+3规则不变，完整前缀与条件后缀枚举：一次SUB73个(P交A,P交B,E SIDE,分数)四元组、9个非支配三维向量；两次SUB86与14；根分数均15。单SUB可达(1/2,1/2,4,15)，双SUB可达(1,1,1,15)，互不支配；只是既有成果容量×非标量目标组合，非独立新原语。无新人类/盲Agent/Unity。",
+  "nextResearchQuestion": "停止扫描SUB提交次数与前沿个数；横向查CUST原件转移、PUB公开撤权、GRC自利合作，验证“提交一份成果将资格转让给第三方”是否真正改变对方行动选择，和普通单人容量限制/免费提交、预先条件合同强对照。"
 }
