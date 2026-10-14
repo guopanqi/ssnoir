@@ -1,8 +1,8 @@
 {
   "schema": "ssnoir.autonomous-pattern-memory/v1",
   "updated": "2026-10-15",
-  "batch": "CROSS-SCALE03 地点行动成本与后到反馈",
-  "rounds": 76,
+  "batch": "CROSS-SCALE04 跨日窗口与地点成本消融",
+  "rounds": 77,
   "totalArchivedRounds": 478,
   "objective": "长期自主发展可复用的玩法模式语言，覆盖已知作品先例、基础原语、完整交锋、跨阶段结构、组合条件与重要负例；评价玩家实际反复作出的判断、反馈、后果。历史20是广度愿景，不是价值认证名单或完成配额。",
   "policy": "从成熟作品、旧实验、新假设三向吸收；先去剧情定义玩家活动，再独立批评同构/最强简单策略，按需模型与盲Agent试玩。数学、作品先例、Agent、原生与真人是正交证据。知识图谱收录不等真人认可，精选展示与Debug独立把关，真人反馈异步且不阻塞。",
@@ -337,6 +337,6 @@
     "latestCounterfactual": "IWT01：四手Hidden A/B各半，3份正确WORK得10/8，TRACK工作必+1并有75%准确类型线索；纯INSPECT100%占一手。无信息6、只TRACK119/16、INSPECT9；INSPECT耗时两手TRACK重新胜119/16；完美TRACK19/2、50%TRACK6、TRACK首手限定29/4。正向枚举核对全部潜在真实类型；保留已有DISC/FOCUS/SIG组合。",
     "crossFamilyAudit": "PL-IWT01→PL-DISC01（工作+信息两种不同产出）、FOCUS02/03（及时兑现行动窗口、完美检查强旁路）、SIG01（非战略性线索噪声有别于他者可伪装的行动信号）。"
   },
-  "lastFinding": "CROSS-SCALE03：四手A起点，TEST令A进度1并公开品质H10/L4。B需两WORK得8，GO_B花一手，SIDE得1。精确DP动态10、固定9；取消地点转移费，动态与固定均15。地点约束影响路线却可用含地点状态的单层MDP逐动作复刻；非新原语，无人类试玩。",
-  "nextResearchQuestion": "检验跨日窗口和多个世界目标的真实机会成本、成果身份；先排除固定巡回与安全等待策略。"
+  "lastFinding": "CROSS-SCALE04：两日四手，A仅第1日工作、B仅第2日工作；日历+移动动态10固定9，去掉日历仍10/9，去地点移动成本15/15。跨日窗口只删减合法但次优路径，不产生新增实际决策；独立Fraction DP及6^4固定计划穷举，非新人类或盲Agent验证。",
+  "nextResearchQuestion": "寻找日程窗口改变最佳跨日驻留/转场路线、而非仅删除次优动作的自然最小实例；匹配强固定巡回/安全等待/成果身份与逐状态单层等价模型，不为差值调参数。"
 }
