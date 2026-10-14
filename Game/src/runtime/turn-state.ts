@@ -15,7 +15,12 @@ export class ActionTurnState {
     if (!Number.isFinite(n) || n < 0 || n >= 1) throw new Error("RNG must return [0,1)");
     return Math.floor(n*6)+1;
   }
-  rollFate(): number { return this.d6(); }
+  /** Hidden resolution draw; the player sees percentages, not a second die. */
+  rollPercentage(): number {
+    const n = this.random();
+    if (!Number.isFinite(n) || n < 0 || n >= 1) throw new Error("RNG must return [0,1)");
+    return Math.floor(n * 100) + 1;
+  }
   startDay(): void { this.dice = Array.from({length:4}, (_x,slotId) => ({slotId,value:this.d6()})); }
   available(): ActionDie[] { return this.dice.map(x=>({...x})); }
   get(slotId:number): ActionDie {
