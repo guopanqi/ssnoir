@@ -18,9 +18,9 @@
   (map (lambda (c)
     (list (car c) (make-clock (string-append "看明白：" (car c)) 4 'gauge
       "满4确认此人是否取信者；尼尔与观察帮手共享进展。"))) 候选人))
-(define 拦截 (make-clock "截住取信者" 4 'gauge
-  "本回合满4截住；独自好2中1，协同好3中2；坏不推进。"))
-(define 追上 (make-clock "追上他" 6 'gauge "满6追到线索；尼尔仍须投入行动骰。"))
+(define 拦截 (make-clock "截住取信者" 5 'gauge
+  "本回合满5截住；独自好2中1，协同好3中2；坏不推进。"))
+(define 追上 (make-clock "追上他" 8 'gauge "满8追到线索；尼尔仍须投入行动骰。"))
 (define 逃脱 (make-clock "逃脱" 3 'gauge "追逐中每回合加1并换街景；满3跟丢。"))
 
 (define (岗位有人? job)
