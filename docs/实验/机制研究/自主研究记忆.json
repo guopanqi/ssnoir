@@ -183,7 +183,7 @@
       "kind": "mature-hedge-information-triggered-claim-and-nonfungible-outcomes",
       "question": "早期A/B各留一份可继续工作的半成品，后到真实A/B需求能否改变下一场可做的动作及完成的结果，而非只调得分？",
       "source": "CROSS01 2026-10-14",
-      "summary": "两阶段各2手，A/B各需2工作、完成A6/B5，第2场A/B需求等概率；MATCH SUBMIT一手得完整C10，DIRECT两手仅部分C6，SIDE/继续工作全合法。先AB各半、第2场需要A补A提交得16，需要B补B提交得15，完整动态根31/2；固定全部四手最强25/2、无SUBMIT12、另增无害一手万能SAFE17并令AA最优。所有已测动作/结果只依类型工作计数上限2等可观察状态，成熟FOCUS×AB02×STAKE组合而非新原语。"
+      "summary": "两阶段各2手，A/B各需2工作、完成A6/B5，第2场A/B需求等概率；MATCH SUBMIT一手得完整C10，DIRECT两手仅部分C6，SIDE/继续工作全合法。先AB各半、第2场需要A补A提交得16，需要B补B提交得15，完整动态根31/2；固定全部四手最强25/2、无SUBMIT12、另增无害一手万能SAFE17并令AA最优。所有已测动作/结果只依类型工作计数上限2等可观察状态，成熟FOCUS×AB02×STAKE组合而非新原语。 补充相同菜单但每一公开分支必须实现的非补偿目标：保A最优29/2先AA，保B27/2先BB，同时保A/B得11且无C，保完整C31/2先AB；这是设计目标不同导致策略不同，不是玩家真实偏好已验证。"
     }
   ],
   "failedExplanations": [
@@ -350,7 +350,7 @@
     "interpretation": "X01、X02与另一批C01、C02是不同的已知组合条件反证，均不构成新独立模式或完整真人交锋认证",
     "historyCountUnchanged": 478,
     "latestBatch": "docs/实验/机制研究/批次/2026-10-14-目标改变与跨交锋凭据/研究记录.md",
-    "latestCounterfactual": "MUT：N/M伙伴A8/B4→A4/B8，但A/B门槛从3到4便让M下HELP_B因无法完成而变为HELP_A；玩家根均12，SIDE无资格→有资格根25/2。CROSS：两阶段各2手，先AB半品，下场配需求完成相应并提交，根31/2，固定25/2，禁SUBMIT12，增加一手万能SAFE17；可达A/B不同结果而资源状态严格类型化同构。",
+    "latestCounterfactual": "MUT：N/M伙伴A8/B4→A4/B8，但A/B门槛从3到4便让M下HELP_B因无法完成而变为HELP_A；玩家根均12，SIDE无资格→有资格根25/2。CROSS：两阶段各2手，先AB半品，下场配需求完成相应并提交，根31/2，固定25/2，禁SUBMIT12，增加一手万能SAFE17；可达A/B不同结果而资源状态严格类型化同构。 补充相同菜单但每一公开分支必须实现的非补偿目标：保A最优29/2先AA，保B27/2先BB，同时保A/B得11且无C，保完整C31/2先AB；这是设计目标不同导致策略不同，不是玩家真实偏好已验证。",
     "crossFamilyAudit": "MUT01→COA01/ACT01/FOCUS03：偏好和可达完工的因果区分。CROSS01→FOCUS02/AB02/STAKE01/FOCUS03：后到需求匹配操控不同结果，但SAFE强旁路和全部可达计数压缩反证原语新颖性。"
   }
 }
