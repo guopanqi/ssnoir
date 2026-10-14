@@ -486,7 +486,7 @@
       (lambda () (and (> delivery-day 0) (= world-day (+ delivery-day 1))))
       (lambda () (set-global! '天气 "")))
 
-    ;; 酒馆里先听到一个不太正经的办法；艾迪初见对白由作者另行确定。
+    ;; 酒馆先听到一个不太正经的办法；艾迪初见只讲人物，不要求当场付钱。
     (define (tavern-ambush-nodes)
       (if (not (= story-stage 1)) '()
         (append
@@ -506,8 +506,17 @@
               :subtitle "酒保介绍的落魄拳手"
               :resolve (instant (lambda ()
                 (set! ambush-eddie-met? #t)
-                ;; TODO 作者后续提供艾迪初见整段 Dialogue，先让玩家免费认识他。
-                (play-dialogue! (line "世界" "艾迪坐在酒馆角落，谈好三十金的报酬。"))))))
+                (play-dialogue!
+                  (line "世界" "艾迪正和酒保争论酒钱。")
+                  (line "艾迪" "先记账上，等我下一场赢了，一起还你。")
+                  (line "酒保" "你上次也是这么说的。")
+                  (line "艾迪" "那我不是没赢嘛，赢了一起还你。")
+                  (line "世界" "酒保摇摇头走开。尼尔在桌旁坐下。")
+                  (line "尼尔" "艾迪？我有个活儿需要你。")
+                  (line "世界" "尼尔把勒索信和邮箱的事讲了一遍。")
+                  (line "艾迪" "太有意思了，要是让我抓着他我非得打他一顿不可。")
+                  (line "艾迪" "这小子是没尝过拳击手的滋味。")
+                  (line "艾迪" "给你个友情价，三十。"))))))
             '())
           (if (and ambush-eddie-met? (not ambush-eddie?))
             (list (node "雇艾迪帮忙"
@@ -576,13 +585,15 @@
       (let ((before (ambush-survey 'current)))
         (ambush-survey 'advance! amount)
         (let ((after (ambush-survey 'current)))
-          ;; 三处简短独白暂占 Dialogue，等待作者后续替换正式文本。
           (if (and (< before 2) (>= after 2))
-            (play-dialogue! (line "尼尔" "报摊能看见邮箱。")) #f)
+            (play-dialogue! (line "尼尔" "从这里刚好能看得清邮箱附近，也不容易惹人注意。")) #f)
           (if (and (< before 5) (>= after 5))
-            (play-dialogue! (line "尼尔" "这边离邮箱近，容易让对方警觉。")) #f)
+            (play-dialogue! (line "尼尔" "这里路很窄，只要有人接应，就有机会把他拦住。")) #f)
           (if (and (< before 8) (>= after 8))
-            (play-dialogue! (line "尼尔" "街口通向大路。地方摸清了。")) #f)))))
+            (play-dialogue!
+              (line "尼尔" "这里过去就到老街的地带了，全是小巷。")
+              (line "尼尔" "要是他跑了就麻烦了。不过如果有人盯着的话，也许还是有机会的。"))
+            #f)))))
     (define (beat1-dock-nodes)
       (if (and (= story-stage 1) ambush-known?
                (not (null? (ambush-helpers)))
@@ -2728,6 +2739,11 @@
              (list "delivery-shortfall" delivery-shortfall)
              (list "opening-heard?" opening-heard?)
              (list "mail-preparations" mail-preparations)
+             (list "ambush-known?" ambush-known?)
+             (list "ambush-eddie-met?" ambush-eddie-met?)
+             (list "ambush-eddie?" ambush-eddie?)
+             (list "ambush-route-result" ambush-route-result)
+             (list "ambush-survey" (ambush-survey 'save))
              (list "condition-level" condition-level)
              (list "alley-thrown-out?" alley-thrown-out?)
              (list "warren-alone" (warren-alone-clk 'save))
@@ -2803,6 +2819,11 @@
                  #t)
              (set! opening-heard? (assoc-get data "opening-heard?" #f))
              (set! mail-preparations (assoc-get data "mail-preparations" '()))
+             (set! ambush-known? (assoc-get data "ambush-known?" #f))
+             (set! ambush-eddie-met? (assoc-get data "ambush-eddie-met?" #f))
+             (set! ambush-eddie? (assoc-get data "ambush-eddie?" #f))
+             (set! ambush-route-result (assoc-get data "ambush-route-result" ""))
+             (ambush-survey 'load! (assoc-get data "ambush-survey" 0))
              (if (and (list? mail-preparations)
                       (= (length mail-preparations)
                          (length (filter (lambda (id) (member? id '("街角" "退路"))) mail-preparations)))
