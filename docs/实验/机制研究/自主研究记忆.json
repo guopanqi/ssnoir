@@ -1,8 +1,8 @@
 {
   "schema": "ssnoir.autonomous-pattern-memory/v1",
   "updated": "2026-10-14",
-  "batch": "CRISIS02 内生危机与安全备选",
-  "rounds": 15,
+  "batch": "CRISIS03 相同封锁、不同已投进度的重规划状态审计",
+  "rounds": 16,
   "totalArchivedRounds": 478,
   "objective": "长期自主发展可复用的玩法模式语言，覆盖已知作品先例、基础原语、完整交锋、跨阶段结构、组合条件与重要负例；评价玩家实际反复作出的判断、反馈、后果。历史20是广度愿景，不是价值认证名单或完成配额。",
   "policy": "从成熟作品、旧实验、新假设三向吸收；先去剧情定义玩家活动，再独立批评同构/最强简单策略，按需模型与盲Agent试玩。数学、作品先例、Agent、原生与真人是正交证据。知识图谱收录不等真人认可，精选展示与Debug独立把关，真人反馈异步且不阻塞。",
@@ -337,6 +337,6 @@
     "latestCounterfactual": "IWT01：四手Hidden A/B各半，3份正确WORK得10/8，TRACK工作必+1并有75%准确类型线索；纯INSPECT100%占一手。无信息6、只TRACK119/16、INSPECT9；INSPECT耗时两手TRACK重新胜119/16；完美TRACK19/2、50%TRACK6、TRACK首手限定29/4。正向枚举核对全部潜在真实类型；保留已有DISC/FOCUS/SIG组合。",
     "crossFamilyAudit": "PL-IWT01→PL-DISC01（工作+信息两种不同产出）、FOCUS02/03（及时兑现行动窗口、完美检查强旁路）、SIG01（非战略性线索噪声有别于他者可伪装的行动信号）。"
   },
-  "lastFinding": "四行动Fraction逆推：A推进本身随机引发N1/2 L1/4 H1/4封锁，危机触发后可清障、转安全B或SIDE。含B根101/8、含B加GUARD根13、无B根10、无B+GUARD根45/4、无危机15；首手都A。安全BB+SIDE×2保底11，故不能把有B与无B的全部差额全算作危机后改道收益。属P11×危机打断×替代路线，不认证新独立原语。无真人/独立盲Agent/Unity。",
-  "nextResearchQuestion": "核查同强度危机在不同已完成A进度和剩余预算下，清障/改道政策是否改变；强对照持续保留BB+SIDE保底、GUARD与局部固定口诀，不做新功能。"
+  "lastFinding": "CRISIS03已触发危机后无进一步随机，枚举48种t∈1..4、a∈0..2、b∈0..1、lock∈1..2状态，动态规划和独立合法动作序列穷举最优值与首动作一致。t2 a1 b0 L1选择B得9，t2 a2 b0 L1选择CLEAR得14，t2 a2 b0 H2又选B得9。真实策略反转存在，但最强简明工期比较口诀可解释，定位危机×进度×有限窗口成熟组合。无真人/Agent盲评/Unity。",
+  "nextResearchQuestion": "停止继续扫描危机强度和进度阈值，横向研究清障同时改变另一目标的行动资格或机会，以及非标量成果是否真正引起玩家价值重估；对照简单工期最优和安全替代。"
 }
