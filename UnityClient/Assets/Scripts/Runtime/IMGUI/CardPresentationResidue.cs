@@ -34,7 +34,7 @@ namespace SSNoir.IMGUI
         // 结果首次可见（动画落定、切到 residue）的时刻；用于「结果从命运条下方揭开」的过渡。首帧惰性写入。
         public float RevealStartTime { get; set; } = 0f;
 
-        // 烧绳子：停留进入倒计时后从 1 烧到 0，烧完结果条连同旧快照一起收掉。
+        // 烧绳子：停留进入倒计时后从 1 烧到 0，烧完后抽屉收回，再连同旧快照一起收掉。
         // 没进倒计时（对白还在放）时不烧。
         public float FuseStartedAt { get; set; } = -1f;
         public float FuseSeconds { get; set; }
@@ -42,5 +42,20 @@ namespace SSNoir.IMGUI
             ? 1f
             : Mathf.Clamp01(1f - (Time.unscaledTime - FuseStartedAt) / FuseSeconds);
         public bool FuseBurntOut => FuseStartedAt >= 0f && Time.unscaledTime - FuseStartedAt >= FuseSeconds;
+
+        // 倒计时结束才收回抽屉；收完前保留结果与宿主，换场也等这一段结束。
+        private const float RetractSeconds = 0.18f;
+        private float RetractProgress01 => FuseStartedAt < 0f ? 0f
+            : Mathf.Clamp01((Time.unscaledTime - FuseStartedAt - FuseSeconds) / RetractSeconds);
+        public float DrawerRemaining01
+        {
+            get
+            {
+                float t = RetractProgress01;
+                return 1f - t * t * (3f - 2f * t);
+            }
+        }
+        public bool RetractionComplete => FuseStartedAt >= 0f
+            && Time.unscaledTime - FuseStartedAt >= FuseSeconds + RetractSeconds;
     }
 }

@@ -1290,11 +1290,20 @@ namespace SSNoir.IMGUI
             return Mathf.Min(desired, available);
         }
 
-        public static Rect ResidueAttachmentRect(Rect cardRect, CardPresentationResidue residue, bool above = false)
+        private static Rect FullResidueAttachmentRect(Rect cardRect, CardPresentationResidue residue, bool above)
         {
             float panelWidth = AttachmentWidth(cardRect.width, above);
             float panelHeight = ResiduePanelHeight(residue, panelWidth);
             return KeepAttachmentOnScreen(AttachmentPanelRect(cardRect, panelWidth, panelHeight, above));
+        }
+
+        public static Rect ResidueAttachmentRect(Rect cardRect, CardPresentationResidue residue, bool above = false)
+        {
+            var panel = FullResidueAttachmentRect(cardRect, residue, above);
+            float height = panel.height * residue.DrawerRemaining01;
+            if (above) panel.y += panel.height - height;
+            panel.height = height;
+            return panel;
         }
 
         // 附件默认挂在卡下；宿主贴着屏幕底边时挂在卡上。
@@ -1423,15 +1432,21 @@ namespace SSNoir.IMGUI
             float reveal = Mathf.Clamp01((Time.unscaledTime - residue.RevealStartTime) / 0.28f);
             float ease = 1f - Mathf.Pow(1f - reveal, 3f);
 
+            var fullPanel = FullResidueAttachmentRect(rect, residue, above);
             var panel = ResidueAttachmentRect(rect, residue, above);
+            if (panel.height <= 0f) return;
             ui.CanHover(panel);
             DrawDrawerBackground(rect, panel, IMGUIStyles.Paper);
 
-            var header = new Rect(panel.x, panel.y, panel.width, ResultHeaderHeight);
+            // 内容随抽屉朝宿主移动，裁剪与命中都跟随可见高度，收回时不压缩文字。
+            GUI.BeginGroup(panel);
+            var content = new Rect(0f, above ? 0f : panel.height - fullPanel.height,
+                panel.width, fullPanel.height);
+            var header = new Rect(content.x, content.y, content.width, ResultHeaderHeight);
             bool hasOutcome = residue.RollOutcome.HasValue;
             RollOutcome outcome = residue.RollOutcome ?? RollOutcome.Neutral;
             Color oc = hasOutcome ? OutcomeColor(outcome) : IMGUIStyles.Gold;
-            IMGUIStyles.DrawOutline(panel, 1f, new Color(oc.r, oc.g, oc.b, 0.65f));
+            IMGUIStyles.DrawOutline(content, 1f, new Color(oc.r, oc.g, oc.b, 0.65f));
 
             // 判定卡的头是档位；即时卡没有档位可写，头就只是一个「已结算」的标记——
             // 卡就在上面，这里不重复卡名。
@@ -1447,13 +1462,14 @@ namespace SSNoir.IMGUI
             {
                 float horizontalInset = ConsolePad;
                 CardDrawer.DrawEffectRows(
-                    new Rect(panel.x + horizontalInset, y, panel.width - horizontalInset * 2f, panel.yMax - y - 4f),
+                    new Rect(content.x + horizontalInset, y, content.width - horizontalInset * 2f, content.yMax - y - 4f),
                     residue.Effects,
                     EffectRowHeight,
                     EffectRowGap,
                     13);
             }
 
+            GUI.EndGroup();
             DrawFuse(panel, residue.FuseRemaining01);
         }
 

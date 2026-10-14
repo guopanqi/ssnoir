@@ -903,10 +903,10 @@ namespace SSNoir.IMGUI
             _gameManager.GameState.NotificationCenter.Update(Time.deltaTime);
             _presentationPlayer.Update(Time.deltaTime);
             _banterPlayer.Update(Time.deltaTime);
-            if (_holdingResidue != null && _holdingResidue.FuseBurntOut)
+            if (_holdingResidue != null && _holdingResidue.RetractionComplete)
                 FinishHold();
-            // 烧完的结果条自己走。
-            foreach (var key in _cardResidues.Where(pair => pair.Value.FuseBurntOut).Select(pair => pair.Key).ToList())
+            // 时间条烧完后先收回抽屉，收完才移除结果和残卡。
+            foreach (var key in _cardResidues.Where(pair => pair.Value.RetractionComplete).Select(pair => pair.Key).ToList())
                 _cardResidues.Remove(key);
             if (_activeAutoAction != null)
             {
