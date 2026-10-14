@@ -121,14 +121,14 @@ namespace SSNoir.IMGUI
             }
             else if (isObserve)
             {
-                if (DrawExecuteButton(exeRect, disabled ? "不可用" : "查 看", ui, !disabled, dead: disabled))
+                if (DrawExecuteButton(exeRect, disabled ? "不可用" : node.ButtonText ?? "查 看", ui, !disabled, dead: disabled))
                 {
                     interaction.CardClicked = true;
                 }
             }
             else if (!disabled)
             {
-                if (DrawExecuteButton(exeRect, "执 行", ui, true))
+                if (DrawExecuteButton(exeRect, node.ButtonText ?? "执 行", ui, true))
                     interaction.ExecuteClicked = true;
             }
             else
@@ -584,7 +584,7 @@ namespace SSNoir.IMGUI
             if (isExecuting)
                 DrawExecuteProgress(exeRect, executeProgress, executingText);
             else
-                clicked = DrawExecuteButton(exeRect, disabled ? "不可用" : ready ? "执 行" : "待 命",
+                clicked = DrawExecuteButton(exeRect, disabled ? "不可用" : ready ? node.ButtonText ?? "执 行" : "待 命",
                     localUi, ready && reveal >= 0.999f, dead: disabled);
             GUI.EndGroup();
             return clicked;

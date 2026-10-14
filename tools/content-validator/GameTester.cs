@@ -133,6 +133,7 @@ namespace SSNoir.Testing
                 if (sceneName == "world/world")
                 {
                     AssertNodeAnchorDsl(sceneManager);
+                    AssertButtonTextDsl(sceneManager);
                     AssertArrivalDsl(sceneManager);
                     AssertPlaceUnlockNotifications(sceneManager);
                     AssertStoryStageDsl(sceneManager);
@@ -211,6 +212,27 @@ namespace SSNoir.Testing
             if (!valid)
                 throw new InvalidDataException(
                     $"Encounter '{sceneName}' returned an invalid on-encounter-collapse policy.");
+        }
+
+        private static void AssertButtonTextDsl(SceneManager scenes)
+        {
+            GameNode Convert(string expression) => NodeConverter.ConvertSingle(
+                scenes.ActiveInterpreter.Eval(expression), scenes.ActiveInterpreter.RawInterpreter);
+            AssertEq("default action button", null,
+                Convert("(instant-action \"默认按钮\" (lambda () #t))").ButtonText);
+            AssertEq("explicit action button", "委派",
+                Convert("(node \"定制按钮\" :button-text \"委派\" :resolve (instant (lambda () #t)))").ButtonText);
+            AssertEq("computed action button", "解除",
+                Convert("(node \"动态按钮\" :button-text (if #t \"解除\" \"委派\") :resolve (instant (lambda () #t)))").ButtonText);
+            AssertThrowsAny(() => Convert("(node \"空按钮\" :button-text \" \" :resolve (instant (lambda () #t)))"),
+                "empty button text");
+            AssertThrowsAny(() => Convert("(node \"错类型按钮\" :button-text 42 :resolve (instant (lambda () #t)))"),
+                "non-string button text");
+            AssertThrowsAny(() => Convert("(node \"容器按钮\" :button-text \"委派\")"),
+                "button text on a container");
+            AssertThrowsAny(() => Convert("(node \"标注按钮\" :button-text \"委派\" :resolve (note \"提示\" \"正文\"))"),
+                "button text on a note");
+            Console.WriteLine("[validate] node :button-text DSL contract passed.");
         }
 
         private static void AssertNodeAnchorDsl(SceneManager sceneManager)

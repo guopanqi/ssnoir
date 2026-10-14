@@ -6,6 +6,7 @@
 (define 阶段 '部署)
 (define 已结束? #f)
 (define 帮手名单 (list "山姆" "诺拉"))
+(define 待命位置 (list (list "山姆" "勒索信-报摊") (list "诺拉" "勒索信-街沿")))
 ;; 岗位定义：短名、场景标题、空间 Anchor、职责、到岗回应。
 ;; 名单与岗位定义决定菜单；部署只保存当前分配，不为人物组合另写分支。
 (define 岗位定义
@@ -239,6 +240,7 @@
       :anchor (帮手锚点 job)
       :subtitle (if current
         (string-append "已在" (cadr (岗位数据 current)) "；请先解除") "委派")
+      :button-text "委派"
       :disabled (not (equal? current #f))
       :resolve (instant (lambda () (委派! job name))))))
 (define (岗位节点 job)
@@ -256,26 +258,26 @@
           (list (node (string-append "解除" (岗位名称 job))
             :anchor (帮手锚点 job)
             :subtitle (string-append (岗位人员 job) "撤回待命")
+            :button-text "解除"
             :resolve (instant (lambda () (解除! job)))))
           (map (lambda (name) (委派卡 job name)) 帮手名单))))))
-(define (待命说明)
-  (let ((free (filter (lambda (name) (not (人员岗位 name))) 帮手名单)))
-    (if (null? free) "所有人已到岗；开始前仍可解除调整。"
-      (string-append "待命："
-        (let join ((names free))
-          (if (null? (cdr names)) (car names)
-            (string-append (car names) "、" (join (cdr names)))))
-        "；可继续安排或开始。"))))
+(define (筹备人物节点)
+  (map (lambda (name)
+    (let ((job (人员岗位 name)))
+      (at-anchor (if job (帮手锚点 job)
+        (let ((anchor (assoc-get 待命位置 name #f)))
+          (if anchor anchor (error "雨夜收网：帮手缺少待命锚点"))))
+        (note-node name name
+          (if job (string-append "负责" (岗位名称 job)) "待命，尚未委派"))))) 帮手名单))
 (define (部署节点)
   (append
     (map (lambda (entry) (岗位节点 (car entry))) 岗位定义)
-    (list (at-anchor "勒索信-报摊"
-            (note-node "标注：待命帮手" "未分配" (待命说明)))
-          (anchored-instant-action "开始行动" "勒索信-报摊" 开始行动!))))
+    (list (node "开始行动" :anchor "勒索信-报摊" :button-text "开始行动"
+      :resolve (instant 开始行动!)))))
 (define (get-render-data)
   (if (eq? 阶段 '部署)
     (node "雨夜收网-布置" :anchor "雨夜收网-布置"
-      :children (append (帮手节点) (部署节点)))
+      :children (append (筹备人物节点) (部署节点)))
     (if (eq? 阶段 '追逐)
     ;; 原巷子 Stage 的根身份与分区锚点，保持原来的 Portal 转场。
     (node "巷子" :anchor (街景锚点)

@@ -54,6 +54,7 @@ namespace SSNoir.Scripting
             string? anchorName = null;
             string subtitle = string.Empty;
             string title = name;
+            string? buttonText = null;
             bool disabled = false;
             bool isPlace = false;
             string carryItemId = string.Empty;
@@ -104,6 +105,12 @@ namespace SSNoir.Scripting
                     title = val as string ?? throw new InvalidOperationException($"Node '{name}' :title must be a string.");
                     if (string.IsNullOrWhiteSpace(title))
                         throw new InvalidOperationException($"Node '{name}' :title cannot be empty.");
+                }
+                else if (kwStr == ":button-text")
+                {
+                    if (!(val is string parsedButtonText) || string.IsNullOrWhiteSpace(parsedButtonText))
+                        throw new InvalidOperationException($"Node '{name}' :button-text must be a non-empty string.");
+                    buttonText = parsedButtonText;
                 }
                 else if (kwStr == ":anchor")
                 {
@@ -172,6 +179,9 @@ namespace SSNoir.Scripting
                     "把这个容器改成 (place ...)，或者把节拍搬到它所在的地点上。");
             }
 
+            if (buttonText != null && (resolve == null || resolve.Type == ResolveType.Note))
+                throw new InvalidOperationException($"Node '{name}' :button-text requires an actionable resolve.");
+
             var node = new GameNode
             {
                 Name = name,
@@ -182,6 +192,7 @@ namespace SSNoir.Scripting
                 Arrivals = arrivals,
                 AnchorName = anchorName,
                 Subtitle = subtitle,
+                ButtonText = buttonText,
                 Disabled = disabled,
                 Tags = tags,
                 Children = children,
