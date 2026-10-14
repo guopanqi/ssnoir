@@ -2888,6 +2888,45 @@
         "native": false,
         "humanVerified": false
       }
+    },
+    {
+      "id": "PL-MUT01",
+      "name": "另一主体更偏爱新目标但未必改动作：共同完成可达性会压过偏好排序",
+      "layer": "mutable-self-interested-partner-under-attainability",
+      "family": "自主目标重估/工作容量/及时公开信号/外部工作资格/公开条件机器",
+      "idea": "三玩家行动、第0手须A/B共同投入，N/M使伙伴自身A/B偏好反转（N A8/B4，M A4/B8、EXIT3），玩家A10/B9、共同结果+2。阈值3时首手A、N HELP_A后A/SIDE得13，M HELP_B后B/B得11，根12；阈值4时首手A、N/M都HELP_A并A/A得12，尽管M使伙伴B8>A4，但B最多3份不能完成，帮助A伙伴仍得4>EXIT3。取消须先共同投入则门槛3的SIDE等待+后续HELP根25/2>12。同公开状态的条件工具逐已检验正常策略复制，故社会动机影响规则解释，却不自动生成新玩法原语。",
+      "stage": "Fraction-complete-three-player-action-paths-two-signals-self-interested-partner-response-and-qualification-ablation; author-only; no-human",
+      "origin": "author-exhaustive-20261014-rational-help-and-two-contract-typed-matching",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-14-目标改变与跨交锋凭据/研究记录.md",
+        "tools/content-validator/experiments/pattern_mutable_goals_crosscontract_20261014.py"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      },
+      "note": "外来N/M是公开偏好变化，玩家不能声称自己改变了伙伴私有需求；重要的是伙伴自主回报与玩家可共同完成成果的约束。"
+    },
+    {
+      "id": "PL-CROSS01",
+      "name": "上场两项半成品在下场变成匹配操作资格：真实适应，但等价类型化进度",
+      "layer": "cross-contract-typed-provenance-and-result-option",
+      "family": "分散准备/后到需求/目标成果身份/提交凭据/安全旁路",
+      "idea": "第一场2手A/B/SIDE，第二场2手后公开需求A/B各半；A/B各做满2份分别独立得6/5，若当前需求匹配、用一手SUBMIT得完整危机C10；不预备也能DIRECT两手得部分C6。完整菜单首场AB各半，后段需求A补A→SUBMIT_A得16、需求B补B→SUBMIT_B得15，根31/2；首场AA根29/2、BB27/2、两手SIDE8；固定全部四手最强25/2、禁SUBMIT根12；增一手万能无害SAFE得到完整C时根17且先AA压平分散准备。可达A/B/危机质量向量不同，压缩A/B进度到2后的全可达动作与结果同构类型化库存；保留成熟FOCUS/AB02/STAKE组合，不新增独立原语。",
+      "stage": "Fraction-exhaustive-all-9-preparations-public-two-type-36-phaseII-intentions-fixed-legality-fallback-typed-state-compression; author-only; no-human",
+      "origin": "author-exhaustive-20261014-rational-help-and-two-contract-typed-matching",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-14-目标改变与跨交锋凭据/研究记录.md",
+        "tools/content-validator/experiments/pattern_mutable_goals_crosscontract_20261014.py"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      }
     }
   ],
   "edges": [
@@ -5284,6 +5323,48 @@
       "to": "PL-NEG01",
       "relation": "binding-must-be-bilaterally-real-to-preserve-cooperation",
       "reason": "玩家会履约不能推定对方后期继续参加，完整双方协议改变伙伴H时是否退出，单方模型仍允许其自利离开"
+    },
+    {
+      "from": "PL-MUT01",
+      "to": "PL-COA01",
+      "relation": "attainability-can-override-shifted-agent-preference",
+      "reason": "COA01固定类型相异目标会令玩家改选；MUT在类型价值翻转却目标缺少足够可完工行动时，伙伴为自身成果理性维持旧目标，阈值3与4成严格行动反证"
+    },
+    {
+      "from": "PL-MUT01",
+      "to": "PL-ACT01",
+      "relation": "rational-response-not-automatic-affect-label",
+      "reason": "他者自利行动依赖下一段真正可完成的成果和玩家可反应能力，不应把偏好M更新直接写作HELP_B固定状态机"
+    },
+    {
+      "from": "PL-MUT01",
+      "to": "PL-FOCUS03",
+      "relation": "early-real-action-restriction-vs-free-idle-workaround",
+      "reason": "取消必须先共同工作参与资格后，首手SIDE而享全部后续帮助根25/2，说明时间窗口/先期真实投入是重要合法性前提"
+    },
+    {
+      "from": "PL-CROSS01",
+      "to": "PL-FOCUS02",
+      "relation": "split-progress-reprioritized-on-late-public-requirement",
+      "reason": "首段AB各留下半份，再根据下段A/B公开需求完成匹配A/B并SUBMIT；公开条件脚本严格优于预写固定全部四手"
+    },
+    {
+      "from": "PL-CROSS01",
+      "to": "PL-AB02",
+      "relation": "typed-work-inventory-equivalence-not-new-primitive",
+      "reason": "行动与结果只依A/B进度是否到2和提交标志，过去的证据叙事来源无附加历史效力；类型计数压缩后全部可达后续动作同构"
+    },
+    {
+      "from": "PL-CROSS01",
+      "to": "PL-STAKE01",
+      "relation": "nonfungible-terminal-outcomes-versus-one-scalar",
+      "reason": "需求A终局完成A且满质量C、B未完成；需求B则完成B且满质量C、A未完成，向量不可替代，不可只比较15.5根分"
+    },
+    {
+      "from": "PL-CROSS01",
+      "to": "PL-FOCUS03",
+      "relation": "one-action-complete-safe-bypass-defeats-preparation",
+      "reason": "若存在一手SAFE可对任意需求完整无风险取得危机C10，先完成A再SAFE+SIDE期望17，压平首场AB分散投入15.5"
     }
   ],
   "coverage": {
