@@ -3347,6 +3347,26 @@
         "native": false
       },
       "note": "条件许可根73/2，始终开放37；普通结果条件A+B对比无条件B+C。可由has_A/has_B状态位逐状态复现，不是独立新机制。"
+    },
+    {
+      "id": "PL-OBLIGATION05",
+      "name": "跨交锋三成果联合可达性随首场责任许可改变",
+      "layer": "cross-stage-boundary",
+      "origin": "ssnoir-research",
+      "family": "承诺与跨阶段联合可达性",
+      "idea": "首场A/B分别许可第二场P/R；同时保P+R+C在普通C需两手分支要求首场6手而预算只有5手",
+      "stage": "exact-enumeration",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-14-跨交锋不可替代承诺/研究记录.md",
+        "tools/content-validator/experiments/pattern_cross_stage_commitments_20261014.py"
+      ],
+      "evidence": {
+        "exactEnumeration": true,
+        "humanFeedbackAvailable": false,
+        "independentAgentBlind": false,
+        "native": false
+      },
+      "note": "条件许可P+R+C不可行；ALWAYS许可根37且可行；仍同构普通条件状态位，真人自选价值未经验证。"
     }
   ],
   "edges": [
@@ -6181,6 +6201,24 @@
       "to": "PL-TRANSFER02",
       "relation": "completed-outcome-gates-next-encounter-action",
       "reason": "阶段一成果身份影响Q/R合法性，但预编译和普通条件菜单已充分解释全部行动树"
+    },
+    {
+      "from": "PL-OBLIGATION05",
+      "to": "PL-OBLIGATION04",
+      "relation": "joint-outcome-reachability-via-earlier-completion",
+      "reason": "单项可达与多项共同可达不同，首场结果控制次场动作；普通解锁规则可完整表达"
+    },
+    {
+      "from": "PL-OBLIGATION05",
+      "to": "PL-OBLIGATION03",
+      "relation": "joint-outcome-reachability-via-earlier-completion",
+      "reason": "单项可达与多项共同可达不同，首场结果控制次场动作；普通解锁规则可完整表达"
+    },
+    {
+      "from": "PL-OBLIGATION05",
+      "to": "PL-SUBMIT02",
+      "relation": "joint-outcome-reachability-via-earlier-completion",
+      "reason": "单项可达与多项共同可达不同，首场结果控制次场动作；普通解锁规则可完整表达"
     }
   ],
   "coverage": {
