@@ -1,40 +1,47 @@
 #nullable enable
 using System;
-using System.Text;
 
 namespace SSNoir.Core
 {
     /// <summary>
-    /// 判定结算：准备值 B = 放入骰 + 技能 + 修正 直接查一张「按值定制的结果分布表」，
-    /// 而不是再加一颗命运骰求和。命运骰 d6 仍然摇，但只作为在赔率条上的落点，
-    /// 不改变分布本身。这样每个准备值都有清晰、独立的性格（放 1 危险但有空间、放 6 碾压），
-    /// 不会被第二颗骰子的求和抹平向中间回归。
-    ///
-    /// 分布表（六面里各档占几面，坏 / 中 / 好），低面更差、高面更好：
-    ///   B≤1 : 3 / 3 / 0   —— 五五开，有空间
-    ///   B=2 : 2 / 3 / 1
-    ///   B=3 : 1 / 3 / 2   —— 均衡
-    ///   B=4 : 1 / 2 / 3   —— 均衡偏优
-    ///   B=5 : 0 / 2 / 4   —— 显著优势
-    ///   B=6 : 0 / 1 / 5   —— 很强
-    ///   B≥7 : 0 / 0 / 6   —— 技能+好骰堆出的「干啥都成」
-    /// 技能与修正通过抬高 / 压低 B 来移动你在这张表上的行：新手放 1 落在五五开，
-    /// 老手（技能4）放 1 → B=5 直接进「显著优势」。
+    /// A+ 概率判定：准备值 B = 行动骰 + 技能 + 可见修正。
+    /// 行动骰在回合开始时已经确定；执行时只按公示的百分比抽取一次结果，
+    /// 不再出现第二颗可见的命运骰。好 / 中 / 坏的总概率恒为 100%。
     /// </summary>
     public static class FateStrip
     {
+        public static (int Fail, int Neutral, int Success) PercentagesForPrepared(int prepared)
+        {
+            return prepared switch
+            {
+                <= 1 => (60, 40, 0),
+                2 => (45, 45, 10),
+                3 => (35, 45, 20),
+                4 => (20, 35, 45),
+                5 => (0, 40, 60),
+                6 => (0, 25, 75),
+                7 => (0, 10, 90),
+                _ => (0, 0, 100), // B ≥ 8
+            };
+        }
+
         public static RollOutcome[] Compute(int placedDie, int skill, int modSum)
         {
             ValidateInputs(placedDie, skill);
-            return BuildStrip(PreparedValue(placedDie, skill, modSum));
+            return StripForPrepared(PreparedValue(placedDie, skill, modSum));
         }
 
-        public static RollOutcome Resolve(int placedDie, int skill, int modSum, int fateDie)
+        /// <summary>percentageRoll 属于 [1,100]；仅用于内部抽样，不作为额外骰子展示。</summary>
+        public static RollOutcome Resolve(int placedDie, int skill, int modSum, int percentageRoll)
         {
             ValidateInputs(placedDie, skill);
-            if (fateDie < 1 || fateDie > 6)
-                throw new ArgumentOutOfRangeException(nameof(fateDie), "Fate die must be between 1 and 6.");
-            return BuildStrip(PreparedValue(placedDie, skill, modSum))[fateDie - 1];
+            if (percentageRoll < 1 || percentageRoll > 100)
+                throw new ArgumentOutOfRangeException(nameof(percentageRoll),
+                    "Percentage roll must be between 1 and 100.");
+            var (fail, neutral, _) = PercentagesForPrepared(PreparedValue(placedDie, skill, modSum));
+            return percentageRoll <= fail ? RollOutcome.Fail
+                 : percentageRoll <= fail + neutral ? RollOutcome.Neutral
+                 : RollOutcome.Success;
         }
 
         public static int PreparedValue(int placedDie, int skill, int modSum)
@@ -43,65 +50,35 @@ namespace SSNoir.Core
             return placedDie + skill + modSum;
         }
 
-        /// <summary>分布只取决于准备值 B，因此结算后仅凭存下的 PreparedValue 就能重建同一条命运条。</summary>
-        public static RollOutcome[] StripForPrepared(int prepared) => BuildStrip(prepared);
-
-        public static string Describe(RollOutcome[] strip)
+        /// <summary>百分位排列用于预览与回归测试；实际结算和预览共用同一张概率表。</summary>
+        public static RollOutcome[] StripForPrepared(int prepared)
         {
-            if (strip == null || strip.Length != 6)
-                throw new ArgumentException("Fate strip must contain exactly six outcomes.", nameof(strip));
-
-            var text = new StringBuilder();
-            int start = 0;
-            while (start < strip.Length)
-            {
-                int end = start;
-                while (end + 1 < strip.Length && strip[end + 1] == strip[start])
-                    end++;
-
-                if (text.Length > 0) text.Append(" · ");
-                text.Append(start == end ? (start + 1).ToString() : $"{start + 1}–{end + 1}");
-                text.Append(' ');
-                text.Append(strip[start] switch
-                {
-                    RollOutcome.Fail => "坏",
-                    RollOutcome.Neutral => "中",
-                    RollOutcome.Success => "好",
-                    _ => throw new ArgumentOutOfRangeException(nameof(strip)),
-                });
-                start = end + 1;
-            }
-            return text.ToString();
-        }
-
-        /// <summary>按准备值 B 返回六格命运条：低面更差、高面更好。数字可调，结构是关键。</summary>
-        private static RollOutcome[] BuildStrip(int prepared)
-        {
-            (int fail, int neutral) = DistributionFor(prepared);
-
-            var strip = new RollOutcome[6];
-            for (int i = 0; i < 6; i++)
-            {
+            var (fail, neutral, _) = PercentagesForPrepared(prepared);
+            var strip = new RollOutcome[100];
+            for (int i = 0; i < strip.Length; i++)
                 strip[i] = i < fail ? RollOutcome.Fail
                          : i < fail + neutral ? RollOutcome.Neutral
                          : RollOutcome.Success;
-            }
             return strip;
         }
 
-        // 返回 (坏面数, 中面数)，好面数 = 6 − 坏 − 中。
-        private static (int fail, int neutral) DistributionFor(int prepared)
+        public static string Describe(RollOutcome[] strip)
         {
-            return prepared switch
+            if (strip == null || strip.Length != 100)
+                throw new ArgumentException("Percentage strip must contain exactly 100 outcomes.", nameof(strip));
+
+            int fail = 0, neutral = 0, success = 0;
+            foreach (var outcome in strip)
             {
-                <= 1 => (3, 3),
-                2 => (2, 3),
-                3 => (1, 3),
-                4 => (1, 2),
-                5 => (0, 2),
-                6 => (0, 1),
-                _ => (0, 0), // ≥7
-            };
+                switch (outcome)
+                {
+                    case RollOutcome.Fail: fail++; break;
+                    case RollOutcome.Neutral: neutral++; break;
+                    case RollOutcome.Success: success++; break;
+                    default: throw new ArgumentOutOfRangeException(nameof(strip));
+                }
+            }
+            return $"坏 {fail}% · 中 {neutral}% · 好 {success}%";
         }
 
         private static void ValidateInputs(int placedDie, int skill)
