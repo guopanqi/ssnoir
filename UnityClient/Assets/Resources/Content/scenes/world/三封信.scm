@@ -100,6 +100,12 @@
     ;; 后续小节在各自批次接入,不预留空壳。
     (define story-stage 0)
     (define opening-heard? #f)
+    ;; 第一节雨夜诱捕的城市准备状态。
+    (define ambush-known? #f)
+    (define ambush-eddie? #f)
+    (define ambush-route-result "")
+    (define ambush-survey (make-clock "邮箱踩点" 8 'gauge
+      "有人愿意帮忙以后，尼尔才开始为埋伏摸清街角。"))
     (define mail-preparations '())
     ;; 履历：已经发生过什么，一拍一句，最新在前。显式写，不自动抽。
     ;; 第一章拆成四张卷宗卡（见文末「卷宗」），每张卡自己一份履历，写的时候点名。
@@ -477,6 +483,30 @@
       (lambda () (and (> delivery-day 0) (= world-day (+ delivery-day 1))))
       (lambda () (set-global! '天气 "")))
 
+    ;; 酒馆里先听到一个不太正经的办法；艾迪初见对白由作者另行确定。
+    (define (tavern-ambush-nodes)
+      (if (not (= story-stage 1)) '()
+        (append
+          (if ambush-known? '()
+            (list (node "问酒保的办法"
+              :subtitle "打听勒索相片的事"
+              :resolve (instant (lambda ()
+                (set! ambush-known? #t)
+                (play-dialogue!
+                  (line "尼尔" "你听说过有些混混四处通过相片勒索的事吗？")
+                  (line "酒保" "以前有，最近没有")
+                  (line "酒保" "要是我我就叫上几个人揍了他一顿")
+                  (line "尼尔" "你认识这样的人？")
+                  (line "酒保" "嗯......你认识艾迪吗？"))))))
+          (if (and ambush-known? (not ambush-eddie?))
+            (list (node "找艾迪帮忙"
+              :subtitle "三十金；交付当晚请他帮忙"
+              :requires (list (req-item "金钱" 30))
+              :resolve (instant (lambda ()
+                (set! ambush-eddie? #t)
+                ;; TODO：由作者补写艾迪初次认识的正式 Dialogue。
+                (play-dialogue! (line "世界" "艾迪答应在交付当晚来帮忙。"))))))
+            '()))))
     ;; ── 小节一：筹钱与两项准备 ──────────────────────
     ;; 工作与一次性失物委托提供收入；准备直接改变交付现场。
     ;; 两项具体准备，每项只做一次；下游交锋读取各自的事实。
