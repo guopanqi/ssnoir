@@ -3165,6 +3165,27 @@
         "native": false
       },
       "note": "MAX 0/48严格收益增加，ADD 15/48严格收益增加；已观察状态集合中物理进度与可兑现结果必须区别。不入精选/Debug。"
+    },
+    {
+      "id": "PL-SUBMIT01",
+      "name": "有限提交权改变前期生产，但足够长的后续窗口可令额外提交资格根值归零",
+      "layer": "combination-boundary",
+      "origin": "ssnoir-research",
+      "family": "积累兑现与结果向量",
+      "idea": "先完成A/B工作、后得知需求、提交要占行动且最多提交一次或两次；容量与兑现窗口同时决定价值",
+      "stage": "exact-local-model",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-14-有限提交权与兑现窗口/研究记录.md",
+        "tools/content-validator/experiments/pattern_limited_submission_20261014.py"
+      ],
+      "evidence": {
+        "exactFractionEnumeration": true,
+        "independentForward": false,
+        "humanFeedbackAvailable": false,
+        "independentAgentBlind": false,
+        "native": false
+      },
+      "note": "前期6后期2一SUB根13、二SUB根14；前期6后期3一/二SUB均15但最优成果向量可不同。普通容量×后到信息×截止窗口，不认证新原语。"
     }
   ],
   "edges": [
@@ -5837,6 +5858,24 @@
       "to": "PL-CROSS01",
       "relation": "payoff-semantics-gates-dual-action-value",
       "reason": "动作同时产生另一目标进度，但互斥结算将其全部边际收益压平；双成果可共存时部分状态严格提升"
+    },
+    {
+      "from": "PL-SUBMIT01",
+      "to": "PL-DUALCLEAR01",
+      "relation": "realized-value-depends-on-submission-window",
+      "reason": "物理完工和提交兑现资格分离；SIDE强替代可压平额外提交名额，同时保留非等价成果向量"
+    },
+    {
+      "from": "PL-SUBMIT01",
+      "to": "PL-CROSS01",
+      "relation": "realized-value-depends-on-submission-window",
+      "reason": "物理完工和提交兑现资格分离；SIDE强替代可压平额外提交名额，同时保留非等价成果向量"
+    },
+    {
+      "from": "PL-SUBMIT01",
+      "to": "PL-VOL02",
+      "relation": "realized-value-depends-on-submission-window",
+      "reason": "物理完工和提交兑现资格分离；SIDE强替代可压平额外提交名额，同时保留非等价成果向量"
     }
   ],
   "coverage": {
