@@ -2831,6 +2831,63 @@
         "humanVerified": false
       },
       "note": "与GRC03提早公开会改变参加的成熟关系相邻，但此处信息释放由知情玩家选择、对方由沉默反推策略。不是富有人格的NPC系统，完整工具自动回应对照仍需明确。"
+    },
+    {
+      "id": "PL-COA01",
+      "name": "自主伙伴在两个互斥目标间选择帮助，玩家确实改选，但可被同成本条件生产工具整树复制",
+      "layer": "multi-outcome-autonomous-helper-with-mechanical-substitute",
+      "family": "独立成果/自主偏好/可见援助/从初始态重排投入/严格同构负例",
+      "idea": "三玩家行动，A/B各需3手，玩家可第0手INVITE，A/B各半偏好伙伴自利帮助对应目标+1；玩家根据HELP_A/B分别后两手AA/BB。终局(PA,PB,PC,E SIDE)=(1/2,1/2,1,0)，最优27/2；全部自己做10，邀请后两手不能观察并改选的最强固定7。将伙伴改成公开随机A/B条件生产工具且可得相同共同认证C，全部可达结果/续行/全局价值严格相同27/2。若取消C的价值邀请19/2小于自己10，若SELF免费取得同等C则自己14更强。可用社会情景但非原创基础决策。",
+      "stage": "verified-Fraction-exhaustive-player-and-actor-menu-full-tree-mechanical-equivalence-author-only-no-human",
+      "origin": "author-two-actor-finite-payoff-strategies-Fraction-exhaustive-20261014",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-14-双目标协作者与跨期承诺/研究记录.md",
+        "tools/content-validator/experiments/pattern_partner_outcome_commitment_20261014.py"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      }
+    },
+    {
+      "id": "PL-COA02",
+      "name": "可执行H/L条件合同使伙伴事前愿意投入，但完整预编译菜单复制合同，且及时信息仅多半点",
+      "layer": "ex-ante-credible-contingent-repayment-and-full-menu-boundary",
+      "family": "跨阶段可靠承诺/伙伴早期参加/完整条件合同/时点",
+      "idea": "t0伙伴START给玩家8，否则SAFE3，伙伴早期外部13/4；t1公开H9/L2，各半，第一段PAY给玩家2伙伴4、COMP给玩家3伙伴3、BYPASS给玩家4伙伴0并关t2；若维持t2可独立取项目价值减1。未约束玩家H COMP/L BYPASS，伙伴预计仅3/2而EXIT，玩家3；绑定PAY/PAY得29/2；9份完整可执行H/L条件合同中H PAY/L COMP或反过来均得15，伙伴预计7/2>13/4愿START。同成本普通9个预编译信号动作表转移严格一样；第1段不提前知道H/L只能固定PAY/PAY得29/2。伙被强制START时无约束玩家可16，是伙伴退出导致根损失。",
+      "stage": "verified-all-nine-conditional-contracts-and-exact-independent-forward-replay-author-only-no-human",
+      "origin": "author-two-actor-finite-payoff-strategies-Fraction-exhaustive-20261014",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-14-双目标协作者与跨期承诺/研究记录.md",
+        "tools/content-validator/experiments/pattern_partner_outcome_commitment_20261014.py"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      }
+    },
+    {
+      "id": "PL-COA03",
+      "name": "单方履约不保证合作方下一阶段愿继续：后期EXIT权需要逐主体审核",
+      "layer": "asymmetric-vs-bilateral-enforceable-consent-and-late-autonomous-exit",
+      "family": "另一人继续参加的真实权利/后到自有机会/执行成本/合同补救",
+      "idea": "独立新协议：伙伴t0 START付沉没成本1、早期EXIT9/4；t1有自身外部机会H5/L2，选择CONTINUE拿PAY4/COMP3/BYPASS0或EXIT得外部。玩家t0已得8，伙伴晚EXIT后工作仅BACKUP1。9种条款：无约束伙伴两类都退出，玩家9；仅玩家被条款H PAY/L COMP约束，H伙伴EXIT、L继续，玩家21/2；伙伴也受可信未来CONTINUE约束，t0净伙伴收益5/2>9/4而加入，玩家15。互相承诺额外成本c时与仅单方21/2比较阈值c=9/2。两项不同协议不可冒充原COMMIT单边消融；仍是NEG/GRC可信承诺家族。",
+      "stage": "verified-player-only-and-bilateral-nine-menu-forward-and-partner-own-late-best-response-author-only-no-human",
+      "origin": "author-two-actor-finite-payoff-strategies-Fraction-exhaustive-20261014",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-14-双目标协作者与跨期承诺/研究记录.md",
+        "tools/content-validator/experiments/pattern_partner_outcome_commitment_20261014.py"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      }
     }
   ],
   "edges": [
@@ -5191,6 +5248,42 @@
       "to": "PL-AB02",
       "relation": "credible-precommitment-protects-a-future-option-not-as-an-inventory-token",
       "reason": "R类型未来想披露获得个人优势，导致B类型沉默被识别；只有真实事先禁止未来公布才恢复全部合作，不是简单消耗凭证"
+    },
+    {
+      "from": "PL-COA01",
+      "to": "PL-PS01",
+      "relation": "strong-conditionally-identical-ordinary-work-tool",
+      "reason": "个人目标不同与真实改选都存在，但伙伴输出A/B工作和共同认证后无后续自主动作；普通同成本类型化生产工具与整树选择结果同构"
+    },
+    {
+      "from": "PL-COA01",
+      "to": "PL-ACT01",
+      "relation": "self-interested-actor-may-change-target-without-new-social-decision",
+      "reason": "ACT01已有自主同伴外部机会引出行动改选，本次进一步提供互斥A/B完成向量与工具复刻的强负例"
+    },
+    {
+      "from": "PL-COA02",
+      "to": "PL-NEG02",
+      "relation": "complete-contingent-contract-dominates-unrestricted-revision",
+      "reason": "伙伴预见玩家H COMP/L BYPASS会退出；事前完整H/L绑定令其投资但九个普通预编译条件合同逐动作全同"
+    },
+    {
+      "from": "PL-COA02",
+      "to": "PL-GRC01",
+      "relation": "future-cheaper-bypass-reverses-early-participation",
+      "reason": "GRC廉价绕行破坏投资，冻结模型未绑定的伙伴期望3/2<外部13/4，实际初态拒绝"
+    },
+    {
+      "from": "PL-COA03",
+      "to": "PL-EP02",
+      "relation": "credible-self-restriction-does-not-constrain-other-agent",
+      "reason": "EP02事前封口约束玩家未来发表，这里真正区分只锁玩家H/L操作和伙伴t1真实EXIT权；两者不能混为一种承诺"
+    },
+    {
+      "from": "PL-COA03",
+      "to": "PL-NEG01",
+      "relation": "binding-must-be-bilaterally-real-to-preserve-cooperation",
+      "reason": "玩家会履约不能推定对方后期继续参加，完整双方协议改变伙伴H时是否退出，单方模型仍允许其自利离开"
     }
   ],
   "coverage": {
