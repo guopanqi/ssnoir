@@ -13,13 +13,7 @@
 ;; 第二幕·追逐 —— 三段街景（巷口 → 货栈区 → 邮局后街），每次休息才换景。
 ;;   「追上他」跨场景累积，填满立即成功；「逃脱」每次休息 +1，到 3 而仍未追上就失败。
 ;;   每段街景只改变可用的追逐手段和风险，不再另存一根会作废的局部追逐钟。
-;;   钱不是一个可以规划的副目标，也没有钟。它是**冒进那一手的残渣**：
-;;   三张冒进追击卡打出中档时，意思是你够到了他、抓下来的不是他——一叠钱撒在地上。
-;;   于是场上多出一张一次性机会卡，只活到本回合结束（回合末就换街景，钱留在上一条街）。
-;;   稳妥的那三张卡永远不掉钱。钱和人在虚构上就是同一件事的两面：
-;;   你抓到了钱，说明你没抓到人。这样两个目标不必靠任何罚则去对立。
-;;
-;; 城市准备是两项事实，各自有入场回忆与一个由玩家兑现的动作：
+;;   本场不再投放散钞机会卡，结果只关乎取信者与线索。\n;;\n;; 城市准备是两项事实，各自有入场回忆与一个由玩家兑现的动作：
 ;;   观察邮箱街角：第一幕老邮差多出「很熟」，不花骰子即可排除。
 ;;   查看货栈退路：第二幕货栈区多出边门包抄。
 ;; 没做准备时，仍可以用原有辨认与追逐手段完成交锋。
@@ -34,21 +28,14 @@
 ;; 不是他就划掉，接着看下一个。
 ;; 即使只剩最后一个，也必须把他认清；排除别人不能替代识别本人。
 ;;
-;; 对外契约：回传 (list 人 钱)——
-;;   人：'拿到线索 / '跟丢
-;;   钱：拿回的金额（0 / 50 / 100）
-;; 两个轴都不阻断主线；结算文案与小节二的起步条件由《三封信》解释。
+;; 对外契约保留 (list 人 钱) 供既有城市回调使用；本场无散钞，钱固定为 0。
+;; 人：'拿到线索 / '跟丢。主线不因跟丢而阻断。
 
 (define mailbox-known? (get-global '邮箱街角已观察))
 (define (knows-block?) (get-global '退路已查看))
 
 (define catch-target 6)
 (define escape-target 3)
-;; 钱不是目标，是「差一点抓住他」掉在地上的东西。一张机会卡最多 25，
-;; 一晚上顶天一百——和以前的上限一样，但每一枚都是你自己换来的。
-(define money-drop-full 25)
-(define money-drop-part 15)
-(define money-cap 100)
 ;; 每个人 4 格。给得比"刚好够"多一点：这一幕才有"我这颗骰子先喂谁"的余地，
 ;; 而不是一颗骰子一个人。冷静不是这里的节流阀——烟和酒是用钱买缓冲的正经渠道，
 ;; 交锋不该按冷静的上限去反推格数。
@@ -65,8 +52,6 @@
 (define act 1)
 (define finished? #f)
 (define seg 0)
-(define money-taken 0)       ; 这一晚一共从地上抓回多少
-(define money-drop? #f)      ; 地上此刻有没有一叠钱；只活到本回合结束
 (define investigation-attempts '())
 ;; 进第二幕前 音乐 的值（可能是某张唱片、随机播放，也可能没有）：收场时原样切回去。
 ;; 主题优先于一切，播完必须有人还——就是这里。
@@ -308,11 +293,11 @@
     ((= seg 0)
      (node "翻过那辆推车"
        :anchor (act2-zone)
-       :subtitle "冒进。够到了他，手没停住"
+       :subtitle "冒进，越过推车逼近目标"
        :requires (list (req-die))
        :resolve (roll 'violence
          (outcome (lambda () (spend-composure! 2)))
-         (outcome (lambda () (catch-clk 'tick!) (drop-money!)))
+         (outcome (lambda () (catch-clk 'tick!)))
          (outcome (lambda () (catch+ 2))))))
     ((= seg 1)
      (node "跟进那条黑巷"
@@ -322,7 +307,7 @@
        :requires (list (req-die))
        :resolve (roll 'sharpness
          (outcome (lambda () (spend-composure! 2)))
-         (outcome (lambda () (catch-clk 'tick!) (drop-money!)))
+         (outcome (lambda () (catch-clk 'tick!)))
          (outcome (lambda () (catch+ 2))))))
     ((= seg 2)
      (node "扑上去"
@@ -332,7 +317,7 @@
        :requires (list (req-die))
        :resolve (roll 'violence
          (outcome (lambda () (injure!)))
-         (outcome (lambda () (catch-clk 'tick!) (drop-money!)))
+         (outcome (lambda () (catch-clk 'tick!)))
          (outcome (lambda () (catch+ 2))))))
     (else (error "勒索信：未知追击动作"))))
 
@@ -341,7 +326,7 @@
     ((= seg 0)
      (node "绕过去"
        :anchor (act2-zone)
-       :subtitle "慢，但不掉东西"
+       :subtitle "绕过障碍，步子稳些"
        :tags (list "低风险")
        :requires (list (req-die))
        :resolve (roll 'sharpness
@@ -351,7 +336,7 @@
     ((= seg 1)
      (node "贴着货堆推进"
        :anchor (act2-zone)
-       :subtitle "推开一条道，不快也不丢东西"
+       :subtitle "推开货箱，保持脚下稳当"
        :tags (list "低风险")
        :requires (list (req-die))
        :resolve (roll 'violence
@@ -384,53 +369,12 @@
       (outcome (lambda () (catch+ 2)))
       (outcome (lambda () (catch+ 3))))))
 
-;; ── 机会：地上那一叠 ────────────────────────────────
-;; 它不是一个可以规划的副目标，是冒进那一手的残渣：你够到了他，抓下来的不是他。
-;; 所以它没有钟——一张卡就是一个槽，一颗骰子，用掉就没了。
-;; 也不写「逃脱 +1」这类惩罚：一颗本可以追人的骰子、不保证捡得着、只活一个回合，
-;; 代价已经收够三遍。再挂一条明写的罚则就是收两次钱，还会让它读起来像陷阱。
-;; 它活到本回合结束——回合就是你手上这几颗骰子的一次分配，取舍必须发生在这个窗口里。
-(define (drop-money!)
-  (if money-drop?
-      #f
-      (begin
-        (set! money-drop? #t))))
-
-(define (take-money! amount)
-  (set! money-drop? #f)
-  (let ((got (min amount (- money-cap money-taken))))
-    (set! money-taken (+ money-taken got))
-    (if (> got 0)
-        (result-supplement! (string-append "拿回 " (number->string got) " 钱"))
-        #f)))
-
-;; 散钞必须落在独立世界锚（巷子 Prefab 的 Anchor_勒索信-散钞-*），
-;; 不能与分区锚上的追击卡 / 逃脱·追上他钟抢同一屏位。
-(define (act2-money-zone)
-  (cond
-    ((= seg 0) "勒索信-散钞-巷口")
-    ((= seg 1) "勒索信-散钞-货栈区")
-    ((= seg 2) "勒索信-散钞-邮局后街")
-    (else (error "勒索信：未知散钞锚点"))))
-
-(define (node-money-drop)
-  (node "那叠散钞"
-    :anchor (act2-money-zone)
-    :tags (list "机会" "低风险")
-    :requires (list (req-die))
-    :resolve (roll 'sharpness
-      (outcome (lambda () (set! money-drop? #f)))
-      (outcome (lambda () (take-money! money-drop-part)))
-      (outcome (lambda () (take-money! money-drop-full))))))
-
 (define (act2-nodes)
   (append
     (list (node-chase-fast) (node-chase-safe))
-    (if (and (= seg 1) (knows-block?)) (list (node-side-door)) '())
-    (if money-drop? (list (node-money-drop)) '())))
+    (if (and (= seg 1) (knows-block?)) (list (node-side-door)) '()))))
 
 ;; 第二幕顶上只有两根，而且都是关于同一个人的：你要的，和你怕的。
-;; 钱一根钟也没有——它在场上，不在顶栏。
 (define (act2-clocks)
   (list (catch-clk 'render-data)
         (escape-clk 'render-data)))
@@ -440,7 +384,6 @@
 ;; ============================================================
 
 (define (caught?) (catch-clk 'full?))
-(define (recovered-money) money-taken)
 
 (define (finish!)
   (if finished?
@@ -451,11 +394,8 @@
         (set-global! '音乐 chase-saved-music)
         ;; 摩托车冲出来是这段追逐的固定收尾：它迫使你闪开，但不等于自动受伤。
         ;; 伤势只由具体行动的 outcome 产生，不能让所有追上路线都暗中追加一格伤势。
-        (if (> (recovered-money) 0)
-            (add-item! "金钱" (recovered-money))
-            #f)
         (end-encounter
-          (list (if (caught?) '拿到线索 '跟丢) (recovered-money))))))
+          (list (if (caught?) '拿到线索 '跟丢) 0)))))
 
 ;; 倒下不是跟丢：你追上了他，然后被撂在巷口。回传自己的收场标签，
 ;; 让三封信那边讲对这一夜发生了什么（见 on-delivery-result）。
@@ -475,8 +415,6 @@
     (if (not (= (escape-clk 'current) seg))
         (error "勒索信：逃脱进度与当前街景不一致")
         #t)
-    ;; 回合结束＝换街景。地上那一叠就留在上一条街了，不跟着你跑。
-    (set! money-drop? #f)
     (escape-clk 'tick!)
     (if (escape-clk 'full?)
         (finish!)
