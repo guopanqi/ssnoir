@@ -25,7 +25,7 @@ namespace SSNoir.IMGUI
             ["判定成功"] = "Success",
             ["判定结果"] = "Result",
             ["卷宗"] = "Dossier",
-            ["命运骰滚动..."] = "Fate die rolling...",
+            ["按概率判定..."] = "Resolving odds...",
             ["回 家"] = "Home",
             ["帮助"] = "Help",
             ["待 命"] = "Ready",
@@ -77,6 +77,26 @@ namespace SSNoir.IMGUI
             if (!English.TryGetValue(chinese, out string? english))
                 throw new ArgumentException($"Unknown UI text: {chinese}");
             return GameLanguage.Current == GameLanguage.English ? english : chinese;
+        }
+
+        public static string Odds(RollOutcome[] strip)
+        {
+            if (strip == null || strip.Length != 100)
+                throw new ArgumentException("Expected 100 percentage outcomes.", nameof(strip));
+            int bad = 0, mixed = 0, good = 0;
+            foreach (var outcome in strip)
+            {
+                switch (outcome)
+                {
+                    case RollOutcome.Fail: bad++; break;
+                    case RollOutcome.Neutral: mixed++; break;
+                    case RollOutcome.Success: good++; break;
+                    default: throw new ArgumentOutOfRangeException(nameof(strip));
+                }
+            }
+            return GameLanguage.Current == GameLanguage.English
+                ? $"Fail {bad}% · Mixed {mixed}% · Good {good}%"
+                : $"坏 {bad}% · 中 {mixed}% · 好 {good}%";
         }
 
         public static string SkillName(string key) => Get(key switch
