@@ -103,6 +103,7 @@
     ;; 第一节雨夜诱捕的城市准备状态。
     (begin
     (define ambush-known? #f)
+    (define ambush-eddie-met? #f)
     (define ambush-eddie? #f)
     (define ambush-route-result "")
     (define ambush-survey (make-clock "邮箱踩点" 8 'gauge
@@ -500,14 +501,20 @@
                   (line "酒保" "要是我我就叫上几个人揍了他一顿")
                   (line "尼尔" "你认识这样的人？")
                   (line "酒保" "嗯......你认识艾迪吗？")))))))
-          (if (and ambush-known? (not ambush-eddie?))
-            (list (node "找艾迪帮忙"
-              :subtitle "三十金；交付当晚请他帮忙"
+          (if (and ambush-known? (not ambush-eddie-met?))
+            (list (node "认识艾迪"
+              :subtitle "酒保介绍的落魄拳手"
+              :resolve (instant (lambda ()
+                (set! ambush-eddie-met? #t)
+                ;; TODO 作者后续提供艾迪初见整段 Dialogue，先让玩家免费认识他。
+                (play-dialogue! (line "世界" "艾迪坐在酒馆角落，谈好三十金的报酬。"))))))
+            '())
+          (if (and ambush-eddie-met? (not ambush-eddie?))
+            (list (node "雇艾迪帮忙"
+              :subtitle "支付三十金，交付当晚他会到场"
               :requires (list (req-item "金钱" 30))
               :resolve (instant (lambda ()
-                (set! ambush-eddie? #t)
-                ;; TODO：由作者补写艾迪初次认识的正式 Dialogue。
-                (play-dialogue! (line "世界" "艾迪答应在交付当晚来帮忙。"))))))
+                (set! ambush-eddie? #t)))))
             '()))))
     ;; ── 小节一：筹钱与两项准备 ──────────────────────
     ;; 工作与一次性失物委托提供收入；准备直接改变交付现场。
