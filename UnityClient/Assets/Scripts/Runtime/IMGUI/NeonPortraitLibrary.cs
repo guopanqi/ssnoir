@@ -35,12 +35,44 @@ namespace SSNoir.IMGUI
         private static Texture2D? _radialFalloff;
         private static Texture2D? _verticalFade;
 
+        [System.Serializable]
+        private sealed class GenericCharacter { public string name = ""; public string gender = ""; }
+        [System.Serializable]
+        private sealed class GenericCharacters { public GenericCharacter[] characters = System.Array.Empty<GenericCharacter>(); }
+        private static Dictionary<string, string>? GenericAssets;
+
+        // 内容声明性别；名字决定变体，同一人物跨对白、读档和重启都保持一致。
+        private static string? GenericAsset(string name)
+        {
+            if (GenericAssets == null)
+            {
+                GenericAssets = new Dictionary<string, string>();
+                var config = Resources.Load<TextAsset>("Portraits/GenericCharacters")
+                    ?? throw new System.InvalidOperationException("缺少通用人物立绘配置");
+                var data = JsonUtility.FromJson<GenericCharacters>(config.text);
+                foreach (var character in data.characters)
+                {
+                    if (string.IsNullOrWhiteSpace(character.name) ||
+                        (character.gender != "男" && character.gender != "女"))
+                        throw new System.InvalidOperationException("通用人物立绘名称或性别非法");
+                    uint hash = 2166136261;
+                    foreach (char c in character.name) hash = unchecked((hash ^ c) * 16777619);
+                    string asset = "路人" + character.gender + (hash % 2 == 0 ? "" : "2");
+                    GenericAssets.Add(character.name, asset);
+                }
+            }
+            return GenericAssets.TryGetValue(name, out var result) ? result : null;
+        }
+
         public static Texture2D? Load(string characterName)
         {
             if (Cache.TryGetValue(characterName, out var cached))
                 return cached;
 
             var texture = Resources.Load<Texture2D>(ResourceRoot + characterName);
+            if (texture == null && GenericAsset(characterName) is string generic)
+                texture = Resources.Load<Texture2D>(ResourceRoot + generic)
+                    ?? throw new System.InvalidOperationException($"通用人物立绘不存在：{generic}");
             Cache[characterName] = texture;
             return texture;
         }

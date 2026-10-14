@@ -1,0 +1,108 @@
+{
+  "characters": [
+    {
+      "name": "房东",
+      "gender": "男"
+    },
+    {
+      "name": "乔",
+      "gender": "男"
+    },
+    {
+      "name": "老乔",
+      "gender": "男"
+    },
+    {
+      "name": "修理工",
+      "gender": "男"
+    },
+    {
+      "name": "剧院的跑腿",
+      "gender": "男"
+    },
+    {
+      "name": "取信者",
+      "gender": "男"
+    },
+    {
+      "name": "巡警",
+      "gender": "男"
+    },
+    {
+      "name": "工人",
+      "gender": "男"
+    },
+    {
+      "name": "工人乙",
+      "gender": "男"
+    },
+    {
+      "name": "工人甲",
+      "gender": "男"
+    },
+    {
+      "name": "工友",
+      "gender": "男"
+    },
+    {
+      "name": "工头",
+      "gender": "男"
+    },
+    {
+      "name": "店主",
+      "gender": "男"
+    },
+    {
+      "name": "报童",
+      "gender": "男"
+    },
+    {
+      "name": "柜台后的人",
+      "gender": "男"
+    },
+    {
+      "name": "桥廊住户",
+      "gender": "男"
+    },
+    {
+      "name": "楼梯口的人",
+      "gender": "男"
+    },
+    {
+      "name": "水手",
+      "gender": "男"
+    },
+    {
+      "name": "生意人",
+      "gender": "男"
+    },
+    {
+      "name": "舞台监督",
+      "gender": "男"
+    },
+    {
+      "name": "门廊里的男人",
+      "gender": "男"
+    },
+    {
+      "name": "妻子",
+      "gender": "女"
+    },
+    {
+      "name": "女招待",
+      "gender": "女"
+    },
+    {
+      "name": "楼上的女人",
+      "gender": "女"
+    },
+    {
+      "name": "楼梯上的女人",
+      "gender": "女"
+    },
+    {
+      "name": "露丝",
+      "gender": "女"
+    }
+  ]
+}
