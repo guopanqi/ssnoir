@@ -3086,6 +3086,25 @@
         "native": false
       },
       "note": "单人四手环境，OPEN/CLOSED各半，首手F收益29/4；首手A和SIDE各13/2、B11/2；提前知道许可提升到15/2，属于沉没投资/后到许可组合，未认证新原语。"
+    },
+    {
+      "id": "PL-CRISIS01",
+      "name": "危机打断重排目标：严重封锁使旧目标来不及完成，而安全备选路线仍可达",
+      "layer": "encounter-combination",
+      "origin": "ssnoir-research",
+      "family": "危机打断与目标重排",
+      "idea": "A先投入两手，外源危机N/L/H决定继续推进、清障或转做B；四手窗口令重排实际可达",
+      "stage": "paper-verified-local",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-14-危机打断与行动菜单变化/研究记录.md"
+      ],
+      "evidence": {
+        "completeOpeningEnumeration": true,
+        "independentAgentBlind": false,
+        "humanFeedbackAvailable": false,
+        "native": false
+      },
+      "note": "根AA38/3，完整9种首两手对照最强非AA为AS/SA35/3。危机仅固定多花一手则退化为行动税，属既有CS2危机×替代路径组合。"
     }
   ],
   "edges": [
@@ -5686,6 +5705,24 @@
       "to": "PL-FOCUS03",
       "relation": "decision-window-and-late-information",
       "reason": "资格公开结果能使首手F后的第二手从F改为安全A；但是固定OPEN/CLOSED口诀仍可解释，无真人体验"
+    },
+    {
+      "from": "PL-CRISIS01",
+      "to": "PL-OPTION02",
+      "relation": "future-action-legality-shifts-attention",
+      "reason": "危机成本达到不可在剩余时点完成旧目标时，转向仍可完成的备用目标而非只是支付清障费用"
+    },
+    {
+      "from": "PL-CRISIS01",
+      "to": "P11",
+      "relation": "pressure-and-crisis-may-rewrite-plan",
+      "reason": "危机成本达到不可在剩余时点完成旧目标时，转向仍可完成的备用目标而非只是支付清障费用"
+    },
+    {
+      "from": "PL-CRISIS01",
+      "to": "PL-FOCUS03",
+      "relation": "remaining-time-determines-repair-value",
+      "reason": "危机成本达到不可在剩余时点完成旧目标时，转向仍可完成的备用目标而非只是支付清障费用"
     }
   ],
   "coverage": {
