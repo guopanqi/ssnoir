@@ -1,6 +1,6 @@
 ;; 独立岗位委派交锋；不接管《勒索信》的城市结算。
 ;; 两名场景帮手各占一个岗位，不入队、不发骰、不在场内重新部署。
-;; 阶段：部署 → 辨认 → 一次拦截 →（有追踪接应才保留的）追逐。
+;; 阶段：部署 → 辨认 → 一回合拦截 →（有追踪接应才保留的）追逐。
 ;; 回传 (结果 部署)：截住取信者 / 追到线索 / 跟丢 / 撤离 / 倒下。
 ;; 普通收场保留人物节点，供动作后 Bubble 落点；点击离场后才回传结果。
 (define 阶段 '部署)
@@ -19,6 +19,8 @@
   (map (lambda (c)
     (list (car c) (make-clock (string-append "看明白：" (car c)) 4 'gauge
       "满4确认此人是否取信者；尼尔与观察帮手共享进展。"))) 候选人))
+(define 拦截 (make-clock "截住取信者" 4 'gauge
+  "本回合满4截住；独自好2中1，协同好3中2；坏不推进。"))
 (define 追上 (make-clock "追上他" 6 'gauge "满6追到线索；尼尔仍须投入行动骰。"))
 (define 逃脱 (make-clock "逃脱" 3 'gauge "追逐中每回合加1并换街景；满3跟丢。"))
 
@@ -120,27 +122,28 @@
       (refresh-encounter-dice!))
     (结束! '跟丢 "没人接住踪迹"
       "他挣脱后钻进车流。街口没有接应的人，你再也找不到那身制服。")))
-(define (拦截反馈! cooperative? caught?)
+(define (拦截推进! cooperative? n)
+  (要求阶段! '拦截)
+  (拦截 'advance! n)
   (if cooperative?
-    ;; Bubble 随动作后快照落点；转入追逐后由街口接应人开口。
-    (if (or caught? (not (岗位有人? '追踪)))
-      (play-bubble! (line (岗位人员 '拦截)
-        (if caught? "这边堵住了。他跑不了了。" "没拦住！他撞开我跑了！"))) #f) #f))
+    (play-bubble! (line (岗位人员 '拦截)
+      (cond ((拦截 'full?) "这边堵住了。他跑不了了。")
+            ((= n 0) "我守着这边，再试一次！")
+            (else "退路封住了，再逼近一点！")))) #f)
+  (if (拦截 'full?) (截住!) #f))
 (define (截住!)
   (结束! '截住取信者 "截住了"
     "你扣住他的手腕，取回信封。他说自己只是跑腿的。这个说法还得查。"))
 (define (拦截动作 cooperative?)
   (node (if cooperative? "协同拦截" "独自截人") :anchor "勒索信"
-    :subtitle (if cooperative? "帮手封住另一边；好、中截住，坏逃跑" "好截住；中、坏逃跑，坏另扣冷静1")
+    :subtitle (if cooperative? "帮手封住退路；好3、中2，坏不推进" "独自逼近；好2、中1，坏扣冷静1")
     :requires (list (req-die))
     :resolve (roll 'violence
       (outcome (lambda ()
         (if cooperative? #f (spend-composure! 1))
-        (if (hospitalization-pending?) #f
-          (begin (拦截反馈! cooperative? #f) (失手!)))))
-      (outcome (lambda ()
-        (if cooperative? (begin (拦截反馈! #t #t) (截住!)) (失手!))))
-      (outcome (lambda () (拦截反馈! cooperative? #t) (截住!))))))
+        (if (hospitalization-pending?) #f (拦截推进! cooperative? 0))))
+      (outcome (lambda () (拦截推进! cooperative? (if cooperative? 2 1))))
+      (outcome (lambda () (拦截推进! cooperative? (if cooperative? 3 2)))))))
 
 (define (追逐推进! n)
   (要求阶段! '追逐)
@@ -248,7 +251,8 @@
           ((eq? 阶段 '拦截)
            (append
              (list (note-node "标注：截人窗口" "取信者正要离开"
-                     "现在投入骰子截人。结束回合他就离开；无人追踪会跟丢。")
+                     "本回合连续投骰截人；结束回合未满，他就逃跑。")
+                   (at-anchor "勒索信" (clock-node "钟：当场拦截" (拦截 'render-data)))
                    (拦截动作 #f))
              (if (岗位有人? '拦截) (list (拦截动作 #t)) '())))
           (else (error "雨夜收网：未知阶段")))))))
