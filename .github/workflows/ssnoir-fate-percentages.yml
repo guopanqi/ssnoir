@@ -1,0 +1,42 @@
+name: SSNoir A+ Action Probabilities
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'Engine/Runtime/Core/FateStrip.cs'
+      - 'Engine/Runtime/Core/SceneManager.cs'
+      - 'Engine/Runtime/Core/ActionReport.cs'
+      - 'tools/content-validator/GameTester.cs'
+      - 'Game/src/runtime/fate-strip.ts'
+      - 'Game/src/runtime/turn-state.ts'
+      - 'Game/src/runtime/action-runner.ts'
+      - 'Game/tests/game-actions.ts-test.mjs'
+      - '.github/workflows/ssnoir-fate-percentages.yml'
+permissions:
+  contents: read
+jobs:
+  csharp-odds:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+      - name: Verify Engine FateStrip A+ percentages and compilation
+        run: dotnet run --project tools/content-validator/SSNoir.ContentValidator.csproj -- --test-odds
+  web-odds:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Game
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: Game/package-lock.json
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Verify web action probabilities
+        run: node --experimental-strip-types --test tests/game-actions.ts-test.mjs
