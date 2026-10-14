@@ -584,7 +584,8 @@
       (cond
         ((> closed-days 0) (list (node-closed)))
         ((not character-stories-open?)
-         (append (地点节点 "老街酒馆") (list (node-waiter) (node-drink-here))))
+         (append (地点节点 "老街酒馆") (list (node-waiter) (node-drink-here))
+                  (three-letters 'tavern-ambush-nodes)))
         (else (append
             ;; 麻烦的死线钟挂在那张卡上，这里不再另立一条标注：同一件事说两遍，
             ;; 玩家还要自己认出它们是一件事。
