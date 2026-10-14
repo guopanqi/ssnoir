@@ -3521,6 +3521,26 @@
         "native": false
       },
       "note": "固定计划根7，条件后到信息根10；移除切换增效后两种制度均7。最优策略仍为简单先AB后按目标调整，不认证新原语。 原始REC01—03已验证更丰富的双向余效×临时阻塞，且一手前瞻交替完全达到全DP。本批仅增加后到目标时保留双方向可兑现选项的小例。"
+    },
+    {
+      "id": "PL-ACTION-MODE01",
+      "name": "动作产物类型转换仍被固定ABAB压平",
+      "layer": "negative-boundary",
+      "origin": "ssnoir-research",
+      "family": "动作相邻结果变换",
+      "idea": "A之后立即执行B改产生C，而非简单B数值加成；验证能否产生观察后改计划",
+      "stage": "exact-enumeration",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-动作改变产物类型/研究记录.md",
+        "tools/content-validator/experiments/pattern_action_type_20261015.py"
+      ],
+      "evidence": {
+        "completeEnumeration": true,
+        "humanFeedbackAvailable": false,
+        "independentAgentBlind": false,
+        "native": false
+      },
+      "note": "改类型固定/条件均19，普通不改类型固定/条件均17；ABAB为强固定策略，非新原语。"
     }
   ],
   "edges": [
@@ -6487,6 +6507,12 @@
       "to": "PL-LEAD01",
       "relation": "different-transition-mechanism",
       "reason": "LEAD通过条件许可打开核实，ACTION-COUPLE通过前一动作改变下一次真实产量；均需反证简单条件策略"
+    },
+    {
+      "from": "PL-ACTION-MODE01",
+      "to": "PL-ACTION-COUPLE01",
+      "relation": "different-output-type-still-fixed-alternation",
+      "reason": "把生产数值增效替换为产物种类变化，仍无法使消息后的不同计划成为最优"
     }
   ],
   "coverage": {
