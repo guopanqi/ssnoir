@@ -630,8 +630,25 @@
             (cond ((= delivery-shortfall 0) '足额)
                   ((= (envelope-short) 0) '她补)
                   (else '塞报纸)))
-          (start-encounter "勒索信" on-delivery-result)))))
+          (if (ambush-ready?)
+            (begin
+              (set-global! '雨夜收网帮手名单 (ambush-helpers))
+              (start-encounter "雨夜收网" on-ambush-result))
+            (start-encounter "勒索信" on-delivery-result))))))
 
+    ;; 委派交锋返回 (结果 部署)，转换成城市原有的「人 钱」口径。
+    (define (on-ambush-result result)
+      (if (and (list? result) (= (length result) 2)) #t
+        (error "三封信：雨夜收网结果格式非法"))
+      (let ((kind (car result)))
+        (set! ambush-route-result
+          (cond ((equal? kind '截住取信者) "截住")
+                ((equal? kind '追到线索) "追踪")
+                ((member? kind (list '跟丢 '倒下)) "跟丢")
+                (else (error "三封信：雨夜收网结果不明"))))
+        (on-delivery-result
+          (list (if (member? kind (list '截住取信者 '追到线索))
+                  '拿到线索 '跟丢) 0))))
     ;; 交锋回传：(list 人 钱)。四种组合都让故事往前走——交锋失败留疤,不阻断主线。
     ;; 摩托车是这一夜的固定过场，不回传：骑手是谁要等他自己在老街说。
     (define (on-delivery-result result)
@@ -668,6 +685,10 @@
         (sync-blockers!)
         (log! "勒索信"
           (cond
+            ((equal? ambush-route-result "截住")
+             "邮箱那一夜：帮手拦住了取信者，他说自己只负责跑腿。")
+            ((equal? ambush-route-result "追踪")
+             "邮箱那一夜：取信者逃了，但街口接应保住了他的去向。")
             ((equal? caught '拿到线索)
              "邮箱那一夜：一辆摩托车截断了追逐。取信的人逃走，落下半包「老金牌」香烟。")
             ((equal? caught '倒下)
@@ -675,6 +696,10 @@
             (#t "邮箱那一夜：钱被人取走，你跟丢了，只知道他逃向码头居民区。")))
         (spotlight! "投信之后"
           (cond
+            ((equal? ambush-route-result "截住")
+             "你们拦下取信的人。但幕后是谁，他并不知道。")
+            ((equal? ambush-route-result "追踪")
+             "虽然没能截住他，街口的人替你保住了去向线索。")
             ((equal? caught '拿到线索)
              "一个摩托驶过，那个人已经逃远了，你回过头来只捡到他落下的一包「老金牌」香烟。")
             ((equal? caught '倒下)
