@@ -1,8 +1,8 @@
 {
   "schema": "ssnoir.autonomous-pattern-memory/v1",
   "updated": "2026-10-14",
-  "batch": "TRANSFER02 低成本伪装与成果静态使用权同构反证",
-  "rounds": 27,
+  "batch": "RIGHTS01 跨合同许可撤销的安全时序旁路",
+  "rounds": 30,
   "totalArchivedRounds": 478,
   "objective": "长期自主发展可复用的玩法模式语言，覆盖已知作品先例、基础原语、完整交锋、跨阶段结构、组合条件与重要负例；评价玩家实际反复作出的判断、反馈、后果。历史20是广度愿景，不是价值认证名单或完成配额。",
   "policy": "从成熟作品、旧实验、新假设三向吸收；先去剧情定义玩家活动，再独立批评同构/最强简单策略，按需模型与盲Agent试玩。数学、作品先例、Agent、原生与真人是正交证据。知识图谱收录不等真人认可，精选展示与Debug独立把关，真人反馈异步且不阻塞。",
@@ -337,6 +337,6 @@
     "latestCounterfactual": "IWT01：四手Hidden A/B各半，3份正确WORK得10/8，TRACK工作必+1并有75%准确类型线索；纯INSPECT100%占一手。无信息6、只TRACK119/16、INSPECT9；INSPECT耗时两手TRACK重新胜119/16；完美TRACK19/2、50%TRACK6、TRACK首手限定29/4。正向枚举核对全部潜在真实类型；保留已有DISC/FOCUS/SIG组合。",
     "crossFamilyAudit": "PL-IWT01→PL-DISC01（工作+信息两种不同产出）、FOCUS02/03（及时兑现行动窗口、完美检查强旁路）、SIG01（非战略性线索噪声有别于他者可伪装的行动信号）。"
   },
-  "lastFinding": "TRANSFER02源文件对照TRL01—04、SIG、PUB/CUST/GRC：被观察者有4的未来利益并可低成本修饰PASS时，信号混同是已有TRL类结构；不能挪用不同玩家效用协议的TRL均衡数字。静态持有X并TRANSFER一手、ASK一手得8、SIDE一手得1的三手玩家值9，同成本普通SETUP→ASK动作树完全复刻；KEEP/REDEEM6+SIDE×2值8。提出OWN/USE/REVOKE/RECOVER仅为权利因果诊断，不认证四种新原语。无新真人、独立Agent、Unity或本批代码精确全状态验证。",
-  "nextResearchQuestion": "跳出信号准确率/伪装成本调参；探索使用权真正可撤销、取回需要资源、与另一真实合同并发时的玩家政策重排。先用完整条件合同、免费完美调查、普通SETUP和PUB/GRC已知组合做强反证。"
+  "lastFinding": "RIGHTS01：四手X可TRANSFER一手再ASK一手得12，另有两手安全B得10或SIDE1。第二手末若X交付但未兑现，则以1/2概率撤销许可。完整Fraction DP反证：有B时根22，禁RECOVER或取消撤权根仍22；没有B根14。安全B,B或SIDE,SIDE在检查时点前先完成，后TRANSFER+ASK完全避免撤权。风险撤销率不是核心，行动安排令风险无法触及最优路径；静态普通许可菜单亦可映射。无真人/独立盲Agent/Unity，非新原语。",
+  "nextResearchQuestion": "只在存在不可延后、不可安全等待规避的连续占用窗口时检验可撤权；将预先确定合同、SAFE B/SIDE、普通倒计时随机失效菜单作为强对照，若仍同构则立即转向并行义务/注意力竞争家族。"
 }
