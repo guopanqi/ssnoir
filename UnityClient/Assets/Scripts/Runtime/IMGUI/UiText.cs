@@ -99,6 +99,18 @@ namespace SSNoir.IMGUI
                 : $"坏 {bad}% · 中 {mixed}% · 好 {good}%";
         }
 
+        public static string OutcomeOdds(RollOutcome outcome, int percent)
+        {
+            string label = outcome switch
+            {
+                RollOutcome.Fail => GameLanguage.Current == GameLanguage.English ? "Fail" : "坏",
+                RollOutcome.Neutral => GameLanguage.Current == GameLanguage.English ? "Mixed" : "中",
+                RollOutcome.Success => GameLanguage.Current == GameLanguage.English ? "Good" : "好",
+                _ => throw new ArgumentOutOfRangeException(nameof(outcome))
+            };
+            return $"{label} {percent}%";
+        }
+
         public static string SkillName(string key) => Get(key switch
         {
             "violence" => "力量",

@@ -526,10 +526,11 @@ namespace SSNoir.IMGUI
         // 和判定条 / 结果条是同一个位置、同一种「附件」。它不在卡的矩形之内：卡片本身
         // 不因为放进一颗骰子而变高，排布里的位置也就不会跟着挪。
         // 空卡只有标题、副标题和骰位——待命按钮是个什么都不能做的按钮，不值得常驻。
-        private const float ConsolePad = 8f;
+        private const float ConsolePad = 12f;
         private const float ConsoleInset = 8f;
         private const float OddsGap = 4f;
-        private const float OddsH = 14f + 16f + 17f;    // 准备值 + 好/中/坏百分比 + 连续概率条
+        private const float OddsH = 20f + 38f; // 准备值算式 + 可读的概率色块
+        private const float ConsoleButtonH = 34f;
 
         public static bool IsConsoleArmed(GameNode node, IReadOnlyList<SlottedResource?>? slotted, bool isExecuting)
         {
@@ -544,22 +545,22 @@ namespace SSNoir.IMGUI
                && slotted.Any(sl => sl != null && sl.Type == "die");
 
         private static float ConsoleHeight(bool showOdds)
-            => ConsolePad + ExeH + (showOdds ? OddsGap + OddsH : 0f) + ConsolePad;
+            => ConsolePad + ConsoleButtonH + (showOdds ? OddsGap + OddsH : 0f) + ConsolePad;
 
         public static Rect ConsoleAttachmentRect(Rect cardRect, GameNode node, IReadOnlyList<SlottedResource?> slotted,
-            IReadOnlyList<ActorSnapshot>? actors)
+            IReadOnlyList<ActorSnapshot>? actors, float reveal = 1f)
         {
-            float width = cardRect.width - ConsoleInset * 2f;
-            return KeepAttachmentOnScreen(new Rect(
-                cardRect.center.x - width / 2f,
-                cardRect.yMax + AttachmentGap,
-                width,
-                ConsoleHeight(ConsoleShowsOdds(node, slotted, actors))));
+            float width = AttachmentWidth(cardRect.width);
+            var panel = KeepAttachmentOnScreen(AttachmentPanelRect(cardRect, width,
+                ConsoleHeight(ConsoleShowsOdds(node, slotted, actors)), false));
+            panel.height *= Mathf.Clamp01(reveal);
+            return panel;
         }
 
         /// <summary>操作台里那颗执行按钮的位置；渲染器在物品栏之前用它接点击（见 DrawConsoleAttachment）。</summary>
         public static Rect ConsoleExecuteRect(Rect consoleRect)
-            => new Rect(consoleRect.center.x - ExeW / 2f, consoleRect.y + ConsolePad, ExeW, ExeH);
+            => new Rect(consoleRect.x + ConsolePad, consoleRect.yMax - ConsolePad - ConsoleButtonH,
+                consoleRect.width - ConsolePad * 2f, ConsoleButtonH);
 
         /// <summary>
         /// 画操作台附件。返回 true 表示这一帧玩家按下了执行。
@@ -570,35 +571,33 @@ namespace SSNoir.IMGUI
         public static bool DrawConsoleAttachment(
             Rect cardRect, GameNode node, List<SlottedResource?> slotted,
             IMGUIInteractionContext ui, SSNoirGameManager gameManager,
-            bool isExecuting, float executeProgress, string executingText)
+            bool isExecuting, float executeProgress, string executingText, float reveal = 1f)
         {
             var actors = gameManager.DisplayedSnapshot.Actors;
             bool disabled = node.Disabled;
-            bool allFilled = slotted.All(sl => sl != null);
-            bool ready = allFilled && !disabled;
-            var panel = ConsoleAttachmentRect(cardRect, node, slotted, actors);
-
-            DrawAttachmentConnector(cardRect, panel);
+            bool ready = slotted.All(sl => sl != null) && !disabled;
+            bool showOdds = ConsoleShowsOdds(node, slotted, actors);
+            var panel = ConsoleAttachmentRect(cardRect, node, slotted, actors, reveal);
+            if (panel.height <= 0f) return false;
             ui.CanHover(panel);
-            var line = new Color(IMGUIStyles.Gold.r, IMGUIStyles.Gold.g, IMGUIStyles.Gold.b, 0.62f);
-            IMGUIStyles.DrawShadow(panel, new Vector2(4f, 5f), 0.45f);
-            IMGUIStyles.SetColor(new Color(SlotBlockBg.r, SlotBlockBg.g, SlotBlockBg.b, 0.96f));
-            GUI.DrawTexture(panel, Texture2D.whiteTexture);
-            IMGUIStyles.ResetColor();
-            IMGUIStyles.DrawOutline(panel, 1f, ready ? line
-                : new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.25f));
+            var line = ready ? IMGUIStyles.Paper : IMGUIStyles.TextSecondary;
+            DrawDrawerBackground(cardRect, panel, line);
 
-            var exeRect = ConsoleExecuteRect(panel);
+            // 内容从主卡下滑出，裁剪与点击使用同一个可见矩形；展开完才允许执行。
+            GUI.BeginGroup(panel);
+            var localUi = ui.Translated(panel.position);
+            float fullHeight = ConsoleHeight(showOdds);
+            var content = new Rect(0f, panel.height - fullHeight, panel.width, fullHeight);
+            if (showOdds)
+                TryDrawFatePreview(content, node, gameManager.DisplayedSnapshot, slotted, actors!, content.y + ConsolePad);
+            var exeRect = ConsoleExecuteRect(content);
             bool clicked = false;
             if (isExecuting)
                 DrawExecuteProgress(exeRect, executeProgress, executingText);
-            else if (ready)
-                clicked = DrawExecuteButton(exeRect, "执 行", ui, true);
             else
-                DrawExecuteButton(exeRect, disabled ? "不可用" : "待 命", ui, false, dead: disabled);
-
-            if (ConsoleShowsOdds(node, slotted, actors))
-                TryDrawFatePreview(panel, node, gameManager.DisplayedSnapshot, slotted, actors!, exeRect.yMax + OddsGap);
+                clicked = DrawExecuteButton(exeRect, disabled ? "不可用" : ready ? "执 行" : "待 命",
+                    localUi, ready && reveal >= 0.999f, dead: disabled);
+            GUI.EndGroup();
             return clicked;
         }
 
@@ -1119,7 +1118,7 @@ namespace SSNoir.IMGUI
             IMGUIStyles.DrawLabel(rect, label, progressStyle);
         }
 
-        // ── 底部：命运六面预览 ────────────────────────────────────────
+        // ── 底部：概率预览 ────────────────────────────────────────
 
         private static void TryDrawFatePreview(Rect rect, GameNode node, PresentationSnapshot snapshot,
             List<SlottedResource?> slotted, IReadOnlyList<ActorSnapshot> actors, float executeBottomY)
@@ -1177,21 +1176,59 @@ namespace SSNoir.IMGUI
 
         private static void DrawFateStrip(Rect rect, RollOutcome[] strip, float executeBottomY, string caption)
         {
-            const float pad = 10f;
-            var summaryStyle = new GUIStyle(IMGUIStyles.ClockLabel)
+            var summaryStyle = new GUIStyle(IMGUIStyles.ModalBody)
             {
-                alignment = TextAnchor.MiddleCenter,
+                fontSize = IMGUIStyles.FontSize(11),
+                alignment = TextAnchor.MiddleLeft,
+                clipping = TextClipping.Clip,
                 normal = { textColor = IMGUIStyles.TextSecondary }
             };
-            var lineRect = new Rect(rect.x + pad, executeBottomY, rect.width - pad * 2f, 14f);
+            var lineRect = new Rect(rect.x + ConsolePad, executeBottomY, rect.width - ConsolePad * 2f, 20f);
+            while (summaryStyle.fontSize > IMGUIStyles.FontSize(9)
+                   && summaryStyle.CalcSize(new GUIContent(caption)).x > lineRect.width)
+                summaryStyle.fontSize--;
             IMGUIStyles.DrawLabel(lineRect, caption, summaryStyle);
-            lineRect.y += 14f;
-            lineRect.height = 16f;
-            IMGUIStyles.DrawLabel(lineRect, UiText.Odds(strip), summaryStyle);
+            DrawOddsTiles(new Rect(lineRect.x, lineRect.yMax, lineRect.width, 38f), strip);
+        }
 
-            float stripW = Mathf.Min(rect.width - pad * 2f, 178f);
-            DrawOddsStrip(new Rect(rect.center.x - stripW / 2f, executeBottomY + 30f, stripW, 17f),
-                strip);
+        // 非零档位等宽排列，百分比用文字表达；不让小概率被挤成不可读的细缝。
+        private static void DrawOddsTiles(Rect area, RollOutcome[] strip)
+        {
+            var counts = new int[3];
+            foreach (var outcome in strip)
+                counts[outcome switch
+                {
+                    RollOutcome.Fail => 0,
+                    RollOutcome.Neutral => 1,
+                    RollOutcome.Success => 2,
+                    _ => throw new System.ArgumentOutOfRangeException(nameof(strip))
+                }]++;
+            int visible = counts.Count(count => count > 0);
+            if (strip.Length != 100 || visible == 0)
+                throw new System.ArgumentException("Expected 100 percentage outcomes.", nameof(strip));
+            const float gap = 3f;
+            float width = (area.width - gap * (visible - 1)) / visible;
+            float x = area.x;
+            for (int i = 0; i < counts.Length; i++)
+            {
+                if (counts[i] == 0) continue;
+                var outcome = i == 0 ? RollOutcome.Fail : i == 1 ? RollOutcome.Neutral : RollOutcome.Success;
+                var tile = new Rect(x, area.y, width, area.height);
+                IMGUIStyles.SetColor(OutcomeColor(outcome));
+                GUI.DrawTexture(tile, Texture2D.whiteTexture);
+                IMGUIStyles.ResetColor();
+                var style = new GUIStyle(IMGUIStyles.ExecuteLabel)
+                {
+                    fontSize = IMGUIStyles.FontSize(14),
+                    normal = { textColor = IMGUIStyles.PaperInk }
+                };
+                string label = UiText.OutcomeOdds(outcome, counts[i]);
+                while (style.fontSize > IMGUIStyles.FontSize(10)
+                       && style.CalcSize(new GUIContent(label)).x > width - 8f)
+                    style.fontSize--;
+                IMGUIStyles.DrawLabel(tile, label, style);
+                x += width + gap;
+            }
         }
 
         // 按百分比画连续三段：每段面积等于真实概率，结算只突出结果档位。
@@ -1248,8 +1285,7 @@ namespace SSNoir.IMGUI
 
         // ── 判定 / 结算附件 ───────────────────────────────────────────
 
-        private const float AttachmentGap = 6f;
-        private const float AttachmentShadowReserve = 8f;
+        private const float AttachmentGap = 0f;
         private const float ResultAttachmentOpacity = 1f;
         // Attachment 不参与宿主卡片的 footprint，但仍是玩家要读的界面内容，不能被
         // SafeArea 外沿裁掉。这个 inset 只约束 attachment 自己，不会反过来推动卡片。
@@ -1258,30 +1294,17 @@ namespace SSNoir.IMGUI
         private static GUIStyle? _rollLabelStyle;
         private static GUIStyle? _rollDetailStyle;
 
-        public static float AttachmentWidth(float cardWidth, bool spacious)
+        private static float AttachmentWidth(float cardWidth, bool above = false)
         {
-            float desired = spacious
-                ? Mathf.Clamp(cardWidth + 140f, 460f, 540f)
-                : Mathf.Max(0f, cardWidth - 12f);
+            float desired = Mathf.Max(above ? 220f : 1f, cardWidth - ConsoleInset * 2f);
             float available = Mathf.Max(1f, UIScale.SafeArea.width - AttachmentSafeInset * 2f);
             return Mathf.Min(desired, available);
         }
 
-        public static float LocalRollAttachmentHeight(bool spacious)
+        public static Rect ResidueAttachmentRect(Rect cardRect, CardPresentationResidue residue, bool above = false)
         {
-            return AttachmentGap + RollHeaderHeight(spacious) + AttachmentShadowReserve;
-        }
-
-        public static float ResidueAttachmentHeight(CardPresentationResidue residue, bool spacious)
-        {
-            float panelWidth = spacious ? 460f : 300f;
-            return AttachmentGap + ResiduePanelHeight(residue, spacious, panelWidth) + AttachmentShadowReserve;
-        }
-
-        public static Rect ResidueAttachmentRect(Rect cardRect, CardPresentationResidue residue, bool spacious, bool above = false)
-        {
-            float panelWidth = AttachmentWidth(cardRect.width, spacious);
-            float panelHeight = ResiduePanelHeight(residue, spacious, panelWidth);
+            float panelWidth = AttachmentWidth(cardRect.width, above);
+            float panelHeight = ResiduePanelHeight(residue, panelWidth);
             return KeepAttachmentOnScreen(AttachmentPanelRect(cardRect, panelWidth, panelHeight, above));
         }
 
@@ -1349,40 +1372,37 @@ namespace SSNoir.IMGUI
             float localRollDisplayScale,
             CardPresentationResidue? residue,
             IMGUIInteractionContext ui,
-            bool spacious,
             bool above = false)
         {
             if (localRoll != null)
             {
                 DrawLocalRoll(cardRect, localRoll, localRollPhase,
-                    localRollDisplayScale, ui, spacious, above);
+                    localRollDisplayScale, ui, above);
                 return;
             }
             if (residue != null)
-                DrawResiduePanel(cardRect, residue, ui, spacious, above);
+                DrawResiduePanel(cardRect, residue, ui, above);
         }
 
-        private static float RollHeaderHeight(bool spacious) => spacious ? 76f : 58f;
-        private static float SimpleHeaderHeight(bool spacious) => spacious ? 36f : 28f;
-        private static float EffectRowHeight(bool spacious) => spacious ? 20f : 14f;
-        private const float EffectRowGap = 8f;
+        private const float RollHeaderHeight = 68f;
+        private const float ResultHeaderHeight = 34f;
+        private const float EffectRowHeight = 26f;
+        private const float EffectRowGap = 5f;
 
-        // 掷骰中：命运条本身就是动画（减速扫掠 → 落格弹跳 → 定格），而非一个方框里跳变的数字。
+        // 判定中保留原有概率条动画（档位浮现 → 弹跳 → 定格）。
         private static void DrawLocalRoll(
             Rect rect,
             ActionReport report,
             int phase,
             float displayScale,
             IMGUIInteractionContext ui,
-            bool spacious,
             bool above)
         {
-            float panelWidth = AttachmentWidth(rect.width, spacious);
-            float headerHeight = RollHeaderHeight(spacious);
+            float panelWidth = AttachmentWidth(rect.width, above);
+            float headerHeight = RollHeaderHeight;
             var panel = KeepAttachmentOnScreen(AttachmentPanelRect(rect, panelWidth, headerHeight, above));
-            DrawAttachmentConnector(rect, panel);
             ui.CanHover(panel);
-            DrawResultAttachmentBackground(panel);
+            DrawDrawerBackground(rect, panel, IMGUIStyles.Paper);
 
             bool settled = phase >= 2;
             Color oc = settled ? OutcomeColor(report.Outcome) : IMGUIStyles.Gold;
@@ -1393,49 +1413,41 @@ namespace SSNoir.IMGUI
             DrawRollHeaderText(panel,
                 settled ? FormatOutcome(report.Outcome) : UiText.Get("判定中"),
                 settled ? oc : IMGUIStyles.TextPrimary,
-                settled ? UiText.Ready(report.PreparedValue) : UiText.Get("按概率判定..."),
-                spacious);
+                UiText.Ready(report.PreparedValue));
 
             var strip = FateStrip.StripForPrepared(report.PreparedValue);
-            float stripY = spacious ? panel.y + 38f : panel.y + 26f;
-            float stripHeight = spacious ? 24f : 18f;
-            DrawOddsStrip(new Rect(panel.x + (spacious ? 16f : 10f), stripY,
-                    panel.width - (spacious ? 32f : 20f), stripHeight),
+            float stripY = panel.y + 36f;
+            float stripHeight = 20f;
+            DrawOddsStrip(new Rect(panel.x + ConsolePad, stripY,
+                    panel.width - ConsolePad * 2f, stripHeight),
                 strip, phase >= 1 ? report.Outcome : (RollOutcome?)null,
                 phase == 1 ? Mathf.Max(0f, displayScale - 1f) : 0f, settled);
 
         }
 
-        private static float ResidueHeaderHeight(CardPresentationResidue residue, bool spacious)
+        private static float ResiduePanelHeight(CardPresentationResidue residue, float panelWidth)
         {
-            return residue.RollOutcome.HasValue ? RollHeaderHeight(spacious) : SimpleHeaderHeight(spacious);
-        }
-
-        private static float ResiduePanelHeight(CardPresentationResidue residue, bool spacious, float panelWidth)
-        {
-            float height = ResidueHeaderHeight(residue, spacious);
+            float height = ResultHeaderHeight;
             bool hasBody = residue.Effects.Count > 0;
             if (hasBody)
             {
-                height += spacious ? 17f : 11f; // 分隔 + 揭开动画最多 5px 的下移行程
-                float horizontalInset = spacious ? 14f : 8f;
+                height += 9f; // 结果行揭开的下移行程
+                float horizontalInset = ConsolePad;
                 height += CardDrawer.MeasureEffectRowsHeight(
                     residue.Effects,
                     panelWidth - horizontalInset * 2f,
-                    EffectRowHeight(spacious),
+                    EffectRowHeight,
                     EffectRowGap,
-                    spacious ? 12 : 10);
+                    13);
             }
-            return Mathf.Max(spacious ? 92f : 74f, height + (spacious ? 10f : 6f));
+            return height + ConsolePad; // 底部留出停留时间条，不压住最后一行
         }
 
-        // 结算结果 = 命运条「原地定格」+ 结果从其下方揭开。头部与 DrawLocalRoll 落定态同内容，
-        // 挂在卡片下方同一位置，动画停下后无缝冻结；效果继续向下揭开。
+        // 判定结束后，同一抽屉切为结果标题与全部影响行，底边继续显示原有停留时间条。
         private static void DrawResiduePanel(
             Rect rect,
             CardPresentationResidue residue,
             IMGUIInteractionContext ui,
-            bool spacious,
             bool above)
         {
             // residue 只有动画落定后才被绘制——首帧即结果该「揭开」的时刻，惰性记录起点。
@@ -1444,16 +1456,15 @@ namespace SSNoir.IMGUI
             float reveal = Mathf.Clamp01((Time.unscaledTime - residue.RevealStartTime) / 0.28f);
             float ease = 1f - Mathf.Pow(1f - reveal, 3f);
 
-            var panel = ResidueAttachmentRect(rect, residue, spacious, above);
-            DrawAttachmentConnector(rect, panel);
+            var panel = ResidueAttachmentRect(rect, residue, above);
             ui.CanHover(panel);
-            DrawResultAttachmentBackground(panel);
+            DrawDrawerBackground(rect, panel, IMGUIStyles.Paper);
 
-            var header = new Rect(panel.x, panel.y, panel.width, ResidueHeaderHeight(residue, spacious));
+            var header = new Rect(panel.x, panel.y, panel.width, ResultHeaderHeight);
             bool hasOutcome = residue.RollOutcome.HasValue;
             RollOutcome outcome = residue.RollOutcome ?? RollOutcome.Neutral;
             Color oc = hasOutcome ? OutcomeColor(outcome) : IMGUIStyles.Gold;
-            IMGUIStyles.DrawOutline(header, 1.5f, oc);
+            IMGUIStyles.DrawOutline(panel, 1f, new Color(oc.r, oc.g, oc.b, 0.65f));
 
             // 判定卡的头是档位；即时卡没有档位可写，头就只是一个「已结算」的标记——
             // 卡就在上面，这里不重复卡名。
@@ -1461,30 +1472,19 @@ namespace SSNoir.IMGUI
                 : UiText.Get("行动结果");
             DrawRollHeaderText(header, headerLabel, hasOutcome ? oc : IMGUIStyles.TextPrimary,
                 residue.RollOutcome.HasValue
-                    ? UiText.Ready(residue.PreparedValue) : "",
-                spacious);
+                    ? UiText.Ready(residue.PreparedValue) : "");
 
-            if (residue.RollOutcome.HasValue)
-            {
-                var strip = FateStrip.StripForPrepared(residue.PreparedValue);
-                float stripY = spacious ? header.y + 38f : header.y + 26f;
-                float stripHeight = spacious ? 24f : 18f;
-                DrawOddsStrip(new Rect(header.x + (spacious ? 16f : 10f), stripY,
-                        header.width - (spacious ? 32f : 20f), stripHeight),
-                    strip, residue.RollOutcome.Value, 0f, true);
-            }
-
-            // 身体：效果从命运条下方揭开（淡入、整体轻微下滑）。
+            // 结算后让实际收益与代价成为主体，不再重复整根概率条。
             float y = header.yMax + 4f + (1f - ease) * 5f;
             if (residue.Effects.Count > 0)
             {
-                float horizontalInset = spacious ? 14f : 8f;
+                float horizontalInset = ConsolePad;
                 CardDrawer.DrawEffectRows(
                     new Rect(panel.x + horizontalInset, y, panel.width - horizontalInset * 2f, panel.yMax - y - 4f),
                     residue.Effects,
-                    EffectRowHeight(spacious),
+                    EffectRowHeight,
                     EffectRowGap,
-                    spacious ? 12 : 10);
+                    13);
             }
 
             DrawFuse(panel, residue.FuseRemaining01);
@@ -1507,55 +1507,52 @@ namespace SSNoir.IMGUI
             GUI.color = Color.white;
         }
 
-        private static void DrawAttachmentConnector(Rect card, Rect attachment)
+        private static void DrawDrawerBackground(Rect card, Rect panel, Color border)
         {
-            // attachment 被屏幕边缘夹回去后，中心点可能已经不再和宿主卡片对齐。
-            // 连接到 attachment 顶/底边上离卡片最近的点，仍保持“这是它的结果”的阅读关系。
-            float attachmentX = Mathf.Clamp(card.center.x, attachment.xMin + 3f, attachment.xMax - 3f);
-            bool attachmentBelow = attachment.center.y >= card.center.y;
-            var color = new Color(IMGUIStyles.Gold.r, IMGUIStyles.Gold.g, IMGUIStyles.Gold.b, 0.62f);
-            IMGUIStyles.DrawLine(
-                new Vector2(card.center.x, attachmentBelow ? card.yMax - 1f : card.yMin + 1f),
-                new Vector2(attachmentX, attachmentBelow ? attachment.y + 1f : attachment.yMax - 1f),
-                color,
-                2f);
-        }
-
-        private static void DrawResultAttachmentBackground(Rect panel)
-        {
-            IMGUIStyles.DrawShadow(panel, new Vector2(4f, 5f), 0.45f);
-            var oldColor = GUI.color;
-            IMGUIStyles.SetColor(new Color(IMGUIStyles.Ink.r, IMGUIStyles.Ink.g, IMGUIStyles.Ink.b,
-                ResultAttachmentOpacity));
+            IMGUIStyles.DrawShadow(panel, new Vector2(2f, 3f), 0.32f);
+            IMGUIStyles.SetColor(new Color(0.055f, 0.068f, 0.105f, ResultAttachmentOpacity));
             GUI.DrawTexture(panel, Texture2D.whiteTexture);
-            GUI.color = oldColor;
+            IMGUIStyles.ResetColor();
+            IMGUIStyles.DrawOutline(panel, 1f, new Color(border.r, border.g, border.b, 0.45f));
+            // 下挂时上缘沉进主卡：两侧短暗影强调抽屉归属，不另拉连接线。
+            if (Mathf.Abs(panel.y - card.yMax) < 1f)
+            {
+                IMGUIStyles.SetColor(new Color(0f, 0f, 0f, 0.28f));
+                GUI.DrawTexture(new Rect(panel.x + 1f, panel.y, panel.width - 2f, 3f), Texture2D.whiteTexture);
+                IMGUIStyles.ResetColor();
+            }
         }
 
-        // 判定面板头部：左上结果/状态标签 + 右上「准备 · 命运骰」明细，供掷骰态与结算态共用。
+        // 抽屉头部：结果/状态在左，准备值在右；判定与结算共用。
         private static void DrawRollHeaderText(
             Rect panel,
             string label,
             Color labelColor,
-            string detail,
-            bool spacious)
+            string detail)
         {
-            var labelStyle = EnsureRollLabelStyle(spacious);
-            labelStyle.normal.textColor = labelColor;
-            IMGUIStyles.DrawLabel(new Rect(panel.x + (spacious ? 16f : 8f), panel.y + (spacious ? 8f : 3f),
-                spacious ? 180f : 130f, spacious ? 22f : 18f), label, labelStyle);
-
-            if (string.IsNullOrEmpty(detail)) return;
-            var detailStyle = EnsureRollDetailStyle(spacious);
+            var labelStyle = new GUIStyle(EnsureRollLabelStyle())
+            {
+                wordWrap = false,
+                clipping = TextClipping.Clip,
+                normal = { textColor = labelColor }
+            };
+            float detailWidth = string.IsNullOrEmpty(detail) ? 0f : 78f;
+            float labelWidth = panel.width - ConsolePad * 2f - detailWidth;
+            while (labelStyle.fontSize > IMGUIStyles.FontSize(12)
+                   && labelStyle.CalcSize(new GUIContent(label)).x > labelWidth)
+                labelStyle.fontSize--;
+            IMGUIStyles.DrawLabel(new Rect(panel.x + ConsolePad, panel.y + 7f,
+                labelWidth, 24f), label, labelStyle);
+            if (detailWidth == 0f) return;
+            var detailStyle = EnsureRollDetailStyle();
             detailStyle.normal.textColor = IMGUIStyles.TextSecondary;
-            float detailWidth = spacious ? 230f : 150f;
-            float detailInset = spacious ? 16f : 8f;
-            IMGUIStyles.DrawLabel(new Rect(panel.xMax - detailWidth - detailInset, panel.y + (spacious ? 9f : 4f),
-                detailWidth, spacious ? 20f : 16f), detail, detailStyle);
+            IMGUIStyles.DrawLabel(new Rect(panel.xMax - detailWidth - ConsolePad, panel.y + 10f,
+                detailWidth, 20f), detail, detailStyle);
         }
 
-        private static GUIStyle EnsureRollLabelStyle(bool spacious)
+        private static GUIStyle EnsureRollLabelStyle()
         {
-            int fontSize = IMGUIStyles.FontSize(spacious ? 15 : 13);
+            int fontSize = IMGUIStyles.FontSize(16);
             var baseStyle = IMGUIStyles.ModalBody;
             if (_rollLabelStyle == null
                 || _rollLabelStyle.font != baseStyle.font
@@ -1569,9 +1566,9 @@ namespace SSNoir.IMGUI
             return _rollLabelStyle;
         }
 
-        private static GUIStyle EnsureRollDetailStyle(bool spacious)
+        private static GUIStyle EnsureRollDetailStyle()
         {
-            int fontSize = IMGUIStyles.FontSize(spacious ? 11 : 10);
+            int fontSize = IMGUIStyles.FontSize(11);
             var baseStyle = IMGUIStyles.ModalBody;
             if (_rollDetailStyle == null
                 || _rollDetailStyle.font != baseStyle.font

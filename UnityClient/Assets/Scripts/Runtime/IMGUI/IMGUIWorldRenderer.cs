@@ -51,6 +51,10 @@ namespace SSNoir.IMGUI
         private readonly Dictionary<string, CardPresentationResidue> _cardResidues = new Dictionary<string, CardPresentationResidue>();
         // 判定条、结果条等不参与卡片布局；它们在所有卡本体之后统一绘制，才不会被近景卡遮住。
         private readonly List<CardAttachmentOverlay> _cardAttachmentOverlays = new List<CardAttachmentOverlay>();
+        private string? _consoleDrawerHost;
+        private float _consoleDrawerOpenedAt;
+        private const float ConsoleDrawerOpenSeconds = 0.18f;
+
         // 本帧世界投射层的浓度，由 DrawCards 写、附件那一段读——附件画在卡片之后、
         // 物品栏之上，隔着几个绘制阶段，只能这样把浓度带过去。
         private float _cardLayerReveal = 1f;
@@ -1234,6 +1238,8 @@ namespace SSNoir.IMGUI
 
             // ── Node Cards (3D projected) ──
             DrawCards(worldUi);
+            if (!_cardAttachmentOverlays.Any(attachment => attachment.ConsoleNode != null))
+                _consoleDrawerHost = null;
             bool pointerOnFixedHud = topHud.Bar.Contains(worldUi.Mouse)
                 || topHud.FunctionPlate(!_gameManager.DisplayedSnapshot.IsInEncounter).Contains(worldUi.Mouse)
                 || _pinStripRect.Contains(worldUi.Mouse)
@@ -1906,7 +1912,7 @@ namespace SSNoir.IMGUI
             {
                 if (layout.IsAnnotation)
                     continue;   // 标注没有判定条也没有结果条，它不会长出附件
-                AddAttachmentForNode(layout.Node, layout.Rect, spacious: true);
+                AddAttachmentForNode(layout.Node, layout.Rect);
             }
 
             // 命中归属：卡片是画家算法——投射卡按远→近画，网格卡再盖在最上面。而 IMGUI
@@ -2042,23 +2048,30 @@ namespace SSNoir.IMGUI
         private bool IsActiveLayout(ProjectedCardLayout layout)
             => !layout.IsAnnotation && IsActiveCard(layout.Node);
 
-        private void AddAttachmentForNode(GameNode node, Rect cardRect, bool spacious)
+        private void AddAttachmentForNode(GameNode node, Rect cardRect)
         {
             if (IsLocalRollOf(node.Name))
             {
                 _cardAttachmentOverlays.Add(CardAttachmentOverlay.ForLocalRoll(
                     cardRect, node.Name, _animator.CurrentReport!, _animator.Phase,
-                    _animator.DisplayScale, spacious));
+                    _animator.DisplayScale));
             }
             else if (_cardResidues.TryGetValue(node.Name, out var residue))
             {
-                _cardAttachmentOverlays.Add(CardAttachmentOverlay.ForResidue(cardRect, residue, spacious));
+                _cardAttachmentOverlays.Add(CardAttachmentOverlay.ForResidue(cardRect, residue));
             }
             else
             {
                 var slots = SlotsForNode(node);
                 if (ActionNodeDrawer.IsConsoleArmed(node, slots, GetExecutionState(node.Name).IsExecuting))
+                {
+                    if (!string.Equals(_consoleDrawerHost, node.Name, StringComparison.Ordinal))
+                    {
+                        _consoleDrawerHost = node.Name;
+                        _consoleDrawerOpenedAt = Time.unscaledTime;
+                    }
                     _cardAttachmentOverlays.Add(CardAttachmentOverlay.ForConsole(cardRect, node, slots!));
+                }
             }
         }
 
@@ -2072,14 +2085,14 @@ namespace SSNoir.IMGUI
                     var execution = GetExecutionState(attachment.HostNodeName);
                     if (ActionNodeDrawer.DrawConsoleAttachment(
                             attachment.CardRect, attachment.ConsoleNode, attachment.ConsoleSlots!, ui, _gameManager,
-                            execution.IsExecuting, execution.Progress, execution.Text))
+                            execution.IsExecuting, execution.Progress, execution.Text, ConsoleDrawerReveal(attachment.HostNodeName)))
                         _gameManager.ExecuteNodeAction(attachment.ConsoleNode);
                     continue;
                 }
                 ActionNodeDrawer.DrawAttachmentOverlay(
                     attachment.CardRect, attachment.LocalRoll, attachment.LocalRollPhase,
                     attachment.LocalRollScale, attachment.Residue,
-                    ui, attachment.Spacious, attachment.Above);
+                    ui, attachment.Above);
             }
         }
 
@@ -2095,7 +2108,7 @@ namespace SSNoir.IMGUI
                 }
                 if (attachment.Residue != null)
                     TryDismissResidueByTap(attachment.Residue,
-                        ActionNodeDrawer.ResidueAttachmentRect(attachment.CardRect, attachment.Residue, attachment.Spacious, attachment.Above), ui);
+                        ActionNodeDrawer.ResidueAttachmentRect(attachment.CardRect, attachment.Residue, attachment.Above), ui);
             }
         }
 
@@ -2119,12 +2132,12 @@ namespace SSNoir.IMGUI
                 {
                     _cardAttachmentOverlays.Add(CardAttachmentOverlay.ForLocalRoll(
                         pair.Value, pair.Key, _animator.CurrentReport!, _animator.Phase,
-                        _animator.DisplayScale, spacious: false, above: true));
+                        _animator.DisplayScale, above: true));
                 }
                 else if (_cardResidues.TryGetValue(pair.Key, out var residue))
                 {
                     residue.AttachAbove = true;
-                    _cardAttachmentOverlays.Add(CardAttachmentOverlay.ForResidue(pair.Value, residue, spacious: false));
+                    _cardAttachmentOverlays.Add(CardAttachmentOverlay.ForResidue(pair.Value, residue));
                 }
             }
         }
@@ -2146,7 +2159,7 @@ namespace SSNoir.IMGUI
             {
                 var host = ActionNodeDrawer.DrawFloatingHost(_animator.ActionName);
                 ActionNodeDrawer.DrawAttachmentOverlay(host, _animator.CurrentReport!, _animator.Phase,
-                    _animator.DisplayScale, null, ui, spacious: true);
+                    _animator.DisplayScale, null, ui);
                 return;
             }
 
@@ -2156,7 +2169,6 @@ namespace SSNoir.IMGUI
                     continue;
                 var residue = pair.Value;
                 Rect host;
-                bool spacious;
                 // 停住那条路里旧快照还在：卡没画出来只能是镜头已经走了，残卡站在旧位置上没有意义。
                 bool ghostAllowed = !ReferenceEquals(residue, _holdingResidue);
                 if (ghostAllowed && residue.SourceNode != null && TryGhostRect(residue, out var ghostRect))
@@ -2169,16 +2181,14 @@ namespace SSNoir.IMGUI
                     IMGUIStyles.EndLayer(restore);
                     TryDismissResidueByTap(residue, ghostRect, ui);
                     host = ghostRect;
-                    spacious = residue.GhostAnchor != null;
                 }
                 else
                 {
                     residue.AttachAbove = false;
                     host = ActionNodeDrawer.DrawFloatingHost(pair.Key);
-                    spacious = true;
                 }
-                ActionNodeDrawer.DrawAttachmentOverlay(host, null, 0, 1f, residue, ui, spacious, residue.AttachAbove);
-                TryDismissResidueByTap(residue, ActionNodeDrawer.ResidueAttachmentRect(host, residue, spacious, residue.AttachAbove), ui);
+                ActionNodeDrawer.DrawAttachmentOverlay(host, null, 0, 1f, residue, ui, residue.AttachAbove);
+                TryDismissResidueByTap(residue, ActionNodeDrawer.ResidueAttachmentRect(host, residue, residue.AttachAbove), ui);
             }
         }
 
@@ -2214,7 +2224,8 @@ namespace SSNoir.IMGUI
         {
             var node = attachment.ConsoleNode!;
             var slots = attachment.ConsoleSlots!;
-            if (node.Disabled || GetExecutionState(node.Name).IsExecuting || slots.Any(sl => sl == null))
+            if (node.Disabled || GetExecutionState(node.Name).IsExecuting || slots.Any(sl => sl == null)
+                || ConsoleDrawerReveal(node.Name) < 0.999f)
                 return;
             var exeRect = ActionNodeDrawer.ConsoleExecuteRect(
                 ConsoleRect(attachment));
@@ -2227,7 +2238,14 @@ namespace SSNoir.IMGUI
         private Rect ConsoleRect(in CardAttachmentOverlay attachment)
             => ActionNodeDrawer.ConsoleAttachmentRect(
                 attachment.CardRect, attachment.ConsoleNode!, attachment.ConsoleSlots!,
-                _gameManager.DisplayedSnapshot.Actors);
+                _gameManager.DisplayedSnapshot.Actors, ConsoleDrawerReveal(attachment.HostNodeName));
+
+        private float ConsoleDrawerReveal(string nodeName)
+        {
+            if (!string.Equals(_consoleDrawerHost, nodeName, StringComparison.Ordinal)) return 0f;
+            float t = Mathf.Clamp01((Time.unscaledTime - _consoleDrawerOpenedAt) / ConsoleDrawerOpenSeconds);
+            return 1f - Mathf.Pow(1f - t, 3f);
+        }
 
         private bool AttachmentConsumesPointer(Vector2 pointer)
         {
@@ -2236,7 +2254,7 @@ namespace SSNoir.IMGUI
                 if (attachment.ConsoleNode != null && ConsoleRect(attachment).Contains(pointer))
                     return true;
                 if (attachment.Residue != null
-                    && ActionNodeDrawer.ResidueAttachmentRect(attachment.CardRect, attachment.Residue, attachment.Spacious, attachment.Above).Contains(pointer))
+                    && ActionNodeDrawer.ResidueAttachmentRect(attachment.CardRect, attachment.Residue, attachment.Above).Contains(pointer))
                     return true;
             }
             return false;
@@ -2473,7 +2491,7 @@ namespace SSNoir.IMGUI
                 Rect screenCardRect = layouts[i].CardRect;
                 screenCardRect.position += viewport.position;
                 NoteActionCardRect(visibleNodes[i], screenCardRect);
-                AddAttachmentForNode(visibleNodes[i], screenCardRect, spacious: false);
+                AddAttachmentForNode(visibleNodes[i], screenCardRect);
             }
             bool attachmentConsumesPointer = AttachmentConsumesPointer(ui.Mouse);
 
@@ -2581,14 +2599,13 @@ namespace SSNoir.IMGUI
             public int LocalRollPhase { get; }
             public float LocalRollScale { get; }
             public CardPresentationResidue? Residue { get; }
-            public bool Spacious { get; }
             // 宿主贴着屏幕底边（随身卡、休息键）：附件往上挂。
             public bool Above { get; }
 
             private CardAttachmentOverlay(
                 Rect cardRect, string hostNodeName, GameNode? consoleNode, List<SlottedResource?>? consoleSlots,
                 ActionReport? localRoll, int localRollPhase,
-                float localRollScale, CardPresentationResidue? residue, bool spacious,
+                float localRollScale, CardPresentationResidue? residue,
                 bool above = false)
             {
                 Above = above;
@@ -2600,19 +2617,18 @@ namespace SSNoir.IMGUI
                 LocalRollPhase = localRollPhase;
                 LocalRollScale = localRollScale;
                 Residue = residue;
-                Spacious = spacious;
             }
 
             public static CardAttachmentOverlay ForConsole(Rect cardRect, GameNode node, List<SlottedResource?> slots)
-                => new CardAttachmentOverlay(cardRect, node.Name, node, slots, null, 0, 1f, null, false);
+                => new CardAttachmentOverlay(cardRect, node.Name, node, slots, null, 0, 1f, null);
 
             public static CardAttachmentOverlay ForLocalRoll(
-                Rect cardRect, string hostNodeName, ActionReport report, int phase, float scale, bool spacious,
+                Rect cardRect, string hostNodeName, ActionReport report, int phase, float scale,
                 bool above = false)
-                => new CardAttachmentOverlay(cardRect, hostNodeName, null, null, report, phase, scale, null, spacious, above);
+                => new CardAttachmentOverlay(cardRect, hostNodeName, null, null, report, phase, scale, null, above);
 
-            public static CardAttachmentOverlay ForResidue(Rect cardRect, CardPresentationResidue residue, bool spacious)
-                => new CardAttachmentOverlay(cardRect, residue.HostNodeName, null, null, null, 0, 1f, residue, spacious, residue.AttachAbove);
+            public static CardAttachmentOverlay ForResidue(Rect cardRect, CardPresentationResidue residue)
+                => new CardAttachmentOverlay(cardRect, residue.HostNodeName, null, null, null, 0, 1f, residue, residue.AttachAbove);
         }
 
         // 引线不在这里画：它是所有卡片之前的一整层，见 CardLeaderLineDrawer。
