@@ -43,7 +43,7 @@
     (define worker-joined? #f)
     (define worker-shift (make-clock "替工友顶班" 4 'gauge
       "这班活替他做完，他才有空在取信那晚帮忙。"))
-             ; Phase B 起，普通搬运每天只能做一次
+    ;; 普通搬运每日一次；替班单独消耗骰子，不发工资。
 
     ;; ── 码头回声 ──────────────────────────
     ;; 跟陌生人一组时才可能听见：码头是背景，陌生人是背景里的声音。
@@ -148,7 +148,13 @@
                  (not (worker-familiarity 'full?)))
           (begin
             (set! worker-last-day world-day)
-            (worker-familiarity 'tick!))
+            (worker-familiarity 'tick!)
+            (if (worker-familiarity 'full?)
+              (play-dialogue!
+                (line "工友" "你就是那个当侦探的？怎么还来搬货？")
+                (line "尼尔" "侦探也得交房租。")
+                (line "工友" "那你这份侦探的活儿可不太挣钱，还不如我们潇洒呢。"))
+              #f))
           #f)
         (cond
           ((equal? grade '好)
@@ -180,8 +186,7 @@
         "扛一班货，挣一晚的钱"
         :anchor "码头-货堆"))
 
-    ;; 人情来自过去真实工作的日子；顶班另占骰子而不产生工资。
-    ;; TODO：工友请托和顶班后的 Dialogue 由作者补写，当前只保留最低限度的文本。
+    ;; 工友熟络随搬运推进；顶班单独消耗骰子，不领工资。
     (define (worker-ambush-nodes)
       (if (and (= (three-letters 'story-stage) 1)
                (three-letters 'ambush-known?))
@@ -196,7 +201,11 @@
               :resolve (instant (lambda ()
                 (set! worker-asked? #t)
                 (play-dialogue!
-                  (line "工友" "那晚我有班。你替我做完，我就去。"))))))
+                  (line "尼尔" "过几天晚上，我想请你帮个忙，我需要人手。")
+                  (line "工友" "我能帮肯定帮，不过我那天有班。")
+                  (line "尼尔" "能换班吗？")
+                  (line "工友" "你帮我把手头这批活儿干完，我那天陪你去，怎么样？")
+                  (line "尼尔" "成交。"))))))
             '())
           (if (and worker-asked? (not worker-joined?))
             (list (node "替工友顶班"
@@ -215,7 +224,8 @@
       (if (worker-shift 'full?)
         (begin
           (set! worker-joined? #t)
-          (play-dialogue! (line "工友" "这班算你替了。我会去。")))
+          (play-dialogue!
+            (line "工友" "太感谢了，你实在是帮了我大忙，那天晚上我一定赶到。")))
         #f))
 
     ;; ── 组装 ─────────────────────────────────────
@@ -228,6 +238,7 @@
       (map anchor-at-dock
         (append
           (livelihood-nodes)
+          (worker-ambush-nodes)
           (地点节点 "码头"))))
 
     (lambda args
@@ -237,16 +248,27 @@
            (list (place "码头"
                         :children (children)
                         :arrivals (地点入场 "码头"))))
+          ((equal? msg 'ambush-worker?) worker-joined?)
           ((equal? msg 'save)
            (list
              (list "opening-talk-heard?" opening-talk-heard?)
              (list "haul-day" haul-day)
+             (list "worker-familiarity" (worker-familiarity 'save))
+             (list "worker-last-day" worker-last-day)
+             (list "worker-asked?" worker-asked?)
+             (list "worker-joined?" worker-joined?)
+             (list "worker-shift" (worker-shift 'save))
              (list "joe-met?" joe-met?)
              (list "echoes" (dock-echoes 'save))))
           ((equal? msg 'load!)
            (let ((data (cadr args)))
              (set! opening-talk-heard? (assoc-get data "opening-talk-heard?" #f))
              (set! haul-day (assoc-get data "haul-day" 0))
+             (worker-familiarity 'load! (assoc-get data "worker-familiarity" 0))
+             (set! worker-last-day (assoc-get data "worker-last-day" 0))
+             (set! worker-asked? (assoc-get data "worker-asked?" #f))
+             (set! worker-joined? (assoc-get data "worker-joined?" #f))
+             (worker-shift 'load! (assoc-get data "worker-shift" 0))
              ;; 旧档：乔叫得出名字（joe-stage ≥ 1）就算认识。
              (set! joe-met? (assoc-get data "joe-met?"
                               (>= (assoc-get data "joe-stage" 0) 1)))
