@@ -1,8 +1,8 @@
 {
   "schema": "ssnoir.autonomous-pattern-memory/v1",
   "updated": "2026-10-14",
-  "batch": "TRANSFER01 成果转让与自利接收的普通条件菜单同构",
-  "rounds": 25,
+  "batch": "TRANSFER02 低成本伪装与成果静态使用权同构反证",
+  "rounds": 27,
   "totalArchivedRounds": 478,
   "objective": "长期自主发展可复用的玩法模式语言，覆盖已知作品先例、基础原语、完整交锋、跨阶段结构、组合条件与重要负例；评价玩家实际反复作出的判断、反馈、后果。历史20是广度愿景，不是价值认证名单或完成配额。",
   "policy": "从成熟作品、旧实验、新假设三向吸收；先去剧情定义玩家活动，再独立批评同构/最强简单策略，按需模型与盲Agent试玩。数学、作品先例、Agent、原生与真人是正交证据。知识图谱收录不等真人认可，精选展示与Debug独立把关，真人反馈异步且不阻塞。",
@@ -337,6 +337,6 @@
     "latestCounterfactual": "IWT01：四手Hidden A/B各半，3份正确WORK得10/8，TRACK工作必+1并有75%准确类型线索；纯INSPECT100%占一手。无信息6、只TRACK119/16、INSPECT9；INSPECT耗时两手TRACK重新胜119/16；完美TRACK19/2、50%TRACK6、TRACK首手限定29/4。正向枚举核对全部潜在真实类型；保留已有DISC/FOCUS/SIG组合。",
     "crossFamilyAudit": "PL-IWT01→PL-DISC01（工作+信息两种不同产出）、FOCUS02/03（及时兑现行动窗口、完美检查强旁路）、SIG01（非战略性线索噪声有别于他者可伪装的行动信号）。"
   },
-  "lastFinding": "复查CUST/PUB/GRC原始批次。新TRANSFER01去情景协议：保留唯一X玩家得3，转让后若对方ACCEPT得8/REJECT得0；对方H/L对接受效用4/1、EXIT2，H/L等概率，未知类型TRANSFER期望4；提前私人准确得知类型后根11/2；公开使接收效用恒1后最优KEEP3。由于另一方响应在给定状态下完全确定，可直接替换为普通H/L条件结算菜单；没有玩家需要学习、推测或诱导对方的新原语。只有明确算术与逐动作映射反证，非正式均衡求解或真人测试。",
-  "nextResearchQuestion": "检验接收者的先期行为能否产生具有可信成本的有用信息、且玩家转让不可撤销；与安全完美INSPECT、可撤回试交、同成本检查和TRL/SIG伪装反证比较。若被完全替代则跨族探索，不继续调接受收益。"
+  "lastFinding": "TRANSFER02源文件对照TRL01—04、SIG、PUB/CUST/GRC：被观察者有4的未来利益并可低成本修饰PASS时，信号混同是已有TRL类结构；不能挪用不同玩家效用协议的TRL均衡数字。静态持有X并TRANSFER一手、ASK一手得8、SIDE一手得1的三手玩家值9，同成本普通SETUP→ASK动作树完全复刻；KEEP/REDEEM6+SIDE×2值8。提出OWN/USE/REVOKE/RECOVER仅为权利因果诊断，不认证四种新原语。无新真人、独立Agent、Unity或本批代码精确全状态验证。",
+  "nextResearchQuestion": "跳出信号准确率/伪装成本调参；探索使用权真正可撤销、取回需要资源、与另一真实合同并发时的玩家政策重排。先用完整条件合同、免费完美调查、普通SETUP和PUB/GRC已知组合做强反证。"
 }
