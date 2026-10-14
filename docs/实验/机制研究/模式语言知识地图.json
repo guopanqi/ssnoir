@@ -3145,6 +3145,26 @@
         "native": false
       },
       "note": "本地双算法48状态最优值及动作集合一致；简单救A工期vs B工期仍可解释，非独立新原语。"
+    },
+    {
+      "id": "PL-DUALCLEAR01",
+      "name": "清障兼推进B的价值由成果结算语义控制：MAX全状态零增益，ADD部分状态收益严格提高",
+      "layer": "combination-boundary",
+      "origin": "ssnoir-research",
+      "family": "双用途行动与成果互斥",
+      "idea": "完全相同的CLEAR+B状态转移，在只领取A/B较高成果时被平坦化，允许两成果并行结算后出现严格效益",
+      "stage": "exact-state-audit",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-14-清障双用途与成果结算/研究记录.md"
+      ],
+      "evidence": {
+        "exhaustiveStatesPerVariant": 48,
+        "independentBruteEnumeration": true,
+        "humanFeedbackAvailable": false,
+        "independentAgentBlind": false,
+        "native": false
+      },
+      "note": "MAX 0/48严格收益增加，ADD 15/48严格收益增加；已观察状态集合中物理进度与可兑现结果必须区别。不入精选/Debug。"
     }
   ],
   "edges": [
@@ -5799,6 +5819,24 @@
       "to": "P11",
       "relation": "remaining-work-and-repair-budget-replan",
       "reason": "同危机下已投份额与剩余手数决定清障是否可兑现，安全B真实可达；可以被工期比较口诀解释"
+    },
+    {
+      "from": "PL-DUALCLEAR01",
+      "to": "PL-CRISIS03",
+      "relation": "payoff-semantics-gates-dual-action-value",
+      "reason": "动作同时产生另一目标进度，但互斥结算将其全部边际收益压平；双成果可共存时部分状态严格提升"
+    },
+    {
+      "from": "PL-DUALCLEAR01",
+      "to": "P12",
+      "relation": "payoff-semantics-gates-dual-action-value",
+      "reason": "动作同时产生另一目标进度，但互斥结算将其全部边际收益压平；双成果可共存时部分状态严格提升"
+    },
+    {
+      "from": "PL-DUALCLEAR01",
+      "to": "PL-CROSS01",
+      "relation": "payoff-semantics-gates-dual-action-value",
+      "reason": "动作同时产生另一目标进度，但互斥结算将其全部边际收益压平；双成果可共存时部分状态严格提升"
     }
   ],
   "coverage": {
