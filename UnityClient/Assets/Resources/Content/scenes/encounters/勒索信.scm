@@ -372,7 +372,7 @@
 (define (act2-nodes)
   (append
     (list (node-chase-fast) (node-chase-safe))
-    (if (and (= seg 1) (knows-block?)) (list (node-side-door)) '()))))
+    (if (and (= seg 1) (knows-block?)) (list (node-side-door)) '())))
 
 ;; 第二幕顶上只有两根，而且都是关于同一个人的：你要的，和你怕的。
 (define (act2-clocks)
