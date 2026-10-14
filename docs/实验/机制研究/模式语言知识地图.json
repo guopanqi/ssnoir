@@ -2927,6 +2927,44 @@
         "native": false,
         "humanVerified": false
       }
+    },
+    {
+      "id": "PL-VOL01",
+      "name": "无外部回应的自愿绑定只删去未来行动：相同目标下不能提高最大值，但不可补偿偏好仍能改变选择",
+      "layer": "voluntary-preference-vs-action-self-restriction",
+      "family": "私下目标声明/硬承诺/成果偏好采集/动作集包含/可信公开承诺的强区分",
+      "idea": "不改原CROSS四手完整菜单，FLEX完整原策略集合根31/2；自愿BIND_A根29/2、BIND_B27/2、BOTH11、FULL_C31/2。没有对方因承诺改变参与、没有额外价值时所有绑定策略均为FLEX合法子集；即使手续费非负也不可能提高原综合根。若玩家真实将保A列为不可赔偿目标，追求的是不同效用或硬合法约束，不应由原15.5证明他应放弃A。与另一个有自利参与者的COA合同属于独立协议：未约束被拒根3、真实条件合同15，因为对方行为改变。",
+      "stage": "exact-reused-CROSS-full/hard_goal-strategy-set-inclusion-plus-prior-COA-public-contract-regression; no-human",
+      "origin": "author-exact-policy-inclusion-and-rational-strategic-attacker-20261014",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-14-自选承诺与对抗性注意力/研究记录.md",
+        "tools/content-validator/experiments/pattern_self_pledge_and_adversarial_attention_20261014.py"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      }
+    },
+    {
+      "id": "PL-ADV01",
+      "name": "敌手针对已投入进度自主抹除目标：观察后保全幸存者真实改道，削弱攻击或万能护盾会压平",
+      "layer": "strategic-sabotage-induced-goal-switch-and-resilience",
+      "family": "敌手私有自利目标/可见前期投入/完全抹除损失/分散保留余地/短阶段反馈/普通防护替代",
+      "idea": "四玩家行动，前两手后私有TARGET_A/B各半敌手攻击已有进度中对自身价值高的一项（自己A/B破坏值5/3或3/5、EXIT1），若攻击ERASE抹掉目标全部未完成工作，玩家观察后再两手。A/B各满3得10/8，SIDE1；先AB，偏A敌手STRIKE_A后玩家BB完成B8，偏B敌手STRIKE_B后玩家AA完成A10，根9、A/B完成率各1/2；固定四手最好5。若敌手只能削一份进度CHIP，先AA后仍AA固定根10；若首段可花同成本整手公开SHIELD挡住一次攻击，敌手预见无收益自利EXIT，玩家A/SHIELD/AA固定根10。提前告知敌手类型在本冻结协议价值0，因为AB已两类型同最优早期行动；攻击后观察被破坏的真实状态足够，未证明长期学习敌手。原ERASE无盾菜单不能保证A全部分支完成。",
+      "stage": "exact-Fraction-enumeration-nine-early-times-nine-late-continuations-per-private-attacker-type-fixed-81-scripts-strong-chip-and-public-shield-controls; no-human",
+      "origin": "author-exact-policy-inclusion-and-rational-strategic-attacker-20261014",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-14-自选承诺与对抗性注意力/研究记录.md",
+        "tools/content-validator/experiments/pattern_self_pledge_and_adversarial_attention_20261014.py"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      }
     }
   ],
   "edges": [
@@ -5365,6 +5403,42 @@
       "to": "PL-FOCUS03",
       "relation": "one-action-complete-safe-bypass-defeats-preparation",
       "reason": "若存在一手SAFE可对任意需求完整无风险取得危机C10，先完成A再SAFE+SIDE期望17，压平首场AB分散投入15.5"
+    },
+    {
+      "from": "PL-VOL01",
+      "to": "PL-CROSS01",
+      "relation": "self-binding-is-a-subset-of-identical-full-contingent-strategies",
+      "reason": "FLEX31/2与保A29/2、保B27/2、保AB11、完整C31/2均复用CROSS完全同一规则，不增加他者回应时私下锁定不可能提高相同效用"
+    },
+    {
+      "from": "PL-VOL01",
+      "to": "PL-STAKE01",
+      "relation": "elicited-hard-outcome-is-different-objective-not-a-new-payoff",
+      "reason": "玩家自发不可替代的A关切不能被数学综合分支配；需要区分有哪个结果的玩家偏好与哪个成果确实可在所有分支达成"
+    },
+    {
+      "from": "PL-VOL01",
+      "to": "PL-COA02",
+      "relation": "credible-public-binding-can-affect-another-actor-while-private-binding-cannot",
+      "reason": "COA真条件合同改变伙伴初始START/EXIT，属于不同信息与参与协议，非私下行动删减本身带来收益"
+    },
+    {
+      "from": "PL-ADV01",
+      "to": "P16",
+      "relation": "attacker-responds-to-visible-investment-before-player-reallocates",
+      "reason": "敌手出击不是随机损坏，而是针对玩家前期可见进度按自己价值挑目标，玩家必须在受损后重新决定做哪项目标"
+    },
+    {
+      "from": "PL-ADV01",
+      "to": "PL-FOCUS03",
+      "relation": "early-hedge-is-useful-only-under-severe-loss-and-no-universal-shield",
+      "reason": "全抹除根9比固定5有真后到改选；只削一份工作或加入一手全防护时AA/或A+盾固定根10压平AB诱敌"
+    },
+    {
+      "from": "PL-ADV01",
+      "to": "PL-INF-P01",
+      "relation": "revealed-opponent-type-can-have-zero-advance-information-value",
+      "reason": "虽然AB下攻击目标透露敌手偏好，敌手只有一次动作且AB事前对两类型同最优，提前公开类型根仍9；后续只需见哪个目标实际没被毁"
     }
   ],
   "coverage": {
