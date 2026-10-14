@@ -2053,8 +2053,7 @@ namespace SSNoir.IMGUI
             if (IsLocalRollOf(node.Name))
             {
                 _cardAttachmentOverlays.Add(CardAttachmentOverlay.ForLocalRoll(
-                    cardRect, node.Name, _animator.CurrentReport!, _animator.Phase,
-                    _animator.DisplayScale));
+                    cardRect, node.Name, _animator.CurrentReport!, _animator.LocalRollProgress));
             }
             else if (_cardResidues.TryGetValue(node.Name, out var residue))
             {
@@ -2090,8 +2089,7 @@ namespace SSNoir.IMGUI
                     continue;
                 }
                 ActionNodeDrawer.DrawAttachmentOverlay(
-                    attachment.CardRect, attachment.LocalRoll, attachment.LocalRollPhase,
-                    attachment.LocalRollScale, attachment.Residue,
+                    attachment.CardRect, attachment.LocalRoll, attachment.LocalRollProgress, attachment.Residue,
                     ui, attachment.Above);
             }
         }
@@ -2131,8 +2129,7 @@ namespace SSNoir.IMGUI
                 if (IsLocalRollOf(pair.Key))
                 {
                     _cardAttachmentOverlays.Add(CardAttachmentOverlay.ForLocalRoll(
-                        pair.Value, pair.Key, _animator.CurrentReport!, _animator.Phase,
-                        _animator.DisplayScale, above: true));
+                        pair.Value, pair.Key, _animator.CurrentReport!, _animator.LocalRollProgress, above: true));
                 }
                 else if (_cardResidues.TryGetValue(pair.Key, out var residue))
                 {
@@ -2158,8 +2155,7 @@ namespace SSNoir.IMGUI
                 && !string.IsNullOrEmpty(_animator.ActionName) && !attached.Contains(_animator.ActionName))
             {
                 var host = ActionNodeDrawer.DrawFloatingHost(_animator.ActionName);
-                ActionNodeDrawer.DrawAttachmentOverlay(host, _animator.CurrentReport!, _animator.Phase,
-                    _animator.DisplayScale, null, ui);
+                ActionNodeDrawer.DrawAttachmentOverlay(host, _animator.CurrentReport!, _animator.LocalRollProgress, null, ui);
                 return;
             }
 
@@ -2187,7 +2183,7 @@ namespace SSNoir.IMGUI
                     residue.AttachAbove = false;
                     host = ActionNodeDrawer.DrawFloatingHost(pair.Key);
                 }
-                ActionNodeDrawer.DrawAttachmentOverlay(host, null, 0, 1f, residue, ui, residue.AttachAbove);
+                ActionNodeDrawer.DrawAttachmentOverlay(host, null, 0f, residue, ui, residue.AttachAbove);
                 TryDismissResidueByTap(residue, ActionNodeDrawer.ResidueAttachmentRect(host, residue, residue.AttachAbove), ui);
             }
         }
@@ -2596,16 +2592,14 @@ namespace SSNoir.IMGUI
             public GameNode? ConsoleNode { get; }
             public List<SlottedResource?>? ConsoleSlots { get; }
             public ActionReport? LocalRoll { get; }
-            public int LocalRollPhase { get; }
-            public float LocalRollScale { get; }
+            public float LocalRollProgress { get; }
             public CardPresentationResidue? Residue { get; }
             // 宿主贴着屏幕底边（随身卡、休息键）：附件往上挂。
             public bool Above { get; }
 
             private CardAttachmentOverlay(
                 Rect cardRect, string hostNodeName, GameNode? consoleNode, List<SlottedResource?>? consoleSlots,
-                ActionReport? localRoll, int localRollPhase,
-                float localRollScale, CardPresentationResidue? residue,
+                ActionReport? localRoll, float localRollProgress, CardPresentationResidue? residue,
                 bool above = false)
             {
                 Above = above;
@@ -2614,21 +2608,20 @@ namespace SSNoir.IMGUI
                 ConsoleNode = consoleNode;
                 ConsoleSlots = consoleSlots;
                 LocalRoll = localRoll;
-                LocalRollPhase = localRollPhase;
-                LocalRollScale = localRollScale;
+                LocalRollProgress = localRollProgress;
                 Residue = residue;
             }
 
             public static CardAttachmentOverlay ForConsole(Rect cardRect, GameNode node, List<SlottedResource?> slots)
-                => new CardAttachmentOverlay(cardRect, node.Name, node, slots, null, 0, 1f, null);
+                => new CardAttachmentOverlay(cardRect, node.Name, node, slots, null, 0f, null);
 
             public static CardAttachmentOverlay ForLocalRoll(
-                Rect cardRect, string hostNodeName, ActionReport report, int phase, float scale,
+                Rect cardRect, string hostNodeName, ActionReport report, float progress,
                 bool above = false)
-                => new CardAttachmentOverlay(cardRect, hostNodeName, null, null, report, phase, scale, null, above);
+                => new CardAttachmentOverlay(cardRect, hostNodeName, null, null, report, progress, null, above);
 
             public static CardAttachmentOverlay ForResidue(Rect cardRect, CardPresentationResidue residue)
-                => new CardAttachmentOverlay(cardRect, residue.HostNodeName, null, null, null, 0, 1f, residue, residue.AttachAbove);
+                => new CardAttachmentOverlay(cardRect, residue.HostNodeName, null, null, null, 0f, residue, residue.AttachAbove);
         }
 
         // 引线不在这里画：它是所有卡片之前的一整层，见 CardLeaderLineDrawer。

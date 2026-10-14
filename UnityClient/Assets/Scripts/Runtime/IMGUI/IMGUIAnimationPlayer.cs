@@ -15,6 +15,9 @@ namespace SSNoir.IMGUI
         public RollOutcome FinalOutcome { get; private set; }
         public int ChosenDie { get; private set; }
         public int Phase => _phase;
+        private const float LocalRollSeconds = 0.43f;
+        public float LocalRollProgress => _phase >= 2 ? 1f
+            : Mathf.Clamp01((Time.unscaledTime - _phaseStartTime) / LocalRollSeconds);
         public string ActionName { get; private set; } = "";
         public ActionReport? CurrentReport { get; private set; }
         public bool UsesModal =>
@@ -43,6 +46,13 @@ namespace SSNoir.IMGUI
             if (!IsPlaying) return;
 
             float elapsed = Time.unscaledTime - _phaseStartTime;
+
+            // 卡下判定只把原执行按钮填满，完成后直接交给结果抽屉；不再单独定格档位。
+            if (!UsesModal)
+            {
+                if (elapsed >= LocalRollSeconds) _phase = 2;
+                return;
+            }
 
             if (_phase == 0)
             {
@@ -86,8 +96,8 @@ namespace SSNoir.IMGUI
 
         public bool IsReadyToAcknowledge()
         {
-            // 结果停留：轻结算让「好/中/坏」定格片刻，再切到 residue（命运条原地冻结 + 结果揭开）。
-            return _phase == 2 && (Time.unscaledTime - _phaseStartTime) >= 0.55f;
+            // 卡下进度完成后直接出完整结果；居中弹窗保留原有确认节奏。
+            return _phase == 2 && (!UsesModal || (Time.unscaledTime - _phaseStartTime) >= 0.55f);
         }
 
         public void DrawModal()

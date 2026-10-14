@@ -1608,6 +1608,7 @@ namespace SSNoir.Core
                     report.ChosenDieValue = chosenDieVal;
 
                     string skillName = node.Resolve.SkillName;
+                    report.SkillName = skillName;
                     int skillLevel;
                     if (actor.Stats.TryGetValue(skillName, out var sVal))
                     {

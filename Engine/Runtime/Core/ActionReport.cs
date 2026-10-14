@@ -108,6 +108,7 @@ namespace SSNoir.Core
         public List<DifficultyModifierInfo> DifficultyModifiers { get; set; } = new List<DifficultyModifierInfo>();
 
         // Diagnostic / rendering metadata for the rolling details
+        public string SkillName { get; set; } = string.Empty;
         public int ChosenDieValue { get; set; } = 1;
         public int SkillLevel { get; set; }
         public int ModifierTotal { get; set; }

@@ -1112,7 +1112,7 @@ namespace SSNoir.IMGUI
 
             string label = string.IsNullOrEmpty(text) ? "执行中" : text;
             if (label.Length > 5) label = "执行中";
-            if (label == "执行中") label = UiText.Get("执行中");
+            if (label == "执行中" || label == "判定中") label = UiText.Get(label);
             var progressStyle = new GUIStyle(IMGUIStyles.ExecuteLabel);
             progressStyle.normal.textColor = progress > 0.5f ? IMGUIStyles.GoldOnDark : IMGUIStyles.Paper;
             IMGUIStyles.DrawLabel(rect, label, progressStyle);
@@ -1368,61 +1368,39 @@ namespace SSNoir.IMGUI
         public static void DrawAttachmentOverlay(
             Rect cardRect,
             ActionReport? localRoll,
-            int localRollPhase,
-            float localRollDisplayScale,
+            float localRollProgress,
             CardPresentationResidue? residue,
             IMGUIInteractionContext ui,
             bool above = false)
         {
             if (localRoll != null)
             {
-                DrawLocalRoll(cardRect, localRoll, localRollPhase,
-                    localRollDisplayScale, ui, above);
+                DrawLocalRoll(cardRect, localRoll, localRollProgress, ui, above);
                 return;
             }
             if (residue != null)
                 DrawResiduePanel(cardRect, residue, ui, above);
         }
 
-        private const float RollHeaderHeight = 68f;
         private const float ResultHeaderHeight = 34f;
         private const float EffectRowHeight = 26f;
         private const float EffectRowGap = 5f;
 
-        // 判定中保留原有概率条动画（档位浮现 → 弹跳 → 定格）。
+        // 判定沿用执行前的抽屉：概率与算式原位不变，只有按钮成为同尺寸的进度条。
         private static void DrawLocalRoll(
             Rect rect,
             ActionReport report,
-            int phase,
-            float displayScale,
+            float progress,
             IMGUIInteractionContext ui,
             bool above)
         {
-            float panelWidth = AttachmentWidth(rect.width, above);
-            float headerHeight = RollHeaderHeight;
-            var panel = KeepAttachmentOnScreen(AttachmentPanelRect(rect, panelWidth, headerHeight, above));
+            var panel = KeepAttachmentOnScreen(AttachmentPanelRect(rect,
+                AttachmentWidth(rect.width, above), ConsoleHeight(true), above));
             ui.CanHover(panel);
             DrawDrawerBackground(rect, panel, IMGUIStyles.Paper);
-
-            bool settled = phase >= 2;
-            Color oc = settled ? OutcomeColor(report.Outcome) : IMGUIStyles.Gold;
-            IMGUIStyles.DrawOutline(panel, 1.5f, oc);
-            if (phase < 2)
-                IMGUIStyles.DrawGoldPulse(panel);
-
-            DrawRollHeaderText(panel,
-                settled ? FormatOutcome(report.Outcome) : UiText.Get("判定中"),
-                settled ? oc : IMGUIStyles.TextPrimary,
-                UiText.Ready(report.PreparedValue));
-
-            var strip = FateStrip.StripForPrepared(report.PreparedValue);
-            float stripY = panel.y + 36f;
-            float stripHeight = 20f;
-            DrawOddsStrip(new Rect(panel.x + ConsolePad, stripY,
-                    panel.width - ConsolePad * 2f, stripHeight),
-                strip, phase >= 1 ? report.Outcome : (RollOutcome?)null,
-                phase == 1 ? Mathf.Max(0f, displayScale - 1f) : 0f, settled);
-
+            DrawFateStrip(panel, FateStrip.StripForPrepared(report.PreparedValue), panel.y + ConsolePad,
+                PreparedBreakdown(report.SkillName, report.ChosenDieValue, report.SkillLevel, report.ModifierTotal));
+            DrawExecuteProgress(ConsoleExecuteRect(panel), progress, "判定中");
         }
 
         private static float ResiduePanelHeight(CardPresentationResidue residue, float panelWidth)
