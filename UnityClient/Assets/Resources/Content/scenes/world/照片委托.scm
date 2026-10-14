@@ -194,4 +194,4 @@
                         (and (>= stage 3) (> source-stage 0)))) #t
                (error "照片委托：非法存档阶段"))))
         (else (error "照片委托：未知消息"))))))
-(define photo-shop (纯投射地点 "照相馆"))
+(define photo-shop (纯投射地点 "照相馆" "照相馆"))
