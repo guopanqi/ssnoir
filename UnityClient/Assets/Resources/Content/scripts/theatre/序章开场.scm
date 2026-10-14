@@ -186,7 +186,8 @@
     (theatre-clear-caption)
     (theatre-image-to "尼尔" "Portraits/Neon/尼尔_醉站")
     (theatre-wait 1.1)
-    (theatre-image-to "尼尔" "Portraits/Neon/尼尔_醉行")
+    ;; 最后一段是进门，不再沿用醉行立绘；他转身背对房东，走进门内。
+    (theatre-image-to "尼尔" "Portraits/Neon/尼尔_背身")
     (theatre-parallel
       (theatre-tween "尼尔位置" 'x 800 1.9 'smooth)
       (theatre-tween "尼尔位置" 'y 786 1.9 'smooth)
