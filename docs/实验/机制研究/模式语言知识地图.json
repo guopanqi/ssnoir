@@ -3206,6 +3206,25 @@
         "native": false
       },
       "note": "一SUB 73四元组9三维非支配；二SUB 86四元组14非支配；两者最高标量15。旧STAKE式可达性证据，非新原语。"
+    },
+    {
+      "id": "PL-TRANSFER01",
+      "name": "成果转让与自利接收的公开确定结果，严格退化为条件提交菜单",
+      "layer": "negative-boundary",
+      "origin": "ssnoir-research",
+      "family": "成果归属与自主他者",
+      "idea": "玩家保留X得3或不可撤销转让；另一方自利接受效用H4/L1，对比退出2，玩家接受得8拒绝0；若决定条件公开可普通菜单逐动作复刻",
+      "stage": "explicit-branch-proof",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-14-成果转让与自利接收/研究记录.md"
+      ],
+      "evidence": {
+        "branchArithmetic": true,
+        "independentAgentBlind": false,
+        "humanFeedbackAvailable": false,
+        "native": false
+      },
+      "note": "隐藏类型转让根4，事先准确私人知道H/L根11/2，公开降低接收效用后KEEP根3。此模型无真正推断与对手响应学习，PUB/GRC/CUST同构负例。"
     }
   ],
   "edges": [
@@ -5914,6 +5933,24 @@
       "to": "PL-DUALCLEAR01",
       "relation": "scalar-tie-not-outcome-equivalence",
       "reason": "两种相同期望总分的条件策略在是否提交A/B和可保留SIDE上并不相互支配；真人自选关切尚无证据"
+    },
+    {
+      "from": "PL-TRANSFER01",
+      "to": "PL-SUBMIT02",
+      "relation": "third-party-response-collapses-to-known-conditional-menu",
+      "reason": "明确收益和退出权下，接受/拒绝是可预先知道的条件转移，而非新增玩家心理决策原语"
+    },
+    {
+      "from": "PL-TRANSFER01",
+      "to": "PL-SUBMIT01",
+      "relation": "third-party-response-collapses-to-known-conditional-menu",
+      "reason": "明确收益和退出权下，接受/拒绝是可预先知道的条件转移，而非新增玩家心理决策原语"
+    },
+    {
+      "from": "PL-TRANSFER01",
+      "to": "PL-VOL02",
+      "relation": "third-party-response-collapses-to-known-conditional-menu",
+      "reason": "明确收益和退出权下，接受/拒绝是可预先知道的条件转移，而非新增玩家心理决策原语"
     }
   ],
   "coverage": {
