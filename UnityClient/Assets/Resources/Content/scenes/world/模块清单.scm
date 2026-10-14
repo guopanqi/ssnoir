@@ -95,10 +95,13 @@
     (let ((msg (car args)))
       (cond
         ((equal? msg 'render-data)
-         (list (place 正式名
-                 :anchor (if (equal? 主锚点 "") 正式名 主锚点)
-                 :children (map fallback-anchor (地点节点 正式名))
-                 :arrivals (地点入场 正式名))))
+         (let ((地点数据
+                 (place 正式名
+                   :children (map fallback-anchor (地点节点 正式名))
+                   :arrivals (地点入场 正式名))))
+           (if (equal? 主锚点 "")
+               (list 地点数据)
+               (list (append 地点数据 (list :anchor 主锚点))))))
         ((equal? msg 'save) '())
         ((equal? msg 'load!) #t)
         (else #f)))))
