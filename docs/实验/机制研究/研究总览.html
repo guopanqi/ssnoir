@@ -3566,6 +3566,25 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
         "native": false,
         "humanVerified": false
       }
+    },
+    {
+      "id": "PL-IWT01",
+      "name": "双用途调查把工作进度与类型线索结合：准确证据因兑现时限过长而被不完全工作线索取代",
+      "layer": "dual-purpose-investigation-versus-perfect-evidence-work-window",
+      "family": "边工作边取证/贝叶斯追加线索/信息时间税/后续行动窗口/强安全调查",
+      "idea": "4手隐藏A/B各半，正确目标三工作才得A10/B8，SIDE1。TRACK_X必产一份对应工作并报告75%准确类型；INSPECT一手取得100%类型报告。完整Fraction逆推及按真实隐藏类型正向枚举：无信息6；纯完美INSPECT9，且同菜单下压过TRACK；只能TRACK根119/16，先TRACK_A，报告A直接AA+SIDE，报告B再TRACK_B并用第二报告改投；INSPECT需要两手时根仍119/16，改用TRACK；TRACK完美19/2、随机无信息准确50%根6、只能首手TRACK根29/4。没有下一阶段足够工作手数时即使100%证据也不可兑现。属于DISC×FOCUS×SIG成熟组合，非新原语。",
+      "stage": "exact-Fraction-full-four-turn-policy-Bayes-plus-independent-hidden-type-forward-enumeration; author-only/no-human",
+      "origin": "author-abstract-exact-information-work-time-20261014",
+      "curatedDisplay": false,
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-14-边调查边工作与信息兑现窗口/研究记录.md",
+        "tools/content-validator/experiments/pattern_investigation_work_time_20261014.py"
+      ],
+      "evidence": {
+        "mathematical": true,
+        "native": false,
+        "humanVerified": false
+      }
     }
   ],
   "edges": [
@@ -6088,6 +6107,30 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
       "to": "PL-STAKE01",
       "relation": "nonfungible-goals-should-be-elicited-before-numerical-optimization",
       "reason": "同一合法行动菜单保A/B/BOTH/FULL_C的不同最优必须先问玩家真正想保哪个；SAFE增强C操作但不能使四手同时完成A+B+完整C。"
+    },
+    {
+      "from": "PL-IWT01",
+      "to": "PL-DISC01",
+      "relation": "dual-use-signal-plus-real-work-progress",
+      "reason": "跟踪行动始终增加对应目标1份工作，同时线索有独立75%类型准确率；工作必成功与类型猜对不能混同"
+    },
+    {
+      "from": "PL-IWT01",
+      "to": "PL-FOCUS02",
+      "relation": "evidence-can-arrive-before-the-work-window-closes",
+      "reason": "一手INSPECT报告100%可靠，余下3手足以完成类型目标得9；检验消耗2手则仅剩2手不能完成，TRACK反而取得119/16"
+    },
+    {
+      "from": "PL-IWT01",
+      "to": "PL-SIG01",
+      "relation": "reliable-observation-versus-strategically-poolable-signal",
+      "reason": "SIG首次行动被对方战略操控而可能零类型信息；IWT固定误差75%且可独立复核，研究差异是线索时间税与进展，而非对方伪装"
+    },
+    {
+      "from": "PL-IWT01",
+      "to": "PL-FOCUS03",
+      "relation": "ordinary-perfect-inspection-is-strong-bypass",
+      "reason": "一手可信完美INSPECT可直接取得9且胜双用途但75%准确率的TRACK119/16，不得为证明复杂性隐瞒合理安全调查"
     }
   ],
   "coverage": {
