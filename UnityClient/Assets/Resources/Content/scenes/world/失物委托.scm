@@ -29,8 +29,9 @@
             (line "修理工" "午饭在货堆旁吃的，收工在点工棚领钱。" :at "老街酒馆")
             (line "修理工" "棕皮的，铜扣少了一个。找回来给你三十。" :at "老街酒馆"))))))
 
-    (define (search-node title description found?)
+    (define (search-node title anchor description found?)
       (node title
+        :anchor anchor
         :subtitle description
         :requires (list (req-die))
         :resolve (instant
@@ -72,8 +73,8 @@
             ((and (equal? location "码头") (= stage 1))
              (append
                (if lunch-checked? '()
-                   (list (search-node "查看午饭处" "他中午坐过货堆旁，尚未领工钱" #f)))
-               (list (search-node "寻找长凳下" "点工棚：他收工领钱的最后一站" #t))))
+                   (list (search-node "查看午饭处" "码头-货堆" "他中午坐过货堆旁，尚未领工钱" #f)))
+               (list (search-node "寻找长凳下" "码头-岸口" "点工棚：他收工领钱的最后一站" #t))))
             (else '()))))
 
     (lambda args

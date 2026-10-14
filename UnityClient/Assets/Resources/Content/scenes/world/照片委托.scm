@@ -149,12 +149,15 @@
         ((equal? location "老街酒馆")
          (append
            (if (and (= stage 0) (= (three-letters 'story-stage) 1) (rumours 'full?))
-               (list (instant-action "接取委托" accept!)) '())
-           (if (= stage 3) (list (instant-action "交付调查" deliver!)) '())
-           (if (= source-stage 3) (list (instant-action "与夜莺商量" talk!)) '())))
+               (list (at-anchor "老街酒馆" (instant-action "接取委托" accept!))) '())
+           (if (= stage 3)
+               (list (at-anchor "老街酒馆" (instant-action "交付调查" deliver!))) '())
+           (if (= source-stage 3)
+               (list (at-anchor "老街酒馆" (instant-action "与夜莺商量" talk!))) '())))
         ((and (equal? location "格兰德酒店") (= stage 1))
-         (list (encounter-action "丈夫的约会"
-                 (lambda () (start-encounter "婚外情跟拍·双目标" on-follow-result)))))
+         (list (at-anchor "格兰德酒店-大厅"
+                 (encounter-action "丈夫的约会"
+                   (lambda () (start-encounter "婚外情跟拍·双目标" on-follow-result))))))
         ((equal? location "照相馆")
          (append
            (if (= stage 2)

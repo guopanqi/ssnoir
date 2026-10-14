@@ -492,6 +492,7 @@
         (append
           (if ambush-known? '()
             (list (node "问酒保的办法"
+              :anchor "老街酒馆"
               :subtitle "打听勒索相片的事"
               :resolve (instant (lambda ()
                 (set! ambush-known? #t)
@@ -503,6 +504,7 @@
                   (line "酒保" "嗯......你认识艾迪吗？")))))))
           (if (and ambush-known? (not ambush-eddie-met?))
             (list (node "认识艾迪"
+              :anchor "老街酒馆"
               :subtitle "酒保介绍的落魄拳手"
               :resolve (instant (lambda ()
                 (set! ambush-eddie-met? #t)
@@ -520,6 +522,7 @@
             '())
           (if (and ambush-eddie-met? (not ambush-eddie?))
             (list (node "雇艾迪帮忙"
+              :anchor "老街酒馆"
               :subtitle "支付三十金，交付当晚他会到场"
               :requires (list (req-item "金钱" 30))
               :resolve (instant (lambda ()
