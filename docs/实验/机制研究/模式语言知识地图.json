@@ -3500,6 +3500,26 @@
         "docs/实验/机制研究/批次/2026-10-15-线索引导与调查对象转换/研究记录.md"
       ],
       "note": "仅扫描251/64，条件深入核实7，始终开放31/3；非新原语。"
+    },
+    {
+      "id": "PL-ACTION-COUPLE01",
+      "name": "前后不同动作提高生产力，维持后到目标下的双向改道",
+      "layer": "mature-combination",
+      "origin": "ssnoir-research",
+      "family": "动作互为条件和生产关系",
+      "idea": "四手A/B，切换动作产2而重复产1，第二手后才揭晓目标；AB前缀可针对两状态分别完工",
+      "stage": "exhaustive-enumeration",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-动作切换与后到目标/研究记录.md",
+        "tools/content-validator/experiments/pattern_action_coupling_20261015.py"
+      ],
+      "evidence": {
+        "enumeration": true,
+        "independentAgentBlind": false,
+        "humanFeedbackAvailable": false,
+        "native": false
+      },
+      "note": "固定计划根7，条件后到信息根10；移除切换增效后两种制度均7。最优策略仍为简单先AB后按目标调整，不认证新原语。"
     }
   ],
   "edges": [
@@ -6460,6 +6480,12 @@
       "to": "PL-INFO-WINDOW01",
       "relation": "productive-evidence-dominates-flexible-work-at-root",
       "reason": "噪声信息和绑定工作组合足以实现全部动作菜单的最优根；通用工作未提升收益"
+    },
+    {
+      "from": "PL-ACTION-COUPLE01",
+      "to": "PL-LEAD01",
+      "relation": "different-transition-mechanism",
+      "reason": "LEAD通过条件许可打开核实，ACTION-COUPLE通过前一动作改变下一次真实产量；均需反证简单条件策略"
     }
   ],
   "coverage": {
