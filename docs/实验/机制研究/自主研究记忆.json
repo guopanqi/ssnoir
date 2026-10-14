@@ -1,8 +1,8 @@
 {
   "schema": "ssnoir.autonomous-pattern-memory/v1",
   "updated": "2026-10-14",
-  "batch": "OBLIGATION04 两交锋成果资格与普通菜单同构",
-  "rounds": 42,
+  "batch": "OBLIGATION05 跨交锋联合不可替代成果的可达性",
+  "rounds": 43,
   "totalArchivedRounds": 478,
   "objective": "长期自主发展可复用的玩法模式语言，覆盖已知作品先例、基础原语、完整交锋、跨阶段结构、组合条件与重要负例；评价玩家实际反复作出的判断、反馈、后果。历史20是广度愿景，不是价值认证名单或完成配额。",
   "policy": "从成熟作品、旧实验、新假设三向吸收；先去剧情定义玩家活动，再独立批评同构/最强简单策略，按需模型与盲Agent试玩。数学、作品先例、Agent、原生与真人是正交证据。知识图谱收录不等真人认可，精选展示与Debug独立把关，真人反馈异步且不阻塞。",
@@ -337,6 +337,6 @@
     "latestCounterfactual": "IWT01：四手Hidden A/B各半，3份正确WORK得10/8，TRACK工作必+1并有75%准确类型线索；纯INSPECT100%占一手。无信息6、只TRACK119/16、INSPECT9；INSPECT耗时两手TRACK重新胜119/16；完美TRACK19/2、50%TRACK6、TRACK首手限定29/4。正向枚举核对全部潜在真实类型；保留已有DISC/FOCUS/SIG组合。",
     "crossFamilyAudit": "PL-IWT01→PL-DISC01（工作+信息两种不同产出）、FOCUS02/03（及时兑现行动窗口、完美检查强旁路）、SIG01（非战略性线索噪声有别于他者可伪装的行动信号）。"
   },
-  "lastFinding": "沿OBLIGATION03五行动三义务，第二阶段两手X安全每手3、SIDE1、Q单次9需第一阶段完成A、R单次5需完成B。完整条件枚举根73/2；第二阶段Q/R始终可用则根37。普通分支条件许可AABBS=32、始终开放ACBBC=33；便利均AABBC=41。第一阶段成果确实改变下一场动作合法性与最佳路线，但has_A/has_B普通状态位全树复现，仍是已有CROSS/PRF/PUB条件解锁组合。无真人/独立Agent/Unity。",
-  "nextResearchQuestion": "不再堆加Q/R资格位或仅为数值差而调奖赏；检验玩家自行承诺的不可替代责任是否改变第二阶段非标量结果集，并与通用安全动作、完整条件菜单、事前预编译计划和已有STAKE/VOL/CROSS强对照。"
+  "lastFinding": "沿OBLIGATION04第一场五行动A/B/C与第二场两行动Q/R，完成A/B分别许可第二场P/R成果。完整条件枚举：双状态必保P+R 73/2、P+C 36、R+C 34；P+R+C因普通状态第一场A+B+C至少需6手而仅有5手，在条件许可下不可行。强ALWAYS允许Q/R无条件使用时P+R+C可达且根37。只是成熟条件许可×非标量成果联合可达性组合，has_A/has_B动作菜单完全映射；无真人偏好数据或独立验证。",
+  "nextResearchQuestion": "不要继续加资格位和目标数量；依据VOL/STAKE旧证据研究玩家在游戏开始前明确自选关切时，是否能理解并对后续不可挽回的成果负责。若探索第三方自主反应，先严格与GRC/NEG合同先例比对。"
 }
