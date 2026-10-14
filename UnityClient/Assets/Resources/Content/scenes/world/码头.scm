@@ -1,6 +1,6 @@
 ;; 码头——普通生计由地点拥有；弗兰克、艾迪拥有自己的个人生活。
 ;;
-;; 这里只有一种活：搬运，常驻日结，Phase B 起每天只能做一次。
+;; 这里只有一种常驻工作：搬运。每次消耗一颗骰子，没有每日次数上限。
 ;;
 ;; 码头上的人不靠「熟悉度」显形，靠**搭档**：每班活结算时才抽今天跟谁一组——
 ;; 陌生人、乔、艾迪。抽在骰子落地之后，玩家扔骰前不知道是谁，所以搭档不是
@@ -32,9 +32,8 @@
           node-data
           (append node-data (list :anchor dock-anchor))))
 
-    ;; ── 每日一次的额度 ──────────────────────
+    ;; ── 工作状态 ───────────────────────────
     (define opening-talk-heard? #f)
-    (define haul-day 0)
     ;; 工友熟络是正常搬运的副进度，每个工作日只加一次。
     (define worker-familiarity (make-clock "工友熟络" 2 'gauge
       "一起工作过两个不同的日子，才好开口请工友帮忙。"))
@@ -43,7 +42,7 @@
     (define worker-joined? #f)
     (define worker-shift (make-clock "替工友顶班" 4 'gauge
       "这班活替他做完，他才有空在取信那晚帮忙。"))
-    ;; 普通搬运每日一次；替班单独消耗骰子，不发工资。
+    ;; 搬运每次消耗骰子并正常结算工资；替班也消耗骰子，但不发工资。
 
     ;; ── 码头回声 ──────────────────────────
     ;; 跟陌生人一组时才可能听见：码头是背景，陌生人是背景里的声音。
@@ -143,7 +142,6 @@
     ;;   艾迪     22      8 / −1    0 / −2    第三车记在你俩名下
     (define (finish-haul! grade)
       (let ((partner (random-choice (partner-pool))))
-        (set! haul-day world-day)
         (if (and (not (= worker-last-day world-day))
                  (not (worker-familiarity 'full?)))
           (begin
@@ -230,9 +228,7 @@
 
     ;; ── 组装 ─────────────────────────────────────
     (define (livelihood-nodes)
-      (if (= haul-day world-day)
-          '()
-          (list (node-haul))))
+      (list (node-haul)))
 
     (define (children)
       (map anchor-at-dock
@@ -252,7 +248,6 @@
           ((equal? msg 'save)
            (list
              (list "opening-talk-heard?" opening-talk-heard?)
-             (list "haul-day" haul-day)
              (list "worker-familiarity" (worker-familiarity 'save))
              (list "worker-last-day" worker-last-day)
              (list "worker-asked?" worker-asked?)
@@ -263,7 +258,6 @@
           ((equal? msg 'load!)
            (let ((data (cadr args)))
              (set! opening-talk-heard? (assoc-get data "opening-talk-heard?" #f))
-             (set! haul-day (assoc-get data "haul-day" 0))
              (worker-familiarity 'load! (assoc-get data "worker-familiarity" 0))
              (set! worker-last-day (assoc-get data "worker-last-day" 0))
              (set! worker-asked? (assoc-get data "worker-asked?" #f))
