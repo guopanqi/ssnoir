@@ -9,11 +9,9 @@ namespace SSNoir.IMGUI
     public class IMGUIAnimationPlayer : MonoBehaviour
     {
         public bool IsPlaying { get; private set; }
-        public int DisplayedDieValue { get; private set; } = 1;
         public float DisplayScale { get; private set; } = 1f;
         public string DisplayOutcomeText { get; private set; } = "";
         public Color DisplayOutcomeColor { get; private set; } = Color.white;
-        public int FateDieValue { get; private set; }
         public RollOutcome FinalOutcome { get; private set; }
         public int ChosenDie { get; private set; }
         public int Phase => _phase;
@@ -25,19 +23,17 @@ namespace SSNoir.IMGUI
         public Action? OnAcknowledged;
 
         private float _phaseStartTime;
-        private int _phase; // 0: sweep, 1: pop, 2: outcome, 3: done
+        private int _phase; // 0: 概率判定中, 1: 结果档位浮现, 2: 结果, 3: 已确认
 
         public void StartRoll(ActionReport report, string actionName)
         {
             IsPlaying = true;
             _phase = 0;
             _phaseStartTime = Time.unscaledTime;
-            FateDieValue = report.FateDieValue;
             FinalOutcome = report.Outcome;
             CurrentReport = report;
             ChosenDie = report.ChosenDieValue;
             ActionName = actionName;
-            DisplayedDieValue = 1;
             DisplayScale = 1f;
             DisplayOutcomeText = "";
         }
@@ -50,36 +46,23 @@ namespace SSNoir.IMGUI
 
             if (_phase == 0)
             {
-                // 掷骰扫掠：命运高亮沿命运条减速滑动（easeOutCubic），精确落在最终骰面。
-                const float sweepDuration = 0.5f;
-                float t = Mathf.Clamp01(elapsed / sweepDuration);
-                float eased = 1f - Mathf.Pow(1f - t, 3f);
-                int totalSteps = 12 + (FateDieValue - 1); // 两圈扫掠后落格
-                int step = Mathf.RoundToInt(eased * totalSteps);
-                DisplayedDieValue = step % 6 + 1;
-                DisplayScale = 1f;
-
-                if (elapsed >= sweepDuration)
+                // 概率已经在行动前可见；执行时不再重复表演一颗随机骰。
+                if (elapsed >= 0.25f)
                 {
                     _phase = 1;
                     _phaseStartTime = Time.unscaledTime;
-                    DisplayedDieValue = FateDieValue;
-                    DisplayScale = 1f;
                 }
             }
             else if (_phase == 1)
             {
-                // 落格弹跳：命中格放大一下再收（sin 单峰）。
-                const float popDuration = 0.2f;
-                float t = Mathf.Clamp01(elapsed / popDuration);
+                const float revealDuration = 0.18f;
+                float t = Mathf.Clamp01(elapsed / revealDuration);
                 DisplayScale = 1f + Mathf.Sin(t * Mathf.PI) * 0.35f;
-
-                if (elapsed >= popDuration)
+                if (elapsed >= revealDuration)
                 {
                     _phase = 2;
                     _phaseStartTime = Time.unscaledTime;
                     DisplayScale = 1f;
-
                     DisplayOutcomeText = FinalOutcome == RollOutcome.Success ? "判定成功"
                                        : FinalOutcome == RollOutcome.Neutral ? "判定中性"
                                        : "判定失败";
@@ -140,7 +123,7 @@ namespace SSNoir.IMGUI
             IMGUIStyles.DrawLabel(new Rect(contentX, contentY, contentW, 24), title, IMGUIStyles.ModalTitle);
             contentY += 28;
 
-            // 命运条（赔率条）：掷骰扫掠 → 落格弹跳 → 定格，与卡面轻结算同一套视觉。
+            // 三档百分比保持固定；执行后只凸显最终结果，不再出现第二颗骰子。
             if (CurrentReport != null)
             {
                 var strip = FateStrip.StripForPrepared(CurrentReport.PreparedValue);
@@ -154,12 +137,12 @@ namespace SSNoir.IMGUI
                 IMGUIStyles.DrawLabel(new Rect(contentX, contentY, contentW, 16), FateStrip.Describe(strip), summaryStyle);
                 contentY += 18;
 
-                int highlightedFace = _phase == 0 ? DisplayedDieValue : FateDieValue;
+                RollOutcome? highlighted = _phase >= 1 ? FinalOutcome : (RollOutcome?)null;
                 float pulse = _phase == 1 ? Mathf.Max(0f, DisplayScale - 1f) : 0f;
                 float stripW = Mathf.Min(contentW, 300f);
                 ActionNodeDrawer.DrawOddsStrip(
                     new Rect(contentX + (contentW - stripW) / 2f, contentY, stripW, 30f),
-                    strip, highlightedFace, pulse, _phase >= 2);
+                    strip, highlighted, pulse, _phase >= 2);
                 contentY += 42;
             }
 
@@ -170,7 +153,7 @@ namespace SSNoir.IMGUI
                 contentY += 22;
 
                 IMGUIStyles.DrawLabel(new Rect(contentX, contentY, contentW, 20),
-                    $"准备值: {CurrentReport!.PreparedValue} · 命运骰: {CurrentReport.FateDieValue}", IMGUIStyles.ModalBody);
+                    $"准备值: {CurrentReport!.PreparedValue}", IMGUIStyles.ModalBody);
                 contentY += 26;
             }
 
