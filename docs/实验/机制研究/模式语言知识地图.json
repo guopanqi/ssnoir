@@ -3575,6 +3575,26 @@
         "native": false
       },
       "note": "HEDGE 51/4 vs 无重叠47/4；无早窗口后串行追回51/4；FOCUS安全等待22大于早押20.5；CLAIM撤销与及时奖金必须组合；动作模式连续负例。"
+    },
+    {
+      "id": "PL-HEDGE-REPLAY01",
+      "name": "HEDGE退路同分异果的独立前向回放",
+      "layer": "independent-execution-regression",
+      "origin": "ssnoir-research",
+      "family": "并发保留退路与成果身份",
+      "idea": "独立于原DP的逐行动执行器重放12条公开政策事件组合，分别记录A/B完成概率",
+      "stage": "representative-policy-replay",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-退路策略独立前向回放/研究记录.md",
+        "tools/content-validator/experiments/pattern_hedge_forward_replay_20261015.py"
+      ],
+      "evidence": {
+        "independentExecution": true,
+        "globalOptimalityReproved": false,
+        "humanFeedbackAvailable": false,
+        "native": false
+      },
+      "note": "并行早窗51/4、A完成3/4 B完成1/4；禁止重叠47/4；无早窗串行51/4、A完成1/2 B完成1/2。只交叉复核代表性策略，未重求DP。"
     }
   ],
   "edges": [
