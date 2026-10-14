@@ -3541,6 +3541,20 @@
         "native": false
       },
       "note": "改类型固定/条件均19，普通不改类型固定/条件均17；ABAB为强固定策略，非新原语。"
+    },
+    {
+      "id": "PL-ACTION-SWITCH01",
+      "name": "付费可逆模式切换的固定开局负例",
+      "layer": "negative-boundary",
+      "origin": "ssnoir-research",
+      "family": "动作模式与产物变换",
+      "idea": "五行动中花一手M切换B的后续产物类别，仍被MABAB固定流程实现最优",
+      "stage": "exhaustive-enumeration",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-付费模式切换负例/研究记录.md",
+        "tools/content-validator/experiments/pattern_paid_mode_switch_20261015.py"
+      ],
+      "note": "固定/条件根19，同构于简单公开有限状态模式；非新原语，未真人验证。"
     }
   ],
   "edges": [
