@@ -3426,6 +3426,26 @@
         "native": false
       },
       "note": "揭晓在第2手后根16，在第3手后25/2，事后12；免费75%早信号57/4；第2手耗行动准确检查仅9，成熟信息价值×截止窗口×分散准备组合。"
+    },
+    {
+      "id": "PL-INFO-PROD01",
+      "name": "生产性调查的完美信息收益可由同成本复合状态转移完全复制",
+      "layer": "negative-boundary",
+      "origin": "ssnoir-research",
+      "family": "生产性信息与行动窗口",
+      "idea": "单手P完成A一份且揭示T；比较免费晚公开、纯I、工作兼调查P/Q、免费早公开",
+      "stage": "exact-dynamic-programming",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-生产性调查与可兑现信息/研究记录.md",
+        "tools/content-validator/experiments/pattern_productive_investigation_20261015.py"
+      ],
+      "evidence": {
+        "exactFractionDP": true,
+        "independentAgentBlind": false,
+        "humanFeedbackAvailable": false,
+        "native": false
+      },
+      "note": "晚公开与纯I均25/2，P或PQ根16，早免费完美揭晓根同16但并非全树同构；复合WORK_A+REVEAL是P全树同构，非新原语。"
     }
   ],
   "edges": [
@@ -6332,6 +6352,24 @@
       "to": "PL-SUBMIT01",
       "relation": "information-can-be-worthless-without-redemption-window",
       "reason": "后到消息虽准确但错过紧急截止的预备窗口；付费完美检查损失行动时会不如可靠但免费的早期弱信号"
+    },
+    {
+      "from": "PL-INFO-PROD01",
+      "to": "PL-INFO-WINDOW01",
+      "relation": "productive-information-action-matched-composite",
+      "reason": "生产工作与公布真相同时发生，解决截止前行动机会成本；仍等价明确的同成本状态复合动作"
+    },
+    {
+      "from": "PL-INFO-PROD01",
+      "to": "PL-OBLIGATION01",
+      "relation": "productive-information-action-matched-composite",
+      "reason": "生产工作与公布真相同时发生，解决截止前行动机会成本；仍等价明确的同成本状态复合动作"
+    },
+    {
+      "from": "PL-INFO-PROD01",
+      "to": "PL-INTERRUPT01",
+      "relation": "productive-information-action-matched-composite",
+      "reason": "生产工作与公布真相同时发生，解决截止前行动机会成本；仍等价明确的同成本状态复合动作"
     }
   ],
   "coverage": {
