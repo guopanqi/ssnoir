@@ -101,6 +101,13 @@ def disclosure(outside=F(1),bonus=2,precommit=False,automatic=False):
                           'backup':F(int((aR if reveal else aS)=='EXIT')+int(aS=='EXIT'),2)})
     return cases
 
+def exante_commitment(cost, outside=F(1)):
+    """Before learning the private type, bind future disclosure or keep it open."""
+    conceal=disclosure(outside=outside,precommit=True)[0]['player']-cost
+    optional=disclosure(outside=outside)[0]['player']
+    return choose({'BIND_SILENCE':conceal,'KEEP_PUBLICATION':optional},
+                  ('KEEP_PUBLICATION','BIND_SILENCE'))
+
 def verify():
     p=F(1,2)
     plan=evidence(p)
@@ -129,6 +136,11 @@ def verify():
     assert disclosure(outside=2)[0]['player']==7
     assert disclosure(outside=2,precommit=True)[0]['player']==4
     assert len(disclosure(bonus=0))==2 # two weak equilibria: no uniqueness claim
+    assert exante_commitment(F(0))==(F(8),'BIND_SILENCE')
+    assert exante_commitment(F(1,2))==(F(15,2),'BIND_SILENCE')
+    assert exante_commitment(F(1))==(F(7),'KEEP_PUBLICATION') # exact tie
+    assert exante_commitment(F(2))==(F(7),'KEEP_PUBLICATION')
+    assert exante_commitment(F(0),outside=F(2))==(F(7),'KEEP_PUBLICATION')
     print('DISCLOSURE optional',base,'credible conceal',closed)
     print('PASS exact source/actor/decision and independent forward checks')
 
