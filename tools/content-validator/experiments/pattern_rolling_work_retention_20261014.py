@@ -109,3 +109,34 @@ def run_access_window_checks():
     print('all days A_WORK legal, both',F(145,8))
 
 if __name__=='__main__':run_access_window_checks()
+
+# A strong compact public policy control, not a blind fixed action list:
+# if A has been started, finish it without interruption; otherwise accept
+# available U; when U is absent begin A. After completion take U or SIDE.
+def finish_current_work_policy(horizon=8):
+    @lru_cache(None)
+    def value(day,p,done):
+        if day==horizon:return F(0)
+        outcomes=[]
+        for urgent in (False,True):
+            if done:
+                outcomes.append(F(4 if urgent else 1)+value(day+1,p,done))
+            elif urgent and p==0:
+                outcomes.append(F(4)+value(day+1,0,False))
+            else:
+                complete=(p+1==3)
+                outcomes.append(F(12 if complete else 0)+value(
+                    day+1,0 if complete else p+1,complete))
+        return sum(outcomes)/2
+    return value(0,0,False)
+
+def verify_strong_short_policy():
+    assert finish_current_work_policy(8)==F(207,8)
+    assert solve(8,False)[0]-finish_current_work_policy(8)==F(11,64)
+    assert solve(8,True)[0]-finish_current_work_policy(8)==F(13,64)
+    print('short public rule finish-started-work otherwise U:',F(207,8))
+    print('vs full no-LOCK delta',F(11,64),
+          'vs with-LOCK delta',F(13,64))
+    print('PASS strongly interpretable priority policy')
+
+if __name__=='__main__':verify_strong_short_policy()
