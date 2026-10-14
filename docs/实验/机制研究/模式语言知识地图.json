@@ -3406,6 +3406,26 @@
         "native": false
       },
       "note": "RESUMABLE固定/动态13/13；FRAGILE10/11；PROTECT12/12，强P压平重规划，已知CRISIS/REACTIVE/SHIELD组合非新原语。"
+    },
+    {
+      "id": "PL-INFO-WINDOW01",
+      "name": "信息在截止前到达的行动价值断崖与付费完美检查反证",
+      "layer": "mechanism-boundary",
+      "origin": "ssnoir-research",
+      "family": "信息与下注／兑现窗口",
+      "idea": "紧急目标第3手截止，A/B各需2行动；比较准确消息揭晓时点、免费噪声信号、消耗行动的完美检查",
+      "stage": "exact-exhaustive-enumeration",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-信息时点与兑现窗口/研究记录.md",
+        "tools/content-validator/experiments/pattern_deadline_information_20261015.py"
+      ],
+      "evidence": {
+        "exactEnumeration": true,
+        "humanFeedbackAvailable": false,
+        "independentAgentBlind": false,
+        "native": false
+      },
+      "note": "揭晓在第2手后根16，在第3手后25/2，事后12；免费75%早信号57/4；第2手耗行动准确检查仅9，成熟信息价值×截止窗口×分散准备组合。"
     }
   ],
   "edges": [
@@ -6294,6 +6314,24 @@
       "to": "PL-OBSERVE01",
       "relation": "interruption-resumability-and-protection",
       "reason": "保留进度使冲击无意义，失去进度使动态转向安全B有利，强P又恢复固定确定性计划"
+    },
+    {
+      "from": "PL-INFO-WINDOW01",
+      "to": "PL-INTERRUPT01",
+      "relation": "information-can-be-worthless-without-redemption-window",
+      "reason": "后到消息虽准确但错过紧急截止的预备窗口；付费完美检查损失行动时会不如可靠但免费的早期弱信号"
+    },
+    {
+      "from": "PL-INFO-WINDOW01",
+      "to": "PL-OBLIGATION01",
+      "relation": "information-can-be-worthless-without-redemption-window",
+      "reason": "后到消息虽准确但错过紧急截止的预备窗口；付费完美检查损失行动时会不如可靠但免费的早期弱信号"
+    },
+    {
+      "from": "PL-INFO-WINDOW01",
+      "to": "PL-SUBMIT01",
+      "relation": "information-can-be-worthless-without-redemption-window",
+      "reason": "后到消息虽准确但错过紧急截止的预备窗口；付费完美检查损失行动时会不如可靠但免费的早期弱信号"
     }
   ],
   "coverage": {
