@@ -15,7 +15,6 @@ namespace SSNoir.IMGUI
     {
         public string HostNodeName { get; set; } = string.Empty;
         public RollOutcome? RollOutcome { get; set; }
-        public int? FateDieValue { get; set; }
         public int PreparedValue { get; set; }
         public List<ActionEffectRecord> Effects { get; set; } = new List<ActionEffectRecord>();
         // 结算后的钟。宿主卡画的还是旧快照，钟要按结果显示，不然「推了一格」只写在效果行里，
