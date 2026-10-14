@@ -529,7 +529,7 @@ namespace SSNoir.IMGUI
         private const float ConsolePad = 8f;
         private const float ConsoleInset = 8f;
         private const float OddsGap = 4f;
-        private const float OddsH = 14f + 17f;          // DrawFateStrip：一行算式 + 赔率条
+        private const float OddsH = 14f + 16f + 17f;    // 准备值 + 好/中/坏百分比 + 连续概率条
 
         public static bool IsConsoleArmed(GameNode node, IReadOnlyList<SlottedResource?>? slotted, bool isExecuting)
         {
@@ -1183,64 +1183,67 @@ namespace SSNoir.IMGUI
                 alignment = TextAnchor.MiddleCenter,
                 normal = { textColor = IMGUIStyles.TextSecondary }
             };
-            IMGUIStyles.DrawLabel(new Rect(rect.x + pad, executeBottomY, rect.width - pad * 2f, 14f),
-                caption, summaryStyle);
+            var lineRect = new Rect(rect.x + pad, executeBottomY, rect.width - pad * 2f, 14f);
+            IMGUIStyles.DrawLabel(lineRect, caption, summaryStyle);
+            lineRect.y += 14f;
+            lineRect.height = 16f;
+            IMGUIStyles.DrawLabel(lineRect, FateStrip.Describe(strip), summaryStyle);
 
-            float avail = rect.width - pad * 2f;
-            float stripW = Mathf.Min(avail, 178f);
-            DrawOddsStrip(new Rect(rect.center.x - stripW / 2f, executeBottomY + 14f, stripW, 17f), strip, 0);
+            float stripW = Mathf.Min(rect.width - pad * 2f, 178f);
+            DrawOddsStrip(new Rect(rect.center.x - stripW / 2f, executeBottomY + 30f, stripW, 17f),
+                strip);
         }
 
-        // 命运条即赔率条：实心染色 + 档间留缝，占比一眼可读。命中格抬起 + 金描边 + 弹跳；
-        // settled（结果定格）时压暗其余格，让命中格更跳。掷骰时命中格随扫掠移动，落定后定在最终骰面。
-        // 公开供重结算大弹窗复用（掷骰态/结算态同一套视觉）。
-        public static void DrawOddsStrip(Rect area, RollOutcome[] strip, int highlightedFace,
-            float pulse = 0f, bool settled = false)
+        // 按百分比画连续三段：每段面积等于真实概率，结算只突出结果档位。
+        // 不再画六个命运骰面，也不显示内部随机抽样值。
+        public static void DrawOddsStrip(Rect area, RollOutcome[] strip,
+            RollOutcome? highlightedOutcome = null, float pulse = 0f, bool settled = false)
         {
-            const float gap = 3f, boundaryGap = 9f;
-            int boundaries = 0;
-            for (int i = 1; i < strip.Length; i++)
-                if (strip[i] != strip[i - 1]) boundaries++;
+            if (strip == null || strip.Length != 100)
+                throw new System.ArgumentException("Expected 100 percentage entries.", nameof(strip));
 
-            float cellW = (area.width - gap * (5 - boundaries) - boundaryGap * boundaries) / 6f;
-            float x = area.x;
-            var faceStyle = EnsureOddsFaceStyle();
-            for (int i = 0; i < 6; i++)
+            int fail = 0, neutral = 0, success = 0;
+            foreach (var value in strip)
             {
-                if (i > 0) x += strip[i] != strip[i - 1] ? boundaryGap : gap;
-                Color tier = OutcomeColor(strip[i]);
-                bool hi = i + 1 == highlightedFace;
-                float pop = hi ? pulse * 5f : 0f;
-                var cell = new Rect(x - pop / 2f, area.y + (hi ? -2f : 0f) - pop,
-                    cellW + pop, area.height + (hi ? 4f : 0f) + pop * 2f);
-                float dim = hi ? 1f : (settled ? 0.34f : 0.70f);
-                IMGUIStyles.SetColor(new Color(tier.r * dim, tier.g * dim, tier.b * dim, 1f));
+                switch (value)
+                {
+                    case RollOutcome.Fail: fail++; break;
+                    case RollOutcome.Neutral: neutral++; break;
+                    case RollOutcome.Success: success++; break;
+                    default: throw new System.ArgumentOutOfRangeException(nameof(strip));
+                }
+            }
+
+            var portions = new[]
+            {
+                (Outcome: RollOutcome.Fail, Count: fail),
+                (Outcome: RollOutcome.Neutral, Count: neutral),
+                (Outcome: RollOutcome.Success, Count: success),
+            };
+            int visibleCount = (fail > 0 ? 1 : 0) + (neutral > 0 ? 1 : 0) + (success > 0 ? 1 : 0);
+            const float gap = 3f;
+            float available = Mathf.Max(0f, area.width - gap * Mathf.Max(0, visibleCount - 1));
+            float x = area.x;
+            int drawn = 0;
+            foreach (var portion in portions)
+            {
+                if (portion.Count == 0) continue;
+                if (drawn++ > 0) x += gap;
+                float width = available * portion.Count / 100f;
+                bool highlighted = highlightedOutcome.HasValue && highlightedOutcome.Value == portion.Outcome;
+                float pop = highlighted ? pulse * 4f : 0f;
+                var cell = new Rect(x - pop * 0.5f, area.y - pop,
+                    width + pop, area.height + pop * 2f);
+                Color tier = OutcomeColor(portion.Outcome);
+                float brightness = highlighted ? 1f : settled ? 0.34f : 0.78f;
+                IMGUIStyles.SetColor(new Color(tier.r * brightness, tier.g * brightness,
+                    tier.b * brightness, 1f));
                 GUI.DrawTexture(cell, Texture2D.whiteTexture);
                 IMGUIStyles.ResetColor();
-                if (hi)
+                if (highlighted)
                     IMGUIStyles.DrawOutline(cell, 2f, IMGUIStyles.Gold);
-                float td = hi ? 0.18f : (settled ? 0.10f : 0.20f);
-                faceStyle.normal.textColor = new Color(tier.r * td, tier.g * td * 0.8f, tier.b * td * 0.8f, 1f);
-                IMGUIStyles.DrawLabel(cell, FateFaceLabels[i], faceStyle);
-                x += cellW;
+                x += width;
             }
-        }
-
-        private static GUIStyle EnsureOddsFaceStyle()
-        {
-            var baseStyle = IMGUIStyles.ClockValue;
-            if (_oddsFaceStyle == null
-                || _oddsFaceStyle.font != baseStyle.font
-                || _oddsFaceStyle.fontSize != baseStyle.fontSize)
-            {
-                _oddsFaceStyle = new GUIStyle(baseStyle)
-                {
-                    alignment = TextAnchor.MiddleCenter,
-                    wordWrap = false,
-                    clipping = TextClipping.Clip,
-                };
-            }
-            return _oddsFaceStyle;
         }
 
         // ── 判定 / 结算附件 ───────────────────────────────────────────
@@ -1252,8 +1255,6 @@ namespace SSNoir.IMGUI
         // SafeArea 外沿裁掉。这个 inset 只约束 attachment 自己，不会反过来推动卡片。
         private const float AttachmentSafeInset = 8f;
 
-        private static readonly string[] FateFaceLabels = { "1", "2", "3", "4", "5", "6" };
-        private static GUIStyle? _oddsFaceStyle;
         private static GUIStyle? _rollLabelStyle;
         private static GUIStyle? _rollDetailStyle;
 
@@ -1345,7 +1346,6 @@ namespace SSNoir.IMGUI
             Rect cardRect,
             ActionReport? localRoll,
             int localRollPhase,
-            int localRollDisplayDieValue,
             float localRollDisplayScale,
             CardPresentationResidue? residue,
             IMGUIInteractionContext ui,
@@ -1354,7 +1354,7 @@ namespace SSNoir.IMGUI
         {
             if (localRoll != null)
             {
-                DrawLocalRoll(cardRect, localRoll, localRollPhase, localRollDisplayDieValue,
+                DrawLocalRoll(cardRect, localRoll, localRollPhase,
                     localRollDisplayScale, ui, spacious, above);
                 return;
             }
@@ -1372,7 +1372,6 @@ namespace SSNoir.IMGUI
             Rect rect,
             ActionReport report,
             int phase,
-            int displayDieValue,
             float displayScale,
             IMGUIInteractionContext ui,
             bool spacious,
@@ -1391,30 +1390,25 @@ namespace SSNoir.IMGUI
             if (phase < 2)
                 IMGUIStyles.DrawGoldPulse(panel);
 
-            DrawRollHeaderText(panel, settled ? FormatOutcome(report.Outcome)
-                    : UiText.Get("判定中"),
+            DrawRollHeaderText(panel,
+                settled ? FormatOutcome(report.Outcome) : UiText.Get("判定中"),
                 settled ? oc : IMGUIStyles.TextPrimary,
-                // 只写准备值：命运骰几点由下面那条带子说（命中格抬起 + 金描边 + 格里写着面数），
-                // 再用文字复述一遍，就是把图形已经说清的事翻译成字。准备值不一样——
-                // 它是这条带子为什么这样分档的原因，面板里没有第二处能看到。
-                settled ? UiText.Ready(report.PreparedValue)
-                    : UiText.Get("命运骰滚动..."),
+                settled ? UiText.Ready(report.PreparedValue) : UiText.Get("按概率判定..."),
                 spacious);
 
-            int highlightedFace = phase == 0 ? displayDieValue : report.FateDieValue;
-            float pulse = phase == 1 ? Mathf.Max(0f, displayScale - 1f) : 0f;
             var strip = FateStrip.StripForPrepared(report.PreparedValue);
             float stripY = spacious ? panel.y + 38f : panel.y + 26f;
             float stripHeight = spacious ? 24f : 18f;
             DrawOddsStrip(new Rect(panel.x + (spacious ? 16f : 10f), stripY,
                     panel.width - (spacious ? 32f : 20f), stripHeight),
-                strip, highlightedFace, pulse, settled);
+                strip, phase >= 1 ? report.Outcome : (RollOutcome?)null,
+                phase == 1 ? Mathf.Max(0f, displayScale - 1f) : 0f, settled);
 
         }
 
         private static float ResidueHeaderHeight(CardPresentationResidue residue, bool spacious)
         {
-            return residue.FateDieValue.HasValue ? RollHeaderHeight(spacious) : SimpleHeaderHeight(spacious);
+            return residue.RollOutcome.HasValue ? RollHeaderHeight(spacious) : SimpleHeaderHeight(spacious);
         }
 
         private static float ResiduePanelHeight(CardPresentationResidue residue, bool spacious, float panelWidth)
@@ -1466,18 +1460,18 @@ namespace SSNoir.IMGUI
             string headerLabel = hasOutcome ? FormatOutcome(outcome)
                 : UiText.Get("行动结果");
             DrawRollHeaderText(header, headerLabel, hasOutcome ? oc : IMGUIStyles.TextPrimary,
-                residue.FateDieValue.HasValue
+                residue.RollOutcome.HasValue
                     ? UiText.Ready(residue.PreparedValue) : "",
                 spacious);
 
-            if (residue.FateDieValue.HasValue)
+            if (residue.RollOutcome.HasValue)
             {
                 var strip = FateStrip.StripForPrepared(residue.PreparedValue);
                 float stripY = spacious ? header.y + 38f : header.y + 26f;
                 float stripHeight = spacious ? 24f : 18f;
                 DrawOddsStrip(new Rect(header.x + (spacious ? 16f : 10f), stripY,
                         header.width - (spacious ? 32f : 20f), stripHeight),
-                    strip, residue.FateDieValue.Value, 0f, true);
+                    strip, residue.RollOutcome.Value, 0f, true);
             }
 
             // 身体：效果从命运条下方揭开（淡入、整体轻微下滑）。
