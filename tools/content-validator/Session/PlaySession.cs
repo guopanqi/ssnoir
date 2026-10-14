@@ -337,7 +337,7 @@ public sealed class PlaySession
     {
         if (report == null) return;
         if (report.Type == ActionType.Roll)
-            events.Add(new SessionEvent(phase, $"判定：{report.Outcome}，准备值 {report.PreparedValue}，命运骰 {report.FateDieValue}"));
+            events.Add(new SessionEvent(phase, $"判定：{report.Outcome}，准备值 {report.PreparedValue}，内部百分位 {report.PercentageRoll}"));
         foreach (var effect in report.Effects)
             events.Add(new SessionEvent(phase, $"{effect.Label ?? effect.Text} {effect.Delta}"));
         foreach (var step in report.BlockingStorySteps.Concat(report.PostSceneBlockingSteps))
