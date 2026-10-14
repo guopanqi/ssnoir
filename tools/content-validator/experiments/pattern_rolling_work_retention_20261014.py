@@ -77,3 +77,35 @@ def main():
     print('PASS volatile work, rare stabilization, exact dynamic control')
 
 if __name__=='__main__':main()
+
+# Access-window ablation is intentionally a DIFFERENT protocol: A may be
+# worked only on days 0,1,4 in a five-day encounter. Proves that external
+# action legality, not tweaking A reward, can make LOCK a feasibility gate.
+def solve_access_window(allow_lock=True,work_days=frozenset((0,1,4))):
+    horizon=5
+    @lru_cache(None)
+    def expected(day,p,locked,complete):
+        if day==horizon:return F(0)
+        def observed(urgent):
+            nextp=p if locked or complete else max(0,p-1)
+            options=[F(1)+expected(day+1,nextp,locked,complete)]
+            if urgent: options.append(F(4)+expected(day+1,nextp,locked,complete))
+            if day in work_days and not complete:
+                becomes_done=p+1==3
+                options.append(F(12 if becomes_done else 0)+expected(
+                    day+1,0 if becomes_done else p+1,locked,complete or becomes_done))
+            if allow_lock and 0<p<3 and not locked and not complete:
+                options.append(expected(day+1,p,True,complete))
+            return max(options)
+        return (observed(False)+observed(True))/2
+    return expected(0,0,False,False)
+
+def run_access_window_checks():
+    assert solve_access_window(True)==F(29,2)
+    assert solve_access_window(False)==F(25,2)
+    assert solve_access_window(True,frozenset(range(5)))==F(145,8)
+    assert solve_access_window(False,frozenset(range(5)))==F(145,8)
+    print('A_WORK days 0,1,4: with LOCK',F(29,2),'without LOCK',F(25,2),'delta',2)
+    print('all days A_WORK legal, both',F(145,8))
+
+if __name__=='__main__':run_access_window_checks()
