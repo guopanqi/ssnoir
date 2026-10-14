@@ -3286,6 +3286,27 @@
         "native": false
       },
       "note": "最优条件29/2，最强固定14，安全B开局12。成熟期限×并发注意力×不可挽回目标组合，非新原语。"
+    },
+    {
+      "id": "PL-OBLIGATION02",
+      "name": "三项并行义务存在不可全做的状态，但单项保全约束在最优平局中无需牺牲收益",
+      "layer": "encounter-combination",
+      "origin": "ssnoir-research",
+      "family": "非标量并行义务与条件计划",
+      "idea": "五手A/B/C需工作、错位截止且C负担揭晓；条件策略23对固定22，普通状态不可能三项全做，但A+C与B+C同得19",
+      "stage": "exact-enumeration-with-tie-audit",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-14-三项并行义务与条件成果/研究记录.md",
+        "tools/content-validator/experiments/pattern_parallel_three_stakes_20261014.py"
+      ],
+      "evidence": {
+        "fullSequenceEnumeration": true,
+        "constrainedOutcomeAudit": true,
+        "independentAgentBlind": false,
+        "humanFeedbackAvailable": false,
+        "native": false
+      },
+      "note": "动态23、固定22，普通状态总需求6>5；但在揭晓后强制保A/B/C任一单项都可达23，不能把单条求解器最优路线当真实牺牲。"
     }
   ],
   "edges": [
@@ -6066,6 +6087,24 @@
       "to": "PL-SUBMIT02",
       "relation": "deadline-shock-redirects-attention",
       "reason": "两个结果分别存在，不可挽回的A使玩家把原计划剩余手数转往B和SIDE，仍受短工期口诀解释"
+    },
+    {
+      "from": "PL-OBLIGATION02",
+      "to": "PL-OBLIGATION01",
+      "relation": "condition-dependent-outcome-frontier-and-tie",
+      "reason": "不同结果组合可同分；必须全体最优策略或约束枚举审计，不能用单条贪心计划声称心理两难"
+    },
+    {
+      "from": "PL-OBLIGATION02",
+      "to": "PL-SUBMIT02",
+      "relation": "condition-dependent-outcome-frontier-and-tie",
+      "reason": "不同结果组合可同分；必须全体最优策略或约束枚举审计，不能用单条贪心计划声称心理两难"
+    },
+    {
+      "from": "PL-OBLIGATION02",
+      "to": "PL-CRISIS03",
+      "relation": "condition-dependent-outcome-frontier-and-tie",
+      "reason": "不同结果组合可同分；必须全体最优策略或约束枚举审计，不能用单条贪心计划声称心理两难"
     }
   ],
   "coverage": {
