@@ -460,26 +460,19 @@
           (play-camera! "格兰德酒店" .8 "")
           (play-camera! "剧院" .8 "")
           (play-camera! "老街酒馆" .4 "")
-          (load-file "scripts/theatre/序章开场.scm")
-          (序章-酒馆出门)
-          (play-camera! "门口" .2 "家")
-          (序章-房东催租))))
+          (load-file "scripts/theatre/第一节生活.scm")
+          (第一节-醉归)
+          (play-camera! "门口" .2 "家"))))
 
     (define (drunk?) (and opening-heard? (= world-day 1)))
 
-    (define (opening-sleep!)
-      (if (drunk?)
-          (play-intertitle! #t
-            (list (tr "这里的一切都让人觉得新鲜，高耸的建筑，闪着光的招牌，迷人的女人。"
-                "Everything here felt new. Tall buildings, glowing signs, beautiful women.") "序章/梦境/01/尼尔")
-            (list (tr "贝尔维尔，梦一样的城市，美丽的地方。"
-                "Belleville. A city out of a dream. A beautiful place.") "序章/梦境/02/尼尔")) #f))
+    (define (opening-sleep!) #t)
 
     (define-turn-start-rule "序章醒来"
       (lambda () (and opening-heard? (= world-day 2) (= story-stage 0)))
       (lambda ()
         (set-global! '天气 "雨")
-        (play-narration! "序章清晨")))
+        (begin (load-file "scripts/theatre/第一节生活.scm") (第一节-清晨敲门))))
 
     ;; 雨覆盖准备期和投信当日，过完勒索日才停；不硬编码绝对日期。
     (define-turn-start-rule "勒索日后雨停"

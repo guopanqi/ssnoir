@@ -154,8 +154,8 @@
             (if (worker-familiarity 'full?)
               (begin
                 (set! worker-asked? #t)
-                ;; 艾迪相识新版剧场待 Claude 制作，先开放对应替班行动。
-                #t) #f)) #f)
+                (load-file "scripts/theatre/第一节生活.scm")
+                (第一节-艾迪相识)) #f)) #f)
         (cond
           ((equal? grade '好)
            (add-item! "金钱" (if (< (three-letters 'story-stage) 2) 20

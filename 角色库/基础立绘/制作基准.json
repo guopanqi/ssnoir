@@ -145,6 +145,20 @@
       "relativeHeight": 1,
       "crownInset": 0,
       "footCenter": null
+    },
+    {
+      "name": "调酒师",
+      "source": "角色库/基础立绘/源图/调酒师.png",
+      "relativeHeight": 1.02,
+      "crownInset": 0,
+      "footCenter": null
+    },
+    {
+      "name": "旅馆老板",
+      "source": "角色库/基础立绘/源图/旅馆老板.png",
+      "relativeHeight": 0.94,
+      "crownInset": 0,
+      "footCenter": null
     }
   ]
 }

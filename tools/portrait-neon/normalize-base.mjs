@@ -1,5 +1,5 @@
 // 基础立绘的确定性加工；补画腿脚由生图工具完成，这里只等比缩放和定位。
-import sharp from '../../experiments/portrait-stage-lab/node_modules/sharp/lib/index.js';
+import sharp from '../../experiments/portrait-stage/portrait-stage-lab/node_modules/sharp/lib/index.js';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 

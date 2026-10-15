@@ -378,5 +378,43 @@
     "scale": 0.922722029988466,
     "ground": 1000,
     "bodyPixels": 800
+  },
+  {
+    "name": "调酒师",
+    "source": "角色库/基础立绘/源图/调酒师.png",
+    "sourceSize": [
+      1024,
+      1024
+    ],
+    "bounds": [
+      376,
+      90,
+      670,
+      999
+    ],
+    "crown": 90,
+    "footCenter": 518,
+    "scale": 0.8976897689768977,
+    "ground": 1000,
+    "bodyPixels": 816
+  },
+  {
+    "name": "旅馆老板",
+    "source": "角色库/基础立绘/源图/旅馆老板.png",
+    "sourceSize": [
+      1024,
+      1024
+    ],
+    "bounds": [
+      355,
+      113,
+      648,
+      1005
+    ],
+    "crown": 113,
+    "footCenter": 520,
+    "scale": 0.8430493273542601,
+    "ground": 1000,
+    "bodyPixels": 752
   }
 ]

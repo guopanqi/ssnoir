@@ -41,8 +41,11 @@ namespace SSNoir.IMGUI
 
         private static readonly ChapterJump[] ChapterJumps =
         {
-            new ChapterJump { Label = "剧场试演：酒馆出门", Code = "(begin (load-file \"scripts/theatre/序章开场.scm\") (序章-酒馆出门))" },
-            new ChapterJump { Label = "剧场试演：房东催租", Code = "(begin (load-file \"scripts/theatre/序章开场.scm\") (序章-房东催租))" },
+            new ChapterJump { Label = "剧场试演：醉归", Code = "(begin (load-file \"scripts/theatre/第一节生活.scm\") (第一节-醉归))" },
+            new ChapterJump { Label = "剧场试演：清晨敲门", Code = "(begin (load-file \"scripts/theatre/第一节生活.scm\") (第一节-清晨敲门))" },
+            new ChapterJump { Label = "剧场试演：酒馆初访", Code = "(begin (load-file \"scripts/theatre/第一节生活.scm\") (第一节-酒馆初访))" },
+            new ChapterJump { Label = "剧场试演：酒馆接案后", Code = "(begin (load-file \"scripts/theatre/第一节生活.scm\") (第一节-酒馆接案后))" },
+            new ChapterJump { Label = "剧场试演：艾迪相识", Code = "(begin (load-file \"scripts/theatre/第一节生活.scm\") (第一节-艾迪相识))" },
 
             new ChapterJump { Label = "剧场试演：雨夜来访", Code = "(begin (load-file \"scripts/theatre/雨夜来访.scm\") (雨夜来访-演出))" },
             new ChapterJump { Label = "剧场试演：路灯下", Code = "(begin (load-file \"scripts/theatre/路灯下.scm\") (路灯下-试演!))" },

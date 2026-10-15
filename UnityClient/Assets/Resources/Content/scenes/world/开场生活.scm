@@ -4,17 +4,17 @@
     (define tavern-met? #f)
     (define routes-known? #f)
     (define dock-entered? #f)
-    ;; 新版剧场交给作者与 Claude 制作；暂不替换或插入临时演出。
-    ;; 状态按正式流程开放；演出完成后只需在此绑定对应入口。
     (define (arrivals-at location)
       (cond
         ((and (equal? location "老街酒馆") (> world-day 1) (not tavern-met?) (= (three-letters 'story-stage) 0))
          (list (arrival "酒馆的零工" (lambda ()
-           (set! tavern-met? #t)))))
+           (set! tavern-met? #t)
+           (load-file "scripts/theatre/第一节生活.scm") (第一节-酒馆初访)))))
         ((and (equal? location "老街酒馆") (= (three-letters 'story-stage) 1)
               (not routes-known?))
          (list (arrival "有了一件委托" (lambda ()
-           (set! tavern-met? #t) (set! routes-known? #t)))))
+           (set! tavern-met? #t) (set! routes-known? #t)
+           (load-file "scripts/theatre/第一节生活.scm") (第一节-酒馆接案后)))))
         ((and (equal? location "码头") (not dock-entered?))
          (list (arrival "先看看码头" (lambda ()
            (set! dock-entered? #t)
