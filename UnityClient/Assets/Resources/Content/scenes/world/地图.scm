@@ -30,13 +30,13 @@
   (list
     ;; 顺序＝地图上的先后，别随手调。
     (地点 home)
-    (地点 dock)
+    (地点 dock (lambda () (or (opening-life 'routes-open?) (three-letters 'delivery-pending?))))
     ;; 工棚在第二章「工棚正在搬空」那一拍的次日才空：入场节拍里就把脚下的地点撤掉，
     ;; 引擎会当场中断。设备和图纸搬去港务技术区后，由技术区接替它的位置
     ;; （暂时也落在它的锚点上）。
     (地点 test-workshop     (lambda () (and (lin 'workshop-open?) (not (林的机器 'workshop-vacated?)))))
-    ;; 家、码头、酒馆从序章统一开放；地点内部按章节呈现内容。
-    (地点 old-street-tavern)
+    ;; 旅馆先开放，酒馆在清晨开放；码头由接案后的酒馆入场开放。
+    (地点 old-street-tavern (lambda () (opening-life 'tavern-open?)))
     ;; 诊所自己决定何时出现在地图上：第一次受伤那一刻（见 world/诊所.scm）。
     (地点 clinic            (lambda () (clinic 'visible?)))
     ;; 警察局在经理拿出第二封信后的次日开放。

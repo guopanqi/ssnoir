@@ -1,10 +1,8 @@
 ;; scenes/world/home.scm - 住所系统
-;; 租的房间（首次两天后交租，此后每四天；交不上先动用房东的宽限）→ 公寓（200 金买断）。
+;; 租的房间（首次两天后交租，此后每四天；交不上先动用旅馆老板的宽限）→ 公寓（200 金买断）。
 ;;
-;; 起点不是旅馆。侦探住廉价出租屋是这个类型的标配，而**出租屋里摆得下自己的东西**：
-;; 花、床垫、书桌都是你自己搬进来的，不需要替旅馆圆场（曾经那条「这些家具都能随人搬走」
-;; 的注释就是矛盾在冒烟）。买断买的是**另一处**，不是这一间的产权——成长感来自搬家本身，
-;; 不来自一纸产权；将来空间模型换代也有个天然的时机。
+;; 起点为长期住宿的廉价旅馆；保留住所存档身份与后续搬家系统。
+;; 日常添置的是可搬走的个人物品；公寓仍是后续另一处住所。
 ;; 恢复（冷静上限 5）：睡觉 +2（租与买一样）；门口露宿不回冷静。
 ;; 浇水（龟背竹）投入 1 骰、暂时没有数值收益；酒馆一杯 +2（15 金）。
 ;; 睡觉抹不平一天，冷静是跨天的。
@@ -24,19 +22,19 @@
     (define drank-today? #f)
     (define flower-today? #f)
     (define medicated-today? #f)
-    (define apartment-offer-known? #f) ; 第一次收租时，房东才告诉玩家可以买断公寓
+    (define apartment-offer-known? #f) ; 第一次收租时，旅馆老板才告诉玩家可以买断公寓
 
-    ;; 房租（仅租房时）：固定 4 天的收租周期。平时没有交租动作；倒计时归零时房东自动上门，
+    ;; 住宿费（仅租房时）：固定 4 天的收租周期。平时没有交租动作；倒计时归零时旅馆老板自动上门，
     ;; 有钱就当场扣 40 金并重开下一周期，钱不够才进入宽限。
     ;;
-    ;; 到期交不上不立刻赶人，而是动用**房东的宽限**：这是一条会记住你的信用线。
+    ;; 到期交不上不立刻赶人，而是动用**旅馆老板的宽限**：这是一条会记住你的信用线。
     ;;   宽限 2 → 他等你两天    宽限 1 → 他等你一天    宽限 0 → 当天锁门
     ;; 准时交一次，宽限 +1（上限 2）；拖到宽限期里才交，宽限 −1（下限 0）。
     ;; 所以第一次拖欠的代价不是钱，是**下一次没人等你了**——欠账的真实形状。
     (define rent-cycle 4)
     (define rent-amount 40)
     (define rent-clk
-      (make-clock "房租到期" rent-cycle 'countdown
+      (make-clock "住宿费到期" rent-cycle 'countdown
         (lambda (current max)
           (string-append (if (<= current 1) "就是明晚。" (string-append "还剩 " (number->string current) " 天。"))
                          "本次到期交 "
@@ -44,13 +42,13 @@
     ;; 开场当夜正常换日，次晨显示还剩两天。
     (rent-clk 'set! 3)
     (define grace-max 2)
-    (define grace grace-max)        ; 房东还愿意等你几天（信用）
+    (define grace grace-max)        ; 旅馆老板还愿意等你几天（信用）
     (define overdue? #f)            ; 已经到期没交，正在用宽限
     (define grace-clk
       (make-clock "宽限到期" grace-max 'countdown
         (lambda (current max)
           (string-append (if (<= current 1) "最后一天。" (string-append "还剩 " (number->string current) " 天。"))
-                         "宽限期内可以补交；归零仍未交上，房东会来锁门。"))))
+                         "宽限期内可以补交；归零仍未交上，旅馆老板会来锁门。"))))
     (define flower-price 40)
     (define mattress-price 60)
     (define apartment-price 200)
@@ -86,9 +84,9 @@
       (>= (item-count "金钱") rent-amount))
 
     (define (rent-demand-line)
-      (string-append "房租到期了。" (number->string rent-amount) " 块。"))
+      (string-append "住宿费到期了。" (number->string rent-amount) " 块。"))
 
-    ;; 买断不是开局就摆在面前的商品。房东第一次上门收租时才顺口告诉玩家有这条路；
+    ;; 买断不是开局就摆在面前的商品。旅馆老板第一次上门收租时才顺口告诉玩家有这条路；
     ;; 此后报价进入住所的常驻选择，不会在每次收租时重复念。
     (define (play-rent-dialogue! lines)
       (if apartment-offer-known?
@@ -97,7 +95,7 @@
             (apply play-dialogue!
               (append lines
                 (list
-                  (line "房东"
+                  (line "旅馆老板"
                     (string-append
                       "等你手头有了 " (number->string apartment-price)
                       " 块，我还有间公寓可以卖你。买下以后，不再收租。")))))
@@ -112,13 +110,13 @@
             (play-rent-dialogue!
               (append
                 (list
-                  (line "房东" (rent-demand-line))
+                  (line "旅馆老板" (rent-demand-line))
                   (line "尼尔" "数清楚。")
                   (line "世界" (string-append "他点了两遍，钱进了外套内袋。下一次收租在 "
                                               (number->string rent-cycle) " 天后。")))
-                ;; 准时交回来的那一天信用才涨。不说，玩家不会知道房东为什么忽然肯多等。
+                ;; 准时交回来的那一天信用才涨。不说，玩家不会知道旅馆老板为什么忽然肯多等。
                 (if credit-up?
-                    (list (line "房东" "这回痛快。往后你要是晚一天，我不至于当天就锁门。"))
+                    (list (line "旅馆老板" "这回痛快。往后你要是晚一天，我不至于当天就锁门。"))
                     '())))
             (remove-item! "金钱" rent-amount)
             (set! grace (min grace-max (+ grace 1)))
@@ -129,27 +127,27 @@
                 (grace-clk 'set! grace)
                 (play-rent-dialogue!
                   (list
-                    (line "房东" (rent-demand-line))
+                    (line "旅馆老板" (rent-demand-line))
                     (line "尼尔" "今晚拿不出来。")
-                    (line "房东"
+                    (line "旅馆老板"
                       (string-append "我再等 " (number->string grace) " 天。到时候别让我再问。")))))
               (begin
                 (play-rent-dialogue!
                   (list
-                    (line "房东" (rent-demand-line))
+                    (line "旅馆老板" (rent-demand-line))
                     (line "尼尔" "我没有。")
-                    (line "房东" "那就把东西拿出来。门今晚要锁。")))
+                    (line "旅馆老板" "那就把东西拿出来。门今晚要锁。")))
                 (evict!)))))
 
     (define (expire-grace!)
       (play-dialogue!
-        (line "房东" "宽限到头了。钱呢？")
+        (line "旅馆老板" "宽限到头了。钱呢？")
         (line "尼尔" "还没有。")
-        (line "房东" "那就到这儿。天黑以前把东西搬出去。"))
+        (line "旅馆老板" "那就到这儿。天黑以前把东西搬出去。"))
       (evict!))
 
-    ;; 房租只在租房且未被赶出时流逝。到期那天不锁门：先看房东还愿意等几天。
-    (define-turn-rule "房租流逝"
+    ;; 住宿费只在租房且未被赶出时流逝。到期那天不锁门：先看旅馆老板还愿意等几天。
+    (define-turn-rule "住宿费流逝"
       (lambda () (and (renting?) (not evicted?)))
       (lambda ()
         (if overdue?
@@ -157,14 +155,14 @@
               (grace-clk 'advance! -1)
               (if (grace-clk 'empty?)
                   (expire-grace!)
-                  (notify! (string-append "房东又来敲了一次门。宽限还剩 "
+                  (notify! (string-append "旅馆老板又来敲了一次门。宽限还剩 "
                                           (number->string (grace-clk 'current)) " 天。"))))
             (begin
               (rent-clk 'advance! -1)
               (if (rent-clk 'empty?)
                   (collect-rent!)
                   (if (= (rent-clk 'current) 1)
-                      (notify! "房东明晚来收房租。")
+                      (notify! "旅馆老板明晚来收住宿费。")
                       #f))))))
 
     (define-turn-rule "每日恢复次数重置"
@@ -289,7 +287,7 @@
         :tags (sleep-tags)
         :resolve (instant
           (outcome (lambda ()
-              ;; 睡觉固定回 2 点，租的和买下的没有差别——那两者的差别在房租，
+              ;; 睡觉固定回 2 点，租的和买下的没有差别——那两者的差别在住宿费，
               ;; 不在睡得好不好。2 点远不足以抹平一天（顺的一天大约掉 2，糟的掉 4 以上），
               ;; 冷静因此是一条跨天的轴：交锋掏空之后要在城里养好几天才回得来。
               (if (and (= world-day 2) (= (three-letters 'story-stage) 0))
@@ -314,39 +312,39 @@
 
     ;; ── 交易 / 布置 / 升级 ──────────────────────────
     (define (node-pay-rent)
-      (node "补交房租"
+      (node "补交住宿费"
         :anchor "床边"
         :requires (list (req-item "金钱" rent-amount))
         :resolve (instant
           (outcome (lambda ()
               ;; 两种补交是两回事，不能共用一段话：被锁在门外之后交，是把门换回来；
               ;; 宽限期里交，是信用掉一格——晚交的代价不当场说出来，玩家永远不会知道
-              ;; 房东下次为什么少等他一天。
+              ;; 旅馆老板下次为什么少等他一天。
               (if evicted?
                   (play-dialogue!
                     (line "尼尔" "钱。开门。")
                     (line "世界" "他数完，把门上那把锁摘了下来。")
-                    (line "房东" "东西都还在里头。别让我锁第二次。"))
+                    (line "旅馆老板" "东西都还在里头。别让我锁第二次。"))
                   (play-dialogue!
                     (line "尼尔" "钱在这儿。")
-                    (line "房东" "总算。")
+                    (line "旅馆老板" "总算。")
                     (line "世界" "他收了钱，没再说别的。往后他肯等你的日子，少了一天。")))
               (set! grace (max 0 (- grace 1)))
               (reset-rent-cycle!))))))
 
-    ;; 房租是跨导航持续跟踪的倒计时，用 clock-node 立成常驻标注，不占可交互版面；
-    ;; 补交房租仍是一张动作卡。被赶出后没有钟可挂，退成一段说明文字。
+    ;; 住宿费是跨导航持续跟踪的倒计时，用 clock-node 立成常驻标注，不占可交互版面；
+    ;; 补交住宿费仍是一张动作卡。被赶出后没有钟可挂，退成一段说明文字。
     (define (rent-status-node)
       (cond
         (evicted?
-         (node "标注：房租" :anchor "床边" :resolve
+         (node "标注：住宿费" :anchor "床边" :resolve
            (note "房门已锁"
              (string-append "欠下的 " (number->string rent-amount) " 块补清，"
-                            "房东才会重新开门。"))))
+                            "旅馆老板才会重新开门。"))))
         (overdue?
-         (node "标注：房租" :anchor "床边" :resolve (clock (grace-clk 'render-data))))
+         (node "标注：住宿费" :anchor "床边" :resolve (clock (grace-clk 'render-data))))
         (else
-         (node "标注：房租" :anchor "床边" :resolve (clock (rent-clk 'render-data))))))
+         (node "标注：住宿费" :anchor "床边" :resolve (clock (rent-clk 'render-data))))))
 
     (define (rent-nodes)
       (append
@@ -393,7 +391,7 @@
     (define (node-buy-apartment)
       (node "买下公寓"
         :anchor "床边"
-        :subtitle "有个自己的家，不再交房租，也能睡得更安稳"
+        :subtitle "有个自己的家，不再交住宿费，也能睡得更安稳"
         :requires (list (req-item "金钱" apartment-price))
         :resolve (instant
           (outcome (lambda ()
@@ -478,18 +476,18 @@
     ;;   │  ├ 用药 / 养伤 ……………… 租屋-床边
     ;;   │  ├ 电话 …………………………… 租屋-门（线从楼道接进来）
     ;;   │  └ 添置家具 …………………… 租屋-书桌；买的卡都在这儿，不挂到要买的东西头上
-    ;;   ├ 房租标注 / 补交 …………… 家的第一层，挂 301 窗
+    ;;   ├ 住宿费标注 / 补交 …………… 家的第一层，挂 301 窗
     ;;   ├ 买下公寓 …………………… 家的第一层（301 窗）
     ;;   └ 睡觉
     ;;
     ;; Stage 的身份是节点名（Anchor_租屋 挂着 Portal），:anchor 只说门卡挂在家的哪儿——
     ;; 门卡挂 301 窗，在楼外看得见，门后的空间却在郊野，两者不可能是同一个锚点。交锋根容器名就是场景名，同一条规则。
-    ;; 穿门一次约两秒，所以睡觉、房租这些每天点的留在门外。
-    ;; 被锁在门外时没有 租屋：只剩楼下门厅（用随身的药）、补交房租、蜷缩在门口。
+    ;; 穿门一次约两秒，所以睡觉、住宿费这些每天点的留在门外。
+    ;; 被锁在门外时没有 租屋：只剩楼下门厅（用随身的药）、补交住宿费、蜷缩在门口。
     ;; 买下公寓后暂时仍走进同一间（公寓自己的 Stage 还没做；做了以后门卡按 residence 换名字）。
 
     ;; 你自己搬进来的东西：租的房间里就摆得下，搬家时当然也跟着走。
-    ;; 第一次收租时房东提过公寓以后，玩家才开始考虑往住处添东西——
+    ;; 第一次收租时旅馆老板提过公寓以后，玩家才开始考虑往住处添东西——
     ;; 买下公寓不是添家具的前置条件，那是两笔各自成立的钱。
     (define (order-children)
       (append
@@ -510,7 +508,7 @@
       (append
         (if (null? (things-nodes))
             (list (node "标注：屋里" :anchor "租屋" :resolve
-                    (note "租的房间" "床、桌子、一扇窗。自己的东西还没搬进来几件。")))
+                    (note "旅馆客房" "床、桌子、一扇窗。住久了，也添了些自己的东西。")))
             (things-nodes))
         (list (node-use-medicine "租屋-床边"))
         (if has-mattress? (list (node-mend) (note-mattress)) '())
@@ -530,18 +528,19 @@
           '()))
 
     (define (home-body)
+      (if (= world-day 1) (append (地点节点 "家") (if (three-letters 'opening-heard?) (list (node-sleep)) '()))
       (append
         (地点节点 "家")
         (if evicted? (list (node-entry-hall)) (list (node-room)))
         (if (renting?) (rent-nodes) '())
         (upgrade-nodes)
-        (list (if evicted? (node-sleep-at-door) (node-sleep)))))
+        (list (if evicted? (node-sleep-at-door) (node-sleep))))))
 
     ;; 容器名固定为"家"（导航按名字定位，不能随住所变），住所等级放 subtitle 显示。
     (define (residence-container)
       (place "家"
-        :title (tr "家" "Home")
-        :subtitle (if (equal? residence "公寓") (tr "公寓" "Apartment") (tr "租的房间" "Rented Room"))
+        :title (if (renting?) (tr "旅馆" "Hotel") (tr "家" "Home"))
+        :subtitle (if (equal? residence "公寓") (tr "公寓" "Apartment") (tr "旅馆客房" "Hotel Room"))
         :children (home-body)))
 
     ;; ── Message Passing Interface ─────────────────
@@ -549,15 +548,15 @@
       (let ((msg (car args)))
         (cond
           ((equal? msg 'dossier)
-           (if (and (renting?) (not (get-global '首次房租已交)))
-               (list (dossier "准备房租"
+           (if (and (> world-day 1) (renting?) (not (get-global '首次房租已交)))
+               (list (dossier "准备住宿费"
                  :kind '城市 :primary #t
                  :status '进行中
                  :now (cond
-                   (evicted? "凑齐四十块，回家补交房租。")
-                   (overdue? "房租已经到期，凑齐四十块后回家补交。")
-                   ((rent-money-ready?) "四十块房租已备齐。留住这笔钱，到期房东会来收。")
-                   (#t "去做点零工，凑够房租。"))
+                   (evicted? "凑齐四十块，回家补交住宿费。")
+                   (overdue? "住宿费已经到期，凑齐四十块后回家补交。")
+                   ((rent-money-ready?) "四十块住宿费已备齐。留住这笔钱，到期旅馆老板会来收。")
+                   (#t "去做点零工，凑够住宿费。"))
                  :where (if (or overdue? evicted?) "家" "")
                  :clocks (cond (evicted? '())
                                (overdue? (list (grace-clk 'render-data)))
@@ -623,7 +622,7 @@
              (if (member? residence (list "租的房间" "公寓"))
                  #t (error "住所存档错误：住所类型非法"))
              (if (and (number? grace) (>= grace 0) (<= grace grace-max))
-                 #t (error "住所存档错误：房东宽限额度非法"))
+                 #t (error "住所存档错误：旅馆老板宽限额度非法"))
              (if (and (boolean-value? has-flower?)
                       (boolean-value? has-mattress?)
                       (boolean-value? has-phone?)
@@ -638,7 +637,7 @@
                ((equal? residence "公寓") #t)
                (evicted?
                 (if (and (not overdue?) (rent-clk 'empty?) (grace-clk 'empty?))
-                    #t (error "住所存档错误：锁门状态仍残留房租倒计时")))
+                    #t (error "住所存档错误：锁门状态仍残留住宿费倒计时")))
                (overdue?
                 (if (and (rent-clk 'empty?) (not (grace-clk 'empty?)))
                     #t (error "住所存档错误：宽限状态的倒计时不一致")))

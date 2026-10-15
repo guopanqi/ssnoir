@@ -1,0 +1,36 @@
+;; 开场的地点开放与一次性入场演出；日常工作、探索进度各由地点持有。
+(define opening-life
+  (let ()
+    (define tavern-met? #f)
+    (define routes-known? #f)
+    (define dock-entered? #f)
+    ;; 新版剧场交给作者与 Claude 制作；暂不替换或插入临时演出。
+    ;; 状态按正式流程开放；演出完成后只需在此绑定对应入口。
+    (define (arrivals-at location)
+      (cond
+        ((and (equal? location "老街酒馆") (> world-day 1) (not tavern-met?) (= (three-letters 'story-stage) 0))
+         (list (arrival "酒馆的零工" (lambda ()
+           (set! tavern-met? #t)))))
+        ((and (equal? location "老街酒馆") (= (three-letters 'story-stage) 1)
+              (not routes-known?))
+         (list (arrival "有了一件委托" (lambda ()
+           (set! tavern-met? #t) (set! routes-known? #t)))))
+        ((and (equal? location "码头") (not dock-entered?))
+         (list (arrival "先看看码头" (lambda ()
+           (set! dock-entered? #t)
+           (play-bubble! (line "尼尔" "先四处看看。临时工和信上那个邮箱都在这儿。"))))))
+        (else '())))
+    (lambda args
+      (cond
+        ((eq? (car args) 'arrivals-at) (arrivals-at (cadr args)))
+        ((eq? (car args) 'tavern-open?) (> world-day 1))
+        ((eq? (car args) 'routes-open?) (or routes-known? (> (three-letters 'story-stage) 1)))
+        ((eq? (car args) 'save)
+         (list (list "tavern-met?" tavern-met?) (list "routes-known?" routes-known?)
+               (list "dock-entered?" dock-entered?)))
+        ((eq? (car args) 'load!)
+         (let ((data (cadr args)))
+           (set! tavern-met? (assoc-get data "tavern-met?" #f))
+           (set! routes-known? (assoc-get data "routes-known?" #f))
+           (set! dock-entered? (assoc-get data "dock-entered?" #f))))
+        (else (error "开场生活：未知消息"))))))

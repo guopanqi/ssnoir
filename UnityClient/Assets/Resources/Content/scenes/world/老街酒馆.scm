@@ -4,6 +4,62 @@
   (let ()
     (define character-stories-open? #f) ; 人物支线等待重新排布
     (define opening-talk-heard? #f)
+    ;; 看场的当天报酬先结在账上，打烊扣款后再支付，避免花掉工资后追扣库存。
+    (define watch-wages 0)
+    (define watch-first? #t)
+    (define watch-trouble-day 0)
+    (define watch-trouble "")
+    (define watch-progress (make-clock "处理麻烦" 3 'gauge "当天处理；未解决扣本日工资5金。"))
+    (define (watch-work!)
+      (set! watch-wages (+ watch-wages 10))
+      (if (and (not (= watch-trouble-day world-day))
+               (or watch-first? (random-choice (list #t #f #f))))
+        (begin
+          (set! watch-trouble-day world-day)
+          (set! watch-trouble (if watch-first? "醉客纠缠"
+            (random-choice (list "醉客纠缠" "门口争执" "赖账客人"))))
+          (set! watch-first? #f)
+          (watch-progress 'reset!)
+          (play-bubble! (line "调酒师" "尼尔，看着那桌。今晚不处理，少的从这班里扣。" :at "老街酒馆-工作"))) #f)
+      (photo-case 'hear-rumours! 1))
+    (define (watch-handle! n)
+      (watch-progress 'advance! n)
+      (if (watch-progress 'full?)
+        (begin (set! watch-trouble "")
+          (play-bubble! (line "调酒师" "多亏有你在，尼尔。" :at "老街酒馆-工作"))) #f))
+    (define (watch-action title skill)
+      (node title :anchor "老街酒馆-工作" :requires (list (req-die))
+        :resolve (roll skill
+          (outcome (lambda () (spend-composure! 1)))
+          (outcome (lambda () (watch-handle! 1)))
+          (outcome (lambda () (watch-handle! 2))))))
+    (define (watch-nodes)
+      (append
+        (list (工作 "看场" '低 'social
+          (outcome (lambda () (watch-work!)))
+          (outcome (lambda () (watch-work!)))
+          (outcome (lambda () (watch-work!)))
+          "本班10金，打烊结清；麻烦未处理扣5金" :anchor "老街酒馆-工作"))
+        (if (> watch-wages 0)
+          (list (at-anchor "老街酒馆-工作" (note-node "看场待结工资" "待结工资"
+            (string-append (number->string watch-wages) "金；今天打烊结清。")))) '())
+        (if (equal? watch-trouble "") '()
+          (list (at-anchor "老街酒馆-工作" (note-node "看场麻烦进度" watch-trouble "当天处理；否则扣本日工资5金。"
+                  (watch-progress 'render-data)))
+                (watch-action (cond ((equal? watch-trouble "门口争执") "打圆场")
+                                    ((equal? watch-trouble "赖账客人") "问清账单") (else "劝他离席")) 'social)
+                (watch-action (cond ((equal? watch-trouble "门口争执") "隔开两人")
+                                    ((equal? watch-trouble "赖账客人") "拦住离席") (else "请他出去")) 'violence)))))
+    (define-turn-rule "看场打烊结账"
+      (lambda () (> watch-wages 0))
+      (lambda ()
+        (let ((deduction (if (equal? watch-trouble "") 0 5)))
+          (add-item! "金钱" (- watch-wages deduction))
+          (if (> deduction 0)
+            (play-remote-bubble! (line "调酒师" "那桌的损失从这班里扣。余下的工资给你结清了。")) #f)
+          (set! watch-wages 0) (set! watch-trouble "") (watch-progress 'reset!))))
+
+
     (define closed-days 0)
     (define closed-days-max 2)
 
@@ -280,9 +336,9 @@
         ((not opening-talk-heard?)
          (set! opening-talk-heard? #t)
          (play-bubble!
-           (line "酒保" "有人照着你的告示找来吗？" :at "老街酒馆")
+           (line "调酒师" "有人照着你的告示找来吗？" :at "老街酒馆")
            (line "尼尔" "倒有人问房间租不租。")
-           (line "酒保" "今晚还缺个端盘子的。你愿意就留下。" :at "老街酒馆")))
+           (line "调酒师" "今晚还缺个端盘子的。你愿意就留下。" :at "老街酒馆")))
         ((and character-stories-open? (>= (three-letters 'story-stage) 2))
          (if (meet-regular! tavern-regulars) #t (maybe-play-atmosphere!)))
         (else #f)))
@@ -484,7 +540,7 @@
             (photo-case 'hear-rumours! 3)
                 (if ruth-offers-now? (offer-special-drink!) #f)
                 ;; 露丝第一次推酒已经占了这杯的表现，别再叠一段闲话。
-                (if ruth-offers-now? #f (meet-or-echo!))))))))
+                (if (and character-stories-open? (not ruth-offers-now?)) (meet-or-echo!) #f)))))))
 
     ;; ── 赌钱 ──────────────────────────────────────
     ;; 这里曾有一张「去地下酒吧押一把」：花一颗骰 + 20 金，摇一次，0/20/60。
@@ -584,8 +640,7 @@
       (cond
         ((> closed-days 0) (list (node-closed)))
         ((not character-stories-open?)
-         (append (地点节点 "老街酒馆") (list (node-waiter) (node-drink-here))
-                  (three-letters 'tavern-ambush-nodes)))
+         (append (地点节点 "老街酒馆") (watch-nodes) (list (node-drink-here))))
         (else (append
             ;; 麻烦的死线钟挂在那张卡上，这里不再另立一条标注：同一件事说两遍，
             ;; 玩家还要自己认出它们是一件事。
@@ -657,7 +712,10 @@
            (set! closed-days (cadr args))
            (set! closed-days-max (max closed-days-max closed-days)))
           ((equal? msg 'save)
-           (list (list "opening-talk-heard?" opening-talk-heard?)
+           (list (list "watch-wages" watch-wages) (list "watch-first?" watch-first?)
+                 (list "watch-trouble-day" watch-trouble-day) (list "watch-trouble" watch-trouble)
+                 (list "watch-progress" (watch-progress 'save))
+                 (list "opening-talk-heard?" opening-talk-heard?)
                  (list "closed-days" closed-days)
                  (list "closed-days-max" closed-days-max)
                  (list "loan-owed" loan-owed)
@@ -675,6 +733,13 @@
                  (list "ate-day" ate-day)))
           ((equal? msg 'load!)
            (let ((data (cadr args)))
+             (set! watch-wages (assoc-get data "watch-wages" 0))
+             (set! watch-first? (assoc-get data "watch-first?" #t))
+             (set! watch-trouble-day (assoc-get data "watch-trouble-day" 0))
+             (set! watch-trouble (assoc-get data "watch-trouble" ""))
+             (watch-progress 'load! (assoc-get data "watch-progress" 0))
+             (if (and (>= watch-wages 0) (member? watch-trouble '("" "醉客纠缠" "门口争执" "赖账客人"))) #t
+               (error "看场存档：工资或麻烦非法"))
              (set! opening-talk-heard? (assoc-get data "opening-talk-heard?" #f))
              (set! closed-days (assoc-get data "closed-days" 0))
              (set! closed-days-max (assoc-get data "closed-days-max" 2))

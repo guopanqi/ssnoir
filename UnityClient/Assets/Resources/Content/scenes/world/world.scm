@@ -14,6 +14,7 @@
 (load-file "world/试验工棚.scm")
 (load-file "world/老街酒馆.scm")
 (load-file "world/三封信.scm")
+(load-file "world/开场生活.scm")
 (load-file "world/失物委托.scm")
 (load-file "world/照片委托.scm")
 (load-file "world/艾迪.scm")

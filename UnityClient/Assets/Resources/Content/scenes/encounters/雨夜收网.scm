@@ -27,6 +27,14 @@
       "认出目标后，有一个帮手协助拦截。" "我守住这边。你一动手，我就出来。"))
     (list '追踪 (list "追踪" "街口追踪" "雨夜收网-追踪"
       "假如拦截失败，不会直接失败，仍然能够追踪到他的痕迹。" "街口交给我，跑了也有人跟。"))))
+(define 城市踩点 (get-global '雨夜收网踩点进度))
+;; 正式路线始终保留观察；2格拦截，4格追踪。独立试演保留全部岗位。
+(define 可用岗位
+  (filter (lambda (entry)
+    (or (not (member? "艾迪" 帮手名单))
+        (eq? (car entry) '观察)
+        (and (eq? (car entry) '拦截) (>= 城市踩点 2))
+        (and (eq? (car entry) '追踪) (>= 城市踩点 4)))) 岗位定义))
 (define (岗位数据 job)
   (let ((data (assoc-get 岗位定义 job #f)))
     (if data data (error "雨夜收网：未知岗位"))))
@@ -72,6 +80,7 @@
 (define (委派! job name)
   (要求阶段! '部署)
   (岗位数据 job)
+  (if (assoc-get 可用岗位 job #f) #t (error "雨夜收网：该岗位尚未踩点发现"))
   (if (member? name 帮手名单) #t (error "雨夜收网：未知帮手"))
   (if (岗位有人? job) (error "雨夜收网：请先解除当前岗位人员") #t)
   (if (人员岗位 name) (error "雨夜收网：该人员已在其他岗位，请先解除") #t)
@@ -376,7 +385,7 @@
           (if job (string-append "负责" (岗位名称 job)) "待命，尚未委派"))))) 帮手名单))
 (define (部署节点)
   (append
-    (map (lambda (entry) (岗位节点 (car entry))) 岗位定义)
+    (map (lambda (entry) (岗位节点 (car entry))) 可用岗位)
     (list (node "委派人员" :anchor "勒索信-报摊"
       :title (if 已提醒待命? "仍有人待命" "委派人员")
       :subtitle (cond

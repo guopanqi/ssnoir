@@ -1,7 +1,7 @@
 ;; 第一节照片委托：城市负责物品、费用、存档及结算，交锋只回传成果。
 (define photo-case
   (let ()
-    (define rumours (make-clock "侦探委托" 4 'gauge "喝酒或帮忙时，留意酒保的小道消息。"))
+    (define rumours (make-clock "小道消息" 4 'gauge "看场+1，喝酒+3；留意客人的谈话。"))
     (define stage 0) ; 0未接 1约会待处理 2待冲印 3可交付 4已交付
     (define evidence "无成果")
     (define source-stage 0) ; 0未开放 1可调查 2失败 3有线索 4已商量
@@ -13,12 +13,12 @@
       (set! stage 1)
       (grant-story-item! "家庭胶卷" 1)
       (sync-blockers!)
+      (play-bubble!
+        (line "妻子" "要是有人能查清楚就好了。" :at "老街酒馆")
+        (line "调酒师" "我们那位看场的，就是个私家侦探。尼尔！" :at "老街酒馆"))
       (play-dialogue!
-        (line "酒保" "有人跟我打听过你的工作。")
-        (line "尼尔" "在这儿？又是婚外情？")
-        (line "酒保" "嗯，她在那边，你和她谈吧。")
-        (line "酒保" "事成之后别忘了我的一份儿。"))
-      (play-dialogue!
+        (line "妻子" "你是侦探？能帮我查件事吗？")
+        (line "尼尔" "你想查什么？")
         (line "妻子" "我丈夫最近经常不在家，他说是陪客户。")
         (line "尼尔" "你怀疑他……")
         (line "妻子" "对，他最近精神突然很好。我的直觉告诉我这不对劲。")
@@ -91,7 +91,6 @@
              (line "妻子" "我一直想知道。现在知道了……")
              (line "妻子" "让我一个人坐一会儿。"))
            (add-item! "金钱" reward)
-           (remove-item! "金钱" 5)
            (play-dialogue! (line "酒保" "我的那份。谢了，侦探。"))))))
     (define (source-script!)
       (load-file "scripts/theatre/照相馆.scm")
@@ -148,8 +147,10 @@
       (cond
         ((equal? location "老街酒馆")
          (append
-           (if (and (= stage 0) (= (three-letters 'story-stage) 1) (rumours 'full?))
-               (list (at-anchor "老街酒馆" (instant-action "接取委托" accept!))) '())
+           (if (and (= stage 0) (= (three-letters 'story-stage) 1) (opening-life 'routes-open?))
+             (list (at-anchor "老街酒馆" (clock-node "酒馆委托消息" (rumours 'render-data)))) '())
+           (if (and (> stage 0) (< stage 4))
+             (list (at-anchor "老街酒馆" (note-node "妻子" "妻子" "她在等调查的消息。"))) '())
            (if (= stage 3)
                (list (at-anchor "老街酒馆" (instant-action "交付调查" deliver!))) '())
            (if (= source-stage 3)
@@ -176,8 +177,9 @@
         ((eq? (car args) 'shop-open?) (or (= stage 2) (= source-stage 1)))
         ((eq? (car args) 'sync-blockers!) (sync-blockers!))
         ((eq? (car args) 'hear-rumours!)
-         (if (and (= stage 0) (= (three-letters 'story-stage) 1))
-             (rumours 'advance! (cadr args)) #f))
+         (if (and (= stage 0) (= (three-letters 'story-stage) 1) (opening-life 'routes-open?))
+           (begin (rumours 'advance! (cadr args))
+             (if (rumours 'full?) (accept!) #f)) #f))
         ((eq? (car args) 'save)
          (list (list "stage" stage) (list "evidence" evidence)
                (list "source-stage" source-stage) (list "rumours" (rumours 'save))))

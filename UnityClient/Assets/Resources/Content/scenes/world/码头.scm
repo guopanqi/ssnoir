@@ -35,11 +35,12 @@
     ;; ── 工作状态 ───────────────────────────
     (define opening-talk-heard? #f)
     ;; 仅在勒索信筹备中开放；每次搬运附加推进一格，完成后停止。
-    (define worker-familiarity (make-clock "工友之间的消息" 4 'gauge
-      "搬运时与工友交换消息；满四格后可以请工友帮忙。"))
+    (define worker-familiarity (make-clock "工友之间的消息" 6 'gauge
+      "搬运时听工友聊天；满六格后认识艾迪。"))
     (define worker-asked? #f)
+    (define exploration (make-clock "熟悉码头" 4 'gauge "2格发现搬运，4格找到信上的邮箱。"))
     (define worker-joined? #f)
-    (define worker-shift (make-clock "替工友顶班" 4 'gauge
+    (define worker-shift (make-clock "替艾迪干活" 4 'gauge
       "这班活替他做完，他才有空在取信那晚帮忙。"))
     ;; 搬运每次消耗骰子并正常结算工资；替班也消耗骰子，但不发工资。
 
@@ -141,7 +142,7 @@
     ;;   艾迪     22      8 / −1    0 / −2    第三车记在你俩名下
     (define (worker-messages-active?)
       (and (= (three-letters 'story-stage) 1)
-           (three-letters 'ambush-known?)
+           (opening-life 'routes-open?)
            (not worker-asked?) (not worker-joined?)
            (not (worker-familiarity 'full?))))
 
@@ -151,12 +152,10 @@
           (begin
             (worker-familiarity 'tick!)
             (if (worker-familiarity 'full?)
-              (play-dialogue!
-                (line "工友" "你就是那个当侦探的？怎么还来搬货？")
-                (line "尼尔" "侦探也得交房租。")
-                (line "工友" "那你这份侦探的活儿可不太挣钱，还不如我们潇洒呢。"))
-              #f))
-          #f)
+              (begin
+                (set! worker-asked? #t)
+                ;; 艾迪相识新版剧场待 Claude 制作，先开放对应替班行动。
+                #t) #f)) #f)
         (cond
           ((equal? grade '好)
            (add-item! "金钱" (if (< (three-letters 'story-stage) 2) 20
@@ -168,6 +167,7 @@
           ((equal? partner "乔") #f)
           (else (spend-composure! 2)))
         (cond
+          ((< (three-letters 'story-stage) 2) #f)
           ((not opening-talk-heard?)
            (set! opening-talk-heard? #t)
            (play-bubble!
@@ -187,55 +187,66 @@
         "扛一班货，挣一晚的钱"
         :anchor "码头-货堆"))
 
-    ;; 工友之间的消息随搬运推进；顶班单独消耗骰子，不领工资。
+    ;; 探索与搬运消息分别持有各自进度；解锁只发生一次。
+    (define (explore! n)
+      (let ((before (exploration 'current)))
+        (exploration 'advance! n)
+        (let ((after (exploration 'current)))
+          (if (and (< before 2) (>= after 2))
+            (play-bubble!
+              (line "尼尔" "你好，请问这里……")
+              (line "工头" "找活儿的？货堆那边。" :at "码头-货堆")
+              (line "尼尔" "这里活儿危险些，钱也来得快。跟他们干几趟，也许能听见点消息。")) #f)
+          (if (and (< before 4) (>= after 4))
+            (play-bubble!
+              (line "尼尔" "请问，后街有没有一个邮箱？")
+              (line "工友" "报摊旁边，前面右转就是。" :at "勒索信-报摊")
+              (line "尼尔" "就是这里。信上说把钱放进这只邮箱。" :at "勒索信")) #f))))
+    (define (exploration-nodes)
+      (append
+        (if (exploration 'full?) '()
+          (list (node "探索码头" :anchor "码头-岸口"
+            :clocks (list (exploration 'render-data))
+            :requires (list (req-die))
+            :resolve (roll 'sharpness
+              (outcome (lambda () #f))
+              (outcome (lambda () (explore! 1)))
+              (outcome (lambda () (explore! 2)))))))
+        (if (exploration 'full?)
+          (list (at-anchor "勒索信" (note-node "码头邮箱" "邮箱" "信上约定放钱的地方。"))) '())))
     (define (worker-ambush-nodes)
-      (if (and (= (three-letters 'story-stage) 1)
-               (three-letters 'ambush-known?))
+      (if (and (= (three-letters 'story-stage) 1) (>= (exploration 'current) 2))
         (append
-          (if (not (worker-messages-active?)) '()
-            (list (at-anchor "码头-货堆"
-              (clock-node "标注：工友之间的消息" (worker-familiarity 'render-data)))))
-          (if (and (worker-familiarity 'full?) (not worker-asked?))
-            (list (node "请工友帮忙"
-              :anchor "码头-岸口"
-              :subtitle "他那晚有班；替他干完才肯来"
-              :resolve (instant (lambda ()
-                (set! worker-asked? #t)
-                (play-dialogue!
-                  (line "尼尔" "过几天晚上，我想请你帮个忙，我需要人手。")
-                  (line "工友" "我能帮肯定帮，不过我那天有班。")
-                  (line "尼尔" "能换班吗？")
-                  (line "工友" "你帮我把手头这批活儿干完，我那天陪你去，怎么样？")
-                  (line "尼尔" "成交。"))))))
-            '())
+          (if (worker-messages-active?)
+            (list (at-anchor "码头-货堆" (clock-node "标注：工友之间的消息" (worker-familiarity 'render-data)))) '())
           (if (and worker-asked? (not worker-joined?))
-            (list (node "替工友顶班"
-              :anchor "码头-货堆"
-              :subtitle "不领工资；做完四格才算顶班"
+            (list (node "替艾迪干活" :anchor "码头-货堆"
+              :subtitle "不领工资；做完后艾迪当晚会到场"
               :clocks (list (worker-shift 'render-data))
               :requires (list (req-die))
               :resolve (roll 'violence
                 (outcome (lambda () (spend-composure! 1)))
                 (outcome (lambda () (finish-worker-shift! 1)))
-                (outcome (lambda () (finish-worker-shift! 2))))))
-            '()))
-        '()))
+                (outcome (lambda () (finish-worker-shift! 2)))))) '())
+          (if worker-joined?
+            (list (at-anchor "码头-货堆" (note-node "艾迪的约定" "艾迪会到场"
+              "踩点找出更多岗位；未踩点也能让他负责观察。"))) '())) '()))
     (define (finish-worker-shift! amount)
       (worker-shift 'advance! amount)
       (if (worker-shift 'full?)
-        (begin
-          (set! worker-joined? #t)
+        (begin (set! worker-joined? #t)
           (play-dialogue!
-            (line "工友" "太感谢了，你实在是帮了我大忙，那天晚上我一定赶到。")))
-        #f))
+            (line "艾迪" "这批活干完，我就能把那晚的班换开。到时候我跟你去。")
+            (line "尼尔" "行，我先去看看位置，再安排。"))) #f))
 
     ;; ── 组装 ─────────────────────────────────────
     (define (livelihood-nodes)
-      (list (node-haul)))
+      (if (>= (exploration 'current) 2) (list (node-haul)) '()))
 
     (define (children)
       (map anchor-at-dock
         (append
+          (exploration-nodes)
           (livelihood-nodes)
           (worker-ambush-nodes)
           (地点节点 "码头"))))
@@ -247,10 +258,13 @@
            (list (place "码头"
                         :children (children)
                         :arrivals (地点入场 "码头"))))
-          ((equal? msg 'ambush-worker?) worker-joined?)
+          ((equal? msg 'ambush-eddie?) worker-joined?)
+          ((equal? msg 'eddie-met?) worker-asked?)
+          ((equal? msg 'mailbox-known?) (exploration 'full?))
           ((equal? msg 'save)
            (list
              (list "opening-talk-heard?" opening-talk-heard?)
+             (list "exploration" (exploration 'save))
              (list "worker-familiarity" (worker-familiarity 'save))
              (list "worker-asked?" worker-asked?)
              (list "worker-joined?" worker-joined?)
@@ -260,6 +274,7 @@
           ((equal? msg 'load!)
            (let ((data (cadr args)))
              (set! opening-talk-heard? (assoc-get data "opening-talk-heard?" #f))
+             (exploration 'load! (assoc-get data "exploration" 0))
              (worker-familiarity 'load! (assoc-get data "worker-familiarity" 0))
              (set! worker-asked? (assoc-get data "worker-asked?" #f))
              (set! worker-joined? (assoc-get data "worker-joined?" #f))

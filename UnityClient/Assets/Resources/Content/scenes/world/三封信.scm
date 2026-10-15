@@ -106,8 +106,8 @@
     (define ambush-eddie-met? #f)
     (define ambush-eddie? #f)
     (define ambush-route-result "")
-    (define ambush-survey (make-clock "邮箱踩点" 8 'gauge
-      "有人愿意帮忙以后，尼尔才开始为埋伏摸清街角。"))
+    (define ambush-survey (make-clock "邮箱踩点" 4 'gauge
+      "2格开放拦截位，4格开放追踪位；未踩点时只能安排观察。"))
     )
     (define mail-preparations '())
     ;; 履历：已经发生过什么，一拍一句，最新在前。显式写，不自动抽。
@@ -439,7 +439,7 @@
           (rainy-door-theatre!)
           (commission-dialogue!)
           (add-item! "金钱" prepayment)
-          (set! delivery-day (+ world-day letter-deadline))
+          (set! delivery-day (+ world-day letter-deadline (if (= world-day 2) 1 0)))
           (advance-stage! 1)
           (rest-release! "三封信/开场敲门")
           (log! "勒索信"
@@ -459,7 +459,7 @@
           ;; 城市既有机位依次穿行，最后落到酒馆。
           (play-camera! "格兰德酒店" .8 "")
           (play-camera! "剧院" .8 "")
-          (play-camera! "老街酒馆" .4 "老街酒馆")
+          (play-camera! "老街酒馆" .4 "")
           (load-file "scripts/theatre/序章开场.scm")
           (序章-酒馆出门)
           (play-camera! "门口" .2 "家")
@@ -487,47 +487,8 @@
       (lambda () (set-global! '天气 "")))
 
     ;; 酒馆先听到一个不太正经的办法；艾迪初见只讲人物，不要求当场付钱。
-    (define (tavern-ambush-nodes)
-      (if (not (= story-stage 1)) '()
-        (append
-          (if ambush-known? '()
-            (list (node "问酒保的办法"
-              :anchor "老街酒馆"
-              :subtitle "打听勒索相片的事"
-              :resolve (instant (lambda ()
-                (set! ambush-known? #t)
-                (play-dialogue!
-                  (line "尼尔" "你听说过有些混混四处通过相片勒索的事吗？")
-                  (line "酒保" "以前有，最近没有")
-                  (line "酒保" "要是我我就叫上几个人揍了他一顿")
-                  (line "尼尔" "你认识这样的人？")
-                  (line "酒保" "嗯......你认识艾迪吗？")))))))
-          (if (and ambush-known? (not ambush-eddie-met?))
-            (list (node "认识艾迪"
-              :anchor "老街酒馆"
-              :subtitle "酒保介绍的落魄拳手"
-              :resolve (instant (lambda ()
-                (set! ambush-eddie-met? #t)
-                (play-dialogue!
-                  (line "世界" "艾迪正和酒保争论酒钱。")
-                  (line "艾迪" "先记账上，等我下一场赢了，一起还你。")
-                  (line "酒保" "你上次也是这么说的。")
-                  (line "艾迪" "那我不是没赢嘛，赢了一起还你。")
-                  (line "世界" "酒保摇摇头走开。尼尔在桌旁坐下。")
-                  (line "尼尔" "艾迪？我有个活儿需要你。")
-                  (line "世界" "尼尔把勒索信和邮箱的事讲了一遍。")
-                  (line "艾迪" "太有意思了，要是让我抓着他我非得打他一顿不可。")
-                  (line "艾迪" "这小子是没尝过拳击手的滋味。")
-                  (line "艾迪" "给你个友情价，三十。"))))))
-            '())
-          (if (and ambush-eddie-met? (not ambush-eddie?))
-            (list (node "雇艾迪帮忙"
-              :anchor "老街酒馆"
-              :subtitle "支付三十金，交付当晚他会到场"
-              :requires (list (req-item "金钱" 30))
-              :resolve (instant (lambda ()
-                (set! ambush-eddie? #t)))))
-            '()))))
+    ;; 招募由码头相识与替班负责，酒馆不再重复售卖帮手。
+    (define (tavern-ambush-nodes) '())
     ;; ── 小节一：筹钱与两项准备 ──────────────────────
     ;; 工作与一次性失物委托提供收入；准备直接改变交付现场。
     ;; 两项具体准备，每项只做一次；下游交锋读取各自的事实。
@@ -578,27 +539,20 @@
                 " 金替你补：差在这个数以内，她当首饰，处境差一档；"
                 "差得更多，信封就是薄的，写信的人清点之后会先动手。")))))
 
-    (begin
     (define (ambush-helpers)
-      (append (if ambush-eddie? (list "艾迪") '())
-              (if (dock 'ambush-worker?) (list "工友") '())))
+      (if (dock 'ambush-eddie?) (list "艾迪") '()))
     (define (ambush-ready?)
-      (and (not (null? (ambush-helpers))) (ambush-survey 'full?)))
+      (not (null? (ambush-helpers))))
     (define (ambush-survey-step! amount)
       (let ((before (ambush-survey 'current)))
         (ambush-survey 'advance! amount)
         (let ((after (ambush-survey 'current)))
           (if (and (< before 2) (>= after 2))
-            (play-dialogue! (line "尼尔" "从这里刚好能看得清邮箱附近，也不容易惹人注意。")) #f)
-          (if (and (< before 5) (>= after 5))
-            (play-dialogue! (line "尼尔" "这里路很窄，只要有人接应，就有机会把他拦住。")) #f)
-          (if (and (< before 8) (>= after 8))
-            (play-dialogue!
-              (line "尼尔" "这里过去就到老街的地带了，全是小巷。")
-              (line "尼尔" "要是他跑了就麻烦了。不过如果有人盯着的话，也许还是有机会的。"))
-            #f)))))
+            (play-bubble! (line "尼尔" "路很窄。守住这边，就能拦住取信的人。拦截位找到了。")) #f)
+          (if (and (< before 4) (>= after 4))
+            (play-bubble! (line "尼尔" "巷口能盯住退路。追踪接应就放在这里。")) #f))))
     (define (beat1-dock-nodes)
-      (if (and (= story-stage 1) ambush-known?
+      (if (and (= story-stage 1) (dock 'mailbox-known?)
                (not (null? (ambush-helpers)))
                (not (ambush-survey 'full?)))
         (list (node "摸清邮箱街角"
@@ -650,7 +604,7 @@
         (lambda ()
           (if (ambush-ready?)
             (begin
-              ;; 有人手且踩点完成：诱饵是塞报纸的假信封，不动用任何现金。
+              ;; 艾迪已答应到场：诱饵是塞报纸的假信封，不动用任何现金。
               (set! delivery-shortfall 0)
               (set! envelope-thin? #f)
               (set-global! '邮箱街角已观察 #t)
@@ -666,6 +620,7 @@
           (if (ambush-ready?)
             (begin
               (set-global! '雨夜收网帮手名单 (ambush-helpers))
+              (set-global! '雨夜收网踩点进度 (ambush-survey 'current))
               (start-encounter "雨夜收网" on-ambush-result))
             (start-encounter "勒索信" on-delivery-result))))))
 
@@ -2281,7 +2236,7 @@
          (string-append
            "她在老街的酒馆唱歌，刚被一个剧院经理看中。首演是她等了多年的那一步——如果走得到的话。"
            (if (ambush-ready?)
-             "写信的人挑的就是这个时候。你已经布置好诱捕，将用假信封引出取信的人。"
+             "写信的人挑的就是这个时候。艾迪答应当晚到场。踩点能找出更多岗位，将用假信封引出取信的人。"
              "写信的人挑的就是这个时候。四天后，邮箱里得有一百金。")
            "她要你别报警，也别让剧院知道：他们不会去查是谁写的，他们会换一个不惹事的人。"))
         ((= story-stage 2)
@@ -2332,7 +2287,7 @@
             (if delivery-pending?
                 "就是今天。还能先在城里做事；去码头投信后才能结束这一天。"
                 (if (ambush-ready?)
-                  "准备已经就绪。到期当天投假信封引出取信者，不用再筹集赎金。"
+                  "艾迪会到场；踩点可解锁拦截与追踪位置。到期投假信封，不动用赎金。"
                   (string-append
                     "信上写的日子。到期当天必须去码头盯住邮箱。"
                     "夜莺最多替你补 " (number->string nightingale-cover-max)
@@ -2563,6 +2518,7 @@
       (cond
         ((equal? location "家")
          (append
+           (if (and (= story-stage 0) (not opening-heard?)) (list (node-opening)) '())
            (if (and (= story-stage 0) (> world-day 2)) (list (node-answer-door)) '())
            (if (and (beat3-open?) (pieces-full?) (not (has-flag? '对不上)))
                (list (node-board))
@@ -2586,7 +2542,6 @@
                '())))
         ((equal? location "老街酒馆")
          (append
-           (if (and (= story-stage 0) (not opening-heard?)) (list (node-opening)) '())
            (if (beat2-open?) (list (node-lyon-talk)) '())))
         ;; 老街节点全部平铺在居民区下；探索过程消失后，只留下有后续玩法的人物与地点。
         ((equal? location "码头居民区")
@@ -2722,7 +2677,10 @@
           ((equal? msg 'night-visit!) (receive-night-visit!))
           ((equal? msg 'opening-sleep!) (opening-sleep!))
           ((equal? msg 'story-stage) story-stage)
-          ((equal? msg 'ambush-known?) ambush-known?)
+          ((equal? msg 'opening-heard?) opening-heard?)
+          ((equal? msg 'delivery-pending?) delivery-pending?)
+          ((equal? msg 'ambush-known?) (dock 'eddie-met?))
+          ((equal? msg 'ambush-progress) (ambush-survey 'current))
           ((equal? msg 'tavern-ambush-nodes) (tavern-ambush-nodes))
           ((equal? msg 'days-to-premiere) (days-to-premiere))
           ((equal? msg 'singer-present?) (singer-present?))
