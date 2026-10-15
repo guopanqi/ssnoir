@@ -3732,6 +3732,26 @@
         "humanFeedbackAvailable": false,
         "native": false
       }
+    },
+    {
+      "id": "PL-CROSS-SCALE07",
+      "name": "两次反馈可重复改道但收益可加",
+      "layer": "mature-combination",
+      "origin": "ssnoir-research",
+      "family": "跨尺度世界目标与局部反馈",
+      "idea": "两个连续阶段分别揭晓偏好，玩家可先换站后再反向换站；检验反馈是否跨期协同",
+      "stage": "exact-DP-and-forward-policy-negative-audit",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-双反馈与跨尺度耦合反证/研究记录.md",
+        "tools/content-validator/experiments/pattern_crossscale_two_signals_20261015.py"
+      ],
+      "note": "无信号18，首波19.5，次波21.5，两信号23，交互0；BA世界最优路径含GO_B、GO_A两次改道。禁边界移动仍交互0。两次改道未证明独立跨层模式。",
+      "evidence": {
+        "exactDP": true,
+        "forwardTraces": true,
+        "humanFeedbackAvailable": false,
+        "native": false
+      }
     }
   ],
   "edges": [
