@@ -4655,6 +4655,78 @@
         "native": false,
         "repositoryCI": "not-verified"
       }
+    },
+    {
+      "id": "PL-RETURN-CYCLE",
+      "origin": "ssnoir-research",
+      "name": "世界层接约改变重返旧交锋的操作，再由局部结果影响最终世界选择",
+      "layer": "mature-combination",
+      "family": "跨交锋双向再入与后到信息",
+      "idea": "原A交锋OPEN/GUARD→世界接受B后合作强弱K揭示→重返A合法菜单改为LINK/CUT/ABANDON→联合成功反馈影响世界终局A/B/ALT选择",
+      "note": "q预测3/4、K强/弱各1/2、H风险1/2，完整根1509/128，世界W1的ACCEPT概率3/4；通常路径H0+预测B概率1/4中K弱返回CUT、K强返回LINK；LINK失败再选ALT概率7/128。单向许可BRIDGE未实现的W→回到原L→W真实反向边在此存在，但玩家体验未证。",
+      "stage": "exact-two-way-feedback-and-hidden-world-forward",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-世界回访与局部行动重构/研究记录.md",
+        "tools/content-validator/experiments/pattern_return_world_local_loop_20261015.py"
+      ],
+      "evidence": {
+        "localExactFraction": true,
+        "trueWorldForward": true,
+        "contingentMacroEnumeration": true,
+        "syntheticChromiumRuns": 1600,
+        "humanFeedbackAvailable": false,
+        "blindAgent": false,
+        "native": false,
+        "repositoryCI": "unverified"
+      }
+    },
+    {
+      "id": "PL-RETURN-MACRO",
+      "origin": "ssnoir-research",
+      "name": "返回旧交锋的三段操作可被完整条件菜单逐状态复刻",
+      "layer": "negative-boundary",
+      "family": "跨尺度回访与预编排宏动作同构",
+      "idea": "在世界W1提前写下DECLINE后动作或ACCEPT时弱/强支援分别做什么的完整条件政策，执行时仍观察K；穷举两种DECLINE及九种ACCEPT脚本，所有可达信息状态逐值等于分世界/局部选择",
+      "note": "所有(start,H,Y)状态上宏11脚本与分阶段Bellman同最优；A2之后仅6种(A是否可兑现,B是否可兑现,不可逆成本)等价后续状态。K观测仍必要但额外的局部UI分层不是数学必要条件；不能从有限状态压缩断言玩家不会在乎真实结果身份。",
+      "stage": "constructive-contingent-plan-and-sufficient-state-equivalence",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-世界回访与局部行动重构/研究记录.md",
+        "tools/content-validator/experiments/pattern_return_macro_equivalence_20261015.py"
+      ],
+      "evidence": {
+        "localExactFraction": true,
+        "trueWorldForward": true,
+        "contingentMacroEnumeration": true,
+        "syntheticChromiumRuns": 1600,
+        "humanFeedbackAvailable": false,
+        "blindAgent": false,
+        "native": false,
+        "repositoryCI": "unverified"
+      }
+    },
+    {
+      "id": "PL-RETURN-OUTCOMES",
+      "origin": "ssnoir-research",
+      "name": "极小标量优势不一定值得牺牲零违约结果与具体成果",
+      "layer": "mature-combination-boundary",
+      "family": "非标量成果、无罪免责与结果身份",
+      "idea": "OPEN冒险根略高，但GUARD确保不留下合同违约成本；每项可兑现、最终真正兑现、违约损失独立记录",
+      "note": "OPEN根1509/128、GUARD47/4，仅差5/128；OPEN平均违约成本5/16，GUARD0。OPEN最终选A13/32、B49/128、ALT27/128；GUARD A/B各3/8、ALT1/4。支援K早看与否根只差1/128，不能拿巨大界面表达冒充巨大体验价值。",
+      "stage": "true-world-vector-and-strong-safe-route-audit",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-世界回访与局部行动重构/研究记录.md",
+        "tools/content-validator/experiments/pattern_return_world_local_loop_20261015.py"
+      ],
+      "evidence": {
+        "localExactFraction": true,
+        "trueWorldForward": true,
+        "contingentMacroEnumeration": true,
+        "syntheticChromiumRuns": 1600,
+        "humanFeedbackAvailable": false,
+        "blindAgent": false,
+        "native": false,
+        "repositoryCI": "unverified"
+      }
     }
   ],
   "edges": [
@@ -8185,6 +8257,48 @@
       "to": "PL-BRIDGE-IDENTITIES",
       "relation": "transition-equivalence-distinct-from-player-valued-outcomes",
       "reason": "许可票是二场完整状态表示，不能因此否定E/S不同实际成果可能被人不同程度关心"
+    },
+    {
+      "from": "PL-BRIDGE-TICKETS",
+      "to": "PL-RETURN-CYCLE",
+      "relation": "world-layer-revisits-old-encounter-actions",
+      "reason": "BRIDGE仅从局部到下一场许可；RETURN世界ACCEPT使返回旧A合法动作真正改变，合作反馈又影响下一世界兑现"
+    },
+    {
+      "from": "PL-RETURN-CYCLE",
+      "to": "PL-RETURN-MACRO",
+      "relation": "real-feedback-but-no-new-mathematical-layer",
+      "reason": "RETURN虽具正常路径的W→L再入和后到K反馈，完整条件宏计划仍与分阶段执行在所有起点等值"
+    },
+    {
+      "from": "PL-RETURN-CYCLE",
+      "to": "PL-RETURN-OUTCOMES",
+      "relation": "aggregate-value-hides-different-result-identities",
+      "reason": "期望差5/128不能直接替代GUARD的零违约结果，须区分A/B/ALT与合同破裂"
+    },
+    {
+      "from": "PL-HEDGE01",
+      "to": "PL-RETURN-MACRO",
+      "relation": "short-precompiled-contingency-can-solve-return-choice",
+      "reason": "HEDGE保留退路也可用短策略解决；RETURN可事先写K低CUT、K高LINK等条件条款"
+    },
+    {
+      "from": "PL-RELAY-PRODUCTIVE",
+      "to": "PL-RETURN-CYCLE",
+      "relation": "productive-crisis-to-revisit-after-world-choice",
+      "reason": "RELAY同场危机产出次目标，RETURN增加世界层的合作选择导致回到原现场的具体动作改变"
+    },
+    {
+      "from": "PL-PLEDGE-EARLY",
+      "to": "PL-RETURN-OUTCOMES",
+      "relation": "promise-breach-is-not-erased-by-final-payoff",
+      "reason": "PLEDGE更正B信息不能取消A旧损失；RETURN的LINK失败2点违约真实留到最终选择之后"
+    },
+    {
+      "from": "PL-BRIDGE-IDENTITIES",
+      "to": "PL-RETURN-OUTCOMES",
+      "relation": "nonfungible-results-need-preference-evidence",
+      "reason": "BRIDGE标量根与单项E/S成果概率不一致，RETURN同样保留实际A/B/ALT兑现与不可逆违约身份"
     }
   ],
   "coverage": {
