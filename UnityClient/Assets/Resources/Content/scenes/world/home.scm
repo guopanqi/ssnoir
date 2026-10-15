@@ -34,11 +34,7 @@
     (define rent-cycle 4)
     (define rent-amount 40)
     (define rent-clk
-      (make-clock "住宿费到期" rent-cycle 'countdown
-        (lambda (current max)
-          (string-append (if (<= current 1) "就是明晚。" (string-append "还剩 " (number->string current) " 天。"))
-                         "本次到期交 "
-                         (number->string rent-amount) " 金。此后每四天收租。"))))
+      (make-clock "旅馆房费到期" rent-cycle 'countdown "每四天收取一次房费，40美元。"))
     ;; 开场当夜正常换日，次晨显示还剩两天。
     (rent-clk 'set! 3)
     (define grace-max 2)
@@ -84,7 +80,7 @@
       (>= (item-count "金钱") rent-amount))
 
     (define (rent-demand-line)
-      (string-append "住宿费到期了。" (number->string rent-amount) " 块。"))
+      (string-append "住宿费到期了。" (number->string rent-amount) "美元。"))
 
     ;; 买断不是开局就摆在面前的商品。旅馆老板第一次上门收租时才顺口告诉玩家有这条路；
     ;; 此后报价进入住所的常驻选择，不会在每次收租时重复念。
@@ -98,7 +94,7 @@
                   (line "旅馆老板"
                     (string-append
                       "等你手头有了 " (number->string apartment-price)
-                      " 块，我还有间公寓可以卖你。买下以后，不再收租。")))))
+                      " 美元，我还有间公寓可以卖你。买下以后，不再收租。")))))
             (set! apartment-offer-known? #t))))
 
     ;; 收租、补交、宽限用尽，三条路都只在对白里交代。日终规则跑不出结算行

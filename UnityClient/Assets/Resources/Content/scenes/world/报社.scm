@@ -15,7 +15,7 @@
     (define (node-sell-tip)
       (node "卖消息"
         :anchor "报社-编辑部"
-        :subtitle (string-append "一份情报换 " (number->string 消息价) " 金钱。编辑部不问来处")
+        :subtitle (string-append "一份情报换 " (number->string 消息价) " 美元。编辑部不问来处")
         :requires (list (req-item "情报" 1))
         :resolve (instant
           (outcome (lambda () (add-item! "金钱" 消息价))))))

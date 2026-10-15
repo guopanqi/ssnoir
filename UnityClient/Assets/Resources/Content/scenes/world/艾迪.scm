@@ -352,7 +352,7 @@
     ;; ── 下注 ────────────────────────────────────────
     ;; 卡名要在整棵渲染树里唯一，所以带上押的是谁——两边各三档，不带名字就会撞。
 
-    ;; 注意满格之后，写票的不再收 20 金那一档。
+    ;; 注意满格之后，写票的不再收 20 美元那一档。
     ;; 档位照样摆着，只是灰的：让玩家看见"你想押但押不了"，比它凭空消失强——
     ;; 这一档是怎么没的，他自己一晚一晚数着钟看过来的。
     (define big-ticket 20)
@@ -361,12 +361,12 @@
       (and (= amount big-ticket) (heat-clk 'full?)))
 
     (define (node-bet side amount)
-      (node (string-append (side-name side (card-night)) "·" (number->string amount) " 金")
+      (node (string-append (side-name side (card-night)) "·" (number->string amount) "美元")
         :subtitle (if (big-ticket-refused? amount)
                       "写票的不再收你这么大的票"
                       (string-append "赢了拿回 "
                                      (number->string (payout amount (today-odds side)))
-                                     " 金；输了什么也没有"))
+                                     " 美元；输了什么也没有"))
         :disabled (big-ticket-refused? amount)
         :requires (list (req-item "金钱" amount))
         :resolve (instant
@@ -383,7 +383,7 @@
                                "老街酒馆" "看比赛")
                   #f)
               (result-supplement! (string-append "你押了 " (side-name side (card-night))
-                                           " " (number->string amount) " 金。")))))))
+                                           " " (number->string amount) " 美元。")))))))
 
     (define (node-bet-side side)
       (node (string-append "押 " (side-name side (card-night)) " 赢")
@@ -563,7 +563,7 @@
             (fighter-b (card-night)) "　" (odds-text (today-odds 2))
             (if (> bet-side 0)
                 (string-append "　　你押了 " (side-name bet-side (card-night))
-                               " " (number->string bet-amount) " 金，赔率 "
+                               " " (number->string bet-amount) " 美元，赔率 "
                                (odds-text bet-odds) "。")
                 "")))))
 

@@ -8,7 +8,7 @@
     (define watch-first? #t)
     (define watch-trouble-day 0)
     (define watch-trouble "")
-    (define watch-progress (make-clock "处理麻烦" 3 'gauge "当天处理；未解决扣本日工资5金。"))
+    (define watch-progress (make-clock "处理麻烦" 3 'gauge "当天处理；未解决扣本日工资5美元。"))
     ;; 麻烦发生时先让场内的人吵起来，再由调酒师指给尼尔。
     ;; 两个已存在的场景落点：人群靠工作台、另一人靠酒馆中央。
     ;; 不引入新的隐藏节点或独立计时器。
@@ -68,7 +68,7 @@
           "在酒吧维护秩序，装装样子，但偶尔会有酒客闹事" :anchor "老街酒馆-工作"))
         (if (equal? watch-trouble "") '()
           (list (node (string-append "闹事:" watch-trouble) :anchor "老街酒馆-工作"
-            :subtitle "今天不处理，扣5金"
+            :subtitle "今天不处理，扣5美元"
             :tags (list "紧急")
             ;; 入口给概要，进入后显示同一进度钟的 clock-node，不复制状态。
             :clocks (list (watch-progress 'render-data))
@@ -394,13 +394,13 @@
       (make-clock "还款到期" 5 'countdown
         (lambda (current max)
           (string-append "欠 " (number->string loan-owed)
-                         " 金钱；归零后每天利滚利，还要挨催。"))))
+                         " 美元；归零后每天利滚利，还要挨催。"))))
     (define loan-principal 40)   ; 到手本金
     (define loan-repay 60)       ; 到期应还
 
     (define (node-borrow-loan)
       (node "借一笔钱周转"
-        :subtitle "角落里放贷的能立刻拿钱给你周转——借 40，五天后连本带利还 60；逾期利滚利，最好别拖"
+        :subtitle "借40美元，五天后还60美元；逾期利滚利"
         :tags (list "非法" "高利贷")
         :resolve (instant
           (outcome (lambda ()
@@ -410,7 +410,7 @@
 
     (define (node-repay-loan)
       (node "还清欠款"
-        :subtitle (string-append "把欠的 " (number->string loan-owed) " 金钱一次结清")
+        :subtitle (string-append "把欠的 " (number->string loan-owed) " 美元一次结清")
         :requires (list (req-item "金钱" loan-owed))
         :resolve (instant
           (outcome (lambda ()
@@ -421,7 +421,7 @@
       (node "放贷的"
         :anchor "老街酒馆"
         :subtitle (if (> loan-owed 0)
-                      (string-append "他靠在角落记着账，你还欠 " (number->string loan-owed) " 金钱")
+                      (string-append "他靠在角落记着账，你还欠 " (number->string loan-owed) " 美元")
                       "角落里靠墙坐着个记账的，缺钱周转能找他——代价你懂")
         :children (list (if (> loan-owed 0) (node-repay-loan) (node-borrow-loan)))))
 
@@ -435,7 +435,7 @@
               (set! loan-owed (+ loan-owed (quotient (+ loan-owed 4) 5)))
               (spend-composure! 2)
               (notify! (string-append "欠款逾期，利滚利涨到 " (number->string loan-owed)
-                                      " 金钱。放贷的人开始上门催了。"))))))
+                                      " 美元。放贷的人开始上门催了。"))))))
 
     ;; ── 生计工作 ──────────────────────────────────
     ;; 酒馆这两张是**稳的那一头**：钱的上限低于码头，但下限不是零——

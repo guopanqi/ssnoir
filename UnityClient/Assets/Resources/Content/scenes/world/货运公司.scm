@@ -125,7 +125,7 @@
             (let ((amount (investment-return)))
               (add-item! "金钱" amount)
               (notify! (string-append "货运项目结算，收回 "
-                                      (number->string amount) " 金钱。"))
+                                      (number->string amount) " 美元。"))
               (set! project-state "无")
               (set! project-quality 0)
               (investment-clk 'reset!)

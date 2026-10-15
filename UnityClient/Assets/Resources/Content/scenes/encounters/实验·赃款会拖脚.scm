@@ -1,7 +1,7 @@
 ;; 重量直接改变同一移动判定的收益；扔钱不可撤回，是否扔取决于当前骰与剩余路程。
 (define 完了? #f)
 (define 走过? #f)
-(define 钱袋 (make-clock "钱袋" 3 'readout "每袋5金；好结果前进5减钱袋数，中结果再少1。"))
+(define 钱袋 (make-clock "钱袋" 3 'readout "每袋5美元；好结果前进5减钱袋数，中结果再少1。"))
 (define 脱身 (make-clock "脱身" 6 'gauge "满6穿过铁路；每回合只能移动一次。"))
 (define 追兵 (make-clock "追兵" 3 'gauge "每回合加1，满3被追上；可以先完成脱身。"))
 (define (结束! result text)

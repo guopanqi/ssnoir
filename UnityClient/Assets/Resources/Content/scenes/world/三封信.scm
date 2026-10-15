@@ -439,8 +439,8 @@
           (rest-release! "三封信/开场敲门")
           (log! "勒索信"
             (string-append
-              "夜莺找上门：四天后往码头邮箱放一百金，她要知道写信的是谁。"
-              "预付款是她从耳后摘下来的一枚胸针——当铺给了二十金，"
+              "夜莺找上门：四天后往码头邮箱放一百美元，她要知道写信的是谁。"
+              "预付款是她从耳后摘下来的一枚胸针——当铺给了二十美元，"
               "说做工是城里最好那家铺子出的，背面刻着一行很小的字，不是她的名字。"))))
 
     (define (node-answer-door)
@@ -524,9 +524,9 @@
         (list 'clock "勒索款筹集" (min delivery-price (item-count "金钱"))
               delivery-price 'readout
               (string-append
-                "投信时要从库存里拿出一百金。钱仍可挪作房租和生活开销。"
-                "夜莺最多只能当掉 " (number->string nightingale-cover-max)
-                " 金替你补：差在这个数以内，她当首饰，处境差一档；"
+                "投信时要从库存里拿出一百美元。钱仍可挪作房租和生活开销。"
+                "夜莺最多能替你补 " (number->string nightingale-cover-max)
+                " 美元：差在这个数以内，她当首饰，处境差一档；"
                 "差得更多，信封就是薄的，写信的人清点之后会先动手。")))))
 
     (define (ambush-helpers)
@@ -1463,12 +1463,12 @@
     ;; 失败线没有收尾费，经理直接解除雇佣。
     (define (settle-inquiry-pay!)
       (add-item! "金钱" manager-fee)
-      (result-supplement! (string-append "调查费：" (number->string manager-fee) " 金")))
+      (result-supplement! (string-append "调查费：" (number->string manager-fee) " 美元")))
 
     (define (settle-alley-pay!)
       (add-item! "金钱" interim-fee)
       (set-flag! '前段报酬)
-      (result-supplement! (string-append "收尾费：" (number->string interim-fee) " 金")))
+      (result-supplement! (string-append "收尾费：" (number->string interim-fee) " 美元")))
 
     ;; 已知姓名后的汇报，既可能来自桥廊调查完成后专程回剧院，
     ;; 也可能发生在第二封信当天的第一次见面。两种路径共用同一笔调查费和下一段的等待。
@@ -2227,7 +2227,7 @@
            "她在老街的酒馆唱歌，刚被一个剧院经理看中。首演是她等了多年的那一步——如果走得到的话。"
            (if (ambush-ready?)
              "写信的人挑的就是这个时候。艾迪答应当晚到场。踩点能找出更多岗位，将用假信封引出取信的人。"
-             "写信的人挑的就是这个时候。四天后，邮箱里得有一百金。")
+             "写信的人挑的就是这个时候。四天后，邮箱里得有一百美元。")
            "她要你别报警，也别让剧院知道：他们不会去查是谁写的，他们会换一个不惹事的人。"))
         ((= story-stage 2)
          (if bridge-identified?
@@ -2281,7 +2281,7 @@
                   (string-append
                     "信上写的日子。到期当天必须去码头盯住邮箱。"
                     "夜莺最多替你补 " (number->string nightingale-cover-max)
-                    " 金，再多她也拿不出来。")))))
+                    " 美元，再多她也拿不出来。")))))
 
     ;; 等她回老街的日子已经由 singer-guiding-day 持有；这里仅把同一事实
     ;; 投影成卷宗可读的倒计时，不另建一根会和世界日脱节的存档时钟。

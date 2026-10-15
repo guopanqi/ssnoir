@@ -39,7 +39,7 @@
         "目标交人8；警戒先到4就失败，未触及4且交人满8自动成功。离开满2仍未救出也失败。"))
       (clock-nodes (交人 'render-data) (警戒 'render-data) (期限 'render-data))
       (list
-        (node "递出信封" :subtitle "一骰、五金：交人加2，警戒减1。"
+        (node "递出信封" :subtitle "一骰、5美元：交人加2，警戒减1。"
           :requires (list (req-die) (req-item "金钱" 5)) :resolve (instant (lambda ()
             (set! 付出 (+ 付出 5)) (警戒 'advance! -1) (交人 'advance! 2) (检查!))))
         (node "谈交人条件" :subtitle "坏：警戒加1；中：交人1警戒1；好：交人2。"
