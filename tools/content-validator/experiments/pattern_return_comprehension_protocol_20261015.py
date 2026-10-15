@@ -19,8 +19,9 @@ CARDS=(
     ("cautious-opening", "GUARD", 0, 1, 0, 0, 1),
     ("cautious-strong-support", "GUARD", 0, 0, 1, 1, 0),
 )
-# Observe correct prediction on 4/6 cards. Not an exact 75% random
-# sample; use these as balanced deterministic UX *scenarios* only.
+# Only 2/6 cards have correct forecast; cards are deliberately
+# scenario coverage, NOT a draw from the 75%-accurate forecast distribution.
+# Do not use their unweighted mean as an unbiased theoretical payoff sample.
 
 WORLD_ACTIONS=("ACCEPT", "DECLINE")
 ACCEPT_ACTIONS=("LINK", "CUT", "ABANDON")
