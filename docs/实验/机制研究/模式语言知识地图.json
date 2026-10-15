@@ -4181,6 +4181,25 @@
         "native": false,
         "repositoryCI": false
       }
+    },
+    {
+      "id": "PL-POLICY-AUDIT01",
+      "name": "动态最优策略与玩家实际判断的可解释性审计",
+      "origin": "ssnoir-research",
+      "layer": "methodology-cross-family-audit",
+      "family": "强简短策略与心理活动验证",
+      "idea": "跨REC/OPS/CLAIM/ACT/HEDGE/TACTIC/ORDER核对严格动作因果、短条件规则全优、真实不同成果身份和实际人类理解尚未验证的边界",
+      "stage": "historical-evidence-synthesis-not-new-DP",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-动态最优与玩家判断压缩审计/研究记录.md"
+      ],
+      "note": "REC交替+一手前瞻全优939/64、OPS同成本SET/一手前瞻同优518/125；ORDER对方先行收益11但机械见招拆招，HEDGE与CLAIM虽短策略却有实际放弃的旧成果。短规则不是失败的充分条件，更高根值也不是体验价值。仅复核源报告，无新独立DP或真人。",
+      "evidence": {
+        "historicalEvidenceReview": true,
+        "newDP": false,
+        "humanFeedbackAvailable": false,
+        "native": false
+      }
     }
   ],
   "edges": [
@@ -7375,6 +7394,42 @@
       "to": "PL-ORDER-ONEUSE",
       "relation": "credential-may-reduce-to-simple-rule",
       "reason": "行动资格变化可以被固定策略追平的旧负例，承诺令牌再次验证这一边界"
+    },
+    {
+      "from": "PL-ORDER-SEQUENCE",
+      "to": "PL-POLICY-AUDIT01",
+      "relation": "large-payoff-small-decision-rule",
+      "reason": "对方先绑定高收益由简短映射完成，不能以收益差冒充复杂交锋"
+    },
+    {
+      "from": "PL-ORDER-ONEUSE",
+      "to": "PL-POLICY-AUDIT01",
+      "relation": "single-use-token-timing-fully-dominated",
+      "reason": "一次性凭证的开局立即使用全局同优，形式复杂度不产生择时"
+    },
+    {
+      "from": "PL-REC01",
+      "to": "PL-POLICY-AUDIT01",
+      "relation": "one-step-lookahead-sufficient",
+      "reason": "REC完整多事件历史已由简单交替+一次短前瞻全优"
+    },
+    {
+      "from": "PL-OPS01",
+      "to": "PL-POLICY-AUDIT01",
+      "relation": "precompiled-rule-equivalence",
+      "reason": "持续规则维护被同成本SET映射逐状态复刻"
+    },
+    {
+      "from": "PL-HEDGE01",
+      "to": "PL-POLICY-AUDIT01",
+      "relation": "simple-policy-can-still-preserve-meaningful-option",
+      "reason": "真实不可重开的退路与成果身份差异可由短易懂规则表达"
+    },
+    {
+      "from": "PL-ACT01",
+      "to": "PL-POLICY-AUDIT01",
+      "relation": "autonomous-other-with-brief-contingency-rule",
+      "reason": "自主主体具有实际不同外部目标，但三轮公开信息仍可由简短条件政策完成"
     }
   ],
   "coverage": {
