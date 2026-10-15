@@ -107,7 +107,7 @@ namespace SSNoir.IMGUI
             // ── 无边悬浮族（地点 / 普通）：Ink + 硬投影，不走框架，整卡可点。
             if (kind == CardKind.Location || kind == CardKind.Common)
             {
-                ContainerNodeDrawer.DrawFloating(rect, node, kind == CardKind.Location, isHovered && !disabled, disabled, clocksBottomY);
+                ContainerNodeDrawer.DrawFloating(rect, node, kind == CardKind.Location, isHovered && !disabled, disabled, clocksBottomY, isFocused);
                 ClockPulse.BeginHost(node.Name);
                 DrawClockBadges(rect, clocks);
                 ClockPulse.EndHost();
@@ -214,9 +214,7 @@ namespace SSNoir.IMGUI
         // 动作与人物卡沿用城市牌子的底与细边，选中和执行仍用金色强调。
         private static void DrawCardFrame(Rect rect, bool isHovered, bool isFocused, bool disabled, bool isHappening)
         {
-            ContainerNodeDrawer.DrawPlateBase(rect);
-            if (isHovered && !disabled)
-                IMGUIStyles.DrawOutline(rect, 1f, IMGUIStyles.TextSecondary);
+            ContainerNodeDrawer.DrawPlateBase(rect, isHovered && !disabled);
 
             if (disabled)
             {

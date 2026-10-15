@@ -1972,7 +1972,7 @@ namespace SSNoir.IMGUI
                 if (layout.IsAnnotation || layout.Distance <= 0f)
                     continue;
                 _tethers.Add(new CardLeaderLineDrawer.Tether(
-                    layout.AnchorPos, layout.Rect, TetherWeight(layout, hitOwner)));
+                    layout.AnchorPos, layout.Rect, TetherWeight(layout, ui.IsLocked || ui.IsOccluded ? null : hitOwner)));
             }
             CardLeaderLineDrawer.Draw(_tethers);
 
@@ -2007,24 +2007,19 @@ namespace SSNoir.IMGUI
         }
 
         /// <summary>
-        /// 这条引线该画多重。指针停在哪张卡上、或哪张卡是当前焦点，就只让那一条亮起来，
-        /// 其余压暗——比把所有线都加粗有效得多，平时也不多一分噪音。
-        /// 已结算的残影没有"指着谁"可言，一律压暗。
-        ///
-        /// 手指没有悬停：`hitOwner` 在触控上是"上一次点在哪"，拿它做常驻高亮会让某张卡
-        /// 在松手之后一直亮着。所以联动高亮只在有悬停指针时生效——这是输入能力的差别，
-        /// 不改任何元素画在哪、画多大。
+        /// 引线只反馈自身状态：悬停白色，选中/执行金色，其余保持常态。
+        /// 手指没有悬停，不能用最后一次触点常驻提亮；这只区分输入能力，不改变布局。
         /// </summary>
         private CardLeaderLineDrawer.Emphasis TetherWeight(
             ProjectedCardLayout layout, ProjectedCardLayout? hitOwner)
         {
-            var pointed = UIScale.HasHoverPointer ? hitOwner : null;
-            bool highlighted = ReferenceEquals(layout, pointed)
-                || (layout.Node != null && isFocused(layout.Node.Name));
-            if (highlighted)
-                return CardLeaderLineDrawer.Emphasis.Highlighted;
-            if (pointed != null)
-                return CardLeaderLineDrawer.Emphasis.Muted;
+            if (layout.Node.Disabled)
+                return CardLeaderLineDrawer.Emphasis.Normal;
+            if (isFocused(layout.Node.Name) || GetExecutionState(layout.Node.Name).IsExecuting
+                || IsLocalRollOf(layout.Node.Name))
+                return CardLeaderLineDrawer.Emphasis.Active;
+            if (UIScale.HasHoverPointer && ReferenceEquals(layout, hitOwner))
+                return CardLeaderLineDrawer.Emphasis.Hovered;
             return CardLeaderLineDrawer.Emphasis.Normal;
         }
 

@@ -21,17 +21,17 @@ namespace SSNoir.IMGUI
     public static class CardLeaderLineDrawer
     {
         /// <summary>
-        /// 引线的三档轻重。由调用方按"谁在被指着"决定，绘制层不猜。
+        /// 引线的常态、悬停与活动三档，由调用方明确区分，绘制层不猜。
         /// 顺序即轻重：同一锚点上取最重的一档画圆环，绘制也按这个顺序分趟。
         /// </summary>
         public enum Emphasis
         {
-            /// <summary>别人正被指着，这条让开；也用于已结算的残影卡。</summary>
-            Muted,
-            /// <summary>常态。</summary>
+            /// <summary>常态；不随其他卡的悬停改变。</summary>
             Normal,
-            /// <summary>指针停在这张卡上，或它是当前聚焦的节点。</summary>
-            Highlighted,
+            /// <summary>自身悬停，白色提亮。</summary>
+            Hovered,
+            /// <summary>已选中或正在执行，金色。</summary>
+            Active,
         }
 
         public readonly struct Tether
@@ -63,9 +63,9 @@ namespace SSNoir.IMGUI
                 return;
 
             // 高亮的最后画，压在同批次的其它线之上——被指着的那一条不该被邻线切断。
-            DrawPass(tethers, Emphasis.Muted);
             DrawPass(tethers, Emphasis.Normal);
-            DrawPass(tethers, Emphasis.Highlighted);
+            DrawPass(tethers, Emphasis.Hovered);
+            DrawPass(tethers, Emphasis.Active);
 
             _drawnRings.Clear();
             foreach (var tether in tethers)
@@ -90,7 +90,7 @@ namespace SSNoir.IMGUI
         /// <summary>同一个锚点上挂着好几张卡时，圆环取其中最重的那一档。</summary>
         private static Emphasis RingWeightAt(List<Tether> tethers, Vector2 anchorPos)
         {
-            var weight = Emphasis.Muted;
+            var weight = Emphasis.Normal;
             foreach (var tether in tethers)
             {
                 if ((tether.AnchorPos - anchorPos).sqrMagnitude > RingMergeEpsilon * RingMergeEpsilon)
@@ -186,20 +186,20 @@ namespace SSNoir.IMGUI
 
         private static Color LineColor(Emphasis weight) => weight switch
         {
-            Emphasis.Highlighted => IMGUIStyles.Gold,
-            Emphasis.Muted => new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.22f),
+            Emphasis.Active => IMGUIStyles.Gold,
+            Emphasis.Hovered => IMGUIStyles.Paper,
             _ => new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.42f),
         };
 
         private static Color RingColor(Emphasis weight) => weight switch
         {
-            Emphasis.Highlighted => IMGUIStyles.Gold,
-            Emphasis.Muted => new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.30f),
+            Emphasis.Active => IMGUIStyles.Gold,
+            Emphasis.Hovered => IMGUIStyles.Paper,
             _ => new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.75f),
         };
 
         private static float LineThickness(Emphasis weight) =>
-            weight == Emphasis.Highlighted ? 1.5f : 1f;
+            weight == Emphasis.Normal ? 1f : 1.5f;
 
         private static void DrawRing(Vector2 center, Color color)
         {

@@ -66,17 +66,17 @@ namespace SSNoir.IMGUI
             => Mathf.Max(MinLocationHeight, (clocksHeight > 0f ? clocksHeight + GapAfterClocks : PlatePadY) + LocationRowH + PlatePadY);
 
         /// <summary>城市牌子共用微透暗底与细边。</summary>
-        public static void DrawPlateBase(Rect rect)
-            => DrawPlateBase(rect, IMGUIStyles.CityPlateBg);
+        public static void DrawPlateBase(Rect rect, bool hover = false)
+            => DrawPlateBase(rect, IMGUIStyles.CityPlateBg, hover);
 
-        public static void DrawPlateBase(Rect rect, Color bg)
+        public static void DrawPlateBase(Rect rect, Color bg, bool hover = false)
         {
             rect = UIScale.PixelSnap(rect);
             IMGUIStyles.DrawShadow(rect, new Vector2(2f, 3f), 0.24f);
             IMGUIStyles.SetColor(bg);
             GUI.DrawTexture(rect, Texture2D.whiteTexture);
             IMGUIStyles.ResetColor();
-            IMGUIStyles.DrawOutline(rect, 1f, IMGUIStyles.CityPlateLine);
+            IMGUIStyles.DrawOutline(rect, 1f, hover ? IMGUIStyles.Paper : IMGUIStyles.CityPlateLine);
         }
 
         public static Color PlateLineColor(bool disabled, bool hover)
@@ -171,10 +171,12 @@ namespace SSNoir.IMGUI
         // 普通画「可选图标 + 标题」（+副标题）。矮框退化为只有名字的悬浮名牌。
         // clocksBottomY：CardDrawer 量出的时钟徽章底部 Y（无徽章时等于 rect.y）——内容要让开这块，
         // 不然徽章一多、换了行，标题/图标就会被压在下面。
-        public static void DrawFloating(Rect rect, GameNode node, bool isLocation, bool hover, bool disabled, float clocksBottomY)
+        public static void DrawFloating(Rect rect, GameNode node, bool isLocation, bool hover, bool disabled, float clocksBottomY, bool focused)
         {
             // 微透底保留城市纹理，细边托住可点击区域。
-            DrawPlateBase(rect);
+            DrawPlateBase(rect, hover && !disabled);
+            if (focused && !disabled)
+                IMGUIStyles.DrawOutline(rect, 2f, IMGUIStyles.Gold);
 
             Color line = PlateLineColor(disabled, hover);
 
