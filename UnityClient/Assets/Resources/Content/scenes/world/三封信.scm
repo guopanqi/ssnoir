@@ -388,7 +388,7 @@
         ((and (= story-stage 0) (> world-day 2))
          (rest-block! "三封信/开场敲门" "有人敲门" "家" "有人敲门"))
         (delivery-pending?
-         (rest-block! "三封信/勒索信" "去码头投信" "码头" "去码头盯着邮箱"))
+         (rest-block! "三封信/勒索信" "今晚必须处理勒索信" "码头" "交信之夜"))
         ((and (= story-stage 2) (not (has-flag? '伤后探望)))
          (rest-block! "三封信/伤后探望" "她在门外等你" "家" "她来看你"))
         ((second-letter-pending?)
@@ -521,14 +521,15 @@
 
 
     (define (delivery-fund-clock)
-      (if (ambush-ready?) '() (list
+      ;; 玩家即使已招募艾迪也可能临时选择交钱，资金信息必须一直可见。
+      (list
         (list 'clock "勒索款筹集" (min delivery-price (item-count "金钱"))
               delivery-price 'readout
               (string-append
                 "投信时要从库存里拿出一百美元。钱仍可挪作房租和生活开销。"
                 "夜莺最多能替你补 " (number->string nightingale-cover-max)
                 " 美元：差在这个数以内，她当首饰，处境差一档；"
-                "差得更多，信封就是薄的，写信的人清点之后会先动手。")))))
+                "差得更多，信封就是薄的，写信的人清点之后会先动手。"))))
 
     (define (ambush-helpers)
       (if (dock 'ambush-eddie?) (list "艾迪") '()))
@@ -2371,7 +2372,7 @@
             (if delivery-pending?
                 "就是今晚。到码头选择交付、设伏或已掌握的照片尾随方案。"
                 (if (ambush-ready?)
-                  "艾迪会到场；踩点可解锁拦截与追踪位置。到期投假信封，不动用赎金。"
+                  "艾迪会到场；可以设伏，也可选择交钱。照片记录还可能提供尾随的办法。"
                   (string-append
                     "信上写的日子。到期当天必须去码头盯住邮箱。"
                     "夜莺最多替你补 " (number->string nightingale-cover-max)
