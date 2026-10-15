@@ -150,8 +150,14 @@
                          (else "抄本：小幅六张，星期二傍晚取件。染金发的年轻男人，邮务制服不合身；姓名未知。"))
               :where (cond ((source-investigable?) "照相馆")
                            ((source-talkable?) "老街酒馆") (else ""))
-              :steps (list (step "核实加工与订单" (>= source-stage 3))
-                           (step "与夜莺商量" (= source-stage 4))))))))
+              :steps (cond
+                       ((not (source-window-open?))
+                        (list (step "投信夜已过" #t)))
+                       ((= source-stage 2)
+                        (list (step "未获得可信来源线索" #t)))
+                       (else
+                        (list (step "核实加工与订单" (>= source-stage 3))
+                              (step "与夜莺商量" (= source-stage 4))))))))))
     (define (nodes-at location)
       (cond
         ((equal? location "老街酒馆")
