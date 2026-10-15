@@ -1,0 +1,443 @@
+{
+  "width": 1600,
+  "height": 900,
+  "fps": 2,
+  "seconds": 30.6527176,
+  "manual_wait_seconds": 0.0,
+  "frames": [
+    {
+      "file": "frames/00000.png",
+      "time": 0.0,
+      "phase": "Entering",
+      "speaker": null,
+      "caption": null
+    },
+    {
+      "file": "frames/00001.png",
+      "time": 0.5000002,
+      "phase": "Entering",
+      "speaker": null,
+      "caption": null
+    },
+    {
+      "file": "frames/00002.png",
+      "time": 0.9999997,
+      "phase": "Playing",
+      "speaker": null,
+      "caption": null
+    },
+    {
+      "file": "frames/00003.png",
+      "time": 1.49999928,
+      "phase": "Playing",
+      "speaker": null,
+      "caption": null
+    },
+    {
+      "file": "frames/00004.png",
+      "time": 1.99999881,
+      "phase": "Playing",
+      "speaker": null,
+      "caption": null
+    },
+    {
+      "file": "frames/00005.png",
+      "time": 2.49999833,
+      "phase": "Playing",
+      "speaker": null,
+      "caption": null
+    },
+    {
+      "file": "frames/00006.png",
+      "time": 2.99999785,
+      "phase": "Playing",
+      "speaker": null,
+      "caption": null
+    },
+    {
+      "file": "frames/00007.png",
+      "time": 3.49999738,
+      "phase": "Playing",
+      "speaker": null,
+      "caption": null
+    },
+    {
+      "file": "frames/00008.png",
+      "time": 3.999997,
+      "phase": "Playing",
+      "speaker": null,
+      "caption": null
+    },
+    {
+      "file": "frames/00009.png",
+      "time": 4.50000334,
+      "phase": "Playing",
+      "speaker": "尼尔",
+      "caption": "里面是旧报纸。你投进去就走，别回头。"
+    },
+    {
+      "file": "frames/00010.png",
+      "time": 5.00001,
+      "phase": "Playing",
+      "speaker": "尼尔",
+      "caption": "里面是旧报纸。你投进去就走，别回头。"
+    },
+    {
+      "file": "frames/00011.png",
+      "time": 5.50001669,
+      "phase": "Playing",
+      "speaker": "尼尔",
+      "caption": "里面是旧报纸。你投进去就走，别回头。"
+    },
+    {
+      "file": "frames/00012.png",
+      "time": 6.00002337,
+      "phase": "Playing",
+      "speaker": "尼尔",
+      "caption": "里面是旧报纸。你投进去就走，别回头。"
+    },
+    {
+      "file": "frames/00013.png",
+      "time": 6.50003,
+      "phase": "Playing",
+      "speaker": "尼尔",
+      "caption": "里面是旧报纸。你投进去就走，别回头。"
+    },
+    {
+      "file": "frames/00014.png",
+      "time": 7.00003672,
+      "phase": "Playing",
+      "speaker": "尼尔",
+      "caption": "里面是旧报纸。你投进去就走，别回头。"
+    },
+    {
+      "file": "frames/00015.png",
+      "time": 7.50004339,
+      "phase": "Playing",
+      "speaker": "夜莺",
+      "caption": "他要是当场拆开呢？"
+    },
+    {
+      "file": "frames/00016.png",
+      "time": 8.00005,
+      "phase": "Playing",
+      "speaker": "夜莺",
+      "caption": "他要是当场拆开呢？"
+    },
+    {
+      "file": "frames/00017.png",
+      "time": 8.500042,
+      "phase": "Playing",
+      "speaker": "夜莺",
+      "caption": "他要是当场拆开呢？"
+    },
+    {
+      "file": "frames/00018.png",
+      "time": 9.000034,
+      "phase": "Playing",
+      "speaker": "夜莺",
+      "caption": "他要是当场拆开呢？"
+    },
+    {
+      "file": "frames/00019.png",
+      "time": 9.500027,
+      "phase": "Playing",
+      "speaker": "尼尔",
+      "caption": "那就看谁先发现谁了。"
+    },
+    {
+      "file": "frames/00020.png",
+      "time": 10.0000191,
+      "phase": "Playing",
+      "speaker": "尼尔",
+      "caption": "那就看谁先发现谁了。"
+    },
+    {
+      "file": "frames/00021.png",
+      "time": 10.5000114,
+      "phase": "Playing",
+      "speaker": "尼尔",
+      "caption": "那就看谁先发现谁了。"
+    },
+    {
+      "file": "frames/00022.png",
+      "time": 11.0000038,
+      "phase": "Playing",
+      "speaker": "尼尔",
+      "caption": "那就看谁先发现谁了。"
+    },
+    {
+      "file": "frames/00023.png",
+      "time": 11.4999962,
+      "phase": "Playing",
+      "speaker": null,
+      "caption": null
+    },
+    {
+      "file": "frames/00024.png",
+      "time": 11.9999886,
+      "phase": "Playing",
+      "speaker": null,
+      "caption": null
+    },
+    {
+      "file": "frames/00025.png",
+      "time": 12.4999809,
+      "phase": "Playing",
+      "speaker": null,
+      "caption": null
+    },
+    {
+      "file": "frames/00026.png",
+      "time": 12.9999733,
+      "phase": "Playing",
+      "speaker": null,
+      "caption": null
+    },
+    {
+      "file": "frames/00027.png",
+      "time": 13.4999657,
+      "phase": "Playing",
+      "speaker": null,
+      "caption": null
+    },
+    {
+      "file": "frames/00028.png",
+      "time": 13.999958,
+      "phase": "Playing",
+      "speaker": null,
+      "caption": null
+    },
+    {
+      "file": "frames/00029.png",
+      "time": 14.49995,
+      "phase": "Playing",
+      "speaker": null,
+      "caption": null
+    },
+    {
+      "file": "frames/00030.png",
+      "time": 14.9999428,
+      "phase": "Playing",
+      "speaker": null,
+      "caption": null
+    },
+    {
+      "file": "frames/00031.png",
+      "time": 15.4999352,
+      "phase": "Playing",
+      "speaker": null,
+      "caption": null
+    },
+    {
+      "file": "frames/00032.png",
+      "time": 15.9999275,
+      "phase": "Playing",
+      "speaker": null,
+      "caption": null
+    },
+    {
+      "file": "frames/00033.png",
+      "time": 16.49992,
+      "phase": "Playing",
+      "speaker": null,
+      "caption": null
+    },
+    {
+      "file": "frames/00034.png",
+      "time": 16.9999123,
+      "phase": "Playing",
+      "speaker": null,
+      "caption": null
+    },
+    {
+      "file": "frames/00035.png",
+      "time": 17.4999046,
+      "phase": "Playing",
+      "speaker": null,
+      "caption": null
+    },
+    {
+      "file": "frames/00036.png",
+      "time": 18.0165634,
+      "phase": "Playing",
+      "speaker": null,
+      "caption": null
+    },
+    {
+      "file": "frames/00037.png",
+      "time": 18.5165558,
+      "phase": "Playing",
+      "speaker": null,
+      "caption": null
+    },
+    {
+      "file": "frames/00038.png",
+      "time": 19.0165482,
+      "phase": "Playing",
+      "speaker": null,
+      "caption": null
+    },
+    {
+      "file": "frames/00039.png",
+      "time": 19.51654,
+      "phase": "Playing",
+      "speaker": null,
+      "caption": null
+    },
+    {
+      "file": "frames/00040.png",
+      "time": 20.0165329,
+      "phase": "Playing",
+      "speaker": null,
+      "caption": null
+    },
+    {
+      "file": "frames/00041.png",
+      "time": 20.5165253,
+      "phase": "Playing",
+      "speaker": null,
+      "caption": null
+    },
+    {
+      "file": "frames/00042.png",
+      "time": 21.0165176,
+      "phase": "Playing",
+      "speaker": null,
+      "caption": null
+    },
+    {
+      "file": "frames/00043.png",
+      "time": 21.51651,
+      "phase": "Playing",
+      "speaker": null,
+      "caption": null
+    },
+    {
+      "file": "frames/00044.png",
+      "time": 22.0165024,
+      "phase": "Playing",
+      "speaker": null,
+      "caption": null
+    },
+    {
+      "file": "frames/00045.png",
+      "time": 22.5164948,
+      "phase": "Playing",
+      "speaker": null,
+      "caption": null
+    },
+    {
+      "file": "frames/00046.png",
+      "time": 23.0164871,
+      "phase": "Playing",
+      "speaker": null,
+      "caption": null
+    },
+    {
+      "file": "frames/00047.png",
+      "time": 23.51648,
+      "phase": "Playing",
+      "speaker": null,
+      "caption": null
+    },
+    {
+      "file": "frames/00048.png",
+      "time": 24.0164719,
+      "phase": "Playing",
+      "speaker": null,
+      "caption": null
+    },
+    {
+      "file": "frames/00049.png",
+      "time": 24.5164642,
+      "phase": "Playing",
+      "speaker": null,
+      "caption": null
+    },
+    {
+      "file": "frames/00050.png",
+      "time": 25.0164566,
+      "phase": "Playing",
+      "speaker": null,
+      "caption": null
+    },
+    {
+      "file": "frames/00051.png",
+      "time": 25.516449,
+      "phase": "Playing",
+      "speaker": null,
+      "caption": null
+    },
+    {
+      "file": "frames/00052.png",
+      "time": 26.0164413,
+      "phase": "Playing",
+      "speaker": null,
+      "caption": null
+    },
+    {
+      "file": "frames/00053.png",
+      "time": 26.5164337,
+      "phase": "Playing",
+      "speaker": null,
+      "caption": null
+    },
+    {
+      "file": "frames/00054.png",
+      "time": 27.0164261,
+      "phase": "Playing",
+      "speaker": null,
+      "caption": null
+    },
+    {
+      "file": "frames/00055.png",
+      "time": 27.5164185,
+      "phase": "Playing",
+      "speaker": null,
+      "caption": null
+    },
+    {
+      "file": "frames/00056.png",
+      "time": 28.01641,
+      "phase": "Playing",
+      "speaker": null,
+      "caption": null
+    },
+    {
+      "file": "frames/00057.png",
+      "time": 28.5164032,
+      "phase": "Playing",
+      "speaker": null,
+      "caption": null
+    },
+    {
+      "file": "frames/00058.png",
+      "time": 29.0163956,
+      "phase": "Playing",
+      "speaker": null,
+      "caption": null
+    },
+    {
+      "file": "frames/00059.png",
+      "time": 29.5163879,
+      "phase": "Playing",
+      "speaker": null,
+      "caption": null
+    },
+    {
+      "file": "frames/00060.png",
+      "time": 30.01638,
+      "phase": "Playing",
+      "speaker": null,
+      "caption": null
+    },
+    {
+      "file": "frames/00061.png",
+      "time": 30.5163727,
+      "phase": "Exiting",
+      "speaker": null,
+      "caption": null
+    }
+  ]
+}

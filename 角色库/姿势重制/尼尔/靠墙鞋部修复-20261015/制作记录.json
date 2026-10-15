@@ -1,0 +1,23 @@
+{
+  "source": "/Users/usr/.codex/generated_images/01a13d9c-410b-7852-844b-a59ab66cd3df/exec-df76562d-dc20-4029-a391-c95659f30a0d.png",
+  "sourceSize": [
+    1254,
+    1254
+  ],
+  "bounds": [
+    478,
+    216,
+    815,
+    1178
+  ],
+  "scale": 0.8534303534303534,
+  "offset": [
+    -54,
+    -5
+  ],
+  "ground": 1000,
+  "reference": "Portraits/Neon/尼尔",
+  "defect": "旧图存在第三只脱离身体的鞋；从基础立绘重绘靠墙交叉腿姿势，仅保留两只连着脚踝的鞋",
+  "reference_sha256": "b912fb533f3e15388ff1495dea60e8f3b1f552581fa0f8e56f617cce4fb7d8b4",
+  "raw_sha256": "513cba0cd5494db0b27409a9395154c335466989d103ce6258eded2db63d9fe7"
+}
