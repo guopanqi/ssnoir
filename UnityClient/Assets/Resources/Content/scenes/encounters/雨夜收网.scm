@@ -141,7 +141,8 @@
   (let ((name (car c)))
     (node name :anchor (cadddr c) :subtitle (cadr c)
       :children (append
-        (list (clock-node (string-append "观察：" name) ((观察钟于 c) 'render-data)))
+        (list (at-anchor (cadddr c)
+                (clock-node (string-append "观察：" name) ((观察钟于 c) 'render-data))))
         (cond
           ((equal? name "背邮袋的老头")
            (list (辨认动作 c "听那辆车铃" 'sharpness "从报纸后留意旧车的动静")

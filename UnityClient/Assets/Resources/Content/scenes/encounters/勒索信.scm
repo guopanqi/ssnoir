@@ -236,8 +236,9 @@
     :anchor (cand-zone c)
     :subtitle (cand-desc c)
     :children (append
-      (list (clock-node (string-append "调查进度：" (cand-name c))
-                        ((look-clock (cand-name c)) 'render-data)))
+      (list (at-anchor (cand-zone c)
+              (clock-node (string-append "调查进度：" (cand-name c))
+                          ((look-clock (cand-name c)) 'render-data))))
       (if (and mailbox-known? (postman? c)) (list (node-recognize-postman c)) '())
       (ways c))))
 

@@ -548,9 +548,9 @@
       (if (and (= story-stage 1) (dock 'mailbox-known?)
                (not (null? (ambush-helpers)))
                (not (ambush-survey 'full?)))
-        (list (node "摸清邮箱街角"
+        (list (node "查看邮箱附近"
           :anchor "勒索信-报摊"
-          :subtitle "为雨夜布置踩点"
+          :subtitle "为诱捕行动做准备，调查附近道路，设计拦截方式"
           :clocks (list (ambush-survey 'render-data))
           :requires (list (req-die))
           :resolve (roll 'sharpness
