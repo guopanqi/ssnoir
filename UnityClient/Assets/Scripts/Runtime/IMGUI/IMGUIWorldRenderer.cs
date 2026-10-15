@@ -772,47 +772,52 @@ namespace SSNoir.IMGUI
             return false;
         }
 
-        private const float SkipPresentationHoldSeconds = 0.9f;
-        private bool _skipPresentationHeld;
-        private float _skipPresentationHoldStartedAt;
+        private bool _skipPresentationButtonPressed;
+
+        private static Rect SkipPresentationButtonRect
+        {
+            get
+            {
+                const float buttonWidth = 136f;
+                const float buttonHeight = 44f;
+                Rect safe = UIScale.SafeArea;
+                float width = Mathf.Min(buttonWidth, Mathf.Max(1f, safe.width - 24f));
+                return new Rect(safe.xMax - width - 12f, safe.y + 12f,
+                    width, Mathf.Min(buttonHeight, safe.height));
+            }
+        }
 
         private void DrawSkipPresentationHint()
         {
             if (!CanSkipPresentation)
             {
-                _skipPresentationHeld = false;
+                _skipPresentationButtonPressed = false;
                 return;
             }
 
-            const float buttonWidth = 136f;
-            const float buttonHeight = 44f;
-            Rect safe = UIScale.SafeArea;
-            float width = Mathf.Min(buttonWidth, Mathf.Max(1f, safe.width - 24f));
-            Rect buttonRect = new Rect(
-                safe.xMax - width - 12f,
-                safe.y + 12f,
-                width,
-                Mathf.Min(buttonHeight, safe.height));
+            Rect buttonRect = SkipPresentationButtonRect;
             Event e = Event.current;
             var ui = new IMGUIInteractionContext(e.mousePosition, isLocked: false);
             bool pointerInside = ui.IsPointerInside(buttonRect);
 
-            // 长按必须从按钮内开始，并且拖出按钮或抬手就取消。
-            if (e.rawType == EventType.MouseDown && e.button == 0 && pointerInside)
+            if (e.rawType == EventType.MouseDown && e.button == 0)
             {
-                _skipPresentationHeld = true;
-                _skipPresentationHoldStartedAt = Time.unscaledTime;
-                e.Use();
+                _skipPresentationButtonPressed = pointerInside;
+                if (_skipPresentationButtonPressed)
+                    e.Use();
             }
-            else if (_skipPresentationHeld)
+            else if (_skipPresentationButtonPressed)
             {
                 bool released = e.rawType == EventType.MouseUp && e.button == 0;
                 bool draggedOut = e.rawType == EventType.MouseDrag && !pointerInside;
                 if (released || draggedOut)
                 {
-                    _skipPresentationHeld = false;
-                    if (e.rawType == EventType.MouseUp && e.button == 0 && e.type != EventType.Used)
+                    bool clicked = released && pointerInside;
+                    _skipPresentationButtonPressed = false;
+                    if (released && e.type != EventType.Used)
                         e.Use();
+                    if (clicked)
+                        TrySkipPresentation();
                 }
                 else if (e.rawType == EventType.MouseDrag && pointerInside && e.type != EventType.Used)
                 {
@@ -820,38 +825,22 @@ namespace SSNoir.IMGUI
                 }
             }
 
-            float progress = _skipPresentationHeld
-                ? Mathf.Clamp01((Time.unscaledTime - _skipPresentationHoldStartedAt) / SkipPresentationHoldSeconds)
-                : 0f;
-            if (progress >= 1f)
-            {
-                _skipPresentationHeld = false;
-                TrySkipPresentation();
-            }
-
             if (e.type != EventType.Repaint) return;
 
             bool hovered = pointerInside && IMGUIInteractionContext.HoverAvailable;
-            if (!_skipPresentationHeld)
+            if (!_skipPresentationButtonPressed)
                 IMGUIStyles.DrawShadow(buttonRect, new Vector2(2f, 2f), 0.45f);
             IMGUIStyles.SetColor(IMGUIStyles.Ink);
             GUI.DrawTexture(buttonRect, Texture2D.whiteTexture);
             IMGUIStyles.ResetColor();
-            if (_skipPresentationHeld)
-            {
-                IMGUIStyles.SetColor(IMGUIStyles.Gold);
-                GUI.DrawTexture(new Rect(buttonRect.x + 2f, buttonRect.y + 2f,
-                    (buttonRect.width - 4f) * progress, buttonRect.height - 4f), Texture2D.whiteTexture);
-                IMGUIStyles.ResetColor();
-            }
 
-            IMGUIStyles.DrawOutline(buttonRect, _skipPresentationHeld || hovered ? 2f : 1f,
-                _skipPresentationHeld ? IMGUIStyles.Gold : hovered ? IMGUIStyles.Paper : new Color(
+            IMGUIStyles.DrawOutline(buttonRect, _skipPresentationButtonPressed || hovered ? 2f : 1f,
+                _skipPresentationButtonPressed ? IMGUIStyles.Gold : hovered ? IMGUIStyles.Paper : new Color(
                     IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.55f));
             var labelStyle = new GUIStyle(IMGUIStyles.ExecuteLabel)
             {
                 fontSize = IMGUIStyles.FontSize(16),
-                normal = { textColor = progress > 0.5f ? IMGUIStyles.GoldOnDark : IMGUIStyles.TextPrimary },
+                normal = { textColor = IMGUIStyles.TextPrimary },
             };
             IMGUIStyles.DrawLabel(buttonRect, "跳过（ESC）", labelStyle);
         }
