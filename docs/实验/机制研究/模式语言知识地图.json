@@ -1,6 +1,6 @@
 {
   "schema": "ssnoir.pattern-language-map/v1",
-  "updated": "2026-10-14",
+  "updated": "2026-10-15",
   "reviewBase": "bc053ed754b826d09a3938e335c3e771ef08edb2",
   "scope": "保留成熟作品、20历史候选、精选展示与局部研究；T01是可复用的跨阶段组合边界，非独立新精选/人类认可；本轮另纳入PL-Q01/D01/W01三族跨尺度正负对照，未自动精选或真人认证；新增F1/F2目标内生生成与撤权、D2反驳纯诱饵通用支配，均为局部精确证据；RGT01可更换许可的强简单策略负例及ACT01双向自利公开外部机会模型均纳入；REL01/REL02新增自利关系许可×半成品保全×信息时点可执行证据与短公开口诀全优边界；REL03检验半成品跨交锋转成操作资格的旧启用同构与首手时间窗必要条件；新纳入R342/R430/R478三条历史社会协商先例，以及NEG01—05可信履约、强合同菜单、策略拒绝与伪造成本四个证据节点，不视为新精选；本次未造新节点，用NEG06与X01-LONG独立试玩/完整可达性证据增强原PL-NEG03和X01两个节点，避免数量攀升当价值；X03原纸面开放题升级为HARD禁用与SOFT昂贵可违约的有限最优策略同构/行动菜单差异实证，未加入新模式数量；STG01作为情景化原型实例而非新独立模式：真实三幕历史改变未来可用动作，平坦菜单对照检验换皮，依然无人类体验认证；2026-10-13 PT01转移风险相对同成本擦除的支配边界、INF-P01隐藏触发模式的精确零信息价值证据，均未自动精选或真人认证；GOAL01主动作生成新委托经完整预列条件菜单同构与义务压力消融；DISC01工作兼探查的及时性/换路成本/单份噪声线索可靠度三项正负边界，均未认证独立新原语或真人；REC01互惠生产余效×公开临时阻塞得到正常可达重排，但交替+一次短前瞻全优；REC03保留目标完成率向量与综合分数的评价分离，不晋升精选",
   "definitions": {
@@ -3307,6 +3307,616 @@
         "native": false
       },
       "note": "动态23、固定22，普通状态总需求6>5；但在揭晓后强制保A/B/C任一单项都可达23，不能把单条求解器最优路线当真实牺牲。"
+    },
+    {
+      "id": "PL-OBLIGATION03",
+      "name": "三项并行义务存在两条同分但责任不同的最优计划",
+      "layer": "evidence-boundary",
+      "origin": "ssnoir-research",
+      "family": "并行义务与非标量结果",
+      "idea": "5手三义务事件后改道，全条件成果组合590、四维期望向量144、非支配26；最优23有保AC和保BC两种责任路线",
+      "stage": "exact-complete-outcome-enumeration",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-14-并行义务完整成果前沿/研究记录.md",
+        "tools/content-validator/experiments/pattern_parallel_outcome_frontier_20261014.py"
+      ],
+      "evidence": {
+        "exhaustiveOutcomeCombinations": true,
+        "independentAgentBlind": false,
+        "humanFeedbackAvailable": false,
+        "native": false
+      },
+      "note": "最优向量(1,1/2,1,1/2)与(1/2,1,1,0)均为23；前沿数量只表明可达，不证明玩家关切或创新。"
+    },
+    {
+      "id": "PL-OBLIGATION04",
+      "name": "第一场完成的义务开放第二场动作，但普通资格位可完全复现",
+      "layer": "cross-stage-combination",
+      "origin": "ssnoir-research",
+      "family": "跨交锋责任与合法行动",
+      "idea": "前一场完成A/B分别解锁第二场单次Q/R，改变前期普通分支最优结果身份；安全X/SIDE保留",
+      "stage": "exact-conditional-enumeration",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-14-跨交锋责任与行动许可/研究记录.md",
+        "tools/content-validator/experiments/pattern_cross_stage_gates_20261014.py"
+      ],
+      "evidence": {
+        "exhaustiveConditionalPolicy": true,
+        "humanFeedbackAvailable": false,
+        "independentAgentBlind": false,
+        "native": false
+      },
+      "note": "条件许可根73/2，始终开放37；普通结果条件A+B对比无条件B+C。可由has_A/has_B状态位逐状态复现，不是独立新机制。"
+    },
+    {
+      "id": "PL-OBLIGATION05",
+      "name": "跨交锋三成果联合可达性随首场责任许可改变",
+      "layer": "cross-stage-boundary",
+      "origin": "ssnoir-research",
+      "family": "承诺与跨阶段联合可达性",
+      "idea": "首场A/B分别许可第二场P/R；同时保P+R+C在普通C需两手分支要求首场6手而预算只有5手",
+      "stage": "exact-enumeration",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-14-跨交锋不可替代承诺/研究记录.md",
+        "tools/content-validator/experiments/pattern_cross_stage_commitments_20261014.py"
+      ],
+      "evidence": {
+        "exactEnumeration": true,
+        "humanFeedbackAvailable": false,
+        "independentAgentBlind": false,
+        "native": false
+      },
+      "note": "条件许可P+R+C不可行；ALWAYS许可根37且可行；仍同构普通条件状态位，真人自选价值未经验证。"
+    },
+    {
+      "id": "PL-OBSERVE01",
+      "name": "跨交锋自选关切的盲测协议：预先声明、行动、无提示回顾、同构菜单对照",
+      "layer": "research-protocol",
+      "origin": "ssnoir-research",
+      "family": "自选责任与人类体验验证",
+      "idea": "将OBLIGATION跨交锋可达性命题转化为可证伪的人类行为观察，并与相同规则的普通凭据菜单并列",
+      "stage": "untested-protocol",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-14-自选关切与责任兑现观察协议/研究记录.md"
+      ],
+      "evidence": {
+        "protocolOnly": true,
+        "humanFeedbackAvailable": false,
+        "independentAgentBlind": false,
+        "native": false
+      },
+      "note": "旧VOL02已有自选成果HTML，本批不再重复造页；全部结论只属实验设计，不是新的试玩结果。"
+    },
+    {
+      "id": "PL-INTERRUPT01",
+      "name": "中断可恢复性决定条件改道价值，强防护又可消除改道",
+      "layer": "mechanism-boundary",
+      "origin": "ssnoir-research",
+      "family": "进度脆弱性与风险防护",
+      "idea": "四手A3=12、B2=8、SIDE1；二手后外源冲击可清空A，预防P一手可免损",
+      "stage": "exact-exhaustive-enumeration",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-14-中断可恢复与防护决策/研究记录.md",
+        "tools/content-validator/experiments/pattern_interrupt_resume_20261014.py"
+      ],
+      "evidence": {
+        "exactEnumeration": true,
+        "humanFeedbackAvailable": false,
+        "independentAgentBlind": false,
+        "native": false
+      },
+      "note": "RESUMABLE固定/动态13/13；FRAGILE10/11；PROTECT12/12，强P压平重规划，已知CRISIS/REACTIVE/SHIELD组合非新原语。"
+    },
+    {
+      "id": "PL-INFO-WINDOW01",
+      "name": "信息在截止前到达的行动价值断崖与付费完美检查反证",
+      "layer": "mechanism-boundary",
+      "origin": "ssnoir-research",
+      "family": "信息与下注／兑现窗口",
+      "idea": "紧急目标第3手截止，A/B各需2行动；比较准确消息揭晓时点、免费噪声信号、消耗行动的完美检查",
+      "stage": "exact-exhaustive-enumeration",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-信息时点与兑现窗口/研究记录.md",
+        "tools/content-validator/experiments/pattern_deadline_information_20261015.py"
+      ],
+      "evidence": {
+        "exactEnumeration": true,
+        "humanFeedbackAvailable": false,
+        "independentAgentBlind": false,
+        "native": false
+      },
+      "note": "揭晓在第2手后根16，在第3手后25/2，事后12；免费75%早信号57/4；第2手耗行动准确检查仅9，成熟信息价值×截止窗口×分散准备组合。"
+    },
+    {
+      "id": "PL-INFO-PROD01",
+      "name": "生产性调查的完美信息收益可由同成本复合状态转移完全复制",
+      "layer": "negative-boundary",
+      "origin": "ssnoir-research",
+      "family": "生产性信息与行动窗口",
+      "idea": "单手P完成A一份且揭示T；比较免费晚公开、纯I、工作兼调查P/Q、免费早公开",
+      "stage": "exact-dynamic-programming",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-生产性调查与可兑现信息/研究记录.md",
+        "tools/content-validator/experiments/pattern_productive_investigation_20261015.py"
+      ],
+      "evidence": {
+        "exactFractionDP": true,
+        "independentAgentBlind": false,
+        "humanFeedbackAvailable": false,
+        "native": false
+      },
+      "note": "晚公开与纯I均25/2，P或PQ根16，早免费完美揭晓根同16但并非全树同构；复合WORK_A+REVEAL是P全树同构，非新原语。"
+    },
+    {
+      "id": "PL-EVIDENCE-STOP01",
+      "name": "相同调查次数下证据冲突与一致产生相反停查策略",
+      "layer": "mature-combination",
+      "origin": "ssnoir-research",
+      "family": "序贯证据与停止调查",
+      "idea": "最多三次各成本1、准确率3/4的独立信号；可CLAIM正确10错误-6，或SAFE3。两份同向停查，两份冲突继续调查",
+      "stage": "exact-fraction-dp",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-序贯证据与停查选择/研究记录.md",
+        "tools/content-validator/experiments/pattern_sequential_evidence_20261015.py"
+      ],
+      "evidence": {
+        "exactDP": true,
+        "fixedCountControls": true,
+        "humanFeedbackAvailable": false,
+        "independentAgentBlind": false,
+        "native": false
+      },
+      "note": "灵活停查41/8；固定0、1、2、3次为3、5、35/8、9/2；最高强基线仅差1/8，成熟optimal stopping非新原语。"
+    },
+    {
+      "id": "PL-EVIDENCE-WORK01",
+      "name": "有噪声证据加绑定工作仍压制通用准备的负例",
+      "layer": "negative-boundary",
+      "origin": "ssnoir-research",
+      "family": "生产性证据与选择权",
+      "idea": "IA/IB生成各自绑定工作和3/4可信证据，W生成可用于任何目标的通用工作但无信息；三手后终局",
+      "stage": "exact-fraction-dp",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-证据绑定工作与通用准备/研究记录.md",
+        "tools/content-validator/experiments/pattern_evidence_work_binding_20261015.py"
+      ],
+      "evidence": {
+        "exactFractionDP": true,
+        "humanFeedbackAvailable": false,
+        "independentAgentBlind": false,
+        "native": false
+      },
+      "note": "仅W根3，仅IA/IB根451/64，全部动作仍451/64；增加通用准备没有改善根最优，非持续注意力新循环。"
+    },
+    {
+      "id": "PL-LEAD01",
+      "name": "线索引导与条件核实",
+      "layer": "mature-combination",
+      "origin": "ssnoir-research",
+      "family": "序贯信息",
+      "idea": "线索反馈影响核实对象，仍可由条件动作许可复制",
+      "stage": "exact-enumeration",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-线索引导与调查对象转换/研究记录.md"
+      ],
+      "note": "仅扫描251/64，条件深入核实7，始终开放31/3；非新原语。"
+    },
+    {
+      "id": "PL-ACTION-COUPLE01",
+      "name": "前后不同动作提高生产力，维持后到目标下的双向改道",
+      "layer": "mature-combination",
+      "origin": "ssnoir-research",
+      "family": "动作互为条件和生产关系",
+      "idea": "四手A/B，切换动作产2而重复产1，第二手后才揭晓目标；AB前缀可针对两状态分别完工",
+      "stage": "exhaustive-enumeration",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-动作切换与后到目标/研究记录.md",
+        "tools/content-validator/experiments/pattern_action_coupling_20261015.py",
+        "docs/实验/机制研究/批次/2026-10-13-双向动作余效与操作顺序/研究记录.md"
+      ],
+      "evidence": {
+        "enumeration": true,
+        "independentAgentBlind": false,
+        "humanFeedbackAvailable": false,
+        "native": false
+      },
+      "note": "固定计划根7，条件后到信息根10；移除切换增效后两种制度均7。最优策略仍为简单先AB后按目标调整，不认证新原语。 原始REC01—03已验证更丰富的双向余效×临时阻塞，且一手前瞻交替完全达到全DP。本批仅增加后到目标时保留双方向可兑现选项的小例。"
+    },
+    {
+      "id": "PL-ACTION-MODE01",
+      "name": "动作产物类型转换仍被固定ABAB压平",
+      "layer": "negative-boundary",
+      "origin": "ssnoir-research",
+      "family": "动作相邻结果变换",
+      "idea": "A之后立即执行B改产生C，而非简单B数值加成；验证能否产生观察后改计划",
+      "stage": "exact-enumeration",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-动作改变产物类型/研究记录.md",
+        "tools/content-validator/experiments/pattern_action_type_20261015.py"
+      ],
+      "evidence": {
+        "completeEnumeration": true,
+        "humanFeedbackAvailable": false,
+        "independentAgentBlind": false,
+        "native": false
+      },
+      "note": "改类型固定/条件均19，普通不改类型固定/条件均17；ABAB为强固定策略，非新原语。"
+    },
+    {
+      "id": "PL-ACTION-SWITCH01",
+      "name": "付费可逆模式切换的固定开局负例",
+      "layer": "negative-boundary",
+      "origin": "ssnoir-research",
+      "family": "动作模式与产物变换",
+      "idea": "五行动中花一手M切换B的后续产物类别，仍被MABAB固定流程实现最优",
+      "stage": "exhaustive-enumeration",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-付费模式切换负例/研究记录.md",
+        "tools/content-validator/experiments/pattern_paid_mode_switch_20261015.py"
+      ],
+      "note": "固定/条件根19，同构于简单公开有限状态模式；非新原语，未真人验证。"
+    },
+    {
+      "id": "PL-OPTION-AUDIT01",
+      "name": "早期窗口与不能免费重开才使旧退路有严格意义",
+      "layer": "cross-family-evidence-synthesis",
+      "origin": "ssnoir-research",
+      "family": "选择权与并发责任",
+      "idea": "跨HEDGE/FOCUS/CLAIM及固定策略负例建立九问、分成果及残余行动余裕筛选",
+      "stage": "archive-synthesis-not-new-experiment",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-保留选择权跨族审计/研究记录.md",
+        "docs/实验/机制研究/批次/2026-10-15-保留选择权跨族审计/反证矩阵.json"
+      ],
+      "evidence": {
+        "sourceAudit": true,
+        "newSimulation": false,
+        "newHuman": false,
+        "native": false
+      },
+      "note": "HEDGE 51/4 vs 无重叠47/4；无早窗口后串行追回51/4；FOCUS安全等待22大于早押20.5；CLAIM撤销与及时奖金必须组合；动作模式连续负例。"
+    },
+    {
+      "id": "PL-HEDGE-REPLAY01",
+      "name": "HEDGE退路同分异果的独立前向回放",
+      "layer": "independent-execution-regression",
+      "origin": "ssnoir-research",
+      "family": "并发保留退路与成果身份",
+      "idea": "独立于原DP的逐行动执行器重放12条公开政策事件组合，分别记录A/B完成概率",
+      "stage": "representative-policy-replay",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-退路策略独立前向回放/研究记录.md",
+        "tools/content-validator/experiments/pattern_hedge_forward_replay_20261015.py"
+      ],
+      "evidence": {
+        "independentExecution": true,
+        "globalOptimalityReproved": false,
+        "humanFeedbackAvailable": false,
+        "native": false
+      },
+      "note": "并行早窗51/4、A完成3/4 B完成1/4；禁止重叠47/4；无早窗串行51/4、A完成1/2 B完成1/2。只交叉复核代表性策略，未重求DP。"
+    },
+    {
+      "id": "PL-HEDGE-OBSERVE02",
+      "name": "HEDGE四条件无提示观察和规则判定",
+      "layer": "untested-human-observation-protocol",
+      "origin": "ssnoir-research",
+      "family": "保留退路与真实关切的体验验证",
+      "idea": "2×2交叉操控A早窗口与是否允许同时LIVE；记录初次声明关切、实际行动、无提示因果理解，前向规则判定器检查合法性",
+      "stage": "protocol-plus-forward-regression-no-human",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-四条件退路体验验证/研究记录.md",
+        "tools/content-validator/experiments/hedge_observation_protocol_20261015.py"
+      ],
+      "evidence": {
+        "protocol": true,
+        "ruleRegression": true,
+        "actualHuman": false,
+        "independentAgentBlind": false,
+        "native": false
+      },
+      "note": "发现旧观察顺序的学习混淆；四组EW-P/EW-S/NW-P/NW-S; 12条代表性轨迹交叉结算；仍需真正招募独立参与者。"
+    },
+    {
+      "id": "PL-HEDGE-FACTOR01",
+      "name": "HEDGE早期机会与并行资格的严格交互效应",
+      "layer": "independent-exact-solver-confirmation",
+      "origin": "ssnoir-research",
+      "family": "并发保留退路",
+      "idea": "独立Fraction动态规划逐状态求解A早窗口×可并行LIVE两个独立规则，确认并行仅在有早窗时提供根值提升",
+      "stage": "independent-full-dp-2x2",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-HEDGE双因子完整求解/研究记录.md",
+        "tools/content-validator/experiments/pattern_hedge_full_factorial_20261015.py"
+      ],
+      "evidence": {
+        "independentDP": true,
+        "forwardReplayCrossCheck": true,
+        "humanFeedbackAvailable": false,
+        "native": false
+      },
+      "note": "有早窗/并行51/4，有早窗/禁并行47/4，无早窗两组均51/4；并行收益差中差为1。旧HEDGE数学跨实现确认，不是新原语。"
+    },
+    {
+      "id": "PL-CROSS-SCALE01",
+      "name": "跨交锋单向解锁缩小行动顺序却不产生双层循环",
+      "layer": "negative-boundary",
+      "origin": "ssnoir-research",
+      "family": "多层目标选择与局部交锋",
+      "idea": "世界任务B仅在完成局部任务A后有效；与无依赖任务比较固定路径及可达结果，提出双向回路的反证准入",
+      "stage": "exhaustive-16-sequence-audit",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-跨尺度目标组织反证/研究记录.md",
+        "tools/content-validator/experiments/pattern_crossscale_order_20261015.py"
+      ],
+      "evidence": {
+        "exhaustiveEnumeration": true,
+        "humanFeedbackAvailable": false,
+        "independentAgentBlind": false,
+        "native": false
+      },
+      "note": "无依赖有6条四手双完成顺序，A先B锁链仅AABB一条；两模型根同为16。真实许可改变不等于动态重规划，更不等于双层玩法。"
+    },
+    {
+      "id": "PL-CROSS-SCALE03",
+      "name": "地点移动成本使局部反馈改变下一目的地",
+      "layer": "mature-combination",
+      "origin": "ssnoir-research",
+      "family": "跨尺度世界目标与局部反馈",
+      "idea": "首手试做揭晓高低，旅途花一手并限制工作地点；反馈后留原地或转到另一地",
+      "stage": "exact-DP-and-fixed-schedule-audit",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-跨尺度地点成本与反馈/研究记录.md",
+        "tools/content-validator/experiments/pattern_crossscale_location_20261015.py"
+      ],
+      "note": "地点约束：动态10，固定9；删除地点/移动成本：动态与固定15。世界约束具有因果作用但可用普通单层状态机完整展开，非新原语。",
+      "evidence": {
+        "exactDP": true,
+        "humanFeedbackAvailable": false,
+        "native": false
+      }
+    },
+    {
+      "id": "PL-CROSS-SCALE04",
+      "name": "跨日窗口对世界路线的零边际约束",
+      "layer": "mature-combination",
+      "origin": "ssnoir-research",
+      "family": "跨尺度世界目标与局部反馈",
+      "idea": "两个工作地点限定不同日期，检验日历是否改变反馈后的实际转场选择",
+      "stage": "exact-DP-and-fixed-schedule-negative-audit",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-跨日窗口零边际效应/研究记录.md",
+        "tools/content-validator/experiments/pattern_crossscale_calendar_20261015.py"
+      ],
+      "note": "跨日+移动动态10固定9，移除日历仍10/9；移除移动费15/15。日历约束仅删除次优行动路径，不能声称新增决策原语。",
+      "evidence": {
+        "exactDP": true,
+        "humanFeedbackAvailable": false,
+        "native": false
+      }
+    },
+    {
+      "id": "PL-CROSS-SCALE05",
+      "name": "唯一预约与提前转场的条件路线",
+      "layer": "mature-combination",
+      "origin": "ssnoir-research",
+      "family": "跨尺度世界目标与局部反馈",
+      "idea": "现场试做揭示目标品质后，决定赶赴翌日唯一预约还是留在本地完工；移动占用今日行动",
+      "stage": "exact-DP-and-fixed-schedule-audit",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-跨日预约窗口与成果身份/研究记录.md",
+        "tools/content-validator/experiments/pattern_crossscale_appointment_20261015.py"
+      ],
+      "note": "预约+移动根动态21/2固定10；取消日程15/15；取消移动16/16。仅一次简单分支，固定B必成与动态A/B各半呈不同成果身份；成熟组合而非新原语。",
+      "evidence": {
+        "exactDP": true,
+        "humanFeedbackAvailable": false,
+        "native": false
+      }
+    },
+    {
+      "id": "PL-CROSS-SCALE06",
+      "name": "预约交锋的成果身份前沿与预承诺约束",
+      "layer": "mature-combination",
+      "origin": "ssnoir-research",
+      "family": "跨尺度世界目标与局部反馈",
+      "idea": "保持地点/预约机制原样，以不同目标完成概率和SIDE收益评价条件策略与事前承诺",
+      "stage": "full-trajectory-vector-audit",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-跨尺度成果身份前沿/研究记录.md",
+        "tools/content-validator/experiments/pattern_crossscale_identity_20261015.py"
+      ],
+      "note": "52固定合法行动序列、248条件策略描述、32结果向量、5非支配；最高收益21/2，但保A最高9、保B最高10。身份评价不是新增状态规则，STAKE/VOL/OBLIGATION同族。",
+      "evidence": {
+        "fullEnumeration": true,
+        "humanFeedbackAvailable": false,
+        "native": false
+      }
+    },
+    {
+      "id": "PL-CROSS-SCALE07",
+      "name": "两次反馈可重复改道但收益可加",
+      "layer": "mature-combination",
+      "origin": "ssnoir-research",
+      "family": "跨尺度世界目标与局部反馈",
+      "idea": "两个连续阶段分别揭晓偏好，玩家可先换站后再反向换站；检验反馈是否跨期协同",
+      "stage": "exact-DP-and-forward-policy-negative-audit",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-双反馈与跨尺度耦合反证/研究记录.md",
+        "tools/content-validator/experiments/pattern_crossscale_two_signals_20261015.py"
+      ],
+      "note": "无信号18，首波19.5，次波21.5，两信号23，交互0；BA世界最优路径含GO_B、GO_A两次改道。禁边界移动仍交互0。两次改道未证明独立跨层模式。",
+      "evidence": {
+        "exactDP": true,
+        "forwardTraces": true,
+        "humanFeedbackAvailable": false,
+        "native": false
+      }
+    },
+    {
+      "id": "PL-CROSS-SCALE08",
+      "name": "未完责任罚款被固定全部完工路线压平",
+      "layer": "mature-combination",
+      "origin": "ssnoir-research",
+      "family": "跨尺度责任与反馈",
+      "idea": "阶段一分配A/B工作，阶段二揭晓偏好；未完成工作可以罚款，但强固定路线总能做完",
+      "stage": "exact-enumeration-negative-audit",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-跨期责任与维护税反证/研究记录.md",
+        "tools/content-validator/experiments/pattern_crossscale_obligation_20261015.py"
+      ],
+      "note": "四组罚款×早窗消融均固定/动态18；仅合法路径增减，不构成重新分配注意力",
+      "evidence": {
+        "exactEnumeration": true,
+        "humanFeedbackAvailable": false,
+        "native": false
+      }
+    },
+    {
+      "id": "PL-CROSS-SCALE09",
+      "name": "跨阶段维护责任作为固定行动税",
+      "layer": "mature-combination",
+      "origin": "ssnoir-research",
+      "family": "跨尺度责任与反馈",
+      "idea": "前场A工作到达门槛，次场必须PAY保留奖励；同时面对后到B/C价值",
+      "stage": "exact-enumeration-negative-audit",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-跨期责任与维护税反证/研究记录.md",
+        "tools/content-validator/experiments/pattern_crossscale_maintenance_20261015.py"
+      ],
+      "note": "有维护固定17动态39/2，无维护固定18动态41/2；最优前缀始终AA，维护固定必付，并无责任重审",
+      "evidence": {
+        "exactEnumeration": true,
+        "humanFeedbackAvailable": false,
+        "native": false
+      }
+    },
+    {
+      "id": "PL-BRIDGE-AUDIT01",
+      "name": "危机退路跨阶段责任四层因果诊断",
+      "layer": "cross-family-audit",
+      "origin": "ssnoir-research",
+      "family": "跨族因果边和证据分层",
+      "idea": "区分价值、行动资格、时限兑现、真人主观责任重估并核对已知强安全策略",
+      "stage": "historical-evidence-synthesis",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-危机退路责任跨族因果审计/研究记录.md"
+      ],
+      "note": "仅横向复核CRISIS/OPTION-HEDGE/OBLIGATION原报告；并非新DP或真人试玩，新理论是诊断分类与反证门槛。",
+      "evidence": {
+        "historicalSourceAudit": true,
+        "newExactDP": false,
+        "humanFeedbackAvailable": false,
+        "native": false
+      }
+    },
+    {
+      "id": "PL-SIGNAL-AUDIT01",
+      "name": "自主代价证据信号的分离激励及伪装边界",
+      "layer": "mature-combination",
+      "origin": "ssnoir-research",
+      "family": "第三方自利响应与可观察信号",
+      "idea": "对方H/L型主动承担不同证明成本，玩家据证明合作或拒绝；先检查各类型是否有动机模仿",
+      "stage": "pure-separating-incentive-audit",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-代价信号与第三方激励审计/研究记录.md",
+        "tools/content-validator/experiments/pattern_strategic_proof_20261015.py"
+      ],
+      "note": "cH1/cL5时分离候选成立，玩家9/2；cL2或cH4则候选失效。无信号拒绝收益1，免费完美调查亦9/2。不证明唯一/混合均衡；对照TRANSFER/TRL既有同构，非新原语。",
+      "evidence": {
+        "localIncentiveChecks": true,
+        "completeEquilibrium": false,
+        "humanFeedbackAvailable": false,
+        "native": false
+      }
+    },
+    {
+      "id": "PL-RECIP-COMMIT",
+      "name": "可执行条件承诺诱发他者生产性投入",
+      "layer": "mature-combination",
+      "origin": "ssnoir-research",
+      "family": "第三方可信参与与跨期自利响应",
+      "idea": "玩家先承诺未来怎样兑现，对方据真实私人成本决定是否进入；比较全面承诺、条件合同和外部代工",
+      "stage": "exact-pure-participation-counterfactual",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-双边承诺与后到机会/研究记录.md",
+        "tools/content-validator/experiments/pattern_bilateral_commitment_20261015.py"
+      ],
+      "note": "RECIP01/02 q1/2：条件9/4、全面7/4、安全1、免费同生产能力替代11/4；H参加要求3q>1，证明参与激励但不是新的博弈原语",
+      "evidence": {
+        "localExactFraction": true,
+        "fullMixedEquilibrium": false,
+        "independentAgent": false,
+        "humanFeedbackAvailable": false,
+        "native": false,
+        "repositoryCI": false
+      }
+    },
+    {
+      "id": "PL-RECIP-REPLAN",
+      "name": "别人投入之后玩家面对新机会的履约改道",
+      "layer": "mature-combination",
+      "origin": "ssnoir-research",
+      "family": "第三方可信参与与跨期自利响应",
+      "idea": "事前报价诱发H付证明成本、随后随机外部机会出现，玩家按当期价值兑现或退出；事前优化报酬是强基线",
+      "stage": "full-types-and-outside-world-forward-check",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-双边承诺与后到机会/研究记录.md",
+        "tools/content-validator/experiments/pattern_bilateral_outside_option_20261015.py"
+      ],
+      "note": "RECIP03/04固定T3有晚反馈21/4、不见反馈19/4，但允许优化T后都达21/4；外部机会提前公开最优11/2并减少他者浪费，反证固定报价下的虚假动态优势",
+      "evidence": {
+        "localExactFraction": true,
+        "fullMixedEquilibrium": false,
+        "independentAgent": false,
+        "humanFeedbackAvailable": false,
+        "native": false,
+        "repositoryCI": false
+      }
+    },
+    {
+      "id": "PL-RECIP-IDENTITY",
+      "name": "同收益下退出补偿与成功奖励的跨主体损失身份",
+      "layer": "mature-combination",
+      "origin": "ssnoir-research",
+      "family": "第三方可信参与与跨期自利响应",
+      "idea": "成功时报酬和退出时补偿可在双方期望上同值，但改变每个真实世界各自承受的损失",
+      "stage": "full-world-payoff-identity-audit",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-双边承诺与后到机会/研究记录.md",
+        "tools/content-validator/experiments/pattern_cancellation_transfer_20261015.py"
+      ],
+      "note": "RECIP05 T5/D0与T3/D2分别玩家21/4与伙伴1/4期望同值；H,R8伙伴-2 vs0，玩家8 vs6。非逐状态等价，仍是成熟条件合同的分配变奏",
+      "evidence": {
+        "localExactFraction": true,
+        "fullMixedEquilibrium": false,
+        "independentAgent": false,
+        "humanFeedbackAvailable": false,
+        "native": false,
+        "repositoryCI": false
+      }
+    },
+    {
+      "id": "PL-RECIP-BELIEF",
+      "name": "证明分离政策对悲观离路径信念的敏感性",
+      "layer": "mature-combination",
+      "origin": "ssnoir-research",
+      "family": "第三方可信参与与跨期自利响应",
+      "idea": "单个激励相容的合作政策未必是唯一纯PBE候选；要检查其他方不参与时的不寻常证明如何被解释",
+      "stage": "pure-pbe-candidate-and-belief-refinement-boundary",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-双边承诺与后到机会/研究记录.md",
+        "tools/content-validator/experiments/pattern_signalling_equilibrium_selection_20261015.py"
+      ],
+      "note": "RECIP06 T3分离候选玩家21/4；悲观离路径信念π<13/16支持无人证明玩家9/2，可能被Intuitive Criterion淘汰，绝非稳健唯一/多重均衡认证",
+      "evidence": {
+        "localExactFraction": true,
+        "fullMixedEquilibrium": false,
+        "independentAgent": false,
+        "humanFeedbackAvailable": false,
+        "native": false,
+        "repositoryCI": false
+      }
     }
   ],
   "edges": [
@@ -6105,6 +6715,246 @@
       "to": "PL-CRISIS03",
       "relation": "condition-dependent-outcome-frontier-and-tie",
       "reason": "不同结果组合可同分；必须全体最优策略或约束枚举审计，不能用单条贪心计划声称心理两难"
+    },
+    {
+      "from": "PL-OBLIGATION03",
+      "to": "PL-OBLIGATION02",
+      "relation": "scalar-tied-obligation-identity",
+      "reason": "最优期望分数相等，却保留不同义务身份；并行完成事实不能由总分唯一表达"
+    },
+    {
+      "from": "PL-OBLIGATION03",
+      "to": "PL-OBLIGATION01",
+      "relation": "scalar-tied-obligation-identity",
+      "reason": "最优期望分数相等，却保留不同义务身份；并行完成事实不能由总分唯一表达"
+    },
+    {
+      "from": "PL-OBLIGATION03",
+      "to": "PL-SUBMIT02",
+      "relation": "scalar-tied-obligation-identity",
+      "reason": "最优期望分数相等，却保留不同义务身份；并行完成事实不能由总分唯一表达"
+    },
+    {
+      "from": "PL-OBLIGATION04",
+      "to": "PL-OBLIGATION03",
+      "relation": "completed-outcome-gates-next-encounter-action",
+      "reason": "阶段一成果身份影响Q/R合法性，但预编译和普通条件菜单已充分解释全部行动树"
+    },
+    {
+      "from": "PL-OBLIGATION04",
+      "to": "PL-OBLIGATION02",
+      "relation": "completed-outcome-gates-next-encounter-action",
+      "reason": "阶段一成果身份影响Q/R合法性，但预编译和普通条件菜单已充分解释全部行动树"
+    },
+    {
+      "from": "PL-OBLIGATION04",
+      "to": "PL-TRANSFER02",
+      "relation": "completed-outcome-gates-next-encounter-action",
+      "reason": "阶段一成果身份影响Q/R合法性，但预编译和普通条件菜单已充分解释全部行动树"
+    },
+    {
+      "from": "PL-OBLIGATION05",
+      "to": "PL-OBLIGATION04",
+      "relation": "joint-outcome-reachability-via-earlier-completion",
+      "reason": "单项可达与多项共同可达不同，首场结果控制次场动作；普通解锁规则可完整表达"
+    },
+    {
+      "from": "PL-OBLIGATION05",
+      "to": "PL-OBLIGATION03",
+      "relation": "joint-outcome-reachability-via-earlier-completion",
+      "reason": "单项可达与多项共同可达不同，首场结果控制次场动作；普通解锁规则可完整表达"
+    },
+    {
+      "from": "PL-OBLIGATION05",
+      "to": "PL-SUBMIT02",
+      "relation": "joint-outcome-reachability-via-earlier-completion",
+      "reason": "单项可达与多项共同可达不同，首场结果控制次场动作；普通解锁规则可完整表达"
+    },
+    {
+      "from": "PL-OBSERVE01",
+      "to": "PL-OBLIGATION05",
+      "relation": "proposed-human-validation-of-outcome-identity",
+      "reason": "数学向量、条件许可能算出，但不能确定玩家是否关心、理解或主动重规划；须无提示观察并提供同构菜单对照"
+    },
+    {
+      "from": "PL-OBSERVE01",
+      "to": "PL-OBLIGATION03",
+      "relation": "proposed-human-validation-of-outcome-identity",
+      "reason": "数学向量、条件许可能算出，但不能确定玩家是否关心、理解或主动重规划；须无提示观察并提供同构菜单对照"
+    },
+    {
+      "from": "PL-OBSERVE01",
+      "to": "PL-SUBMIT02",
+      "relation": "proposed-human-validation-of-outcome-identity",
+      "reason": "数学向量、条件许可能算出，但不能确定玩家是否关心、理解或主动重规划；须无提示观察并提供同构菜单对照"
+    },
+    {
+      "from": "PL-INTERRUPT01",
+      "to": "PL-CRISIS03",
+      "relation": "interruption-resumability-and-protection",
+      "reason": "保留进度使冲击无意义，失去进度使动态转向安全B有利，强P又恢复固定确定性计划"
+    },
+    {
+      "from": "PL-INTERRUPT01",
+      "to": "PL-OBLIGATION01",
+      "relation": "interruption-resumability-and-protection",
+      "reason": "保留进度使冲击无意义，失去进度使动态转向安全B有利，强P又恢复固定确定性计划"
+    },
+    {
+      "from": "PL-INTERRUPT01",
+      "to": "PL-OBSERVE01",
+      "relation": "interruption-resumability-and-protection",
+      "reason": "保留进度使冲击无意义，失去进度使动态转向安全B有利，强P又恢复固定确定性计划"
+    },
+    {
+      "from": "PL-INFO-WINDOW01",
+      "to": "PL-INTERRUPT01",
+      "relation": "information-can-be-worthless-without-redemption-window",
+      "reason": "后到消息虽准确但错过紧急截止的预备窗口；付费完美检查损失行动时会不如可靠但免费的早期弱信号"
+    },
+    {
+      "from": "PL-INFO-WINDOW01",
+      "to": "PL-OBLIGATION01",
+      "relation": "information-can-be-worthless-without-redemption-window",
+      "reason": "后到消息虽准确但错过紧急截止的预备窗口；付费完美检查损失行动时会不如可靠但免费的早期弱信号"
+    },
+    {
+      "from": "PL-INFO-WINDOW01",
+      "to": "PL-SUBMIT01",
+      "relation": "information-can-be-worthless-without-redemption-window",
+      "reason": "后到消息虽准确但错过紧急截止的预备窗口；付费完美检查损失行动时会不如可靠但免费的早期弱信号"
+    },
+    {
+      "from": "PL-INFO-PROD01",
+      "to": "PL-INFO-WINDOW01",
+      "relation": "productive-information-action-matched-composite",
+      "reason": "生产工作与公布真相同时发生，解决截止前行动机会成本；仍等价明确的同成本状态复合动作"
+    },
+    {
+      "from": "PL-INFO-PROD01",
+      "to": "PL-OBLIGATION01",
+      "relation": "productive-information-action-matched-composite",
+      "reason": "生产工作与公布真相同时发生，解决截止前行动机会成本；仍等价明确的同成本状态复合动作"
+    },
+    {
+      "from": "PL-INFO-PROD01",
+      "to": "PL-INTERRUPT01",
+      "relation": "productive-information-action-matched-composite",
+      "reason": "生产工作与公布真相同时发生，解决截止前行动机会成本；仍等价明确的同成本状态复合动作"
+    },
+    {
+      "from": "PL-EVIDENCE-STOP01",
+      "to": "PL-INFO-PROD01",
+      "relation": "iterated-imperfect-evidence-not-once-perfect",
+      "reason": "独立有噪声证据改变后验及继续搜索收益，现有策略性伪装/一次全知不是本次规则"
+    },
+    {
+      "from": "PL-EVIDENCE-STOP01",
+      "to": "PL-INFO-WINDOW01",
+      "relation": "iterated-imperfect-evidence-not-once-perfect",
+      "reason": "独立有噪声证据改变后验及继续搜索收益，现有策略性伪装/一次全知不是本次规则"
+    },
+    {
+      "from": "PL-EVIDENCE-STOP01",
+      "to": "PL-TRANSFER02",
+      "relation": "iterated-imperfect-evidence-not-once-perfect",
+      "reason": "独立有噪声证据改变后验及继续搜索收益，现有策略性伪装/一次全知不是本次规则"
+    },
+    {
+      "from": "PL-EVIDENCE-WORK01",
+      "to": "PL-EVIDENCE-STOP01",
+      "relation": "productive-evidence-dominates-flexible-work-at-root",
+      "reason": "噪声信息和绑定工作组合足以实现全部动作菜单的最优根；通用工作未提升收益"
+    },
+    {
+      "from": "PL-EVIDENCE-WORK01",
+      "to": "PL-INFO-PROD01",
+      "relation": "productive-evidence-dominates-flexible-work-at-root",
+      "reason": "噪声信息和绑定工作组合足以实现全部动作菜单的最优根；通用工作未提升收益"
+    },
+    {
+      "from": "PL-EVIDENCE-WORK01",
+      "to": "PL-INFO-WINDOW01",
+      "relation": "productive-evidence-dominates-flexible-work-at-root",
+      "reason": "噪声信息和绑定工作组合足以实现全部动作菜单的最优根；通用工作未提升收益"
+    },
+    {
+      "from": "PL-ACTION-COUPLE01",
+      "to": "PL-LEAD01",
+      "relation": "different-transition-mechanism",
+      "reason": "LEAD通过条件许可打开核实，ACTION-COUPLE通过前一动作改变下一次真实产量；均需反证简单条件策略"
+    },
+    {
+      "from": "PL-ACTION-MODE01",
+      "to": "PL-ACTION-COUPLE01",
+      "relation": "different-output-type-still-fixed-alternation",
+      "reason": "把生产数值增效替换为产物种类变化，仍无法使消息后的不同计划成为最优"
+    },
+    {
+      "from": "PL-CROSS-SCALE08",
+      "to": "PL-BRIDGE-AUDIT01",
+      "relation": "safe-completion-counterexample",
+      "reason": "可以先完成全部任务，跨期未完成罚款不会改变最优行动"
+    },
+    {
+      "from": "PL-CROSS-SCALE09",
+      "to": "PL-BRIDGE-AUDIT01",
+      "relation": "fixed-maintenance-counterexample",
+      "reason": "维护如果总是必做，只形成固定行动税"
+    },
+    {
+      "from": "PL-CROSS-SCALE07",
+      "to": "PL-BRIDGE-AUDIT01",
+      "relation": "multiple-replanning-insufficient",
+      "reason": "两次转场改道可能仍为加性反馈，不能证明责任重估"
+    },
+    {
+      "from": "PL-GRC01",
+      "to": "PL-RECIP-COMMIT",
+      "relation": "credible-participation-precedent",
+      "reason": "已知GRC中伙伴预期被未来低成本旁路会拒绝早期不可替代的HELP；本批不独立认证首创"
+    },
+    {
+      "from": "PL-TRANSFER02",
+      "to": "PL-RECIP-COMMIT",
+      "relation": "proof-versus-static-menu",
+      "reason": "静态移交只是SETUP，真正生产性成本及可执行承诺需要分别提供动作证据"
+    },
+    {
+      "from": "PL-GRC03",
+      "to": "PL-RECIP-REPLAN",
+      "relation": "other-agent-information-timing",
+      "reason": "GRC已知早/晚信息通过参与约束能正向或反向改变收益；RECIP提前公开的价值须对照双方结果"
+    },
+    {
+      "from": "PL-RECIP-COMMIT",
+      "to": "PL-RECIP-REPLAN",
+      "relation": "partner-investment-enables-later-player-choice",
+      "reason": "前期承诺诱发证明工作，后到机会才可能让玩家决定兑现或另投，仍有事前合同全优旁路"
+    },
+    {
+      "from": "PL-RECIP-REPLAN",
+      "to": "PL-RECIP-IDENTITY",
+      "relation": "scalar-tie-distinct-partner-loss",
+      "reason": "双方平均值同分仍可改变谁在后到机会触发时承受不可追回的成本"
+    },
+    {
+      "from": "PL-SIGNAL-AUDIT01",
+      "to": "PL-RECIP-BELIEF",
+      "relation": "separation-not-uniqueness",
+      "reason": "验证分离策略仅说明候选成立；RECIP额外追问离路径信念及均衡精炼"
+    },
+    {
+      "from": "PL-TRL02",
+      "to": "PL-RECIP-BELIEF",
+      "relation": "costly-mimicry-and-beliefs",
+      "reason": "旧TRL已研究策略伪装；不能把一个纯分离激励称完整信号博弈"
+    },
+    {
+      "from": "PL-RECIP-REPLAN",
+      "to": "PL-RECIP-BELIEF",
+      "relation": "multiple-equilibria-limits-value-claim",
+      "reason": "按分离策略计算玩家21/4不能当作所有参与者预期下一定达成该结果"
     }
   ],
   "coverage": {
