@@ -3694,6 +3694,25 @@
         "humanFeedbackAvailable": false,
         "native": false
       }
+    },
+    {
+      "id": "PL-CROSS-SCALE05",
+      "name": "唯一预约与提前转场的条件路线",
+      "layer": "mature-combination",
+      "origin": "ssnoir-research",
+      "family": "跨尺度世界目标与局部反馈",
+      "idea": "现场试做揭示目标品质后，决定赶赴翌日唯一预约还是留在本地完工；移动占用今日行动",
+      "stage": "exact-DP-and-fixed-schedule-audit",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-跨日预约窗口与成果身份/研究记录.md",
+        "tools/content-validator/experiments/pattern_crossscale_appointment_20261015.py"
+      ],
+      "note": "预约+移动根动态21/2固定10；取消日程15/15；取消移动16/16。仅一次简单分支，固定B必成与动态A/B各半呈不同成果身份；成熟组合而非新原语。",
+      "evidence": {
+        "exactDP": true,
+        "humanFeedbackAvailable": false,
+        "native": false
+      }
     }
   ],
   "edges": [
