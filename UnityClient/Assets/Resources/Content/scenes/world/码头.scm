@@ -39,6 +39,7 @@
       "搬运时听工友聊天；满六格后认识艾迪。"))
     (define worker-asked? #f)
     (define exploration (make-clock "熟悉码头" 4 'gauge "2格发现搬运，4格找到信上的邮箱。"))
+    (define mailbox-viewed? #f)
     (define worker-joined? #f)
     (define worker-shift (make-clock "替艾迪干活" 4 'gauge
       "这班活替他做完，他才有空在取信那晚帮忙。"))
@@ -202,6 +203,13 @@
               (line "尼尔" "请问，后街有没有一个邮箱？")
               (line "工友" "报摊旁边，前面右转就是。" :at "勒索信-报摊")
               (line "尼尔" "就是这里。信上说把钱放进这只邮箱。" :at "勒索信")) #f))))
+    (define (view-mailbox!)
+      (set! mailbox-viewed? #t)
+      (play-dialogue!
+        (line "世界" "这里就是信上说的地方，他说要把钱装在信封里，放在邮箱里面，粘在内壁顶部。")
+        (line "世界" "这里人来人往，离远了就很难看清楚动作。")
+        (line "世界" "我还是要么凑钱，要么找找别的门路。")))
+
     (define (exploration-nodes)
       (append
         (if (exploration 'full?) '()
@@ -213,7 +221,10 @@
               (outcome (lambda () (explore! 1)))
               (outcome (lambda () (explore! 2)))))))
         (if (exploration 'full?)
-          (list (at-anchor "勒索信" (note-node "码头邮箱" "邮箱" "信上约定放钱的地方。"))) '())))
+          (list
+            (if mailbox-viewed?
+              (at-anchor "勒索信" (note-node "码头邮箱" "邮箱" "信上约定放钱的地方；信封要粘在内壁顶部。"))
+              (anchored-instant-action "查看邮箱" "勒索信" view-mailbox!))) '())))
     (define (worker-ambush-nodes)
       (if (and (= (three-letters 'story-stage) 1) (>= (exploration 'current) 2))
         (append
@@ -265,6 +276,7 @@
            (list
              (list "opening-talk-heard?" opening-talk-heard?)
              (list "exploration" (exploration 'save))
+             (list "mailbox-viewed?" mailbox-viewed?)
              (list "worker-familiarity" (worker-familiarity 'save))
              (list "worker-asked?" worker-asked?)
              (list "worker-joined?" worker-joined?)
@@ -275,6 +287,7 @@
            (let ((data (cadr args)))
              (set! opening-talk-heard? (assoc-get data "opening-talk-heard?" #f))
              (exploration 'load! (assoc-get data "exploration" 0))
+             (set! mailbox-viewed? (assoc-get data "mailbox-viewed?" #f))
              (worker-familiarity 'load! (assoc-get data "worker-familiarity" 0))
              (set! worker-asked? (assoc-get data "worker-asked?" #f))
              (set! worker-joined? (assoc-get data "worker-joined?" #f))
