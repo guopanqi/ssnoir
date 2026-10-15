@@ -28,6 +28,13 @@ def game(n,escape=True):
     assert p*y+(1-p)*w==vo
     return vp,vo,('MIX',p,q)
 
+def flight_dominated(n):
+    # Counterfactual: opponent places such a large personal cost on ESCAPE
+    # that HIDE strictly dominates it, no matter which player action.
+    opponent=((Q(0),Q(-3)),(Q(0),Q(-4)))
+    assert all(row[0]>row[1] for row in opponent)
+    return Q(3*n),Q(0),('PRESS','HIDE')
+
 def regression():
     for n in range(1,9):
         vp,vo,policy=game(n)
