@@ -49,7 +49,7 @@ def outcome(early, w, state, breach_cost=BREACH_COST, direct=False):
     sealed, _, b, aw, side, cancelled = state
     A = sealed or (early=='PASS' and direct and aw==2)
     B = b==2
-    breach = (early=='PLEDGE' and not sealed)
+    breach = (early=='PLEDGE' and not sealed and not cancelled)
     # A and B may both be achieved in the 3-action slack control only.
     g = (MATCH if w=='A' else MISMATCH) if A else 0
     g += (MATCH if w=='B' else MISMATCH) if B else 0
@@ -152,6 +152,7 @@ def regression():
     assert dynamic(require_A=True)[0]==F(19,2)
     assert dynamic(forbid_breach=True)[0]==F(10)
     assert dynamic(cancellation=True)[0]==value
+    assert outcome('PLEDGE','B',(False,False,0,0,1,True))[3] is False
     assert dynamic(breach_cost=0, direct=True)[0]==F(15)
     assert fixed_suffix('PLEDGE')[0]==F(5)
     assert fixed_suffix('PASS')[0]==F(10)
