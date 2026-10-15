@@ -775,8 +775,6 @@ namespace SSNoir.IMGUI
         private const float SkipPresentationHoldSeconds = 0.9f;
         private bool _skipPresentationHeld;
         private float _skipPresentationHoldStartedAt;
-        private GUIStyle? _skipPresentationLabelStyle;
-        private GUIStyle? _skipPresentationKeyStyle;
 
         private void DrawSkipPresentationHint()
         {
@@ -786,8 +784,8 @@ namespace SSNoir.IMGUI
                 return;
             }
 
-            const float buttonWidth = 144f;
-            const float buttonHeight = 48f;
+            const float buttonWidth = 136f;
+            const float buttonHeight = 44f;
             Rect safe = UIScale.SafeArea;
             float width = Mathf.Min(buttonWidth, Mathf.Max(1f, safe.width - 24f));
             Rect buttonRect = new Rect(
@@ -810,8 +808,7 @@ namespace SSNoir.IMGUI
             {
                 bool released = e.rawType == EventType.MouseUp && e.button == 0;
                 bool draggedOut = e.rawType == EventType.MouseDrag && !pointerInside;
-                bool inputEnded = e.type == EventType.Repaint && !Input.GetMouseButton(0);
-                if (released || draggedOut || inputEnded)
+                if (released || draggedOut)
                 {
                     _skipPresentationHeld = false;
                     if (e.rawType == EventType.MouseUp && e.button == 0 && e.type != EventType.Used)
@@ -835,42 +832,28 @@ namespace SSNoir.IMGUI
             if (e.type != EventType.Repaint) return;
 
             bool hovered = pointerInside && IMGUIInteractionContext.HoverAvailable;
-            Color border = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b,
-                _skipPresentationHeld ? 0.78f : hovered ? 0.62f : 0.38f);
-            Color background = new Color(IMGUIStyles.Ink.r, IMGUIStyles.Ink.g, IMGUIStyles.Ink.b,
-                _skipPresentationHeld ? 0.94f : hovered ? 0.88f : 0.78f);
-            IMGUIStyles.SetColor(background);
+            if (!_skipPresentationHeld)
+                IMGUIStyles.DrawShadow(buttonRect, new Vector2(2f, 2f), 0.45f);
+            IMGUIStyles.SetColor(IMGUIStyles.Ink);
             GUI.DrawTexture(buttonRect, Texture2D.whiteTexture);
             IMGUIStyles.ResetColor();
-            IMGUIStyles.DrawOutline(buttonRect, 1f, border);
-
-            float dialSize = Mathf.Min(28f, buttonRect.height - 12f);
-            Rect dialRect = new Rect(buttonRect.x + 9f, buttonRect.center.y - dialSize * 0.5f, dialSize, dialSize);
-            Color track = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.30f);
-            ShapeDrawer.DrawDial(dialRect, Mathf.RoundToInt(progress * 100f), 100,
-                _skipPresentationHeld ? IMGUIStyles.Gold : IMGUIStyles.Paper, track);
-
-            _skipPresentationLabelStyle ??= new GUIStyle(GUI.skin.label)
+            if (_skipPresentationHeld)
             {
-                alignment = TextAnchor.MiddleLeft,
-                wordWrap = false,
-                clipping = TextClipping.Clip,
-            };
-            _skipPresentationLabelStyle.fontSize = IMGUIStyles.FontSize(14);
-            _skipPresentationLabelStyle.normal.textColor = _skipPresentationHeld || hovered
-                ? IMGUIStyles.TextPrimary
-                : IMGUIStyles.TextSecondary;
-            GUI.Label(new Rect(dialRect.xMax + 7f, buttonRect.y, Mathf.Max(1f, buttonRect.width - dialSize - 48f), buttonRect.height),
-                "长按跳过", _skipPresentationLabelStyle);
+                IMGUIStyles.SetColor(IMGUIStyles.Gold);
+                GUI.DrawTexture(new Rect(buttonRect.x + 2f, buttonRect.y + 2f,
+                    (buttonRect.width - 4f) * progress, buttonRect.height - 4f), Texture2D.whiteTexture);
+                IMGUIStyles.ResetColor();
+            }
 
-            _skipPresentationKeyStyle ??= new GUIStyle(GUI.skin.label)
+            IMGUIStyles.DrawOutline(buttonRect, _skipPresentationHeld || hovered ? 2f : 1f,
+                _skipPresentationHeld ? IMGUIStyles.Gold : hovered ? IMGUIStyles.Paper : new Color(
+                    IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.55f));
+            var labelStyle = new GUIStyle(IMGUIStyles.ExecuteLabel)
             {
-                alignment = TextAnchor.MiddleCenter,
-                wordWrap = false,
+                fontSize = IMGUIStyles.FontSize(16),
+                normal = { textColor = progress > 0.5f ? IMGUIStyles.GoldOnDark : IMGUIStyles.TextPrimary },
             };
-            _skipPresentationKeyStyle.fontSize = IMGUIStyles.FontSize(10);
-            _skipPresentationKeyStyle.normal.textColor = IMGUIStyles.TextSecondary;
-            GUI.Label(new Rect(buttonRect.xMax - 34f, buttonRect.y, 28f, buttonRect.height), "ESC", _skipPresentationKeyStyle);
+            IMGUIStyles.DrawLabel(buttonRect, "跳过（ESC）", labelStyle);
         }
 
         // 左键点击：打字中先显示全文，否则进入下一句。
