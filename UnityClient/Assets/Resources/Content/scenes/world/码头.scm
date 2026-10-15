@@ -192,7 +192,8 @@
               (line "尼尔" "你好，请问这里……")
               (line "工头" "找活儿的？货堆那边。" :at "码头-货堆")
               (line "尼尔" "这里活儿危险些，钱也来得快。跟他们干几趟，也许能听见点消息。")) #f)
-          (if (and (< before 4) (>= after 4))
+          (if (and (= (three-letters 'story-stage) 1)
+                   (< before 4) (>= after 4))
             (play-bubble!
               (line "尼尔" "请问，后街有没有一个邮箱？")
               (line "工友" "报摊旁边，前面右转就是。" :at "勒索信-报摊")
@@ -214,7 +215,7 @@
               (outcome (lambda () #f))
               (outcome (lambda () (explore! 1)))
               (outcome (lambda () (explore! 2)))))))
-        (if (exploration 'full?)
+        (if (and (= (three-letters 'story-stage) 1) (exploration 'full?))
           (list
             (if mailbox-viewed?
               (at-anchor "勒索信" (note-node "码头邮箱" "邮箱" "信上约定放钱的地方；信封要粘在内壁顶部。"))
