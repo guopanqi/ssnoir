@@ -23,6 +23,9 @@ namespace SSNoir
         private readonly List<UnityEngine.Object> _owned=new();
         private readonly List<Moving> _moving=new();
         private Material _halo=null!, _pool=null!, _ribbon=null!;
+        private readonly List<Light> _accentLights = new();
+        private readonly List<(Material Material, Color Color)> _neonMaterials = new();
+        private float _weight = 1f;
         private float _elapsed;
         private Mesh _trails=null!;
         private Vector3[] _trailVertices=Array.Empty<Vector3>();
@@ -128,7 +131,9 @@ namespace SSNoir
             foreach(var sign in spec.neon) {
                 if(sign.palette<0 || sign.palette>=neonColors.Length)throw new InvalidOperationException("未知霓虹色角色");
                 var material=Own(new Material(palette.FindMaterial("主线")!) {name="夜城霓虹",hideFlags=HideFlags.DontSave});
-                material.SetColor("_BaseColor",ColorOf(neonColors[sign.palette],1).linear*2.3f);
+                var originalColor=ColorOf(neonColors[sign.palette],1).linear*2.3f;
+                material.SetColor("_BaseColor",originalColor);
+                _neonMaterials.Add((material,originalColor));
                 var go=new GameObject("立面霓虹");go.transform.SetParent(transform,false);
                 Box(go.transform,new Vector3(sign.size.x,sign.size.z,sign.size.y),Convert(sign.position),material);
                 halo.Add(Convert(sign.position),sign.size.z*2.4f,ColorOf(neonColors[sign.palette],.24f),true);
@@ -141,6 +146,7 @@ namespace SSNoir
                 var go=new GameObject("街灯立面光");go.transform.SetParent(transform,false);go.transform.localPosition=p+Vector3.up*9.5f;
                 var l=go.AddComponent<Light>();l.type=LightType.Point;l.color=ColorOf("#ffa04a",1);l.intensity=6000*Settings.WarmLight; // Three PointLight uses candela, unlike Blender energy declarations.
                 l.range=200*transform.lossyScale.x;l.shadows=LightShadows.None;l.renderMode=LightRenderMode.ForcePixel;
+                _accentLights.Add(l);
             }
             Batch("沿街灯晕",halo,_halo);Batch("路面光池",pools,_pool);
             var roads=spec.roads.Select(r=>new Path(r.points.Select(Convert).ToArray())).ToArray();
@@ -182,6 +188,21 @@ namespace SSNoir
         private void Batch(string name,Quads data,Material mat) {
             var go=new GameObject(name);go.transform.SetParent(transform,false);var mesh=Own(data.Mesh());
             go.AddComponent<MeshFilter>().sharedMesh=mesh;var r=go.AddComponent<MeshRenderer>();r.sharedMaterial=mat;r.shadowCastingMode=ShadowCastingMode.Off;r.receiveShadows=false;
+        }
+        /// <summary>One already-existing world/focus transition drives all emissive light effects.
+        /// No extra per-lamp animation or material instances are allocated while blending.</summary>
+        public void SetWeight(float weight)
+        {
+            weight=Mathf.Clamp01(weight);
+            if (Mathf.Approximately(_weight,weight)) return;
+            _weight=weight;
+            _halo.SetFloat("_Fade",weight);
+            _pool.SetFloat("_Fade",weight);
+            _ribbon.SetFloat("_Fade",weight);
+            foreach (var pair in _neonMaterials)
+                pair.Material.SetColor("_BaseColor",pair.Color*weight);
+            foreach (var light in _accentLights)
+                light.intensity=6000f*Settings.WarmLight*weight;
         }
         private void Update() { if(!Application.isPlaying || Settings==null)return;_elapsed+=Time.deltaTime;UpdateMotion(_elapsed); }
         private void UpdateMotion(float time) {
