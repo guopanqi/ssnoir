@@ -9,6 +9,8 @@ import time
 
 HERE = Path(__file__).resolve().parent
 SCRIPTS = (
+    "pattern_belief_revision_cascade_20261015.py",
+    "pattern_cascade_dependencies_20261015.py",
     "pattern_constraint_deduction_20261015.py",
     "pattern_batch_confirmation_20261015.py",
     "pattern_source_provenance_20261015.py",
