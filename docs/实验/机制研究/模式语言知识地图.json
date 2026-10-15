@@ -4405,6 +4405,76 @@
         "repositoryCI": "pending-confirmation",
         "matureGamePrecedent": true
       }
+    },
+    {
+      "id": "PL-CASCADE-ROOT",
+      "layer": "mature-combination",
+      "origin": "ssnoir-research",
+      "name": "调查上游错误与真实修复资格令下游目标优先级反转",
+      "family": "因果依赖诊断与改变事实",
+      "idea": "多个不可重复CLAIM依赖重叠前提；TEST透露哪个假设为假；证实后可花一手REPAIR改变其真实下游成果有效性，导致玩家改查不同上游节点",
+      "stage": "exact-fraction-world-forward-and-action-ablation",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-上游故障与成果依赖传播/研究记录.md",
+        "tools/content-validator/experiments/pattern_belief_revision_cascade_20261015.py",
+        "tools/content-validator/experiments/pattern_cascade_dependencies_20261015.py"
+      ],
+      "note": "链01/12/23、仅一故障、4手：仅检查最优55/4且先查端点0/3；准检查后修复最优14且先查中心1/2。5手13? 单独检测59/4，修复81/4。逐故障前向核对，属于ATMS式依赖与成熟能力干预组合，非原创原语。",
+      "evidence": {
+        "localExactFraction": true,
+        "individualWorldForward": true,
+        "independentAgent": false,
+        "humanFeedbackAvailable": false,
+        "native": false,
+        "repositoryCI": false,
+        "academicPrecedent": "ATMS-1986"
+      }
+    },
+    {
+      "id": "PL-CASCADE-CORRELATION",
+      "layer": "mature-combination",
+      "origin": "ssnoir-research",
+      "name": "边际故障率相同，联合互斥性与依赖图仍能反转最优调查目标",
+      "family": "故障相关性与前提图结构",
+      "idea": "四前提每个单独故障率1/4不变；比较恰一故障与四处独立故障，并更换链、星、三角/孤立的成果依赖图，考察检查目标的全局信息作用",
+      "stage": "same-fault-marginals-joint-distribution-and-topology-counterfactual",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-上游故障与成果依赖传播/研究记录.md",
+        "tools/content-validator/experiments/pattern_cascade_dependencies_20261015.py"
+      ],
+      "note": "4手无修复：恰一故障链先查端点55/4，四独立故障链先查中心635/64；三角+孤立图中恰一故障最优先查没有任何下游成果的孤立P3，因阳性推知余三处无故障。独立世界16种前向验证，不能按连接数贪心一概而论。",
+      "evidence": {
+        "localExactFraction": true,
+        "individualWorldForward": true,
+        "independentAgent": false,
+        "humanFeedbackAvailable": false,
+        "native": false,
+        "repositoryCI": false,
+        "academicPrecedent": "ATMS-1986"
+      }
+    },
+    {
+      "id": "PL-CASCADE-BYPASS",
+      "layer": "negative-boundary",
+      "origin": "ssnoir-research",
+      "name": "一手全局修复或完美认证会完全旁路局部因果检查",
+      "family": "强外部工具压平局部诊断",
+      "idea": "同一时间单位提供全体前提的真实修复或真故障认证后，逐条检查行动不再有独立使用空间；且放宽推理得出的维修资格并不改变可达最优",
+      "stage": "full-oracle-and-universal-intervention-negative-audit",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-上游故障与成果依赖传播/研究记录.md",
+        "tools/content-validator/experiments/pattern_belief_revision_cascade_20261015.py"
+      ],
+      "note": "4手逐查+维修14，一手全局修复27、一手真实根因认证37/2；n2..6通过推论准维修与须真实阳性检查准维修同根。外部替代获得的信息/工作更多，不是同等效力的同构论证。",
+      "evidence": {
+        "localExactFraction": true,
+        "individualWorldForward": true,
+        "independentAgent": false,
+        "humanFeedbackAvailable": false,
+        "native": false,
+        "repositoryCI": false,
+        "academicPrecedent": "ATMS-1986"
+      }
     }
   ],
   "edges": [
@@ -7755,6 +7825,54 @@
       "to": "PL-CHAIN-MATCHING",
       "relation": "continuous-retesting-vs-cross-case-deduction",
       "reason": "CAUSAL再次核验可能错的规则报告；CHAIN用完全准确身份结果触发全局其他目标的排除"
+    },
+    {
+      "from": "PL-CHAIN-MATCHING",
+      "to": "PL-CASCADE-ROOT",
+      "relation": "shared-constraint-vs-fault-dependent-production",
+      "reason": "CHAIN用唯一身份推断其它人的值，CASCADE进一步让错误前提阻断多个真实生产成果并可修改故障"
+    },
+    {
+      "from": "PL-MEMORY04",
+      "to": "PL-CASCADE-ROOT",
+      "relation": "ability-intervention-vs-cause-repair",
+      "reason": "MEMORY培训改变对象未来概率；CASCADE修理某个具体前提改变多个下游有效性"
+    },
+    {
+      "from": "PL-SOURCE-CORRELATED",
+      "to": "PL-CASCADE-CORRELATION",
+      "relation": "report-correlation-vs-fault-exclusivity",
+      "reason": "SOURCE同一信息源复制影响证据可信度，CASCADE错误是否互斥/并发改变应该检查的前提"
+    },
+    {
+      "from": "PL-CAUSAL-CONTEXT",
+      "to": "PL-CASCADE-CORRELATION",
+      "relation": "hidden-response-law-vs-upstream-causal-graph",
+      "reason": "CAUSAL靠环境条件识别哪种工作有效，CASCADE按已知因果依赖图定位坏前提和多个成果"
+    },
+    {
+      "from": "PL-CASCADE-ROOT",
+      "to": "PL-CASCADE-CORRELATION",
+      "relation": "same-test-different-joint-prior-reverses-first-action",
+      "reason": "保持每项前提单独出错率1/4，取消错误互斥便让最优首查从链端点改向中间"
+    },
+    {
+      "from": "PL-CASCADE-ROOT",
+      "to": "PL-CASCADE-BYPASS",
+      "relation": "strong-global-tools-eliminate-need-to-investigate",
+      "reason": "若有一手万能修复或一手完整认证，逐项现场排查的行动价值被更强工具掩盖"
+    },
+    {
+      "from": "PL-CUST01",
+      "to": "PL-CASCADE-BYPASS",
+      "relation": "non-equivalent-strong-substitute-caution",
+      "reason": "CUST已审总分最优旁路不能代表所有成果，CASCADE一手全局修理比逐一真实工作更多，不可称同效力按钮"
+    },
+    {
+      "from": "PL-POLICY-AUDIT01",
+      "to": "PL-CASCADE-ROOT",
+      "relation": "short-conditional-policy-does-not-prove-originality",
+      "reason": "真实检测反馈能改变后续目标，但可预编译短条件策略，不表示难解或新原语"
     }
   ],
   "coverage": {
