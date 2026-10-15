@@ -236,6 +236,8 @@ def interview(condition, cardid, output):
     transcript = {"protocol": "RETURN-v2", "condition": condition,
                   "trial": "T%02d" % (cardid + 1), "observations": [],
                   "free_text": [], "session": None}
+    print("任务：你将先处理旧工作A，再决定是否接下新工作B，最后只能兑现一项成果。")
+    print("你的目标是按照自己的判断保留和兑现值得关心的成果；没有必须照做的最优路线。")
     print("选择四阶段中的动作。场景为封存确定卡，并不代表总体随机频率。")
     print("回答会写入本地文件；不发送到远端。请不要查看代码或规则最优策略。")
     print("预先想法（可留空）：")
