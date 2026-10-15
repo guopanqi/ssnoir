@@ -92,6 +92,15 @@ def regression():
     accuracy=sum((v for k,v in agree_worlds.items() if k[0]==k[2]),F())/agree
     assert (agree,dup,accuracy)==(F(13,16),F(8,13),F(21,26))
     assert naive_independence()==F(11,4)
+    # SOURCE10: misreading dependence changes ACTION, not just confidence,
+    # only above the misclassification-loss threshold 132/5.
+    loss_threshold=(F(21,26)*RIGHT-SAFE)/(1-F(21,26))
+    assert loss_threshold==F(132,5)
+    for loss in (F(20),F(28)):
+        actual_agree=F(21,26)*RIGHT-(1-F(21,26))*loss
+        assert (actual_agree<SAFE)==(loss>loss_threshold)
+    # At loss=20 one still CLAIMs on agreement, despite an overstated
+    # independent-source confidence. At loss=28 one instead safely exits.
     expected={(False,False):F(3),(True,False):F(51,16),
               (False,True):F(283,64),(True,True):F(283,64)}
     for (audit,new),v in expected.items():
