@@ -284,6 +284,43 @@ def interview(condition, cardid, output):
     print("记录已保存于本地", p)
 
 
+
+def synthetic_cli_smoke():
+    """Two SCRIPTED terminal interactions, not real or independent participants."""
+    import io
+    from contextlib import redirect_stdout
+    from tempfile import TemporaryDirectory
+    from unittest.mock import patch
+
+    scripted = (
+        # S: choose OPEN / ACCEPT / LINK / voluntarily take B rather than A.
+        ("S", ["", "1", "L1", "1", "W1", "1", "L2", "2", "W2",
+               "unknown", "unknown", "unknown", "unknown"], "B", 3),
+        # M: choose OPEN / ACCEPT with weak=LINK, strong=CUT / APPLY / ALT.
+        ("M", ["", "1", "L1", "1", "1", "2", "W1", "1", "L2",
+               "2", "W2", "unknown", "unknown", "unknown", "unknown"], "ALT", 5),
+    )
+    with TemporaryDirectory() as directory:
+        for condition, replies, intended_final, intended_net in scripted:
+            output = str(Path(directory) / (condition + ".json"))
+            screen = io.StringIO()
+            with patch("builtins.input", side_effect=replies), redirect_stdout(screen):
+                interview(condition, 0, output)
+            transcript = json.loads(Path(output).read_text(encoding="utf-8"))
+            assert transcript["session"]["final"] == intended_final
+            assert transcript["session"]["net"] == intended_net
+            assert len(transcript["choices"]) == 4
+            assert len(transcript["posttest"]) == 4
+            assert transcript["observations"][0]["stage"] == "L1"
+            assert "true_demand" not in transcript["observations"][1]
+            assert "support" not in transcript["observations"][1]
+            assert "true_demand" not in transcript["observations"][2]
+            assert transcript["observations"][-1]["stage"] == "DONE"
+            assert intended_final in screen.getvalue()
+    print("PASS: two scripted CLI end-to-end paths S/M, raw choices and posttest saved")
+    print("LIMIT: scripted input is NOT a human playtest or independent agent")
+
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--selftest", action="store_true")
@@ -298,3 +335,4 @@ if __name__ == "__main__":
         interview(args.condition, args.card - 1, args.output)
     else:
         paired_regression()
+        synthetic_cli_smoke()
