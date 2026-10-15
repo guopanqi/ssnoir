@@ -1,6 +1,6 @@
 Shader "SSNoir/CityNightGlow"
 {
- Properties { _Billboard("Billboard",Float)=0 _Radial("Radial",Float)=1 _CityScale("City scale",Float)=1 }
+ Properties { _Billboard("Billboard",Float)=0 _Radial("Radial",Float)=1 _CityScale("City scale",Float)=1 _Fade("Environment fade",Range(0,1))=1 }
  SubShader {
   Tags { "RenderPipeline"="UniversalPipeline" "Queue"="Transparent" "RenderType"="Transparent" }
   Pass {
@@ -11,7 +11,7 @@ Shader "SSNoir/CityNightGlow"
    #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
    struct Attributes { float4 positionOS:POSITION; float2 uv:TEXCOORD0; float2 size:TEXCOORD1; float4 color:COLOR; };
    struct Varyings { float4 positionCS:SV_POSITION; float2 uv:TEXCOORD0; float4 color:COLOR; };
-   float _Billboard,_Radial,_CityScale;
+   float _Billboard,_Radial,_CityScale,_Fade;
    Varyings Vertex(Attributes v) {
     Varyings o; float3 p=TransformObjectToWorld(v.positionOS.xyz);
     if(_Billboard>.5) {
@@ -23,7 +23,7 @@ Shader "SSNoir/CityNightGlow"
    half4 Fragment(Varyings v):SV_Target {
     float radius=length(v.uv*2-1);
     float alpha=_Radial>.5 ? exp(-radius*radius*7)*saturate((1-radius)*5) : 1;
-    return half4(v.color.rgb,v.color.a*alpha);
+    return half4(v.color.rgb,v.color.a*alpha*_Fade);
    }
    ENDHLSL
   }
