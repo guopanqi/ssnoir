@@ -19,6 +19,23 @@ def next_actions(flags):
     return frozenset({'SIDE','ALT1'}|
         ({'E'} if e else set())|({'S'} if s else set()))
 
+def all_legal_suffixes(flags,w):
+    """Entire phase2 legal policy/result mapping, NOT only optimal paths."""
+    e,s=flags
+    first=['SIDE','ALT1']+(['E'] if e else [])+(['S'] if s else [])
+    second=['SIDE','ALT2']+(['E'] if e else [])+(['S'] if s else [])
+    programs={}
+    for a1,a2 in product(first,second):
+        if (a1=='ALT1')!=(a2=='ALT2') or (a1 in ('E','S') and a1==a2):
+            continue
+        if a1=='ALT1':value=F(8);delivered=('ALT',)
+        else:
+            delivered=tuple(a for a in (a1,a2) if a in ('E','S'))
+            value=sum((12 if int(a=='S')==w else 2) for a in delivered)
+            value+=sum(a=='SIDE' for a in (a1,a2))
+        programs[a1,a2]=(F(value),delivered)
+    return programs
+
 def check_same_tickets():
     # Constructive equivalence: all stage2 legal actions, payoffs and
     # results are identical whenever (E,S) permissions are identical.
@@ -27,6 +44,7 @@ def check_same_tickets():
         assert next_actions(HISTORIES[a])==next_actions(HISTORIES[b])
         for w in (E,S):
             assert stage2(*HISTORIES[a],w)==stage2(*HISTORIES[b],w)
+            assert all_legal_suffixes(HISTORIES[a],w)==all_legal_suffixes(HISTORIES[b],w)
 
 def outcome_vector(policy):
     metrics={k:F() for k in ('E','S','ALT','BOTH','SIDE','late_pivot')}
