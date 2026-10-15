@@ -457,7 +457,9 @@
           (play-camera! "老街酒馆" .4 "")
           (load-file "scripts/theatre/第一节生活.scm")
           (第一节-醉归)
-          (play-camera! "门口" .2 "家"))))
+          (play-camera! "门口" .2 "家")
+          ;; Bubble 在演出结束、新画面采用后出现，直接引导首夜休息。
+          (play-bubble! (line "世界" "头疼得厉害。该睡了。")))))
 
     (define (drunk?) (and opening-heard? (= world-day 1)))
 

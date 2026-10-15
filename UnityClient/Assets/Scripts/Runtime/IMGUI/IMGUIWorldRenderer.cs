@@ -173,6 +173,7 @@ namespace SSNoir.IMGUI
 
         private void OnDestroy()
         {
+            ReleaseSkipPresentationPress();
             _feedback?.Dispose();
             _theatrePlayer?.Dispose();
             if (_gameManager != null)
@@ -201,6 +202,7 @@ namespace SSNoir.IMGUI
 
         private void StartImmediateTheatre(SSNoir.Theatre.TheatreScene scene)
         {
+            ReleaseSkipPresentationPress();
             if (_theatrePlayer.IsActive || _storyStagePlayer.IsActive || _conversationPlayer.IsActive)
                 throw new InvalidOperationException("线绘舞台与其他对白不能重叠");
             _banterPlayer.Suspend();
@@ -210,6 +212,7 @@ namespace SSNoir.IMGUI
 
         private void StartImmediateStage(StoryStageSequence sequence)
         {
+            ReleaseSkipPresentationPress();
             if (_storyStagePlayer.IsActive || _theatrePlayer.IsActive || _conversationPlayer.IsActive)
                 throw new InvalidOperationException("舞台演出与对白不能重叠");
             _banterPlayer.Suspend();
@@ -218,6 +221,7 @@ namespace SSNoir.IMGUI
 
         private void StartNextImmediateDialogue(SSNoir.Core.DialogueSequence sequence)
         {
+            ReleaseSkipPresentationPress();
             // 动作外即时对话仍以"此刻是否在场"校验说话人；普通 dialogue 不在场时会报警。
             StoryStageDrawer.BeginConversation();
             _conversationPlayer.Start(sequence, () =>
@@ -479,6 +483,7 @@ namespace SSNoir.IMGUI
         // 按 Scheme 调用顺序逐个播放阻塞剧情步骤;每个步骤完成后回调本方法推进下一个。
         private void AdvanceToBlockingPresentationOrFinish()
         {
+            ReleaseSkipPresentationPress();
             if (_pendingBlockingSteps.Count > 0)
             {
                 var step = _pendingBlockingSteps.Dequeue();
@@ -751,6 +756,7 @@ namespace SSNoir.IMGUI
 
         public bool TrySkipPresentation()
         {
+            ReleaseSkipPresentationPress();
             if (_gameManager.Cutscene.IsActive) { _gameManager.Cutscene.Skip(); return true; }
             if (_theatrePlayer.IsActive) { _theatrePlayer.Skip(); return true; }
             if (_storyStagePlayer.IsActive) { _storyStagePlayer.Skip(); return true; }
@@ -772,10 +778,7 @@ namespace SSNoir.IMGUI
             return false;
         }
 
-        // 这次按压从跳过按钮上开始，已经被跳过认领：整次按压归跳过所有，
-        // 对白/舞台不再为它推进。绘制只读它画按下态，真正的跳过发生在抬手
-        // 组成一次轻点时（落点仍在按钮里、没滑成拖拽）。
-        private bool _skipPressClaimed;
+        private int _skipPresentationControlId;
 
         private static Rect SkipPresentationButtonRect
         {
@@ -790,65 +793,47 @@ namespace SSNoir.IMGUI
             }
         }
 
-        /// <summary>
-        /// 跳过按钮的输入。必须在 OnGUI 里任何消费点击的地方之前调用
-        ///（对白推进、聚光弹窗、演出锁的 <c>ConsumeCurrentPress</c> 都算在内），
-        /// 否则按在按钮上的那一下会先被对白吃掉：推进一句、到边界时演出直接
-        /// 结束，抬手时已经没东西可跳——看起来就是"点了没反应"。
-        ///
-        /// 只认领"从按钮上开始"的按压：别处开始、滑进按钮再松手的，不算跳过。
-        /// </summary>
-        private void HandleSkipPresentationInput()
+        // 标准 IMGUI 按钮拥有整次按压；先于全屏对白和世界输入锁处理。
+        // 空样式仅负责命中与捕获，实际按钮最后绘制，避免被演出盖住。
+        private bool HandleSkipPresentationInput()
         {
-            Event e = Event.current;
-            if (e.rawType == EventType.MouseUp && e.button == 0)
-            {
-                if (!_skipPressClaimed)
-                    return;
-                _skipPressClaimed = false;
-                if (!CanSkipPresentation)
-                    return;
-                Rect buttonRect = SkipPresentationButtonRect;
-                var ui = new IMGUIInteractionContext(e.mousePosition, isLocked: false);
-                if (!ui.IsPointerInside(buttonRect))
-                    return;
-                if (IMGUIInteractionContext.PressTravelled)
-                    return;
-                if (!buttonRect.Contains(ui.PressOrigin))
-                    return;
-                e.Use();
-                TrySkipPresentation();
-                return;
-            }
-
-            if (e.rawType != EventType.MouseDown || e.button != 0)
-                return;
-
             if (!CanSkipPresentation)
             {
-                _skipPressClaimed = false;
-                return;
+                ReleaseSkipPresentationPress();
+                return false;
             }
 
-            var downUi = new IMGUIInteractionContext(e.mousePosition, isLocked: false);
-            _skipPressClaimed = downUi.IsPointerInside(SkipPresentationButtonRect);
-            if (_skipPressClaimed)
-                e.Use();
+            Event e = Event.current;
+            Rect rect = SkipPresentationButtonRect;
+            bool clicked = GUI.Button(rect, GUIContent.none, GUIStyle.none);
+            if (e.rawType == EventType.MouseDown && e.button == 0
+                && e.type == EventType.Used && rect.Contains(e.mousePosition))
+                _skipPresentationControlId = GUIUtility.hotControl;
+            if (e.rawType == EventType.MouseUp && e.button == 0)
+                _skipPresentationControlId = 0;
+            if (clicked) TrySkipPresentation();
+            return e.type == EventType.Used;
+        }
+
+        private void ReleaseSkipPresentationPress()
+        {
+            if (_skipPresentationControlId != 0 && GUIUtility.hotControl == _skipPresentationControlId)
+                GUIUtility.hotControl = 0;
+            _skipPresentationControlId = 0;
         }
 
         private void DrawSkipPresentationHint()
         {
-            if (!CanSkipPresentation)
-                return;
-
+            if (!CanSkipPresentation) return;
             Rect buttonRect = SkipPresentationButtonRect;
             Event e = Event.current;
             var ui = new IMGUIInteractionContext(e.mousePosition, isLocked: false);
             bool pointerInside = ui.IsPointerInside(buttonRect);
+            bool pressed = _skipPresentationControlId != 0
+                && GUIUtility.hotControl == _skipPresentationControlId && pointerInside;
 
             if (e.type != EventType.Repaint) return;
 
-            bool pressed = _skipPressClaimed && pointerInside;
             bool hovered = pointerInside && IMGUIInteractionContext.HoverAvailable;
             if (!pressed)
                 IMGUIStyles.DrawShadow(buttonRect, new Vector2(2f, 2f), 0.45f);
@@ -967,6 +952,7 @@ namespace SSNoir.IMGUI
         // Called on scene load/reset to close all overlay panels.
         public void ResetUiState()
         {
+            ReleaseSkipPresentationPress();
             _isGrowthPanelOpen = false;
             _inputLocked = false;
             _gridScrollOffset = 0f;
@@ -987,7 +973,6 @@ namespace SSNoir.IMGUI
             _activeVideoTag = null;
             _animationTimer = 0f;
             _videoOwnedByCutscene = false;
-            _skipPressClaimed = false;
             StopAllCoroutines();
             _storyCameraActive = false;
             _intertitleActive = false;
@@ -1156,10 +1141,6 @@ namespace SSNoir.IMGUI
             IMGUIInteractionContext.SetHoverAvailable(
                 UIScale.HasHoverPointer || Input.GetMouseButton(0) || Input.GetMouseButton(1));
 
-            // 跳过按钮的输入抢在所有点击消费之前：按在按钮上的整次按压归跳过所有，
-            // 对白/舞台不再为它推进。绘制仍在各自的分支出最后进行，保证压在最上层。
-            HandleSkipPresentationInput();
-
             // Initialize styles if needed
             IMGUIStyles.Init(_gameManager.ChineseFont, _gameManager.SemiboldFont);
 
@@ -1169,6 +1150,14 @@ namespace SSNoir.IMGUI
             if (_gameManager.Title.IsActive)
             {
                 _gameManager.Title.Draw(Event.current.mousePosition);
+                PointerOverUI = true;
+                IMGUIInteractionContext.FinishPointerEvent(Event.current);
+                return;
+            }
+
+            // 跳过是演出层最上面的控件：先认领输入，再让对白/影幕处理其余输入。
+            if (HandleSkipPresentationInput())
+            {
                 PointerOverUI = true;
                 IMGUIInteractionContext.FinishPointerEvent(Event.current);
                 return;
