@@ -1,0 +1,26 @@
+name: SSNoir First Letter Closure
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'UnityClient/Assets/Resources/Content/scenes/world/照片委托.scm'
+      - 'UnityClient/Assets/Resources/Content/scenes/world/码头.scm'
+      - 'UnityClient/Assets/Resources/Content/scenes/world/三封信.scm'
+      - 'Game/tests/first-letter-closure.ts-test.mjs'
+      - '.github/workflows/ssnoir-first-letter-closure.yml'
+permissions:
+  contents: read
+jobs:
+  scene-gates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install game dependencies
+        working-directory: Game
+        run: npm ci --no-audit --no-fund
+      - name: Regression test story window and marriage-case independence
+        working-directory: Game
+        run: node --experimental-strip-types --test tests/first-letter-closure.ts-test.mjs
