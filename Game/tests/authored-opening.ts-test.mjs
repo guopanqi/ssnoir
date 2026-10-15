@@ -68,15 +68,15 @@ test("original chapter prologue: tavern → two nights → door → 20 gold → 
     assert.equal(script.width,1600);
     assert.equal(script.height,900);
   }
-  // The current original commission uses Theatre for face-to-face speech
-  // and a dedicated voiceover narration ID, not a remote-dialogue duplicate.
-  assert.ok(events.some(x=>x.kind==="narration"&&x.args[0]==="序章接案后"),
-    "current original narration/voiceover must be queued after commission");
-  const intertitles=events.filter(x=>x.kind==="intertitle");
-  assert.ok(intertitles.length>0,"rainy-night intertitles must survive the native bridge");
-  assert.ok(intertitles.some(event=>event.args[0]===true&&
-    Array.isArray(event.args[1])&&event.args[1].length===2),
-    "rainy-night prologue must display two authored written pages");
+  // The rainy arrival now opens directly in the theatre, without opening
+  // black-screen intertitles. Neil's reflection belongs to the quiet subtitles
+  // queued after the indoor commission, with no required voice clips.
+  assert.equal(events.filter(x=>x.kind==="intertitle").length,0,
+    "rainy arrival must not replay the deleted opening black-screen monologue");
+  const lastTheatreIndex=events.map(x=>x.kind).lastIndexOf("theatre");
+  const narrationIndex=events.findIndex(x=>x.kind==="narration"&&x.args[0]==="序章接案后");
+  assert.ok(lastTheatreIndex>=0&&narrationIndex>lastTheatreIndex,
+    "silent inner monologue must be queued after the indoor scene");
   const saved=await new WorldSaveController(d.state,d.world).capture();
   const data=WorldSaveController.parse(WorldSaveController.encode(saved));
   const fresh=await build();
