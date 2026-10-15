@@ -326,6 +326,14 @@
     (list (line "世界" "雨夜，信已经放进邮箱。先安排人员，再开始行动。"))))
 
 (define (on-encounter-enter)
+  ;; 冲印记录使符合描述的目标更容易辨认，但真正确认仍要看他取信。
+  (if (get-global '照片取件特征已知)
+    (begin
+      ((观察钟于 (cadr 候选人)) 'load! 2)
+      (play-dialogue!
+        (line "尼尔" "照相馆说过：染金发、制服不合身。")
+        (line "尼尔" "那个人看着像，但我得亲眼看到他取信。")))
+    #f)
   (apply play-dialogue! (雨夜-集合对白)))
 (define (on-encounter-collapse) (collapse-result (list '倒下 部署)))
 
