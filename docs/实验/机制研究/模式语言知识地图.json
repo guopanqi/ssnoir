@@ -4049,6 +4049,72 @@
         "native": false,
         "repositoryCI": false
       }
+    },
+    {
+      "id": "PL-TACTIC-CONTINGENT",
+      "name": "一次性反制资源导致临场混合战术按历史改变",
+      "layer": "mature-combination",
+      "origin": "ssnoir-research",
+      "family": "同时行动与有限反制状态",
+      "idea": "PRESS/VERIFY与HIDE/一次ESCAPE同时决定，公开资源耗尽使玩家最优混合概率随未来可用反制变化",
+      "stage": "exact-matrix-minimax-and-fixed-policy-audit",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-对抗混合策略与一次性反制/研究记录.md",
+        "tools/content-validator/experiments/pattern_adversarial_tempo_20261015.py"
+      ],
+      "note": "n4公开闭环51/8 vs最佳固定纯路线6、密封预承诺混合6；PRESS根混合37/40，对方HIDE1/2。n1..8闭式公式双重检验；混合策略收益微弱、不认证体验。",
+      "evidence": {
+        "localExactFraction": true,
+        "completeStateGame": true,
+        "independentAgent": false,
+        "humanFeedbackAvailable": false,
+        "native": false,
+        "repositoryCI": false
+      }
+    },
+    {
+      "id": "PL-TACTIC-COMMIT",
+      "name": "付整回合换取下一轮对方公开先承诺动作",
+      "layer": "mature-combination",
+      "origin": "ssnoir-research",
+      "family": "行动先后顺序与可执行承诺",
+      "idea": "SCAN耗一手逼迫下一轮对方先公开且不能改口，玩家再选PRESS/VERIFY；有别于调查上一轮的已发生动作",
+      "stage": "exact-timing-and-expensive-information-audit",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-对抗混合策略与一次性反制/研究记录.md",
+        "tools/content-validator/experiments/pattern_adversarial_tempo_20261015.py"
+      ],
+      "note": "一用ESCAPE尚存余2回合：直接对抗3/2 vs SCAN2；余4回合有SCAN动态13/2，比不许SCAN51/8高1/8，但开局不该SCAN。依赖真承诺，普通偷窥不能替代。",
+      "evidence": {
+        "localExactFraction": true,
+        "completeStateGame": true,
+        "independentAgent": false,
+        "humanFeedbackAvailable": false,
+        "native": false,
+        "repositoryCI": false
+      }
+    },
+    {
+      "id": "PL-TACTIC-MOTIVE",
+      "name": "相同玩家根值不识别对手私利与行为动机",
+      "layer": "mature-negative-boundary",
+      "origin": "ssnoir-research",
+      "family": "多主体独立效用和行为可识别性",
+      "idea": "保持玩家收益与一次ESCAPE不变，只改对手自利收益；比较非零和混合均衡与零和minimax的对外可观察区别",
+      "stage": "finite-general-sum-equilibrium-and-observability-audit",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-对抗混合策略与一次性反制/研究记录.md",
+        "tools/content-validator/experiments/pattern_adversarial_motives_20261015.py"
+      ],
+      "note": "n4玩家均衡根两模型同51/8，但PRESS概率零和37/40、自利598/625。对手HIDE两模型均1/2，单看其动作频率甚至可能无法辨别动机；高ESCAPE私人成本则HIDE严格支配反制而游戏退化为固定PRESS。",
+      "evidence": {
+        "localExactFraction": true,
+        "completeStateGame": true,
+        "independentAgent": false,
+        "humanFeedbackAvailable": false,
+        "native": false,
+        "repositoryCI": false
+      }
     }
   ],
   "edges": [
@@ -7153,6 +7219,48 @@
       "to": "PL-STRATEGIC01",
       "relation": "strategy-and-signal-not-same",
       "reason": "TRL有策略性修饰信息；此批努力对玩家完全可观察，尚无伪装和类型学习"
+    },
+    {
+      "from": "PL-TACTIC-CONTINGENT",
+      "to": "PL-TACTIC-COMMIT",
+      "relation": "action-ordering-changes-best-subgame",
+      "reason": "付整手SCAN将下一次同时动作转为对方先给不可撤回承诺；只有余两回合的未耗资源状态才严格最优SCAN"
+    },
+    {
+      "from": "PL-TACTIC-CONTINGENT",
+      "to": "PL-TACTIC-MOTIVE",
+      "relation": "same-player-payoff-different-opponent-utility",
+      "reason": "玩家同均衡分数可能对应不同自己混合动作，需记录对方私人收益而非猜测心理"
+    },
+    {
+      "from": "PL-STRATEGIC01",
+      "to": "PL-TACTIC-MOTIVE",
+      "relation": "sequential-self-interested-versus-simultaneous",
+      "reason": "STRATEGIC是玩家先发出委托、对方随后响应；TACTIC是双方同轮同时出招的混合博弈"
+    },
+    {
+      "from": "PL-MEMORY01",
+      "to": "PL-TACTIC-CONTINGENT",
+      "relation": "uncertain-fixed-type-versus-adaptive-countermove",
+      "reason": "MEMORY可靠性是固定概率可积累后验；TACTIC对手对收益作最优反制并消耗反制资源，玩家动词不同"
+    },
+    {
+      "from": "PL-CRISIS01",
+      "to": "PL-TACTIC-CONTINGENT",
+      "relation": "random-crisis-versus-adversarial-control",
+      "reason": "CRISIS外源随机封锁区别于对手自主择时使用有限反制；单靠数字压力无法冒充博弈"
+    },
+    {
+      "from": "PL-GRC01",
+      "to": "PL-TACTIC-MOTIVE",
+      "relation": "self-interested-partner-precedent",
+      "reason": "GRC已有双方真实机会成本和自主参加决策；TACTIC不是第一次引入自利行动者"
+    },
+    {
+      "from": "PL-TACTIC-MOTIVE",
+      "to": "PL-TACTIC-COMMIT",
+      "relation": "observable-commitment-versus-latent-motive",
+      "reason": "对手私利若不改变观察到的行为就可能没有玩家体验差异，行动顺序与承诺需明确可见"
     }
   ],
   "coverage": {
