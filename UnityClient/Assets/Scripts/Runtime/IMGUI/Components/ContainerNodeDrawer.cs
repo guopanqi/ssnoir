@@ -43,6 +43,8 @@ namespace SSNoir.IMGUI
         private const float GapIconToName = 8f;
         private const float LocationRowH = 26f;
         private const float PlatePadY = 10f;
+        private const float TagGap = 8f;
+        private const float TagSidePad = 10f;
         private const string NodeIconResourceDirectory = "UI/NodeIcons";
         private static readonly IReadOnlyDictionary<string, Texture2D> NodeIcons = LoadNodeIcons();
         // 牌子再小也要好点：不低于一个手指目标。
@@ -124,7 +126,7 @@ namespace SSNoir.IMGUI
         public static float PreferredLocationWidth(GameNode node)
         {
             float iconW = NodeIcon(node) != null ? LocationIconSize + GapIconToName : 0f;
-            float need = PlateTextWidth(node.DisplayTitle) + iconW;
+            float need = PlateTextWidth(node.DisplayTitle) + iconW + TagReserveWidth(node);
 
             // +24 是 LayoutClockBadges 给徽章行留的左右余量，两边必须用同一个数。
             foreach (var clock in node.Clocks)
@@ -180,7 +182,43 @@ namespace SSNoir.IMGUI
 
             Color line = PlateLineColor(disabled, hover);
 
-            DrawPlateRow(rect, node.DisplayTitle, NodeIcon(node), line, clocksBottomY);
+            // Containers already carry the same :tags data as actions. Give their
+            // compact location plate one quiet risk/urgency marker on the title row.
+            // Reserve its actual text width so the label never covers the node title.
+            var tag = PresentationTag(node);
+            float reserved = tag != null ? TagReserveWidth(node) : 0f;
+            var titleRect = rect;
+            titleRect.width = Mathf.Max(0f, rect.width - reserved);
+            DrawPlateRow(titleRect, node.DisplayTitle, NodeIcon(node), line, clocksBottomY);
+            if (tag != null)
+            {
+                var style = new GUIStyle(PlateTitleStyle(IMGUIStyles.Gold))
+                {
+                    fontSize = IMGUIStyles.FontSize(13),
+                    alignment = TextAnchor.MiddleCenter
+                };
+                float tagWidth = Mathf.Max(0f, reserved - TagGap);
+                var tagRect = new Rect(rect.xMax - tagWidth - TagSidePad,
+                    rect.yMax - PlatePadY - LocationRowH, tagWidth, LocationRowH);
+                IMGUIStyles.DrawLabel(tagRect, tag, style);
+            }
+        }
+
+        private static string? PresentationTag(GameNode node)
+        {
+            foreach (var tag in node.Tags)
+                if (!string.IsNullOrWhiteSpace(tag) && tag != "人物" && tag != "地点")
+                    return tag;
+            return null;
+        }
+
+        private static float TagReserveWidth(GameNode node)
+        {
+            var tag = PresentationTag(node);
+            if (tag == null) return 0f;
+            var style = new GUIStyle(PlateTitleStyle(IMGUIStyles.Gold))
+            { fontSize = IMGUIStyles.FontSize(13) };
+            return style.CalcSize(new GUIContent(tag)).x + TagGap + TagSidePad * 2f;
         }
 
         private static Texture2D? NodeIcon(GameNode node)
