@@ -98,7 +98,10 @@ namespace SSNoir
             WorldWeight = Mathf.Clamp01(weight);
             ActiveNight = _night.Settings;
             BloomMultiplier = Mathf.Lerp(_focus.BloomMultiplier, 1, WorldWeight);
-            _night.gameObject.SetActive(worldTarget);
+            // Keep the night environment alive during the crossfade: hiding its
+            // root immediately used to make tiny lights and haloes pop in/out.
+            _night.SetWeight(WorldWeight);
+            _night.gameObject.SetActive(WorldWeight > .0001f);
             _key.enabled = WorldWeight > 0;
             _fill.enabled = WorldWeight > 0;
             _key.intensity = _settings.KeyIntensity * WorldWeight;
