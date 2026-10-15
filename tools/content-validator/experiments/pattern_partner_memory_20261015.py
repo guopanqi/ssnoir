@@ -93,6 +93,11 @@ def regression():
     assert dp(4,F(1,2))[1]==('TRY',)
     assert dp(3,F(1,5))[1]==('SAFE',)
     assert replay(4,first_failure_rule)[0]==F(4417,625)
+    # The simple balance heuristic is not universal: a different prior changes
+    # the first optimal action without adding mechanics or extra turns.
+    assert dp(6,F(1,5))[0]==F(191593,31250)
+    assert dp(6,F(1,5))[1]==('PROBE',)
+    assert dp(4,F(1,3))[1]==('TRY',)
     print('MEMORY01/02 PASS')
 
 if __name__=='__main__':regression()
