@@ -3713,6 +3713,25 @@
         "humanFeedbackAvailable": false,
         "native": false
       }
+    },
+    {
+      "id": "PL-CROSS-SCALE06",
+      "name": "预约交锋的成果身份前沿与预承诺约束",
+      "layer": "mature-combination",
+      "origin": "ssnoir-research",
+      "family": "跨尺度世界目标与局部反馈",
+      "idea": "保持地点/预约机制原样，以不同目标完成概率和SIDE收益评价条件策略与事前承诺",
+      "stage": "full-trajectory-vector-audit",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-跨尺度成果身份前沿/研究记录.md",
+        "tools/content-validator/experiments/pattern_crossscale_identity_20261015.py"
+      ],
+      "note": "52固定合法行动序列、248条件策略描述、32结果向量、5非支配；最高收益21/2，但保A最高9、保B最高10。身份评价不是新增状态规则，STAKE/VOL/OBLIGATION同族。",
+      "evidence": {
+        "fullEnumeration": true,
+        "humanFeedbackAvailable": false,
+        "native": false
+      }
     }
   ],
   "edges": [
