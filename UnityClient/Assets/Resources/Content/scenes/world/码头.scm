@@ -208,7 +208,7 @@
     (define (exploration-nodes)
       (append
         (if (exploration 'full?) '()
-          (list (node "探索码头" :anchor "码头-岸口"
+          (list (node "探索码头" :anchor "码头-货堆"
             :clocks (list (exploration 'render-data))
             :requires (list (req-die))
             :resolve (roll 'sharpness
