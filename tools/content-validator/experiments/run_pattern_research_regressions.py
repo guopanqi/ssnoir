@@ -16,6 +16,7 @@ SCRIPTS = (
     "pattern_route_signal_mixing_20261016.py",
     "pattern_dual_stakes_custody_20261016.py",
     "pattern_result_identity_frontier_20261016.py",
+    "pattern_third_party_bond_20261016.py",
     "pattern_return_world_local_loop_20261015.py",
     "pattern_return_macro_equivalence_20261015.py",
     "pattern_bridge_two_feedbacks_20261015.py",
