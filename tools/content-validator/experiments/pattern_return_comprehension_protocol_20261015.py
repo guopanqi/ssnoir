@@ -14,12 +14,13 @@ CARDS=(
     # code, start, hazard, forecast, support, eventual need, local result coin
     ("no-hazard-good-forecast", "OPEN", 0, 0, 1, 0, 0),
     ("no-hazard-weak-support", "OPEN", 0, 1, 0, 1, 1),
+    ("no-hazard-strong-support", "OPEN", 0, 1, 1, 1, 0),
     ("hazard-protect-A", "OPEN", 1, 0, 0, 1, 1),
     ("hazard-predict-B", "OPEN", 1, 1, 1, 0, 0),
     ("cautious-opening", "GUARD", 0, 1, 0, 0, 1),
     ("cautious-strong-support", "GUARD", 0, 0, 1, 1, 0),
 )
-# Only 2/6 cards have correct forecast; cards are deliberately
+# Only 3/7 cards have correct forecast; cards are deliberately
 # scenario coverage, NOT a draw from the 75%-accurate forecast distribution.
 # Do not use their unweighted mean as an unbiased theoretical payoff sample.
 
@@ -65,7 +66,7 @@ def staged_and_macro_same(card,choice,macro):
     return outcome(card,choice,action)
 
 def regression():
-    assert len(CARDS)==len({c[0] for c in CARDS})==6
+    assert len(CARDS)==len({c[0] for c in CARDS})==7
     seen={"LINK_SUCCESS":0,"LINK_FAIL":0}
     tested=0
     for card in CARDS:
@@ -106,8 +107,8 @@ def regression():
                 assert staged_and_macro_same(counterpart,choice,macro)==outcome(
                     counterpart,choice,action)
     assert seen["LINK_SUCCESS"] and seen["LINK_FAIL"]
-    assert tested==30
-    print("PASS: 6 deterministic scenarios, 30 legal settled transitions")
+    assert tested==35
+    print("PASS: 7 deterministic scenarios, 35 legal settled transitions")
     print("PASS: early reveals hide support and demand; 11 macro patterns valid")
     print("PASS: both LINK outcomes reachable across sampled cards")
     print("NOTE: no human or blind-agent sessions occurred")
