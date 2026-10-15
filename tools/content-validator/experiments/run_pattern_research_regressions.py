@@ -9,6 +9,8 @@ import time
 
 HERE = Path(__file__).resolve().parent
 SCRIPTS = (
+    "pattern_return_world_local_loop_20261015.py",
+    "pattern_return_macro_equivalence_20261015.py",
     "pattern_bridge_two_feedbacks_20261015.py",
     "pattern_bridge_permission_audit_20261015.py",
     "pattern_productive_crisis_relay_20261015.py",
