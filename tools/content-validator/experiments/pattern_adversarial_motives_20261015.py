@@ -37,6 +37,7 @@ def flight_dominated(n):
 
 def regression():
     for n in range(1,9):
+        assert flight_dominated(n)==(Q(3*n),Q(0),('PRESS','HIDE'))
         vp,vo,policy=game(n)
         robust,rm=zero_sum(n)
         assert vp==robust
