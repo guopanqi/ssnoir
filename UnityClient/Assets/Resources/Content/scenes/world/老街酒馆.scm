@@ -4,14 +4,13 @@
   (let ()
     (define character-stories-open? #f) ; 人物支线等待重新排布
     (define opening-talk-heard? #f)
-    ;; 看场的当天报酬先结在账上，打烊扣款后再支付，避免花掉工资后追扣库存。
-    (define watch-wages 0)
+    ;; 看场当场付钱；当天麻烦未解决，日终只扣款。
     (define watch-first? #t)
     (define watch-trouble-day 0)
     (define watch-trouble "")
     (define watch-progress (make-clock "处理麻烦" 3 'gauge "当天处理；未解决扣本日工资5金。"))
     (define (watch-work!)
-      (set! watch-wages (+ watch-wages 10))
+      (add-item! "金钱" 10)
       (if (and (not (= watch-trouble-day world-day))
                (or watch-first? (random-choice (list #t #f #f))))
         (begin
@@ -39,26 +38,22 @@
           (outcome (lambda () (watch-work!)))
           (outcome (lambda () (watch-work!)))
           (outcome (lambda () (watch-work!)))
-          "本班10金，打烊结清；麻烦未处理扣5金" :anchor "老街酒馆-工作"))
-        (if (> watch-wages 0)
-          (list (at-anchor "老街酒馆-工作" (note-node "看场待结工资" "待结工资"
-            (string-append (number->string watch-wages) "金；今天打烊结清。")))) '())
+          "每次10金；麻烦当天未解决扣5金" :anchor "老街酒馆-工作"))
         (if (equal? watch-trouble "") '()
-          (list (at-anchor "老街酒馆-工作" (note-node "看场麻烦进度" watch-trouble "当天处理；否则扣本日工资5金。"
-                  (watch-progress 'render-data)))
-                (watch-action (cond ((equal? watch-trouble "门口争执") "打圆场")
-                                    ((equal? watch-trouble "赖账客人") "问清账单") (else "劝他离席")) 'social)
-                (watch-action (cond ((equal? watch-trouble "门口争执") "隔开两人")
-                                    ((equal? watch-trouble "赖账客人") "拦住离席") (else "请他出去")) 'violence)))))
-    (define-turn-rule "看场打烊结账"
-      (lambda () (> watch-wages 0))
+          (list (node watch-trouble :anchor "老街酒馆-工作"
+            :subtitle "今天不处理，扣5金"
+            :clocks (list (watch-progress 'render-data))
+            :children (list
+              (watch-action (cond ((equal? watch-trouble "门口争执") "打圆场")
+                                 ((equal? watch-trouble "赖账客人") "问清账单") (else "劝他离席")) 'social)
+              (watch-action (cond ((equal? watch-trouble "门口争执") "隔开两人")
+                                 ((equal? watch-trouble "赖账客人") "拦住离席") (else "请他出去")) 'violence)))))))
+    (define-turn-rule "看场麻烦扣款"
+      (lambda () (not (equal? watch-trouble "")))
       (lambda ()
-        (let ((deduction (if (equal? watch-trouble "") 0 5)))
-          (add-item! "金钱" (- watch-wages deduction))
-          (if (> deduction 0)
-            (play-remote-bubble! (line "调酒师" "那桌的损失从这班里扣。余下的工资给你结清了。")) #f)
-          (set! watch-wages 0) (set! watch-trouble "") (watch-progress 'reset!))))
-
+        (spend-up-to! "金钱" 5)
+        (play-remote-bubble! (line "调酒师" "那桌的损失从你这班里扣。"))
+        (set! watch-trouble "") (watch-progress 'reset!)))
 
     (define closed-days 0)
     (define closed-days-max 2)
@@ -712,7 +707,7 @@
            (set! closed-days (cadr args))
            (set! closed-days-max (max closed-days-max closed-days)))
           ((equal? msg 'save)
-           (list (list "watch-wages" watch-wages) (list "watch-first?" watch-first?)
+           (list (list "watch-first?" watch-first?)
                  (list "watch-trouble-day" watch-trouble-day) (list "watch-trouble" watch-trouble)
                  (list "watch-progress" (watch-progress 'save))
                  (list "opening-talk-heard?" opening-talk-heard?)
@@ -733,13 +728,12 @@
                  (list "ate-day" ate-day)))
           ((equal? msg 'load!)
            (let ((data (cadr args)))
-             (set! watch-wages (assoc-get data "watch-wages" 0))
              (set! watch-first? (assoc-get data "watch-first?" #t))
              (set! watch-trouble-day (assoc-get data "watch-trouble-day" 0))
              (set! watch-trouble (assoc-get data "watch-trouble" ""))
              (watch-progress 'load! (assoc-get data "watch-progress" 0))
-             (if (and (>= watch-wages 0) (member? watch-trouble '("" "醉客纠缠" "门口争执" "赖账客人"))) #t
-               (error "看场存档：工资或麻烦非法"))
+             (if (member? watch-trouble '("" "醉客纠缠" "门口争执" "赖账客人")) #t
+               (error "看场存档：麻烦类型非法"))
              (set! opening-talk-heard? (assoc-get data "opening-talk-heard?" #f))
              (set! closed-days (assoc-get data "closed-days" 0))
              (set! closed-days-max (assoc-get data "closed-days-max" 2))
