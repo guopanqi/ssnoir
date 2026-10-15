@@ -4589,6 +4589,72 @@
         "native": false,
         "repositoryCI": false
       }
+    },
+    {
+      "id": "PL-BRIDGE-SIGNAL",
+      "origin": "ssnoir-research",
+      "name": "局部危机与预测改变资格，下一场真实需求再次触发弃用旧资格",
+      "family": "跨交锋反馈与结果权限",
+      "layer": "mature-combination",
+      "idea": "先RUSH遭遇危机H；预测Y促使玩家在PRESS取得E资格和AID保护S资格之间选择；下一段真实W公布后可能放弃预先取得的资格转入两手ALT",
+      "note": "q=3/4、P(H)=1/2、E/S各匹配12不匹配2，ALT两手8，SIDE一手1；最优RUSH根103/8，WAIT安全一资格根51/4，普通正常可达概率1/8在第二场弃用资格转ALT。两个信息开关根11/49/4/49/4/103/8，信息交互−5/8；信号非协同。未真人。",
+      "stage": "exact-model-two-signals-normal-reachable-policy",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-危机结果跨交锋许可反证/研究记录.md",
+        "tools/content-validator/experiments/pattern_bridge_two_feedbacks_20261015.py"
+      ],
+      "evidence": {
+        "localExactFraction": true,
+        "syntheticChromiumRuns": 3000,
+        "humanFeedbackAvailable": false,
+        "blindAgent": false,
+        "native": false,
+        "repositoryCI": "not-verified"
+      }
+    },
+    {
+      "id": "PL-BRIDGE-TICKETS",
+      "origin": "ssnoir-research",
+      "name": "两层场景可完全等价为许可票，没有返回局部交锋的双向行动循环",
+      "family": "多层目标与局部任务转移的强同构负例",
+      "layer": "negative-boundary",
+      "idea": "不同第一场历史只要产生相同(E,S)许可票，则第二场所有合法动作序列、各项实际兑现结果、最优策略严格相同；第一场历史无需保留作后续因果状态",
+      "note": "RUSH无危机PRESS→ES；遇危机PRESS→E，AID→S；WAIT后直接CERT_E/S→E/S。逐世界检验所有同票据历史的后续动作与payoff完全相同；无第三阶段重返第一场。真正两层菜单不是原创跨尺度架构。",
+      "stage": "constructive-full-suffix-equivalence",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-危机结果跨交锋许可反证/研究记录.md",
+        "tools/content-validator/experiments/pattern_bridge_permission_audit_20261015.py"
+      ],
+      "evidence": {
+        "localExactFraction": true,
+        "syntheticChromiumRuns": 3000,
+        "humanFeedbackAvailable": false,
+        "blindAgent": false,
+        "native": false,
+        "repositoryCI": "not-verified"
+      }
+    },
+    {
+      "id": "PL-BRIDGE-IDENTITIES",
+      "origin": "ssnoir-research",
+      "name": "总收益最高可能降低某一具体结果的获得概率",
+      "family": "非标量成果身份和玩家关注对象",
+      "layer": "mature-combination-boundary",
+      "idea": "不能将把E/S作为加权根分数后求得的最优策略当成对任意角色目标都正确；逐个保留各成果身份的取得概率",
+      "note": "RUSH随预测应变根103/8，P(E)=P(S)=11/16；RUSH危机总PRESS根49/4，但P(E)=3/4；RUSH危机总AID根49/4，但P(S)=3/4。根较低不意味所有单一成果概率均较低，须由玩家实际关切决定哪项不可替代。",
+      "stage": "exact-outcome-vector-replay",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-危机结果跨交锋许可反证/研究记录.md",
+        "tools/content-validator/experiments/pattern_bridge_permission_audit_20261015.py"
+      ],
+      "evidence": {
+        "localExactFraction": true,
+        "syntheticChromiumRuns": 3000,
+        "humanFeedbackAvailable": false,
+        "blindAgent": false,
+        "native": false,
+        "repositoryCI": "not-verified"
+      }
     }
   ],
   "edges": [
@@ -8077,6 +8143,48 @@
       "to": "PL-PIVOT-FAILURE",
       "relation": "early-eligibility-window-and-strong-direct-access",
       "reason": "PIVOT若B无须早期A资格则可从SIDE,SIDE直接进入B并追平根；早期强制准备须从体验层解释价值"
+    },
+    {
+      "from": "PL-RELAY-PRODUCTIVE",
+      "to": "PL-BRIDGE-SIGNAL",
+      "relation": "local-crisis-outcome-crosses-encounter-boundary",
+      "reason": "RELAY局部危机兼产出B，BRIDGE把局部取舍变成下一场真实合法E/S行动资格"
+    },
+    {
+      "from": "PL-PIVOT-FAILURE",
+      "to": "PL-BRIDGE-SIGNAL",
+      "relation": "deliberate-noncompletion-preserves-other-world-route",
+      "reason": "PIVOT可以故意不完成A，BRIDGE危机时AID不获得E却保留S；世界需求后到还可弃用旧资格"
+    },
+    {
+      "from": "PL-CROSS-SCALE01",
+      "to": "PL-BRIDGE-TICKETS",
+      "relation": "one-direction-ticket-transfer-is-not-two-layer-loop",
+      "reason": "CROSS-SCALE要求双向世界→局部返回，BRIDGE只经(E,S)状态一次性传递而没有反馈闭环"
+    },
+    {
+      "from": "PL-BRIDGE-SIGNAL",
+      "to": "PL-BRIDGE-TICKETS",
+      "relation": "constructive-equivalence-refutes-architecture-claim",
+      "reason": "即使两段有两次正常反馈改道，后续菜单仍由普通2位许可票完全概括"
+    },
+    {
+      "from": "PL-HEDGE01",
+      "to": "PL-BRIDGE-IDENTITIES",
+      "relation": "option-identity-without-scalar-equivalence",
+      "reason": "HEDGE关注可重开的旧路线与成果身份，BRIDGE显示标量最优降低某一项特定成果概率"
+    },
+    {
+      "from": "PL-FOCUS03",
+      "to": "PL-BRIDGE-SIGNAL",
+      "relation": "safe-wait-can-beat-risky-preparation",
+      "reason": "WAIT保底奖励1时RUSH只高1/8；提高为2则WAIT反超，预测q>4/5时WAIT也反超"
+    },
+    {
+      "from": "PL-BRIDGE-TICKETS",
+      "to": "PL-BRIDGE-IDENTITIES",
+      "relation": "transition-equivalence-distinct-from-player-valued-outcomes",
+      "reason": "许可票是二场完整状态表示，不能因此否定E/S不同实际成果可能被人不同程度关心"
     }
   ],
   "coverage": {
