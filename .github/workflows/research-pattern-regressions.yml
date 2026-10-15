@@ -6,6 +6,8 @@ on:
     paths:
       - 'tools/content-validator/experiments/pattern_*_20261015.py'
       - 'tools/content-validator/experiments/pattern_return_session_20261016.py'
+      - 'tools/content-validator/experiments/pattern_repeated_censored_events_20261016.py'
+      - 'tools/content-validator/experiments/pattern_information_audience_20261016.py'
       - 'tools/content-validator/experiments/run_pattern_research_regressions.py'
       - '.github/workflows/research-pattern-regressions.yml'
   workflow_dispatch:
