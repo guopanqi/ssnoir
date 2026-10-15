@@ -772,7 +772,10 @@ namespace SSNoir.IMGUI
             return false;
         }
 
-        private bool _skipPresentationButtonPressed;
+        // 这次按压从跳过按钮上开始，已经被跳过认领：整次按压归跳过所有，
+        // 对白/舞台不再为它推进。绘制只读它画按下态，真正的跳过发生在抬手
+        // 组成一次轻点时（落点仍在按钮里、没滑成拖拽）。
+        private bool _skipPressClaimed;
 
         private static Rect SkipPresentationButtonRect
         {
@@ -787,55 +790,74 @@ namespace SSNoir.IMGUI
             }
         }
 
+        /// <summary>
+        /// 跳过按钮的输入。必须在 OnGUI 里任何消费点击的地方之前调用
+        ///（对白推进、聚光弹窗、演出锁的 <c>ConsumeCurrentPress</c> 都算在内），
+        /// 否则按在按钮上的那一下会先被对白吃掉：推进一句、到边界时演出直接
+        /// 结束，抬手时已经没东西可跳——看起来就是"点了没反应"。
+        ///
+        /// 只认领"从按钮上开始"的按压：别处开始、滑进按钮再松手的，不算跳过。
+        /// </summary>
+        private void HandleSkipPresentationInput()
+        {
+            Event e = Event.current;
+            if (e.rawType == EventType.MouseUp && e.button == 0)
+            {
+                if (!_skipPressClaimed)
+                    return;
+                _skipPressClaimed = false;
+                if (!CanSkipPresentation)
+                    return;
+                Rect buttonRect = SkipPresentationButtonRect;
+                var ui = new IMGUIInteractionContext(e.mousePosition, isLocked: false);
+                if (!ui.IsPointerInside(buttonRect))
+                    return;
+                if (IMGUIInteractionContext.PressTravelled)
+                    return;
+                if (!buttonRect.Contains(ui.PressOrigin))
+                    return;
+                e.Use();
+                TrySkipPresentation();
+                return;
+            }
+
+            if (e.rawType != EventType.MouseDown || e.button != 0)
+                return;
+
+            if (!CanSkipPresentation)
+            {
+                _skipPressClaimed = false;
+                return;
+            }
+
+            var downUi = new IMGUIInteractionContext(e.mousePosition, isLocked: false);
+            _skipPressClaimed = downUi.IsPointerInside(SkipPresentationButtonRect);
+            if (_skipPressClaimed)
+                e.Use();
+        }
+
         private void DrawSkipPresentationHint()
         {
             if (!CanSkipPresentation)
-            {
-                _skipPresentationButtonPressed = false;
                 return;
-            }
 
             Rect buttonRect = SkipPresentationButtonRect;
             Event e = Event.current;
             var ui = new IMGUIInteractionContext(e.mousePosition, isLocked: false);
             bool pointerInside = ui.IsPointerInside(buttonRect);
 
-            if (e.rawType == EventType.MouseDown && e.button == 0)
-            {
-                _skipPresentationButtonPressed = pointerInside;
-                if (_skipPresentationButtonPressed)
-                    e.Use();
-            }
-            else if (_skipPresentationButtonPressed)
-            {
-                bool released = e.rawType == EventType.MouseUp && e.button == 0;
-                bool draggedOut = e.rawType == EventType.MouseDrag && !pointerInside;
-                if (released || draggedOut)
-                {
-                    bool clicked = released && pointerInside;
-                    _skipPresentationButtonPressed = false;
-                    if (released && e.type != EventType.Used)
-                        e.Use();
-                    if (clicked)
-                        TrySkipPresentation();
-                }
-                else if (e.rawType == EventType.MouseDrag && pointerInside && e.type != EventType.Used)
-                {
-                    e.Use();
-                }
-            }
-
             if (e.type != EventType.Repaint) return;
 
+            bool pressed = _skipPressClaimed && pointerInside;
             bool hovered = pointerInside && IMGUIInteractionContext.HoverAvailable;
-            if (!_skipPresentationButtonPressed)
+            if (!pressed)
                 IMGUIStyles.DrawShadow(buttonRect, new Vector2(2f, 2f), 0.45f);
             IMGUIStyles.SetColor(IMGUIStyles.Ink);
             GUI.DrawTexture(buttonRect, Texture2D.whiteTexture);
             IMGUIStyles.ResetColor();
 
-            IMGUIStyles.DrawOutline(buttonRect, _skipPresentationButtonPressed || hovered ? 2f : 1f,
-                _skipPresentationButtonPressed ? IMGUIStyles.Gold : hovered ? IMGUIStyles.Paper : new Color(
+            IMGUIStyles.DrawOutline(buttonRect, pressed || hovered ? 2f : 1f,
+                pressed ? IMGUIStyles.Gold : hovered ? IMGUIStyles.Paper : new Color(
                     IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.55f));
             var labelStyle = new GUIStyle(IMGUIStyles.ExecuteLabel)
             {
@@ -965,6 +987,7 @@ namespace SSNoir.IMGUI
             _activeVideoTag = null;
             _animationTimer = 0f;
             _videoOwnedByCutscene = false;
+            _skipPressClaimed = false;
             StopAllCoroutines();
             _storyCameraActive = false;
             _intertitleActive = false;
@@ -1132,6 +1155,10 @@ namespace SSNoir.IMGUI
             // 不把这件事说清楚的话，最后碰过的控件会一直亮着。
             IMGUIInteractionContext.SetHoverAvailable(
                 UIScale.HasHoverPointer || Input.GetMouseButton(0) || Input.GetMouseButton(1));
+
+            // 跳过按钮的输入抢在所有点击消费之前：按在按钮上的整次按压归跳过所有，
+            // 对白/舞台不再为它推进。绘制仍在各自的分支出最后进行，保证压在最上层。
+            HandleSkipPresentationInput();
 
             // Initialize styles if needed
             IMGUIStyles.Init(_gameManager.ChineseFont, _gameManager.SemiboldFont);
