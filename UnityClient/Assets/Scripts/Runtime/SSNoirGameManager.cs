@@ -432,14 +432,18 @@ namespace SSNoir
             _renderer = gameObject.AddComponent<IMGUIWorldRenderer>();
             _renderer.Initialize(this);
             _stageController.Initialize(this);
-            var mainCamera = Camera.main
-                ?? throw new InvalidOperationException("城市天气需要 Main Camera");
-            var snowOverlay = mainCamera.transform.Find("SnowOverlay")
-                ?? throw new InvalidOperationException("城市天气缺少 Main Camera/SnowOverlay");
+            // 旧 Main Camera/SnowOverlay 仅是场景历史物件，不再参与天气。
+            // 销毁以防它的 PlayOnAwake 粒子和新镜头雪同时渲染。
+            var legacySnow = Camera.main?.transform.Find("SnowOverlay");
+            if (legacySnow != null)
+            {
+                legacySnow.gameObject.SetActive(false);
+                Destroy(legacySnow.gameObject);
+            }
             var weather = new GameObject("城市天气") { hideFlags = HideFlags.DontSave };
             weather.transform.SetParent(transform, true);
             _cityWeather = weather.AddComponent<CityWeather>();
-            _cityWeather.Initialize(this, snowOverlay);
+            _cityWeather.Initialize(this);
 
             // 6. 场景加载后重置界面状态并更新镜头。
             _sceneManager.OnSceneLoaded += () => {
