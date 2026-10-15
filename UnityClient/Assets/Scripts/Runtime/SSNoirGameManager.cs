@@ -651,25 +651,26 @@ namespace SSNoir
             if (focusCamera != null)
             {
                 bool ownsCityOutline = _cityOutlines?.HasOwner(focusCamera) == true;
-                if (ownsCityOutline)
-                {
-                    _cityOutlineClearRequest++;
-                    PresentCamera(focusCamera);
-                }
-
                 // 探索只声明意图；路径由镜头管理器根据进出两端选择。
                 // 剧情仍明确使用编排弧线，不受探索设置影响。
                 // All player-initiated navigation (room → house → world included)
                 // uses the same exploration policy. Cinematic routes explicitly
                 // request AuthoredArc; the UI never selects a camera trajectory.
                 bool travelStarted = _cameraManager.BeginFocusTravel(
-                    focusCamera, respectReduceMotion: !storyDriven,
+                    focusCamera, out float travelDuration, respectReduceMotion: !storyDriven,
                     path: SSNoirCameraManager.NavigationTravelPath(storyDriven));
+
+                bool worldCamera=focusCamera.name=="Camera_世界_VCam";
+                if (ownsCityOutline || worldCamera)
+                {
+                    _cityOutlineClearRequest++;
+                    _cityOutlines?.SetFocusedCamera(focusCamera,travelDuration);
+                }
 
                 ResetFocusCameraPriorities();
                 focusCamera.Priority = 20;
 
-                if (!ownsCityOutline && _cityOutlines != null)
+                if (!ownsCityOutline && !worldCamera && _cityOutlines != null)
                 {
                     if (travelStarted && _cameraManager.IsFocusTravelInFlight)
                         DeferCityOutlineClearUntilFocusTravelSettles();

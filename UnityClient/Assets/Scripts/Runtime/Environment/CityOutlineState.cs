@@ -14,6 +14,7 @@ namespace SSNoir
     ///
     /// A top-level City prefab is one place. Camera_世界 shows world + always outlines; presenting
     /// any camera under a place shows that place's focus outlines plus all always outlines.
+    /// World/focus outlines crossfade during presentation; shared materials are restored at endpoints.
     ///   描线_focus_&lt;名&gt;   real-model outline, visible while the place is focused
     ///   描线_world_&lt;名&gt;   optional proxy outline, visible in world view
     ///   描线_always_&lt;类&gt;  background city outline, never switched here
@@ -44,14 +45,11 @@ namespace SSNoir
             public Renderer? World { get; }
             public GameObject? Interior { get; }
 
-            public void SetFocused(bool focused)
+            public void SetWeights(float focus, float world, CityOutlineFade fade, bool entering = false)
             {
-                foreach (var renderer in Focus)
-                    renderer.enabled = focused;
-                if (World != null)
-                    World.enabled = !focused;
-                if (Interior != null)
-                    Interior.SetActive(focused);
+                foreach (var renderer in Focus) fade.Apply(renderer,focus);
+                if (World != null) fade.Apply(World,world);
+                if (Interior != null) Interior.SetActive(entering || focus>0);
             }
         }
 
@@ -66,10 +64,12 @@ namespace SSNoir
             public string Name { get; }
             public List<PrefabView> Views { get; }
 
-            public void SetFocused(bool focused)
+            public float FocusWeight { get; private set; }
+            public float WorldWeight { get; private set; } = 1;
+            public void SetWeights(float focus, float world, CityOutlineFade fade, bool entering = false)
             {
-                foreach (var view in Views)
-                    view.SetFocused(focused);
+                FocusWeight=focus; WorldWeight=world;
+                foreach (var view in Views) view.SetWeights(focus,world,fade,entering);
             }
         }
 
@@ -77,9 +77,29 @@ namespace SSNoir
         private readonly Dictionary<string, List<GameObject>> _presenceByAnchor = new(StringComparer.Ordinal);
         private Place? _activePlace;
         private readonly CityWorldVisuals _visuals;
+        private readonly List<Place> _places = new();
+        private readonly CityOutlineFade _fade;
+        private readonly CityEnvironmentTransition _transition;
+        private readonly float _duration;
+#if UNITY_EDITOR
+        private static readonly HashSet<CityOutlineState> EditorInstances = new();
+        public static void CompleteEditorTransitions()
+        {
+            foreach(var instance in EditorInstances)instance._transition.Complete();
+        }
+#endif
 
         private CityOutlineState(Transform cityRoot)
         {
+            var palette=CityWorldPalette.Load();
+            _duration=palette.Focus.TransitionSeconds;
+            _fade=new CityOutlineFade(palette.OutlineFadeShader);
+            var host=new GameObject("~描线交接") { hideFlags=HideFlags.DontSave };
+            host.transform.SetParent(cityRoot,false);
+            _transition=host.AddComponent<CityEnvironmentTransition>();
+#if UNITY_EDITOR
+            EditorInstances.Add(this);
+#endif
             _visuals = new CityWorldVisuals(cityRoot);
             _visuals.SetFocused(null);
             foreach (var renderer in cityRoot.GetComponentsInChildren<Renderer>(true))
@@ -134,7 +154,7 @@ namespace SSNoir
 
                     var view = new PrefabView(prefabName, focus.GetComponentsInChildren<Renderer>(true), world,
                         interior != null ? interior.gameObject : null);
-                    view.SetFocused(false);
+                    view.SetWeights(0,1,_fade);
                     views.Add(view);
                     viewCount++;
                 }
@@ -143,6 +163,7 @@ namespace SSNoir
                     continue;
 
                 var place = new Place(placeName, views);
+                _places.Add(place);
                 foreach (var camera in roots.SelectMany(r => r.GetComponentsInChildren<CinemachineVirtualCamera>(true)))
                 {
                     if (!_cameraOwners.TryAdd(camera, place))
@@ -215,7 +236,7 @@ namespace SSNoir
             return camera != null && _cameraOwners.ContainsKey(camera);
         }
 
-        public void SetFocusedCamera(CinemachineVirtualCamera? camera)
+        public void SetFocusedCamera(CinemachineVirtualCamera? camera, float? transitionSeconds = null)
         {
             Place? next = null;
             if (camera != null)
@@ -224,13 +245,39 @@ namespace SSNoir
             if (next == _activePlace)
                 return;
 
-            _activePlace?.SetFocused(false);
-            next?.SetFocused(true);
+            // 重定向时采样当前权重；重复呈现同一地点不会重启过渡。
+            var changing=_places.Where(p=>p.FocusWeight!=(p==next?1:0) || p.WorldWeight!=(p==next?0:1)).ToArray();
+            var fromFocus=changing.Select(p=>p.FocusWeight).ToArray();
+            var fromWorld=changing.Select(p=>p.WorldWeight).ToArray();
             _activePlace = next;
+            _transition.Begin(transitionSeconds ?? _duration,t=> {
+                // 离开的线先退（0–0.6），目标线后入（0.4–1）；两者只在中段短暂交叠。
+                float outgoing=Mathf.SmoothStep(0,1,Mathf.Clamp01(t/0.6f));
+                float incoming=Mathf.SmoothStep(0,1,Mathf.Clamp01((t-0.4f)/0.6f));
+                for(int i=0;i<changing.Length;i++)
+                {
+                    bool entering=changing[i]==next;
+                    float targetFocus=entering?1:0, targetWorld=entering?0:1;
+                    changing[i].SetWeights(
+                        Mathf.Lerp(fromFocus[i],targetFocus,targetFocus>fromFocus[i]?incoming:outgoing),
+                        Mathf.Lerp(fromWorld[i],targetWorld,targetWorld>fromWorld[i]?incoming:outgoing),
+                        _fade,entering);
+                }
+            },unscaled:true,smooth:false);
             _visuals.SetFocused(next?.Name);
         }
 
-        public void Dispose() => _visuals.Dispose();
+        public void Dispose()
+        {
+#if UNITY_EDITOR
+            EditorInstances.Remove(this);
+#endif
+            if(_transition!=null)_transition.Cancel();
+            foreach(var place in _places)place.SetWeights(0,1,_fade);
+            _fade.Dispose();
+            if(_transition!=null)UnityEngine.Object.DestroyImmediate(_transition.gameObject);
+            _visuals.Dispose();
+        }
 
         private static bool IsFocusOutlineRoot(Transform transform)
         {

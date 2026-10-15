@@ -239,3 +239,4 @@ MonoBehaviour:
   NightGlowShader: {fileID: 4800000, guid: ad4c2f8e2a9446e39aa88178a1f62111, type: 3}
   BakedAreaScale: 0.35
   FloorHighlight: 0.12
+  OutlineFadeShader: {fileID: 4800000, guid: 5180f187ff334d31900a7f45051855fa, type: 3}

@@ -42,6 +42,7 @@ namespace SSNoir
         }
         public FocusSettings Focus = new();
         public Shader NightGlowShader = null!;
+        public Shader OutlineFadeShader = null!;
         public float BakedAreaScale = 0.35f;
         public float FloorHighlight = 0.12f;
         public Material? FindMaterial(string source) => Materials.SingleOrDefault(s => s.SourceNames.Contains(source) || s.Name == source)?.Material;
@@ -56,6 +57,7 @@ namespace SSNoir
             if (!float.IsFinite(Focus.AmbientMultiplier) || Focus.AmbientMultiplier < 0
                 || !float.IsFinite(Focus.LightMultiplier) || Focus.LightMultiplier < 0)
                 throw new InvalidOperationException("地点环境光或配光倍率无效");
+            if (OutlineFadeShader == null) throw new InvalidOperationException("缺少描线交接 Shader");
             if (Pipeline == null) throw new InvalidOperationException("世界视觉基准缺少渲染管线");
             if (WorldLandmarkLine == null || Materials.Any(role => role.Material == WorldLandmarkLine))
                 throw new InvalidOperationException("地标远景线必须使用独立共享材质");

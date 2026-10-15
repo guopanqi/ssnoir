@@ -158,6 +158,7 @@ Orbit 相机必须满足：
 - 地点的视觉声明发布为 `Resources/City/World.visual.json`：环境、雾、灯光用途/颜色角色、强度和模式。灯的位置/方向来自正式 City.fbx；光色角色必须由 WorldPalette 实现，缺失时校验失败。
 - CityBox 的声明使用源资产单位；`CityWorldVisuals` 按 City 根的正值统一缩放换算灯光范围、面光尺寸和雾距离，不沿用独立试用场景的 0.1 缩放。点光/聚光强度按缩放平方换算，方向光强度保持不变。
 - `CityOutlineState` 随呈现的地点切换灯光和环境。全城机位使用 `WorldPalette.Overview` 的试验配光：共享冷白/冷边光色、侧向主光、环境光和远景雾，由 `CityWorldOverview` 实现。全城阴影距离使用正式 URP 的运行时派生实例；离开全城恢复正式 URP，不修改共享管线资产。局部地点继续使用自己的配光。实体投影、描线不投影。编辑器取景临时使用同一套配置，结束后恢复，不保存 City 子对象覆盖。
+- world/focus 描线通过 `CityOutlineFade` 错时双向交接（离开线 0–0.6 退场，目标线 0.4–1 入场），普通导航由 `BeginFocusTravel` 返回的实际时长驱动，重定向保留当前权重。`WorldPalette.OutlineFadeShader` 显式引用交接 Shader，保证发布时保留；交接材质只在运行时缓存，端点恢复各自原共享 `.mat`。固定机位预览显式完成描线与环境过渡，再验证端点实际绑定；动态透明度与中断行为须另行检查。
 - 晚宴的静态面光使用 `Resources/City/Lighting/晚宴.asset`，绑定正式 Places 模型的 Renderer 路径与 lightmap。数据记录 FBX 内容哈希；几何重新发布而光照未更新时直接报错。`CityWorldLighting.BakeBanquet` 在独立验证工程烘焙，共享材质不变。
 - 晚宴地面高光是有限的圆盘面光近似，不计算反射遮挡；与静态光照一起发布。Unity Preview 与正式游戏引用同一套材质、Shader、光照数据和 URP 配置；Blender Preview 只提供自身对视觉语言的近似实现。
 

@@ -113,6 +113,7 @@ namespace SSNoir.Editor
             else _editorState!.SetFocusedCamera(camera);
             // 固定预览检查过渡的终点；实际游戏仍按色盘时间平滑过渡。
             CityWorldVisuals.CompleteEditorTransitions();
+            CityOutlineState.CompleteEditorTransitions();
             var city=camera.transform;
             while(city.name!="City")city=city.parent ?? throw new InvalidOperationException("机位不属于 City");
             var palette=CityWorldPalette.Load();
