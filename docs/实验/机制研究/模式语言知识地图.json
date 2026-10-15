@@ -4339,6 +4339,72 @@
         "native": false,
         "repositoryCI": "pending-independent-confirmation"
       }
+    },
+    {
+      "id": "PL-CHAIN-MATCHING",
+      "name": "对一人身份的确认改变其他人身份的可解性与调查目标",
+      "layer": "mature-combination",
+      "origin": "ssnoir-research",
+      "family": "跨对象约束传播与主动调查",
+      "idea": "四人四身份一对一匹配，公开候选产生9个允许世界。准确查出一人后，身份排他性与候选表共同约束未调查的另外三人；玩家据反馈改选第二目标",
+      "stage": "exact-permutation-enumeration-and-strong-open-loop-ablation",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-身份约束与成组确认/研究记录.md",
+        "tools/content-validator/experiments/pattern_constraint_deduction_20261015.py"
+      ],
+      "note": "4限制9世界，2次准确核验的条件最优4个身份完全确定，最强固定两个目标28/9，非互斥身份各自独立时恰好2个；条件策略A0→查D、A1→查C、A2→查B；P全部确定动态1、固定5/9。该关系有成熟Obra Dinn身份推理先例，不是新原语。",
+      "evidence": {
+        "localExactEnumeration": true,
+        "independentHumanFeedback": false,
+        "blindAgent": false,
+        "native": false,
+        "repositoryCI": "pending-confirmation",
+        "matureGamePrecedent": true
+      }
+    },
+    {
+      "id": "PL-CHAIN-SIMPLE",
+      "name": "跨题连锁能改变初始最优目标，但候选数贪心已可全解",
+      "layer": "mature-negative-boundary",
+      "origin": "ssnoir-research",
+      "family": "主动信息目标排序与简短策略审计",
+      "idea": "取消部分公开候选限制，使尚不确定的目标选择之间出现非对称；用固定调查、单手进展和简短候选数贪心比较",
+      "stage": "constraint-subset-ablation-and-cheap-heuristic-regression",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-身份约束与成组确认/研究记录.md",
+        "tools/content-validator/experiments/pattern_constraint_deduction_20261015.py"
+      ],
+      "note": "仅3条限制11世界时唯一最优先查候选最多且全未知的D，按D的回答决定下一个人，2手全识别4；最强固定36/11、先查A/B/C也36/11。0..4限制16个子集里简短候选数量贪心全部追平完整DP，非一般性贪心最优定理。",
+      "evidence": {
+        "localExactEnumeration": true,
+        "independentHumanFeedback": false,
+        "blindAgent": false,
+        "native": false,
+        "repositoryCI": "pending-confirmation",
+        "matureGamePrecedent": true
+      }
+    },
+    {
+      "id": "PL-CONFIRM-BATCH",
+      "name": "延迟合并验真可减少试错器的信息泄漏，但未必改善玩家体验",
+      "layer": "mature-combination",
+      "origin": "ssnoir-research",
+      "family": "推理反馈带宽与防暴力枚举",
+      "idea": "相同9个完整身份世界，比较一次准确查一人、单个猜身份是非、提交完整猜测并仅确认三人以上是否正确的反馈效率",
+      "stage": "exact-optimal-feedback-query-policy",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-身份约束与成组确认/研究记录.md",
+        "tools/content-validator/experiments/pattern_batch_confirmation_20261015.py"
+      ],
+      "note": "将完整答案唯一确定所需期望查询数：查完整身份2、逐项是非10/3、四人完整猜测若至少3正确才确认44/9。由于4人合法排列间不可能恰好三人相同，第三种玩具反馈等同全对才确认，绝非原作真正三条命运提交语义。成熟原作设计师访谈说明成组确认用于减少枚举试错。",
+      "evidence": {
+        "localExactEnumeration": true,
+        "independentHumanFeedback": false,
+        "blindAgent": false,
+        "native": false,
+        "repositoryCI": "pending-confirmation",
+        "matureGamePrecedent": true
+      }
     }
   ],
   "edges": [
@@ -7647,6 +7713,48 @@
       "to": "PL-SOURCE-ECHO",
       "relation": "more-actions-not-necessarily-dynamic-planning",
       "reason": "追加调查与公开动作可能有可计算收益，但固定阈值和独立信息强替代能压平真实持续选择"
+    },
+    {
+      "from": "PL-LEAD01",
+      "to": "PL-CHAIN-MATCHING",
+      "relation": "linked-hypotheses-vs-single-target-confirmation",
+      "reason": "LEAD线索反馈解锁本对象精确CONFIRM，CHAIN确认某对象即改变其他对象可行答案空间"
+    },
+    {
+      "from": "PL-SOURCE-CORRELATED",
+      "to": "PL-CHAIN-MATCHING",
+      "relation": "statistical-source-correlation-vs-hard-identity-constraints",
+      "reason": "SOURCE因两份报告可能抄录而非独立，CHAIN是一对一匹配约束使各人物真实身份互斥，属于不同信息依赖"
+    },
+    {
+      "from": "PL-GROUP01",
+      "to": "PL-CHAIN-MATCHING",
+      "relation": "strong-one-test-strategy-counterexample",
+      "reason": "GROUP单点试探一次精准辨源压平多次缩圈；CHAIN两次按反馈选择目标才可全解，但强完整身份簿仍可旁路"
+    },
+    {
+      "from": "PL-CHAIN-MATCHING",
+      "to": "PL-CHAIN-SIMPLE",
+      "relation": "candidate-restriction-ablation-and-easy-heuristic",
+      "reason": "非对称首目标可严格改变结果，但简单最大候选数贪心已在16个子集全优"
+    },
+    {
+      "from": "PL-CHAIN-MATCHING",
+      "to": "PL-CONFIRM-BATCH",
+      "relation": "truth-discovery-distinct-from-checker-feedback",
+      "reason": "靠环境约束推断世界和用答案检查器穷举是两种活动，反馈设计需防止后者替代前者"
+    },
+    {
+      "from": "PL-EVIDENCE-STOP01",
+      "to": "PL-CONFIRM-BATCH",
+      "relation": "feedback-timing-controls-brute-force",
+      "reason": "EVIDENCE_STOP讨论何时停查有噪声线索，CONFIRM讨论何时验证最终猜测而非提供新现场证据"
+    },
+    {
+      "from": "PL-CAUSAL-RETEST",
+      "to": "PL-CHAIN-MATCHING",
+      "relation": "continuous-retesting-vs-cross-case-deduction",
+      "reason": "CAUSAL再次核验可能错的规则报告；CHAIN用完全准确身份结果触发全局其他目标的排除"
     }
   ],
   "coverage": {
