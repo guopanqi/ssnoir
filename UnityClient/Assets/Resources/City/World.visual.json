@@ -27,6 +27,28 @@
   ],
   "lights": [
     {
+      "name": "分拣工作光",
+      "profile": "上午十一点零七分",
+      "type": "SPOT",
+      "energy": 1100.0,
+      "size": 0,
+      "spotAngle": 100.0000005060238,
+      "spotBlend": 0.6499999761581421,
+      "palette": "冷白",
+      "mode": "realtime"
+    },
+    {
+      "name": "楼梯反光",
+      "profile": "上午十一点零七分",
+      "type": "SPOT",
+      "energy": 300.0,
+      "size": 0,
+      "spotAngle": 95.00000150525098,
+      "spotBlend": 0.6499999761581421,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
       "name": "掠射轮廓光",
       "profile": "别给他们想要的",
       "type": "AREA",
@@ -79,6 +101,204 @@
       "spotAngle": 160,
       "spotBlend": 0.5,
       "palette": "冷边",
+      "mode": "realtime"
+    },
+    {
+      "name": "舞台面光",
+      "profile": "首演之夜",
+      "type": "SPOT",
+      "energy": 2800.0,
+      "size": 0,
+      "spotAngle": 65.00000067042492,
+      "spotBlend": 0.6499999761581421,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "舞台冷侧光",
+      "profile": "首演之夜",
+      "type": "SPOT",
+      "energy": 1800.0,
+      "size": 0,
+      "spotAngle": 74.99999867197056,
+      "spotBlend": 0.6499999761581421,
+      "palette": "冷边",
+      "mode": "realtime"
+    },
+    {
+      "name": "观众席低照度",
+      "profile": "首演之夜",
+      "type": "POINT",
+      "energy": 350.0,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "冷白",
+      "mode": "realtime"
+    },
+    {
+      "name": "勒索信-巷口上方冷光",
+      "profile": "巷子",
+      "type": "SPOT",
+      "energy": 1800.0,
+      "size": 0,
+      "spotAngle": 95.00000150525098,
+      "spotBlend": 0.6499999761581421,
+      "palette": "冷白",
+      "mode": "realtime"
+    },
+    {
+      "name": "勒索信-货栈区上方冷光",
+      "profile": "巷子",
+      "type": "SPOT",
+      "energy": 1800.0,
+      "size": 0,
+      "spotAngle": 95.00000150525098,
+      "spotBlend": 0.6499999761581421,
+      "palette": "冷白",
+      "mode": "realtime"
+    },
+    {
+      "name": "勒索信-邮局后街上方冷光",
+      "profile": "巷子",
+      "type": "SPOT",
+      "energy": 1800.0,
+      "size": 0,
+      "spotAngle": 95.00000150525098,
+      "spotBlend": 0.6499999761581421,
+      "palette": "冷白",
+      "mode": "realtime"
+    },
+    {
+      "name": "尾随取件人上方冷光",
+      "profile": "尾随取件人",
+      "type": "SPOT",
+      "energy": 1800.0,
+      "size": 0,
+      "spotAngle": 95.00000150525098,
+      "spotBlend": 0.6499999761581421,
+      "palette": "冷白",
+      "mode": "realtime"
+    },
+    {
+      "name": "尾随取件人-商业街上方冷光",
+      "profile": "尾随取件人",
+      "type": "SPOT",
+      "energy": 1800.0,
+      "size": 0,
+      "spotAngle": 95.00000150525098,
+      "spotBlend": 0.6499999761581421,
+      "palette": "冷白",
+      "mode": "realtime"
+    },
+    {
+      "name": "尾随取件人-电车上方冷光",
+      "profile": "尾随取件人",
+      "type": "SPOT",
+      "energy": 1800.0,
+      "size": 0,
+      "spotAngle": 95.00000150525098,
+      "spotBlend": 0.6499999761581421,
+      "palette": "冷白",
+      "mode": "realtime"
+    },
+    {
+      "name": "尾随取件人-酒店上方冷光",
+      "profile": "尾随取件人",
+      "type": "SPOT",
+      "energy": 1800.0,
+      "size": 0,
+      "spotAngle": 95.00000150525098,
+      "spotBlend": 0.6499999761581421,
+      "palette": "冷白",
+      "mode": "realtime"
+    },
+    {
+      "name": "尾随取件人-报社后门上方冷光",
+      "profile": "尾随取件人",
+      "type": "SPOT",
+      "energy": 1800.0,
+      "size": 0,
+      "spotAngle": 95.00000150525098,
+      "spotBlend": 0.6499999761581421,
+      "palette": "冷白",
+      "mode": "realtime"
+    },
+    {
+      "name": "棚口冷光",
+      "profile": "让他们安静",
+      "type": "SPOT",
+      "energy": 1800.0,
+      "size": 0,
+      "spotAngle": 84.99999667351618,
+      "spotBlend": 0.6499999761581421,
+      "palette": "冷白",
+      "mode": "realtime"
+    },
+    {
+      "name": "街口路灯光",
+      "profile": "让他们安静",
+      "type": "POINT",
+      "energy": 240.0,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "北侧路灯光",
+      "profile": "让他们安静",
+      "type": "POINT",
+      "energy": 280.0,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "巷道冷光",
+      "profile": "巷子里在打人",
+      "type": "SPOT",
+      "energy": 950.0,
+      "size": 0,
+      "spotAngle": 65.00000067042492,
+      "spotBlend": 0.6499999761581421,
+      "palette": "冷白",
+      "mode": "realtime"
+    },
+    {
+      "name": "壁灯照明",
+      "profile": "巷子里在打人",
+      "type": "POINT",
+      "energy": 140.0,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "棚内工作光",
+      "profile": "修理棚",
+      "type": "SPOT",
+      "energy": 240.0,
+      "size": 0,
+      "spotAngle": 84.99999667351618,
+      "spotBlend": 0.6499999761581421,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "路口冷光",
+      "profile": "修理棚",
+      "type": "SPOT",
+      "energy": 900.0,
+      "size": 0,
+      "spotAngle": 90.00000250447816,
+      "spotBlend": 0.6499999761581421,
+      "palette": "冷白",
       "mode": "realtime"
     },
     {
@@ -381,11 +601,95 @@
   ],
   "profiles": [
     {
+      "name": "上午十一点零七分",
+      "worldLinear": {
+        "r": 0.012,
+        "g": 0.017,
+        "b": 0.026,
+        "a": 1.0
+      },
+      "fog": false,
+      "fogStart": 180.0,
+      "fogEnd": 420.0
+    },
+    {
       "name": "别给他们想要的",
       "worldLinear": {
         "r": 0.012000000104308128,
         "g": 0.017999999225139618,
         "b": 0.03200000151991844,
+        "a": 1.0
+      },
+      "fog": false,
+      "fogStart": 180.0,
+      "fogEnd": 420.0
+    },
+    {
+      "name": "首演之夜",
+      "worldLinear": {
+        "r": 0.012,
+        "g": 0.017,
+        "b": 0.026,
+        "a": 1.0
+      },
+      "fog": false,
+      "fogStart": 180.0,
+      "fogEnd": 420.0
+    },
+    {
+      "name": "巷子",
+      "worldLinear": {
+        "r": 0.012,
+        "g": 0.017,
+        "b": 0.026,
+        "a": 1.0
+      },
+      "fog": false,
+      "fogStart": 180.0,
+      "fogEnd": 420.0
+    },
+    {
+      "name": "尾随取件人",
+      "worldLinear": {
+        "r": 0.012,
+        "g": 0.017,
+        "b": 0.026,
+        "a": 1.0
+      },
+      "fog": false,
+      "fogStart": 180.0,
+      "fogEnd": 420.0
+    },
+    {
+      "name": "让他们安静",
+      "worldLinear": {
+        "r": 0.012,
+        "g": 0.017,
+        "b": 0.026,
+        "a": 1.0
+      },
+      "fog": false,
+      "fogStart": 180.0,
+      "fogEnd": 420.0
+    },
+    {
+      "name": "巷子里在打人",
+      "worldLinear": {
+        "r": 0.012,
+        "g": 0.017,
+        "b": 0.026,
+        "a": 1.0
+      },
+      "fog": false,
+      "fogStart": 180.0,
+      "fogEnd": 420.0
+    },
+    {
+      "name": "修理棚",
+      "worldLinear": {
+        "r": 0.012,
+        "g": 0.017,
+        "b": 0.026,
         "a": 1.0
       },
       "fog": false,
@@ -456,103 +760,103 @@
   "placeHashes": [
     {
       "name": "上午十一点零七分",
-      "hash": "4d3a1489eaa0a227ec2569e4b270526d4d0f58803ba60521cfcce275c800d55d"
+      "hash": "258760aa41a26a8dcc5f0f793a6a194b96c099f562b99123277f52b989fb121b"
     },
     {
       "name": "修理棚",
-      "hash": "08022f108d0d6df9a4b3c9e785871cf501b998acd0b94e737a1a38dddd5344da"
+      "hash": "f95a16b91d0c9866810cd3197b3b912067cc6ed34b75ed5854a6c468f2acbadd"
     },
     {
       "name": "公园",
-      "hash": "e4199763aa669aa112d1ca22201ca281776d705a4954c70f853fb24f1b56ca32"
+      "hash": "9a9938c863dd25a06d160d6a13736a81103561908429cc8796e63bcc28600a41"
     },
     {
       "name": "别给他们想要的",
-      "hash": "4ad05827b2b19a349aeb4b89af8c56a61779efe560ed654c17451955e344e8dc"
+      "hash": "03921dc3cfd818d70bc5f72be6a73095c2909e5018d105b0d63513176c4361e0"
     },
     {
       "name": "剧院",
-      "hash": "900a4cbbf97f2dfa3806cbca5f567fcc259391cff4fd41f3b0bd818e9a27f146"
+      "hash": "601b5886049646a28dcbf133f28d07f9a1d7269c34d1036fc2e74a0a4a18489e"
     },
     {
       "name": "双目标跟拍",
-      "hash": "a115ebc7e8df526ea8a90f3607ea1ab896afb2f5840ce760ef3784533a79a71f"
+      "hash": "ab9db3fa3a21262b6e8ef9996672c789ae14cf5eb59746e7786ba972f71fa326"
     },
     {
       "name": "家",
-      "hash": "cf34f9d2c79e8eea0b961ae1b23917c41b584e02f77740c67b7b4b201861fa49"
+      "hash": "79ef77165a9d76689f240880a932d2bcb231399d79c3fe4285d0921c0effc195"
     },
     {
       "name": "尾随取件人",
-      "hash": "9d90385221491b0ab5b2776e6b17c3276db52fb78376d1d56f26f122c760558f"
+      "hash": "0870ed7e0c0f219ea985d7c45038354f05f96a677c1794fde0dbc8c9bcd93fdd"
     },
     {
       "name": "巷子",
-      "hash": "c5519f72c45f5c49478e123e87766a9b873932acf2344445b05f36a9f3eb1659"
+      "hash": "096b66fc4b8c17ab5173e0512af991103ea8bea4cbb1fc0b3fbf3886b6ccda4f"
     },
     {
       "name": "巷子里在打人",
-      "hash": "aaffe11cc132e6c0281679e56cc3cad733a22ea8d43933f97262fc2248fa0479"
+      "hash": "910294c0f9fb2ce47645930c86b98d11646913557ac1fe6c005c66bafe613605"
     },
     {
       "name": "布告栏",
-      "hash": "7bc16f3799eb9c5d5f5335733c122196f9a1fab309877eafd6df55cc0b274c3e"
+      "hash": "b2c25561779984d37de632242fa7876ad28d1b3d71e63c860934ce8297fc7a05"
     },
     {
       "name": "报社",
-      "hash": "02fe638e1818b5cc8f4c678a02f739f98cca867f2d9989c806bbbfca061b75dd"
+      "hash": "7d7cbbbcfd2b10f10425c1a41a35bfaa9924b4bcbeeb229df8bc494d4b5faf13"
     },
     {
       "name": "晚宴",
-      "hash": "707bcf854ff2b4c00842404cce64732563c6920d4618bbae4bc0ec2ca5b86576"
+      "hash": "f916d84a1814fa238f7efeea571508c7cddcfc08f525dc793991aa38ce73a075"
     },
     {
       "name": "格兰德酒店",
-      "hash": "e3b73a728af0b72180daa97447f2a619f520b73c293366668356b1fd2637944e"
+      "hash": "0970a737ff45b1d1b0e1fb8ada6f4c5fd43ce4036d123fd1ee6617dea50e794d"
     },
     {
       "name": "照相馆交涉",
-      "hash": "f9842b4a6f5366db9483af15a85dd1cd649eeccd5f63e5209c425966502eb06c"
+      "hash": "609ef78105b8919ec3eedda37f1c182319191fa6ab630f82c685684cbffcb7c0"
     },
     {
       "name": "码头",
-      "hash": "5cfdf55a70572550ea314b45ae2146b376f3d4e603c01014c1e5a252cdee5493"
+      "hash": "62ec64515a24a1f2461dfbe1b7a7a8e706ca4d8c155ab32c587acf2aa1814773"
     },
     {
       "name": "码头居民区",
-      "hash": "7282cb93d230157d3e66a93daf4ac3e6b52abdee0aaff03032004685e342d417"
+      "hash": "a9e13d97a441c94231b1c09993bf4519a0def16319fb952b7b00014a77923abf"
     },
     {
       "name": "租屋",
-      "hash": "4f745a0bf4db827d73e54d9e75cfe43cbf931de1ef9f6ebb4062c4bdff37b32a"
+      "hash": "51eb68a66550bb47448c7c8d69628a9d1aae1b598c28f6646d032c6765c42a64"
     },
     {
       "name": "老街酒馆",
-      "hash": "fc323150d87e39cf5f6623b783071df597b00ffb7f80420ee13ec044f9876e78"
+      "hash": "719ee8f564772e3187495f8cdcd0e3190414e6e78bd94d649c7a6c90c85dbe2f"
     },
     {
       "name": "警察局",
-      "hash": "f9f0cd7186e133d035d8a7982c3ae2ea0dd5c760e1c32575b0fed7495117badb"
+      "hash": "e84c50356d42dacb6a7b2aa05bd1c538597eb3521b502b96c5b14d8bb233b776"
     },
     {
       "name": "让他们安静",
-      "hash": "34c8721eab4c3258f34273f3284d3cd8e273f28ee08b780a4db4e0302e5a8ae8"
+      "hash": "c7823be2c19537c044c9288906270b3d464d903fd1c2ee4fca9fc3d7c945baa1"
     },
     {
       "name": "诊所",
-      "hash": "dd1b723c6fa4a5061e1f1c4bcf7cebee5038b844cfb0625663b2af7ba504b248"
+      "hash": "467019ff17fef117abc878d25fd5db0b3fa1bcf9849a522a71ea79c903087d09"
     },
     {
       "name": "货运公司",
-      "hash": "65d6f9d9ccdb2058a4c66c7e92110f5876de3cba6e12110458e9694943231417"
+      "hash": "ed3573741d3348523c0ae8e876634edbd6146bcb46d4f400cb2c99d913215959"
     },
     {
       "name": "雕像",
-      "hash": "3264b7f12853705da1189364fdf9e4618fb3b1797ab287a1dbfd60fd6033977a"
+      "hash": "37b9a5c7ad4e01184da55b354e1721087f5601ecce3d7a66d4dbb0cdb7bacac7"
     },
     {
       "name": "首演之夜",
-      "hash": "01f5323af710a64f245fddd38901bbee4dc66550f9333604b89269fea06a0d4b"
+      "hash": "034ceb340470f4931026c2f321171763af68b79786edbae58a09615bcc67f19a"
     }
   ]
 }
