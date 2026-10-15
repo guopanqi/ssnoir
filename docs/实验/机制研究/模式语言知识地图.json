@@ -4727,6 +4727,30 @@
         "native": false,
         "repositoryCI": "unverified"
       }
+    },
+    {
+      "id": "PL-RETURN-UX-PROTOCOL",
+      "name": "RETURN分层交锋与同值条件宏计划的无答案可理解性对照",
+      "origin": "ssnoir-research",
+      "layer": "methodological-audit",
+      "family": "跨层心理活动与可见UI组织",
+      "idea": "数学上等价的四阶段现场选择与事前K条件宏计划，能否让玩家更自发区分世界层目标选择、返回局部操作和不可逆结果",
+      "stage": "study-preregistered-no-participants",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-跨层判断可理解性审计/研究记录.md",
+        "docs/实验/机制研究/批次/2026-10-15-跨层判断可理解性审计/无答案分组问卷.md",
+        "tools/content-validator/experiments/pattern_return_comprehension_protocol_20261015.py"
+      ],
+      "note": "冻结RETURN原协议：最优1509/128，11宏计划逐可达状态同值，支持K边际1/128。提出S/M同事实对照、隐藏信息时点、六场景卡及无提示因果理解题；没有真人也没有盲Agent行为记录。不得将宏同值或UI多一步点击单方面解释为心理体验同构/差异。",
+      "evidence": {
+        "sourceModelExact": true,
+        "studyProtocol": true,
+        "offlineScenarioRunnerAdded": true,
+        "humanParticipants": 0,
+        "blindAgent": false,
+        "CI": "unverified",
+        "gameDebug": false
+      }
     }
   ],
   "edges": [
@@ -8299,6 +8323,12 @@
       "to": "PL-RETURN-OUTCOMES",
       "relation": "nonfungible-results-need-preference-evidence",
       "reason": "BRIDGE标量根与单项E/S成果概率不一致，RETURN同样保留实际A/B/ALT兑现与不可逆违约身份"
+    },
+    {
+      "from": "PL-RETURN-MACRO",
+      "to": "PL-RETURN-UX-PROTOCOL",
+      "relation": "mathematical-equivalence-does-not-settle-human-comprehension",
+      "reason": "11宏策略同值属于规则层证据；玩家在分层S或宏M是否主动体验到不同尺度尚无真实观察"
     }
   ],
   "coverage": {
