@@ -27,17 +27,22 @@ async function world(){
 async function tavern(vm){
   return convertNode(await vm.evaluate("(car (old-street-tavern 'render-data))"));
 }
-test("tavern trouble keeps one real clock visible INSIDE expanded work container",async()=>{
+test("tavern trouble exposes urgency and the SAME clock before and after entering its container",async()=>{
   const vm=await world();
   await vm.evaluate('(old-street-tavern \'load! (list (list "watch-first?" #f) (list "watch-trouble-day" 1) (list "watch-trouble" "醉客纠缠") (list "watch-progress" 2)))');
   const scene=await tavern(vm);
   const node=scene.children.find(x=>x.name==="醉客纠缠");
   assert.ok(node,"ongoing bouncer trouble should be present");
-  assert.equal(node.clocks.length,0,"container should not own a vanishing clock");
+  assert.deepEqual(node.tags,["紧急"],"parent container must expose urgency to the plate renderer");
+  assert.equal(node.clocks.length,1,"collapsed container should show the progress badge");
+  assert.equal(node.clocks[0].label,"处理麻烦");
   const clocks=node.children.filter(x=>x.resolve?.noteClock?.label==="处理麻烦");
-  assert.equal(clocks.length,1,"a visible child clock should track the existing progress object");
+  assert.equal(clocks.length,1,"expanded container should show a single child clock");
+  assert.equal(node.clocks[0].current,2);
   assert.equal(clocks[0].resolve.noteClock.current,2);
+  assert.equal(node.clocks[0].max,3);
   assert.equal(clocks[0].resolve.noteClock.max,3);
+  assert.deepEqual(node.clocks[0],clocks[0].resolve.noteClock,"two views of the same clock must agree");
   assert.deepEqual(node.children.filter(x=>x.resolve?.kind==="roll").map(x=>x.name),
     ["劝他离席","请他出去"]);
   await vm.evaluate('(old-street-tavern \'load! (list (list "watch-first?" #f) (list "watch-trouble" "") (list "watch-progress" 0)))');
