@@ -1,8 +1,8 @@
 {
   "schema": "ssnoir.autonomous-pattern-memory/v1",
   "updated": "2026-10-15",
-  "batch": "CROSS-SCALE06 冻结跨日规则的身份向量全枚举",
-  "rounds": 79,
+  "batch": "CROSS-SCALE07 连续两次反馈改道与跨期零交互反证",
+  "rounds": 80,
   "totalArchivedRounds": 478,
   "objective": "长期自主发展可复用的玩法模式语言，覆盖已知作品先例、基础原语、完整交锋、跨阶段结构、组合条件与重要负例；评价玩家实际反复作出的判断、反馈、后果。历史20是广度愿景，不是价值认证名单或完成配额。",
   "policy": "从成熟作品、旧实验、新假设三向吸收；先去剧情定义玩家活动，再独立批评同构/最强简单策略，按需模型与盲Agent试玩。数学、作品先例、Agent、原生与真人是正交证据。知识图谱收录不等真人认可，精选展示与Debug独立把关，真人反馈异步且不阻塞。",
@@ -337,6 +337,6 @@
     "latestCounterfactual": "IWT01：四手Hidden A/B各半，3份正确WORK得10/8，TRACK工作必+1并有75%准确类型线索；纯INSPECT100%占一手。无信息6、只TRACK119/16、INSPECT9；INSPECT耗时两手TRACK重新胜119/16；完美TRACK19/2、50%TRACK6、TRACK首手限定29/4。正向枚举核对全部潜在真实类型；保留已有DISC/FOCUS/SIG组合。",
     "crossFamilyAudit": "PL-IWT01→PL-DISC01（工作+信息两种不同产出）、FOCUS02/03（及时兑现行动窗口、完美检查强旁路）、SIG01（非战略性线索噪声有别于他者可伪装的行动信号）。"
   },
-  "lastFinding": "CROSS-SCALE06：保持05模型不变，全合法固定序列52，允许TEST后H/L分歧的248份条件策略描述，投影32种成果向量、5非支配；标量根21/2，保证A成功最高9、保证B成功最高10，根最优A/B完成各1/2。预承诺只是筛选已有政策，不自动构成机制或玩家偏好，STAKE/VOL/OBLIGATION同族。无新真人/Agent/Unity。",
-  "nextResearchQuestion": "研究首场决策引起第二场真实动作许可和二次注意力改道的必要条件，匹配固定巡回、安全等待、状态展开资格菜单；优先纸面心理结构与去重，再建模，不再增加预约日期或奖励。"
+  "lastFinding": "CROSS-SCALE07：六行动两波、地点行动换站，第一/第二信息都改变实际行为；无反馈18、只首波39/2、只次波43/2、全反馈23，交互项0；BA隐藏世界中最优WORK→GO_B→WORK→GO_A→WORK→WORK，确实两次改道。禁t=3移动根18、39/2、39/2、21，交互仍0。玩家连续改道不意味着新的非可分玩法；成熟信息×转场组合，无人类/Agent/Unity。",
+  "nextResearchQuestion": "跨波未完事项或危机是否让玩家持续重新配置有限关注；从已知HEDGE/CRISIS/OBLIGATION去重，先审固定立即处理/永远忽略/安全等待/平坦状态机，拒绝简单叠加危机数和地点。"
 }
