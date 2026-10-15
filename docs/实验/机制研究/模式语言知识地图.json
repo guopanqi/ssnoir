@@ -3829,6 +3829,94 @@
         "humanFeedbackAvailable": false,
         "native": false
       }
+    },
+    {
+      "id": "PL-RECIP-COMMIT",
+      "name": "可执行条件承诺诱发他者生产性投入",
+      "layer": "mature-combination",
+      "origin": "ssnoir-research",
+      "family": "第三方可信参与与跨期自利响应",
+      "idea": "玩家先承诺未来怎样兑现，对方据真实私人成本决定是否进入；比较全面承诺、条件合同和外部代工",
+      "stage": "exact-pure-participation-counterfactual",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-双边承诺与后到机会/研究记录.md",
+        "tools/content-validator/experiments/pattern_bilateral_commitment_20261015.py"
+      ],
+      "note": "RECIP01/02 q1/2：条件9/4、全面7/4、安全1、免费同生产能力替代11/4；H参加要求3q>1，证明参与激励但不是新的博弈原语",
+      "evidence": {
+        "localExactFraction": true,
+        "fullMixedEquilibrium": false,
+        "independentAgent": false,
+        "humanFeedbackAvailable": false,
+        "native": false,
+        "repositoryCI": false
+      }
+    },
+    {
+      "id": "PL-RECIP-REPLAN",
+      "name": "别人投入之后玩家面对新机会的履约改道",
+      "layer": "mature-combination",
+      "origin": "ssnoir-research",
+      "family": "第三方可信参与与跨期自利响应",
+      "idea": "事前报价诱发H付证明成本、随后随机外部机会出现，玩家按当期价值兑现或退出；事前优化报酬是强基线",
+      "stage": "full-types-and-outside-world-forward-check",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-双边承诺与后到机会/研究记录.md",
+        "tools/content-validator/experiments/pattern_bilateral_outside_option_20261015.py"
+      ],
+      "note": "RECIP03/04固定T3有晚反馈21/4、不见反馈19/4，但允许优化T后都达21/4；外部机会提前公开最优11/2并减少他者浪费，反证固定报价下的虚假动态优势",
+      "evidence": {
+        "localExactFraction": true,
+        "fullMixedEquilibrium": false,
+        "independentAgent": false,
+        "humanFeedbackAvailable": false,
+        "native": false,
+        "repositoryCI": false
+      }
+    },
+    {
+      "id": "PL-RECIP-IDENTITY",
+      "name": "同收益下退出补偿与成功奖励的跨主体损失身份",
+      "layer": "mature-combination",
+      "origin": "ssnoir-research",
+      "family": "第三方可信参与与跨期自利响应",
+      "idea": "成功时报酬和退出时补偿可在双方期望上同值，但改变每个真实世界各自承受的损失",
+      "stage": "full-world-payoff-identity-audit",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-双边承诺与后到机会/研究记录.md",
+        "tools/content-validator/experiments/pattern_cancellation_transfer_20261015.py"
+      ],
+      "note": "RECIP05 T5/D0与T3/D2分别玩家21/4与伙伴1/4期望同值；H,R8伙伴-2 vs0，玩家8 vs6。非逐状态等价，仍是成熟条件合同的分配变奏",
+      "evidence": {
+        "localExactFraction": true,
+        "fullMixedEquilibrium": false,
+        "independentAgent": false,
+        "humanFeedbackAvailable": false,
+        "native": false,
+        "repositoryCI": false
+      }
+    },
+    {
+      "id": "PL-RECIP-BELIEF",
+      "name": "证明分离政策对悲观离路径信念的敏感性",
+      "layer": "mature-combination",
+      "origin": "ssnoir-research",
+      "family": "第三方可信参与与跨期自利响应",
+      "idea": "单个激励相容的合作政策未必是唯一纯PBE候选；要检查其他方不参与时的不寻常证明如何被解释",
+      "stage": "pure-pbe-candidate-and-belief-refinement-boundary",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-双边承诺与后到机会/研究记录.md",
+        "tools/content-validator/experiments/pattern_signalling_equilibrium_selection_20261015.py"
+      ],
+      "note": "RECIP06 T3分离候选玩家21/4；悲观离路径信念π<13/16支持无人证明玩家9/2，可能被Intuitive Criterion淘汰，绝非稳健唯一/多重均衡认证",
+      "evidence": {
+        "localExactFraction": true,
+        "fullMixedEquilibrium": false,
+        "independentAgent": false,
+        "humanFeedbackAvailable": false,
+        "native": false,
+        "repositoryCI": false
+      }
     }
   ],
   "edges": [
@@ -6819,6 +6907,54 @@
       "to": "PL-BRIDGE-AUDIT01",
       "relation": "multiple-replanning-insufficient",
       "reason": "两次转场改道可能仍为加性反馈，不能证明责任重估"
+    },
+    {
+      "from": "PL-GRC01",
+      "to": "PL-RECIP-COMMIT",
+      "relation": "credible-participation-precedent",
+      "reason": "已知GRC中伙伴预期被未来低成本旁路会拒绝早期不可替代的HELP；本批不独立认证首创"
+    },
+    {
+      "from": "PL-TRANSFER02",
+      "to": "PL-RECIP-COMMIT",
+      "relation": "proof-versus-static-menu",
+      "reason": "静态移交只是SETUP，真正生产性成本及可执行承诺需要分别提供动作证据"
+    },
+    {
+      "from": "PL-GRC03",
+      "to": "PL-RECIP-REPLAN",
+      "relation": "other-agent-information-timing",
+      "reason": "GRC已知早/晚信息通过参与约束能正向或反向改变收益；RECIP提前公开的价值须对照双方结果"
+    },
+    {
+      "from": "PL-RECIP-COMMIT",
+      "to": "PL-RECIP-REPLAN",
+      "relation": "partner-investment-enables-later-player-choice",
+      "reason": "前期承诺诱发证明工作，后到机会才可能让玩家决定兑现或另投，仍有事前合同全优旁路"
+    },
+    {
+      "from": "PL-RECIP-REPLAN",
+      "to": "PL-RECIP-IDENTITY",
+      "relation": "scalar-tie-distinct-partner-loss",
+      "reason": "双方平均值同分仍可改变谁在后到机会触发时承受不可追回的成本"
+    },
+    {
+      "from": "PL-SIGNAL-AUDIT01",
+      "to": "PL-RECIP-BELIEF",
+      "relation": "separation-not-uniqueness",
+      "reason": "验证分离策略仅说明候选成立；RECIP额外追问离路径信念及均衡精炼"
+    },
+    {
+      "from": "PL-TRL02",
+      "to": "PL-RECIP-BELIEF",
+      "relation": "costly-mimicry-and-beliefs",
+      "reason": "旧TRL已研究策略伪装；不能把一个纯分离激励称完整信号博弈"
+    },
+    {
+      "from": "PL-RECIP-REPLAN",
+      "to": "PL-RECIP-BELIEF",
+      "relation": "multiple-equilibria-limits-value-claim",
+      "reason": "按分离策略计算玩家21/4不能当作所有参与者预期下一定达成该结果"
     }
   ],
   "coverage": {
