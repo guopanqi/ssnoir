@@ -61,13 +61,13 @@
           (outcome (lambda () (watch-handle! 2))))))
     (define (watch-nodes)
       (append
-        (list (工作 "看场" '低 'social
+        (list (工作 "看场子" '低 'social
           (outcome (lambda () (watch-work!)))
           (outcome (lambda () (watch-work!)))
           (outcome (lambda () (watch-work!)))
-          "每次10金；麻烦当天未解决扣5金" :anchor "老街酒馆-工作"))
+          "在酒吧维护秩序，装装样子，但偶尔会有酒客闹事" :anchor "老街酒馆-工作"))
         (if (equal? watch-trouble "") '()
-          (list (node watch-trouble :anchor "老街酒馆-工作"
+          (list (node (string-append "闹事:" watch-trouble) :anchor "老街酒馆-工作"
             :subtitle "今天不处理，扣5金"
             :tags (list "紧急")
             ;; 入口给概要，进入后显示同一进度钟的 clock-node，不复制状态。
@@ -225,7 +225,7 @@
             (set! tavern-trouble-outcome "未了")
             ;; 满格起、往下走：这是一条死线，不是玩家在推进的东西。
             (tavern-trouble-clk 'set! (tavern-trouble-clk 'max))
-            (result-supplement! (string-append "今晚之内：" tavern-trouble))
+            (result-supplement! (string-append "今晚之内：闹事:" tavern-trouble))
             (play-foreman-trouble-noise! tavern-trouble))
           #f))
 
@@ -530,7 +530,7 @@
     ;; 日终按收场结算考核（见「领班麻烦结算」）。
     ;; 没收住不算收场：麻烦还压在手里，只要还有骰子就能再来一次。
     (define (node-tavern-trouble)
-      (node tavern-trouble
+      (node (string-append "闹事:" tavern-trouble)
         :anchor "老街酒馆-工作"
         :subtitle "今晚打烊前得有个交代"
         :clocks (list (tavern-trouble-clk 'render-data))
@@ -572,7 +572,7 @@
       (node "点一杯酒"
         :anchor "老街酒馆-购买"
         ;; 只有灰掉的时候才写一句——不写玩家就不知道为什么点不动。
-        :subtitle (if (home 'drank-today?) "今天已经喝过了" "")
+        :subtitle (if (home 'drank-today?) "今天已经喝过了" "恢复冷静2点")
         :disabled (home 'drank-today?)
         :requires (list (req-item "金钱" 15))
         :resolve (instant
@@ -779,6 +779,12 @@
              (set! watch-first? (assoc-get data "watch-first?" #t))
              (set! watch-trouble-day (assoc-get data "watch-trouble-day" 0))
              (set! watch-trouble (assoc-get data "watch-trouble" ""))
+             ;; 改名迁移：旧档记的是无前缀的麻烦名，读到即换成带"闹事："的新名。
+             (set! watch-trouble
+               (cond ((equal? watch-trouble "醉客纠缠") "闹事：醉客纠缠")
+                     ((equal? watch-trouble "门口争执") "闹事：门口争执")
+                     ((equal? watch-trouble "赖账客人") "闹事：赖账客人")
+                     (else watch-trouble)))
              (watch-progress 'load! (assoc-get data "watch-progress" 0))
              (if (member? watch-trouble '("" "醉客纠缠" "门口争执" "赖账客人")) #t
                (error "看场存档：麻烦类型非法"))
