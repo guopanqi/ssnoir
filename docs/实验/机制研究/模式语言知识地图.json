@@ -4270,6 +4270,75 @@
         "native": false,
         "repositoryCI": "workflow-added-unverified"
       }
+    },
+    {
+      "id": "PL-SOURCE-CORRELATED",
+      "name": "多份报告可能共享同一个来源，表面一致不代表独立验证",
+      "origin": "ssnoir-research",
+      "layer": "mature-combination",
+      "family": "证据来源依赖与可行动信息",
+      "idea": "第二份报告隐有独立调查/照抄第一份两种生成方式，玩家观察两份一致与否并选择是否可信",
+      "stage": "exact-correlated-posterior-and-naive-policy-audit",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-证据相关性与二手消息回声/研究记录.md",
+        "tools/content-validator/experiments/pattern_source_provenance_20261015.py"
+      ],
+      "note": "P(报告一致)=13/16；一致时P(第二为照抄)=8/13、实际正确率21/26，不是独立时9/10。错误当独立的固定下注根11/4，识别相关性并SAFE根3；仅统计信息审计，不代表真人真的会犯该错误。",
+      "evidence": {
+        "localExactFraction": true,
+        "allHiddenWorlds": true,
+        "policyForwardReplay": false,
+        "humanFeedbackAvailable": false,
+        "independentAgent": false,
+        "native": false,
+        "repositoryCI": "pending-independent-confirmation"
+      }
+    },
+    {
+      "id": "PL-SOURCE-AUDIT",
+      "name": "核查来源虽提高真实性，却被同价取得真正新证据的强替代覆盖",
+      "origin": "ssnoir-research",
+      "layer": "mature-negative-boundary",
+      "family": "可选择的信息质量与来源成本",
+      "idea": "在风险下注前选调查第二报告是不是转述，或花同手获取确定独立的第三报告；比较两者和一次性安全退出",
+      "stage": "exact-belief-DP-independent-hidden-world-policy-replay",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-证据相关性与二手消息回声/研究记录.md",
+        "tools/content-validator/experiments/pattern_source_provenance_20261015.py"
+      ],
+      "note": "无新动作3、仅核查51/16、仅新证人283/64、两者齐全仍283/64；核查出场13/16概率但菜单有新证人时最优从不核查；NEW成本3而AUDIT成本1时根回51/16。完整正确/误判/安全结果概率另行正向追踪。",
+      "evidence": {
+        "localExactFraction": true,
+        "allHiddenWorlds": true,
+        "policyForwardReplay": true,
+        "humanFeedbackAvailable": false,
+        "independentAgent": false,
+        "native": false,
+        "repositoryCI": "pending-independent-confirmation"
+      }
+    },
+    {
+      "id": "PL-SOURCE-ECHO",
+      "name": "自己公开消息使后续表面证据同源，然而固定阈值政策足以全解",
+      "origin": "ssnoir-research",
+      "layer": "mature-negative-boundary",
+      "family": "玩家行为改变后续信息独立性",
+      "idea": "PUBLICIZE将下一报告从独立75%检测改写成复制现有S1，同时取得独立公开收益B；HOLD保持真正新来源",
+      "stage": "exact-all-truth-and-source-worlds-causality-ablations",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-证据相关性与二手消息回声/研究记录.md",
+        "tools/content-validator/experiments/pattern_endogenous_media_echo_20261015.py"
+      ],
+      "note": "HOLD根5，PUBLICIZE根3+B：B0/1选择HOLD、B2平局、B3选PUBLICIZE；无需持续计划。一份真实新独立S3若再耗成本1，可修复复制信息但不免费。与INV干预信息生成、RECORD制度认可有不同因果轴，仍普通状态转移。",
+      "evidence": {
+        "localExactFraction": true,
+        "allHiddenWorlds": true,
+        "policyForwardReplay": false,
+        "humanFeedbackAvailable": false,
+        "independentAgent": false,
+        "native": false,
+        "repositoryCI": "pending-independent-confirmation"
+      }
     }
   ],
   "edges": [
@@ -7536,6 +7605,48 @@
       "to": "PL-CAUSAL-WEAK",
       "relation": "active-diagnostic-versus-informative-work",
       "reason": "主动检查若浪费时间或不够可信，会被带反馈的生产性工作压过"
+    },
+    {
+      "from": "PL-EVIDENCE-STOP01",
+      "to": "PL-SOURCE-CORRELATED",
+      "relation": "iid-assumption-contrasted-with-shared-origin",
+      "reason": "旧EVIDENCE-STOP将样本设为条件独立；SOURCE使报告来源可能是同一转述，改变数票和后验"
+    },
+    {
+      "from": "PL-CUST01",
+      "to": "PL-SOURCE-CORRELATED",
+      "relation": "physical-copy-vs-informational-correlation",
+      "reason": "CUST材料可复制影响终局保留资格，SOURCE复制的是内容导致信息统计不独立，不能视作同一成果轴"
+    },
+    {
+      "from": "PL-RECORD01",
+      "to": "PL-SOURCE-CORRELATED",
+      "relation": "admissibility-distinct-from-independence",
+      "reason": "RECORD证明资格与测试登记不同于来源是否独立和后验真假，三者独立评价"
+    },
+    {
+      "from": "PL-CAUSAL-RETEST",
+      "to": "PL-SOURCE-AUDIT",
+      "relation": "new-information-vs-source-provenance",
+      "reason": "CAUSAL检查隐藏响应规律；SOURCE审核报告同源性且被成本相同的新独立信息支配"
+    },
+    {
+      "from": "PL-SOURCE-CORRELATED",
+      "to": "PL-SOURCE-AUDIT",
+      "relation": "shared-origin-makes-verification-relevant",
+      "reason": "重复来源事实让出处审核在只有AUDIT一条路时根3提高到51/16，但开放强替代后归零"
+    },
+    {
+      "from": "PL-INV01",
+      "to": "PL-SOURCE-ECHO",
+      "relation": "intervention-endogenously-changes-evidence-generation",
+      "reason": "INV保护能抑制事后痕迹，SOURCE公开使后来报告抄录自己，都是行动改变观察生成过程但关注不同因果关系"
+    },
+    {
+      "from": "PL-SOURCE-AUDIT",
+      "to": "PL-SOURCE-ECHO",
+      "relation": "more-actions-not-necessarily-dynamic-planning",
+      "reason": "追加调查与公开动作可能有可计算收益，但固定阈值和独立信息强替代能压平真实持续选择"
     }
   ],
   "coverage": {
