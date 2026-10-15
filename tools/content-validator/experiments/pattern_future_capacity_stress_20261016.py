@@ -100,7 +100,7 @@ def regression():
                     assert any(payoff(w,i,seq,hurt,mode)==value for seq in plans)
                     assert all(len(seq)==available(i,hurt,mode) for seq in plans)
     assert exact_root('PUSH')==F(41,4)
-    assert exact_root('WAIT')==8
+    assert exact_root('WAIT')==9
     assert exact_root('COMMON')==F(25,2)
     assert exact_root('PUSH',mode='penalty') == F(41,4)
     assert exact_root('PUSH',mode='backstop') == F(25,2)
@@ -127,20 +127,20 @@ def regression():
     # at the same first-move cost and publicly stated result definition.
     assert exact_root('COMMON') > exact_root('PUSH') > exact_root('WAIT')
     # Posterior-dependent first-action choice with no tuning after reveal.
-    # WAIT root = 13-10p, PUSH root=8+9p/2; indifference at p=10/29.
-    for p in (F(),F(1,4),F(10,29),F(1,2),F(1)):
-        assert exact_root('WAIT',p) == 13-10*p
+    # WAIT root = 13-8p, PUSH root=8+9p/2; indifference at p=2/5.
+    for p in (F(),F(1,4),F(2,5),F(1,2),F(1)):
+        assert exact_root('WAIT',p) == 13-8*p
         assert exact_root('PUSH',p) == 8+F(9,2)*p
-        if p < F(10,29):assert exact_root('WAIT',p)>exact_root('PUSH',p)
-        elif p > F(10,29):assert exact_root('PUSH',p)>exact_root('WAIT',p)
+        if p < F(2,5):assert exact_root('WAIT',p)>exact_root('PUSH',p)
+        elif p > F(2,5):assert exact_root('PUSH',p)>exact_root('WAIT',p)
         else:assert exact_root('WAIT',p)==exact_root('PUSH',p)
-    print('STRESS-CAPACITY PASS: PUSH=41/4, WAIT=8, COMMON=25/2')
+    print('STRESS-CAPACITY PASS: PUSH=41/4, WAIT=9, COMMON=25/2')
     print('Matched numerical root scalar-penalty PUSH=41/4, actual capacity changed delivery:')
     print('  capacity=',capacity)
     print('  money-penalty=',penalty)
     print('Normal reachable W=B: intact -> finish B; broken -> finish wrong A')
     print('One-line conditional policy matches exhaustive enumeration')
-    print('First-action threshold P(W=A)=10/29; strong safe common prep eliminates gamble')
+    print('First-action threshold P(W=A)=2/5; strong safe common prep eliminates gamble')
     print('LIMIT: not actual CS2 rules; no human/independent agent player evidence')
 
 
