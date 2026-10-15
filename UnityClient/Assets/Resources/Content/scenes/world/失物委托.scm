@@ -10,8 +10,10 @@
         "喝酒 +3，做服务员 +1；填满后听到一件找东西的委托。"))
     (define (available?)
       (and enabled? (= stage 0) (= (three-letters 'story-stage) 1)))
+    (define (rumours-active?)
+      (and (available?) (not (rumours 'full?))))
     (define (hear-rumours! amount)
-      (if (and (available?) (not (rumours 'full?)))
+      (if (rumours-active?)
           (begin
             (rumours 'advance! amount)
             (if (rumours 'full?)
@@ -82,6 +84,7 @@
     (lambda args
       (cond
         ((eq? (car args) 'nodes-at) (nodes-at (cadr args)))
+        ((eq? (car args) 'rumours-active?) (rumours-active?))
         ((eq? (car args) 'hear-rumours!) (hear-rumours! (cadr args)))
         ((eq? (car args) 'save)
          (list (list "stage" stage) (list "lunch-checked?" lunch-checked?)

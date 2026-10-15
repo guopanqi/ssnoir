@@ -48,6 +48,9 @@
             (watch-progress 'reset!)
             (play-watch-trouble-noise! watch-trouble first?))) #f)
       (photo-case 'hear-rumours! 1))
+    (define (watch-subtitle)
+      (string-append "在酒吧维护秩序，装装样子，但偶尔会有酒客闹事"
+        (if (photo-case 'rumours-active?) "；小道消息+1" "")))
     (define (watch-handle! n)
       (watch-progress 'advance! n)
       (if (watch-progress 'full?)
@@ -65,7 +68,7 @@
           (outcome (lambda () (watch-work!)))
           (outcome (lambda () (watch-work!)))
           (outcome (lambda () (watch-work!)))
-          "在酒吧维护秩序，装装样子，但偶尔会有酒客闹事" :anchor "老街酒馆-工作"))
+          (watch-subtitle) :anchor "老街酒馆-工作"))
         (if (equal? watch-trouble "") '()
           (list (node (string-append "闹事:" watch-trouble) :anchor "老街酒馆-工作"
             :subtitle "今天不处理，扣5美元"
@@ -568,11 +571,20 @@
 
     ;; 当场点一杯：效果与在家喝自带的酒完全一样，共用同一次“当天第一杯”（home 的 drank-today?）。
     ;; :resolve 用 outcome 包一层，结果才会像判定一样以锚定卡片弹出，而不是只飘过一条 notify!。
+    (define (drink-subtitle)
+      (if (home 'drank-today?) "今天已经喝过了"
+        (string-append "恢复冷静2点"
+          (cond
+            ((and (lost-property 'rumours-active?) (photo-case 'rumours-active?))
+             "；两条小道消息各+3")
+            ((or (lost-property 'rumours-active?) (photo-case 'rumours-active?))
+             "；小道消息+3")
+            (else "")))))
     (define (node-drink-here)
       (node "点一杯酒"
         :anchor "老街酒馆-购买"
-        ;; 只有灰掉的时候才写一句——不写玩家就不知道为什么点不动。
-        :subtitle (if (home 'drank-today?) "今天已经喝过了" "恢复冷静2点")
+        ;; 效果只在仍可产生时显示；喝过后只解释禁用原因。
+        :subtitle (drink-subtitle)
         :disabled (home 'drank-today?)
         :requires (list (req-item "金钱" 15))
         :resolve (instant

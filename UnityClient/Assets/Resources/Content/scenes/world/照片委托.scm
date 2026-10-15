@@ -5,6 +5,9 @@
     (define stage 0) ; 0未接 1约会待处理 2待冲印 3可交付 4已交付
     (define evidence "无成果")
     (define source-stage 0) ; 0未开放 1可调查 2失败 3有线索 4已商量
+    (define (rumours-active?)
+      (and (= stage 0) (= (three-letters 'story-stage) 1)
+           (opening-life 'routes-open?) (not (rumours 'full?))))
     ;; 来源线属于第一封信的有效窗口；婚外情委托独立完成，不受该窗口影响。
     ;; 直接读取章节进度，不额外复制结案开关。
     (define (source-window-open?) (= (three-letters 'story-stage) 1))
@@ -191,8 +194,9 @@
         ((eq? (car args) 'hotel-open?) (= stage 1))
         ((eq? (car args) 'shop-open?) (or (= stage 2) (source-investigable?)))
         ((eq? (car args) 'sync-blockers!) (sync-blockers!))
+        ((eq? (car args) 'rumours-active?) (rumours-active?))
         ((eq? (car args) 'hear-rumours!)
-         (if (and (= stage 0) (= (three-letters 'story-stage) 1) (opening-life 'routes-open?))
+         (if (rumours-active?)
            (begin (rumours 'advance! (cadr args))
              (if (rumours 'full?) (accept!) #f)) #f))
         ((eq? (car args) 'save)
