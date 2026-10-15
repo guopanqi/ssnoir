@@ -4895,6 +4895,31 @@
         "blindAgentSessions": 0,
         "native": false
       }
+    },
+    {
+      "id": "PL-CUSTODY-THIRD-PARTY01",
+      "origin": "ssnoir-research",
+      "name": "真正的第三方早投入与可执行条件补偿会改变合作资格，却不等于原件已保住",
+      "layer": "mature-combination-boundary",
+      "family": "可信承诺、自主参加、不可替代成果及有条件风险补偿",
+      "idea": "伙伴先自利JOIN/EXIT并真实投入，未来W公开后玩家在保A/改B间选择；已投入伙伴保A得4、改B损6，玩家可先提供真实可执行的B分支保证金D或始终支付的预付F。",
+      "stage": "two-type-full-tree-and-strong-upfront-fee-hard-floor-liquidity-controls",
+      "note": "无保障时伙伴期望(4−6)/2=−1拒绝投入，玩家安全B期望9；风险中性且tie JOIN时D2使玩家13、伙伴0，但F1同样使玩家13/伙伴0，条件支付非原创净收益。若伙伴声明所有世界经济净值不得负，D6使伙伴自愿参加并在B分支不亏、玩家11；F需至少6令玩家8而被安全退出9支配。D6即便货币补偿，也仍然在W=B实际失去A。若可抵押额度最多4，则硬无损下D6不可达，回复安全9；真实担保假设不等同口头承诺。与旧GRC/NEG/PLEDGE/STAKE连接，非新人类/Agent/原生证据。",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-16-自愿责任与成果有效性/研究记录.md",
+        "tools/content-validator/experiments/pattern_third_party_bond_20261016.py"
+      ],
+      "evidence": {
+        "fraction": true,
+        "partnerSelfInterestedParticipation": true,
+        "opportunityOutsideChecked": true,
+        "conditionalAndUpfrontCompared": true,
+        "hardFloorAndBondCapacityAudited": true,
+        "repoCI": "https://github.com/guopanqi/ssnoir/actions/runs/38779385775",
+        "humanParticipants": 0,
+        "blindAgentSessions": 0,
+        "native": false
+      }
     }
   ],
   "edges": [
@@ -8581,6 +8606,36 @@
       "to": "PL-CUSTODY-VALIDITY01",
       "relation": "penalty-amount-does-not-declare-protected-target",
       "reason": "违约概率、安全退出、A必保和按真实需求匹配是不同终局指标，不能用统一标量或未加有效性维度替代"
+    },
+    {
+      "from": "PL-CUSTODY-OPT-OUT01",
+      "to": "PL-CUSTODY-THIRD-PARTY01",
+      "relation": "internal-penalty-to-real-external-participation",
+      "reason": "CUSTODY玩家自己的罚款被早退出压平；本批另一主体已投入且可拒绝，使条件承诺成为实际可执行资格的前提"
+    },
+    {
+      "from": "PL-GRC01",
+      "to": "PL-CUSTODY-THIRD-PARTY01",
+      "relation": "credible-contract-required-for-early-help",
+      "reason": "GRC早期合作因未来廉价BYPASS消失；本批以可执行B分支担保为可行的风险转移对照，核查合作方真实JOIN与EXIT"
+    },
+    {
+      "from": "PL-PLEDGE-EARLY",
+      "to": "PL-CUSTODY-THIRD-PARTY01",
+      "relation": "early-third-party-loss-and-later-repair-differ",
+      "reason": "PLEDGE的提前相信与已发生投入不可随口头纠正消除；这里允许货币补偿，却无法自动保住原物理A结果"
+    },
+    {
+      "from": "PL-STAKE01",
+      "to": "PL-CUSTODY-THIRD-PARTY01",
+      "relation": "compensation-does-not-equal-protected-result",
+      "reason": "STAKE结算身份不可被综合总分替代；即使伙伴B分支经济净值为0，A本身仍然物理失去"
+    },
+    {
+      "from": "PL-AUDIENCE-ACTION-LEAK01",
+      "to": "PL-CUSTODY-THIRD-PARTY01",
+      "relation": "autonomous-actor-can-withhold-participation",
+      "reason": "AUDIENCE信息导致伙伴自利EXIT，本批没有新信号，只证明未来违约的可执行保障改变其开局参加资格"
     }
   ],
   "coverage": {
