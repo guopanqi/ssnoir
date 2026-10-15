@@ -15,6 +15,8 @@ python3 tools/citybox-unity-preview/preview.py --verify-play
 
 `--verify-play` 额外比较同机位的 Editor/Play 相机、可见网格、材质 GUID、灯光、环境与管线配置。配置不同或运行时报错时命令失败。截图供 Agent 自我观察与迭代；固定机位不包含 UI、存档产生的家具、交锋人物、拖动镜头和动画时序，仍由正式游戏验收这些行为。河水与动画可能导致两张图像素不同。
 
+配置中的 `worldOutlineMaterials` 记录每个远景代理对象的实际材质路径；预览拒绝远景代理绑定近景主线，或整个城市缺失独立地标远景材质。Palette 中有引用不等于模型已经正确绑定，导入阶段错误同样必须处理。
+
 修改世界材质应直接修改共享 Unity 资产；几何、描线角色与灯光声明通过 CityBox 的正式 build/publish 链更新。晚宴 FBX 更新后需用 `CityWorldLighting.BakeBanquet` 在独立工程重新烘焙、发布光照资源。缺失或过期光照会直接报错，预览不会绕开。
 
 Blender 个性化探索仍保留在 `city-box/prefabs/review/`，可用于发现新的视觉元素。旧的 Unity/Blender 对齐转换器、独立试用场景、复制材质和试用 URP 已移除；它们不能代表正式游戏。

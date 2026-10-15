@@ -115,6 +115,17 @@ namespace SSNoir.Editor
             CityWorldVisuals.CompleteEditorTransitions();
             var city=camera.transform;
             while(city.name!="City")city=city.parent ?? throw new InvalidOperationException("机位不属于 City");
+            var palette=CityWorldPalette.Load();
+            var worldOutlines=city.GetComponentsInChildren<Renderer>(true).Where(r=> {
+                for(var t=r.transform;t!=null && t!=city;t=t.parent)
+                    if(t.name.StartsWith("描线_world_",StringComparison.Ordinal))return true;
+                return false;
+            }).ToArray();
+            foreach(var r in worldOutlines)
+                if(r.sharedMaterials.Any(m=>m==null || !palette.IsLine(m) || m==palette.FindMaterial("主线")))
+                    throw new InvalidOperationException("远景描线未绑定独立共享材质："+RelativePath(city,r.transform));
+            if(worldOutlines.Length>0 && !worldOutlines.Any(r=>r.sharedMaterials.Contains(palette.WorldLandmarkLine)))
+                throw new InvalidOperationException("世界模型没有绑定地标远景线");
             // 静态编辑器预览使用非序列化覆盖；CLI 的状态已经由正式代码控制，清除旧覆盖。
             foreach(var r in city.GetComponentsInChildren<Renderer>(true))r.forceRenderingOff=false;
             var source=Camera.main ?? throw new InvalidOperationException("Main 缺少主相机");
@@ -141,6 +152,8 @@ namespace SSNoir.Editor
                     locationFog=CityWorldOverview.LocationFog,
                     locationFogColor=CityWorldOverview.LocationFogColor,
                     scene=name,mode=mode,position=capture.transform.position,rotation=capture.transform.rotation,
+                    worldOutlineMaterials=worldOutlines.Select(r=>RelativePath(city,r.transform)+":"+
+                        string.Join(",",r.sharedMaterials.Select(m=>AssetDatabase.GetAssetPath(m)))).OrderBy(p=>p).ToArray(),
                     fov=capture.fieldOfView,near=capture.nearClipPlane,far=capture.farClipPlane,
                     pipeline=AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(CityWorldPalette.Load().Pipeline)),
                     fog=RenderSettings.fog,fogStart=RenderSettings.fogStartDistance,fogEnd=RenderSettings.fogEndDistance,
@@ -181,6 +194,7 @@ namespace SSNoir.Editor
             public float worldEffectsWeight,bloomMultiplier;public Vector4 locationFog;public Color locationFogColor;
             public LightState[] lights=Array.Empty<LightState>();public string[] materials=Array.Empty<string>();
             public string[] visible=Array.Empty<string>(),decorations=Array.Empty<string>();
+            public string[] worldOutlineMaterials=Array.Empty<string>();
         }
         [Serializable] private sealed class LightState
         {

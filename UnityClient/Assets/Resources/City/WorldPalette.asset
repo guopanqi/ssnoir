@@ -132,6 +132,10 @@ MonoBehaviour:
     ImportNames:
     - "M_\u91CD\u8981\u5EFA\u7B51"
     Material: {fileID: 2100000, guid: 6d1850d97c96340b798cd90ef29d26e2, type: 2}
+  - Name: "M_港口机械"
+    ImportNames:
+    - "M_港口机械"
+    Material: {fileID: 2100000, guid: 58670a55b909465d823e00f5e50d3124, type: 2}
   Lines:
   - Name: "\u4E3B\u7EBF"
     ImportNames:
