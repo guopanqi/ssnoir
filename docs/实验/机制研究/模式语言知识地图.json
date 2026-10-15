@@ -4005,6 +4005,50 @@
         "native": false,
         "repositoryCI": false
       }
+    },
+    {
+      "id": "PL-STRATEGIC01",
+      "name": "有限完全信息合作无法靠无成本的未来声誉自发持续",
+      "family": "真正自主行动者与期限激励",
+      "layer": "mature-negative-boundary",
+      "origin": "ssnoir-research",
+      "idea": "玩家每轮委托后伙伴自主EFFORT/SHIRK；固定期限且只有固定酬劳时，终局无可兑现未来声誉、逐段逆推合作全消失",
+      "stage": "finite-complete-information-backward-induction",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-有限关系与自主合作/研究记录.md",
+        "tools/content-validator/experiments/pattern_partner_strategy_20261015.py"
+      ],
+      "note": "n=1..5、奖金0..2逐历史后推玩家始终SAFE，三回合根玩家3伙伴0；已知有限完美信息重复博弈负例，不是所有人际关系的一般定理。",
+      "evidence": {
+        "exactFractionBackwardInduction": true,
+        "fullPublicHistories": true,
+        "independentAgent": false,
+        "humanFeedbackAvailable": false,
+        "native": false,
+        "repositoryCI": false
+      }
+    },
+    {
+      "id": "PL-STRATEGIC02",
+      "name": "可验证成功回报需要同时满足双方行动诱因",
+      "family": "真正自主行动者与可信履约",
+      "layer": "mature-combination",
+      "origin": "ssnoir-research",
+      "idea": "以真正可执行的成功奖金b提升对方EFFORT的私人收益，又不能使玩家合作净收益低于SAFE",
+      "stage": "finite-complete-information-backward-induction",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-有限关系与自主合作/研究记录.md",
+        "tools/content-validator/experiments/pattern_partner_strategy_20261015.py"
+      ],
+      "note": "努力成本2，伙伴固定报酬1，玩家成功6、SAFE1，严格合作窗口2<b<5；n=3，b3根(玩家9,伙伴6)，b4(6,9)，更高或更低按明示平局结局均SAFE。所有历史政策固定，已去重GRC/NEG/RECIP。",
+      "evidence": {
+        "exactFractionBackwardInduction": true,
+        "fullPublicHistories": true,
+        "independentAgent": false,
+        "humanFeedbackAvailable": false,
+        "native": false,
+        "repositoryCI": false
+      }
     }
   ],
   "edges": [
@@ -7079,6 +7123,36 @@
       "to": "PL-MEMORY04",
       "relation": "fixed-trait-vs-autonomous-agent",
       "reason": "RECIP拥有策略性伙伴参与和退出，MEMORY仅参数固定的合作对象；不要从人物命名偷渡自主性"
+    },
+    {
+      "from": "PL-MEMORY01",
+      "to": "PL-STRATEGIC01",
+      "relation": "fixed-type-versus-self-chosen-effort",
+      "reason": "同一对象长期随机可靠率不等于可自主选择努力或敷衍；两类玩家推断动作不是同一原语"
+    },
+    {
+      "from": "PL-STRATEGIC01",
+      "to": "PL-STRATEGIC02",
+      "relation": "credible-contingent-pay-repairs-effort-incentive",
+      "reason": "仅靠未来口头关系在冻结有限模型下无作用；有可验证成功奖金后真实行动响应改变"
+    },
+    {
+      "from": "PL-GRC01",
+      "to": "PL-STRATEGIC02",
+      "relation": "existing-incentive-compatibility-precedent",
+      "reason": "早期不可替代帮助和预期未来偿付早由GRC研究，本批只作为另一幅边界图"
+    },
+    {
+      "from": "PL-RECIP-COMMIT",
+      "to": "PL-STRATEGIC02",
+      "relation": "contract-conditions-not-social-innovation",
+      "reason": "给对方可执行的条件酬劳而影响其行动是既有成熟可信承诺组合"
+    },
+    {
+      "from": "PL-TRL02",
+      "to": "PL-STRATEGIC01",
+      "relation": "strategy-and-signal-not-same",
+      "reason": "TRL有策略性修饰信息；此批努力对玩家完全可观察，尚无伪装和类型学习"
     }
   ],
   "coverage": {
