@@ -772,17 +772,105 @@ namespace SSNoir.IMGUI
             return false;
         }
 
-        private GUIStyle? _skipPresentationStyle;
+        private const float SkipPresentationHoldSeconds = 0.9f;
+        private bool _skipPresentationHeld;
+        private float _skipPresentationHoldStartedAt;
+        private GUIStyle? _skipPresentationLabelStyle;
+        private GUIStyle? _skipPresentationKeyStyle;
+
         private void DrawSkipPresentationHint()
         {
-            if (!CanSkipPresentation) return;
-            _skipPresentationStyle ??= new GUIStyle(GUI.skin.label)
+            if (!CanSkipPresentation)
             {
-                alignment = TextAnchor.UpperRight,
-                normal = { textColor = new Color(.8f, .8f, .8f, .8f) }
+                _skipPresentationHeld = false;
+                return;
+            }
+
+            const float buttonWidth = 144f;
+            const float buttonHeight = 48f;
+            Rect safe = UIScale.SafeArea;
+            float width = Mathf.Min(buttonWidth, Mathf.Max(1f, safe.width - 24f));
+            Rect buttonRect = new Rect(
+                safe.xMax - width - 12f,
+                safe.y + 12f,
+                width,
+                Mathf.Min(buttonHeight, safe.height));
+            Event e = Event.current;
+            var ui = new IMGUIInteractionContext(e.mousePosition, isLocked: false);
+            bool pointerInside = ui.IsPointerInside(buttonRect);
+
+            // 长按必须从按钮内开始，并且拖出按钮或抬手就取消。
+            if (e.rawType == EventType.MouseDown && e.button == 0 && pointerInside)
+            {
+                _skipPresentationHeld = true;
+                _skipPresentationHoldStartedAt = Time.unscaledTime;
+                e.Use();
+            }
+            else if (_skipPresentationHeld)
+            {
+                bool released = e.rawType == EventType.MouseUp && e.button == 0;
+                bool draggedOut = e.rawType == EventType.MouseDrag && !pointerInside;
+                bool inputEnded = e.type == EventType.Repaint && !Input.GetMouseButton(0);
+                if (released || draggedOut || inputEnded)
+                {
+                    _skipPresentationHeld = false;
+                    if (e.rawType == EventType.MouseUp && e.button == 0 && e.type != EventType.Used)
+                        e.Use();
+                }
+                else if (e.rawType == EventType.MouseDrag && pointerInside && e.type != EventType.Used)
+                {
+                    e.Use();
+                }
+            }
+
+            float progress = _skipPresentationHeld
+                ? Mathf.Clamp01((Time.unscaledTime - _skipPresentationHoldStartedAt) / SkipPresentationHoldSeconds)
+                : 0f;
+            if (progress >= 1f)
+            {
+                _skipPresentationHeld = false;
+                TrySkipPresentation();
+            }
+
+            if (e.type != EventType.Repaint) return;
+
+            bool hovered = pointerInside && IMGUIInteractionContext.HoverAvailable;
+            Color border = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b,
+                _skipPresentationHeld ? 0.78f : hovered ? 0.62f : 0.38f);
+            Color background = new Color(IMGUIStyles.Ink.r, IMGUIStyles.Ink.g, IMGUIStyles.Ink.b,
+                _skipPresentationHeld ? 0.94f : hovered ? 0.88f : 0.78f);
+            IMGUIStyles.SetColor(background);
+            GUI.DrawTexture(buttonRect, Texture2D.whiteTexture);
+            IMGUIStyles.ResetColor();
+            IMGUIStyles.DrawOutline(buttonRect, 1f, border);
+
+            float dialSize = Mathf.Min(28f, buttonRect.height - 12f);
+            Rect dialRect = new Rect(buttonRect.x + 9f, buttonRect.center.y - dialSize * 0.5f, dialSize, dialSize);
+            Color track = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.30f);
+            ShapeDrawer.DrawDial(dialRect, Mathf.RoundToInt(progress * 100f), 100,
+                _skipPresentationHeld ? IMGUIStyles.Gold : IMGUIStyles.Paper, track);
+
+            _skipPresentationLabelStyle ??= new GUIStyle(GUI.skin.label)
+            {
+                alignment = TextAnchor.MiddleLeft,
+                wordWrap = false,
+                clipping = TextClipping.Clip,
             };
-            _skipPresentationStyle.fontSize = IMGUIStyles.FontSize(16);
-            GUI.Label(new Rect(UIScale.VW - 180f, 20f, 156f, 30f), "ESC跳过", _skipPresentationStyle);
+            _skipPresentationLabelStyle.fontSize = IMGUIStyles.FontSize(14);
+            _skipPresentationLabelStyle.normal.textColor = _skipPresentationHeld || hovered
+                ? IMGUIStyles.TextPrimary
+                : IMGUIStyles.TextSecondary;
+            GUI.Label(new Rect(dialRect.xMax + 7f, buttonRect.y, Mathf.Max(1f, buttonRect.width - dialSize - 48f), buttonRect.height),
+                "长按跳过", _skipPresentationLabelStyle);
+
+            _skipPresentationKeyStyle ??= new GUIStyle(GUI.skin.label)
+            {
+                alignment = TextAnchor.MiddleCenter,
+                wordWrap = false,
+            };
+            _skipPresentationKeyStyle.fontSize = IMGUIStyles.FontSize(10);
+            _skipPresentationKeyStyle.normal.textColor = IMGUIStyles.TextSecondary;
+            GUI.Label(new Rect(buttonRect.xMax - 34f, buttonRect.y, 28f, buttonRect.height), "ESC", _skipPresentationKeyStyle);
         }
 
         // 左键点击：打字中先显示全文，否则进入下一句。
