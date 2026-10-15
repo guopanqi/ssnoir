@@ -200,7 +200,7 @@ namespace SSNoir
         }
 
         /// <summary>
-        /// 跳过整场。调试用——ESC 只有电脑上按得到，正式平台没有这个入口。
+        /// 跳过整场，由全局 ESC 输入统一调用。
         ///
         /// 不瞬间收场：影幕已经压下来的话还是照常收黑边、回机位，否则画面会硬跳一下。
         /// 剧情推进照走，跳过不等于这一步没发生。
@@ -218,12 +218,6 @@ namespace SSNoir
         {
             if (_phase == Phase.Idle || (_sequence == null && _live == null))
                 return;
-
-            if (Input.GetKeyDown(KeyCode.Escape))
-            {
-                Skip();
-                return;
-            }
 
             float elapsed = Time.unscaledTime - _phaseStartedAt;
 

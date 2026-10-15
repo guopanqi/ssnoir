@@ -33,6 +33,11 @@ namespace SSNoir
             return clip.length;
         }
 
+        public void Stop()
+        {
+            if (_audioSource != null) _audioSource.Stop();
+        }
+
         private void Update()
         {
             if (_audioSource != null)

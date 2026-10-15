@@ -42,10 +42,7 @@ namespace SSNoir.IMGUI
             _index++;
             if (_index >= _current.Lines.Count)
             {
-                var done = _onComplete;
-                _current = null;
-                _onComplete = null;
-                done?.Invoke();
+                Skip();
             }
             else
             {
@@ -53,8 +50,17 @@ namespace SSNoir.IMGUI
             }
         }
 
+        public void Skip()
+        {
+            if (_current == null) return;
+            var done = _onComplete;
+            Reset();
+            done?.Invoke();
+        }
+
         public void Reset()
         {
+            _voice?.Stop();
             _current = null;
             _index = 0;
             _onComplete = null;

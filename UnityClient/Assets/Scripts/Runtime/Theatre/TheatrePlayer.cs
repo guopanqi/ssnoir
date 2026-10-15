@@ -70,6 +70,11 @@ namespace SSNoir.UnityTheatre
             _session.Advance();
             if (_session.IsComplete) Finish();
         }
+        public void Skip()
+        {
+            if (_session != null) Finish();
+        }
+
         public void Pause(bool paused)
         {
             if (_session == null || _session.IsPaused == paused) return;

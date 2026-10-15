@@ -397,7 +397,7 @@ namespace SSNoir.IMGUI
         {
             float from = text ? _filmTextAlpha : _filmBlackAlpha;
             float start = Time.unscaledTime;
-            while (Time.unscaledTime - start < duration)
+            while (Time.unscaledTime - start < duration && !(_intertitleActive && _skipIntertitle))
             {
                 float alpha = Mathf.Lerp(from, target, (Time.unscaledTime - start) / duration);
                 if (text) _filmTextAlpha = alpha; else _filmBlackAlpha = alpha;
@@ -406,8 +406,11 @@ namespace SSNoir.IMGUI
             if (text) _filmTextAlpha = target; else _filmBlackAlpha = target;
         }
 
+        private bool _skipIntertitle;
+
         private IEnumerator PlayIntertitleStep(BlockingStoryStep step)
         {
+            _skipIntertitle = false;
             _intertitleActive = true;
             _banterPlayer.Suspend();
             try
@@ -415,11 +418,13 @@ namespace SSNoir.IMGUI
                 yield return FilmFade(false, 1f, .7f);
                 foreach (var page in step.IntertitlePages)
                 {
+                    if (_skipIntertitle) break;
                     _filmText = page.Text;
                     yield return FilmFade(true, 1f, .25f);
+                    if (_skipIntertitle) break;
                     float voiceSeconds = string.IsNullOrEmpty(page.AudioId) ? 0f : _narrationPlayer.PlayIntertitleAudio(page.AudioId);
                     float until = Time.unscaledTime + Mathf.Max(voiceSeconds, Mathf.Max(2f, page.Text.Length * .095f));
-                    while (Time.unscaledTime < until) yield return null;
+                    while (Time.unscaledTime < until && !_skipIntertitle) yield return null;
                     yield return FilmFade(true, 0f, .25f);
                 }
                 if (!step.HoldBlack) yield return FilmFade(false, 0f, .7f);
@@ -741,8 +746,46 @@ namespace SSNoir.IMGUI
             || _gameManager.StageController.IsTransitioning || _gameManager.StageController.TurnDipActive
             || _gameManager.IsStateTainted;
 
-        // 与对白舞台上的左键点击共用同一套推进语义：打字中先显示全文，否则进入下一句。
-        // 由 SSNoirGameManager 的全局 ESC 输入调用，避免 ESC 在对白期间落入返回导航逻辑。
+        private bool CanSkipPresentation => _conversationPlayer.IsActive || _storyStagePlayer.IsActive
+            || _theatrePlayer.IsActive || _intertitleActive || _activeVideoTag != null || _gameManager.Cutscene.IsActive;
+
+        public bool TrySkipPresentation()
+        {
+            if (_gameManager.Cutscene.IsActive) { _gameManager.Cutscene.Skip(); return true; }
+            if (_theatrePlayer.IsActive) { _theatrePlayer.Skip(); return true; }
+            if (_storyStagePlayer.IsActive) { _storyStagePlayer.Skip(); return true; }
+            if (_conversationPlayer.IsActive)
+            {
+                StoryStageDrawer.EndConversation();
+                _warnedAboutCurrentDialogueRemoteFallback = false;
+                _conversationPlayer.Skip();
+                return true;
+            }
+            if (_intertitleActive) { _skipIntertitle = true; _narrationPlayer.Stop(); return true; }
+            if (_activeVideoTag != null)
+            {
+                _activeVideoTag = null;
+                _animationTimer = 0f;
+                AdvanceToBlockingPresentationOrFinish();
+                return true;
+            }
+            return false;
+        }
+
+        private GUIStyle? _skipPresentationStyle;
+        private void DrawSkipPresentationHint()
+        {
+            if (!CanSkipPresentation) return;
+            _skipPresentationStyle ??= new GUIStyle(GUI.skin.label)
+            {
+                alignment = TextAnchor.UpperRight,
+                normal = { textColor = new Color(.8f, .8f, .8f, .8f) }
+            };
+            _skipPresentationStyle.fontSize = IMGUIStyles.FontSize(16);
+            GUI.Label(new Rect(UIScale.VW - 180f, 20f, 156f, 30f), "ESC跳过", _skipPresentationStyle);
+        }
+
+        // 左键点击：打字中先显示全文，否则进入下一句。
         public bool TryAdvanceConversation()
         {
             if (_theatrePlayer.IsActive) { _theatrePlayer.Advance(); return true; }
@@ -1052,6 +1095,7 @@ namespace SSNoir.IMGUI
             {
                 IMGUIInteractionContext.ConsumeCurrentPress();
                 _gameManager.Cutscene.Draw();
+                DrawSkipPresentationHint();
                 PointerOverUI = true;
                 IMGUIInteractionContext.FinishPointerEvent(Event.current);
                 return;
@@ -1411,6 +1455,7 @@ namespace SSNoir.IMGUI
             }
 
             if (_filmBlackAlpha > 0f) DrawFilmOverlay();
+            DrawSkipPresentationHint();
 
             // Persist whether the pointer is over any UI this pass, so the camera
             // manager (which polls raw Input in Update, one step ahead of OnGUI)

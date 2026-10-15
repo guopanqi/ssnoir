@@ -475,9 +475,9 @@ namespace SSNoir
         {
             if (Input.GetKeyDown(KeyCode.Escape) && !_titleScreen.IsActive)
             {
-                if (_renderer != null && _renderer.TryAdvanceConversation())
+                if (_renderer != null && _renderer.TrySkipPresentation())
                 {
-                    // 对白已消费 ESC；未打完时显示全文，已打完时推进下一句。
+                    // 跳过当前演出；完成回调仍按正常剧情顺序执行。
                 }
                 else if (_renderer != null && _renderer.TryAdvanceSpotlight())
                 {

@@ -60,7 +60,7 @@ namespace SSNoir.IMGUI
         public void Advance()
         {
             if (_sequence == null) return;
-            // 无字动作拍自动推进：点击和 ESC 都不跳过，播完由 Update 按 _beatEndsAt 自动进下一拍。
+            // 无字动作拍自动推进：点击不跳过，ESC 通过 Skip 跳过整段演出，播完由 Update 按 _beatEndsAt 自动进下一拍。
             // 播动画时点一下就跳到终点，在舞台上是穿帮——Say 拍才等输入（打字机补全→下一句）。
             if (!_waitingForSay)
                 return;
@@ -70,8 +70,17 @@ namespace SSNoir.IMGUI
                 AdvanceBeat();
         }
 
+        public void Skip()
+        {
+            if (_sequence == null) return;
+            var done = _done;
+            Reset();
+            done?.Invoke();
+        }
+
         public void Reset()
         {
+            _voice.Stop();
             _sequence = null;
             _done = null;
             foreach (var channel in _soundChannels) channel.Stop();
