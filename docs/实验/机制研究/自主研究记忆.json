@@ -1,8 +1,8 @@
 {
   "schema": "ssnoir.autonomous-pattern-memory/v1",
   "updated": "2026-10-15",
-  "batch": "ORDER01—06 行动先后与可信承诺 + POLICY-AUDIT01跨族短策略压缩审计",
-  "rounds": 109,
+  "batch": "CAUSAL01—06公开环境条件下的隐藏规律、主动诊断与矛盾后重查＋研究入口压缩和回归CI",
+  "rounds": 115,
   "totalArchivedRounds": 478,
   "objective": "长期自主发展可复用的玩法模式语言，覆盖已知作品先例、基础原语、完整交锋、跨阶段结构、组合条件与重要负例；评价玩家实际反复作出的判断、反馈、后果。历史20是广度愿景，不是价值认证名单或完成配额。",
   "policy": "从成熟作品、旧实验、新假设三向吸收；先去剧情定义玩家活动，再独立批评同构/最强简单策略，按需模型与盲Agent试玩。数学、作品先例、Agent、原生与真人是正交证据。知识图谱收录不等真人认可，精选展示与Debug独立把关，真人反馈异步且不阻塞。",
@@ -337,6 +337,7 @@
     "latestCounterfactual": "IWT01：四手Hidden A/B各半，3份正确WORK得10/8，TRACK工作必+1并有75%准确类型线索；纯INSPECT100%占一手。无信息6、只TRACK119/16、INSPECT9；INSPECT耗时两手TRACK重新胜119/16；完美TRACK19/2、50%TRACK6、TRACK首手限定29/4。正向枚举核对全部潜在真实类型；保留已有DISC/FOCUS/SIG组合。",
     "crossFamilyAudit": "PL-IWT01→PL-DISC01（工作+信息两种不同产出）、FOCUS02/03（及时兑现行动窗口、完美检查强旁路）、SIG01（非战略性线索噪声有别于他者可伪装的行动信号）。"
   },
-  "lastFinding": "ORDER01—06：在同一TACTIC一次ESCAPE与2×2玩家收益、双方零和前提下，只改行动时序：n4玩家先公开6、同时暗选51/8、对方先公开不可反悔11；后一制度虽高分但玩家固定见HIDE→PRESS、ESCAPE→VERIFY即可。对方先声明，玩家先公开，随后对方可改口付赔偿c：n4 c=0/1/2/3/4/5玩家值6/6/6/6/7/11；c0并非同时博弈而是对方晚于玩家执行。付整手SCAN n4全局13/2（仅+1/8）且开局立刻SCAN仅9/2。免费一次优先绑定凭证n4根27/4 vs无凭证51/8，但n1..8全局最优均可直接开局用完；n>=3当场SAVE/USE同优，有限资源没有制造特殊择时问题。新时序脚本以独立分支穷举/maximin对偶、解析式本地核对，单次权利模型本地同结构执行；GitHub提交版尚未CI独立运行。修补旧TACTIC06写了严格支配辅助函数却没有被回归调用的漏洞。所有属于成熟战术/契约/动作顺序变奏，无新人类/独立Agent/Unity、新精选、Debug。 POLICY-AUDIT01另行复核旧REC/OPS/CLAIM/ACT/HEDGE/TACTIC/ORDER：REC交替+一手前瞻全优939/64；OPS持续EDIT被同成本SET菜单全状态复刻，亦有一手前瞻全优；CLAIM/HEDGE短策略仍有旧成果不可替代的实际后果；ORDER对方先绑定的高值11却只需见招拆招。简单策略不是机制无价值的充分条件，复杂DP更不能直接证明体验。此项是历史源证据的横向复查，未重跑旧DP/真人。",
-  "nextResearchQuestion": "依无答案纸面卡实际检验玩家理解：同收益顺序A玩家先公开/B双方暗选/C对方先不可反悔/D只说意图后可付费违约；各单独分组记录原话、是否懂承诺及逃脱资源。与REC/HEDGE/CLAIM一并审短易学策略是否产生结果关切。若无法开展独立试玩，换不相邻的动作关系族而非继续延长ORDER报酬和反制数量。保持精选6、Debug白名单与正式Game冻结。"
+  "lastFinding": "CAUSAL01-06：隐藏两种规律theta映射每轮公开环境c与操作A/B，工作成功率匹配4/5不匹配1/5，成功+7失败-9，SAFE+1，CAL花整手并给q=9/10噪声报告。n4公开c且只靠生产反馈148/25=5.92，准主动诊断+反馈更新5534/625=8.8544；遮掉c或不记忆根4；弱q7/10诊断零增益。n5不限诊断15301/1250=12.2408，限一次7544/625=12.0704，禁诊断5419/625=8.6704，第二次诊断带来213/1250，且第一诊断正向、c0 RUN0失败导致P(theta0)=9/13，正常可达并严格再次诊断。独立Fraction DP+真实世界前向枚举、本地两次检查预算DP均通过。独立无答案5轮HTML已本地Chromium三条件冒烟；2500局简单固定一次诊断政策浏览器样本平均11.136，对理论11.36，非真人也非完整双引擎逐种子验证。归DISC/MEMORY成熟POMDP与产出兼信息组合；无独立原语认证。新增统一13脚本回归Runner与GitHub Actions配置但无法独立确认CI通过。已保存旧20513字当前状态和24923字队列归档快照，入口压缩成最新结论/3开放问题；历史不丢。",
+  "nextResearchQuestion": "先核查新建Actions workflow的真实运行状态、定位执行失败。未来抽象研究应横向转向非标量不可替代成果保护/行动资格变化与旧HEDGE/CUST/CLAIM原语的严格去重；CAUSAL如无人独立无提示试玩，停止继续扫描q、n，不能把二次诊断增益小数当玩家真正理解原因。观测报告的现场解释（为何失败推翻哪条规则）与真正人类反馈仍未得证。",
+  "lastResearchMaintenance": "2026-10-15 current-state and queue archived full originals under 归档/2026-10-15-研究入口压缩前; compact live entries; Python regression runner 13 scripts and workflow committed, CI success unconfirmed."
 }
