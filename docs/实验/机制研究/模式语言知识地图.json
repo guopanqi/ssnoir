@@ -4200,6 +4200,76 @@
         "humanFeedbackAvailable": false,
         "native": false
       }
+    },
+    {
+      "id": "PL-CAUSAL-CONTEXT",
+      "name": "隐藏响应规律只有遇到可见环境条件才产生可用知识",
+      "layer": "mature-combination",
+      "origin": "ssnoir-research",
+      "family": "条件规则识别与有限期探索",
+      "idea": "玩家学习稳定隐藏规律θ，并结合逐回合公开环境c决定哪个操作有效；移除公开c，认识与工作结果不再有可用于选动作的关系",
+      "stage": "exact-POMDP-and-world-forward-context-ablation",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-条件化因果规则与复查/研究记录.md",
+        "tools/content-validator/experiments/pattern_contextual_causal_probe_20261015.py"
+      ],
+      "note": "n4能观察c且可从RUN反馈学习但禁检查根148/25；隐藏c或不记忆均4；说明信息必须有可兑现的行动映射，而非单纯获得隐藏状态。",
+      "evidence": {
+        "localFractionDP": true,
+        "actualWorldForward": true,
+        "secondIndependentBudgetDP": true,
+        "independentAgent": false,
+        "humanFeedbackAvailable": false,
+        "native": false,
+        "repositoryCI": "workflow-added-unverified"
+      }
+    },
+    {
+      "id": "PL-CAUSAL-RETEST",
+      "name": "旧诊断被生产结果反驳时再次核验具有小幅真实价值",
+      "layer": "mature-combination",
+      "origin": "ssnoir-research",
+      "family": "持续诊断与反馈重估",
+      "idea": "诊断θ但诊断会错，后续真实工作成功/失败继续提供信息；玩家自己决定花整手重检还是继续生产",
+      "stage": "exact-two-independent-DPs-and-reachable-witness",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-条件化因果规则与复查/研究记录.md",
+        "tools/content-validator/experiments/pattern_contextual_causal_probe_20261015.py",
+        "tools/content-validator/experiments/pattern_causal_retest_20261015.py"
+      ],
+      "note": "n5 q9/10，不许诊断5419/625，限一次7544/625，限两次与不限均15301/1250；第二次增加213/1250。CAL+且c0 RUN0失败后后验9/13，余3手再次CAL严格最优，单条可达轨迹概率13/200。未认证新原语或真人体验。",
+      "evidence": {
+        "localFractionDP": true,
+        "actualWorldForward": true,
+        "secondIndependentBudgetDP": true,
+        "independentAgent": false,
+        "humanFeedbackAvailable": false,
+        "native": false,
+        "repositoryCI": "workflow-added-unverified"
+      }
+    },
+    {
+      "id": "PL-CAUSAL-WEAK",
+      "name": "可见环境、诊断准确性与损失风险是必要的独立条件",
+      "layer": "negative-boundary",
+      "origin": "ssnoir-research",
+      "family": "纯检查与产出兼信息",
+      "idea": "比较弱诊断、无限诊断、一次诊断固定遵从、工作本身泄露信息、完美免费检查与禁止环境观察",
+      "stage": "signal-quality-and-open-loop-counterfactual",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-条件化因果规则与复查/研究记录.md",
+        "tools/content-validator/experiments/pattern_contextual_causal_probe_20261015.py"
+      ],
+      "note": "n4 q7/10检查零增益（全DP148/25），q4/5提升至173/25，q9/10根5534/625；只按第一次诊断一直做的固定规则213/25，而允许工作继续修正信念5534/625。检查可降低探索风险，但免费完美情报仍可更强。",
+      "evidence": {
+        "localFractionDP": true,
+        "actualWorldForward": true,
+        "secondIndependentBudgetDP": true,
+        "independentAgent": false,
+        "humanFeedbackAvailable": false,
+        "native": false,
+        "repositoryCI": "workflow-added-unverified"
+      }
     }
   ],
   "edges": [
@@ -7430,6 +7500,42 @@
       "to": "PL-POLICY-AUDIT01",
       "relation": "autonomous-other-with-brief-contingency-rule",
       "reason": "自主主体具有实际不同外部目标，但三轮公开信息仍可由简短条件政策完成"
+    },
+    {
+      "from": "PL-DISC01",
+      "to": "PL-CAUSAL-CONTEXT",
+      "relation": "productive-information-needs-actionable-context",
+      "reason": "原DISC同时工作兼得线索，本批强调公共环境条件决定信息是否能被用于下一次选择"
+    },
+    {
+      "from": "PL-MEMORY01",
+      "to": "PL-CAUSAL-RETEST",
+      "relation": "same-bayesian-family-with-rule-not-person",
+      "reason": "MEMORY对象稳定概率，CAUSAL稳定环境响应规律；二者都属于更新隐信念，不是两种原创数学机制"
+    },
+    {
+      "from": "PL-CAUSAL-CONTEXT",
+      "to": "PL-CAUSAL-RETEST",
+      "relation": "context-makes-rechecking-useful",
+      "reason": "缺少可见c，θ报告对选A/B无帮助；有c且工作可推翻报告时第二次诊断可能有用"
+    },
+    {
+      "from": "PL-CAUSAL-WEAK",
+      "to": "PL-CAUSAL-RETEST",
+      "relation": "diagnosis-not-always-valuable",
+      "reason": "低准确率诊断不增加根值，准确报告也非终局真理；第二次诊断需要反例与行动余裕"
+    },
+    {
+      "from": "PL-OPS01",
+      "to": "PL-CAUSAL-CONTEXT",
+      "relation": "same-late-input-different-hidden-rule",
+      "reason": "OPS编辑工具状态处理迟到输入；CAUSAL学习隐藏响应规律并结合公开c，两者必须与普通预设菜单/信息测试去重"
+    },
+    {
+      "from": "PL-IWT01",
+      "to": "PL-CAUSAL-WEAK",
+      "relation": "active-diagnostic-versus-informative-work",
+      "reason": "主动检查若浪费时间或不够可信，会被带反馈的生产性工作压过"
     }
   ],
   "coverage": {
