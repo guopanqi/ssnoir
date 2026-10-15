@@ -526,7 +526,7 @@
         (list 'clock "勒索款筹集" (min delivery-price (item-count "金钱"))
               delivery-price 'readout
               (string-append
-                "投信时要从库存里拿出一百美元。钱仍可挪作房租和生活开销。"
+                "这是交钱方案的准备：最多拿出一百美元，也可选择别的方案。"
                 "夜莺最多能替你补 " (number->string nightingale-cover-max)
                 " 美元：差在这个数以内，她当首饰，处境差一档；"
                 "差得更多，信封就是薄的，写信的人清点之后会先动手。"))))
@@ -684,7 +684,7 @@
                 (node "交付信封"
                   :subtitle (if (>= (item-count "金钱") delivery-price)
                     "现金足额；交付后独自盯梢"
-                    "现金不足也能行动；夜莺最多补30美元")
+                    "不足额用报纸掩饰；对方发现后可能报复")
                   :resolve (instant 交钱赴约!)))
               (if (dock 'eddie-met?)
                 (list (node "设伏抓人"
