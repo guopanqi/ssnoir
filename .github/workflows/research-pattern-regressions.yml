@@ -1,0 +1,24 @@
+name: SSNoir Abstract Pattern Regression
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tools/content-validator/experiments/pattern_*_20261015.py'
+      - 'tools/content-validator/experiments/run_pattern_research_regressions.py'
+      - '.github/workflows/research-pattern-regressions.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exact-regressions:
+    name: Exact model regressions
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: Run standard-library regression suite
+        run: python3 tools/content-validator/experiments/run_pattern_research_regressions.py
