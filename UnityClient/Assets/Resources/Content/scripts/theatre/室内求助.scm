@@ -1,7 +1,7 @@
 ;; 同步 Claude 当前第二场：人物进退、对白停顿、灯光与镜头缓推。
 ;; 参考：experiments/portrait-stage/portrait-theatre-claude/src/js/chapters/02-indoor-plea.js。
 ;; 保留原有 24 句正式对白及停留秒；人物关节表演用既有立绘的关键姿势表达。
-;; 剧场结束后的配音独白仍由 commission-dialogue! 播放。
+;; 剧场结束后的无配音内心旁白由 commission-dialogue! 播放，文字在 Narrations/序章接案后.json。
 (define (室内求助-演出)
   (define 图形 '())
   (define 描绘 '())
