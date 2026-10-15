@@ -9,6 +9,8 @@ import time
 
 HERE = Path(__file__).resolve().parent
 SCRIPTS = (
+    "pattern_source_provenance_20261015.py",
+    "pattern_endogenous_media_echo_20261015.py",
     "pattern_contextual_causal_probe_20261015.py",
     "pattern_causal_retest_20261015.py",
     "pattern_action_commitment_order_20261015.py",
