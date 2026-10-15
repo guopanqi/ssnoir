@@ -157,7 +157,10 @@
             (list (dossier "照片的来源" :kind '委托
               :status (if (or (not (source-window-open?)) (= source-stage 2) (= source-stage 4)) '了结 '进行中)
               :now (cond ((and (not (source-window-open?)) (= source-stage 1)) "投信夜已经过去，照片来源调查未及展开。")
-                         ((and (not (source-window-open?)) (= source-stage 3)) "取得过冲印记录；投信夜已过，无法再据此拦截取信者。")
+                         ((and (not (source-window-open?)) (member? source-stage '(3 4)))
+                          (if (three-letters 'has-flag? '交信夜坚持尾随)
+                            "交信夜尼尔凭冲印记录辨认并尾随过取信者；幕后是谁仍不明。"
+                            "取得了冲印记录，但交信夜已过，未能用它直接查出幕后身份。"))
                          ((= source-stage 1) "相纸压纹相似，返回照相馆核实。")
                          ((= source-stage 2) "未能获得可信的来源线索。")
                          ((= source-stage 3) "取到冲印记录抄本：金发年轻人，制服不合身。可与夜莺商量。")
