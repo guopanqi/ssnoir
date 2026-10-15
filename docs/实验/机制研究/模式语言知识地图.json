@@ -3752,6 +3752,44 @@
         "humanFeedbackAvailable": false,
         "native": false
       }
+    },
+    {
+      "id": "PL-CROSS-SCALE08",
+      "name": "未完责任罚款被固定全部完工路线压平",
+      "layer": "mature-combination",
+      "origin": "ssnoir-research",
+      "family": "跨尺度责任与反馈",
+      "idea": "阶段一分配A/B工作，阶段二揭晓偏好；未完成工作可以罚款，但强固定路线总能做完",
+      "stage": "exact-enumeration-negative-audit",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-跨期责任与维护税反证/研究记录.md",
+        "tools/content-validator/experiments/pattern_crossscale_obligation_20261015.py"
+      ],
+      "note": "四组罚款×早窗消融均固定/动态18；仅合法路径增减，不构成重新分配注意力",
+      "evidence": {
+        "exactEnumeration": true,
+        "humanFeedbackAvailable": false,
+        "native": false
+      }
+    },
+    {
+      "id": "PL-CROSS-SCALE09",
+      "name": "跨阶段维护责任作为固定行动税",
+      "layer": "mature-combination",
+      "origin": "ssnoir-research",
+      "family": "跨尺度责任与反馈",
+      "idea": "前场A工作到达门槛，次场必须PAY保留奖励；同时面对后到B/C价值",
+      "stage": "exact-enumeration-negative-audit",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-跨期责任与维护税反证/研究记录.md",
+        "tools/content-validator/experiments/pattern_crossscale_maintenance_20261015.py"
+      ],
+      "note": "有维护固定17动态39/2，无维护固定18动态41/2；最优前缀始终AA，维护固定必付，并无责任重审",
+      "evidence": {
+        "exactEnumeration": true,
+        "humanFeedbackAvailable": false,
+        "native": false
+      }
     }
   ],
   "edges": [
