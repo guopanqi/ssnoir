@@ -4419,7 +4419,7 @@
         "tools/content-validator/experiments/pattern_belief_revision_cascade_20261015.py",
         "tools/content-validator/experiments/pattern_cascade_dependencies_20261015.py"
       ],
-      "note": "链01/12/23、仅一故障、4手：仅检查最优55/4且先查端点0/3；准检查后修复最优14且先查中心1/2。5手13? 单独检测59/4，修复81/4。逐故障前向核对，属于ATMS式依赖与成熟能力干预组合，非原创原语。",
+      "note": "链01/12/23、仅一故障、4手：仅检查最优55/4且先查端点0/3；准检查后修复最优14且先查中心1/2。5手单独检测59/4，修复81/4。逐故障前向核对，属于ATMS式依赖与成熟能力干预组合，非原创原语。",
       "evidence": {
         "localExactFraction": true,
         "individualWorldForward": true,
