@@ -107,10 +107,10 @@ def visible(s):
                    breach=s["breach"], true_demand="B" if CARDS[s["card"]][5] else "A")
         # Show actual payoff for every legal W2 choice. Never auto-select.
         w = CARDS[s["card"]][5]
-        obs["terminal_payoffs"] = {a: (14 if (a == "A" and not w) or
-                                       (a == "B" and w) else 3)
-                                   if a in ("A", "B") else (5 if a == "ALT" else 1)
-                                   for a in legal_moves(s)} if stage == "W2" else {}
+        obs["terminal_net_payoffs"] = {a: ((14 if (a == "A" and not w) or
+                                           (a == "B" and w) else 3)
+                                       if a in ("A", "B") else (5 if a == "ALT" else 1))
+                                       - s["breach"] for a in legal_moves(s)} if stage == "W2" else {}
         if stage == "DONE":
             obs.update(final=s["final"], net=s["net"])
     return obs
@@ -220,8 +220,9 @@ def paired_regression():
                     for final in legal_moves(s):
                         ss = dict(s); ss["trace"] = list(s["trace"])
                         mm = dict(m); mm["trace"] = list(m["trace"])
+                        assert visible(s)["terminal_net_payoffs"][final] == visible(m)["terminal_net_payoffs"][final]
                         move(ss, final); move(mm, final)
-                        assert ss["net"] == mm["net"]
+                        assert ss["net"] == mm["net"] == visible(s)["terminal_net_payoffs"][final]
                         tests += 1
     assert tests > 100
     print("PASS: paired S/M full action paths and participant-selected final payoffs", tests)
