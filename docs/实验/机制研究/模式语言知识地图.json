@@ -4848,6 +4848,53 @@
         "blindAgent": false,
         "native": false
       }
+    },
+    {
+      "id": "PL-CUSTODY-OPT-OUT01",
+      "name": "自愿可拒的违约责任会在真实履约冲突之前被提前规避",
+      "origin": "ssnoir-research",
+      "layer": "negative-boundary",
+      "family": "自愿承担责任、稀缺修复时间与第三方义务前提",
+      "idea": "开局PLEDGE保全A或PASS拿SIDE1；随后公开W=A/B和损伤H0/1，末期两行动里履行A须SEAL或MEND+SEAL、完成B需B_WORK×2；PLEDGE未履行A付违约事实与标量成本c。",
+      "stage": "full-four-world-action-enumeration-independent-ledger-41-sanction-costs-slack-and-safe-route-controls",
+      "note": "c=4动态根49/4，P(A)=P(B)=1/2、P(breach)=1/2；不付违约根57/4但策略不变。任意c<17/2时PLEDGE全局最优并且W=B仍违约做B；c>17/2时直接PASS，早于已接受者W=B开始为避免c而履约的门槛9(H0)/10(H1)。明确显示提高罚款不能在自愿接约的全局最优策略里制造后期履约困难分叉。强直接安全A得15，四晚行动A/B所有分支俱全且违约0。只是GOAL/VOL/HEDGE已知关系的负面边界，没有真人体验。",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-16-自愿责任与成果有效性/研究记录.md",
+        "tools/content-validator/experiments/pattern_dual_stakes_custody_20261016.py"
+      ],
+      "evidence": {
+        "fraction": true,
+        "trueWorldLedger": true,
+        "legalFixedPrefixAudit": true,
+        "costScheduleCases": 41,
+        "independentCI": "https://github.com/guopanqi/ssnoir/actions/runs/38777859111",
+        "humanParticipants": 0,
+        "blindAgentSessions": 0,
+        "native": false
+      }
+    },
+    {
+      "id": "PL-CUSTODY-VALIDITY01",
+      "name": "只比成果完成率会误判策略支配；必须核对成果是否符合后到真实需求",
+      "origin": "ssnoir-research",
+      "layer": "outcome-representation-boundary",
+      "family": "不可替代成果、有效性、非标量评价口径",
+      "idea": "先PLEDGE/PASS再对四个W/H公开分支各写合法两行动后缀；比较只含A/B/无违约/SIDE的四维前沿，和再含世界需求被满足概率的五维前沿。",
+      "stage": "exhaustive-5440-complete-contingent-policy-vector-frontier-two-semantics",
+      "note": "5440完整策略（5184PLEDGE+256PASS）。四维82种不同向量、15条非支配；五维178种向量、18条非支配。实际标量最优四维(1/2,1/2,1/2,1/4)被同A/B/无违约且SIDE1/2的计划支配，但后者仅半数真实需求匹配；加入第五维后最优成为(1/2,1/2,1/2,1/4,1)并进入五维前沿。它是对已知STAKE'物理交付≠有效交付'问题的独立具体核查，向量规模不是体验成效。",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-16-自愿责任与成果有效性/研究记录.md",
+        "tools/content-validator/experiments/pattern_result_identity_frontier_20261016.py"
+      ],
+      "evidence": {
+        "exactContingentEnumeration": true,
+        "policyCount": 5440,
+        "frontierSemanticsCompared": true,
+        "independentCI": "https://github.com/guopanqi/ssnoir/actions/runs/38777859111",
+        "humanParticipants": 0,
+        "blindAgentSessions": 0,
+        "native": false
+      }
     }
   ],
   "edges": [
@@ -8498,6 +8545,42 @@
       "to": "PL-AUDIENCE-MIX-BOUNDARY01",
       "relation": "contingent-plan-does-not-imply-credible-execution",
       "reason": "RETURN一人事前条件宏可执行并追平临场策略；AUDIENCE的预写随机混同必须额外有可执行约束以阻止看见G后自行改走X"
+    },
+    {
+      "from": "PL-GOAL01",
+      "to": "PL-CUSTODY-OPT-OUT01",
+      "relation": "voluntary-obligation-early-opt-out",
+      "reason": "GOAL主动发现可能创造要照顾的义务；本次把救旧A与后到B实用成果分开，仍被先拒绝责任的强路线约束"
+    },
+    {
+      "from": "PL-VOL01",
+      "to": "PL-CUSTODY-OPT-OUT01",
+      "relation": "private-binding-not-new-motivation",
+      "reason": "只把意愿转换成无外部回应的违反成本并不能迫使玩家关心A；必须区分玩家自述硬目标和设计者罚款"
+    },
+    {
+      "from": "PL-HEDGE01",
+      "to": "PL-CUSTODY-OPT-OUT01",
+      "relation": "action-slack-abolishes-irreversible-conflict",
+      "reason": "HEDGE强调早窗口和剩余行动可行性；CUSTODY从2到4后期行动时两个成果全部完成且违约为零"
+    },
+    {
+      "from": "PL-PLEDGE-EARLY",
+      "to": "PL-CUSTODY-OPT-OUT01",
+      "relation": "no-third-party-investment-baseline",
+      "reason": "PLEDGE有其他主体早投入且造成不可逆后果；CUSTODY薄承诺只对自己扣分，所以不能宣称同样产生社会责任"
+    },
+    {
+      "from": "PL-STAKE01",
+      "to": "PL-CUSTODY-VALIDITY01",
+      "relation": "outcome-identity-needs-validity-context",
+      "reason": "STAKE区分物理完成与需求有效C；CUSTODY进一步展示遗漏需求有效性使标量最优在错误四维前沿被误判支配"
+    },
+    {
+      "from": "PL-CUSTODY-OPT-OUT01",
+      "to": "PL-CUSTODY-VALIDITY01",
+      "relation": "penalty-amount-does-not-declare-protected-target",
+      "reason": "违约概率、安全退出、A必保和按真实需求匹配是不同终局指标，不能用统一标量或未加有效性维度替代"
     }
   ],
   "coverage": {
