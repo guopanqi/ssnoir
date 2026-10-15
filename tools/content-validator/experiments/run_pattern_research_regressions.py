@@ -9,6 +9,8 @@ import time
 
 HERE = Path(__file__).resolve().parent
 SCRIPTS = (
+    "pattern_public_commitment_revision_20261015.py",
+    "pattern_public_signal_participation_20261015.py",
     "pattern_cascade_payoff_stability_20261015.py",
     "pattern_belief_revision_cascade_20261015.py",
     "pattern_cascade_dependencies_20261015.py",
