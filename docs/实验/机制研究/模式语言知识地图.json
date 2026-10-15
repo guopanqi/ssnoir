@@ -3790,6 +3790,25 @@
         "humanFeedbackAvailable": false,
         "native": false
       }
+    },
+    {
+      "id": "PL-BRIDGE-AUDIT01",
+      "name": "危机退路跨阶段责任四层因果诊断",
+      "layer": "cross-family-audit",
+      "origin": "ssnoir-research",
+      "family": "跨族因果边和证据分层",
+      "idea": "区分价值、行动资格、时限兑现、真人主观责任重估并核对已知强安全策略",
+      "stage": "historical-evidence-synthesis",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-危机退路责任跨族因果审计/研究记录.md"
+      ],
+      "note": "仅横向复核CRISIS/OPTION-HEDGE/OBLIGATION原报告；并非新DP或真人试玩，新理论是诊断分类与反证门槛。",
+      "evidence": {
+        "historicalSourceAudit": true,
+        "newExactDP": false,
+        "humanFeedbackAvailable": false,
+        "native": false
+      }
     }
   ],
   "edges": [
@@ -6762,6 +6781,24 @@
       "to": "PL-ACTION-COUPLE01",
       "relation": "different-output-type-still-fixed-alternation",
       "reason": "把生产数值增效替换为产物种类变化，仍无法使消息后的不同计划成为最优"
+    },
+    {
+      "from": "PL-CROSS-SCALE08",
+      "to": "PL-BRIDGE-AUDIT01",
+      "relation": "safe-completion-counterexample",
+      "reason": "可以先完成全部任务，跨期未完成罚款不会改变最优行动"
+    },
+    {
+      "from": "PL-CROSS-SCALE09",
+      "to": "PL-BRIDGE-AUDIT01",
+      "relation": "fixed-maintenance-counterexample",
+      "reason": "维护如果总是必做，只形成固定行动税"
+    },
+    {
+      "from": "PL-CROSS-SCALE07",
+      "to": "PL-BRIDGE-AUDIT01",
+      "relation": "multiple-replanning-insufficient",
+      "reason": "两次转场改道可能仍为加性反馈，不能证明责任重估"
     }
   ],
   "coverage": {
