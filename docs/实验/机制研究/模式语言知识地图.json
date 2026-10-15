@@ -4543,6 +4543,52 @@
         "native": false,
         "repositoryCI": false
       }
+    },
+    {
+      "id": "PL-RELAY-PRODUCTIVE",
+      "name": "危机处理也能推进另一目标，但最优结果可由短口诀解释",
+      "layer": "mature-combination",
+      "origin": "ssnoir-research",
+      "family": "内生危机与双用途回收",
+      "idea": "快速推进A触发临时危机，RECOVER耗整手清除并完成B的进度；末手可舍弃危机而完成A，形成不同目标和危机处理时机的局部取舍",
+      "note": "n4 A达5价值10、B达1价值3、漏危机−1；纯罚税RECOVER动态12，生产性RECOVER动态51/4，最优固定脚本12，见危机总清理口诀41/4；但短‘末手A4先STEADY’规则仍全优且两个成果同时完成概率1，玩家未必有不可兼得的终局目标。n6、7固定脚本已可得13。浏览器2500 synthetic policy sample均值12.7588对期望12.75，非真人。",
+      "stage": "exact-dynamic-vs-4powerN-scripts-and-browser-synthetic-check",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-危机回流与主动失败分支/研究记录.md",
+        "tools/content-validator/experiments/pattern_productive_crisis_relay_20261015.py"
+      ],
+      "evidence": {
+        "localExactFraction": true,
+        "fullOpenLoopEnumeration": true,
+        "syntheticBrowserSamples": 2500,
+        "humanFeedbackAvailable": false,
+        "blindAgent": false,
+        "native": false,
+        "repositoryCI": false
+      }
+    },
+    {
+      "id": "PL-PIVOT-FAILURE",
+      "name": "主动不完成原目标来获取互斥结果，是分支选择不是单纯扣分",
+      "layer": "mature-combination",
+      "origin": "ssnoir-research",
+      "family": "非成功终局与后到目标机会",
+      "idea": "早期投入A得到后期B替代路径进入权，但B路线要求A没有完成；晚到公开需求后决定继续完成A还是故意让A不完成改投B",
+      "note": "2早+3晚，A需5次，B需早A≥1与后B≥2且A失败。世界0/1等概率、A价值15/3、B10/16、SIDE每手1。仅A根9，最佳固定无条件计划15，后到响应动态16；允许不投A便直接取得B强替代同值16。p(世界0)=1/4使早A,A和A,SIDE并列；两者都可用短可预写条件规则，非新原语。",
+      "stage": "all-early-late-open-loop-and-contingent-branch-enumeration",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-危机回流与主动失败分支/研究记录.md",
+        "tools/content-validator/experiments/pattern_purposeful_failure_20261015.py"
+      ],
+      "evidence": {
+        "localExactFraction": true,
+        "fullOpenLoopEnumeration": true,
+        "syntheticBrowserSamples": 0,
+        "humanFeedbackAvailable": false,
+        "blindAgent": false,
+        "native": false,
+        "repositoryCI": false
+      }
     }
   ],
   "edges": [
@@ -7989,6 +8035,48 @@
       "to": "PL-PLEDGE-STRONG",
       "relation": "knowledge-versus-real-world-repair-distinction",
       "reason": "CASCADE知道错误与实际修复是不同动作，PLEDGE知道假声明与能否防止第二个人后续行动也不同"
+    },
+    {
+      "from": "PL-BIL03",
+      "to": "PL-RELAY-PRODUCTIVE",
+      "relation": "productive-crisis-repair-vs-capacity-reopen",
+      "reason": "BIL负担需清理才可恢复产能，RELAY清理还直接推进竞争目标；同属生产性危机成熟变奏"
+    },
+    {
+      "from": "PL-CRISIS03",
+      "to": "PL-RELAY-PRODUCTIVE",
+      "relation": "late-unresolved-crisis-can-be-rationally-abandoned",
+      "reason": "危机是否值得救取决于剩余A进度及时间，不必永远看到负面状态便修"
+    },
+    {
+      "from": "PL-RELAY-PRODUCTIVE",
+      "to": "PL-PIVOT-FAILURE",
+      "relation": "different-endgame-outcome-identity",
+      "reason": "RELAY虽有两个目标却数学最优能全部完成；PIVOT必须在已投入A后选择互斥的成功A或B结果"
+    },
+    {
+      "from": "PL-HEDGE01",
+      "to": "PL-PIVOT-FAILURE",
+      "relation": "preserved-option-versus-direct-route",
+      "reason": "先做A保留晚期A成功或B替代资格，与HEDGE早窗口保留旧目标的成熟规律相邻"
+    },
+    {
+      "from": "PL-CLAIM03",
+      "to": "PL-PIVOT-FAILURE",
+      "relation": "abandon-progress-vs-formal-revocation",
+      "reason": "CLAIM有付费撤回声明，PIVOT不需撤回手续但故意放弃已投入的A进度以达B；终局不能兼得"
+    },
+    {
+      "from": "PL-CROSS-SCALE09",
+      "to": "PL-RELAY-PRODUCTIVE",
+      "relation": "strong-fixed-policy-boundary",
+      "reason": "过长行动预算时危机与次目标都能由预写计划完工，不能据此称形成双层注意力循环"
+    },
+    {
+      "from": "PL-FOCUS03",
+      "to": "PL-PIVOT-FAILURE",
+      "relation": "early-eligibility-window-and-strong-direct-access",
+      "reason": "PIVOT若B无须早期A资格则可从SIDE,SIDE直接进入B并追平根；早期强制准备须从体验层解释价值"
     }
   ],
   "coverage": {
