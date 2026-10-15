@@ -1,6 +1,6 @@
 {
   "schema": "ssnoir.autonomous-pattern-memory/v1",
-  "updated": "2026-10-15",
+  "updated": "2026-10-16",
   "batch": "RETURN-COMPREHENSION: 双向回访分层决策与同值宏计划的无答案可理解性研究预注册",
   "rounds": 170,
   "totalArchivedRounds": 478,
@@ -337,7 +337,7 @@
     "latestCounterfactual": "IWT01：四手Hidden A/B各半，3份正确WORK得10/8，TRACK工作必+1并有75%准确类型线索；纯INSPECT100%占一手。无信息6、只TRACK119/16、INSPECT9；INSPECT耗时两手TRACK重新胜119/16；完美TRACK19/2、50%TRACK6、TRACK首手限定29/4。正向枚举核对全部潜在真实类型；保留已有DISC/FOCUS/SIG组合。",
     "crossFamilyAudit": "PL-IWT01→PL-DISC01（工作+信息两种不同产出）、FOCUS02/03（及时兑现行动窗口、完美检查强旁路）、SIG01（非战略性线索噪声有别于他者可伪装的行动信号）。"
   },
-  "lastFinding": "RETURN继已完成的双向L→W→L→W与11个宏策略逐可达状态同值反证后，本轮不再扩充新数值状态，改为独立认知实验准备：同一冻结物理规则S四阶段现场决定 vs M在W1提前写出K弱/K强条件动作。已有数学结果根1509/128、K报告价值1/128、OPEN比GUARD仅5/128，说明仅用总收益判断跨尺度体验极易混淆。新建无提示理解观察协议、三题（接约是否关闭MEND、K是否等于最终W、LINK失败后A的可用条件）和结果身份/自发因果解释记录；提交一份离线规则校验工具，7张冻结确定场景覆盖OPEN/GUARD、H/Y/K/W及LINK成败，重点配对H0/Y=B时K弱与强，便于对比支持信息确实改变CUT/LINK。确定场景3/7预测正确，明确仅用于分支覆盖，**不是**75%预测准确率的随机无偏样本。代码增加每张卡30?现7卡×5合法动作=35条终局检查，以及11宏计划×K强弱同真实动作结算比对，加入29份近期回归runner；然而独立GitHub Actions的执行成功仍无证据，未进行任何真人/盲Agent试玩、无新数学玩法原语。研究主张仅为可实施可证伪的体验对照，正式Game/原精选/Debug冻结。",
-  "nextResearchQuestion": "优先获取RETURN-S与RETURN-M同规则真实受试者的无答案观察轨迹（逐时点原话、信息混淆、对违约及具体A/B/ALT结果的关切）。如无人类样本可继续横向选择其他心理活动研究，不应把写好七张场景卡算七轮成功玩家实验；离线仓库校验及29脚本CI仍待独立运行。若宏条件版在相同世界下获得同等/更清楚的玩家解释，应停止把四层按钮/返回场景当成玩法架构差异；已有同值不能证明体验一样，也不能证明不同。",
-  "lastResearchMaintenance": "2026-10-15 current-state and queue archived full originals under 归档/2026-10-15-研究入口压缩前; compact live entries; Python regression runner 13 scripts and workflow committed, CI success unconfirmed."
+  "lastFinding": "RETURN-COMPREHENSION原七张封存卡固定OPEN/GUARD且自动world_final最高收益，只能验证动作规则而不可观测受试者首手与末手的真实选择。2026-10-16创建独立同封存事件的S/M四阶段交互会话：玩家亲自选L1开放/保护、W1接约（M预写K弱/强宏计划）、L2实际操作或执行宏、W2自选A/B/ALT/SIDE；维持原模型1509/128和11宏策略期望同值。校验原七卡给定初手的35局部结算锚点、S/M全合法动作与全部终局净收益、K/W揭示时点；统一30脚本独立GitHub Actions 38769665427成功。仍无真实受试者或独立盲Agent、没有新数学玩法原语。作者独立反证：宏策略可预编译只反驳计算不可约，不能判断认知同构；S/M混有提前承诺、宏分支负担和场景分屏三个差别。新横向四级因果：场景串接、许可传递、世界信息重新估值、世界反向改写返场行动；因果强弱与玩法吸引力是不同尺度。参见 docs/实验/机制研究/批次/2026-10-16-RETURN认知审计与跨族边界/研究记录.md 与 跨尺度决策层级判别.md。",
+  "nextResearchQuestion": "下一轮优先进行RETURN-S/M同一封存事件的真实无提示参与者测试，记录每个L1/W1/L2/W2动作理由、宏提前承诺困惑、对A/B/ALT不可追回结果及违约的自发在意；不能用七卡均值代替随机总体。若仍无参与者，停止继续调RETURN概率或界面层数，横向探索INV/PART保护抑制证据、ACT/GRC自主他者或已发行交锋的新决策心理活动；严格检查成熟同构、强安全旁路、真实成本与结果身份。",
+  "lastResearchMaintenance": "2026-10-16新增RETURN四阶段可记录自主选择的Python CLI/纯规则状态机，原七卡保留不删除；加入统一runner至30项，扩展CI监听脚本，在Actions 38769665427全部成功；模式语言知识地图新增PL-RETURN-CHOICE-AUDIT及HEDGE/BRIDGE/CROSS维护强对照边，当前状态和研究队列同步；正式Game、Debug和精选均冻结。"
 }
