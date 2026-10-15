@@ -1,0 +1,91 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CAUSAL · 五轮无答案实验</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,"PingFang SC",sans-serif;background:#121317;color:#ebebea}*{box-sizing:border-box}
+body{margin:0;padding:26px 14px}main{max-width:750px;margin:auto}header{border-bottom:1px solid #41424a;margin-bottom:20px;padding-bottom:12px}
+h1{font-size:26px;margin:0 0 10px}h2{font-size:17px;margin:0 0 12px}p{line-height:1.7;color:#c6c3bf}
+.card{background:#1c1e24;border:1px solid #383b44;padding:18px;border-radius:12px;margin:14px 0}
+label{display:block;font-size:13px;color:#bfbcb6;margin:8px 0}
+select,textarea,button{font:inherit;background:#292c34;color:#eee;border:1px solid #565862;border-radius:8px;padding:11px}
+select,textarea{width:100%}textarea{resize:vertical;min-height:75px}button{cursor:pointer}button:hover:not(:disabled){background:#363b45}button:disabled{opacity:.35;cursor:default}
+.primary{background:#d7bd89;color:#151519;border:none;font-weight:700}.primary:hover{background:#e4cfa4!important}
+.stats,.actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.stat{background:#252831;padding:12px;border-radius:8px}.stat small{display:block;color:#adabb0}.stat strong{font-size:25px}
+.actions{margin-top:14px}.history{padding-left:22px}.history li{line-height:1.6;border-bottom:1px solid #373a41;padding:10px 0}
+.history small{display:block;color:#b6b5b1}#notice,#answer{color:#e5c488;min-height:22px}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#14151b;border-radius:8px;padding:14px;font-size:12px;max-height:230px;overflow:auto}
+</style></head><body><main>
+<header><div style="font-size:11px;letter-spacing:2px;color:#d7bd89">SSNOIR · 独立研究实验</div>
+<h1>认识一条尚不知道的规律</h1>
+<p>你有五次行动。环境每轮可能处于0或1。你不知道哪一条规律让操作A或B更有效。实验不会提示最优策略；结束时才公开真实规律。</p></header>
+<div class="card"><h2>实验条件</h2>
+<label for="mode">请选择独立的一种信息条件</label>
+<select id="mode">
+<option value="standard">A · 环境条件可见，允许重复诊断</option>
+<option value="no-cal">B · 环境条件可见，不允许诊断</option>
+<option value="no-cue">C · 环境条件隐藏，允许诊断</option>
+</select>
+<p>操作成功 +7，失败 −9；安全工作固定 +1。诊断占用一整轮、当轮得0，给出90%可靠的规律报告。每次操作结果即使“有效”也可能失败。隐藏规律五轮内不改变。</p>
+<button class="primary" id="start">开始新的实验</button></div>
+<div class="card" id="game" hidden>
+<div class="stats"><div class="stat"><small>剩余回合</small><strong id="turns">5</strong></div>
+<div class="stat"><small>累计分数</small><strong id="score">0</strong></div></div>
+<p><b>本轮环境：</b><span id="cue"></span></p>
+<label for="thought">本轮行动前，你在想什么？（不必填写）</label>
+<textarea id="thought" placeholder="哪些观察支持我的判断？如果失败会改变什么？"></textarea>
+<div class="actions">
+<button data-act="A">执行操作 A</button><button data-act="B">执行操作 B</button>
+<button data-act="SAFE">安全工作 +1</button><button data-act="CAL">诊断（耗一轮）</button>
+</div><p id="notice" role="status"></p><p id="answer"></p></div>
+<div class="card"><h2>本地行动记录</h2><ol id="history" class="history"></ol>
+<div id="export" hidden><p>实验结束。下面是包含隐藏规律的完整记录，可以手工复制；本页面不会联网上传。</p><pre id="json"></pre></div></div>
+<p style="font-size:12px">仅作为未验证的机制研究材料，不属于正式游戏或Debug。重新开始会清空记录，无账号、无数据上传。</p>
+</main><script>
+(function(){
+'use strict';
+var $=function(id){return document.getElementById(id);},state=null;
+function bit(){return Math.random()<.5?0:1;}
+function render(){
+ $('game').hidden=!state;if(!state)return;
+ $('turns').textContent=state.turn;$('score').textContent=state.score;
+ $('cue').textContent=state.turn===0?'实验结束':state.mode==='no-cue'?'未提供':String(state.cue);
+ document.querySelectorAll('[data-act]').forEach(function(b){
+  b.disabled=state.turn===0||(b.dataset.act==='CAL'&&state.mode==='no-cal');
+ });
+ $('history').replaceChildren();
+ state.history.forEach(function(h){
+  var li=document.createElement('li'),strong=document.createElement('strong'),small=document.createElement('small');
+  strong.textContent='第'+h.step+'轮：'+h.action+'，'+h.result+'（'+(h.delta>=0?'+':'')+h.delta+'）';
+  small.textContent='环境：'+(h.visibleCue===null?'未提供':h.visibleCue)+'；事前想法：'+(h.thought||'未填写');
+  li.append(strong,small);$('history').append(li);
+ });
+ if(state.turn===0){
+  $('answer').textContent='隐藏规律：'+(state.theta===0?'规则0（环境0选A、环境1选B更有效）':'规则1（环境0选B、环境1选A更有效）');
+  $('export').hidden=false;
+  $('json').textContent=JSON.stringify({protocol:'CAUSAL-01-06',mode:state.mode,rounds:5,theta:state.theta,score:state.score,history:state.history},null,2);
+ }else{$('answer').textContent='';$('export').hidden=true;}
+}
+function start(){
+ state={mode:$('mode').value,theta:bit(),cue:bit(),turn:5,score:0,history:[]};
+ $('thought').value='';$('notice').textContent='';render();
+}
+function action(a){
+ if(!state||state.turn===0||(a==='CAL'&&state.mode==='no-cal'))return;
+ var s=state,shown=s.mode==='no-cue'?null:s.cue,delta=0,result='';
+ if(a==='SAFE'){delta=1;result='安全工作完成';}
+ else if(a==='CAL'){
+  var report=Math.random()<.9?s.theta:1-s.theta;
+  result='诊断：报告规则'+report+'（90%准确，不保证）';
+ }else{
+  var chosen=a==='A'?0:1,good=s.theta===0?s.cue:1-s.cue;
+  var success=Math.random()<(chosen===good?.8:.2);
+  delta=success?7:-9;result=success?'成功':'失败';
+ }
+ s.history.push({step:6-s.turn,visibleCue:shown,action:a,delta:delta,result:result,thought:$('thought').value.trim()});
+ s.score+=delta;s.turn--;s.cue=bit();$('thought').value='';
+ $('notice').textContent='上一轮：'+a+'，'+result+'。';render();
+}
+$('start').addEventListener('click',start);
+document.querySelectorAll('[data-act]').forEach(function(b){b.addEventListener('click',function(){action(b.dataset.act);});});
+})();
+</script></body></html>

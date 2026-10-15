@@ -3917,6 +3917,494 @@
         "native": false,
         "repositoryCI": false
       }
+    },
+    {
+      "id": "PL-MEMORY01",
+      "name": "反复合作积累可信历史，但简短次数规则可追平最优",
+      "origin": "ssnoir-research",
+      "layer": "mature-combination",
+      "family": "连续学习与探索利用",
+      "idea": "同一对象隐藏H/L能力不变；TRY既给实际收益又暴露可更新信念，SAFE保持稳定回报；玩家按累积经验决定下一次是否再合作",
+      "stage": "exact-belief-dp-and-true-world-forward",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-持续信念与对象能力干预/研究记录.md",
+        "tools/content-validator/experiments/pattern_partner_memory_20261015.py"
+      ],
+      "note": "4回合动态4633/625 vs固定4；不同对象每日重抽根4。累计成功≥失败就TRY，否则SAFE，在2—6回合全优，尚未观察真实玩家理解；对象可换成机器。",
+      "evidence": {
+        "exactFractionDP": true,
+        "forwardByTrueType": true,
+        "humanFeedbackAvailable": false,
+        "independentAgent": false,
+        "native": false,
+        "repositoryCI": false
+      }
+    },
+    {
+      "id": "PL-MEMORY02",
+      "name": "长期关系下检查行动的后到选择权和微弱收益",
+      "origin": "ssnoir-research",
+      "layer": "mature-combination",
+      "family": "连续学习与信息时点",
+      "idea": "PROBE本身无直接收益，连续行动历史使少数低可信状态下主动检查比继续工作或完全回避更可取",
+      "stage": "exact-information-action-ablation",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-持续信念与对象能力干预/研究记录.md",
+        "tools/content-validator/experiments/pattern_partner_memory_20261015.py"
+      ],
+      "note": "7回合有检查根179341/12500、无检查223153/15625，差4093/62500；6回合内检查全不用，7回合首手TRY失败后（概率1/2）第2手PROBE；需要强免费完美检验对照。",
+      "evidence": {
+        "exactFractionDP": true,
+        "forwardByTrueType": true,
+        "humanFeedbackAvailable": false,
+        "independentAgent": false,
+        "native": false,
+        "repositoryCI": false
+      }
+    },
+    {
+      "id": "PL-MEMORY03",
+      "name": "强能力提升会被固定开局计划完全吸收",
+      "origin": "ssnoir-research",
+      "layer": "negative-boundary",
+      "family": "实际能力干预与固定开局",
+      "idea": "耗一手COACH，永久提高L成功率；如果改善幅度过大，最优一开始就培训，无须学习反馈",
+      "stage": "fixed-policy-dominance-negative-audit",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-持续信念与对象能力干预/研究记录.md",
+        "tools/content-validator/experiments/pattern_partner_intervention_20261015.py"
+      ],
+      "note": "L提升1/5至13/20，4回合动态=固定先培训=无历史学习111/10；7回合同理111/5。真实因果干预存在但不产生条件改道。",
+      "evidence": {
+        "exactFractionDP": true,
+        "forwardByTrueType": true,
+        "humanFeedbackAvailable": false,
+        "independentAgent": false,
+        "native": false,
+        "repositoryCI": false
+      }
+    },
+    {
+      "id": "PL-MEMORY04",
+      "name": "先试错再因失败培训的微弱条件干预价值",
+      "origin": "ssnoir-research",
+      "layer": "mature-combination",
+      "family": "学习后转向真实能力干预",
+      "idea": "若COACH仅将L成功率从1/5升至2/5，最优先TRY，首手失败且后续尚长才训练；保留未知类型误判成本",
+      "stage": "belief-dp-and-actual-type-outcome-audit",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-持续信念与对象能力干预/研究记录.md",
+        "tools/content-validator/experiments/pattern_partner_intervention_20261015.py"
+      ],
+      "note": "8回合允许COACH 2616663/156250、无COACH 1297813/78125，增益21037/156250；COACH仅在第2手发生，概率1/2，H/L各被误判培训概率1/5与4/5。不是新的独立原语，低型玩家期望收益仍负。",
+      "evidence": {
+        "exactFractionDP": true,
+        "forwardByTrueType": true,
+        "humanFeedbackAvailable": false,
+        "independentAgent": false,
+        "native": false,
+        "repositoryCI": false
+      }
+    },
+    {
+      "id": "PL-STRATEGIC01",
+      "name": "有限完全信息合作无法靠无成本的未来声誉自发持续",
+      "family": "真正自主行动者与期限激励",
+      "layer": "mature-negative-boundary",
+      "origin": "ssnoir-research",
+      "idea": "玩家每轮委托后伙伴自主EFFORT/SHIRK；固定期限且只有固定酬劳时，终局无可兑现未来声誉、逐段逆推合作全消失",
+      "stage": "finite-complete-information-backward-induction",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-有限关系与自主合作/研究记录.md",
+        "tools/content-validator/experiments/pattern_partner_strategy_20261015.py"
+      ],
+      "note": "n=1..5、奖金0..2逐历史后推玩家始终SAFE，三回合根玩家3伙伴0；已知有限完美信息重复博弈负例，不是所有人际关系的一般定理。",
+      "evidence": {
+        "exactFractionBackwardInduction": true,
+        "fullPublicHistories": true,
+        "independentAgent": false,
+        "humanFeedbackAvailable": false,
+        "native": false,
+        "repositoryCI": false
+      }
+    },
+    {
+      "id": "PL-STRATEGIC02",
+      "name": "可验证成功回报需要同时满足双方行动诱因",
+      "family": "真正自主行动者与可信履约",
+      "layer": "mature-combination",
+      "origin": "ssnoir-research",
+      "idea": "以真正可执行的成功奖金b提升对方EFFORT的私人收益，又不能使玩家合作净收益低于SAFE",
+      "stage": "finite-complete-information-backward-induction",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-有限关系与自主合作/研究记录.md",
+        "tools/content-validator/experiments/pattern_partner_strategy_20261015.py"
+      ],
+      "note": "努力成本2，伙伴固定报酬1，玩家成功6、SAFE1，严格合作窗口2<b<5；n=3，b3根(玩家9,伙伴6)，b4(6,9)，更高或更低按明示平局结局均SAFE。所有历史政策固定，已去重GRC/NEG/RECIP。",
+      "evidence": {
+        "exactFractionBackwardInduction": true,
+        "fullPublicHistories": true,
+        "independentAgent": false,
+        "humanFeedbackAvailable": false,
+        "native": false,
+        "repositoryCI": false
+      }
+    },
+    {
+      "id": "PL-TACTIC-CONTINGENT",
+      "name": "一次性反制资源导致临场混合战术按历史改变",
+      "layer": "mature-combination",
+      "origin": "ssnoir-research",
+      "family": "同时行动与有限反制状态",
+      "idea": "PRESS/VERIFY与HIDE/一次ESCAPE同时决定，公开资源耗尽使玩家最优混合概率随未来可用反制变化",
+      "stage": "exact-matrix-minimax-and-fixed-policy-audit",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-对抗混合策略与一次性反制/研究记录.md",
+        "tools/content-validator/experiments/pattern_adversarial_tempo_20261015.py"
+      ],
+      "note": "n4公开闭环51/8 vs最佳固定纯路线6、密封预承诺混合6；PRESS根混合37/40，对方HIDE1/2。n1..8闭式公式双重检验；混合策略收益微弱、不认证体验。",
+      "evidence": {
+        "localExactFraction": true,
+        "completeStateGame": true,
+        "independentAgent": false,
+        "humanFeedbackAvailable": false,
+        "native": false,
+        "repositoryCI": false
+      }
+    },
+    {
+      "id": "PL-TACTIC-COMMIT",
+      "name": "付整回合换取下一轮对方公开先承诺动作",
+      "layer": "mature-combination",
+      "origin": "ssnoir-research",
+      "family": "行动先后顺序与可执行承诺",
+      "idea": "SCAN耗一手逼迫下一轮对方先公开且不能改口，玩家再选PRESS/VERIFY；有别于调查上一轮的已发生动作",
+      "stage": "exact-timing-and-expensive-information-audit",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-对抗混合策略与一次性反制/研究记录.md",
+        "tools/content-validator/experiments/pattern_adversarial_tempo_20261015.py"
+      ],
+      "note": "一用ESCAPE尚存余2回合：直接对抗3/2 vs SCAN2；余4回合有SCAN动态13/2，比不许SCAN51/8高1/8，但开局不该SCAN。依赖真承诺，普通偷窥不能替代。",
+      "evidence": {
+        "localExactFraction": true,
+        "completeStateGame": true,
+        "independentAgent": false,
+        "humanFeedbackAvailable": false,
+        "native": false,
+        "repositoryCI": false
+      }
+    },
+    {
+      "id": "PL-TACTIC-MOTIVE",
+      "name": "相同玩家根值不识别对手私利与行为动机",
+      "layer": "mature-negative-boundary",
+      "origin": "ssnoir-research",
+      "family": "多主体独立效用和行为可识别性",
+      "idea": "保持玩家收益与一次ESCAPE不变，只改对手自利收益；比较非零和混合均衡与零和minimax的对外可观察区别",
+      "stage": "finite-general-sum-equilibrium-and-observability-audit",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-对抗混合策略与一次性反制/研究记录.md",
+        "tools/content-validator/experiments/pattern_adversarial_motives_20261015.py"
+      ],
+      "note": "n4玩家均衡根两模型同51/8，但PRESS概率零和37/40、自利598/625。对手HIDE两模型均1/2，单看其动作频率甚至可能无法辨别动机；高ESCAPE私人成本则HIDE严格支配反制而游戏退化为固定PRESS。",
+      "evidence": {
+        "localExactFraction": true,
+        "completeStateGame": true,
+        "independentAgent": false,
+        "humanFeedbackAvailable": false,
+        "native": false,
+        "repositoryCI": false
+      }
+    },
+    {
+      "id": "PL-ORDER-SEQUENCE",
+      "name": "先行行动、秘密同时行动与对手先绑定的三种信息制度",
+      "layer": "mature-combination",
+      "origin": "ssnoir-research",
+      "family": "交锋时序与决策可见性",
+      "idea": "保持相同PRESS/VERIFY对抗与一次ESCAPE，只修改最终行动的时间先后、是否在行动前被对手看见",
+      "stage": "exact-sequential-vs-simultaneous-audit",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-承诺可信度与行动时序/研究记录.md",
+        "tools/content-validator/experiments/pattern_action_commitment_order_20261015.py"
+      ],
+      "note": "n4玩家先公开6、双方同轮秘密51/8、对方先绑定11。对方先行玩家只需HIDE→PRESS、ESCAPE→VERIFY；高分不等于复杂或有趣。",
+      "evidence": {
+        "localExactFraction": true,
+        "maximinDualCheck": true,
+        "newHumanFeedback": false,
+        "independentAgent": false,
+        "native": false,
+        "repositoryCI": false
+      }
+    },
+    {
+      "id": "PL-ORDER-CREDIBILITY",
+      "name": "口头意图与可执行行动承诺必须按实际改口成本区分",
+      "layer": "mature-combination",
+      "origin": "ssnoir-research",
+      "family": "承诺约束与行动顺序",
+      "idea": "对方先声明、玩家公开行动、对方有权改口但赔偿其违约成本，区分廉价宣称与真实先行承诺",
+      "stage": "zero-sum-deviation-fee-audit",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-承诺可信度与行动时序/研究记录.md",
+        "tools/content-validator/experiments/pattern_action_commitment_order_20261015.py"
+      ],
+      "note": "n4违约转移成本c0..5对应玩家根6,6,6,6,7,11；廉价声明c0不等于同时秘密选择51/8，因为对方额外看见玩家的动作。ACT/NEG历史机制已存在。",
+      "evidence": {
+        "localExactFraction": true,
+        "maximinDualCheck": true,
+        "newHumanFeedback": false,
+        "independentAgent": false,
+        "native": false,
+        "repositoryCI": false
+      }
+    },
+    {
+      "id": "PL-ORDER-ONEUSE",
+      "name": "一次性强制先行权有价值但不能创造独特择时",
+      "layer": "negative-boundary",
+      "origin": "ssnoir-research",
+      "family": "有限行动资格与时序支配",
+      "idea": "每个回合可选择免费耗掉仅有的一次对方先行绑定权，或继续同时秘密行动，检验何时使用是否需要动态计划",
+      "stage": "single-use-right-strong-policy-counterexample",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-承诺可信度与行动时序/研究记录.md",
+        "tools/content-validator/experiments/pattern_single_public_writ_20261015.py"
+      ],
+      "note": "n4带一枚权27/4、无权51/8；n1..8立即用权与完整动态同值，n≥3开局SAVE或USE同时最优。追加一次性权限不是新选择的充分条件。",
+      "evidence": {
+        "localExactFraction": true,
+        "maximinDualCheck": true,
+        "newHumanFeedback": false,
+        "independentAgent": false,
+        "native": false,
+        "repositoryCI": false
+      }
+    },
+    {
+      "id": "PL-POLICY-AUDIT01",
+      "name": "动态最优策略与玩家实际判断的可解释性审计",
+      "origin": "ssnoir-research",
+      "layer": "methodology-cross-family-audit",
+      "family": "强简短策略与心理活动验证",
+      "idea": "跨REC/OPS/CLAIM/ACT/HEDGE/TACTIC/ORDER核对严格动作因果、短条件规则全优、真实不同成果身份和实际人类理解尚未验证的边界",
+      "stage": "historical-evidence-synthesis-not-new-DP",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-动态最优与玩家判断压缩审计/研究记录.md"
+      ],
+      "note": "REC交替+一手前瞻全优939/64、OPS同成本SET/一手前瞻同优518/125；ORDER对方先行收益11但机械见招拆招，HEDGE与CLAIM虽短策略却有实际放弃的旧成果。短规则不是失败的充分条件，更高根值也不是体验价值。仅复核源报告，无新独立DP或真人。",
+      "evidence": {
+        "historicalEvidenceReview": true,
+        "newDP": false,
+        "humanFeedbackAvailable": false,
+        "native": false
+      }
+    },
+    {
+      "id": "PL-CAUSAL-CONTEXT",
+      "name": "隐藏响应规律只有遇到可见环境条件才产生可用知识",
+      "layer": "mature-combination",
+      "origin": "ssnoir-research",
+      "family": "条件规则识别与有限期探索",
+      "idea": "玩家学习稳定隐藏规律θ，并结合逐回合公开环境c决定哪个操作有效；移除公开c，认识与工作结果不再有可用于选动作的关系",
+      "stage": "exact-POMDP-and-world-forward-context-ablation",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-条件化因果规则与复查/研究记录.md",
+        "tools/content-validator/experiments/pattern_contextual_causal_probe_20261015.py"
+      ],
+      "note": "n4能观察c且可从RUN反馈学习但禁检查根148/25；隐藏c或不记忆均4；说明信息必须有可兑现的行动映射，而非单纯获得隐藏状态。",
+      "evidence": {
+        "localFractionDP": true,
+        "actualWorldForward": true,
+        "secondIndependentBudgetDP": true,
+        "independentAgent": false,
+        "humanFeedbackAvailable": false,
+        "native": false,
+        "repositoryCI": "workflow-added-unverified"
+      }
+    },
+    {
+      "id": "PL-CAUSAL-RETEST",
+      "name": "旧诊断被生产结果反驳时再次核验具有小幅真实价值",
+      "layer": "mature-combination",
+      "origin": "ssnoir-research",
+      "family": "持续诊断与反馈重估",
+      "idea": "诊断θ但诊断会错，后续真实工作成功/失败继续提供信息；玩家自己决定花整手重检还是继续生产",
+      "stage": "exact-two-independent-DPs-and-reachable-witness",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-条件化因果规则与复查/研究记录.md",
+        "tools/content-validator/experiments/pattern_contextual_causal_probe_20261015.py",
+        "tools/content-validator/experiments/pattern_causal_retest_20261015.py"
+      ],
+      "note": "n5 q9/10，不许诊断5419/625，限一次7544/625，限两次与不限均15301/1250；第二次增加213/1250。CAL+且c0 RUN0失败后后验9/13，余3手再次CAL严格最优，单条可达轨迹概率13/200。未认证新原语或真人体验。",
+      "evidence": {
+        "localFractionDP": true,
+        "actualWorldForward": true,
+        "secondIndependentBudgetDP": true,
+        "independentAgent": false,
+        "humanFeedbackAvailable": false,
+        "native": false,
+        "repositoryCI": "workflow-added-unverified"
+      }
+    },
+    {
+      "id": "PL-CAUSAL-WEAK",
+      "name": "可见环境、诊断准确性与损失风险是必要的独立条件",
+      "layer": "negative-boundary",
+      "origin": "ssnoir-research",
+      "family": "纯检查与产出兼信息",
+      "idea": "比较弱诊断、无限诊断、一次诊断固定遵从、工作本身泄露信息、完美免费检查与禁止环境观察",
+      "stage": "signal-quality-and-open-loop-counterfactual",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-条件化因果规则与复查/研究记录.md",
+        "tools/content-validator/experiments/pattern_contextual_causal_probe_20261015.py"
+      ],
+      "note": "n4 q7/10检查零增益（全DP148/25），q4/5提升至173/25，q9/10根5534/625；只按第一次诊断一直做的固定规则213/25，而允许工作继续修正信念5534/625。检查可降低探索风险，但免费完美情报仍可更强。",
+      "evidence": {
+        "localFractionDP": true,
+        "actualWorldForward": true,
+        "secondIndependentBudgetDP": true,
+        "independentAgent": false,
+        "humanFeedbackAvailable": false,
+        "native": false,
+        "repositoryCI": "workflow-added-unverified"
+      }
+    },
+    {
+      "id": "PL-SOURCE-CORRELATED",
+      "name": "多份报告可能共享同一个来源，表面一致不代表独立验证",
+      "origin": "ssnoir-research",
+      "layer": "mature-combination",
+      "family": "证据来源依赖与可行动信息",
+      "idea": "第二份报告隐有独立调查/照抄第一份两种生成方式，玩家观察两份一致与否并选择是否可信",
+      "stage": "exact-correlated-posterior-and-naive-policy-audit",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-证据相关性与二手消息回声/研究记录.md",
+        "tools/content-validator/experiments/pattern_source_provenance_20261015.py"
+      ],
+      "note": "P(报告一致)=13/16；一致时P(第二为照抄)=8/13、实际正确率21/26，不是独立时9/10。错误当独立的固定下注根11/4，识别相关性并SAFE根3；仅统计信息审计，不代表真人真的会犯该错误。",
+      "evidence": {
+        "localExactFraction": true,
+        "allHiddenWorlds": true,
+        "policyForwardReplay": false,
+        "humanFeedbackAvailable": false,
+        "independentAgent": false,
+        "native": false,
+        "repositoryCI": "pending-independent-confirmation"
+      }
+    },
+    {
+      "id": "PL-SOURCE-AUDIT",
+      "name": "核查来源虽提高真实性，却被同价取得真正新证据的强替代覆盖",
+      "origin": "ssnoir-research",
+      "layer": "mature-negative-boundary",
+      "family": "可选择的信息质量与来源成本",
+      "idea": "在风险下注前选调查第二报告是不是转述，或花同手获取确定独立的第三报告；比较两者和一次性安全退出",
+      "stage": "exact-belief-DP-independent-hidden-world-policy-replay",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-证据相关性与二手消息回声/研究记录.md",
+        "tools/content-validator/experiments/pattern_source_provenance_20261015.py"
+      ],
+      "note": "无新动作3、仅核查51/16、仅新证人283/64、两者齐全仍283/64；核查出场13/16概率但菜单有新证人时最优从不核查；NEW成本3而AUDIT成本1时根回51/16。完整正确/误判/安全结果概率另行正向追踪。",
+      "evidence": {
+        "localExactFraction": true,
+        "allHiddenWorlds": true,
+        "policyForwardReplay": true,
+        "humanFeedbackAvailable": false,
+        "independentAgent": false,
+        "native": false,
+        "repositoryCI": "pending-independent-confirmation"
+      }
+    },
+    {
+      "id": "PL-SOURCE-ECHO",
+      "name": "自己公开消息使后续表面证据同源，然而固定阈值政策足以全解",
+      "origin": "ssnoir-research",
+      "layer": "mature-negative-boundary",
+      "family": "玩家行为改变后续信息独立性",
+      "idea": "PUBLICIZE将下一报告从独立75%检测改写成复制现有S1，同时取得独立公开收益B；HOLD保持真正新来源",
+      "stage": "exact-all-truth-and-source-worlds-causality-ablations",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-证据相关性与二手消息回声/研究记录.md",
+        "tools/content-validator/experiments/pattern_endogenous_media_echo_20261015.py"
+      ],
+      "note": "HOLD根5，PUBLICIZE根3+B：B0/1选择HOLD、B2平局、B3选PUBLICIZE；无需持续计划。一份真实新独立S3若再耗成本1，可修复复制信息但不免费。与INV干预信息生成、RECORD制度认可有不同因果轴，仍普通状态转移。",
+      "evidence": {
+        "localExactFraction": true,
+        "allHiddenWorlds": true,
+        "policyForwardReplay": false,
+        "humanFeedbackAvailable": false,
+        "independentAgent": false,
+        "native": false,
+        "repositoryCI": "pending-independent-confirmation"
+      }
+    },
+    {
+      "id": "PL-CHAIN-MATCHING",
+      "name": "对一人身份的确认改变其他人身份的可解性与调查目标",
+      "layer": "mature-combination",
+      "origin": "ssnoir-research",
+      "family": "跨对象约束传播与主动调查",
+      "idea": "四人四身份一对一匹配，公开候选产生9个允许世界。准确查出一人后，身份排他性与候选表共同约束未调查的另外三人；玩家据反馈改选第二目标",
+      "stage": "exact-permutation-enumeration-and-strong-open-loop-ablation",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-身份约束与成组确认/研究记录.md",
+        "tools/content-validator/experiments/pattern_constraint_deduction_20261015.py"
+      ],
+      "note": "4限制9世界，2次准确核验的条件最优4个身份完全确定，最强固定两个目标28/9，非互斥身份各自独立时恰好2个；条件策略A0→查D、A1→查C、A2→查B；P全部确定动态1、固定5/9。该关系有成熟Obra Dinn身份推理先例，不是新原语。",
+      "evidence": {
+        "localExactEnumeration": true,
+        "independentHumanFeedback": false,
+        "blindAgent": false,
+        "native": false,
+        "repositoryCI": "pending-confirmation",
+        "matureGamePrecedent": true
+      }
+    },
+    {
+      "id": "PL-CHAIN-SIMPLE",
+      "name": "跨题连锁能改变初始最优目标，但候选数贪心已可全解",
+      "layer": "mature-negative-boundary",
+      "origin": "ssnoir-research",
+      "family": "主动信息目标排序与简短策略审计",
+      "idea": "取消部分公开候选限制，使尚不确定的目标选择之间出现非对称；用固定调查、单手进展和简短候选数贪心比较",
+      "stage": "constraint-subset-ablation-and-cheap-heuristic-regression",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-身份约束与成组确认/研究记录.md",
+        "tools/content-validator/experiments/pattern_constraint_deduction_20261015.py"
+      ],
+      "note": "仅3条限制11世界时唯一最优先查候选最多且全未知的D，按D的回答决定下一个人，2手全识别4；最强固定36/11、先查A/B/C也36/11。0..4限制16个子集里简短候选数量贪心全部追平完整DP，非一般性贪心最优定理。",
+      "evidence": {
+        "localExactEnumeration": true,
+        "independentHumanFeedback": false,
+        "blindAgent": false,
+        "native": false,
+        "repositoryCI": "pending-confirmation",
+        "matureGamePrecedent": true
+      }
+    },
+    {
+      "id": "PL-CONFIRM-BATCH",
+      "name": "延迟合并验真可减少试错器的信息泄漏，但未必改善玩家体验",
+      "layer": "mature-combination",
+      "origin": "ssnoir-research",
+      "family": "推理反馈带宽与防暴力枚举",
+      "idea": "相同9个完整身份世界，比较一次准确查一人、单个猜身份是非、提交完整猜测并仅确认三人以上是否正确的反馈效率",
+      "stage": "exact-optimal-feedback-query-policy",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-身份约束与成组确认/研究记录.md",
+        "tools/content-validator/experiments/pattern_batch_confirmation_20261015.py"
+      ],
+      "note": "将完整答案唯一确定所需期望查询数：查完整身份2、逐项是非10/3、四人完整猜测若至少3正确才确认44/9。由于4人合法排列间不可能恰好三人相同，第三种玩具反馈等同全对才确认，绝非原作真正三条命运提交语义。成熟原作设计师访谈说明成组确认用于减少枚举试错。",
+      "evidence": {
+        "localExactEnumeration": true,
+        "independentHumanFeedback": false,
+        "blindAgent": false,
+        "native": false,
+        "repositoryCI": "pending-confirmation",
+        "matureGamePrecedent": true
+      }
     }
   ],
   "edges": [
@@ -6955,6 +7443,318 @@
       "to": "PL-RECIP-BELIEF",
       "relation": "multiple-equilibria-limits-value-claim",
       "reason": "按分离策略计算玩家21/4不能当作所有参与者预期下一定达成该结果"
+    },
+    {
+      "from": "PL-DISC01",
+      "to": "PL-MEMORY01",
+      "relation": "productive-information-with-persistent-type",
+      "reason": "TRY兼即时生产收益和类型证据；MEMORY额外要求同一隐藏类型跨回合稳定"
+    },
+    {
+      "from": "PL-IWT01",
+      "to": "PL-MEMORY02",
+      "relation": "active-verification-vs-informative-work",
+      "reason": "两者都需比较主动检查与兼信息工作；长窗口下PROBE微利，短窗口根本不用"
+    },
+    {
+      "from": "PL-TRL02",
+      "to": "PL-MEMORY01",
+      "relation": "non-strategic-vs-strategic-signal",
+      "reason": "MEMORY的固定真实成功率无法伪装；TRL由对手策略修改所见信号，不能把它们合称社交交锋"
+    },
+    {
+      "from": "PL-MEMORY01",
+      "to": "PL-MEMORY03",
+      "relation": "information-vs-intervention",
+      "reason": "学习更新信念，COACH改变真实成功率；强介入反而使信息价值归零"
+    },
+    {
+      "from": "PL-MEMORY03",
+      "to": "PL-MEMORY04",
+      "relation": "same-verb-different-strength-changes-policy",
+      "reason": "强COACH固定开局，弱COACH需首手失败才第二手培训，但可由一句短条件策略表达"
+    },
+    {
+      "from": "PL-RECIP-REPLAN",
+      "to": "PL-MEMORY04",
+      "relation": "fixed-trait-vs-autonomous-agent",
+      "reason": "RECIP拥有策略性伙伴参与和退出，MEMORY仅参数固定的合作对象；不要从人物命名偷渡自主性"
+    },
+    {
+      "from": "PL-MEMORY01",
+      "to": "PL-STRATEGIC01",
+      "relation": "fixed-type-versus-self-chosen-effort",
+      "reason": "同一对象长期随机可靠率不等于可自主选择努力或敷衍；两类玩家推断动作不是同一原语"
+    },
+    {
+      "from": "PL-STRATEGIC01",
+      "to": "PL-STRATEGIC02",
+      "relation": "credible-contingent-pay-repairs-effort-incentive",
+      "reason": "仅靠未来口头关系在冻结有限模型下无作用；有可验证成功奖金后真实行动响应改变"
+    },
+    {
+      "from": "PL-GRC01",
+      "to": "PL-STRATEGIC02",
+      "relation": "existing-incentive-compatibility-precedent",
+      "reason": "早期不可替代帮助和预期未来偿付早由GRC研究，本批只作为另一幅边界图"
+    },
+    {
+      "from": "PL-RECIP-COMMIT",
+      "to": "PL-STRATEGIC02",
+      "relation": "contract-conditions-not-social-innovation",
+      "reason": "给对方可执行的条件酬劳而影响其行动是既有成熟可信承诺组合"
+    },
+    {
+      "from": "PL-TRL02",
+      "to": "PL-STRATEGIC01",
+      "relation": "strategy-and-signal-not-same",
+      "reason": "TRL有策略性修饰信息；此批努力对玩家完全可观察，尚无伪装和类型学习"
+    },
+    {
+      "from": "PL-TACTIC-CONTINGENT",
+      "to": "PL-TACTIC-COMMIT",
+      "relation": "action-ordering-changes-best-subgame",
+      "reason": "付整手SCAN将下一次同时动作转为对方先给不可撤回承诺；只有余两回合的未耗资源状态才严格最优SCAN"
+    },
+    {
+      "from": "PL-TACTIC-CONTINGENT",
+      "to": "PL-TACTIC-MOTIVE",
+      "relation": "same-player-payoff-different-opponent-utility",
+      "reason": "玩家同均衡分数可能对应不同自己混合动作，需记录对方私人收益而非猜测心理"
+    },
+    {
+      "from": "PL-STRATEGIC01",
+      "to": "PL-TACTIC-MOTIVE",
+      "relation": "sequential-self-interested-versus-simultaneous",
+      "reason": "STRATEGIC是玩家先发出委托、对方随后响应；TACTIC是双方同轮同时出招的混合博弈"
+    },
+    {
+      "from": "PL-MEMORY01",
+      "to": "PL-TACTIC-CONTINGENT",
+      "relation": "uncertain-fixed-type-versus-adaptive-countermove",
+      "reason": "MEMORY可靠性是固定概率可积累后验；TACTIC对手对收益作最优反制并消耗反制资源，玩家动词不同"
+    },
+    {
+      "from": "PL-CRISIS01",
+      "to": "PL-TACTIC-CONTINGENT",
+      "relation": "random-crisis-versus-adversarial-control",
+      "reason": "CRISIS外源随机封锁区别于对手自主择时使用有限反制；单靠数字压力无法冒充博弈"
+    },
+    {
+      "from": "PL-GRC01",
+      "to": "PL-TACTIC-MOTIVE",
+      "relation": "self-interested-partner-precedent",
+      "reason": "GRC已有双方真实机会成本和自主参加决策；TACTIC不是第一次引入自利行动者"
+    },
+    {
+      "from": "PL-TACTIC-MOTIVE",
+      "to": "PL-TACTIC-COMMIT",
+      "relation": "observable-commitment-versus-latent-motive",
+      "reason": "对手私利若不改变观察到的行为就可能没有玩家体验差异，行动顺序与承诺需明确可见"
+    },
+    {
+      "from": "PL-TACTIC-CONTINGENT",
+      "to": "PL-ORDER-SEQUENCE",
+      "relation": "same-payoff-action-order-counterfactual",
+      "reason": "仅动作顺序变化可令同一资源的最优根在n4从6到11，中间同时行动为51/8，不能把增益说成新增战术动作"
+    },
+    {
+      "from": "PL-ACT01",
+      "to": "PL-ORDER-SEQUENCE",
+      "relation": "sequential-self-interested-precedent",
+      "reason": "ACT01已有序贯自行选择的他者，其信息结构与本批不同，但不是新发明先行动作"
+    },
+    {
+      "from": "PL-NEG01",
+      "to": "PL-ORDER-CREDIBILITY",
+      "relation": "enforceable-commitment-precedent",
+      "reason": "NEG历史已把空口承诺和可执行支付分开，本批只将改口代价映射到同一个局部混合博弈"
+    },
+    {
+      "from": "PL-TACTIC-COMMIT",
+      "to": "PL-ORDER-CREDIBILITY",
+      "relation": "binding-scan-versus-cheap-intent",
+      "reason": "真正付一手SCAN换来下一回合绑定不能由对方随时可改的表态代替"
+    },
+    {
+      "from": "PL-ORDER-SEQUENCE",
+      "to": "PL-ORDER-CREDIBILITY",
+      "relation": "commitment-alters-sequential-game",
+      "reason": "改口成本从0升至5才恢复n4的对方先绑定根；不只是角色的措辞"
+    },
+    {
+      "from": "PL-ORDER-CREDIBILITY",
+      "to": "PL-ORDER-ONEUSE",
+      "relation": "one-use-right-not-unique-timing",
+      "reason": "能强制约束对方有实际收益，但在同规则下第一回合直接使用已经达到最优"
+    },
+    {
+      "from": "PL-HEDGE01",
+      "to": "PL-ORDER-ONEUSE",
+      "relation": "limited-option-requires-genuine-intertemporal-conflict",
+      "reason": "HEDGE真实旧目标窗口不可再开，有限权利如果任何时候都同收益，便无优先级学习价值"
+    },
+    {
+      "from": "PL-RGT01",
+      "to": "PL-ORDER-ONEUSE",
+      "relation": "credential-may-reduce-to-simple-rule",
+      "reason": "行动资格变化可以被固定策略追平的旧负例，承诺令牌再次验证这一边界"
+    },
+    {
+      "from": "PL-ORDER-SEQUENCE",
+      "to": "PL-POLICY-AUDIT01",
+      "relation": "large-payoff-small-decision-rule",
+      "reason": "对方先绑定高收益由简短映射完成，不能以收益差冒充复杂交锋"
+    },
+    {
+      "from": "PL-ORDER-ONEUSE",
+      "to": "PL-POLICY-AUDIT01",
+      "relation": "single-use-token-timing-fully-dominated",
+      "reason": "一次性凭证的开局立即使用全局同优，形式复杂度不产生择时"
+    },
+    {
+      "from": "PL-REC01",
+      "to": "PL-POLICY-AUDIT01",
+      "relation": "one-step-lookahead-sufficient",
+      "reason": "REC完整多事件历史已由简单交替+一次短前瞻全优"
+    },
+    {
+      "from": "PL-OPS01",
+      "to": "PL-POLICY-AUDIT01",
+      "relation": "precompiled-rule-equivalence",
+      "reason": "持续规则维护被同成本SET映射逐状态复刻"
+    },
+    {
+      "from": "PL-HEDGE01",
+      "to": "PL-POLICY-AUDIT01",
+      "relation": "simple-policy-can-still-preserve-meaningful-option",
+      "reason": "真实不可重开的退路与成果身份差异可由短易懂规则表达"
+    },
+    {
+      "from": "PL-ACT01",
+      "to": "PL-POLICY-AUDIT01",
+      "relation": "autonomous-other-with-brief-contingency-rule",
+      "reason": "自主主体具有实际不同外部目标，但三轮公开信息仍可由简短条件政策完成"
+    },
+    {
+      "from": "PL-DISC01",
+      "to": "PL-CAUSAL-CONTEXT",
+      "relation": "productive-information-needs-actionable-context",
+      "reason": "原DISC同时工作兼得线索，本批强调公共环境条件决定信息是否能被用于下一次选择"
+    },
+    {
+      "from": "PL-MEMORY01",
+      "to": "PL-CAUSAL-RETEST",
+      "relation": "same-bayesian-family-with-rule-not-person",
+      "reason": "MEMORY对象稳定概率，CAUSAL稳定环境响应规律；二者都属于更新隐信念，不是两种原创数学机制"
+    },
+    {
+      "from": "PL-CAUSAL-CONTEXT",
+      "to": "PL-CAUSAL-RETEST",
+      "relation": "context-makes-rechecking-useful",
+      "reason": "缺少可见c，θ报告对选A/B无帮助；有c且工作可推翻报告时第二次诊断可能有用"
+    },
+    {
+      "from": "PL-CAUSAL-WEAK",
+      "to": "PL-CAUSAL-RETEST",
+      "relation": "diagnosis-not-always-valuable",
+      "reason": "低准确率诊断不增加根值，准确报告也非终局真理；第二次诊断需要反例与行动余裕"
+    },
+    {
+      "from": "PL-OPS01",
+      "to": "PL-CAUSAL-CONTEXT",
+      "relation": "same-late-input-different-hidden-rule",
+      "reason": "OPS编辑工具状态处理迟到输入；CAUSAL学习隐藏响应规律并结合公开c，两者必须与普通预设菜单/信息测试去重"
+    },
+    {
+      "from": "PL-IWT01",
+      "to": "PL-CAUSAL-WEAK",
+      "relation": "active-diagnostic-versus-informative-work",
+      "reason": "主动检查若浪费时间或不够可信，会被带反馈的生产性工作压过"
+    },
+    {
+      "from": "PL-EVIDENCE-STOP01",
+      "to": "PL-SOURCE-CORRELATED",
+      "relation": "iid-assumption-contrasted-with-shared-origin",
+      "reason": "旧EVIDENCE-STOP将样本设为条件独立；SOURCE使报告来源可能是同一转述，改变数票和后验"
+    },
+    {
+      "from": "PL-CUST01",
+      "to": "PL-SOURCE-CORRELATED",
+      "relation": "physical-copy-vs-informational-correlation",
+      "reason": "CUST材料可复制影响终局保留资格，SOURCE复制的是内容导致信息统计不独立，不能视作同一成果轴"
+    },
+    {
+      "from": "PL-RECORD01",
+      "to": "PL-SOURCE-CORRELATED",
+      "relation": "admissibility-distinct-from-independence",
+      "reason": "RECORD证明资格与测试登记不同于来源是否独立和后验真假，三者独立评价"
+    },
+    {
+      "from": "PL-CAUSAL-RETEST",
+      "to": "PL-SOURCE-AUDIT",
+      "relation": "new-information-vs-source-provenance",
+      "reason": "CAUSAL检查隐藏响应规律；SOURCE审核报告同源性且被成本相同的新独立信息支配"
+    },
+    {
+      "from": "PL-SOURCE-CORRELATED",
+      "to": "PL-SOURCE-AUDIT",
+      "relation": "shared-origin-makes-verification-relevant",
+      "reason": "重复来源事实让出处审核在只有AUDIT一条路时根3提高到51/16，但开放强替代后归零"
+    },
+    {
+      "from": "PL-INV01",
+      "to": "PL-SOURCE-ECHO",
+      "relation": "intervention-endogenously-changes-evidence-generation",
+      "reason": "INV保护能抑制事后痕迹，SOURCE公开使后来报告抄录自己，都是行动改变观察生成过程但关注不同因果关系"
+    },
+    {
+      "from": "PL-SOURCE-AUDIT",
+      "to": "PL-SOURCE-ECHO",
+      "relation": "more-actions-not-necessarily-dynamic-planning",
+      "reason": "追加调查与公开动作可能有可计算收益，但固定阈值和独立信息强替代能压平真实持续选择"
+    },
+    {
+      "from": "PL-LEAD01",
+      "to": "PL-CHAIN-MATCHING",
+      "relation": "linked-hypotheses-vs-single-target-confirmation",
+      "reason": "LEAD线索反馈解锁本对象精确CONFIRM，CHAIN确认某对象即改变其他对象可行答案空间"
+    },
+    {
+      "from": "PL-SOURCE-CORRELATED",
+      "to": "PL-CHAIN-MATCHING",
+      "relation": "statistical-source-correlation-vs-hard-identity-constraints",
+      "reason": "SOURCE因两份报告可能抄录而非独立，CHAIN是一对一匹配约束使各人物真实身份互斥，属于不同信息依赖"
+    },
+    {
+      "from": "PL-GROUP01",
+      "to": "PL-CHAIN-MATCHING",
+      "relation": "strong-one-test-strategy-counterexample",
+      "reason": "GROUP单点试探一次精准辨源压平多次缩圈；CHAIN两次按反馈选择目标才可全解，但强完整身份簿仍可旁路"
+    },
+    {
+      "from": "PL-CHAIN-MATCHING",
+      "to": "PL-CHAIN-SIMPLE",
+      "relation": "candidate-restriction-ablation-and-easy-heuristic",
+      "reason": "非对称首目标可严格改变结果，但简单最大候选数贪心已在16个子集全优"
+    },
+    {
+      "from": "PL-CHAIN-MATCHING",
+      "to": "PL-CONFIRM-BATCH",
+      "relation": "truth-discovery-distinct-from-checker-feedback",
+      "reason": "靠环境约束推断世界和用答案检查器穷举是两种活动，反馈设计需防止后者替代前者"
+    },
+    {
+      "from": "PL-EVIDENCE-STOP01",
+      "to": "PL-CONFIRM-BATCH",
+      "relation": "feedback-timing-controls-brute-force",
+      "reason": "EVIDENCE_STOP讨论何时停查有噪声线索，CONFIRM讨论何时验证最终猜测而非提供新现场证据"
+    },
+    {
+      "from": "PL-CAUSAL-RETEST",
+      "to": "PL-CHAIN-MATCHING",
+      "relation": "continuous-retesting-vs-cross-case-deduction",
+      "reason": "CAUSAL再次核验可能错的规则报告；CHAIN用完全准确身份结果触发全局其他目标的排除"
     }
   ],
   "coverage": {
