@@ -3917,6 +3917,94 @@
         "native": false,
         "repositoryCI": false
       }
+    },
+    {
+      "id": "PL-MEMORY01",
+      "name": "反复合作积累可信历史，但简短次数规则可追平最优",
+      "origin": "ssnoir-research",
+      "layer": "mature-combination",
+      "family": "连续学习与探索利用",
+      "idea": "同一对象隐藏H/L能力不变；TRY既给实际收益又暴露可更新信念，SAFE保持稳定回报；玩家按累积经验决定下一次是否再合作",
+      "stage": "exact-belief-dp-and-true-world-forward",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-持续信念与对象能力干预/研究记录.md",
+        "tools/content-validator/experiments/pattern_partner_memory_20261015.py"
+      ],
+      "note": "4回合动态4633/625 vs固定4；不同对象每日重抽根4。累计成功≥失败就TRY，否则SAFE，在2—6回合全优，尚未观察真实玩家理解；对象可换成机器。",
+      "evidence": {
+        "exactFractionDP": true,
+        "forwardByTrueType": true,
+        "humanFeedbackAvailable": false,
+        "independentAgent": false,
+        "native": false,
+        "repositoryCI": false
+      }
+    },
+    {
+      "id": "PL-MEMORY02",
+      "name": "长期关系下检查行动的后到选择权和微弱收益",
+      "origin": "ssnoir-research",
+      "layer": "mature-combination",
+      "family": "连续学习与信息时点",
+      "idea": "PROBE本身无直接收益，连续行动历史使少数低可信状态下主动检查比继续工作或完全回避更可取",
+      "stage": "exact-information-action-ablation",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-持续信念与对象能力干预/研究记录.md",
+        "tools/content-validator/experiments/pattern_partner_memory_20261015.py"
+      ],
+      "note": "7回合有检查根179341/12500、无检查223153/15625，差4093/62500；6回合内检查全不用，7回合首手TRY失败后（概率1/2）第2手PROBE；需要强免费完美检验对照。",
+      "evidence": {
+        "exactFractionDP": true,
+        "forwardByTrueType": true,
+        "humanFeedbackAvailable": false,
+        "independentAgent": false,
+        "native": false,
+        "repositoryCI": false
+      }
+    },
+    {
+      "id": "PL-MEMORY03",
+      "name": "强能力提升会被固定开局计划完全吸收",
+      "origin": "ssnoir-research",
+      "layer": "negative-boundary",
+      "family": "实际能力干预与固定开局",
+      "idea": "耗一手COACH，永久提高L成功率；如果改善幅度过大，最优一开始就培训，无须学习反馈",
+      "stage": "fixed-policy-dominance-negative-audit",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-持续信念与对象能力干预/研究记录.md",
+        "tools/content-validator/experiments/pattern_partner_intervention_20261015.py"
+      ],
+      "note": "L提升1/5至13/20，4回合动态=固定先培训=无历史学习111/10；7回合同理111/5。真实因果干预存在但不产生条件改道。",
+      "evidence": {
+        "exactFractionDP": true,
+        "forwardByTrueType": true,
+        "humanFeedbackAvailable": false,
+        "independentAgent": false,
+        "native": false,
+        "repositoryCI": false
+      }
+    },
+    {
+      "id": "PL-MEMORY04",
+      "name": "先试错再因失败培训的微弱条件干预价值",
+      "origin": "ssnoir-research",
+      "layer": "mature-combination",
+      "family": "学习后转向真实能力干预",
+      "idea": "若COACH仅将L成功率从1/5升至2/5，最优先TRY，首手失败且后续尚长才训练；保留未知类型误判成本",
+      "stage": "belief-dp-and-actual-type-outcome-audit",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-持续信念与对象能力干预/研究记录.md",
+        "tools/content-validator/experiments/pattern_partner_intervention_20261015.py"
+      ],
+      "note": "8回合允许COACH 2616663/156250、无COACH 1297813/78125，增益21037/156250；COACH仅在第2手发生，概率1/2，H/L各被误判培训概率1/5与4/5。不是新的独立原语，低型玩家期望收益仍负。",
+      "evidence": {
+        "exactFractionDP": true,
+        "forwardByTrueType": true,
+        "humanFeedbackAvailable": false,
+        "independentAgent": false,
+        "native": false,
+        "repositoryCI": false
+      }
     }
   ],
   "edges": [
@@ -6955,6 +7043,42 @@
       "to": "PL-RECIP-BELIEF",
       "relation": "multiple-equilibria-limits-value-claim",
       "reason": "按分离策略计算玩家21/4不能当作所有参与者预期下一定达成该结果"
+    },
+    {
+      "from": "PL-DISC01",
+      "to": "PL-MEMORY01",
+      "relation": "productive-information-with-persistent-type",
+      "reason": "TRY兼即时生产收益和类型证据；MEMORY额外要求同一隐藏类型跨回合稳定"
+    },
+    {
+      "from": "PL-IWT01",
+      "to": "PL-MEMORY02",
+      "relation": "active-verification-vs-informative-work",
+      "reason": "两者都需比较主动检查与兼信息工作；长窗口下PROBE微利，短窗口根本不用"
+    },
+    {
+      "from": "PL-TRL02",
+      "to": "PL-MEMORY01",
+      "relation": "non-strategic-vs-strategic-signal",
+      "reason": "MEMORY的固定真实成功率无法伪装；TRL由对手策略修改所见信号，不能把它们合称社交交锋"
+    },
+    {
+      "from": "PL-MEMORY01",
+      "to": "PL-MEMORY03",
+      "relation": "information-vs-intervention",
+      "reason": "学习更新信念，COACH改变真实成功率；强介入反而使信息价值归零"
+    },
+    {
+      "from": "PL-MEMORY03",
+      "to": "PL-MEMORY04",
+      "relation": "same-verb-different-strength-changes-policy",
+      "reason": "强COACH固定开局，弱COACH需首手失败才第二手培训，但可由一句短条件策略表达"
+    },
+    {
+      "from": "PL-RECIP-REPLAN",
+      "to": "PL-MEMORY04",
+      "relation": "fixed-trait-vs-autonomous-agent",
+      "reason": "RECIP拥有策略性伙伴参与和退出，MEMORY仅参数固定的合作对象；不要从人物命名偷渡自主性"
     }
   ],
   "coverage": {
