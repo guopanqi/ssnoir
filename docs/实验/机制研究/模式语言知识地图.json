@@ -4759,19 +4759,20 @@
       "layer": "methodological-audit",
       "family": "跨层认知、提前承诺与实验可观察性",
       "idea": "原RETURN七张卡固定OPEN/GUARD且最终调用world_final自动最优结算，只能验证规则不能记录参与者的L1/W2选择；新增同封存事件的S/M四阶段真实选择会话，S返场时决定，M在W1提交K弱/K强分支并于L2自动执行",
-      "note": "冻结RETURN期望1509/128和11宏政策同值不变；按原卡既有开局逐事件校验保持物理结算，允许参与者新选OPEN/GUARD后封存风险事件依规则变化；S/M所有合法四阶段行动及终局可用成果在相同动作下配对，W2由人自行选择A/B/ALT/SIDE。七张刻意覆盖的卡不可加权当随机样本；提前承诺时点、分屏、11条件计划可视化三项混杂，仍无参与者结果。原预注册保留，v2是独立的前瞻性修订。",
+      "note": "冻结RETURN期望1509/128和11宏政策同值不变；按原卡既有开局逐事件校验保持物理结算，允许参与者新选OPEN/GUARD后封存风险事件依规则变化；S/M所有合法四阶段行动及终局可用成果在相同动作下配对，W2由人自行选择A/B/ALT/SIDE。七张刻意覆盖的卡不可加权当随机样本；提前承诺时点、分屏、11条件计划可视化三项混杂，仍无参与者结果。原预注册保留，v2是独立的前瞻性修订。 横向划分场景串接/资格传递/世界重估旧行动/世界反向改变返场合法动作四级；层级仅描述因果边、不排序乐趣。",
       "stage": "implementation-regression-passed-no-human-experience",
       "sources": [
         "docs/实验/机制研究/批次/2026-10-16-RETURN认知审计与跨族边界/研究记录.md",
         "tools/content-validator/experiments/pattern_return_session_20261016.py",
-        "docs/实验/机制研究/批次/2026-10-15-跨层判断可理解性审计/研究记录.md"
+        "docs/实验/机制研究/批次/2026-10-15-跨层判断可理解性审计/研究记录.md",
+        "docs/实验/机制研究/批次/2026-10-16-RETURN认知审计与跨族边界/跨尺度决策层级判别.md"
       ],
       "evidence": {
         "exactSourceReturnModelUnchanged": true,
         "pairedStageMacroTerminalEnumeration": true,
         "sourceCardHistoricalAnchorsPreserved": true,
         "fullParticipantChoiceCapture": true,
-        "repositoryCI": "https://github.com/guopanqi/ssnoir/actions/runs/38768834193",
+        "repositoryCI": "https://github.com/guopanqi/ssnoir/actions/runs/38769665427",
         "currentRunnerCases": 30,
         "humanParticipants": 0,
         "blindAgentSessions": 0,
@@ -8373,6 +8374,24 @@
       "to": "PL-RETURN-CHOICE-AUDIT",
       "relation": "terminal-result-identity-must-be-chosen-not-auto-optimized",
       "reason": "自动选择高分ALT或A/B不能作为参与者主动接受损失的证据；新终局必须显示可兑现结果并由玩家自己确定"
+    },
+    {
+      "from": "PL-HEDGE01",
+      "to": "PL-RETURN-CHOICE-AUDIT",
+      "relation": "early-window-and-reopen-bypass-for-return-comparison",
+      "reason": "HEDGE必须检验可重开旧项目与安全串行旁路；形式上的两目标LIVE/返场不自动产生心理两层"
+    },
+    {
+      "from": "PL-CROSS-SCALE09",
+      "to": "PL-RETURN-CHOICE-AUDIT",
+      "relation": "fixed-maintenance-tax-negative-control",
+      "reason": "前期完整A后规定时间支付PAY即可保有A；世界后到信息只改投B/C，责任本身未引发旧任务重考虑"
+    },
+    {
+      "from": "PL-BRIDGE-TICKETS",
+      "to": "PL-RETURN-CHOICE-AUDIT",
+      "relation": "one-way-ticket-baseline",
+      "reason": "跨场资格传递能有真实结果身份与条件改道但W没有反向改变原L行动集合，不应误标为返场闭环"
     }
   ],
   "coverage": {
