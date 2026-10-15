@@ -4476,6 +4476,73 @@
         "repositoryCI": false,
         "academicPrecedent": "ATMS-1986"
       }
+    },
+    {
+      "id": "PL-PLEDGE-EARLY",
+      "name": "公开有噪声但可核实的保证，诱发不可逆早期投入",
+      "origin": "ssnoir-research",
+      "layer": "mature-combination",
+      "family": "公开信息促进行动与跨阶段责任",
+      "idea": "初始75%正面认证，A自利早投入、B稍后投入，玩家ISSUE或HOLD。晚期准确T的可核验SEND可改变B后续行为但不能取消A沉没结果",
+      "note": "A/B个人收益正确+4错误−6；A见q3/4证书愿投资(期望3/2)。完整计划根3，禁止负面纠正根5/2，完全禁止信息传递根2；早期真实公开时A错误分支损失−6不可撤销。成熟RECIP/CLAIM/SOURCE组合。",
+      "stage": "exact-four-world-participant-response-and-ledger",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-公开声明与延迟纠正/研究记录.md",
+        "tools/content-validator/experiments/pattern_public_commitment_revision_20261015.py"
+      ],
+      "evidence": {
+        "localExactFraction": true,
+        "enumeratedTrueWorlds": true,
+        "independentAgent": false,
+        "humanFeedbackAvailable": false,
+        "native": false,
+        "repositoryCI": false
+      }
+    },
+    {
+      "id": "PL-PLEDGE-REPAIR",
+      "name": "纠正能力反向改变早期发声选择，但策略可预写",
+      "origin": "ssnoir-research",
+      "layer": "mature-combination",
+      "family": "晚到确认、可核验纠正与机会成本",
+      "idea": "纠正B耗最后一手SIDE，旧保证错才需要付费SEND；晚期T后玩家按事实告知或继续其他工作，改变早期是否敢发布",
+      "note": "q3/4/R2/K12动态根3，s正面选ISSUE；禁负面纠正根5/2，s正面应HOLD。只能按初始s预写无条件晚期动作根9/4，但完整可核验按T触发的条件政策同值3，算法新颖性未成立。",
+      "stage": "open-loop-versus-contingent-action-policy",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-公开声明与延迟纠正/研究记录.md",
+        "tools/content-validator/experiments/pattern_public_commitment_revision_20261015.py"
+      ],
+      "evidence": {
+        "localExactFraction": true,
+        "enumeratedTrueWorlds": true,
+        "independentAgent": false,
+        "humanFeedbackAvailable": false,
+        "native": false,
+        "repositoryCI": false
+      }
+    },
+    {
+      "id": "PL-PLEDGE-STRONG",
+      "name": "自动共享真相和廉价早期全知会压平纠正义务",
+      "origin": "ssnoir-research",
+      "layer": "mature-negative-boundary",
+      "family": "责任表达与外部信息旁路",
+      "idea": "比较消息只能玩家亲自付费传送，受众自动得知真T，以及同早期窗口额外完美认证的强替代；另查受众私利与玩家对受众权重门槛",
+      "note": "B自动获真T玩家根13/4；早期完美真相强工具现金价C令根6−C，C≤2严格优于原3。参与者自利投资阈值q>3/5；玩家早期承诺阈值q>17/24，受众愿投入不等于玩家应发声；B目标权重w≤1/6时不值得放弃SIDE纠正。",
+      "stage": "perfect-oracle-audience-agency-and-welfare-sensitivity",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-公开声明与延迟纠正/研究记录.md",
+        "tools/content-validator/experiments/pattern_public_commitment_revision_20261015.py",
+        "tools/content-validator/experiments/pattern_public_signal_participation_20261015.py"
+      ],
+      "evidence": {
+        "localExactFraction": true,
+        "enumeratedTrueWorlds": true,
+        "independentAgent": false,
+        "humanFeedbackAvailable": false,
+        "native": false,
+        "repositoryCI": false
+      }
     }
   ],
   "edges": [
@@ -7874,6 +7941,54 @@
       "to": "PL-CASCADE-ROOT",
       "relation": "short-conditional-policy-does-not-prove-originality",
       "reason": "真实检测反馈能改变后续目标，但可预编译短条件策略，不表示难解或新原语"
+    },
+    {
+      "from": "PL-RECIP-COMMIT",
+      "to": "PL-PLEDGE-EARLY",
+      "relation": "other-agent-investment-following-credible-message",
+      "reason": "RECIP已证明可信条款诱发自主生产，PLEDGE仅以经核实准确率的公开报告诱发两位不同时间行动者；非新原语"
+    },
+    {
+      "from": "PL-SOURCE-ECHO",
+      "to": "PL-PLEDGE-EARLY",
+      "relation": "publication-changes-future-events-not-only-report-correlation",
+      "reason": "SOURCE公开改写后来信息来源，PLEDGE公开改变A/B是否实际投入并产生不可逆结果"
+    },
+    {
+      "from": "PL-CLAIM03",
+      "to": "PL-PLEDGE-REPAIR",
+      "relation": "retrospective-revision-is-not-erasure",
+      "reason": "CLAIM付费撤回旧机会，PLEDGE耗一手告知B只能防止其未来损失不能取消A已经发生的行动"
+    },
+    {
+      "from": "PL-ACT01",
+      "to": "PL-PLEDGE-EARLY",
+      "relation": "actor-with-private-payoff-response",
+      "reason": "ACT01真正自利伙伴已有先例，PLEDGE让受众按自己4/-6收益对认证信息响应，但没求完整信号均衡"
+    },
+    {
+      "from": "PL-RECIP-IDENTITY",
+      "to": "PL-PLEDGE-REPAIR",
+      "relation": "same-total-different-who-bears-loss",
+      "reason": "RECIP已有同总分不同具体沉没成本身份，PLEDGE独立登记A/B/玩家公开收益/处罚/SIDE五轴世界结算"
+    },
+    {
+      "from": "PL-PLEDGE-EARLY",
+      "to": "PL-PLEDGE-REPAIR",
+      "relation": "delayed-evidence-reopens-information-control-not-irreversible-investment",
+      "reason": "B尚未投资，收到真证明可改道；A早已投资无法撤销；纠正渠道提高早期公布意愿"
+    },
+    {
+      "from": "PL-PLEDGE-REPAIR",
+      "to": "PL-PLEDGE-STRONG",
+      "relation": "free-automatic-knowledge-dominates-costly-correction",
+      "reason": "若B自动获晚期真相，玩家不需自己发消息；早期低价全知也会支配冒险公开"
+    },
+    {
+      "from": "PL-CASCADE-ROOT",
+      "to": "PL-PLEDGE-STRONG",
+      "relation": "knowledge-versus-real-world-repair-distinction",
+      "reason": "CASCADE知道错误与实际修复是不同动作，PLEDGE知道假声明与能否防止第二个人后续行动也不同"
     }
   ],
   "coverage": {
