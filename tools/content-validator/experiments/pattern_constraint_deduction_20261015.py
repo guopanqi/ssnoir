@@ -95,6 +95,19 @@ def regression():
             assert (adaptive,best_pre)==expected_levels[count]
             print('CHAIN06-11 public constraints',selected,
                   'worlds',len(ws),'dynamic',adaptive,'fixed',best_pre)
-    print('CHAIN01-11 PASS')
+    # Three public constraints instead of four creates a uniquely valuable
+    # FIRST investigation: the unrestricted object's identity propagates
+    # through the others' constrained identity sets.
+    partial=tuple(w for w in permutations(ROSTER)
+                  if all(w[i] in CANDIDATES[i] for i in range(3)))
+    assert len(partial)==11
+    assert optimal(partial,2)==(Q(4),(3,))
+    assert max(fixed(partial,a,b) for a,b in combinations(ROSTER,2))==Q(36,11)
+    expected_followups={0:(0,1,2),1:(2,),2:(1,),3:(0,)}
+    for group in partition(partial,3):
+        first_answer=group[0][3]
+        assert optimal(group,1)==(Q(4),expected_followups[first_answer])
+    print('CHAIN12-14 first object3 uniquely optimal, all second choices conditional')
+    print('CHAIN01-14 PASS')
 
 if __name__=='__main__':regression()
