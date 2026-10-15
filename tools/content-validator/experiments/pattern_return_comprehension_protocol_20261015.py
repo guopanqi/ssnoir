@@ -90,10 +90,20 @@ def regression():
                     assert actual["ready_A"] is False and actual["ready_B"] is True
                 if a=="ABANDON":assert actual["breach"]==2
                 if a=="MEND":assert actual["ready_A"] and not actual["ready_B"]
-                # Complete 11 macro plans: two declines, nine accepts.
                 macro=(a,a)
                 assert staged_and_macro_same(card,choice,macro)==actual
                 tested+=1
+        # Compare every one of eleven condition plans for both K outcomes.
+        macros=[("DECLINE",(a,a)) for a in DECLINE_ACTIONS]
+        macros += [("ACCEPT",(low,high))
+                   for low,high in product(ACCEPT_ACTIONS,repeat=2)]
+        assert len(macros)==11
+        for choice,macro in macros:
+            for support in (0,1):
+                counterpart=(name,start,h,y,support,w,coin)
+                action=macro[support if choice=="ACCEPT" else 0]
+                assert staged_and_macro_same(counterpart,choice,macro)==outcome(
+                    counterpart,choice,action)
     assert seen["LINK_SUCCESS"] and seen["LINK_FAIL"]
     assert tested==30
     print("PASS: 6 deterministic scenarios, 30 legal settled transitions")
