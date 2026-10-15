@@ -1,4 +1,5 @@
-SC.forEach((s,i)=>{s.o=s.pos[0]+'px '+s.pos[1]+'px';s.num=['一','二','三','四','五','六','七','八','九','十','十一','十二','十三','十四','十五','十六','十七','十八','十九','二十','二十一','二十二','二十三'][i]});
+const ZH=n=>{const d='零一二三四五六七八九';return n<10?d[n]:n<20?'十'+(n%10?d[n%10]:''):d[(n/10)|0]+'十'+(n%10?d[n%10]:'')};
+SC.forEach((s,i)=>{s.o=s.pos[0]+'px '+s.pos[1]+'px';s.num=ZH(i+1)});
 /* world markers */
 (function(){let h='';SC.forEach((s,i)=>{const[x,y]=s.pos;h+=`<rect x="${x-34}" y="${y-48}" width="68" height="92" fill="#05070e"/><g class="mkr" data-i="${i}"><g filter="url(#glow)"><rect x="${x-12}" y="${y-22}" width="24" height="30" fill="#0b0f1c" stroke="#ffd98a" stroke-width="2.5"/><rect x="${x-18}" y="${y+6}" width="36" height="8" fill="#0b0f1c" stroke="#ffd98a" stroke-width="2"/></g><circle class="pl" cx="${x}" cy="${y-6}" r="30"/><circle cx="${x}" cy="${y-6}" r="40" fill="rgba(0,0,0,0)" style="pointer-events:all"/><text x="${x}" y="${y-32}" text-anchor="middle" font-size="17" letter-spacing="2" fill="#ffd98a" opacity=".9" font-family="serif">${s.num} ${s.sh}</text></g>`});$('#hm')&&$('#hm').remove();$('#world').insertAdjacentHTML('beforeend',h)})();
 function reset(){dolly(1,50,60,0);const W=$('#world'),stg=$('#stage');W.style.cssText='transition:none;transform:scale(1);filter:none;opacity:1';
@@ -15,7 +16,11 @@ SET=$(S.set);if(S.mk)SET.innerHTML=S.mk();SET.dataset.lx=S.lx||800;S.ini();W.sty
 $('#title').innerHTML=`<h1>${S.num} · ${S.n}</h1><p>${S.sub}</p>`;await w(400);$('#title').classList.add('on');await w(3200);$('#title').classList.remove('on');await w(600);
 whoosh();W.style.transform='scale(7.2)';W.style.filter='blur(6px) brightness(1.4)';W.style.opacity=0;
 await w(2200);SET.style.opacity=1;SET.classList.add('on');stg.style.background=S.bg;await w(2700);SET.classList.add('f');
-await S.run(k,h);dolly(1,50,60,900);
+await S.run(k,h);
+if(S.hardOut){/* 硬切收场：瞬黑 1.5 秒，直接回到地图，不做拉远运镜 */
+fxf('brightness(0)',0);cc();dolly(1,50,60,0);SET.style.transition='none';SET.style.opacity=0;$('#front').style.opacity=0;op('#pack',0);op('#gh',0);rainI=0;rainS(0);$('#props').innerHTML='';
+W.style.transition='none';W.style.transform='scale(1)';W.style.filter='none';W.style.opacity=1;stg.style.background='#05070e';SET.style.transition='';await w(1500);fxf('none',0);return}
+dolly(1,50,60,900);
 SET.style.opacity=0;$('#front').style.opacity=0;op('#pack',0);op('#gh',0);rainI=0;rainS(0);cc();$('#props').innerHTML='';await w(900);
 W.style.transition='transform 3.8s cubic-bezier(.65,0,.25,1),filter 3.8s,opacity 1.4s';W.style.transform='scale(1)';W.style.filter='none';W.style.opacity=1;stg.style.background='#05070e';whoosh();await w(4000)}
 async function play(i,seq){ai();if(AC.state==='suspended')AC.resume();const k=++gen;if(paused)tgl(true);$('#pp').disabled=$('#rp').disabled=false;

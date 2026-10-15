@@ -8,6 +8,7 @@ body{padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}
 .set{opacity:0;transition:opacity 1.5s;filter:url(#glow)}
 .set path{fill:none;stroke:#cfe0ff;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset 2.2s ease var(--d,0s),stroke-opacity 1s,stroke .8s,fill .8s,fill-opacity .6s,stroke-width 1s}
 .set.on path{stroke-dashoffset:0}
+.set.now path{transition:none!important}
 .set.f path.s{fill:#04060c}
 .set path.lit{fill:#f2c36e!important;fill-opacity:.92;stroke:#ffe2a0!important}
 .set path.lit2{fill:#8a6a38!important;fill-opacity:.55}

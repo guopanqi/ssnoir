@@ -78,3 +78,18 @@ const PSP='<defs><clipPath id="ebc"><rect x="0" y="0" width="110" height="110"/>
 +'<g id="phs" style="opacity:0;transition:opacity .4s"><rect x="800" y="628" width="64" height="10" fill="#d8d2c4" stroke="#8a7a5c"/><rect x="806" y="620" width="64" height="8" fill="#cfc8b6" stroke="#8a7a5c"/></g>'
 +'<g id="rp" style="opacity:0;transition:opacity .4s"><rect x="880" y="626" width="76" height="12" fill="#d8d2c4" stroke="#8a7a5c" stroke-width="2"/></g>'
 +EMB('bk')+EMB('bk2')+EMB('bk3');
+
+/* ===== 序幕与第二日的新布景 ===== */
+const BOT=(x0,x1,y)=>{let b='';for(let x=x0;x<=x1;x+=70){const h=40+((x/70)|0)%3*14;b+=LL(`M${x} ${y}v${-h}q0 -12 6 -20v-16h10v16q6 8 6 20v${h}z`,'s',1+x/2400,1.5,'#9fb4e0')}return b+LL(`M${x0-30} ${y}H${x1+60}`,'',.8,3,'#cfe0ff')};
+const SCONCE=(x,y)=>LL(`M${x} ${y}h30M${x+30} ${y}v-34`,'',.9,2,'#9fb4e0')+LL(`M${x+14} ${y-34}h32l-6 -30h-20z`,'s',1,2,'#e6eeff')+`<circle cx="${x+30}" cy="${y-50}" r="90" fill="#f3d08a" opacity=".12"/>`;
+const NEONC=(x,y)=>'<g class="neon" style="filter:drop-shadow(0 0 8px #ff5a6a)">'+LL(`M${x-40} ${y}H${x+40}L${x} ${y+66}Z`,'',1.4,2.5,'#ff5a6a')+LL(`M${x} ${y+66}V${y+114}M${x-26} ${y+116}H${x+26}`,'',1.6,2.5,'#ff5a6a')+LL(`M${x-24} ${y+22}H${x+24}`,'',1.7,2,'#ff8a96')+'</g>';
+const DK=(x0,x1,y,b=790)=>`<path d="M${x0} ${y}H${x1}V${b}H${x0}Z" fill="#07080c" stroke="#9fb4e0" stroke-width="2.5"/><path d="M${x0} ${y}H${x1}" stroke="#f0f4ff" stroke-width="4"/>`;
+const BTBL=DK(470,1050,668,860)+'<rect x="520" y="640" width="14" height="28" fill="#07080c" stroke="#9fb4e0" stroke-width="2"/><path d="M980 668l-6 -30h16z" fill="#07080c" stroke="#e6eeff" stroke-width="2"/>';
+const BCNT=DK(240,1360,640,860)+'<path d="M300 640l-4 -34h14zM1280 640l-4 -40h16z" fill="#07080c" stroke="#e6eeff" stroke-width="2"/>';
+SETS.barBooth=()=>GROUND+BOT(240,1360,330)+SCONCE(170,300)+SCONCE(1330,300)+NEONC(1180,90)+RR(560,440,400,350,'s',1,3,'#7f95c4')+LL('M640 470V620M720 470V620M800 470V620M880 470V620','',1.3,2,'#4f6490');
+SETS.barCounter=()=>GROUND+SCONCE(240,330)+SCONCE(1240,330)+RR(160,470,330,320,'s',.8,3,'#7f95c4')+RR(1110,470,330,320,'s',.9,3,'#7f95c4')+LL('M230 500V640M320 500V640M410 500V640M1180 500V640M1270 500V640M1360 500V640','',1.3,2,'#4f6490')+NEONC(800,160);
+const PUD='<ellipse id="pud" cx="975" cy="800" rx="48" ry="8" fill="#0b0f1c" stroke="#9fb4e0" stroke-width="2" style="opacity:0;transition:opacity .8s"/>';
+SETS.pubdoor2=()=>SETS.pubdoor()+LL('M1000 790V330','',1.8,4,'#9fb4e0')+RR(975,300,50,36,'s',2,2.5,'#e6eeff')+'<circle cx="1000" cy="318" r="100" fill="#f3d08a" opacity=".1"/>'+LL('M820 360V790','',1.6,3,'#7f95c4');
+const LOBF=DK(600,1080,660)+'<path d="M690 660q8 -22 28 -22q20 0 28 22z" fill="#07080c" stroke="#e6eeff" stroke-width="2.5"/>';
+SETS.hotelLobby=()=>{let k='';for(let r=0;r<3;r++)for(let c=0;c<6;c++)k+=`<circle cx="${830+c*34}" cy="${330+r*42}" r="5" fill="none" stroke="#9fb4e0" stroke-width="1.5"/>`;
+return GROUND+RR(800,300,240,170,'s',.8,2.5,'#7f95c4')+k+RR(150,470,150,320,'s door',1.2,2.5,'#e9eef8')+'<rect x="158" y="478" width="134" height="304" fill="#f2c36e" opacity=".22"/>'+LL('M1140 790V730H1200V670H1260V610H1320V550H1380V490H1440V430H1560','',1.1,3,'#cfe0ff')+LL('M1150 700L1480 370','',1.6,2,'#9fb4e0')+LL('M1200 730V700M1260 670V640M1320 610V580M1380 550V520M1440 490V460','',1.8,1.5,'#7f95c4')+SCONCE(1060,300)};

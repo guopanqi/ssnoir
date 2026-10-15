@@ -14,6 +14,7 @@ body{padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}
 .set{opacity:0;transition:opacity 1.5s;filter:url(#glow)}
 .set path{fill:none;stroke:#cfe0ff;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset 2.2s ease var(--d,0s),stroke-opacity 1s,stroke .8s,fill .8s,fill-opacity .6s,stroke-width 1s}
 .set.on path{stroke-dashoffset:0}
+.set.now path{transition:none!important}
 .set.f path.s{fill:#04060c}
 .set path.lit{fill:#f2c36e!important;fill-opacity:.92;stroke:#ffe2a0!important}
 .set path.lit2{fill:#8a6a38!important;fill-opacity:.55}
@@ -194,9 +195,16 @@ hf:'<path d="M-32 -480 Q-34 -508 0 -510 Q34 -508 32 -480 Q20 -492 0 -490 Q-20 -4
 CH.sk={w:56,coat:'#3a4640',cf:'#d8d2c4',pants:'#25231f',hair:'#7a7a78',skin:'#d0aa8c',lip:'#6a3a30',bd:CH.nl.bd,
 dc:'<path d="M-24 -396 L0 -330 L24 -396Z" fill="#d8d2c4"/><path d="M-28 -396 L-6 -300 L-46 -300 L-54 -382Z" fill="#2c3632"/><path d="M28 -396 L6 -300 L46 -300 L54 -382Z" fill="#2c3632"/><rect x="-62" y="-330" width="8" height="40" fill="#8a2b3a"/><rect x="54" y="-330" width="8" height="40" fill="#8a2b3a"/>',hb:'',
 hf:'<path d="M-33 -474 Q-36 -496 -24 -502 Q-32 -480 -33 -474Z M33 -474 Q36 -496 24 -502 Q32 -480 33 -474Z" fill="#7a7a78"/><circle cx="-13" cy="-462" r="11" fill="none" stroke="#2a2a2a" stroke-width="2.5"/><circle cx="13" cy="-462" r="11" fill="none" stroke="#2a2a2a" stroke-width="2.5"/><path d="M-2 -462H2M-24 -462L-33 -466M24 -462L33 -466" stroke="#2a2a2a" stroke-width="2.2"/>',ex:''};
+CH.bt={w:56,coat:'#242933',cf:'#e8e4d8',pants:'#1c1c20',hair:'#2a1d18',skin:'#c9a283',lip:'#5a3028',bd:CH.nl.bd,
+dc:'<path d="M-24 -396 L0 -330 L24 -396Z" fill="#e8e4d8"/><path d="M-28 -396 L-8 -296 L-46 -296 L-54 -382Z" fill="#1a1e27"/><path d="M28 -396 L8 -296 L46 -296 L54 -382Z" fill="#1a1e27"/><path d="M-10 -392 L0 -384 L10 -392 L10 -380 L0 -386 L-10 -380Z" fill="#8a2b3a"/>',hb:'',
+hf:'<path d="M-33 -468 Q-36 -512 0 -514 Q36 -512 33 -468 Q18 -496 0 -494 Q-18 -496 -33 -468Z" fill="#2a1d18"/><path d="M-14 -443 Q0 -450 14 -443 Q0 -437 -14 -443Z" fill="#2a1d18"/>',ex:''};
+CH.ed={w:66,coat:'#6a5a3a',cf:'#cfc6ae',pants:'#2a2f3a',hair:'#3a2c22',skin:'#d2a888',lip:'#6a3a30',bd:CH.mg.bd,
+dc:'<path d="M-28 -396 L0 -322 L28 -396Z" fill="#cfc6ae"/><path d="M-30 -396 L-4 -312 L-62 -296 L-72 -376Z" fill="#54482e"/><path d="M30 -396 L4 -312 L62 -296 L72 -376Z" fill="#54482e"/><path d="M-20 -396V-250M20 -396V-250" stroke="#2a2218" stroke-width="5"/>',hb:'',
+hf:'<path d="M-38 -488 Q-36 -520 0 -522 Q36 -520 38 -488Z" fill="#4a4036"/><path d="M-38 -488 H46 L58 -480 H-46Z" fill="#2c261f"/><path d="M-20 -440 Q0 -432 20 -440" stroke="#4a3a2c" stroke-width="4" fill="none" opacity=".6"/>',ex:''};
+CH.ho={...CH.ld,coat:'#3d4a3a',hair:'#6a6a68',cf:'#d9d2bf'};
 const VC='<path d="M-34 -480 Q-30 -518 8 -518 Q40 -516 36 -482Z" fill="#4a4a50"/><path d="M10 -484 L60 -484 Q50 -473 10 -476Z" fill="#4a4a50"/>';
-for(const[id,c]of[['fr',CH.fr],['bn',CH.bn],['bn2',{...CH.bn,coat:'#323f55'}],['ld',CH.ld],['sk',CH.sk],['v1',{...CH.wk,coat:'#3a3730',pants:'#25231f',hf:VC}],['v2',{...CH.wk,coat:'#6a5a3a',pants:'#2a221b',hf:VC}]]){$('#chs').insertAdjacentHTML('beforeend',mk(id,c));const g=$(`#${id}`);g.st={x:-400,y:790,s:1};G[id]=g}
-
+for(const[id,c]of[['fr',CH.fr],['bn',CH.bn],['bn2',{...CH.bn,coat:'#323f55'}],['ld',CH.ld],['sk',CH.sk],['bm',CH.bt],['ed',CH.ed],['ho',CH.ho],['v1',{...CH.wk,coat:'#3a3730',pants:'#25231f',hf:VC}],['v2',{...CH.wk,coat:'#6a5a3a',pants:'#2a221b',hf:VC}]]){$('#chs').insertAdjacentHTML('beforeend',mk(id,c));const g=$(`#${id}`);g.st={x:-400,y:790,s:1};G[id]=g}
+$('#chs').insertBefore(G.ho,G.nl);/* 旅馆老板画在尼尔身后，尼尔走过他面前时才不被遮 */
 /* timing */
 try{CSS.registerProperty({name:'--ix',syntax:'<percentage>',inherits:true,initialValue:'50%'})}catch(e){}
 const sleep=async(ms,k)=>{let t=0;while(t<ms){if(k!==gen)throw 0;await new Promise(r=>setTimeout(r,50));if(!paused)t+=50}if(k!==gen)throw 0};
@@ -212,21 +220,31 @@ const light=()=>{bs(.06,.3,4000);tn(900,.1,'square',.03);P('nl',{cg:1})};
 const pk=(x,y,s,o,r=0,ms=900)=>{const p=$('#pack');p.style.transitionDuration=ms+'ms';p.style.transform=`translate(${x}px,${y}px) scale(${s}) rotate(${r}deg)`;p.style.opacity=o};
 const gh=(x,y,s,o)=>{const g=$('#gh');g.style.transform=`translate(${x}px,${y}px) scale(${s}) rotate(8deg)`;g.style.opacity=o};
 const mvl=(x,y,o=1)=>{const l=$('#lt');l.style.transform=`translate(${x}px,${y}px)`;l.style.opacity=o};
-const fxf=(f,ms)=>{for(const s of['#bg','#fg']){$(s).style.transition=`filter ${ms}ms`;$(s).style.filter=f}};
+const camTr=e=>{e.style.transition=`transform ${e.dataset.dms||0}ms ease-in-out,filter ${e.dataset.fms||0}ms`};
+const fxf=(f,ms)=>{for(const s of['#bg','#fg']){const e=$(s);e.dataset.fms=ms;camTr(e);e.style.filter=f}};
 const whisp=(t,x,y,dl=0)=>$('#props').insertAdjacentHTML('beforeend',`<text class="wsp" text-anchor="middle" x="${x}" y="${y}" style="animation-delay:${dl}s">${t}</text>`);
 const piano=()=>[262,330,392,523,392,330,294,392].forEach((f,i)=>tn(f,1.1,'triangle',.08,i*.4));
-const NM={mg:['经 理','#f4907c'],ny:['夜 莺','#8fd9d0'],nl:['尼 尔','#f0cf8a'],fr:['弗 兰 克','#e39a88'],bn:['贝 恩 斯','#93b4ea'],ld:['房 东','#c9b27a'],sk:['店 主','#b8c9a0']},setIx=x=>$('#stage').style.setProperty('--ix',(50+(x-800)/16*.5)+'%');
+const NM={mg:['经 理','#f4907c'],ny:['夜 莺','#8fd9d0'],nl:['尼 尔','#f0cf8a'],fr:['弗 兰 克','#e39a88'],bn:['贝 恩 斯','#93b4ea'],ld:['房 东','#c9b27a'],sk:['店 主','#b8c9a0'],bm:['调 酒 师','#c9a8e0'],ed:['艾 迪','#e0b070'],ho:['旅 馆 老 板','#c9b27a']},setIx=x=>$('#stage').style.setProperty('--ix',(50+(x-800)/16*.5)+'%');
 /* 立绘姿势助手：姿势 = 一整张立绘（肢体+前倾+头），整张切换；位移 mv 是连续补间 */
 const POSES={};
 const pose=(id,p,o={})=>{G[id].classList.add('snap');P(id,{ll:0,lr:0,al:0,ar:0,b:0,h:0,look:0,d:0,...(typeof p=='string'?POSES[p]:p),...o})};
 const bob=(id,on)=>G[id].classList.toggle('bnc',on);
 const mv=(id,x,y,ms,ease='linear',s)=>{G[id].style.transitionTimingFunction=ease;P(id,{x,y,d:ms,...(s?{s}:{})})};
 /* 舞台调度助手：镜头缓推/拉远（对 #bg/#fg 同步缩放，字幕不动） */
-const dolly=(s=1,x=50,y=60,ms=4000)=>{for(const q of['#bg','#fg']){const e=$(q);e.style.transformOrigin=`${x}% ${y}%`;e.style.transition=ms?`transform ${ms}ms ease-in-out`:'none';e.style.transform=s==1?'':`scale(${s})`}};
+const dolly=(s=1,x=50,y=60,ms=4000)=>{for(const q of['#bg','#fg']){const e=$(q);e.style.transformOrigin=`${x}% ${y}%`;e.dataset.dms=ms;camTr(e);e.style.transform=s==1?'':`scale(${s})`}};
 const inset=(id,x,y,s,o,ms=500)=>{const e=$('#'+id);e.style.transition=`transform ${ms}ms cubic-bezier(.2,.8,.3,1),opacity ${ms}ms`;e.style.transform=`translate(${x}px,${y}px) scale(${s})`;e.style.opacity=o};
 function H(k){const w=ms=>sleep(ms,k);/* at(ms,fn)：不阻塞地在台词进行中触发动作；sigh：原地叹气（头低、微前倾、气声）；ticks：钟表滴答 */
 const at=(ms,fn)=>setTimeout(()=>{if(k===gen)fn()},ms);
 const sigh=async(id,ms=1500)=>{P(id,{h:14,b:6,d:900});bs(.5,.07,700);tn(190,.7,'sine',.02);await w(ms*.6);P(id,{h:3,b:0,d:900});await w(ms*.4)};
+/* 电影式硬切：瞬黑（无过渡）→ 黑场 hold 毫秒 → 瞬亮。swap 在黑场里执行，换景后的线稿直接画满（.now 关掉描线过渡），亮起时是完整的下一场景。 */
+const cut=async(swap,hold=1500)=>{fxf('brightness(0)',0);cc();await w(40);SET.classList.add('now');swap();SET.classList.add('on','f');void SET.getBoundingClientRect();await w(hold);fxf('none',0);await w(80);SET.classList.remove('now')};
+/* 场景整体替换（布景/前景/道具）；不触发描线，由 cut 在黑场结束时再加 on */
+const scene=(mk,front='',props='')=>{SET.classList.remove('on');SET.innerHTML=mk();$('#front').innerHTML=front;$('#front').style.opacity=1;$('#props').innerHTML=props;void SET.getBoundingClientRect()};
+/* 人群嘈杂声：lv 0..1，可随时 lv(x) 调节，stop() 结束 */
+const murmur=(lv0=1)=>{let lv=lv0;const iv=setInterval(()=>{if(k!==gen){clearInterval(iv);return}if(lv>0)bs(.22,.05*lv,280+Math.random()*520)},170);return{set:v=>{lv=v},stop:()=>{lv=0;clearInterval(iv)}}};
+const clink=()=>{tn(2300,.18,'sine',.07);tn(3100,.12,'sine',.05,.02)};
+/* 近景：镜头缓推到某个人物的脸部 */
+const faceCam=(id,s=1.6,ms=1800)=>dolly(s,G[id].st.x/16,56,ms);
 const ticks=(n,gap=900)=>{for(let i=0;i<n;i++)at(i*gap,()=>tn(i%2?1500:1250,.03,'square',.025))};
 
 const say=async(who,text,o)=>{if(k!==gen)throw 0;const n=NM[who];cap.innerHTML=`<b style="color:${n[1]}">${n[0]}${o==1?'（电铃）':o==2?'（独白）':''}</b>`+(o==2?'<em>':'')+[...text].map((ch,i)=>`<span style="animation-delay:${i*48}ms">${ch}</span>`).join('')+(o==2?'</em>':'');const dur=450+text.length*105;
@@ -236,7 +254,21 @@ else{const g=G[who];sp(1,g.st.x,.55,.13,'#9db0e0');setIx(g.st.x);g.classList.add
 const go=(id,x,ms,o={})=>{P(id,{x,d:ms,cl:{wk:1},...o});steps(ms);setTimeout(()=>{if(k===gen)P(id,{cl:{wk:0}})},ms)};
 const fl=async()=>{for(const v of[.15,1,.3,.9,.5,1]){lamp(v);zap();await w(110)}};
 const nar=async(t,ms)=>{cap.innerHTML='<em>'+t+'</em>';await w(ms??700+t.length*85)};
-return{w,say,go,fl,nar,at,sigh,ticks,n:t=>say('nl',t),y:t=>say('ny',t),f:t=>say('fr',t),m:t=>say('mg',t),b:t=>say('bn',t),l:t=>say('ld',t),s:t=>say('sk',t),mono:t=>say('nl',t,2)}}
+return{w,say,go,fl,nar,at,sigh,ticks,cut,scene,murmur,clink,faceCam,n:t=>say('nl',t),y:t=>say('ny',t),f:t=>say('fr',t),m:t=>say('mg',t),b:t=>say('bn',t),l:t=>say('ld',t),s:t=>say('sk',t),bm:t=>say('bm',t),ed:t=>say('ed',t),ho:t=>say('ho',t),mono:t=>say('nl',t,2)}}
+/* 共用立绘姿势表（章节内可用 Object.assign(POSES,…) 追加私有姿势） */
+Object.assign(POSES,{
+ dHang:{ll:0,lr:4,ar:10,al:12,b:-6,h:22},
+ dWalk:{ll:-8,lr:8,ar:22,al:-26,b:-4,h:10},
+ dLean:{ll:-6,lr:8,ar:-86,al:12,b:18,h:16},
+ retch:{ll:-10,lr:12,ar:-40,al:20,b:34,h:38},
+ toast:{ll:0,lr:2,ar:-150,al:10,b:-4,h:-6},
+ slump:{ll:0,lr:2,ar:-70,al:30,b:22,h:30},
+ stand:{ll:0,lr:0,ar:0,al:0,b:0,h:0}});
+Object.assign(POSES,{sitHung:{b:26,h:34,ar:0,al:0}});
+/* 舞台道具助手：gl 移动/淡入任意 SVG 道具；hum 在 #props 放一群轻轻摇晃的剪影；酒保擦杯/上架两个共用动作 */
+const gl=(id,x,y,o=1,ms=500,r=0,ease='ease')=>{const e=$('#'+id);if(!e)return;e.style.transition=`transform ${ms}ms ${ease},opacity .25s`;e.style.transform=`translate(${x}px,${y}px) rotate(${r}deg)`;e.style.opacity=o};
+const GL=id=>`<g id="${id}" style="opacity:0"><path d="M-11 0L-9 -26H9L11 0Z" fill="#0b0f1c" stroke="#e6eeff" stroke-width="2.5"/><path d="M-10 -9H10" stroke="#e0b060" stroke-width="3"/></g>`;
+const hum=list=>{const g=$('#props');list.forEach(([x,y,s,f],i)=>{g.insertAdjacentHTML('beforeend',`<g transform="translate(${x} ${y})"><g style="transform-box:fill-box;transform-origin:50% 100%">${SIL(0,0,s,f)}</g></g>`);g.lastElementChild.firstElementChild.animate([{transform:'rotate(-2.5deg)'},{transform:'rotate(2.5deg)'}],{duration:1500+((i*377)%900),direction:'alternate',iterations:Infinity,easing:'ease-in-out',delay:-i*300})})};
 /* rain */
 const cv=$('#rain'),cx=cv.getContext('2d'),dr=Array.from({length:260},()=>({x:Math.random()*960,y:Math.random()*540,v:14+Math.random()*10,l:10+Math.random()*14}));cx.strokeStyle='rgba(150,185,235,.4)';
 (function lp(){requestAnimationFrame(lp);cx.clearRect(0,0,960,540);if(!rainI)return;const n=Math.floor(dr.length*rainI);cx.beginPath();for(let i=0;i<n;i++){const d=dr[i];if(!paused){d.y+=d.v;d.x-=2;if(d.y>540){d.y=-20;d.x=Math.random()*980}}cx.moveTo(d.x,d.y);cx.lineTo(d.x-2,d.y+d.l)}cx.stroke()})();
@@ -324,6 +356,21 @@ const PSP='<defs><clipPath id="ebc"><rect x="0" y="0" width="110" height="110"/>
 +'<g id="phs" style="opacity:0;transition:opacity .4s"><rect x="800" y="628" width="64" height="10" fill="#d8d2c4" stroke="#8a7a5c"/><rect x="806" y="620" width="64" height="8" fill="#cfc8b6" stroke="#8a7a5c"/></g>'
 +'<g id="rp" style="opacity:0;transition:opacity .4s"><rect x="880" y="626" width="76" height="12" fill="#d8d2c4" stroke="#8a7a5c" stroke-width="2"/></g>'
 +EMB('bk')+EMB('bk2')+EMB('bk3');
+
+/* ===== 序幕与第二日的新布景 ===== */
+const BOT=(x0,x1,y)=>{let b='';for(let x=x0;x<=x1;x+=70){const h=40+((x/70)|0)%3*14;b+=LL(`M${x} ${y}v${-h}q0 -12 6 -20v-16h10v16q6 8 6 20v${h}z`,'s',1+x/2400,1.5,'#9fb4e0')}return b+LL(`M${x0-30} ${y}H${x1+60}`,'',.8,3,'#cfe0ff')};
+const SCONCE=(x,y)=>LL(`M${x} ${y}h30M${x+30} ${y}v-34`,'',.9,2,'#9fb4e0')+LL(`M${x+14} ${y-34}h32l-6 -30h-20z`,'s',1,2,'#e6eeff')+`<circle cx="${x+30}" cy="${y-50}" r="90" fill="#f3d08a" opacity=".12"/>`;
+const NEONC=(x,y)=>'<g class="neon" style="filter:drop-shadow(0 0 8px #ff5a6a)">'+LL(`M${x-40} ${y}H${x+40}L${x} ${y+66}Z`,'',1.4,2.5,'#ff5a6a')+LL(`M${x} ${y+66}V${y+114}M${x-26} ${y+116}H${x+26}`,'',1.6,2.5,'#ff5a6a')+LL(`M${x-24} ${y+22}H${x+24}`,'',1.7,2,'#ff8a96')+'</g>';
+const DK=(x0,x1,y,b=790)=>`<path d="M${x0} ${y}H${x1}V${b}H${x0}Z" fill="#07080c" stroke="#9fb4e0" stroke-width="2.5"/><path d="M${x0} ${y}H${x1}" stroke="#f0f4ff" stroke-width="4"/>`;
+const BTBL=DK(470,1050,668,860)+'<rect x="520" y="640" width="14" height="28" fill="#07080c" stroke="#9fb4e0" stroke-width="2"/><path d="M980 668l-6 -30h16z" fill="#07080c" stroke="#e6eeff" stroke-width="2"/>';
+const BCNT=DK(240,1360,640,860)+'<path d="M300 640l-4 -34h14zM1280 640l-4 -40h16z" fill="#07080c" stroke="#e6eeff" stroke-width="2"/>';
+SETS.barBooth=()=>GROUND+BOT(240,1360,330)+SCONCE(170,300)+SCONCE(1330,300)+NEONC(1180,90)+RR(560,440,400,350,'s',1,3,'#7f95c4')+LL('M640 470V620M720 470V620M800 470V620M880 470V620','',1.3,2,'#4f6490');
+SETS.barCounter=()=>GROUND+SCONCE(240,330)+SCONCE(1240,330)+RR(160,470,330,320,'s',.8,3,'#7f95c4')+RR(1110,470,330,320,'s',.9,3,'#7f95c4')+LL('M230 500V640M320 500V640M410 500V640M1180 500V640M1270 500V640M1360 500V640','',1.3,2,'#4f6490')+NEONC(800,160);
+const PUD='<ellipse id="pud" cx="975" cy="800" rx="48" ry="8" fill="#0b0f1c" stroke="#9fb4e0" stroke-width="2" style="opacity:0;transition:opacity .8s"/>';
+SETS.pubdoor2=()=>SETS.pubdoor()+LL('M1000 790V330','',1.8,4,'#9fb4e0')+RR(975,300,50,36,'s',2,2.5,'#e6eeff')+'<circle cx="1000" cy="318" r="100" fill="#f3d08a" opacity=".1"/>'+LL('M820 360V790','',1.6,3,'#7f95c4');
+const LOBF=DK(600,1080,660)+'<path d="M690 660q8 -22 28 -22q20 0 28 22z" fill="#07080c" stroke="#e6eeff" stroke-width="2.5"/>';
+SETS.hotelLobby=()=>{let k='';for(let r=0;r<3;r++)for(let c=0;c<6;c++)k+=`<circle cx="${830+c*34}" cy="${330+r*42}" r="5" fill="none" stroke="#9fb4e0" stroke-width="1.5"/>`;
+return GROUND+RR(800,300,240,170,'s',.8,2.5,'#7f95c4')+k+RR(150,470,150,320,'s door',1.2,2.5,'#e9eef8')+'<rect x="158" y="478" width="134" height="304" fill="#f2c36e" opacity=".22"/>'+LL('M1140 790V730H1200V670H1260V610H1320V550H1380V490H1440V430H1560','',1.1,3,'#cfe0ff')+LL('M1150 700L1480 370','',1.6,2,'#9fb4e0')+LL('M1200 730V700M1260 670V640M1320 610V580M1380 550V520M1440 490V460','',1.8,1.5,'#7f95c4')+SCONCE(1060,300)};
 /* chapters */
 const C1=Object.assign({t:'<h1>片段一 · 雨夜求助</h1><p>格兰德酒店门前</p>',o:'920px 610px',bg:'#070a12',set:'#hotel',i:['20%','52%'],
 ini(){P('ny',{d:0,x:-200,s:.54,hat:1,umo:1})},
@@ -365,6 +412,70 @@ cc();go('ny',1850,5600);await w(2200);P('nl',{face:'n',h:5,b:2});await w(1600);
 P('nl',{ar:0,al:0,b:0});go('nl',1850,5800);await w(1900);os('.lh',.95);sp(2,800,1.3,.34,'#f3d08a');await w(1000);os('.lh',.4);sp(2,800,1.1,.22,'#f3d08a');await w(3000);
 await w(800);await fl();lamp(1);await w(2200);lamp(.6)}},{n:'隐瞒莱恩后的争执',sub:'离开老街之后 · 一盏路灯',sh:'路灯',pos:[430,720]});
 const SC=[
+{n:'序幕夜',sub:'贝尔维尔 · 不夜城 · 酒吧、街口、旅馆',sh:'序幕',pos:[260,540],bg:'#0a0709',set:'#set3',lx:760,i:['40%','60%'],hardOut:1,mk:()=>SETS.barBooth(),
+ini(){$('#front').innerHTML=BTBL+GL('gl');$('#front').style.opacity=0;P('nl',{d:0,show:0,x:760,y:812,s:.62,f:0,face:'drunk'});P('ho',{d:0,show:0,x:940,y:790,s:.56,f:1,face:'n'})},
+/* 四个镜头：卡座 → 吧台 → 酒吧门外 → 旅馆大堂；镜头之间全是硬切（瞬黑 1.5 秒、瞬亮），没有任何渐变 */
+async run(k,{w,n,ho,cut,scene,murmur,clink,at}){
+const sw=(on,big)=>{const c=G.nl.classList;c.toggle('swy',on&&!big);c.toggle('swy2',on&&!!big)};
+const hic=()=>{tn(190,.1,'square',.05);tn(140,.14,'square',.04,.08)},rt=()=>{bs(.45,.5,320);tn(120,.5,'sawtooth',.05);tn(80,.6,'sine',.2,.1)};
+/* ── 镜头一：卡座。人很多，嘈杂；镜头从远处慢慢推向尼尔 ── */
+$('#front').style.opacity=1;
+hum([[150,790,.8,1],[270,790,.7,-1],[380,790,.9,1],[490,790,.75,-1],[1040,790,.8,-1],[1150,790,.95,1],[1270,790,.75,-1],[1390,790,.85,1],[1500,790,.7,-1]]);
+let mu=murmur(1);sp(2,760,1.3,.14,'#f3d08a');
+pose('nl','stand',{show:1,y:800,f:0,face:'drunk',b:6,h:10});gl('gl',830,668,1,0);
+dolly(1.5,50,56,11000);
+await w(2400);
+/* 先一口干了，再把空杯高高举起来 */
+pose('nl','toast',{face:'drunk',h:-18});gl('gl',830,472,1,0,28);tn(2100,.08,'sine',.04);await w(1100);
+pose('nl','toast',{face:'smile',h:-4});gl('gl',822,488,1,0,0);mu.set(1.8);
+await n('来，再来一杯！');
+clink();await w(1300);
+/* ── 瞬黑 1.5 秒 → 吧台 ── */
+mu.stop();
+await cut(()=>{scene(()=>SETS.barCounter(),BCNT+GL('gl'),'');hum([[260,790,.7,1],[1300,790,.8,-1],[1430,790,.7,1]]);dolly(1,50,60,0);
+ pose('nl','slump',{show:1,x:800,y:790,s:.66,f:0,face:'drunk',ar:-20,al:10,b:22,h:30});gl('gl',930,640,1,0);sp(2,800,1.1,.1,'#ff8a96');mu=murmur(.45)});
+dolly(1.5,50,57,12000);
+await w(900);
+await n('私家侦探？我告诉你吧，听着像那么回事，但假如没有名声，就什么也不是！');
+pose('nl','slump',{face:'wry',h:38,ar:-20,al:10,b:22});await w(1700);
+/* 对面不知问了句什么；他抬一下手，又垂下去 */
+pose('nl','slump',{face:'drunk',h:22,ar:-20,al:10,b:20});gl('gl',930,640,1,300);await w(500);
+await n('我怎么知道？我有一个朋友.......');
+pose('nl','slump',{face:'sad',h:44,ar:-20,al:10,b:30});gl('gl',930,640,1,1500,14);mu.set(.3);await w(2200);
+/* ── 瞬黑 1.5 秒 → 酒吧门外 ── */
+mu.stop();
+await cut(()=>{scene(()=>SETS.pubdoor2(),'',PUD);dolly(1,50,60,0);op('#pdl',.95);
+ pose('nl','dHang',{show:0,x:612,y:790,s:.56,f:0,face:'drunk'});sp(2,640,1.2,.1,'#ff8a96')});
+mu=murmur(.35);piano();
+pose('nl','dHang',{show:1,f:0,face:'drunk'});sw(true);await w(1200);
+/* 出门，摇摇晃晃走到墙边 */
+pose('nl','dWalk',{f:0,face:'drunk'});mv('nl',700,790,2400,'ease-in-out',.56);
+for(let t=0;t<2400;t+=600){stp();await w(600)}
+op('#pdl',.3);mu.stop();sw(false);pose('nl','dLean',{f:0,face:'drunk'});await w(1000);hic();await w(900);
+/* 推墙，再走两步 */
+pose('nl','dWalk',{f:0,face:'drunk'});sw(true);mv('nl',885,790,1700,'linear');
+for(let t=0;t<1700;t+=425){stp();await w(425)}
+/* 扶住灯柱，吐了；镜头压近 */
+sw(false);pose('nl','dLean',{f:0,face:'drunk'});dolly(1.3,56,62,6000);await w(700);
+pose('nl','retch',{f:0,face:'drunk'});op('#pud',1);G.nl.classList.add('swy2');rt();await w(900);rt();await w(900);rt();await w(1000);
+G.nl.classList.remove('swy2');pose('nl','dLean',{f:0,face:'drunk',h:22});await w(1800);
+/* ── 瞬黑 1.5 秒 → 旅馆大堂 ── */
+await cut(()=>{scene(()=>SETS.hotelLobby(),LOBF,'');dolly(1,50,60,0);
+ pose('ho','sitHung',{show:1,x:940,y:790,s:.56,f:1,face:'n'});pose('nl','dWalk',{show:1,x:230,y:800,s:.6,f:0,face:'drunk'});sp(2,900,1.2,.08,'#f3d08a')});
+sw(true);mv('nl',1160,800,4200,'linear');
+const stps=(async()=>{for(let t=0;t<4200;t+=525){stp();await w(525)}})();
+await w(2200);
+/* 他经过柜台，老板抬头；尼尔不回应，也不停 */
+pose('ho','stand',{f:1,face:'n',h:-2});tn(260,.15,'triangle',.03);dolly(1.3,58,56,1800);
+await ho('尼尔？');cc();
+pose('ho','stand',{f:0,face:'sad',h:2});
+await stps;
+/* 上楼：斜着往右上走，越走越远，隐进黑里 */
+dolly(1.25,86,52,3600);pose('nl','dWalk',{f:0,face:'drunk'});mv('nl',1470,500,3400,'linear',.5);P('nl',{show:0,d:3400});
+for(let t=0;t<3400;t+=480){stp();await w(480)}
+sw(false);await w(900);
+/* ── 描线渐隐 ── */
+$('#front').style.transition='opacity 1.8s';$('#front').style.opacity=0;P('ho',{show:0,d:1800});SET.classList.remove('on','f');dolly(1,50,60,2400);await w(2800)}},
 C1,
 {n:'室内求助',sub:'尼尔的房间 · 夜莺把一切摊在桌上',sh:'求助',pos:[1060,720],bg:'#0b0907',set:'#set3',i:['34%','62%'],mk:()=>SETS.room(),
 ini(){$('#props').innerHTML=PHOTO;P('nl',{d:0,show:1,x:1040,f:1,s:.56,face:'n',ar:55,al:-55});P('ny',{d:0,x:-160,s:.56,hat:1,bag:1,umc:1,face:'sad'})},
@@ -858,7 +969,8 @@ await s('你到底想问什么？');
 /* 5 演出结束：不展示订单、取件人或调查结论 */
 P('nl',{h:3});ticks(3,800);await w(1800);dolly(1,50,66,3500);await w(900)}},
 ];
-SC.forEach((s,i)=>{s.o=s.pos[0]+'px '+s.pos[1]+'px';s.num=['一','二','三','四','五','六','七','八','九','十','十一','十二','十三','十四','十五','十六','十七','十八','十九','二十','二十一','二十二','二十三'][i]});
+const ZH=n=>{const d='零一二三四五六七八九';return n<10?d[n]:n<20?'十'+(n%10?d[n%10]:''):d[(n/10)|0]+'十'+(n%10?d[n%10]:'')};
+SC.forEach((s,i)=>{s.o=s.pos[0]+'px '+s.pos[1]+'px';s.num=ZH(i+1)});
 /* world markers */
 (function(){let h='';SC.forEach((s,i)=>{const[x,y]=s.pos;h+=`<rect x="${x-34}" y="${y-48}" width="68" height="92" fill="#05070e"/><g class="mkr" data-i="${i}"><g filter="url(#glow)"><rect x="${x-12}" y="${y-22}" width="24" height="30" fill="#0b0f1c" stroke="#ffd98a" stroke-width="2.5"/><rect x="${x-18}" y="${y+6}" width="36" height="8" fill="#0b0f1c" stroke="#ffd98a" stroke-width="2"/></g><circle class="pl" cx="${x}" cy="${y-6}" r="30"/><circle cx="${x}" cy="${y-6}" r="40" fill="rgba(0,0,0,0)" style="pointer-events:all"/><text x="${x}" y="${y-32}" text-anchor="middle" font-size="17" letter-spacing="2" fill="#ffd98a" opacity=".9" font-family="serif">${s.num} ${s.sh}</text></g>`});$('#hm')&&$('#hm').remove();$('#world').insertAdjacentHTML('beforeend',h)})();
 function reset(){dolly(1,50,60,0);const W=$('#world'),stg=$('#stage');W.style.cssText='transition:none;transform:scale(1);filter:none;opacity:1';
@@ -875,7 +987,11 @@ SET=$(S.set);if(S.mk)SET.innerHTML=S.mk();SET.dataset.lx=S.lx||800;S.ini();W.sty
 $('#title').innerHTML=`<h1>${S.num} · ${S.n}</h1><p>${S.sub}</p>`;await w(400);$('#title').classList.add('on');await w(3200);$('#title').classList.remove('on');await w(600);
 whoosh();W.style.transform='scale(7.2)';W.style.filter='blur(6px) brightness(1.4)';W.style.opacity=0;
 await w(2200);SET.style.opacity=1;SET.classList.add('on');stg.style.background=S.bg;await w(2700);SET.classList.add('f');
-await S.run(k,h);dolly(1,50,60,900);
+await S.run(k,h);
+if(S.hardOut){/* 硬切收场：瞬黑 1.5 秒，直接回到地图，不做拉远运镜 */
+fxf('brightness(0)',0);cc();dolly(1,50,60,0);SET.style.transition='none';SET.style.opacity=0;$('#front').style.opacity=0;op('#pack',0);op('#gh',0);rainI=0;rainS(0);$('#props').innerHTML='';
+W.style.transition='none';W.style.transform='scale(1)';W.style.filter='none';W.style.opacity=1;stg.style.background='#05070e';SET.style.transition='';await w(1500);fxf('none',0);return}
+dolly(1,50,60,900);
 SET.style.opacity=0;$('#front').style.opacity=0;op('#pack',0);op('#gh',0);rainI=0;rainS(0);cc();$('#props').innerHTML='';await w(900);
 W.style.transition='transform 3.8s cubic-bezier(.65,0,.25,1),filter 3.8s,opacity 1.4s';W.style.transform='scale(1)';W.style.filter='none';W.style.opacity=1;stg.style.background='#05070e';whoosh();await w(4000)}
 async function play(i,seq){ai();if(AC.state==='suspended')AC.resume();const k=++gen;if(paused)tgl(true);$('#pp').disabled=$('#rp').disabled=false;
