@@ -1,8 +1,8 @@
 {
   "schema": "ssnoir.autonomous-pattern-memory/v1",
   "updated": "2026-10-15",
-  "batch": "CROSS-SCALE08/09 跨期义务与维护税的固定路线压平反证",
-  "rounds": 82,
+  "batch": "BRIDGE-AUDIT01 CRISIS/HEDGE/OBLIGATION跨族因果边重新组织",
+  "rounds": 83,
   "totalArchivedRounds": 478,
   "objective": "长期自主发展可复用的玩法模式语言，覆盖已知作品先例、基础原语、完整交锋、跨阶段结构、组合条件与重要负例；评价玩家实际反复作出的判断、反馈、后果。历史20是广度愿景，不是价值认证名单或完成配额。",
   "policy": "从成熟作品、旧实验、新假设三向吸收；先去剧情定义玩家活动，再独立批评同构/最强简单策略，按需模型与盲Agent试玩。数学、作品先例、Agent、原生与真人是正交证据。知识图谱收录不等真人认可，精选展示与Debug独立把关，真人反馈异步且不阻塞。",
@@ -337,6 +337,6 @@
     "latestCounterfactual": "IWT01：四手Hidden A/B各半，3份正确WORK得10/8，TRACK工作必+1并有75%准确类型线索；纯INSPECT100%占一手。无信息6、只TRACK119/16、INSPECT9；INSPECT耗时两手TRACK重新胜119/16；完美TRACK19/2、50%TRACK6、TRACK首手限定29/4。正向枚举核对全部潜在真实类型；保留已有DISC/FOCUS/SIG组合。",
     "crossFamilyAudit": "PL-IWT01→PL-DISC01（工作+信息两种不同产出）、FOCUS02/03（及时兑现行动窗口、完美检查强旁路）、SIG01（非战略性线索噪声有别于他者可伪装的行动信号）。"
   },
-  "lastFinding": "CROSS-SCALE08：五行动双目标分工，未完罚款×A早窗四组全动态/固定18，安全AABB+SIDE压平后到信息。CROSS-SCALE09：先A完成并在次场PAY维持领取资格；有维护动态39/2固定17，无维护动态41/2固定18，前两行动始终AA，维护只是固定行动税，后续B/C信息选择仍旧原语。两批脚本本地Fraction完整枚举通过，非盲Agent/真人/Unity。",
-  "nextResearchQuestion": "从CROSS-SCALE线性累加规则转为横向复审CRISIS/GOAL/OBLIGATION/HEDGE：寻找可在新事件后重新选择完成或放弃旧责任，且最佳策略无法通过提前全部完工、必付维护税、安全SIDE回避的情形；组织无提示心理活动验证和结果身份评价。"
+  "lastFinding": "BRIDGE-AUDIT01：横向审CRISIS01/03、HEDGE-FACTOR、OBLIGATION04/05及CROSS-SCALE08/09，区分价值变化、动作资格变化、时限内可兑现性变化、真人主观承诺重估四层。前三者已由历史模型分别证实，第四者无新人类证据；强安全顺序/无早窗免费重开/固定维护税是关键负例。成熟因果边可组合，不能以堆叠规则、新时钟或DP变化认证新原语。本批不重新运行历史DP。",
+  "nextResearchQuestion": "优先复用旧OBSERVE/HEDGE无提示体验测试验证玩家自选关切与后果理解；若自主数学探索则转不同心理动词（第三方自利行动、可检验策略信号、权利变动），不沿CROSS-SCALE或继续增加危机时钟。"
 }
