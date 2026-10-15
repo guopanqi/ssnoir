@@ -4759,7 +4759,7 @@
       "layer": "methodological-audit",
       "family": "跨层认知、提前承诺与实验可观察性",
       "idea": "原RETURN七张卡固定OPEN/GUARD且最终调用world_final自动最优结算，只能验证规则不能记录参与者的L1/W2选择；新增同封存事件的S/M四阶段真实选择会话，S返场时决定，M在W1提交K弱/K强分支并于L2自动执行",
-      "note": "冻结RETURN期望1509/128和11宏政策同值不变；按原卡既有开局逐事件校验保持物理结算，允许参与者新选OPEN/GUARD后封存风险事件依规则变化；S/M所有合法四阶段行动及终局可用成果在相同动作下配对，W2由人自行选择A/B/ALT/SIDE。七张刻意覆盖的卡不可加权当随机样本；提前承诺时点、分屏、11条件计划可视化三项混杂，仍无参与者结果。原预注册保留，v2是独立的前瞻性修订。 横向划分场景串接/资格传递/世界重估旧行动/世界反向改变返场合法动作四级；层级仅描述因果边、不排序乐趣。",
+      "note": "冻结RETURN期望1509/128和11宏政策同值不变；按原卡既有开局逐事件校验保持物理结算，允许参与者新选OPEN/GUARD后封存风险事件依规则变化；S/M所有合法四阶段行动及终局可用成果在相同动作下配对，W2由人自行选择A/B/ALT/SIDE。七张刻意覆盖的卡不可加权当随机样本；提前承诺时点、分屏、11条件计划可视化三项混杂，仍无参与者结果。原预注册保留，v2是独立的前瞻性修订。 横向划分场景串接/资格传递/世界重估旧行动/世界反向改变返场合法动作四级；层级仅描述因果边、不排序乐趣。 后续以伪输入运行S/M两条终端全流程并保存记录，独立CI通过；明确这只是自动化冒烟而不是参与者观察。",
       "stage": "implementation-regression-passed-no-human-experience",
       "sources": [
         "docs/实验/机制研究/批次/2026-10-16-RETURN认知审计与跨族边界/研究记录.md",
@@ -4772,11 +4772,12 @@
         "pairedStageMacroTerminalEnumeration": true,
         "sourceCardHistoricalAnchorsPreserved": true,
         "fullParticipantChoiceCapture": true,
-        "repositoryCI": "https://github.com/guopanqi/ssnoir/actions/runs/38769665427",
+        "repositoryCI": "https://github.com/guopanqi/ssnoir/actions/runs/38770564482",
         "currentRunnerCases": 30,
         "humanParticipants": 0,
         "blindAgentSessions": 0,
-        "nativeGameChanged": false
+        "nativeGameChanged": false,
+        "scriptedCLISmokePaths": 2
       }
     }
   ],
