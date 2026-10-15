@@ -1,8 +1,8 @@
 {
   "schema": "ssnoir.autonomous-pattern-memory/v1",
   "updated": "2026-10-15",
-  "batch": "BRIDGE01—19：危机结果传递后续行动许可，双反馈下真正改道 vs 普通许可票完整同构",
-  "rounds": 167,
+  "batch": "RETURN世界接约重返旧交锋：真实W→L→W行为反馈、11份条件宏动作全状态同构反证",
+  "rounds": 169,
   "totalArchivedRounds": 478,
   "objective": "长期自主发展可复用的玩法模式语言，覆盖已知作品先例、基础原语、完整交锋、跨阶段结构、组合条件与重要负例；评价玩家实际反复作出的判断、反馈、后果。历史20是广度愿景，不是价值认证名单或完成配额。",
   "policy": "从成熟作品、旧实验、新假设三向吸收；先去剧情定义玩家活动，再独立批评同构/最强简单策略，按需模型与盲Agent试玩。数学、作品先例、Agent、原生与真人是正交证据。知识图谱收录不等真人认可，精选展示与Debug独立把关，真人反馈异步且不阻塞。",
@@ -337,7 +337,7 @@
     "latestCounterfactual": "IWT01：四手Hidden A/B各半，3份正确WORK得10/8，TRACK工作必+1并有75%准确类型线索；纯INSPECT100%占一手。无信息6、只TRACK119/16、INSPECT9；INSPECT耗时两手TRACK重新胜119/16；完美TRACK19/2、50%TRACK6、TRACK首手限定29/4。正向枚举核对全部潜在真实类型；保留已有DISC/FOCUS/SIG组合。",
     "crossFamilyAudit": "PL-IWT01→PL-DISC01（工作+信息两种不同产出）、FOCUS02/03（及时兑现行动窗口、完美检查强旁路）、SIG01（非战略性线索噪声有别于他者可伪装的行动信号）。"
   },
-  "lastFinding": "BRIDGE01—19：上一批RELAY/PIVOT后横向考察两交锋实际权限/成果。第一场两手：RUSH概率1/2触危机H，预告Y准确率3/4预测下一场需求W；有H时PRESS得E而失S、AID得S而失E，无H时PRESS得E/S；WAIT首手保底1、次手保证选一种资格。第二场W准确公布，2手可按E/S权限各兑现相匹配12不匹配2，或连续ALT两手得8、SIDE每手1。核心精确Fraction：无Y无W根11、仅Y/仅W均49/4、两信息全开103/8；二因素交互-5/8（替代而非协同）。正常最优RUSH103/8对安全WAIT51/4仅高1/8；正常概率1/8的危机+预告错误分支，玩家弃用第一场取得的资格而转两手ALT。真世界前向向量：P(E)=P(S)=11/16，P(双兑现)=1/2，P(ALT)=1/8。最强单目标差异：RUSH总PRESS根49/4却P(E)=3/4>11/16，总AID根49/4却P(S)=3/4。信号准确q≥4/5或危机率p≥5/9时安全WAIT追平/反胜；提高WAIT保底到2、给WAIT直接双资格，或备用ALT两手收益15，也会压平冒险路线。最强结构反证：第一场5种历史仅映射到(E,S)普通许可票，第二场**所有合法两动作序列与逐成果结算**完全由票决定，不需要保留第一场历史或世界反向影响第一场。故这是成熟危机处理×保留选择权×后到需求/备用路线组合，非新双层架构。两份Fraction脚本在本地等效协议运行通过，GitHub仓库提交版本独立CI尚未证成功；独立HTML四路径通过Chromium，3000局自动短政策平均12.865对精确12.875、E/S/ALT分布匹配，但非真人/盲Agent。试验脚本加统一runner共26份，原六精选/Debug/Game冻结。",
-  "nextResearchQuestion": "不再将单向资格传递当作Citizen Sleeper式双层心理循环。下一轮若有意义，必须在某一通常可达的最佳政策中：第一场分支改变世界层目标；**世界层选择又反过来改变重返旧局部交锋的合法动作或真实可失成果**，且不是一枚普通许可票、固定维护税、安全WAIT或可买的完整许可。比较明确不同受益主体的结果向量，不拿总收益替代玩家的关心。若不能构造强反证通过的最小结构，应转向成熟作品的结构归纳与无答案人类观察，停止数值堆叠。BRIDGE本地HTML已生成但未提交网页至GitHub；26脚本的独立CI结果仍待核实。",
+  "lastFinding": "RETURN两项完整精确实验：L1旧A交锋可OPEN风险H~1/2或GUARD无风险但联合能力较弱；世界W1观察预测Y（真需求W预测正确率3/4）并ACCEPT/DECLINE B，若ACCEPT支援K强弱各1/2在接约后公布。返回旧A时DECLINE仅MEND/KEEP（MEND弱支配KEEP），ACCEPT改为LINK（OPEN支援强弱成功率3/4、1/4；GUARD1/2、1/8；成功A/B双可兑现，失败B不可、代价2）、CUT（保B牺牲A）、ABANDON（保A弃B且代价2）。世界W2才知真需求A/B，任一真实可兑现A/B与需求匹配14不匹配3，ALT5，SIDE1，另扣不可逆违约代价。完整Fraction根1509/128≈11.7891且OPEN优于GUARD47/4仅5/128；Y无观测根341/32，支援K不提前看根377/32（K纯信息价值只有1/128），W真需求终局不可见根45/4，W1强制ACCEPT1469/128/强制DECLINE19/2，接受B后强制LINK无CUT/ABANDON根167/16。正常最优世界行为：H0/Y=B概率1/4时W1接受B，K弱则返回A CUT、K强则LINK，确有世界选择→旧局部合法动作→后到合作反馈→最终世界行动的完整条件链；LINK失败再改ALT概率7/128。前向结果P最后A=13/32、B=49/128、ALT=27/128，违约成本期望5/16，GUARD违约0但收益略低。最强构造性反证：W1可提前选DECLINE后2个局部动作或ACCEPT后对强/弱K的3×3动作组合，共11个宏条件计划；全部可达(start,H,Y)状态与分层Bellman最优逐点完全同值。A2后只要(A可兑现,B可兑现,违约成本)共6类后续状态就能完全复刻终局行动，世界-旧局部-世界的UI切分不构成新数学架构。两份Python标准库Fraction模型真实本地运行成功；独立HTML程序用Chromium3条完整路径测试成功，1600局自动策略均值11.833125近理论11.7890625（非真人，非逐种子严格一致），原型只为当前会话sandbox附件未发布GitHub。Github仓库两份脚本+完整报告+无答案观察卡+知识图更新，近期28脚本统一回归已入库，但远程Actions独立绿灯仍未拿到；无独立盲Agent/真人/Unity，正式Game、六精选/Debug白名单冻结。",
+  "nextResearchQuestion": "RETURN已从BRIDGE单向许可推进为实际的世界W1接受B改变重返A动作、B支援K和局部联合结果改变W2，但K的全局信息价值仅1/128，且11份预写条件宏计划全部可达状态等值、返场后只有6类必要状态。停止再增加信号层/返场次数来寻求数学复杂度。应异步用无答案分阶段与宏条件计划对照验证玩家是否真正区分世界需求Y/W、B的支援K和局部LINK结果，是否有对GUARD零违约与A/B/ALT非替代成果的具体关心；否则归成熟组合/宏菜单同构负例并横向研究其他基础心理动词。旧26脚本增RETURN2到28；远端GitHub Actions成功状态未证，勿声称已通过。",
   "lastResearchMaintenance": "2026-10-15 current-state and queue archived full originals under 归档/2026-10-15-研究入口压缩前; compact live entries; Python regression runner 13 scripts and workflow committed, CI success unconfirmed."
 }
