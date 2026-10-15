@@ -264,7 +264,7 @@ Object.assign(POSES,{
  toast:{ll:0,lr:2,ar:-150,al:10,b:-4,h:-6},
  slump:{ll:0,lr:2,ar:-70,al:30,b:22,h:30},
  stand:{ll:0,lr:0,ar:0,al:0,b:0,h:0}});
-Object.assign(POSES,{sitHung:{b:26,h:34,ar:0,al:0}});
+Object.assign(POSES,{sitHung:{b:26,h:34,ar:0,al:0},sitUp:{b:6,h:8,ar:6,al:6}});
 /* 舞台道具助手：gl 移动/淡入任意 SVG 道具；hum 在 #props 放一群轻轻摇晃的剪影；酒保擦杯/上架两个共用动作 */
 const gl=(id,x,y,o=1,ms=500,r=0,ease='ease')=>{const e=$('#'+id);if(!e)return;e.style.transition=`transform ${ms}ms ${ease},opacity .25s`;e.style.transform=`translate(${x}px,${y}px) rotate(${r}deg)`;e.style.opacity=o};
 const GL=id=>`<g id="${id}" style="opacity:0"><path d="M-11 0L-9 -26H9L11 0Z" fill="#0b0f1c" stroke="#e6eeff" stroke-width="2.5"/><path d="M-10 -9H10" stroke="#e0b060" stroke-width="3"/></g>`;
@@ -371,6 +371,9 @@ SETS.pubdoor2=()=>SETS.pubdoor()+LL('M1000 790V330','',1.8,4,'#9fb4e0')+RR(975,3
 const LOBF=DK(600,1080,660)+'<path d="M690 660q8 -22 28 -22q20 0 28 22z" fill="#07080c" stroke="#e6eeff" stroke-width="2.5"/>';
 SETS.hotelLobby=()=>{let k='';for(let r=0;r<3;r++)for(let c=0;c<6;c++)k+=`<circle cx="${830+c*34}" cy="${330+r*42}" r="5" fill="none" stroke="#9fb4e0" stroke-width="1.5"/>`;
 return GROUND+RR(800,300,240,170,'s',.8,2.5,'#7f95c4')+k+RR(150,470,150,320,'s door',1.2,2.5,'#e9eef8')+'<rect x="158" y="478" width="134" height="304" fill="#f2c36e" opacity=".22"/>'+LL('M1140 790V730H1200V670H1260V610H1320V550H1380V490H1440V430H1560','',1.1,3,'#cfe0ff')+LL('M1150 700L1480 370','',1.6,2,'#9fb4e0')+LL('M1200 730V700M1260 670V640M1320 610V580M1380 550V520M1440 490V460','',1.8,1.5,'#7f95c4')+SCONCE(1060,300)};
+/* 旅馆房间（第一日清晨）：左边床在前景（遮住坐着的尼尔下半身），中间窗+晨光，右边房门（门扇 #rl 绕右侧合页开合，门外走廊光 #rcl） */
+const BED=DK(90,620,690,860)+'<path d="M130 690q40 -44 110 -32l-6 32" fill="#0b0f1c" stroke="#cfe0ff" stroke-width="2.5"/><path d="M300 690q70 -30 140 0" fill="none" stroke="#7f95c4" stroke-width="2.5"/>';
+SETS.hotelRoom=()=>GROUND+RR(720,220,240,250,'s',.8,3,'#cfe0ff')+LL('M840 220V470M720 345H960','',1.1,1.5,'#7f95c4')+'<polygon class="mp" points="720,470 960,470 1180,790 760,790" fill="#e8dcb0" opacity="0" style="transition:opacity 1.6s"/>'+RR(90,430,40,360,'s',.6,3,'#7f95c4')+RR(640,700,80,90,'s',1,2,'#9fb4e0')+LL('M670 700l-4 -34h14z','',1.3,2,'#9fb4e0')+RR(1240,320,220,470,'s',.6,3,'#b8923f')+'<rect id="rcl" x="1250" y="330" width="200" height="450" fill="#f2c36e" opacity="0" style="transition:opacity .5s"/><g id="rl" style="transform-origin:1460px 320px;transition:transform .7s">'+RR(1250,330,200,450,'s door',1,2,'#e9d9b0')+RR(1275,360,150,170,'',1.3,1.5,'#b8923f')+RR(1275,560,150,190,'',1.4,1.5,'#b8923f')+'<circle cx="1272" cy="560" r="9" fill="#d8b252"/></g>';
 /* chapters */
 const C1=Object.assign({t:'<h1>片段一 · 雨夜求助</h1><p>格兰德酒店门前</p>',o:'920px 610px',bg:'#070a12',set:'#hotel',i:['20%','52%'],
 ini(){P('ny',{d:0,x:-200,s:.54,hat:1,umo:1})},
@@ -476,6 +479,50 @@ for(let t=0;t<3400;t+=480){stp();await w(480)}
 sw(false);await w(900);
 /* ── 描线渐隐 ── */
 $('#front').style.transition='opacity 1.8s';$('#front').style.opacity=0;P('ho',{show:0,d:1800});SET.classList.remove('on','f');dolly(1,50,60,2400);await w(2800)}},
+{n:'第一日清晨',sub:'旅馆 · 尼尔的房间 · 门外的老板',sh:'清晨',pos:[540,830],bg:'#0b0907',set:'#set3',lx:830,i:['40%','60%'],mk:()=>SETS.hotelRoom(),
+ini(){$('#front').innerHTML=BED;$('#front').style.opacity=0;P('nl',{d:0,show:0,x:470,y:830,s:.62,f:0,face:'drunk'});P('ho',{d:0,show:0,x:1340,y:790,s:.6,f:1,face:'n'})},
+/* 门内是宿醉的尼尔，门外是来收房钱却不想逼他的老板；整场靠镜头在两张脸之间切换，不靠动作 */
+async run(k,{w,n,ho,nar,at,faceCam}){
+const door=$('#rl'),stps=async(ms)=>{for(let t=0;t<ms;t+=520){stp();await w(520)}};
+$('#front').style.opacity=1;
+pose('nl','sitHung',{show:1,f:0,face:'drunk'});sp(2,830,1.1,.08,'#f3d08a');
+await w(1800);mp(.13);await w(1600);
+/* 咚！咚！咚！门跟着震，他慢慢抬头；镜头压向他的脸 */
+for(let i=0;i<3;i++)at(i*560,()=>{tn(95,.18,'sine',.45);bs(.05,.5,220);door.style.transition='transform .06s';door.style.transform='scaleX(.975)';at(120,()=>door.style.transform='scaleX(1)')});
+faceCam('nl',1.5,3200);at(1700,()=>pose('nl','sitUp',{face:'drunk'}));
+await nar('（咚！咚！咚！）',2200);
+await ho('尼尔？');
+pose('nl','sitUp',{face:'drunk',h:12});
+await n('谁？');
+/* 门外的人隔着门说话；他撑着床沿站起来，摇摇晃晃往门口走 */
+pose('nl','stand',{y:790,b:4,h:10,face:'drunk'});G.nl.classList.add('swy');dolly(1.12,66,58,7000);
+mv('nl',1090,790,2800,'ease-in-out');const sp1=stps(2800);
+await ho('是我，我看你昨晚喝多了就没来打扰你');
+await sp1;G.nl.classList.remove('swy');
+/* 开门：门扇转开，走廊的光涌进来，老板站在光里 */
+tn(170,.5,'sawtooth',.04);door.style.transform='scaleX(.12)';$('#rcl').style.opacity=.9;
+pose('ho','stand',{show:1,d:500,f:1,face:'n',h:-2});pose('nl','stand',{f:0,face:'drunk',h:8});await w(700);
+await n('是老板啊，你有事儿吗？');
+pose('ho','stand',{f:1,face:'n',b:3,h:0});
+await ho('我是跟你说旅馆房钱的事情，你这间房该交钱了。');
+faceCam('nl',1.55,1800);pose('nl','stand',{f:0,face:'sad',h:12});
+await n('能等我两天吗？');
+/* 老板这句最长：先看着他，说到“侦探的活儿”时尼尔垂下眼，镜头切到尼尔，再回到老板 */
+pose('ho','stand',{f:1,face:'sad',b:6,h:-2});faceCam('ho',1.5,1500);
+at(2800,()=>{pose('nl','stand',{f:0,face:'sad',h:20});faceCam('nl',1.5,1400)});
+at(5300,()=>{pose('ho','stand',{f:1,face:'smile',b:6,h:-4});faceCam('ho',1.5,1400)});
+await ho('不要紧，尼尔，主要不是钱的事儿。你最近侦探的活儿怎么样了？干不下去的话也可以和我说，我给你介绍点别的活儿');
+/* 尼尔低着头，过一会儿才开口 */
+faceCam('nl',1.6,1500);pose('nl','stand',{f:0,face:'sad',h:20});await w(900);
+await n('谢谢了....');
+await w(1000);pose('nl','stand',{f:0,face:'hard',h:0});await w(700);
+await n('房钱我两天后给你');
+/* 老板点点头，退回走廊；门合上 */
+dolly(1.1,72,58,2200);pose('ho','stand',{f:1,face:'n',h:6});await w(900);
+P('ho',{x:1420,d:1300,show:0});await w(1200);
+door.style.transform='scaleX(1)';$('#rcl').style.opacity=0;tn(70,.3,'sine',.4);bs(.1,.6,300);await w(1200);
+/* 一个人站在晨光里，镜头慢慢拉开 */
+pose('nl','stand',{f:1,face:'n',h:6});dolly(1,50,60,4000);await w(4200)}},
 C1,
 {n:'室内求助',sub:'尼尔的房间 · 夜莺把一切摊在桌上',sh:'求助',pos:[1060,720],bg:'#0b0907',set:'#set3',i:['34%','62%'],mk:()=>SETS.room(),
 ini(){$('#props').innerHTML=PHOTO;P('nl',{d:0,show:1,x:1040,f:1,s:.56,face:'n',ar:55,al:-55});P('ny',{d:0,x:-160,s:.56,hat:1,bag:1,umc:1,face:'sad'})},

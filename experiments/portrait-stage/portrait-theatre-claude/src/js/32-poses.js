@@ -7,4 +7,4 @@ Object.assign(POSES,{
  toast:{ll:0,lr:2,ar:-150,al:10,b:-4,h:-6},
  slump:{ll:0,lr:2,ar:-70,al:30,b:22,h:30},
  stand:{ll:0,lr:0,ar:0,al:0,b:0,h:0}});
-Object.assign(POSES,{sitHung:{b:26,h:34,ar:0,al:0}});
+Object.assign(POSES,{sitHung:{b:26,h:34,ar:0,al:0},sitUp:{b:6,h:8,ar:6,al:6}});
