@@ -69,6 +69,9 @@
         (if (equal? watch-trouble "") '()
           (list (node watch-trouble :anchor "老街酒馆-工作"
             :subtitle "今天不处理，扣5金"
+            :tags (list "紧急")
+            ;; 入口给概要，进入后显示同一进度钟的 clock-node，不复制状态。
+            :clocks (list (watch-progress 'render-data))
             :children (list
               (clock-node "标注：看场麻烦处理" (watch-progress 'render-data))
               (watch-action (cond ((equal? watch-trouble "门口争执") "打圆场")
