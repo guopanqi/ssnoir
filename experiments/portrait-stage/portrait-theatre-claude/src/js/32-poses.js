@@ -8,3 +8,4 @@ Object.assign(POSES,{
  slump:{ll:0,lr:2,ar:-70,al:30,b:22,h:30},
  stand:{ll:0,lr:0,ar:0,al:0,b:0,h:0}});
 Object.assign(POSES,{sitHung:{b:26,h:34,ar:0,al:0},sitUp:{b:6,h:8,ar:6,al:6}});
+Object.assign(POSES,{wipe:{ar:-80,al:6,b:4,h:14},turnUp:{ar:-165,al:0,b:-4,h:-6},idleDown:{ar:4,al:6,b:4,h:16},push:{ar:-60,al:6,b:6,h:14},take:{ar:-70,al:10,b:4,h:6},shrug:{ar:34,al:-34,b:-2,h:8}});

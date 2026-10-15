@@ -265,10 +265,14 @@ Object.assign(POSES,{
  slump:{ll:0,lr:2,ar:-70,al:30,b:22,h:30},
  stand:{ll:0,lr:0,ar:0,al:0,b:0,h:0}});
 Object.assign(POSES,{sitHung:{b:26,h:34,ar:0,al:0},sitUp:{b:6,h:8,ar:6,al:6}});
+Object.assign(POSES,{wipe:{ar:-80,al:6,b:4,h:14},turnUp:{ar:-165,al:0,b:-4,h:-6},idleDown:{ar:4,al:6,b:4,h:16},push:{ar:-60,al:6,b:6,h:14},take:{ar:-70,al:10,b:4,h:6},shrug:{ar:34,al:-34,b:-2,h:8}});
 /* 舞台道具助手：gl 移动/淡入任意 SVG 道具；hum 在 #props 放一群轻轻摇晃的剪影；酒保擦杯/上架两个共用动作 */
 const gl=(id,x,y,o=1,ms=500,r=0,ease='ease')=>{const e=$('#'+id);if(!e)return;e.style.transition=`transform ${ms}ms ${ease},opacity .25s`;e.style.transform=`translate(${x}px,${y}px) rotate(${r}deg)`;e.style.opacity=o};
 const GL=id=>`<g id="${id}" style="opacity:0"><path d="M-11 0L-9 -26H9L11 0Z" fill="#0b0f1c" stroke="#e6eeff" stroke-width="2.5"/><path d="M-10 -9H10" stroke="#e0b060" stroke-width="3"/></g>`;
 const hum=list=>{const g=$('#props');list.forEach(([x,y,s,f],i)=>{g.insertAdjacentHTML('beforeend',`<g transform="translate(${x} ${y})"><g style="transform-box:fill-box;transform-origin:50% 100%">${SIL(0,0,s,f)}</g></g>`);g.lastElementChild.firstElementChild.animate([{transform:'rotate(-2.5deg)'},{transform:'rotate(2.5deg)'}],{duration:1500+((i*377)%900),direction:'alternate',iterations:Infinity,easing:'ease-in-out',delay:-i*300})})};
+/* 酒保：擦杯口（杯在手边轻晃）、转身把杯子放回架子（整张立绘切换） */
+const wipeGlass=async(w,n=3)=>{pose('bm','wipe',{show:1,f:1,face:'n',back:0});gl('gl',923,592,1,0);for(let i=0;i<n;i++){gl('gl',929,590,1,320,8);await w(380);gl('gl',917,594,1,320,-8);await w(380)}};
+const shelveGlass=async w=>{pose('bm','turnUp',{f:1,back:1});gl('gl',998,476,1,650);await w(800);pose('bm','idleDown',{f:1,back:0,face:'n'});await w(300)};
 /* rain */
 const cv=$('#rain'),cx=cv.getContext('2d'),dr=Array.from({length:260},()=>({x:Math.random()*960,y:Math.random()*540,v:14+Math.random()*10,l:10+Math.random()*14}));cx.strokeStyle='rgba(150,185,235,.4)';
 (function lp(){requestAnimationFrame(lp);cx.clearRect(0,0,960,540);if(!rainI)return;const n=Math.floor(dr.length*rainI);cx.beginPath();for(let i=0;i<n;i++){const d=dr[i];if(!paused){d.y+=d.v;d.x-=2;if(d.y>540){d.y=-20;d.x=Math.random()*980}}cx.moveTo(d.x,d.y);cx.lineTo(d.x-2,d.y+d.l)}cx.stroke()})();
@@ -374,6 +378,9 @@ return GROUND+RR(800,300,240,170,'s',.8,2.5,'#7f95c4')+k+RR(150,470,150,320,'s d
 /* 旅馆房间（第一日清晨）：左边床在前景（遮住坐着的尼尔下半身），中间窗+晨光，右边房门（门扇 #rl 绕右侧合页开合，门外走廊光 #rcl） */
 const BED=DK(90,620,690,860)+'<path d="M130 690q40 -44 110 -32l-6 32" fill="#0b0f1c" stroke="#cfe0ff" stroke-width="2.5"/><path d="M300 690q70 -30 140 0" fill="none" stroke="#7f95c4" stroke-width="2.5"/>';
 SETS.hotelRoom=()=>GROUND+RR(720,220,240,250,'s',.8,3,'#cfe0ff')+LL('M840 220V470M720 345H960','',1.1,1.5,'#7f95c4')+'<polygon class="mp" points="720,470 960,470 1180,790 760,790" fill="#e8dcb0" opacity="0" style="transition:opacity 1.6s"/>'+RR(90,430,40,360,'s',.6,3,'#7f95c4')+RR(640,700,80,90,'s',1,2,'#9fb4e0')+LL('M670 700l-4 -34h14z','',1.3,2,'#9fb4e0')+RR(1240,320,220,470,'s',.6,3,'#b8923f')+'<rect id="rcl" x="1250" y="330" width="200" height="450" fill="#f2c36e" opacity="0" style="transition:opacity .5s"/><g id="rl" style="transform-origin:1460px 320px;transition:transform .7s">'+RR(1250,330,200,450,'s door',1,2,'#e9d9b0')+RR(1275,360,150,170,'',1.3,1.5,'#b8923f')+RR(1275,560,150,190,'',1.4,1.5,'#b8923f')+'<circle cx="1272" cy="560" r="9" fill="#d8b252"/></g>';
+/* 白天的酒馆：酒保在吧台后（吧台在前景层），架子在他身后，左边窗户里斜进一束日光；尼尔站在吧台左端（外侧） */
+SETS.barDay=()=>GROUND+RR(820,150,620,130,'s',.6,2.5,'#7f95c4')+BOT(840,1480,470)+RR(150,250,300,300,'s',.8,3,'#cfe0ff')+LL('M300 250V550M150 400H450','',1.1,1.5,'#7f95c4')+'<polygon class="mp" points="150,550 450,550 780,790 330,790" fill="#e8dcb0" opacity="0" style="transition:opacity 1.6s"/>';
+const BDC=DK(640,1600,660,860)+'<path d="M700 660v-26h16v26zM1330 660q6 -26 20 -26q14 0 20 26z" fill="#07080c" stroke="#e6eeff" stroke-width="2.5"/>'+GL('gl')+GL('gw');
 /* chapters */
 const C1=Object.assign({t:'<h1>片段一 · 雨夜求助</h1><p>格兰德酒店门前</p>',o:'920px 610px',bg:'#070a12',set:'#hotel',i:['20%','52%'],
 ini(){P('ny',{d:0,x:-200,s:.54,hat:1,umo:1})},
@@ -523,6 +530,38 @@ P('ho',{x:1420,d:1300,show:0});await w(1200);
 door.style.transform='scaleX(1)';$('#rcl').style.opacity=0;tn(70,.3,'sine',.4);bs(.1,.6,300);await w(1200);
 /* 一个人站在晨光里，镜头慢慢拉开 */
 pose('nl','stand',{f:1,face:'n',h:6});dolly(1,50,60,4000);await w(4200)}},
+{n:'第一日酒馆',sub:'酒馆 · 白天 · 吧台两侧',sh:'酒馆',pos:[520,600],bg:'#0b0a0c',set:'#set3',lx:900,i:['40%','60%'],mk:()=>SETS.barDay(),
+ini(){$('#front').innerHTML=BDC;$('#front').style.opacity=0;P('bm',{d:0,show:0,x:1050,y:790,s:.6,f:1,face:'n'});P('nl',{d:0,show:0,x:-160,y:790,s:.6,f:0,face:'n'})},
+/* 白天，客人稀疏。熟不熟全靠动作：酒保没抬头就递来一杯水，尼尔不用开口就接住 */
+async run(k,{w,n,bm,at,faceCam,go,murmur}){
+$('#front').style.opacity=1;hum([[1480,790,.7,-1],[290,790,.7,1]]);mp(.1);sp(2,900,1.4,.08,'#f3d08a');const mu=murmur(.2);
+dolly(1.35,66,58,8000);
+/* 酒保擦杯口，放回架子 */
+await w(900);await wipeGlass(w,3);await shelveGlass(w);
+/* 尼尔推门进来，站到吧台外侧；酒保头也不抬，推过来一杯水 */
+P('nl',{show:1,d:0});pose('nl','stand',{face:'n'});go('nl',540,2600);dolly(1.15,56,58,3200);await w(2300);
+pose('bm','push',{f:1,face:'n'});gl('gw',933,660,1,0);await w(150);gl('gw',690,660,1,700,0,'ease-out');await w(700);pose('bm','idleDown',{f:1,face:'n'});
+pose('nl','take',{face:'n'});gl('gw',663,606,1,450);await w(600);
+await bm('来了，最近侦探的活儿怎么样？');
+pose('nl','shrug',{face:'wry'});
+await n('和之前差不多，没什么活儿可做。今天酒吧还需要人手吗？');
+gl('gw',672,660,1,500);pose('nl','stand',{face:'n'});
+wipeGlass(w,2);
+await bm('还是老样子，帮我们看看场子，做完就结钱。');
+/* 酒保这才放下杯子，抬头，认真说这一句 */
+gl('gl',923,660,1,300);pose('bm','idleDown',{f:1,face:'n',h:-2,b:6});faceCam('bm',1.5,1800);
+await bm('你如果真的缺钱的话，还是得找份正经的工作，这些零工是攒不到什么钱的。');
+/* 尼尔沉默：镜头给他的脸 */
+faceCam('nl',1.55,1500);pose('nl','stand',{face:'sad',h:16});
+await n('...');await w(1400);
+await n('我再试试，再等等吧。');
+/* 他自己先绷不住：抬头，带点自嘲的劲儿 */
+pose('nl','shrug',{face:'wry',h:-4});dolly(1.12,52,58,2400);
+await n('说不定今天晚上就有什么重要的侦探委托，福尔摩斯那种，现在放弃不就错过了？');
+/* 两个人都笑了：肩膀轻抖，镜头拉开 */
+pose('nl','stand',{face:'smile',h:4});pose('bm','idleDown',{f:1,face:'smile',h:6});dolly(1,50,60,3800);
+for(let i=0;i<4;i++){tn(300+i*20,.12,'triangle',.04);bs(.08,.18,900);P('nl',{h:i%2?-2:5,d:260});P('bm',{h:i%2?9:3,d:260});await w(420)}
+await w(1800);mu.stop()}},
 C1,
 {n:'室内求助',sub:'尼尔的房间 · 夜莺把一切摊在桌上',sh:'求助',pos:[1060,720],bg:'#0b0907',set:'#set3',i:['34%','62%'],mk:()=>SETS.room(),
 ini(){$('#props').innerHTML=PHOTO;P('nl',{d:0,show:1,x:1040,f:1,s:.56,face:'n',ar:55,al:-55});P('ny',{d:0,x:-160,s:.56,hat:1,bag:1,umc:1,face:'sad'})},
