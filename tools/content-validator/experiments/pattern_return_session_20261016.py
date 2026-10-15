@@ -89,6 +89,9 @@ def visible(s):
     stage = s["stage"]
     obs = {"stage": stage, "condition": s["condition"],
            "rules": public_rules(), "legal": legal_moves(s)}
+    if stage == "W1" and s["condition"] == "M":
+        obs["legal"] = {"world": WORLDS, "if_decline": DECLINE_MOVES,
+                        "if_accept_weak": ACCEPT_MOVES, "if_accept_strong": ACCEPT_MOVES}
     if stage in ("W1", "L2", "W2", "DONE"):
         obs.update(start=s["start"], hazard=s["hazard"],
                    forecast="B" if s["forecast"] else "A")
@@ -240,17 +243,27 @@ def interview(condition, cardid, output):
         obs = visible(s)
         transcript["observations"].append(obs)
         print(json.dumps(obs, ensure_ascii=False, indent=2))
-        choices = legal_moves(s)
-        for i, option in enumerate(choices, 1):
-            print(i, option)
-        while True:
-            raw = input("选项编号> ").strip()
-            if raw.isdigit() and 1 <= int(raw) <= len(choices):
-                break
-            print("无效编号")
+        def pick(label, options):
+            for i, option in enumerate(options, 1):
+                print(i, option)
+            while True:
+                raw = input(label + " 编号> ").strip()
+                if raw.isdigit() and 1 <= int(raw) <= len(options):
+                    return options[int(raw) - 1]
+                print("无效编号")
+        if s["stage"] == "W1" and condition == "M":
+            world = pick("世界是否接约", WORLDS)
+            if world == "DECLINE":
+                selection = (world, pick("若不接约，返回A怎样做", DECLINE_MOVES))
+            else:
+                low = pick("若K弱，返回A怎样做", ACCEPT_MOVES)
+                high = pick("若K强，返回A怎样做", ACCEPT_MOVES)
+                selection = (world, low, high)
+        else:
+            selection = pick("当前动作", legal_moves(s))
         transcript["free_text"].append({"stage": s["stage"],
                                          "reason": input("理由/顾虑（原话）> ")})
-        move(s, choices[int(raw)-1])
+        move(s, selection)
     transcript["session"] = {k: v for k, v in s.items() if k != "trace"}
     transcript["choices"] = s["trace"]
     transcript["observations"].append(visible(s))
