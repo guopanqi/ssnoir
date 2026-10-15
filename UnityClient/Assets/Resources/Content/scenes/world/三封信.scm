@@ -430,12 +430,7 @@
     (define (receive-night-visit!)
       (if (not (= story-stage 0)) (error "夜莺来访：委托已经开始") #t)
       (begin
-          ;; 楼下电铃求助先演，开门后再进入现有室内接案对白。
-          (play-intertitle! #t
-            (list (tr "那晚，我正准备睡觉。雨下得很大，我的鞋子湿了，和袜子黏在一起。"
-                "That night, I was about to turn in. It was pouring. My shoes were soaked, my socks stuck to my feet.") "序章/雨夜/01/尼尔")
-            (list (tr "我对那天记得很清楚，那是我的命运发生转折的地方，但当时我对此一无所知。"
-                "I remember that night clearly. My life took a turn there, though I had no idea at the time.") "序章/雨夜/02/尼尔"))
+          ;; 直接进入雨夜电铃剧场；接案的感想统一收在室内剧场后的旁白。
           (rainy-door-theatre!)
           (commission-dialogue!)
           (add-item! "金钱" prepayment)
