@@ -1,8 +1,8 @@
 {
   "schema": "ssnoir.autonomous-pattern-memory/v1",
   "updated": "2026-10-15",
-  "batch": "BRIDGE-AUDIT01 CRISIS/HEDGE/OBLIGATION跨族因果边重新组织",
-  "rounds": 83,
+  "batch": "SIGNAL-AUDIT01 自主代价信号的纯分离激励审计",
+  "rounds": 84,
   "totalArchivedRounds": 478,
   "objective": "长期自主发展可复用的玩法模式语言，覆盖已知作品先例、基础原语、完整交锋、跨阶段结构、组合条件与重要负例；评价玩家实际反复作出的判断、反馈、后果。历史20是广度愿景，不是价值认证名单或完成配额。",
   "policy": "从成熟作品、旧实验、新假设三向吸收；先去剧情定义玩家活动，再独立批评同构/最强简单策略，按需模型与盲Agent试玩。数学、作品先例、Agent、原生与真人是正交证据。知识图谱收录不等真人认可，精选展示与Debug独立把关，真人反馈异步且不阻塞。",
@@ -337,6 +337,6 @@
     "latestCounterfactual": "IWT01：四手Hidden A/B各半，3份正确WORK得10/8，TRACK工作必+1并有75%准确类型线索；纯INSPECT100%占一手。无信息6、只TRACK119/16、INSPECT9；INSPECT耗时两手TRACK重新胜119/16；完美TRACK19/2、50%TRACK6、TRACK首手限定29/4。正向枚举核对全部潜在真实类型；保留已有DISC/FOCUS/SIG组合。",
     "crossFamilyAudit": "PL-IWT01→PL-DISC01（工作+信息两种不同产出）、FOCUS02/03（及时兑现行动窗口、完美检查强旁路）、SIG01（非战略性线索噪声有别于他者可伪装的行动信号）。"
   },
-  "lastFinding": "BRIDGE-AUDIT01：横向审CRISIS01/03、HEDGE-FACTOR、OBLIGATION04/05及CROSS-SCALE08/09，区分价值变化、动作资格变化、时限内可兑现性变化、真人主观承诺重估四层。前三者已由历史模型分别证实，第四者无新人类证据；强安全顺序/无早窗免费重开/固定维护税是关键负例。成熟因果边可组合，不能以堆叠规则、新时钟或DP变化认证新原语。本批不重新运行历史DP。",
-  "nextResearchQuestion": "优先复用旧OBSERVE/HEDGE无提示体验测试验证玩家自选关切与后果理解；若自主数学探索则转不同心理动词（第三方自利行动、可检验策略信号、权利变动），不沿CROSS-SCALE或继续增加危机时钟。"
+  "lastFinding": "SIGNAL-AUDIT01：独立第三方H/L各半，自费证明H成本1、L成本5，对方获合作收益3；H证明、L不证明的分离候选满足逐类型激励，玩家合作H收益8/合作L损失8/拒绝1，期望9/2。L证据成本2时模仿有利、H证据成本4时出示无利，候选失效。无信号安全1、免费完美检查9/2、直接扣2成本检查5/2。已跑Fraction本地断言；非完整博弈均衡枚举，同TRL/TRANSFER成熟模式去重，无真人/Agent/Unity。",
+  "nextResearchQuestion": "检验玩家自己作出的公开但不可逆承诺是否改变对方自利外部机会和信号激励，使双方行为双向依赖；先检查免费完美核验、可信条件合同、安全拒绝和普通条件菜单的同构。若仍同构，停止，不再扫伪装数值。"
 }
