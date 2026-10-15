@@ -276,11 +276,9 @@ if __name__ == "__main__":
     ap.add_argument("--card", type=int, choices=range(1, 8))
     ap.add_argument("--output")
     args = ap.parse_args()
-    if args.selftest:
-        paired_regression()
-    elif args.run:
+    if args.run:
         if args.condition is None or args.card is None or not args.output:
             ap.error("--run requires --condition S/M --card 1..7 --output PATH")
         interview(args.condition, args.card - 1, args.output)
     else:
-        ap.error("choose --selftest or --run")
+        paired_regression()
