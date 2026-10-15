@@ -1,0 +1,49 @@
+name: SSNoir Portrait Ink Standards
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'UnityClient/Assets/Resources/Portraits/Neon/**'
+      - 'tools/portrait-neon/audit.py'
+      - 'tools/portrait-neon/process.py'
+      - '.github/workflows/ssnoir-portrait-ink-audit.yml'
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install offline image reader
+        run: python -m pip install pillow
+      - name: Audit published source portraits and enforce new asset standards
+        run: |
+          python - <<'PY'
+          import pathlib, subprocess, sys, json
+          from importlib.util import spec_from_file_location, module_from_spec
+          root = pathlib.Path("UnityClient/Assets/Resources/Portraits/Neon")
+          spec = spec_from_file_location("ink_audit", "tools/portrait-neon/audit.py")
+          mod = module_from_spec(spec)
+          spec.loader.exec_module(mod)
+          source = sorted(p for p in root.glob("*.png") if not p.stem.endswith(
+              ("_lines","_accent","_silhouette")) and "backup" not in p.stem.lower())
+          report = [mod.inspect(p) for p in source]
+          failures = [r for r in report if not r["ok"]]
+          print(f"Existing source portrait audit: {len(source)} inspected; {len(failures)} need visual or source review.")
+          for r in failures:
+              print(r["path"] + ": " + " | ".join(r["issues"]))
+          # Existing art is not automatically rewritten. New/replaced PNGs must pass.
+          diff = subprocess.run(["git","diff","--name-only","HEAD^","HEAD"],
+              capture_output=True,text=True,check=True).stdout.splitlines()
+          changed = [pathlib.Path(p) for p in diff if
+              p.startswith(str(root)+"/") and p.endswith(".png") and
+              not p.removesuffix(".png").endswith(("_lines","_accent","_silhouette"))]
+          invalid = [p for p in changed if p.exists() and not mod.inspect(p)["ok"]]
+          for p in invalid: print("New/modified asset fails quality gate: "+str(p))
+          if invalid: sys.exit(1)
+          PY
