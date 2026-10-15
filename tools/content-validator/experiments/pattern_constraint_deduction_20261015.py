@@ -35,6 +35,14 @@ def fixed(worlds,first,second):
     return sum(Q(len(g2),len(worlds))*resolved(g2)
                for g1 in partition(worlds,first) for g2 in partition(g1,second))
 
+def greedy_diversity(worlds,budget):
+    """No posterior DP: investigate person with most candidate identities."""
+    if not budget:return Q(resolved(worlds))
+    diversity=[len(partition(worlds,i)) for i in ROSTER]
+    target=diversity.index(max(diversity))
+    return sum(Q(len(g),len(worlds))*greedy_diversity(g,budget-1)
+               for g in partition(worlds,target))
+
 def complete_probability(worlds,policy,budget):
     if budget==0:return Q(resolved(worlds)==len(ROSTER))
     target=policy(worlds,budget)
@@ -93,6 +101,7 @@ def regression():
             adaptive=optimal(ws,2)[0]
             best_pre=max(fixed(ws,a,b) for a,b in combinations(ROSTER,2))
             assert (adaptive,best_pre)==expected_levels[count]
+            assert greedy_diversity(ws,2)==adaptive
             print('CHAIN06-11 public constraints',selected,
                   'worlds',len(ws),'dynamic',adaptive,'fixed',best_pre)
     # Three public constraints instead of four creates a uniquely valuable
@@ -102,12 +111,16 @@ def regression():
                   if all(w[i] in CANDIDATES[i] for i in range(3)))
     assert len(partial)==11
     assert optimal(partial,2)==(Q(4),(3,))
+    assert greedy_diversity(partial,2)==Q(4)
+    assert all(sum(Q(len(g),len(partial))*optimal(g,1)[0]
+                   for g in partition(partial,i))==Q(36,11)
+               for i in (0,1,2))
     assert max(fixed(partial,a,b) for a,b in combinations(ROSTER,2))==Q(36,11)
     expected_followups={0:(0,1,2),1:(2,),2:(1,),3:(0,)}
     for group in partition(partial,3):
         first_answer=group[0][3]
         assert optimal(group,1)==(Q(4),expected_followups[first_answer])
     print('CHAIN12-14 first object3 uniquely optimal, all second choices conditional')
-    print('CHAIN01-14 PASS')
+    print('CHAIN01-16 PASS (greedy max-candidate rule also optimal in all tested variants)')
 
 if __name__=='__main__':regression()
