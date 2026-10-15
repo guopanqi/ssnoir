@@ -4417,9 +4417,10 @@
       "sources": [
         "docs/实验/机制研究/批次/2026-10-15-上游故障与成果依赖传播/研究记录.md",
         "tools/content-validator/experiments/pattern_belief_revision_cascade_20261015.py",
-        "tools/content-validator/experiments/pattern_cascade_dependencies_20261015.py"
+        "tools/content-validator/experiments/pattern_cascade_dependencies_20261015.py",
+        "tools/content-validator/experiments/pattern_cascade_payoff_stability_20261015.py"
       ],
-      "note": "链01/12/23、仅一故障、4手：仅检查最优55/4且先查端点0/3；准检查后修复最优14且先查中心1/2。5手单独检测59/4，修复81/4。逐故障前向核对，属于ATMS式依赖与成熟能力干预组合，非原创原语。",
+      "note": "链01/12/23、仅一故障、4手：仅检查最优55/4且先查端点0/3；准检查后修复最优14且先查中心1/2。5手单独检测59/4，修复81/4。逐故障前向核对，属于ATMS式依赖与成熟能力干预组合，非原创原语。 敏感性：CASCADE16将错误CLAIM罚额依次设2/3/6/9/12/15/18/24，四手根最优首查持续仅诊断→端点、准维修→中心；不证明任意收益下稳定。",
       "evidence": {
         "localExactFraction": true,
         "individualWorldForward": true,
