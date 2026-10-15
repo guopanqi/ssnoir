@@ -1,0 +1,80 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RELAY · 四回合危机与目标</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,"PingFang SC",sans-serif;background:#141618;color:#efeee9}
+*{box-sizing:border-box}body{margin:0;padding:25px 12px}main{max-width:770px;margin:auto}p{color:#bbbdbb;line-height:1.7}
+.card{background:#20242a;border:1px solid #40454d;border-radius:12px;margin:14px 0;padding:18px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.stat{background:#2a3037;padding:12px;border-radius:8px}.stat strong{display:block;font-size:24px;margin-top:4px}
+.buttons{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+button,textarea,select{font:inherit;background:#303740;color:#eee;border:1px solid #5d6670;border-radius:8px;padding:11px}
+button{cursor:pointer;text-align:left}button:disabled{opacity:.3;cursor:default}
+button small{display:block;color:#b8b9bb;margin-top:4px}select,textarea{width:100%}textarea{min-height:65px;resize:vertical}
+.start{background:#dbbd87;color:#17191b;font-weight:700}li{padding:9px 0;border-bottom:1px solid #3e434b}
+small{color:#b9b9b8}pre{white-space:pre-wrap;max-height:240px;overflow:auto}
+@media(max-width:480px){.buttons,.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+</style></head><body><main>
+<small>SSNOIR · 独立机制研究 / RELAY</small><h1>一件麻烦，两个目标</h1>
+<p>四次行动。A进度达到5则+10；B达到1则+3。快速推进A会以50%概率留下一个危机。没有处理的危机会造成损失。请按自己理解安排四次行动，没有最优操作提示。</p>
+<div class="card"><label for="condition">危机处理的作用</label>
+<select id="condition"><option value="productive">A组：处理危机同时推进B</option><option value="tax">B组：处理危机只清除风险</option></select>
+<p>快速推进A +2且可能产生新危机；稳妥推进A +1且没有新危机；直接推进B +1；处理现存危机会占一手。若仍有危机却选择别的动作，原危机立即产生−1损失。交锋结束还有未处理危机，也会造成−1损失。</p>
+<button class="start" id="start">开始新局</button></div>
+<div class="card" id="game" hidden>
+<div class="stats"><div class="stat"><small>剩余行动</small><strong id="time">4</strong></div>
+<div class="stat"><small>A进度</small><strong id="a">0/5</strong></div>
+<div class="stat"><small>B进度</small><strong id="b">0/1</strong></div>
+<div class="stat"><small>当前危机</small><strong id="incident">无</strong></div>
+<div class="stat"><small>旧危机损失</small><strong id="leaks">0</strong></div>
+<div class="stat"><small>实验组</small><strong id="mode">A</strong></div></div>
+<p id="notice" role="status"></p><label for="thought">现在为什么选择下一手？（可选）</label>
+<textarea id="thought" placeholder="接下来最值得关心什么？"></textarea>
+<div class="buttons">
+<button data-act="PUSH"><b>快速推进A</b><small>+2，50%发生新危机</small></button>
+<button data-act="STEADY"><b>稳妥推进A</b><small>+1，无新危机</small></button>
+<button data-act="WORK_B"><b>直接推进B</b><small>+1</small></button>
+<button data-act="RECOVER"><b>处理当前危机</b><small id="recover-label">清理，A组兼得B进度</small></button>
+</div><p id="result"></p></div>
+<div class="card"><h2>行动记录</h2><ol id="log"></ol><div id="export" hidden><p>以下记录只留在本页，不上传。</p><pre id="json"></pre></div></div>
+<p><small>未通过真人试玩验证，不属于正式游戏或Debug。重新开始会覆盖本页记录。</small></p>
+<script>
+(()=>{'use strict';const $=id=>document.getElementById(id);let s=null;
+function render(){
+ $('game').hidden=!s;if(!s)return;
+ $('time').textContent=s.time;$('a').textContent=s.a+'/5';$('b').textContent=s.b+'/1';
+ $('incident').textContent=s.pending?'待处理':'无';$('leaks').textContent=s.leaks;
+ $('mode').textContent=s.mode==='productive'?'A':'B';
+ $('recover-label').textContent=s.mode==='productive'?'清除，兼得B+1':'仅清除危机';
+ document.querySelectorAll('[data-act]').forEach(b=>b.disabled=s.time===0||(b.dataset.act==='RECOVER'&&!s.pending));
+ $('log').replaceChildren();
+ for(const h of s.history){
+  const li=document.createElement('li');
+  li.textContent='第'+h.turn+'手：'+h.action+'。'+h.result;
+  const note=document.createElement('small');note.textContent='事前判断：'+(h.thought||'未填写');
+  li.append(document.createElement('hr'),note);$('log').append(li);
+ }
+ if(!s.time){
+  const cost=s.leaks+Number(s.pending),A=s.a===5?10:0,B=s.b===1?3:0,total=A+B-cost;
+  $('result').textContent='结算：A '+A+'，B '+B+'，危机损失 −'+cost+'，总分 '+total;
+  $('export').hidden=false;$('json').textContent=JSON.stringify({...s,score:total,finalDamage:cost},null,2);
+ }else{$('result').textContent='';$('export').hidden=true;}
+}
+function start(){
+ s={time:4,a:0,b:0,pending:false,leaks:0,mode:$('condition').value,history:[]};
+ $('notice').textContent='';$('thought').value='';render();
+}
+function step(action){
+ if(!s||!s.time||(action==='RECOVER'&&!s.pending))return;
+ const before=s.pending,events=[];if(before&&action!=='RECOVER'){s.leaks++;events.push('旧危机未处理，损失−1');}
+ s.pending=false;
+ if(action==='PUSH'){s.a=Math.min(5,s.a+2);s.pending=Math.random()<.5;events.push(s.pending?'新危机发生':'无新危机');}
+ if(action==='STEADY'){s.a=Math.min(5,s.a+1);events.push('A推进1');}
+ if(action==='WORK_B'){s.b=1;events.push('B推进1');}
+ if(action==='RECOVER'){if(s.mode==='productive')s.b=1;events.push(s.mode==='productive'?'消除危机，并推进B':'消除危机');}
+ s.history.push({turn:5-s.time,action,result:events.join('；'),thought:$('thought').value.trim(),a:s.a,b:s.b,pending:s.pending,leaks:s.leaks});
+ s.time--;$('thought').value='';$('notice').textContent=events.join('；');render();
+}
+ $('start').addEventListener('click',start);
+ document.querySelectorAll('[data-act]').forEach(b=>b.addEventListener('click',()=>step(b.dataset.act)));
+ window.__relayResearchTest={getState:()=>s?structuredClone(s):null,step,start};
+})();
+</script></main></body></html>
