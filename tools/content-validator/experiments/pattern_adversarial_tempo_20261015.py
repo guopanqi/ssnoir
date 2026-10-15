@@ -50,8 +50,15 @@ def precommitted_mixed(n):
     f=lambda p:n*(5*p-2)+min(Q(0),4-10*p)
     return max((f(p),p) for p in (Q(0),Q(2,5),Q(1)))
 
+def unlimited_escape(n):
+    # If ESCAPE never consumes a resource, history does not change the
+    # next round's available moves or incentives.
+    stage,p,q=matrix(*PAY[0],*PAY[1])
+    return n*stage,p,q
+
 def regression():
     for n in range(1,9):
+        assert unlimited_escape(n)==(Q(0),Q(2,5),Q(1,2))
         normal,action=value(n)
         with_scan,sa=value(n,scan=True)
         assert normal==Q(3*n-6)+Q(3,2**(n-1))
