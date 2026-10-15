@@ -4779,6 +4779,75 @@
         "nativeGameChanged": false,
         "scriptedCLISmokePaths": 2
       }
+    },
+    {
+      "id": "PL-CENSOR-REPEAT01",
+      "name": "连续干预中负观察更新后验，但二次保护只形成短口诀",
+      "origin": "ssnoir-research",
+      "layer": "mature-combination-boundary",
+      "family": "决策依赖观察与持续保护",
+      "idea": "两次独立q1/2可能事件，PART_R/B阻断相应来源事件及痕迹；反馈后更新来源概率再选择保护范围，最终猜真源并承受真实伤害。",
+      "stage": "exact-belief-DP-independent-forward-fixed-16-policy-negative-audit",
+      "note": "完整两轮75/8，16种固定两步最强9；正确分类7/8，受伤次数期望3/16。首轮PART_R无痕后P(R)=2/3且下一手仍PART_R；见B痕迹后才改护B。差3/8证明反馈有操作价值但没有新的反复决策动词。若同成本完美安全知识可取得，FULL保护根12旁路。它是旧INV/PART/GROUP的连续变奏而非新独立原语。",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-16-信息受众与连续干预/研究记录.md",
+        "tools/content-validator/experiments/pattern_repeated_censored_events_20261016.py"
+      ],
+      "evidence": {
+        "fractionSolver": true,
+        "independentTrueWorldForward": true,
+        "fixedPlans": 16,
+        "repoCI": "https://github.com/guopanqi/ssnoir/actions/runs/38774052533",
+        "humanFeedbackAvailable": false,
+        "blindAgent": false,
+        "native": false
+      }
+    },
+    {
+      "id": "PL-AUDIENCE-ACTION-LEAK01",
+      "name": "秘密情报会通过后续行动泄露，从而改变有自主退出权的合作",
+      "origin": "ssnoir-research",
+      "layer": "mature-combination",
+      "family": "信息受众、信号时点与自利参与",
+      "idea": "玩家私知G/B后选择X/Y；协作者决定HELP之前若看得到路线，可由玩家路线规则推断隐藏状态；只有在伙伴先不可逆加入且路线不可见时，私人信息能完全保留使用优势。",
+      "stage": "exact-two-type-incentive-bayes-policy-audit",
+      "note": "共同冻结收益：无情报15/2；私有T且先不可逆参加后行动9；真实T提前公开使B伙伴EXIT而根7；补偿B参加根8；仅四份确定性预承诺路线映射最强15/2。若伙伴外部机会3/2，无/私有未示合作只有4，公开反得7。核心效应既有GRC03/04与EP02成熟先例；本次补充玩家行动本身为信息通道的约束检查。",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-16-信息受众与连续干预/研究记录.md",
+        "tools/content-validator/experiments/pattern_information_audience_20261016.py"
+      ],
+      "evidence": {
+        "exactFraction": true,
+        "partnerIncentivesExplicit": true,
+        "purePolicies": 4,
+        "repoCI": "https://github.com/guopanqi/ssnoir/actions/runs/38774052533",
+        "humanFeedbackAvailable": false,
+        "blindAgent": false,
+        "native": false
+      }
+    },
+    {
+      "id": "PL-AUDIENCE-MIX-BOUNDARY01",
+      "name": "可信随机混同能保留部分私有优势，但预编译策略未必能临场自发执行",
+      "origin": "ssnoir-research",
+      "layer": "negative-boundary",
+      "family": "策略性行为信号与可信承诺",
+      "idea": "允许玩家事前可执行地承诺两类型的随机路线概率a,b，伙伴看到路线后Bayes更新并以自利收益选择JOIN/EXIT；与四种纯策略、完全私有及公知反证。",
+      "stage": "analytic-four-region-continuous-upper-bound-and-rational-grid",
+      "note": "最优可信混同a=P(X|G)=1/2,b=P(X|B)=0，期望8，优于四种纯策略的15/2且低于行动完全保密9。Y后伙伴P(G)=1/3、加入净收益0，需明确平局JOIN；a49/100,b0可严格让伙伴JOIN而达399/50。连续a,b区域解析上界8、1681分数网格回归。G类型临场更愿X10而非Y6，因此该随机政策需要真实事前可执行承诺，不是自发均衡；不能拿纯策略四项冒充完整强对照。",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-16-信息受众与连续干预/研究记录.md",
+        "tools/content-validator/experiments/pattern_route_signal_mixing_20261016.py"
+      ],
+      "evidence": {
+        "fraction": true,
+        "analyticBound": true,
+        "gridPolicies": 1681,
+        "repoCI": "https://github.com/guopanqi/ssnoir/actions/runs/38774052533",
+        "humanFeedbackAvailable": false,
+        "blindAgent": false,
+        "native": false
+      }
     }
   ],
   "edges": [
@@ -8393,6 +8462,42 @@
       "to": "PL-RETURN-CHOICE-AUDIT",
       "relation": "one-way-ticket-baseline",
       "reason": "跨场资格传递能有真实结果身份与条件改道但W没有反向改变原L行动集合，不应误标为返场闭环"
+    },
+    {
+      "from": "PL-PART01",
+      "to": "PL-CENSOR-REPEAT01",
+      "relation": "repeat-endogenous-negative-observation",
+      "reason": "将PART一次自然事件的缺席后验延长到两轮，动态胜最强固定3/8却被短保护口诀解释，不自动成为新原语"
+    },
+    {
+      "from": "PL-GROUP01",
+      "to": "PL-CENSOR-REPEAT01",
+      "relation": "one-step-source-identification-limit",
+      "reason": "GROUP事件确定发生时一手能全辨源；连续再加轮数不一定增新可判断动作"
+    },
+    {
+      "from": "PL-GRC03",
+      "to": "PL-AUDIENCE-ACTION-LEAK01",
+      "relation": "audience-response-to-information-and-action",
+      "reason": "GRC03已有早公开改变伙伴自主参加；本批区分真实私有报告和玩家随后公开可见X/Y的次生信号"
+    },
+    {
+      "from": "PL-EP02",
+      "to": "PL-AUDIENCE-ACTION-LEAK01",
+      "relation": "behavioral-absence-vs-visible-route-signal",
+      "reason": "EP02沉默揭露真相；AUDIENCE显示正面选择工作路线也可编码私人信息，伙伴可自行EXIT"
+    },
+    {
+      "from": "PL-AUDIENCE-ACTION-LEAK01",
+      "to": "PL-AUDIENCE-MIX-BOUNDARY01",
+      "relation": "strong-credible-randomized-pooling-counterexample",
+      "reason": "四确定性映射最强7.5并非随机策略全集；可信混同可到8，但临场类型激励不自动支持承诺"
+    },
+    {
+      "from": "PL-RETURN-MACRO",
+      "to": "PL-AUDIENCE-MIX-BOUNDARY01",
+      "relation": "contingent-plan-does-not-imply-credible-execution",
+      "reason": "RETURN一人事前条件宏可执行并追平临场策略；AUDIENCE的预写随机混同必须额外有可执行约束以阻止看见G后自行改走X"
     }
   ],
   "coverage": {
