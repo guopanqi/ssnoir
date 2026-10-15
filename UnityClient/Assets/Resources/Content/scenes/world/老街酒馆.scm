@@ -9,17 +9,44 @@
     (define watch-trouble-day 0)
     (define watch-trouble "")
     (define watch-progress (make-clock "处理麻烦" 3 'gauge "当天处理；未解决扣本日工资5金。"))
+    ;; 麻烦发生时先让场内的人吵起来，再由调酒师指给尼尔。
+    ;; 两个已存在的场景落点：人群靠工作台、另一人靠酒馆中央。
+    ;; 不引入新的隐藏节点或独立计时器。
+    (define (play-watch-trouble-noise! kind first?)
+      (cond
+        ((equal? kind "醉客纠缠")
+         (play-bubble!
+           (line "醉客" "别拉我！我这杯还没喝完！" :at "老街酒馆")
+           (line "客人" "你把酒都泼我身上了！" :at "老街酒馆-工作")))
+        ((equal? kind "门口争执")
+         (play-bubble!
+           (line "客人" "你刚才推谁呢？" :at "老街酒馆")
+           (line "另一名客人" "有本事到门外说！" :at "老街酒馆-工作")))
+        ((equal? kind "赖账客人")
+         (play-bubble!
+           (line "调酒师" "等等，你还没付钱！" :at "老街酒馆-工作")
+           (line "客人" "我付过了！少来这套！" :at "老街酒馆")))
+        (else (error "看场：未知麻烦类型")))
+      (if first?
+          (play-bubble!
+            (line "尼尔" "那桌吵起来了。" :at "老街酒馆-工作")
+            (line "调酒师" "你负责看场，这种事就得你去处理。" :at "老街酒馆-工作")
+            (line "调酒师" "今晚放着不管，从你这班工钱里扣五块。" :at "老街酒馆-工作"))
+          (play-bubble!
+            (line "调酒师" "尼尔，场子交给你了。今晚不处理，扣五块。" :at "老街酒馆-工作"))))
+
     (define (watch-work!)
       (add-item! "金钱" 10)
       (if (and (not (= watch-trouble-day world-day))
                (or watch-first? (random-choice (list #t #f #f))))
         (begin
           (set! watch-trouble-day world-day)
-          (set! watch-trouble (if watch-first? "醉客纠缠"
-            (random-choice (list "醉客纠缠" "门口争执" "赖账客人"))))
-          (set! watch-first? #f)
-          (watch-progress 'reset!)
-          (play-bubble! (line "调酒师" "尼尔，看着那桌。今晚不处理，少的从这班里扣。" :at "老街酒馆-工作"))) #f)
+          (let ((first? watch-first?))
+            (set! watch-trouble (if first? "醉客纠缠"
+              (random-choice (list "醉客纠缠" "门口争执" "赖账客人"))))
+            (set! watch-first? #f)
+            (watch-progress 'reset!)
+            (play-watch-trouble-noise! watch-trouble first?))) #f)
       (photo-case 'hear-rumours! 1))
     (define (watch-handle! n)
       (watch-progress 'advance! n)
@@ -42,8 +69,8 @@
         (if (equal? watch-trouble "") '()
           (list (node watch-trouble :anchor "老街酒馆-工作"
             :subtitle "今天不处理，扣5金"
-            :clocks (list (watch-progress 'render-data))
             :children (list
+              (clock-node "标注：看场麻烦处理" (watch-progress 'render-data))
               (watch-action (cond ((equal? watch-trouble "门口争执") "打圆场")
                                  ((equal? watch-trouble "赖账客人") "问清账单") (else "劝他离席")) 'social)
               (watch-action (cond ((equal? watch-trouble "门口争执") "隔开两人")
@@ -137,9 +164,8 @@
     ;; 领班每班都可能把一件现场麻烦留给玩家。它不另开地点或界面，
     ;; 只是酒馆里一张当天有效的行动卡。
     ;;
-    ;; 死线用钟，不用「限时」这个 tag。tag 只是一个形容词，玩家读不出还剩多久；
-    ;; 而这里本来就有一条真的死线，它该长成死线的样子。钟直接挂在这张卡上
-    ;; （:clocks 徽章），不再另立一条标注——原来那两处说的是同一件事。
+    ;; 领班麻烦是一张独立的行动卡，时限直接挂在卡上；
+    ;; 看场纠缠是可进入的容器，它的处理钟必须放在子层。
     (define tavern-trouble "无")
     (define tavern-trouble-clk
       (make-clock "打烊前" 1 'countdown
@@ -171,6 +197,24 @@
     (define (node-tavern-rank)
       (clock-node "标注：酒馆职级" (tavern-rank-clk 'render-data)))
 
+    (define (play-foreman-trouble-noise! kind)
+      (cond
+        ((equal? kind "醉客闹事")
+         (play-bubble!
+           (line "醉客" "滚开！这瓶酒算在谁头上？" :at "老街酒馆")
+           (line "客人" "你再砸一个试试！" :at "老街酒馆-工作")))
+        ((equal? kind "账目短缺")
+         (play-bubble!
+           (line "调酒师" "钱不对！这班少了两张钞票！" :at "老街酒馆-工作")
+           (line "客人" "什么意思？你说我拿了？" :at "老街酒馆")))
+        ((equal? kind "后门斗殴")
+         (play-bubble!
+           (line "客人" "放手！出去打一场！" :at "老街酒馆")
+           (line "另一名客人" "好啊！你先别跑！" :at "老街酒馆-工作")))
+        (else (error "老街酒馆：未知的领班麻烦")))
+      (play-bubble!
+        (line "调酒师" "领班，出事了！趁打烊前收拾好！" :at "老街酒馆-工作")))
+
     (define (start-tavern-trouble!)
       (if (equal? tavern-trouble "无")
           (begin
@@ -178,7 +222,8 @@
             (set! tavern-trouble-outcome "未了")
             ;; 满格起、往下走：这是一条死线，不是玩家在推进的东西。
             (tavern-trouble-clk 'set! (tavern-trouble-clk 'max))
-            (result-supplement! (string-append "今晚之内：" tavern-trouble)))
+            (result-supplement! (string-append "今晚之内：" tavern-trouble))
+            (play-foreman-trouble-noise! tavern-trouble))
           #f))
 
     (define (maybe-start-tavern-trouble!)
