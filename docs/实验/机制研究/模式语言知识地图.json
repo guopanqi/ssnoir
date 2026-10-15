@@ -3809,6 +3809,26 @@
         "humanFeedbackAvailable": false,
         "native": false
       }
+    },
+    {
+      "id": "PL-SIGNAL-AUDIT01",
+      "name": "自主代价证据信号的分离激励及伪装边界",
+      "layer": "mature-combination",
+      "origin": "ssnoir-research",
+      "family": "第三方自利响应与可观察信号",
+      "idea": "对方H/L型主动承担不同证明成本，玩家据证明合作或拒绝；先检查各类型是否有动机模仿",
+      "stage": "pure-separating-incentive-audit",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-代价信号与第三方激励审计/研究记录.md",
+        "tools/content-validator/experiments/pattern_strategic_proof_20261015.py"
+      ],
+      "note": "cH1/cL5时分离候选成立，玩家9/2；cL2或cH4则候选失效。无信号拒绝收益1，免费完美调查亦9/2。不证明唯一/混合均衡；对照TRANSFER/TRL既有同构，非新原语。",
+      "evidence": {
+        "localIncentiveChecks": true,
+        "completeEquilibrium": false,
+        "humanFeedbackAvailable": false,
+        "native": false
+      }
     }
   ],
   "edges": [
