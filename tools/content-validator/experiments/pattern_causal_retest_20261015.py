@@ -55,7 +55,8 @@ def regression():
     assert post==F(9,13)
     assert policy(4,F(9,10),0)[1]==('RUN0',)
     assert policy(3,F(9,13),0)[1]==('CALIBRATE',)
-    assert limited(3,F(9,13),0,0)[1]!=('CALIBRATE',)
+    _,single_test_policy=solve(5,1)
+    assert single_test_policy(3,F(9,13),0,0)[1]!=('CALIBRATE',)
     # P(first calibration +)=1/2; P(public cue0)=1/2;
     # conditional failure probability=13/50.
     probability=F(1,2)*F(1,2)*F(13,50)
