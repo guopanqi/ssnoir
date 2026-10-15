@@ -64,6 +64,15 @@
   ;; 进场先收 音乐 的值：第二幕主题盖过去，收场（finish!/倒下）原样还回去。
   (set! chase-saved-music (get-global '音乐))
   (if mailbox-known? (play-narration! "邮箱准备回忆") #f)
+  ;; 照相馆记录能帮助尼尔缩小辨认范围，但不能直接证明此人取信。
+  ;; 仍须观察他是否真正取出信封，才会进入追逐。
+  (if (get-global '照片取件特征已知)
+      (begin
+        ((look-clock "穿制服的年轻人") 'load! 2)
+        (play-dialogue!
+          (line "尼尔" "金头发，制服不合身……跟照相馆的描述一样。")
+          (line "尼尔" "但还得等他碰那个信封。")))
+      #f)
   (spotlight! "找出嫌疑人"
     "观察路过的人们的举止，分辨出嫌疑人！"))
 
