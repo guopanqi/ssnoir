@@ -5,6 +5,11 @@
     (define stage 0) ; 0未接 1约会待处理 2待冲印 3可交付 4已交付
     (define evidence "无成果")
     (define source-stage 0) ; 0未开放 1可调查 2失败 3有线索 4已商量
+    ;; 来源线属于第一封信的有效窗口；婚外情委托独立完成，不受该窗口影响。
+    ;; 直接读取章节进度，不额外复制结案开关。
+    (define (source-window-open?) (= (three-letters 'story-stage) 1))
+    (define (source-investigable?) (and (source-window-open?) (= source-stage 1)))
+    (define (source-talkable?) (and (source-window-open?) (= source-stage 3)))
     (define (sync-blockers!)
       (rest-release! "照片委托/丈夫的约会")
       (if (= stage 1)
@@ -96,6 +101,7 @@
       (load-file "scripts/theatre/照相馆.scm")
       (照相馆查来源-演出))
     (define (on-source-result result)
+      (if (source-investigable?) #t (error "照片委托：第一封信已结算，旧来源调查不能回写"))
       (if (and (= source-stage 1) (list? result) (= (length result) 6)) #t
           (error "照片委托：照相馆结算状态或结果非法"))
       (if (eq? (cadr result) '可信来源线索)
@@ -112,6 +118,7 @@
               (line "尼尔" "照片这条路行不通的话，还是得按信上的来。")
               (line "尼尔" "尼尔，你要冷静，你需要想想其他办法。")))))
     (define (talk!)
+      (if (source-talkable?) #t (error "照片委托：过期或未取得线索，不能再与夜莺商量"))
       (set! source-stage 4)
       (play-dialogue!
         (line "尼尔" "洗照片的地方找到了。")
@@ -135,12 +142,14 @@
                            (step "交付调查" (= stage 4))))))
         (if (= source-stage 0) '()
             (list (dossier "照片的来源" :kind '委托
-              :status (if (or (= source-stage 2) (= source-stage 4)) '了结 '进行中)
-              :now (cond ((= source-stage 1) "相纸压纹相似，返回照相馆核实。")
+              :status (if (or (not (source-window-open?)) (= source-stage 2) (= source-stage 4)) '了结 '进行中)
+              :now (cond ((and (not (source-window-open?)) (= source-stage 1)) "投信夜已经过去，照片来源调查未及展开。")
+                         ((and (not (source-window-open?)) (= source-stage 3)) "取得过冲印记录；投信夜已过，无法再据此拦截取信者。")
+                         ((= source-stage 1) "相纸压纹相似，返回照相馆核实。")
                          ((= source-stage 2) "未能获得可信的来源线索。")
                          (else "抄本：小幅六张，星期二傍晚取件。染金发的年轻男人，邮务制服不合身；姓名未知。"))
-              :where (cond ((= source-stage 1) "照相馆")
-                           ((= source-stage 3) "老街酒馆") (else ""))
+              :where (cond ((source-investigable?) "照相馆")
+                           ((source-talkable?) "老街酒馆") (else ""))
               :steps (list (step "核实加工与订单" (>= source-stage 3))
                            (step "与夜莺商量" (= source-stage 4))))))))
     (define (nodes-at location)
@@ -153,7 +162,7 @@
              (list (at-anchor "老街酒馆" (note-node "妻子" "妻子" "她在等调查的消息。"))) '())
            (if (= stage 3)
                (list (at-anchor "老街酒馆" (instant-action "交付调查" deliver!))) '())
-           (if (= source-stage 3)
+           (if (source-talkable?)
                (list (at-anchor "老街酒馆" (instant-action "与夜莺商量" talk!))) '())))
         ((and (equal? location "格兰德酒店") (= stage 1))
          (list (at-anchor "格兰德酒店-大厅"
@@ -165,7 +174,7 @@
                (list (node "冲印照片" :subtitle "冲印费$5，连同她的家庭照片"
                  :requires (list (req-item "家庭胶卷" 1) (req-item "金钱" 5))
                  :resolve (instant develop!))) '())
-           (if (= source-stage 1)
+           (if (source-investigable?)
                (list (encounter-action "查照片来源"
                  (lambda () (source-script!) (start-encounter "照相馆交涉" on-source-result)))) '())))
         (else '())))
@@ -174,7 +183,7 @@
         ((eq? (car args) 'dossier) (case-dossier))
         ((eq? (car args) 'nodes-at) (nodes-at (cadr args)))
         ((eq? (car args) 'hotel-open?) (= stage 1))
-        ((eq? (car args) 'shop-open?) (or (= stage 2) (= source-stage 1)))
+        ((eq? (car args) 'shop-open?) (or (= stage 2) (source-investigable?)))
         ((eq? (car args) 'sync-blockers!) (sync-blockers!))
         ((eq? (car args) 'hear-rumours!)
          (if (and (= stage 0) (= (three-letters 'story-stage) 1) (opening-life 'routes-open?))
