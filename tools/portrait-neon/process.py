@@ -84,6 +84,16 @@ def lines_without(lines, accent):
     return ImageChops.subtract(lines, accent)
 
 
+def canonical_ink_mask(mask):
+    """Convert approved bright line art to one common white-core/antialias mask.
+
+    The source image is audited, never silently lightened to conceal bad art.
+    Runtime tint and brightness are separate presentation controls.
+    """
+    return mask.point(lambda value: 0 if value <= 24 else
+                      255 if value >= 125 else round((value - 24) * 255 / 101))
+
+
 def binarize(lines):
     """顶帽：减去开运算，把溢光去掉只留管子本体；相邻的管子（格栅、手指、五官）不再粘成一团。"""
     from PIL import ImageChops, ImageFilter
@@ -359,8 +369,8 @@ def process(name, force=False):
         return
     img = Image.open(src_path)
     lines, accent, accent_rgb = split_layers(img)
-    lines_without(lines, accent).save(outputs[0])
-    accent.save(outputs[1])
+    canonical_ink_mask(lines_without(lines, accent)).save(outputs[0])
+    canonical_ink_mask(accent).save(outputs[1])
     grid = thin(binarize(lines))
     paths = to_uv(order_as_tour(trace_strokes(grid)))
     data = {
