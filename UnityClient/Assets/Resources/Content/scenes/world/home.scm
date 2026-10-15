@@ -522,10 +522,8 @@
     (define (node-entry-hall)
       (node "楼下门厅" :anchor "门口" :children (list (node-use-medicine "门口"))))
 
-    (define (upgrade-nodes)
-      (if (and (renting?) apartment-offer-known?)
-          (list (node-buy-apartment))
-          '()))
+    ;; 买下公寓暂不开放；保留已有居所状态与购买内容。
+    (define (upgrade-nodes) '())
 
     (define (home-body)
       (if (= world-day 1) (append (地点节点 "家") (if (three-letters 'opening-heard?) (list (node-sleep)) '()))

@@ -36,7 +36,7 @@
     (define opening-talk-heard? #f)
     ;; 仅在勒索信筹备中开放；每次搬运附加推进一格，完成后停止。
     (define worker-familiarity (make-clock "工友之间的消息" 6 'gauge
-      "搬运时听工友聊天；满六格后认识艾迪。"))
+      "搬运时听工友聊天；满六格后可以歇下来聊聊。"))
     (define worker-asked? #f)
     (define exploration (make-clock "熟悉码头" 4 'gauge "2格发现搬运，4格找到信上的邮箱。"))
     (define mailbox-viewed? #f)
@@ -150,13 +150,7 @@
     (define (finish-haul! grade)
       (let ((partner (random-choice (partner-pool))))
         (if (worker-messages-active?)
-          (begin
-            (worker-familiarity 'tick!)
-            (if (worker-familiarity 'full?)
-              (begin
-                (set! worker-asked? #t)
-                (load-file "scripts/theatre/第一节生活.scm")
-                (第一节-艾迪相识)) #f)) #f)
+          (worker-familiarity 'tick!) #f)
         (cond
           ((equal? grade '好)
            (add-item! "金钱" (if (< (three-letters 'story-stage) 2) 20
@@ -225,11 +219,19 @@
             (if mailbox-viewed?
               (at-anchor "勒索信" (note-node "码头邮箱" "邮箱" "信上约定放钱的地方；信封要粘在内壁顶部。"))
               (anchored-instant-action "查看邮箱" "勒索信" view-mailbox!))) '())))
+    (define (chat-with-workers!)
+      (set! worker-asked? #t)
+      (load-file "scripts/theatre/第一节生活.scm")
+      (第一节-艾迪相识))
+
     (define (worker-ambush-nodes)
       (if (and (= (three-letters 'story-stage) 1) (>= (exploration 'current) 2))
         (append
           (if (worker-messages-active?)
             (list (at-anchor "码头-货堆" (clock-node "标注：工友之间的消息" (worker-familiarity 'render-data)))) '())
+          ;; 满格后保留入口，直到玩家主动交谈；不会因换日而消失。
+          (if (and (worker-familiarity 'full?) (not worker-asked?))
+            (list (anchored-instant-action "歇会儿聊聊" "码头-货堆" chat-with-workers!)) '())
           (if (and worker-asked? (not worker-joined?))
             (list (node "替艾迪干活" :anchor "码头-货堆"
               :subtitle "不领工资；做完后艾迪当晚会到场"
