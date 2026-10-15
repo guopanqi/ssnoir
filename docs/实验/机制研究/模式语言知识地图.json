@@ -4115,6 +4115,72 @@
         "native": false,
         "repositoryCI": false
       }
+    },
+    {
+      "id": "PL-ORDER-SEQUENCE",
+      "name": "先行行动、秘密同时行动与对手先绑定的三种信息制度",
+      "layer": "mature-combination",
+      "origin": "ssnoir-research",
+      "family": "交锋时序与决策可见性",
+      "idea": "保持相同PRESS/VERIFY对抗与一次ESCAPE，只修改最终行动的时间先后、是否在行动前被对手看见",
+      "stage": "exact-sequential-vs-simultaneous-audit",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-承诺可信度与行动时序/研究记录.md",
+        "tools/content-validator/experiments/pattern_action_commitment_order_20261015.py"
+      ],
+      "note": "n4玩家先公开6、双方同轮秘密51/8、对方先绑定11。对方先行玩家只需HIDE→PRESS、ESCAPE→VERIFY；高分不等于复杂或有趣。",
+      "evidence": {
+        "localExactFraction": true,
+        "maximinDualCheck": true,
+        "newHumanFeedback": false,
+        "independentAgent": false,
+        "native": false,
+        "repositoryCI": false
+      }
+    },
+    {
+      "id": "PL-ORDER-CREDIBILITY",
+      "name": "口头意图与可执行行动承诺必须按实际改口成本区分",
+      "layer": "mature-combination",
+      "origin": "ssnoir-research",
+      "family": "承诺约束与行动顺序",
+      "idea": "对方先声明、玩家公开行动、对方有权改口但赔偿其违约成本，区分廉价宣称与真实先行承诺",
+      "stage": "zero-sum-deviation-fee-audit",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-承诺可信度与行动时序/研究记录.md",
+        "tools/content-validator/experiments/pattern_action_commitment_order_20261015.py"
+      ],
+      "note": "n4违约转移成本c0..5对应玩家根6,6,6,6,7,11；廉价声明c0不等于同时秘密选择51/8，因为对方额外看见玩家的动作。ACT/NEG历史机制已存在。",
+      "evidence": {
+        "localExactFraction": true,
+        "maximinDualCheck": true,
+        "newHumanFeedback": false,
+        "independentAgent": false,
+        "native": false,
+        "repositoryCI": false
+      }
+    },
+    {
+      "id": "PL-ORDER-ONEUSE",
+      "name": "一次性强制先行权有价值但不能创造独特择时",
+      "layer": "negative-boundary",
+      "origin": "ssnoir-research",
+      "family": "有限行动资格与时序支配",
+      "idea": "每个回合可选择免费耗掉仅有的一次对方先行绑定权，或继续同时秘密行动，检验何时使用是否需要动态计划",
+      "stage": "single-use-right-strong-policy-counterexample",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-15-承诺可信度与行动时序/研究记录.md",
+        "tools/content-validator/experiments/pattern_single_public_writ_20261015.py"
+      ],
+      "note": "n4带一枚权27/4、无权51/8；n1..8立即用权与完整动态同值，n≥3开局SAVE或USE同时最优。追加一次性权限不是新选择的充分条件。",
+      "evidence": {
+        "localExactFraction": true,
+        "maximinDualCheck": true,
+        "newHumanFeedback": false,
+        "independentAgent": false,
+        "native": false,
+        "repositoryCI": false
+      }
     }
   ],
   "edges": [
@@ -7261,6 +7327,54 @@
       "to": "PL-TACTIC-COMMIT",
       "relation": "observable-commitment-versus-latent-motive",
       "reason": "对手私利若不改变观察到的行为就可能没有玩家体验差异，行动顺序与承诺需明确可见"
+    },
+    {
+      "from": "PL-TACTIC-CONTINGENT",
+      "to": "PL-ORDER-SEQUENCE",
+      "relation": "same-payoff-action-order-counterfactual",
+      "reason": "仅动作顺序变化可令同一资源的最优根在n4从6到11，中间同时行动为51/8，不能把增益说成新增战术动作"
+    },
+    {
+      "from": "PL-ACT01",
+      "to": "PL-ORDER-SEQUENCE",
+      "relation": "sequential-self-interested-precedent",
+      "reason": "ACT01已有序贯自行选择的他者，其信息结构与本批不同，但不是新发明先行动作"
+    },
+    {
+      "from": "PL-NEG01",
+      "to": "PL-ORDER-CREDIBILITY",
+      "relation": "enforceable-commitment-precedent",
+      "reason": "NEG历史已把空口承诺和可执行支付分开，本批只将改口代价映射到同一个局部混合博弈"
+    },
+    {
+      "from": "PL-TACTIC-COMMIT",
+      "to": "PL-ORDER-CREDIBILITY",
+      "relation": "binding-scan-versus-cheap-intent",
+      "reason": "真正付一手SCAN换来下一回合绑定不能由对方随时可改的表态代替"
+    },
+    {
+      "from": "PL-ORDER-SEQUENCE",
+      "to": "PL-ORDER-CREDIBILITY",
+      "relation": "commitment-alters-sequential-game",
+      "reason": "改口成本从0升至5才恢复n4的对方先绑定根；不只是角色的措辞"
+    },
+    {
+      "from": "PL-ORDER-CREDIBILITY",
+      "to": "PL-ORDER-ONEUSE",
+      "relation": "one-use-right-not-unique-timing",
+      "reason": "能强制约束对方有实际收益，但在同规则下第一回合直接使用已经达到最优"
+    },
+    {
+      "from": "PL-HEDGE01",
+      "to": "PL-ORDER-ONEUSE",
+      "relation": "limited-option-requires-genuine-intertemporal-conflict",
+      "reason": "HEDGE真实旧目标窗口不可再开，有限权利如果任何时候都同收益，便无优先级学习价值"
+    },
+    {
+      "from": "PL-RGT01",
+      "to": "PL-ORDER-ONEUSE",
+      "relation": "credential-may-reduce-to-simple-rule",
+      "reason": "行动资格变化可以被固定策略追平的旧负例，承诺令牌再次验证这一边界"
     }
   ],
   "coverage": {
