@@ -120,6 +120,7 @@
     (define (log! id text) ((task-journal id) 'add! text))
     (define delivery-day 0)         ; 勒索日的世界日,开场当天算出
     (define delivery-pending? #f)   ; 勒索日已到、尚未处理
+    (define photo-follow-choice? #f) ; 雨夜已提出尾随计划，等待玩家听完夜莺担忧后确认
     (define delivery-result "未定") ; 未定 / 拿到线索 / 跟丢
     (define delivery-money 0)       ; 投信那夜从街上捡回来的钱
     ;; 半包「老金牌」香烟和巷子里拿到的照片/底片都做成物品,不做成脚本内部的布尔量:
@@ -587,32 +588,116 @@
         (set-global! '邮箱街角已观察 (ambush-survey 'full?))
         (set-global! '退路已查看 #f)))
 
-    ;; 邮箱相见、投信与离场属于城市侧；剧场播完才切入蹲守交锋。
+    ;; 同一晚的方案由玩家在码头选择，不因已招募艾迪自动改写决定。
+    ;; 未发现的方案不显示；认识艾迪但还未替班时，设伏方案可见但禁用。
+    (define (交钱赴约!)
+      (if delivery-pending? #t (error "三封信：当前并非交信之夜"))
+      (prepare-delivery-money!)
+      (set-global! '照片取件特征已知 (photo-case 'source-record-known?))
+      (load-file "scripts/theatre/邮箱相见.scm")
+      (邮箱相见-演出
+        (cond ((= delivery-shortfall 0) '足额)
+              ((= (envelope-short) 0) '她补)
+              (else '塞报纸)))
+      (start-encounter "勒索信" on-delivery-result))
+
+    (define (设伏赴约!)
+      (if (ambush-ready?) #t (error "三封信：艾迪尚不能到场"))
+      (set! delivery-shortfall 0)
+      (set! envelope-thin? #f)
+      (set-global! '邮箱街角已观察 (dock 'mailbox-known?))
+      (set-global! '照片取件特征已知 (photo-case 'source-record-known?))
+      (set-global! '退路已查看 #f)
+      (load-file "scripts/theatre/邮箱相见.scm")
+      (邮箱相见-演出 '诱饵)
+      (set-global! '雨夜收网帮手名单 (ambush-helpers))
+      (set-global! '雨夜收网踩点进度 (ambush-survey 'current))
+      (start-encounter "雨夜收网" on-ambush-result))
+
+    ;; 选择尾随只提出计划；这段对白之后玩家仍可返回，什么也不消耗。
+    (define (提出照片尾随!)
+      (if (and delivery-pending? (photo-case 'source-record-known?)) #t
+          (error "三封信：没有交信夜的照片线索"))
+      (set! photo-follow-choice? #t)
+      (play-dialogue!
+        (line "夜莺" "我们真的什么都不做吗？这样真的能行吗？")
+        (line "尼尔" "我知道他长什么样。我想跟着他，看看他会去哪儿。")
+        (line "夜莺" "要是跟丢了呢？")
+        (line "尼尔" "我会尽量小心。")
+        (line "世界" "夜莺沉默了一会儿。")
+        (line "夜莺" "好吧，我听你的。不过我真的很害怕，尼尔。")))
+
+    ;; 坚持尾随的事实与本次判定成败分开保存，后续夜莺可以记起这一晚。
+    ;; 只有真的执行才写记录；返回选择不算作让她冒险。
+    (define (执行照片尾随! grade)
+      (if (and delivery-pending? photo-follow-choice?
+               (photo-case 'source-record-known?)) #t
+          (error "三封信：照片尾随未确认"))
+      (set! photo-follow-choice? #f)
+      (set-flag! '交信夜坚持尾随)
+      (set! delivery-shortfall 0)
+      (set! envelope-thin? #f)
+      (set! ambush-route-result
+            (if (eq? grade '坏) "照片跟丢" "照片跟踪"))
+      (load-file "scripts/theatre/邮箱相见.scm")
+      (邮箱相见-演出 '诱饵)
+      (play-dialogue!
+        (line "世界" "雨夜，尼尔在报摊后看见一个染金发的年轻人。")
+        (line "世界" "那人穿着不合身的制服，径直走向邮箱。")
+        (line "世界" "他左右看了看，取走信封。尼尔隔开一段距离跟上。"))
+      (cond
+        ((eq? grade '坏)
+         (play-dialogue!
+           (line "世界" "年轻人发现了身后的动静，钻进老街的巷子。")
+           (line "世界" "尼尔追到墙边，已找不到他的踪影。")))
+        ((eq? grade '中)
+         (play-dialogue!
+           (line "世界" "他翻过矮墙，迅速消失在老街。")
+           (line "世界" "尼尔在墙根捡到他掉落的半包「老金牌」香烟。")))
+        ((eq? grade '好)
+         (play-dialogue!
+           (line "世界" "尼尔跟着他到了老街巷口，仍没能看清他去见谁。")
+           (line "世界" "那人翻墙离开，衣袋里落下半包「老金牌」香烟。")
+           (line "世界" "尼尔等他走远，才把烟盒捡起来。")))
+        (else (error "三封信：照片尾随判定结果非法")))
+      (on-delivery-result (list (if (eq? grade '坏) '跟丢 '拿到线索) 0)))
+
     (define (node-delivery-entry)
       (at-anchor "勒索信"
-       (encounter-action "去码头盯着邮箱"
-        (lambda ()
-          (if (ambush-ready?)
-            (begin
-              ;; 艾迪已答应到场：诱饵是塞报纸的假信封，不动用任何现金。
-              (set! delivery-shortfall 0)
-              (set! envelope-thin? #f)
-              (set-global! '邮箱街角已观察 #t)
-              (set-global! '退路已查看 #f))
-            ;; 没准备诱捕时，沿用正常的筹款交付路线。
-            (prepare-delivery-money!))
-          (load-file "scripts/theatre/邮箱相见.scm")
-          (邮箱相见-演出
-            (if (ambush-ready?) '诱饵
-              (cond ((= delivery-shortfall 0) '足额)
-                    ((= (envelope-short) 0) '她补)
-                    (else '塞报纸))))
-          (if (ambush-ready?)
-            (begin
-              (set-global! '雨夜收网帮手名单 (ambush-helpers))
-              (set-global! '雨夜收网踩点进度 (ambush-survey 'current))
-              (start-encounter "雨夜收网" on-ambush-result))
-            (start-encounter "勒索信" on-delivery-result))))))
+        (container "交信之夜"
+          (if photo-follow-choice?
+            (list
+              (note-node "标注：尾随风险" ""
+                "放取信者带走假信封，今晚不拦截。失手可能再也找不到他。")
+              (node "坚持尾随"
+                :subtitle "确认后投入一枚骰子，成功可获得物证"
+                :requires (list (req-die))
+                :resolve (roll 'sharpness
+                  (outcome (lambda () (执行照片尾随! '坏)))
+                  (outcome (lambda () (执行照片尾随! '中)))
+                  (outcome (lambda () (执行照片尾随! '好)))))
+              (instant-action "再考虑其他办法"
+                (lambda () (set! photo-follow-choice? #f))))
+            (append
+              (list
+                (node "交付信封"
+                  :subtitle (if (>= (item-count "金钱") delivery-price)
+                    "现金足额；交付后独自盯梢"
+                    "现金不足也能行动；夜莺最多补30美元")
+                  :resolve (instant 交钱赴约!)))
+              (if (dock 'eddie-met?)
+                (list (node "设伏抓人"
+                  :subtitle (if (ambush-ready?)
+                    "艾迪会到场；用假信封，不花赎金"
+                    "艾迪尚未换好班，今晚无法到场")
+                  :disabled (not (ambush-ready?))
+                  :resolve (instant 设伏赴约!)))
+                '())
+              (if (photo-case 'source-record-known?)
+                (list (node "利用照片尾随"
+                  :subtitle "让他拿走假信封；不拦截，有跟丢风险"
+                  :resolve (instant 提出照片尾随!)))
+                '()))))))
 
     ;; 委派交锋用的是假信封，回调沿用城市契约，但追回现金必为 0。
     (define (on-ambush-result result)
@@ -637,6 +722,7 @@
           #t
           (error "三封信：勒索信交锋应回传 (list 人 钱)"))
       (set! delivery-pending? #f)
+      (set! photo-follow-choice? #f)
       (let ((caught (car result))
             (money (cadr result)))
         ;; 钱不再是固定的三档：交锋里它是一路上抓回来的零头，任何 0..100 都合法。
@@ -667,6 +753,10 @@
              "邮箱那一夜：假信封取回了。跑腿者不认识雇主，尼尔从他衣袋里找到半包「老金牌」香烟。")
             ((equal? ambush-route-result "追踪")
              "邮箱那一夜：取信者逃进老街。翻墙时他掉下半包「老金牌」香烟，尼尔捡到了。")
+            ((equal? ambush-route-result "照片跟踪")
+             "邮箱那一夜：尼尔凭冲印记录尾随金发取信者，找到半包「老金牌」香烟。")
+            ((equal? ambush-route-result "照片跟丢")
+             "邮箱那一夜：尼尔放取信者带走假信封，尾随时失手跟丢。夜莺仍在担心照片。")
             ((equal? caught '拿到线索)
              "邮箱那一夜：一辆摩托车截断了追逐。取信的人逃走，落下半包「老金牌」香烟。")
             ((equal? caught '倒下)
@@ -678,6 +768,10 @@
              "你们截住了跑腿者，取回假信封。他不知道幕后是谁，但尼尔找到了他的烟盒。")
             ((equal? ambush-route-result "追踪")
              "取信者翻墙钻进老街小巷，没抓到人，却捡到了掉落的烟盒。")
+            ((equal? ambush-route-result "照片跟踪")
+             "你没有拦住取信者，而是跟着他进了老街。人没抓到，但捡到了烟盒。")
+            ((equal? ambush-route-result "照片跟丢")
+             "你放取信者带走假信封，又在老街跟丢了他。手上只剩取件特征。")
             ((equal? caught '拿到线索)
              "一个摩托驶过，那个人已经逃远了，你回过头来只捡到他落下的一包「老金牌」香烟。")
             ((equal? caught '倒下)
@@ -2165,7 +2259,7 @@
       (cond
         ((= story-stage 1)
          (if delivery-pending?
-             "去码头盯住邮箱，等人取信"
+             "去码头决定今晚怎样处理勒索信"
              "在勒索信约定的日子前想出办法解决麻烦"))
         ((= story-stage 2)
          (cond
@@ -2275,7 +2369,7 @@
     (define (delivery-deadline-clock)
       (list 'clock "勒索日" (days-to-delivery) letter-deadline 'countdown
             (if delivery-pending?
-                "就是今天。还能先在城里做事；去码头投信后才能结束这一天。"
+                "就是今晚。到码头选择交付、设伏或已掌握的照片尾随方案。"
                 (if (ambush-ready?)
                   "艾迪会到场；踩点可解锁拦截与追踪位置。到期投假信封，不动用赎金。"
                   (string-append
@@ -2700,6 +2794,7 @@
              (list "journals" (map (lambda (j) (list (car j) ((cadr j) 'save))) task-journals))
              (list "delivery-day" delivery-day)
              (list "delivery-pending?" delivery-pending?)
+             (list "photo-follow-choice?" photo-follow-choice?)
              (list "delivery-result" delivery-result)
              (list "delivery-money" delivery-money)
              (list "delivery-shortfall" delivery-shortfall)
@@ -2759,6 +2854,9 @@
                (map (lambda (j) ((cadr j) 'load! (let ((v (assoc-get saved (car j) 'missing))) (cond ((not (equal? v 'missing)) v) ((equal? (car j) "探明老街") (assoc-get saved "老街" '())) ((equal? (car j) "找莱恩拿铁盒") (assoc-get saved "莱恩" '())) (#t '()))))) task-journals))
              (set! delivery-day (assoc-get data "delivery-day" 0))
              (set! delivery-pending? (assoc-get data "delivery-pending?" #f))
+             (set! photo-follow-choice? (assoc-get data "photo-follow-choice?" #f))
+             (if (and photo-follow-choice? (not delivery-pending?))
+                 (error "三封信存档：交信夜已结束但仍等待尾随确认") #t)
              (set! delivery-result (assoc-get data "delivery-result" "未定"))
              ;; 物品名补上「香烟」后，把旧存档中的旧 ID 转走，不能让它留成一件
              ;; 再也不能投入行动槽的孤儿物品。
