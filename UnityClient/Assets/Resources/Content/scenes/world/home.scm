@@ -282,7 +282,7 @@
         :anchor "床边"
         :subtitle (cond
                     (刚睡过? "刚醒。出门走走再回来睡")
-                    (else "结束今天；恢复 2 点冷静"))
+                    (else "重置骰子；恢复2点冷静。"))
         :disabled (sleep-locked?)
         :tags (sleep-tags)
         :resolve (instant
