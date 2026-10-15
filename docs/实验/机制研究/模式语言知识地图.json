@@ -4920,6 +4920,53 @@
         "blindAgentSessions": 0,
         "native": false
       }
+    },
+    {
+      "id": "PL-ENTITY-VETO01",
+      "name": "真实保住A的不可补偿否决权使金融保证金失效，也可能提前压平后期选择",
+      "origin": "ssnoir-research",
+      "layer": "negative-boundary",
+      "family": "不可替代具体成果、可信授权与自利退出",
+      "idea": "伙伴有真实EXIT权，若合作则必须在全部后到需求世界保住实体A；事前四种可执行(W=A,W=B)政策AA/AB/BA/BB，与仅补偿经济损失严格不同。",
+      "stage": "four-policy-exhaustive-rights-audit",
+      "note": "只有AA满足硬保A条件，玩家期望9；安全EXIT后只完B期望也9但结果身份相反。无论追加多少金钱，都不能替代硬保A；若伙伴后来同意AB则其目标已经改变。强普通同成本方案若可一次实现A+B且净成本3，根15直接支配AA。本实验严格证明规则可达性并指出后期的决策被固定执行或事前退出压平；与CUSTODY/ACT/STAKE已知组合相邻，不认证新人类偏好。",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-16-实体保全否决与行动容量风险/研究记录.md",
+        "tools/content-validator/experiments/pattern_noncompensable_veto_20261016.py"
+      ],
+      "evidence": {
+        "policyCount": 4,
+        "independentCI": "https://github.com/guopanqi/ssnoir/actions/runs/38823071087",
+        "mathAndLogicOnly": true,
+        "human": 0,
+        "blindAgent": 0,
+        "native": false
+      }
+    },
+    {
+      "id": "PL-STRESS-CAPACITY-IDENTITY01",
+      "name": "今天冒险损伤未来行动容量会改变明天完成哪一件事，同根罚款不能复现成果",
+      "origin": "ssnoir-research",
+      "layer": "mature-combination-and-evidence-boundary",
+      "family": "Push-risk未来能力下降×后到目标×具体成果可达性",
+      "idea": "第一手PUSH为A做2格进度但半数损坏未来一个工作机会，WAIT拿SIDE1；世界后到W=A/B各半，剩一/两手完成A需3格B需2格。对照损坏不扣工作数而只扣同根值罚款、无损共同准备COMMON、免费恢复。",
+      "stage": "fraction-exhaustive-late-action-sequences-plus-forward-outcome-identities",
+      "note": "PUSH根41/4=10.25，WAIT完整合法菜单根9（首次CI暴露漏算错误需求下做B的退路，已修正），COMMON和免费恢复均25/2。数字罚款9/2校准的PUSH同根41/4，却完成A/B分别1/2、1/2，满足需求1；真实行动损坏P(A)=3/4,P(B)=1/4,满足需求3/4。正常概率W=B时健康做B×2，受损只有一手转而完成不匹配的A，严格好过SIDE。概率先验p(A)开局PUSH与WAIT临界2/5。一句条件短政策完全求解，旧CRISIS/P11/DICE成熟组成，不是新原语。",
+      "sources": [
+        "docs/实验/机制研究/批次/2026-10-16-实体保全否决与行动容量风险/研究记录.md",
+        "docs/实验/机制研究/批次/2026-10-16-实体保全否决与行动容量风险/压力的四种决策作用.md",
+        "tools/content-validator/experiments/pattern_future_capacity_stress_20261016.py"
+      ],
+      "evidence": {
+        "exactFraction": true,
+        "negativeControlSameScalarRoot": true,
+        "payoffOutcomeVectorsDistinct": true,
+        "independentCI": "https://github.com/guopanqi/ssnoir/actions/runs/38823071087",
+        "mathOnly": true,
+        "human": 0,
+        "blindAgent": 0,
+        "native": false
+      }
     }
   ],
   "edges": [
@@ -8636,6 +8683,54 @@
       "to": "PL-CUSTODY-THIRD-PARTY01",
       "relation": "autonomous-actor-can-withhold-participation",
       "reason": "AUDIENCE信息导致伙伴自利EXIT，本批没有新信号，只证明未来违约的可执行保障改变其开局参加资格"
+    },
+    {
+      "from": "PL-CUSTODY-THIRD-PARTY01",
+      "to": "PL-ENTITY-VETO01",
+      "relation": "financial-compensation-is-not-physical-preservation",
+      "reason": "原BOUND-THIRD允许D6在B世界补偿金融净损，却没有保住A；实体VETO拒绝所有未保A策略，改变真实授权条件"
+    },
+    {
+      "from": "PL-STAKE01",
+      "to": "PL-ENTITY-VETO01",
+      "relation": "hard-result-vs-scalar-equal-root",
+      "reason": "AA合作保A根9与SAFE B-only根9同值，但实际不可替代成果相反"
+    },
+    {
+      "from": "PL-VOL01",
+      "to": "PL-ENTITY-VETO01",
+      "relation": "consent-compresses-post-world-play",
+      "reason": "私下自我束缚不提高同效用最大值；第三方真否决可改变许可，但在本四计划模型里完全压平后续交锋"
+    },
+    {
+      "from": "PL-DICE01",
+      "to": "PL-STRESS-CAPACITY-IDENTITY01",
+      "relation": "stress-affects-future-availability-not-just-current-die-quality",
+      "reason": "R37/DICE01已证高骰修危机；本批补充行动能力受损关闭未来目标，不能简化成期望罚款"
+    },
+    {
+      "from": "PL-CRISIS01",
+      "to": "PL-STRESS-CAPACITY-IDENTITY01",
+      "relation": "loss-of-remaining-work-changes-achievable-identity",
+      "reason": "CRISIS封路改变目标，容量损伤改变B两行动的实际可达性，真实损坏/同分罚款结果身份不同"
+    },
+    {
+      "from": "PL-HEDGE01",
+      "to": "PL-STRESS-CAPACITY-IDENTITY01",
+      "relation": "option-without-executable-slack",
+      "reason": "名义保留B并不等于B在只剩一手时仍可完成；保留资格必须与剩余行动余裕并查"
+    },
+    {
+      "from": "PL-RETURN-CYCLE",
+      "to": "PL-STRESS-CAPACITY-IDENTITY01",
+      "relation": "delayed-world-demand-shared-but-no-world-return",
+      "reason": "RETURN世界改变旧交锋合法动作；本批只是后到世界需求×未来行动容量，不拥有真正W→L返场闭环"
+    },
+    {
+      "from": "PL-CUSTODY-VALIDITY01",
+      "to": "PL-STRESS-CAPACITY-IDENTITY01",
+      "relation": "same-score-different-demand-matching",
+      "reason": "CUSTODY证明向量须含需求有效性；本批在同根41/4下显示容量风险满足需求3/4而静态扣分满足需求1"
     }
   ],
   "coverage": {
