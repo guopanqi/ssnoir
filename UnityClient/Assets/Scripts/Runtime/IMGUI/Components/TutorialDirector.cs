@@ -1,6 +1,7 @@
 #nullable enable
 using System.Collections.Generic;
 using UnityEngine;
+using SSNoir.Core;
 
 namespace SSNoir.IMGUI
 {
