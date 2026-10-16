@@ -1,6 +1,6 @@
 # Portrait Theatre · Claude Sonnet 5.5（立绘剧场 · 线绘世界）
 
-噪点黑色电影风的单文件网页实验：城市地图上有 26 个可点击地点，点击后镜头推进到该地点的线绘舞台，
+噪点黑色电影风的单文件网页实验：城市地图上有 27 个可点击地点，点击后镜头推进到该地点的线绘舞台，
 由少量线稿道具 + 矢量立绘人物 + Web Audio 合成音效演出一段故事。可暂停、重播、连播全剧。
 
 - 直接观看：浏览器打开 `dist/portrait-theatre-story-claude-sonnet-5-5.html`（单文件，无依赖；仅字体走 Google Fonts，离线自动回退）。
@@ -20,7 +20,7 @@ src/                     源码（改这里）
   js/35-fx.js            雨、颗粒
   js/40-sets.js          线绘布景 SETS.*、公共道具(GROUND/HANG/TABLE/…)
   js/45-chapter-objects.js    第 1 章（雨夜）与路灯争执章的对象定义 C1/C7
-  js/chapters/NN-*.js    26 章，一章一文件，按文件名排序即章节顺序（04-rain-night 引用 C1，14-lamp-quarrel 引用 C7，其余为内联对象）
+  js/chapters/NN-*.js    27 章，一章一文件，按文件名排序即章节顺序（04-rain-night 引用 C1，15-lamp-quarrel 引用 C7，其余为内联对象）
   js/60-boot.js          reset/chapter/play/暂停/按钮绑定/启动
 dist/                    构建产物（单文件 HTML，提交入库方便直接打开）
 tools/                   test_play.py（无头测试）、realtime_capture.py（真实时间截帧）
