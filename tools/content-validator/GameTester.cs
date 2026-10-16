@@ -399,7 +399,7 @@ namespace SSNoir.Testing
                 player.ActionDice.Clear();
                 player.ActionDiceSlotIds.Clear();
                 player.ActionDice.AddRange(new[] { 6, 2 });
-                player.ActionDiceSlotIds.AddRange(new[] { 0, 3 });
+                player.ActionDiceSlotIds.AddRange(new[] { 0, 2 });
                 // 空表是重要状态：同伴的骰子已经用完，读档不能凭空补一颗。
                 companion.ActionDice.Clear();
                 companion.ActionDiceSlotIds.Clear();
@@ -444,7 +444,7 @@ namespace SSNoir.Testing
                 AssertEq("companion permanent status count", 1, loaded.Team.GetActiveActionSlotStatuses(loadedCompanion).Count);
                 var loadedPlayer = loaded.Team.FindActor("player")!;
                 AssertEq("player dice", "6,2", string.Join(",", loadedPlayer.ActionDice));
-                AssertEq("player die slots", "0,3", string.Join(",", loadedPlayer.ActionDiceSlotIds));
+                AssertEq("player die slots", "0,2", string.Join(",", loadedPlayer.ActionDiceSlotIds));
                 AssertEq("spent companion dice", 0, loadedCompanion.ActionDice.Count);
                 AssertEq("spent companion die slots", 0, loadedCompanion.ActionDiceSlotIds.Count);
 
