@@ -1154,7 +1154,7 @@
 (define (spend-composure! n)
   (spend-actor-composure! (__current-actor) n))
 
-;; 恢复冷静（clamp 到上限）：睡觉/喝酒/家里仪式/听歌/香烟。
+;; 恢复冷静（clamp 到上限）：主动休息/喝酒/听歌/香烟。睡眠不自动恢复。
 (define (restore-actor-composure! actor-id n)
   (set-actor-composure! actor-id (+ (actor-composure actor-id) n)))
 

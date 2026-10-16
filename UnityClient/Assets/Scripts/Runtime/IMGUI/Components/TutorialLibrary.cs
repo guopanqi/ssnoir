@@ -36,6 +36,7 @@ namespace SSNoir.IMGUI
     {
         public const string ActionDice = "action-dice";
         public const string Composure = "composure";
+        public const string Injury = "injury";
         public const string EndOfDay = "end-of-day";
 
         public static readonly TutorialEntry[] Entries =
@@ -46,7 +47,7 @@ namespace SSNoir.IMGUI
                 Title = "行动骰",
                 Paragraphs = new[]
                 {
-                    "你每天有四颗「行动骰」。把一颗骰子拖拽到动作中来做一件事情。",
+                    "身体完好时每天有四颗行动骰。把一颗骰子拖拽到动作中来做一件事情。",
                     "不同点数的骰子代表不同质量的行动，它会影响动作的结果好坏。",
                 },
                 Highlight = TutorialHighlight.ActionDiceAndCard,
@@ -54,12 +55,24 @@ namespace SSNoir.IMGUI
             new TutorialEntry
             {
                 Id = Composure,
-                Title = "冷静与伤势",
+                Title = "冷静影响骰子",
                 Paragraphs = new[]
                 {
-                    "在动作不太顺利时，可能会失去冷静。冷静值为空时，再次失败身体就会承受伤势。",
-                    "伤势可能会影响你的行动能力。",
-                    "睡觉、抽烟、喝酒等行为可以恢复冷静。诊所、药品可以恢复伤势。",
+                    "冷静降到 3 点或更低，下次发骰时每颗点数减少 1；降到 1 点或以下，减少 2。",
+                    "已经拿在手里的骰子不变。冷静耗尽后继续承受压力，会转成身体伤势。",
+                    "去家里花一颗骰子静坐，或在酒馆花钱喝酒可以恢复冷静；睡觉不自动恢复。",
+                },
+                Highlight = TutorialHighlight.Vitals,
+            },
+            new TutorialEntry
+            {
+                Id = Injury,
+                Title = "伤势影响行动次数",
+                Paragraphs = new[]
+                {
+                    "轻伤会封锁一颗骰子，重伤会封锁两颗。已封锁的骰位会留在手牌上。",
+                    "睡两晚可缓和 1 点伤势，也可以在诊所治疗、用药或主动养伤。",
+                    "治疗不会返还今天已失去的骰子；下一次发骰会按新的伤势计算数量。",
                 },
                 Highlight = TutorialHighlight.Vitals,
             },

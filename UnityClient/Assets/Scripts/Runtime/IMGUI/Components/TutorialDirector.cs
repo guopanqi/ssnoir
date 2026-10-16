@@ -47,7 +47,7 @@ namespace SSNoir.IMGUI
         /// <summary>
         /// 每帧看一眼该不该弹。三条的触发点：
         ///   行动骰 —— 第一次看见动作卡（也就是第一次真的能做事）
-        ///   冷静   —— 第一次坏结果（由 <see cref="RequestOnFailedRoll"/> 从结算那头喊）
+        ///   冷静   —— 第一次下降到影响下一手骰子品质的档位
         ///   结束一天 —— 骰子用空、人还在城里
         /// </summary>
         public static void Observe(SSNoirGameManager gameManager, bool hasActionCards)
@@ -59,6 +59,17 @@ namespace SSNoir.IMGUI
                 _sawAnyCard = true;
                 Request(TutorialLibrary.ActionDice);
             }
+
+            // 冷静与伤势按实际状态触发教程；失败未扣冷静时不误触发。
+            foreach (var actor in snapshot.Actors)
+                if (actor.Role == "protagonist")
+                {
+                    if (TeamState.ComposureDicePenalty(actor.Composure) < 0)
+                        Request(TutorialLibrary.Composure);
+                    break;
+                }
+            if (snapshot.InjurySeverity > 0)
+                Request(TutorialLibrary.Injury);
 
             // 骰子用空：城里才提示。交锋里没有「回家睡觉」这条路，说了是错的。
             if (!snapshot.IsInEncounter && _sawAnyCard)
@@ -74,9 +85,6 @@ namespace SSNoir.IMGUI
                     Request(TutorialLibrary.EndOfDay);
             }
         }
-
-        /// <summary>结算出坏结果时喊一声。冷静那条讲的是「不顺利会怎样」，得在人真的不顺利之后才成立。</summary>
-        public static void RequestOnFailedRoll() => Request(TutorialLibrary.Composure);
 
         /// <summary>
         /// 窗口摆在哪儿：**先让开自己圈出来的东西**。

@@ -392,10 +392,15 @@ namespace SSNoir.IMGUI
             // 伤势是队伍级的，只挂在主角这一簇上；它和骰池状态共用同一行说明文字。
             if (showInjury)
             {
-                string injuryText = snapshot.InjuryCostsActionDie
-                    ? $"{snapshot.InjuryPart}伤 · 重伤 · −1颗骰"
-                    : $"{snapshot.InjuryPart}伤 · {snapshot.InjurySkillName}{snapshot.InjurySkillPenalty}";
+                string injuryText = $"{snapshot.InjuryPart}伤 · 少{snapshot.InjuryActionDieLoss}颗骰";
                 statusText = statusText.Length > 0 ? injuryText + " ｜ " + statusText : injuryText;
+            }
+            // 冷静降低下一次发骰的点数；已有骰子不追溯变更，说明要写成「下次」。
+            int dicePenalty = isLead ? TeamState.ComposureDicePenalty(actor.Composure) : 0;
+            if (dicePenalty < 0)
+            {
+                string composureText = $"下次骰面{dicePenalty}";
+                statusText = statusText.Length > 0 ? composureText + " ｜ " + statusText : composureText;
             }
             // 旧伤没有条子可画——它不会涨也不会退，只是一行永远在那儿的字。
             if (isLead && snapshot.ScarSummary.Length > 0)
@@ -493,9 +498,7 @@ namespace SSNoir.IMGUI
             // 空位画成一个没有底、没有影子的浅框：它是纸上的一个坑，不是一块可以拿的器物。
             // 重伤封掉的那一位另有画法（叉号，见 DrawDisabledDie）——"用掉了"和"用不了"
             // 是两回事，不能长得一样。
-            int injuredSlotId = isLead && snapshot.InjuryCostsActionDie && actor.ActionSlotCount > 0
-                ? actor.ActionSlotCount - 1
-                : -1;
+            int blockedFromSlot = isLead ? actor.ActionSlotCount - snapshot.InjuryActionDieLoss : actor.ActionSlotCount;
             for (int slotId = 0; slotId < actor.ActionSlotCount; slotId++)
             {
                 if (ContainsActionSlot(actor.ActionDiceSlotIds, slotId))
@@ -506,7 +509,7 @@ namespace SSNoir.IMGUI
                 int reservedValue = FindPendingReservedValue(pendingAutoActionDice, actor.Id, slotId);
                 if (reservedValue > 0)
                     DrawMovingDie(slotRect, reservedValue);
-                else if (slotId == injuredSlotId)
+                else if (slotId >= blockedFromSlot)
                     DrawDisabledDie(slotRect);
                 else
                     DrawSpentDieSlot(slotRect);
@@ -605,8 +608,8 @@ namespace SSNoir.IMGUI
                 : $"{status.Label}{status.DiePenalty:+#;-#}";
         }
 
-        // 冷静条（主角专用）：冷静是纯缓冲，中间没有档位，所以不画阈值刻度线。
-        // 玩家要读的只有"还剩几格"和"见底"——见底之后每一点消耗都变成伤势。
+        // 冷静的下降只改变下一次发骰的品质；当前骰子不变。
+        // 0 时新一手骰面 −2，额外冷静消耗会继续溢出为伤势。
         // 两簇之间的竖直分隔线。只覆盖所有行动者共享的那几行（冷静 → 名字 → 骰池），
         // 不往上蹭主角独有的伤势行，否则线会长得没有道理。按「有半身像、不画名字」的
         // 常规布局取顶端；没有立绘的人多出一行名字，线短一点点，不值得为此把布局传进来。
@@ -1061,7 +1064,7 @@ namespace SSNoir.IMGUI
 
             int max = snapshot.InjuryMaxSeverity;
             int severity = Mathf.Clamp(snapshot.InjurySeverity, 0, max);
-            Color fill = snapshot.InjuryCostsActionDie ? IMGUIStyles.SealRed
+            Color fill = snapshot.InjuryActionDieLoss >= 2 ? IMGUIStyles.SealRed
                        : severity > 0 ? IMGUIStyles.OddsNeutral
                        : IMGUIStyles.TextPrimary;
 

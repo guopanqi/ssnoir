@@ -3,19 +3,16 @@
 ;;
 ;; 起点为长期住宿的廉价旅馆；保留住所存档身份与后续搬家系统。
 ;; 日常添置的是可搬走的个人物品；公寓仍是后续另一处住所。
-;; 恢复（冷静上限 5）：睡觉 +2（租与买一样）；门口露宿不回冷静。
-;; 浇水（龟背竹）投入 1 骰、暂时没有数值收益；酒馆一杯 +2（15 金）。
-;; 睡觉抹不平一天，冷静是跨天的。
-;; 伤势不会自己好（这是它和冷静唯一的分别）。三条路：弹簧床垫解锁养伤（1 骰、压 1）、
-;; 用药（25 金的药，不占骰、压 1、每天一份）、诊所（1 骰 + 诊金、压 2）。
-;; 钱只能让骰子更值钱，替代不了骰子：纯花钱那条（用药）故意最弱，重伤想快好
-;; 就得把今天的骰子交出去。
+;; 冷静不自动恢复：花行动骰静坐 +2；酒馆花 15 金喝酒 +2。
+;; 健康按伤势 0–7 表示：轻伤少一枚骰、重伤少两枚；睡两夜在屋里缓和 1 点伤势。
+;; 诊所、药品、弹簧床垫的主动养伤仍是更快的恢复方式。
 
 (define home
   (let ()
     ;; ── Local State ────────────────────────────────
     (define residence "租的房间")    ; "租的房间" / "公寓"
     (define has-flower? #f)
+    (define 养伤夜数 0)  ; 连续两个在屋里睡过的受伤夜晚，慢慢养好一格
     (define has-mattress? #f)
     (define has-phone? #f)
     (define has-gramophone? #f)
@@ -169,7 +166,7 @@
         (set! flower-today? #f)))
 
     ;; ── 恢复类 ──────────────────────────────────────
-    ;; 白天解压里，喝酒不占骰，走“花钱”那条线；睡觉免费（回合结束）。
+    ;; 白天静坐花骰子，喝酒花金钱；睡觉只刷新骰子，不自动回复冷静。
     ;; 喝酒不占骰子，走“花钱买酒”这条线：当场大量恢复冷静。
     ;; 效果只写这一份：酒馆当场点酒（'drink! 消息）与家中喝自带的酒共用同一次“当天第一杯”。
     ;; 15 金回 2 点：比睡觉多花钱，换来不结束这一天。它不再附加宿醉。
@@ -180,6 +177,18 @@
     ;; 家里曾有一张「喝酒」：喝掉从酒馆打回来的那一壶。买酒的卡删掉之后（见
     ;; 老街酒馆.scm），「酒」这件物品没有来路了，这张卡只会一直灰在客厅里。
     ;; 效果本身没丢：酒馆那杯走的就是下面这个 apply-drink-effect!。
+
+    ;; 在家平复情绪：用今天的一颗骰换回冷静，和酒馆花钱构成真实替代。
+    (define (node-calm)
+      (node "静坐"
+        :anchor "租屋-床边"
+        :subtitle (if (= (actor-composure 'player) 5)
+                      "冷静已满"
+                      "花一枚骰子恢复 2 点冷静")
+        :disabled (= (actor-composure 'player) 5)
+        :requires (list (req-die))
+        :resolve (instant
+          (outcome (lambda () (restore-actor-composure! 'player 2))))))
 
     ;; 用药：在住所中上药休养，不占用行动骰，压 1 点伤势。
     ;; 它是"花钱买时间"的那条路——不占骰子，但药得先花 25 金从诊所买回来。
@@ -250,7 +259,7 @@
 
     (define (note-mattress)
       (node "标注：弹簧床垫" :anchor "租屋-床边" :resolve
-        (note "弹簧床垫" "躺下来养伤要花掉今天的一颗骰；睡一觉本身不治伤。")))
+        (note "弹簧床垫" "静养每两晚缓和一格伤势；躺下主动养伤还能多恢复一格。")))
 
     (define (rest-tags)
       ;; 睡觉卡上只说锁的原因，不指去哪：具体去哪处理由边缘信标和卷宗主线指。
@@ -259,7 +268,18 @@
           (list "不可休息" "存在还未处理的事件")
           '()))
 
-    ;; 睡觉不治伤。弹簧床垫只解锁上面的主动养伤，不再附送被动恢复。
+    ;; 普通床也能缓慢康复：每两个在室内度过的受伤夜晚，伤势减少一格。
+    ;; 门外露宿不计养伤。醒来后如已无伤则清空进度，不把旧夜数带到下次受伤。
+    (define (sleep-mend!)
+      (if (> (injury-severity) 0)
+          (begin
+            (set! 养伤夜数 (+ 养伤夜数 1))
+            (if (>= 养伤夜数 2)
+                (begin
+                  (heal-injury! 1)
+                  (set! 养伤夜数 0))
+                #f))
+          (set! 养伤夜数 0)))
 
     ;; 连睡锁：睡过一觉，要先出过门才能再睡。手滑连点两下睡觉就是两天没了，
     ;; 而「出门再回来」是玩家有意识做的事，误触不会碰到它。家里能做的事本来就少，
@@ -278,17 +298,15 @@
         :anchor "床边"
         :subtitle (cond
                     (刚睡过? "刚醒。出门走走再回来睡")
-                    (else "重置骰子；恢复2点冷静。"))
+                    (else "刷新骰子；两晚养好1点伤势，不回冷静"))
         :disabled (sleep-locked?)
         :tags (sleep-tags)
         :resolve (instant
           (outcome (lambda ()
-              ;; 睡觉固定回 2 点，租的和买下的没有差别——那两者的差别在住宿费，
-              ;; 不在睡得好不好。2 点远不足以抹平一天（顺的一天大约掉 2，糟的掉 4 以上），
-              ;; 冷静因此是一条跨天的轴：交锋掏空之后要在城里养好几天才回得来。
+              ;; 睡眠只有日历推进与缓慢养伤，不再自动恢复冷静。
               (if (and (= world-day 2) (= (three-letters 'story-stage) 0))
                   (three-letters 'night-visit!) #f)
-              (restore-actor-composure! 'player 2)
+              (sleep-mend!)
               (three-letters 'opening-sleep!)
               (set! 刚睡过? #t)
               (end-turn!))))))
@@ -506,7 +524,7 @@
             (list (node "标注：屋里" :anchor "租屋" :resolve
                     (note "旅馆客房" "床、桌子、一扇窗。住久了，也添了些自己的东西。")))
             (things-nodes))
-        (list (node-use-medicine "租屋-床边"))
+        (list (node-use-medicine "租屋-床边") (node-calm))
         (if has-mattress? (list (node-mend) (note-mattress)) '())
         (if has-phone? (list (node-telephone)) '())
         (order-nodes)))
@@ -583,6 +601,7 @@
              (list "drank-today?" drank-today?)
              (list "flower-today?" flower-today?)
              (list "medicated-today?" medicated-today?)
+             (list "sleep-mend-nights" 养伤夜数)
              (list "apartment-offer-known?" apartment-offer-known?)
              (list "rent-left"      (rent-clk 'save))
              (list "grace"          grace)
@@ -602,6 +621,9 @@
              (set! drank-today?   (required-field data "drank-today?"))
              (set! flower-today?  (required-field data "flower-today?"))
              (set! medicated-today? (required-field data "medicated-today?"))
+             (set! 养伤夜数 (assoc-get data "sleep-mend-nights" 0))
+             (if (and (number? 养伤夜数) (>= 养伤夜数 0) (<= 养伤夜数 1))
+                 #t (error "住所存档错误：养伤夜数非法"))
              (set! apartment-offer-known? (required-field data "apartment-offer-known?"))
              (rent-clk 'load!     (required-field data "rent-left"))
              (set! grace          (required-field data "grace"))

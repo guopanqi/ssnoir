@@ -255,10 +255,6 @@ namespace SSNoir.IMGUI
             _holdBeforeBlocking = holdBeforeBlocking;
             _allowOutcomeHoldAfterBlocking = true;
 
-            // 「冷静与伤势」讲的是不顺利会怎样，所以挂在第一次坏结果上，不挂在开局。
-            if (report.Type == ActionType.Roll && report.Outcome == RollOutcome.Fail)
-                TutorialDirector.RequestOnFailedRoll();
-
             _presentationPlayer.Play(report, actionName, () =>
             {
                 // 换场时先让玩家读完结果，再放结局剧情；同场景动作沿用剧情期间挂结果的节奏。
