@@ -30,6 +30,9 @@ namespace SSNoir.Core
         public List<int> ActionDice { get; } = new List<int>();
         public List<int> ActionDiceSlotIds { get; } = new List<int>();
 
+        // 此刻这手骰子发放时封锁了多少位置。当前伤势变化只影响下一手，不追回已发的骰子。
+        public int IssuedInjuryDieLoss { get; set; } = 0;
+
         // 行动者自己的身体状态都挂在自己的骰池位置上。
         public bool IsDrunk { get; set; }
         public int? HangoverSlotId { get; set; }

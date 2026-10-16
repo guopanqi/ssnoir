@@ -51,5 +51,7 @@ namespace SSNoir.Core
         // 两张表严格平行：骰值 + 固定骰池位置。空表表示当天已经没有可用骰子。
         public List<int> ActionDice { get; set; } = new();
         public List<int> ActionDiceSlotIds { get; set; } = new();
+        // 旧档没有此字段时默认为 0：保留已经握在手里的骰子，等下一次发骰再应用当前伤势。
+        public int IssuedInjuryDieLoss { get; set; }
     }
 }

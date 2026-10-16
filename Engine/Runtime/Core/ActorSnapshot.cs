@@ -19,6 +19,8 @@ namespace SSNoir.Core
         public IReadOnlyDictionary<string, int> Stats { get; init; } = new Dictionary<string, int>();
         /// <summary>这个人有几个骰池位置。默认由 role 决定，个别人物带自己的数字。</summary>
         public int ActionSlotCount { get; init; }
+        /// <summary>当前这手骰子真正被封锁的位置数量，可能不同于此刻伤势预告的下次封锁数。</summary>
+        public int IssuedInjuryDieLoss { get; init; }
         public IReadOnlyList<int> ActionDice { get; init; } = new List<int>();
         // 与 ActionDice 平行，是固定骰池位置编号，供客户端保持空间身份。
         public IReadOnlyList<int> ActionDiceSlotIds { get; init; } = new List<int>();

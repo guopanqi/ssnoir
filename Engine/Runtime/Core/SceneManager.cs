@@ -28,7 +28,7 @@ namespace SSNoir.Core
         private SchemeInterpreter? _roundTransitionInterpreter;
         private int _nextForcedAction;
         // 出发去交锋前扣下的世界骰池；回到世界时还回去。null = 没有可还的（新开局/读档/新一天）。
-        private Dictionary<string, (List<int> Dice, List<int> SlotIds)>? _stashedWorldDice;
+        private Dictionary<string, (List<int> Dice, List<int> SlotIds, int IssuedInjuryDieLoss)>? _stashedWorldDice;
         private bool _pendingSceneIsEncounter;
         private Procedure? _encounterCallback;
         private bool _encounterEnded;
@@ -835,6 +835,7 @@ namespace SSNoir.Core
                     SpentGrowthPoints = actor.SpentGrowthPoints,
                     Stats = new Dictionary<string, int>(actor.Stats),
                     ActionSlotCount = actor.ActionSlotCount,
+                    IssuedInjuryDieLoss = actor.IssuedInjuryDieLoss,
                     ActionDice = actor.ActionDice.ToArray(),
                     ActionDiceSlotIds = actor.ActionDiceSlotIds.ToArray(),
                     IsDrunk = actor.IsDrunk,

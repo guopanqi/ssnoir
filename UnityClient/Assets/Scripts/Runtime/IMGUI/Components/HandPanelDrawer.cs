@@ -392,7 +392,10 @@ namespace SSNoir.IMGUI
             // 伤势是队伍级的，只挂在主角这一簇上；它和骰池状态共用同一行说明文字。
             if (showInjury)
             {
-                string injuryText = $"{snapshot.InjuryPart}伤 · 少{snapshot.InjuryActionDieLoss}颗骰";
+                string injuryText = $"{snapshot.InjuryPart}伤 · {snapshot.InjuryBandName} · "
+                    + (snapshot.InjuryActionDieLoss == actor.IssuedInjuryDieLoss
+                        ? $"已封{actor.IssuedInjuryDieLoss}颗骰"
+                        : $"下次封{snapshot.InjuryActionDieLoss}颗骰");
                 statusText = statusText.Length > 0 ? injuryText + " ｜ " + statusText : injuryText;
             }
             // 冷静降低下一次发骰的点数；已有骰子不追溯变更，说明要写成「下次」。
@@ -401,6 +404,11 @@ namespace SSNoir.IMGUI
             {
                 string composureText = $"下次骰面{dicePenalty}";
                 statusText = statusText.Length > 0 ? composureText + " ｜ " + statusText : composureText;
+            }
+            if (isLead && snapshot.InjurySeverity == 0 && actor.IssuedInjuryDieLoss > 0)
+            {
+                string recoveredText = $"已康复 · 下次发骰恢复{actor.IssuedInjuryDieLoss}颗";
+                statusText = statusText.Length > 0 ? recoveredText + " ｜ " + statusText : recoveredText;
             }
             // 旧伤没有条子可画——它不会涨也不会退，只是一行永远在那儿的字。
             if (isLead && snapshot.ScarSummary.Length > 0)
@@ -496,9 +504,9 @@ namespace SSNoir.IMGUI
             // 在界面上从来没存在过。
             //
             // 空位画成一个没有底、没有影子的浅框：它是纸上的一个坑，不是一块可以拿的器物。
-            // 轻重伤封掉的骰位用斜封条呈现——"用掉了"和"用不了"
+            // 只封锁当前这手发骰时的伤位；新的伤势/康复只预告下次封锁数量。
             // 是两回事，不能长得一样。
-            int blockedFromSlot = isLead ? actor.ActionSlotCount - snapshot.InjuryActionDieLoss : actor.ActionSlotCount;
+            int blockedFromSlot = isLead ? actor.ActionSlotCount - actor.IssuedInjuryDieLoss : actor.ActionSlotCount;
             for (int slotId = 0; slotId < actor.ActionSlotCount; slotId++)
             {
                 if (ContainsActionSlot(actor.ActionDiceSlotIds, slotId))

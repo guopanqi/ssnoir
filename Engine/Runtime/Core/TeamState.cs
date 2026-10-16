@@ -150,23 +150,6 @@ namespace SSNoir.Core
         {
             if (Injury.Aggravate(amount))
                 PendingCollapse = true;
-            TrimInjuredDice();
-        }
-
-        /// <summary>受伤即刻封锁失去的骰位；治疗不补发已损失的骰子。</summary>
-        private void TrimInjuredDice()
-        {
-            var player = FindActor("player");
-            if (player == null) return;
-            int limit = Math.Max(0, player.ActionSlotCount - Injury.ActionDieLoss);
-            for (int i = player.ActionDiceSlotIds.Count - 1; i >= 0; i--)
-                if (player.ActionDiceSlotIds[i] >= limit)
-                {
-                    player.ActionDiceSlotIds.RemoveAt(i);
-                    player.ActionDice.RemoveAt(i);
-                }
-        }
-
         /// <summary>
         /// 倒下：当天剩余骰子作废，伤势与冷静归零，并在当时受伤的那个部位永久留下一道疤。
         /// 疤是这件事唯一带不走的代价——钱能再赚，伤能养好，这一条跟到结局。
@@ -484,6 +467,7 @@ namespace SSNoir.Core
                     Stats             = new Dictionary<string, int>(actor.Stats),
                     ActionDice        = new List<int>(actor.ActionDice),
                     ActionDiceSlotIds = new List<int>(actor.ActionDiceSlotIds),
+                    IssuedInjuryDieLoss = actor.IssuedInjuryDieLoss,
                 });
             }
             return data;
@@ -546,13 +530,17 @@ namespace SSNoir.Core
                 }
                 actor.ActionDice.Clear();
                 actor.ActionDiceSlotIds.Clear();
+                if (actorData.IssuedInjuryDieLoss < 0 || actorData.IssuedInjuryDieLoss > 2)
+                    throw new ArgumentOutOfRangeException(nameof(data), "Saved injury die loss must be between 0 and 2.");
+                actor.IssuedInjuryDieLoss = data.HasSavedActionDice && actor.Role == "protagonist"
+                    ? actorData.IssuedInjuryDieLoss : 0;
                 if (data.HasSavedActionDice)
                 {
                     if (actorData.ActionDice.Count != actorData.ActionDiceSlotIds.Count)
                         throw new ArgumentException($"Actor '{actorData.Id}' saved dice and slot lists must have equal length.");
 
                     int availableSlotCount = actor.Status == "active"
-                        ? actor.ActionSlotCount - (actor.Role == "protagonist" ? Injury.ActionDieLoss : 0)
+                        ? actor.ActionSlotCount - actor.IssuedInjuryDieLoss
                         : 0;
                     var seenSlots = new HashSet<int>();
                     for (int i = 0; i < actorData.ActionDice.Count; i++)
@@ -565,8 +553,9 @@ namespace SSNoir.Core
                         if (slotId < 0 || slotId >= actor.ActionSlotCount)
                             throw new ArgumentOutOfRangeException(nameof(data),
                                 $"Actor '{actorData.Id}' saved action slot {slotId} is invalid.");
-                        // 旧档的轻伤骰池曾有四颗；被新规则封锁的槽位不再恢复。
-                        if (slotId >= availableSlotCount) continue;
+                        if (slotId >= availableSlotCount)
+                            throw new ArgumentOutOfRangeException(nameof(data),
+                                $"Actor '{actorData.Id}' saved slot {slotId} was locked when the current dice were issued.");
                         if (!seenSlots.Add(slotId))
                             throw new ArgumentException($"Actor '{actorData.Id}' save data repeats action slot {slotId}.");
                         actor.ActionDice.Add(die);
@@ -581,16 +570,18 @@ namespace SSNoir.Core
         /// 把当前骰池原样抄一份。用于「离开世界去打一场交锋」——世界骰池是当天的，
         /// 交锋结束回来时要还回去，而不是重掷（见 SceneManager 的骰池暂存）。
         /// </summary>
-        public Dictionary<string, (List<int> Dice, List<int> SlotIds)> CaptureActionDice()
+        public Dictionary<string, (List<int> Dice, List<int> SlotIds, int IssuedInjuryDieLoss)> CaptureActionDice()
         {
-            var result = new Dictionary<string, (List<int>, List<int>)>();
+            var result = new Dictionary<string, (List<int>, List<int>, int)>();
             foreach (var actor in Actors)
-                result[actor.Id] = (new List<int>(actor.ActionDice), new List<int>(actor.ActionDiceSlotIds));
+                result[actor.Id] = (new List<int>(actor.ActionDice),
+                    new List<int>(actor.ActionDiceSlotIds), actor.IssuedInjuryDieLoss);
             return result;
         }
 
-        /// <summary>把 CaptureActionDice 抄下的骰池放回去。名单里没有的行动者一律清空骰池。</summary>
-        public void RestoreActionDice(Dictionary<string, (List<int> Dice, List<int> SlotIds)> captured)
+        /// <summary>回到世界时还原原本那手骰子及其封锁状态；交锋中发生的伤势待下次发骰兑现。</summary>
+        public void RestoreActionDice(
+            Dictionary<string, (List<int> Dice, List<int> SlotIds, int IssuedInjuryDieLoss)> captured)
         {
             foreach (var actor in Actors)
             {
@@ -598,13 +589,9 @@ namespace SSNoir.Core
                 actor.ActionDiceSlotIds.Clear();
                 if (!captured.TryGetValue(actor.Id, out var saved))
                     continue;
-                int limit = actor.ActionSlotCount - (actor.Role == "protagonist" ? Injury.ActionDieLoss : 0);
-                for (int i = 0; i < saved.SlotIds.Count; i++)
-                    if (saved.SlotIds[i] < limit)
-                    {
-                        actor.ActionDice.Add(saved.Dice[i]);
-                        actor.ActionDiceSlotIds.Add(saved.SlotIds[i]);
-                    }
+                actor.IssuedInjuryDieLoss = saved.IssuedInjuryDieLoss;
+                actor.ActionDice.AddRange(saved.Dice);
+                actor.ActionDiceSlotIds.AddRange(saved.SlotIds);
             }
             OnTeamChanged?.Invoke();
         }
@@ -628,11 +615,12 @@ namespace SSNoir.Core
             var rand = GameRandom.Instance;
             actor.ActionDice.Clear();
             actor.ActionDiceSlotIds.Clear();
+            actor.IssuedInjuryDieLoss = actor.Role == "protagonist" ? Injury.ActionDieLoss : 0;
             if (!IsOnStage(actor, isInEncounter))
                 return;
             int diceCount = actor.ActionSlotCount;
             if (actor.Role == "protagonist")
-                diceCount -= Injury.ActionDieLoss;
+                diceCount -= actor.IssuedInjuryDieLoss;
             for (int slotId = 0; slotId < diceCount; slotId++)
             {
                 if (actor.FixedDieValue != null)
