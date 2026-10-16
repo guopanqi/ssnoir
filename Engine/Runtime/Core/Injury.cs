@@ -6,27 +6,8 @@ namespace SSNoir.Core
     public enum InjuryBand { None, Light, Severe }
 
     /// <summary>
-    /// 伤势：全队唯一的身体轴，取代旧的健康血条。规则以本文件为唯一来源。
-    ///
-    /// 一次只有一处伤。第一次受伤随机命中一项能力并定下部位名，之后的伤害都加在同一条上，
-    /// 归 0 才清除——所以第二次受伤必然是加重，压力不会被分散到多个部位上。
-    /// 刻度本身就是康复进度，反着读：治疗即降伤势，降到 0 就是痊愈。
-    ///
-    ///   0     完好
-    ///   1–3   轻伤   命中的能力 −1
-    ///   4–6   重伤   不再扣能力，封掉一颗行动骰
-    ///   7     倒下   强制送医，结算后伤势归零
-    ///
-    /// **伤势不会自己好。**这是它和冷静的全部区别：冷静是睡一觉就回一点的那条，
-    /// 伤势是你得为它腾出点什么的那条——药品花钱，诊所同时花钱和骰，
-    /// 弹簧床垫则解锁用行动骰换康复的长期通道。睡觉本身不治伤，轻伤与重伤都不会自动好。
-    ///
-    /// 冷静 5 点垫子 + 伤势 7 点身体 = 12 点。交锋每回合 1 点，前五个回合不流血，
-    /// 第六回合进轻伤，第九回合进重伤，第十二回合倒下。一场交锋不该长成那样：真正结束它的应该是交锋自己的时钟，
-    /// 这条轴只是兜底的账单。
-    ///
-    /// 不治疗不会自行恶化（伤势钳在当前值）。到达满格立刻倒下，结算后伤势归零，
-    /// 但会留下永久疤痕，所以谷底仍然爬得起来，不会被拖进死亡螺旋。
+    /// 伤势：0 完好，1–3 轻伤少 1 骰，4–6 重伤少 2 骰，7 倒下送医。
+    /// 伤势不再扣技能，刻度仍用于治疗与恢复；不会随时间自行恶化。
     /// </summary>
     public sealed class Injury
     {
@@ -77,36 +58,20 @@ namespace SSNoir.Core
             _ => throw new ArgumentOutOfRangeException(nameof(band), band, "Unknown injury band.")
         };
 
-        /// <summary>命中能力的判定修正：只有轻伤 −1；重伤改为封行动骰，不叠加能力扣减。</summary>
-        public int SkillPenalty => Band switch
+        /// <summary>伤势只影响行动骰数量。</summary>
+        public int ActionDieLoss => Band switch
         {
-            InjuryBand.Light  => -1,
+            InjuryBand.Light => 1,
+            InjuryBand.Severe => 2,
             _ => 0,
         };
+        public int SkillPenalty => 0;
+        public bool CostsActionDie => ActionDieLoss > 0;
+        public DifficultyModifierInfo? ModifierFor(string actorRole, string skillName) => null;
 
-        /// <summary>重伤少一颗行动骰。</summary>
-        public bool CostsActionDie => Band == InjuryBand.Severe;
-
-        /// <summary>
-        /// 这次判定要不要吃伤势修正；不吃返回 null。伤势只压主角被打中的那一项能力，
-        /// 并且走和「势力敌视 −1」「非法 −2」同一条**可见**修正——玩家投骰前就该看见它。
-        /// 卡面预览和实际结算都从这里取，否则会出现预览写 4、结算按 2 算的两套账。
-        /// </summary>
-        public DifficultyModifierInfo? ModifierFor(string actorRole, string skillName)
-        {
-            if (actorRole != "protagonist" || SkillPenalty == 0) return null;
-            if (!Skill.Equals(skillName, StringComparison.OrdinalIgnoreCase)) return null;
-            return new DifficultyModifierInfo { Value = SkillPenalty, Reason = Part + "伤" };
-        }
-
-        /// <summary>面板上那一行：「手伤 · 力量 −1」。完好时为空。</summary>
         public string Describe()
-        {
-            if (Band == InjuryBand.None) return string.Empty;
-            return Band == InjuryBand.Severe
-                ? $"{Part}伤 · {BandName(Band)} · −1颗骰"
-                : $"{Part}伤 · {BandName(Band)} · {SkillName} {SkillPenalty}";
-        }
+            => Band == InjuryBand.None ? string.Empty
+                : $"{Part}伤 · {BandName(Band)} · 少{ActionDieLoss}颗骰";
 
         /// <summary>
         /// 受伤。身上没伤时随机落一处，已有伤则加深同一处。

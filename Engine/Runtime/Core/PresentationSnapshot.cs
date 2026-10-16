@@ -22,6 +22,7 @@ namespace SSNoir.Core
         public string InjurySkillKey { get; init; } = string.Empty;
         public int InjurySkillPenalty { get; init; }
         public bool InjuryCostsActionDie { get; init; }
+        public int InjuryActionDieLoss { get; init; }
         // 疤痕：按能力内部键聚合好的永久修正，客户端画预览时直接查表，
         // 不自己数疤——预览和结算读的必须是同一份（见 ScarSet.ModifiersBySkill）。
         public IReadOnlyDictionary<string, DifficultyModifierInfo> ScarModifiers { get; init; }

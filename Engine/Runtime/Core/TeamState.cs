@@ -9,18 +9,12 @@ namespace SSNoir.Core
         public const int MinStatLevel = -1;
         public const int MaxStatLevel = 4;
 
-        // 冷静即时限制当前骰面：4–5 点为 1–6，2–3 点为 1–5，1 点为 1–4，0 点为 1–3。
-        // 冷静见底后继续消耗，一比一转成伤势；交锋每次换手仍然收取冷静作为时间代价。
-        // 骰池保存原始值，冷静变化仅改变有效值，已经取得的骰子无须重掷。
+        // 冷静只在下一手发骰时降低点数，不改变当前已持有的骰子。
+        // 4–5 点不降质，2–3 点减 1，0–1 点减 2；见底额外消耗仍转成伤势。
         public const int MaxComposure = 5;
 
-        public static int ComposureDieCeiling(int composure)
-            => composure >= 4 ? 6 : composure >= 2 ? 5 : composure == 1 ? 4 : 3;
-
-        public static int EffectiveDieValue(ActorState actor, int rawValue)
-            => actor.Role == "protagonist" && actor.FixedDieValue == null
-                ? Math.Min(rawValue, ComposureDieCeiling(actor.Composure))
-                : rawValue;
+        public static int ComposureDicePenalty(int composure)
+            => composure >= 4 ? 0 : composure >= 2 ? -1 : -2;
 
         /// <summary>队伍唯一的身体轴，取代旧的健康血条。规则与档位见 <see cref="Core.Injury"/>。</summary>
         public Injury Injury { get; } = new Injury();
@@ -156,6 +150,21 @@ namespace SSNoir.Core
         {
             if (Injury.Aggravate(amount))
                 PendingCollapse = true;
+            TrimInjuredDice();
+        }
+
+        /// <summary>受伤即刻封锁失去的骰位；治疗不补发已损失的骰子。</summary>
+        private void TrimInjuredDice()
+        {
+            var player = FindActor("player");
+            if (player == null) return;
+            int limit = Math.Max(0, player.ActionSlotCount - Injury.ActionDieLoss);
+            for (int i = player.ActionDiceSlotIds.Count - 1; i >= 0; i--)
+                if (player.ActionDiceSlotIds[i] >= limit)
+                {
+                    player.ActionDiceSlotIds.RemoveAt(i);
+                    player.ActionDice.RemoveAt(i);
+                }
         }
 
         /// <summary>
@@ -213,7 +222,7 @@ namespace SSNoir.Core
                     ActorId = actor.Id,
                     DieIndex = actor.ActionDiceSlotIds[chosenIndex],
                     SourceIndex = actor.ActionDiceSlotIds[chosenIndex],
-                    Value = EffectiveDieValue(actor, actor.ActionDice[chosenIndex]),
+                    Value = actor.ActionDice[chosenIndex],
                 });
                 actor.ActionDice.RemoveAt(chosenIndex);
                 actor.ActionDiceSlotIds.RemoveAt(chosenIndex);
@@ -543,7 +552,7 @@ namespace SSNoir.Core
                         throw new ArgumentException($"Actor '{actorData.Id}' saved dice and slot lists must have equal length.");
 
                     int availableSlotCount = actor.Status == "active"
-                        ? actor.ActionSlotCount - (actor.Role == "protagonist" && Injury.CostsActionDie ? 1 : 0)
+                        ? actor.ActionSlotCount - (actor.Role == "protagonist" ? Injury.ActionDieLoss : 0)
                         : 0;
                     var seenSlots = new HashSet<int>();
                     for (int i = 0; i < actorData.ActionDice.Count; i++)
@@ -553,9 +562,11 @@ namespace SSNoir.Core
                         if (die < 1 || die > 6)
                             throw new ArgumentOutOfRangeException(nameof(data),
                                 $"Actor '{actorData.Id}' saved die value must be between 1 and 6.");
-                        if (slotId < 0 || slotId >= availableSlotCount)
+                        if (slotId < 0 || slotId >= actor.ActionSlotCount)
                             throw new ArgumentOutOfRangeException(nameof(data),
-                                $"Actor '{actorData.Id}' saved action slot {slotId} is not available.");
+                                $"Actor '{actorData.Id}' saved action slot {slotId} is invalid.");
+                        // 旧档的轻伤骰池曾有四颗；被新规则封锁的槽位不再恢复。
+                        if (slotId >= availableSlotCount) continue;
                         if (!seenSlots.Add(slotId))
                             throw new ArgumentException($"Actor '{actorData.Id}' save data repeats action slot {slotId}.");
                         actor.ActionDice.Add(die);
@@ -587,8 +598,13 @@ namespace SSNoir.Core
                 actor.ActionDiceSlotIds.Clear();
                 if (!captured.TryGetValue(actor.Id, out var saved))
                     continue;
-                actor.ActionDice.AddRange(saved.Dice);
-                actor.ActionDiceSlotIds.AddRange(saved.SlotIds);
+                int limit = actor.ActionSlotCount - (actor.Role == "protagonist" ? Injury.ActionDieLoss : 0);
+                for (int i = 0; i < saved.SlotIds.Count; i++)
+                    if (saved.SlotIds[i] < limit)
+                    {
+                        actor.ActionDice.Add(saved.Dice[i]);
+                        actor.ActionDiceSlotIds.Add(saved.SlotIds[i]);
+                    }
             }
             OnTeamChanged?.Invoke();
         }
@@ -615,8 +631,8 @@ namespace SSNoir.Core
             if (!IsOnStage(actor, isInEncounter))
                 return;
             int diceCount = actor.ActionSlotCount;
-            if (actor.Role == "protagonist" && Injury.CostsActionDie)
-                diceCount -= 1;
+            if (actor.Role == "protagonist")
+                diceCount -= Injury.ActionDieLoss;
             for (int slotId = 0; slotId < diceCount; slotId++)
             {
                 if (actor.FixedDieValue != null)
@@ -626,7 +642,8 @@ namespace SSNoir.Core
                     actor.ActionDiceSlotIds.Add(slotId);
                     continue;
                 }
-                int penalty = GetCurrentSlotPenalty(actor, slotId);
+                int penalty = GetCurrentSlotPenalty(actor, slotId)
+                    + (actor.Role == "protagonist" ? ComposureDicePenalty(actor.Composure) : 0);
                 if (applyHangover && actor.HangoverSlotId == slotId)
                     penalty--;
                 actor.ActionDice.Add(Math.Max(1, rand.Next(1, 7) + penalty));

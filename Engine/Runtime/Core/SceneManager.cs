@@ -835,7 +835,7 @@ namespace SSNoir.Core
                     SpentGrowthPoints = actor.SpentGrowthPoints,
                     Stats = new Dictionary<string, int>(actor.Stats),
                     ActionSlotCount = actor.ActionSlotCount,
-                    ActionDice = actor.ActionDice.Select(v => TeamState.EffectiveDieValue(actor, v)).ToArray(),
+                    ActionDice = actor.ActionDice.ToArray(),
                     ActionDiceSlotIds = actor.ActionDiceSlotIds.ToArray(),
                     IsDrunk = actor.IsDrunk,
                     ActiveActionSlotStatuses = _gameState.Team.GetActiveActionSlotStatuses(actor),
@@ -855,6 +855,7 @@ namespace SSNoir.Core
                 InjurySkillKey = _gameState.Team.Injury.Skill,
                 InjurySkillPenalty = _gameState.Team.Injury.SkillPenalty,
                 InjuryCostsActionDie = _gameState.Team.Injury.CostsActionDie,
+                InjuryActionDieLoss = _gameState.Team.Injury.ActionDieLoss,
                 ScarModifiers = _gameState.Team.Scars.ModifiersBySkill(),
                 ScarSummary = _gameState.Team.Scars.Describe(),
                 Failure = _gameState.Failure,
@@ -1496,9 +1497,9 @@ namespace SSNoir.Core
                             throw new InvalidOperationException($"Action slot {slotId} has no available die for actor '{actorId}'.");
                         }
 
-                        if (TeamState.EffectiveDieValue(a, a.ActionDice[idx]) != slot.Value)
+                        if (a.ActionDice[idx] != slot.Value)
                         {
-                            throw new InvalidOperationException($"Die value mismatch: slotted die has value {slot.Value}, but actor's slot {slotId} has effective value {TeamState.EffectiveDieValue(a, a.ActionDice[idx])}.");
+                            throw new InvalidOperationException($"Die value mismatch: slotted die has value {slot.Value}, but actor's slot {slotId} has value {a.ActionDice[idx]}.");
                         }
 
                         if (!usedDicePerActor.ContainsKey(actorId))
