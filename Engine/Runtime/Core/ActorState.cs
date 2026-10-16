@@ -11,7 +11,7 @@ namespace SSNoir.Core
         public string Role { get; set; } = string.Empty; // "protagonist", "companion"
         public string Status { get; set; } = "active";  // "active", "away"
         
-        // 冷静：纯缓冲。花掉本身没有惩罚，归零后每一点消耗直接转成伤势
+        // 冷静影响下一次发骰的点数；已发出的骰子不变。归零后继续消耗会造成伤势。
         // ——机械效果只由伤势一处承担（见 docs/城市生活设计.md §2.2）。
         private int _composure = TeamState.MaxComposure;
         /// <summary>主角的冷静是跨日资源；同伴的冷静表示他今天还能陪你行动多久，

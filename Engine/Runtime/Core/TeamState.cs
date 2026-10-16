@@ -398,7 +398,7 @@ namespace SSNoir.Core
             OnTeamChanged?.Invoke();
         }
 
-        // 恢复冷静（睡觉、城市恢复动词、烟）。只在满值时把离场协作者接回来。
+        // 恢复冷静（主动休息、消费与随身物品；普通睡觉不再给主角恢复）。
         public void RestoreComposure(string actorId, int amount)
         {
             if (amount < 0)

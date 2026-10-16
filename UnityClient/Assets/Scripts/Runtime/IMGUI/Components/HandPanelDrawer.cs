@@ -496,7 +496,7 @@ namespace SSNoir.IMGUI
             // 在界面上从来没存在过。
             //
             // 空位画成一个没有底、没有影子的浅框：它是纸上的一个坑，不是一块可以拿的器物。
-            // 重伤封掉的那一位另有画法（叉号，见 DrawDisabledDie）——"用掉了"和"用不了"
+            // 轻重伤封掉的骰位用斜封条呈现——"用掉了"和"用不了"
             // 是两回事，不能长得一样。
             int blockedFromSlot = isLead ? actor.ActionSlotCount - snapshot.InjuryActionDieLoss : actor.ActionSlotCount;
             for (int slotId = 0; slotId < actor.ActionSlotCount; slotId++)
@@ -636,9 +636,9 @@ namespace SSNoir.IMGUI
             };
             IMGUIStyles.DrawLabel(new Rect(x, y, VitalLabelW, VitalRowH), UiText.Get("冷静"), labelStyle);
 
-            // 阈值随上限走：见底是红的，剩三分之一以内是警告色。
+            // 冷静降至 3 点开始降低下一手骰面，警告色与实际档位保持一致。
             Color fill = composure <= 0 ? IMGUIStyles.SealRed
-                       : composure * 3 <= max ? IMGUIStyles.OddsNeutral
+                       : TeamState.ComposureDicePenalty(composure) < 0 ? IMGUIStyles.OddsNeutral
                        : IMGUIStyles.TextPrimary;
 
             float barX = x + VitalLabelW + 8f;
