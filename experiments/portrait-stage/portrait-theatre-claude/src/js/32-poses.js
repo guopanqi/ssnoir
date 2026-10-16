@@ -9,3 +9,4 @@ Object.assign(POSES,{
  stand:{ll:0,lr:0,ar:0,al:0,b:0,h:0}});
 Object.assign(POSES,{sitHung:{b:26,h:34,ar:0,al:0},sitUp:{b:6,h:8,ar:6,al:6}});
 Object.assign(POSES,{wipe:{ar:-80,al:6,b:4,h:14},turnUp:{ar:-165,al:0,b:-4,h:-6},idleDown:{ar:4,al:6,b:4,h:16},push:{ar:-60,al:6,b:6,h:14},take:{ar:-70,al:10,b:4,h:6},shrug:{ar:34,al:-34,b:-2,h:8}});
+Object.assign(POSES,{point:{ar:-90,al:6,b:4,h:0},talkA:{ar:-50,al:8,b:6,h:4},talkB:{ar:-30,al:-20,b:4,h:-2},carry:{ar:-80,al:-76,b:-6,h:2},fist:{ar:-110,al:10,b:6,h:-2},scratch:{ar:-165,al:8,b:2,h:4},shake:{ar:8,al:-8,b:4,h:-6}});

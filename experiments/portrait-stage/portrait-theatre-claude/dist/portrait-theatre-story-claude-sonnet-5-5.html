@@ -266,6 +266,7 @@ Object.assign(POSES,{
  stand:{ll:0,lr:0,ar:0,al:0,b:0,h:0}});
 Object.assign(POSES,{sitHung:{b:26,h:34,ar:0,al:0},sitUp:{b:6,h:8,ar:6,al:6}});
 Object.assign(POSES,{wipe:{ar:-80,al:6,b:4,h:14},turnUp:{ar:-165,al:0,b:-4,h:-6},idleDown:{ar:4,al:6,b:4,h:16},push:{ar:-60,al:6,b:6,h:14},take:{ar:-70,al:10,b:4,h:6},shrug:{ar:34,al:-34,b:-2,h:8}});
+Object.assign(POSES,{point:{ar:-90,al:6,b:4,h:0},talkA:{ar:-50,al:8,b:6,h:4},talkB:{ar:-30,al:-20,b:4,h:-2},carry:{ar:-80,al:-76,b:-6,h:2},fist:{ar:-110,al:10,b:6,h:-2},scratch:{ar:-165,al:8,b:2,h:4},shake:{ar:8,al:-8,b:4,h:-6}});
 /* 舞台道具助手：gl 移动/淡入任意 SVG 道具；hum 在 #props 放一群轻轻摇晃的剪影；酒保擦杯/上架两个共用动作 */
 const gl=(id,x,y,o=1,ms=500,r=0,ease='ease')=>{const e=$('#'+id);if(!e)return;e.style.transition=`transform ${ms}ms ${ease},opacity .25s`;e.style.transform=`translate(${x}px,${y}px) rotate(${r}deg)`;e.style.opacity=o};
 const GL=id=>`<g id="${id}" style="opacity:0"><path d="M-11 0L-9 -26H9L11 0Z" fill="#0b0f1c" stroke="#e6eeff" stroke-width="2.5"/><path d="M-10 -9H10" stroke="#e0b060" stroke-width="3"/></g>`;
@@ -273,6 +274,7 @@ const hum=list=>{const g=$('#props');list.forEach(([x,y,s,f],i)=>{g.insertAdjace
 /* 酒保：擦杯口（杯在手边轻晃）、转身把杯子放回架子（整张立绘切换） */
 const wipeGlass=async(w,n=3)=>{pose('bm','wipe',{show:1,f:1,face:'n',back:0});gl('gl',923,592,1,0);for(let i=0;i<n;i++){gl('gl',929,590,1,320,8);await w(380);gl('gl',917,594,1,320,-8);await w(380)}};
 const shelveGlass=async w=>{pose('bm','turnUp',{f:1,back:1});gl('gl',998,476,1,650);await w(800);pose('bm','idleDown',{f:1,back:0,face:'n'});await w(300)};
+const CRATE=id=>`<g id="${id}" style="opacity:0"><rect x="-42" y="-34" width="84" height="68" fill="#07080c" stroke="#cdbf9e" stroke-width="2.5"/><path d="M-42 -34L42 34M42 -34L-42 34" stroke="#8a7a5c" stroke-width="2"/></g>`;
 /* rain */
 const cv=$('#rain'),cx=cv.getContext('2d'),dr=Array.from({length:260},()=>({x:Math.random()*960,y:Math.random()*540,v:14+Math.random()*10,l:10+Math.random()*14}));cx.strokeStyle='rgba(150,185,235,.4)';
 (function lp(){requestAnimationFrame(lp);cx.clearRect(0,0,960,540);if(!rainI)return;const n=Math.floor(dr.length*rainI);cx.beginPath();for(let i=0;i<n;i++){const d=dr[i];if(!paused){d.y+=d.v;d.x-=2;if(d.y>540){d.y=-20;d.x=Math.random()*980}}cx.moveTo(d.x,d.y);cx.lineTo(d.x-2,d.y+d.l)}cx.stroke()})();
@@ -381,6 +383,11 @@ SETS.hotelRoom=()=>GROUND+RR(720,220,240,250,'s',.8,3,'#cfe0ff')+LL('M840 220V47
 /* 白天的酒馆：酒保在吧台后（吧台在前景层），架子在他身后，左边窗户里斜进一束日光；尼尔站在吧台左端（外侧） */
 SETS.barDay=()=>GROUND+RR(820,150,620,130,'s',.6,2.5,'#7f95c4')+BOT(840,1480,470)+RR(150,250,300,300,'s',.8,3,'#cfe0ff')+LL('M300 250V550M150 400H450','',1.1,1.5,'#7f95c4')+'<polygon class="mp" points="150,550 450,550 780,790 330,790" fill="#e8dcb0" opacity="0" style="transition:opacity 1.6s"/>';
 const BDC=DK(640,1600,660,860)+'<path d="M700 660v-26h16v26zM1330 660q6 -26 20 -26q14 0 20 26z" fill="#07080c" stroke="#e6eeff" stroke-width="2.5"/>'+GL('gl')+GL('gw');
+/* 码头（艾迪的办法）：左边一小垛、右边一大垛货箱（“这批活”），吊机、系缆桩、一盏落地灯；前景一只大木箱当艾迪的座位 */
+SETS.dock=()=>{let w='';for(let i=0;i<6;i++)w+=LL(`M${i*300} ${836+i%2*14}h200`,'',1+i*.1,1.5,'#33466e');
+const cr=(x,y)=>RR(x,y,110,100,'s',1.2,2.5,'#cdbf9e')+LL(`M${x} ${y}L${x+110} ${y+100}M${x+110} ${y}L${x} ${y+100}`,'',1.4,1.5,'#8a7a5c');
+return GROUND+w+cr(120,690)+cr(230,690)+cr(175,590)+cr(1150,690)+cr(1260,690)+cr(1150,590)+cr(1260,590)+cr(1205,490)+LL('M1480 40V790','',.4,4,'#9fb4e0')+LL('M1480 90H900','',.5,3,'#9fb4e0')+LL('M1480 150L1380 90','',.6,2,'#7f95c4')+LL('M930 90V300','',.9,1.5,'#7f95c4')+LL('M930 300q-18 0 -18 22q0 20 18 20','',1,2.5,'#cfe0ff')+LL('M560 790V380','',.7,3,'#9fb4e0')+RR(540,340,40,40,'s',1,2.5,'#e6eeff')+'<circle cx="560" cy="360" r="120" fill="#f3d08a" opacity=".13"/>'+RR(900,744,40,46,'s',1.5,2,'#9fb4e0')};
+const FRBOX='<path d="M610 700H790V790H610Z" fill="#07080c" stroke="#cdbf9e" stroke-width="2.5"/><path d="M610 700L790 790M790 700L610 790" stroke="#8a7a5c" stroke-width="2"/><path d="M610 700H790" stroke="#f0f4ff" stroke-width="4"/>'+CRATE('cr')+'<g id="gv" style="opacity:0"><rect x="-16" y="-9" width="32" height="18" rx="5" fill="#6a4a2a" stroke="#c9a06a" stroke-width="2"/></g>';
 /* chapters */
 const C1=Object.assign({t:'<h1>片段一 · 雨夜求助</h1><p>格兰德酒店门前</p>',o:'920px 610px',bg:'#070a12',set:'#hotel',i:['20%','52%'],
 ini(){P('ny',{d:0,x:-200,s:.54,hat:1,umo:1})},
@@ -472,37 +479,37 @@ G.nl.classList.remove('swy2');pose('nl','dLean',{f:0,face:'drunk',h:22});await w
 /* ── 瞬黑 1.5 秒 → 旅馆大堂 ── */
 await cut(()=>{scene(()=>SETS.hotelLobby(),LOBF,'');dolly(1,50,60,0);
  pose('ho','sitHung',{show:1,x:940,y:790,s:.56,f:1,face:'n'});pose('nl','dWalk',{show:1,x:230,y:800,s:.6,f:0,face:'drunk'});sp(2,900,1.2,.08,'#f3d08a')});
-sw(true);mv('nl',1160,800,4200,'linear');
+dolly(1.12,60,56,9000);sw(true);mv('nl',1160,800,4200,'linear');
 const stps=(async()=>{for(let t=0;t<4200;t+=525){stp();await w(525)}})();
 await w(2200);
 /* 他经过柜台，老板抬头；尼尔不回应，也不停 */
-pose('ho','stand',{f:1,face:'n',h:-2});tn(260,.15,'triangle',.03);dolly(1.3,58,56,1800);
+pose('ho','stand',{f:1,face:'n',h:-2});tn(260,.15,'triangle',.03);
 await ho('尼尔？');cc();
 pose('ho','stand',{f:0,face:'sad',h:2});
 await stps;
 /* 上楼：斜着往右上走，越走越远，隐进黑里 */
-dolly(1.25,86,52,3600);pose('nl','dWalk',{f:0,face:'drunk'});mv('nl',1470,500,3400,'linear',.5);P('nl',{show:0,d:3400});
+pose('nl','dWalk',{f:0,face:'drunk'});mv('nl',1470,500,3400,'linear',.5);P('nl',{show:0,d:3400});
 for(let t=0;t<3400;t+=480){stp();await w(480)}
 sw(false);await w(900);
 /* ── 描线渐隐 ── */
 $('#front').style.transition='opacity 1.8s';$('#front').style.opacity=0;P('ho',{show:0,d:1800});SET.classList.remove('on','f');dolly(1,50,60,2400);await w(2800)}},
 {n:'第一日清晨',sub:'旅馆 · 尼尔的房间 · 门外的老板',sh:'清晨',pos:[540,830],bg:'#0b0907',set:'#set3',lx:830,i:['40%','60%'],mk:()=>SETS.hotelRoom(),
 ini(){$('#front').innerHTML=BED;$('#front').style.opacity=0;P('nl',{d:0,show:0,x:470,y:830,s:.62,f:0,face:'drunk'});P('ho',{d:0,show:0,x:1340,y:790,s:.6,f:1,face:'n'})},
-/* 门内是宿醉的尼尔，门外是来收房钱却不想逼他的老板；整场靠镜头在两张脸之间切换，不靠动作 */
-async run(k,{w,n,ho,nar,at,faceCam}){
+/* 门内是宿醉的尼尔，门外是来收房钱却不想逼他的老板；镜头基本不动，只在“谢谢了....”那一拍慢慢推向尼尔 */
+async run(k,{w,n,ho,nar,at}){
 const door=$('#rl'),stps=async(ms)=>{for(let t=0;t<ms;t+=520){stp();await w(520)}};
 $('#front').style.opacity=1;
 pose('nl','sitHung',{show:1,f:0,face:'drunk'});sp(2,830,1.1,.08,'#f3d08a');
 await w(1800);mp(.13);await w(1600);
 /* 咚！咚！咚！门跟着震，他慢慢抬头；镜头压向他的脸 */
 for(let i=0;i<3;i++)at(i*560,()=>{tn(95,.18,'sine',.45);bs(.05,.5,220);door.style.transition='transform .06s';door.style.transform='scaleX(.975)';at(120,()=>door.style.transform='scaleX(1)')});
-faceCam('nl',1.5,3200);at(1700,()=>pose('nl','sitUp',{face:'drunk'}));
+at(1700,()=>pose('nl','sitUp',{face:'drunk'}));
 await nar('（咚！咚！咚！）',2200);
 await ho('尼尔？');
 pose('nl','sitUp',{face:'drunk',h:12});
 await n('谁？');
 /* 门外的人隔着门说话；他撑着床沿站起来，摇摇晃晃往门口走 */
-pose('nl','stand',{y:790,b:4,h:10,face:'drunk'});G.nl.classList.add('swy');dolly(1.12,66,58,7000);
+pose('nl','stand',{b:4,h:10,face:'drunk'});P('nl',{y:790,d:600});G.nl.classList.add('swy');
 mv('nl',1090,790,2800,'ease-in-out');const sp1=stps(2800);
 await ho('是我，我看你昨晚喝多了就没来打扰你');
 await sp1;G.nl.classList.remove('swy');
@@ -512,20 +519,20 @@ pose('ho','stand',{show:1,d:500,f:1,face:'n',h:-2});pose('nl','stand',{f:0,face:
 await n('是老板啊，你有事儿吗？');
 pose('ho','stand',{f:1,face:'n',b:3,h:0});
 await ho('我是跟你说旅馆房钱的事情，你这间房该交钱了。');
-faceCam('nl',1.55,1800);pose('nl','stand',{f:0,face:'sad',h:12});
+pose('nl','stand',{f:0,face:'sad',h:12});
 await n('能等我两天吗？');
 /* 老板这句最长：先看着他，说到“侦探的活儿”时尼尔垂下眼，镜头切到尼尔，再回到老板 */
-pose('ho','stand',{f:1,face:'sad',b:6,h:-2});faceCam('ho',1.5,1500);
-at(2800,()=>{pose('nl','stand',{f:0,face:'sad',h:20});faceCam('nl',1.5,1400)});
-at(5300,()=>{pose('ho','stand',{f:1,face:'smile',b:6,h:-4});faceCam('ho',1.5,1400)});
+pose('ho','stand',{f:1,face:'sad',b:6,h:-2});
+at(2800,()=>pose('nl','stand',{f:0,face:'sad',h:20}));
+at(5300,()=>pose('ho','stand',{f:1,face:'smile',b:6,h:-4}));
 await ho('不要紧，尼尔，主要不是钱的事儿。你最近侦探的活儿怎么样了？干不下去的话也可以和我说，我给你介绍点别的活儿');
 /* 尼尔低着头，过一会儿才开口 */
-faceCam('nl',1.6,1500);pose('nl','stand',{f:0,face:'sad',h:20});await w(900);
+dolly(1.3,68,58,2800);pose('nl','stand',{f:0,face:'sad',h:20});await w(900);
 await n('谢谢了....');
 await w(1000);pose('nl','stand',{f:0,face:'hard',h:0});await w(700);
 await n('房钱我两天后给你');
 /* 老板点点头，退回走廊；门合上 */
-dolly(1.1,72,58,2200);pose('ho','stand',{f:1,face:'n',h:6});await w(900);
+pose('ho','stand',{f:1,face:'n',h:6});await w(900);
 P('ho',{x:1420,d:1300,show:0});await w(1200);
 door.style.transform='scaleX(1)';$('#rcl').style.opacity=0;tn(70,.3,'sine',.4);bs(.1,.6,300);await w(1200);
 /* 一个人站在晨光里，镜头慢慢拉开 */
@@ -533,13 +540,13 @@ pose('nl','stand',{f:1,face:'n',h:6});dolly(1,50,60,4000);await w(4200)}},
 {n:'第一日酒馆',sub:'酒馆 · 白天 · 吧台两侧',sh:'酒馆',pos:[520,600],bg:'#0b0a0c',set:'#set3',lx:900,i:['40%','60%'],mk:()=>SETS.barDay(),
 ini(){$('#front').innerHTML=BDC;$('#front').style.opacity=0;P('bm',{d:0,show:0,x:1050,y:790,s:.6,f:1,face:'n'});P('nl',{d:0,show:0,x:-160,y:790,s:.6,f:0,face:'n'})},
 /* 白天，客人稀疏。熟不熟全靠动作：酒保没抬头就递来一杯水，尼尔不用开口就接住 */
-async run(k,{w,n,bm,at,faceCam,go,murmur}){
+async run(k,{w,n,bm,at,go,murmur}){
 $('#front').style.opacity=1;hum([[1480,790,.7,-1],[290,790,.7,1]]);mp(.1);sp(2,900,1.4,.08,'#f3d08a');const mu=murmur(.2);
-dolly(1.35,66,58,8000);
+dolly(1.1,55,58,0);
 /* 酒保擦杯口，放回架子 */
 await w(900);await wipeGlass(w,3);await shelveGlass(w);
 /* 尼尔推门进来，站到吧台外侧；酒保头也不抬，推过来一杯水 */
-P('nl',{show:1,d:0});pose('nl','stand',{face:'n'});go('nl',540,2600);dolly(1.15,56,58,3200);await w(2300);
+P('nl',{show:1,d:0});pose('nl','stand',{face:'n'});go('nl',540,2600);await w(2300);
 pose('bm','push',{f:1,face:'n'});gl('gw',933,660,1,0);await w(150);gl('gw',690,660,1,700,0,'ease-out');await w(700);pose('bm','idleDown',{f:1,face:'n'});
 pose('nl','take',{face:'n'});gl('gw',663,606,1,450);await w(600);
 await bm('来了，最近侦探的活儿怎么样？');
@@ -549,17 +556,17 @@ gl('gw',672,660,1,500);pose('nl','stand',{face:'n'});
 wipeGlass(w,2);
 await bm('还是老样子，帮我们看看场子，做完就结钱。');
 /* 酒保这才放下杯子，抬头，认真说这一句 */
-gl('gl',923,660,1,300);pose('bm','idleDown',{f:1,face:'n',h:-2,b:6});faceCam('bm',1.5,1800);
+gl('gl',923,660,1,300);pose('bm','idleDown',{f:1,face:'n',h:-2,b:6});
 await bm('你如果真的缺钱的话，还是得找份正经的工作，这些零工是攒不到什么钱的。');
 /* 尼尔沉默：镜头给他的脸 */
-faceCam('nl',1.55,1500);pose('nl','stand',{face:'sad',h:16});
+dolly(1.3,36,58,3000);pose('nl','stand',{face:'sad',h:16});
 await n('...');await w(1400);
 await n('我再试试，再等等吧。');
 /* 他自己先绷不住：抬头，带点自嘲的劲儿 */
-pose('nl','shrug',{face:'wry',h:-4});dolly(1.12,52,58,2400);
+pose('nl','shrug',{face:'wry',h:-4});
 await n('说不定今天晚上就有什么重要的侦探委托，福尔摩斯那种，现在放弃不就错过了？');
 /* 两个人都笑了：肩膀轻抖，镜头拉开 */
-pose('nl','stand',{face:'smile',h:4});pose('bm','idleDown',{f:1,face:'smile',h:6});dolly(1,50,60,3800);
+pose('nl','stand',{face:'smile',h:4});pose('bm','idleDown',{f:1,face:'smile',h:6});dolly(1.1,55,58,3800);
 for(let i=0;i<4;i++){tn(300+i*20,.12,'triangle',.04);bs(.08,.18,900);P('nl',{h:i%2?-2:5,d:260});P('bm',{h:i%2?9:3,d:260});await w(420)}
 await w(1800);mu.stop()}},
 C1,
@@ -819,12 +826,11 @@ await y('我不想回去，特别不想。可是，什么时候也不能都只�
 dolly(1.1,52,64,6000);await w(900);await sigh('nl',1600);lamp(.85);await w(1200)}},
 {n:'第二日酒馆',sub:'酒馆 · 白天 · 和昨天不一样',sh:'再访',pos:[300,800],bg:'#0b0a0c',set:'#set3',lx:900,i:['40%','60%'],mk:()=>SETS.barDay(),
 ini(){$('#front').innerHTML=BDC;$('#front').style.opacity=0;P('bm',{d:0,show:0,x:1050,y:790,s:.6,f:1,face:'n'});P('nl',{d:0,show:0,x:-160,y:790,s:.6,f:0,face:'hard'})},
-/* 复用第一日的吧台和擦杯开场，但今天：光更冷、人更少、镜头从近景开始；尼尔走得快，不碰那杯水，一进门就开口 */
-async run(k,{w,n,bm,at,faceCam,go,murmur}){
+/* 复用第一日的吧台和擦杯开场，但今天：光更冷、人更少、取景更近（整场固定，不运镜）；尼尔走得快，不碰那杯水，一进门就开口 */
+async run(k,{w,n,bm,at,go,murmur}){
 $('#front').style.opacity=1;hum([[1480,790,.7,-1]]);mp(.05);const mu=murmur(.12);
-dolly(1.6,70,58,0);
+dolly(1.3,50,58,0);
 await w(700);const wp=wipeGlass(w,2);
-dolly(1.25,60,58,4200);
 /* 尼尔大步进来；酒保照旧推过来一杯水，他没碰 */
 P('nl',{show:1,d:0});pose('nl','stand',{face:'hard'});go('nl',540,1700);await w(1000);
 pose('bm','push',{f:1,face:'n'});gl('gl',930,660,0,0);gl('gw',933,660,1,0);await w(150);gl('gw',690,660,1,700,0,'ease-out');await w(900);
@@ -834,32 +840,32 @@ await bm('来了，今天还是——');
 pose('nl','point',{face:'hard',h:0});
 await n('我接了个委托。');
 /* 酒保停住手里的活，杯子停在半空 */
-pose('bm','wipe',{f:1,face:'n',h:2});faceCam('bm',1.5,1500);await w(700);
+pose('bm','wipe',{f:1,face:'n',h:2});await w(700);
 await bm('又是哪个婚外情 ？');
-pose('nl','stand',{face:'hard',h:0});faceCam('nl',1.5,1500);
+pose('nl','stand',{face:'hard',h:0});
 await n('勒索案。');
 /* 酒保把杯子放下，凑过来 */
-gl('gl',923,660,1,300);mv('bm',900,790,800,'ease-out');pose('bm','idleDown',{f:1,face:'n',h:-2,b:10});await w(900);faceCam('bm',1.45,1400);
+gl('gl',923,660,1,300);mv('bm',900,790,800,'ease-out');pose('bm','idleDown',{f:1,face:'n',h:-2,b:10});await w(900);
 await bm('大案子。你准备怎么做？');
-pose('nl','stand',{face:'sad',h:6});faceCam('nl',1.55,1500);
+pose('nl','stand',{face:'sad',h:6});
 await n('你这儿有挣得多一点的活吗？我需要一笔钱。');
 /* （调酒师洗杯子）——水声，他不看人；尼尔在旁边等，镜头一直停在尼尔脸上 */
 mv('bm',1050,790,700,'ease-out');pose('bm','idleDown',{f:1,face:'n',h:18,b:6});gl('gl',1010,652,1,0);
 for(let i=0;i<5;i++){bs(.45,.14,2600);gl('gl',1004+(i%2)*10,652,1,260,i%2?5:-5);await w(560)}
 pose('nl','stand',{face:'sad',h:12});await w(400);
-pose('bm','idleDown',{f:1,face:'smile',h:12,b:4});dolly(1.25,56,58,1600);
+pose('bm','idleDown',{f:1,face:'smile',h:12,b:4});
 await bm('没有。有的话，我早就自己干了。');
 await w(900);
 pose('bm','shrug',{f:1,face:'n',h:-2});pose('nl','stand',{face:'n',h:4});
 await bm('要不去码头看看？来钱快的零工就那么几样，不是脏就是累。');
 /* 最后这句压低声音：他凑近，往客人那边瞟一眼；镜头压向尼尔，看他听进去 */
-mu.set(.03);mv('bm',900,790,800,'ease-out');pose('bm','idleDown',{f:1,face:'n',h:-4,b:10});faceCam('bm',1.5,1400);
-at(3300,()=>{pose('nl','stand',{face:'hard',h:2});faceCam('nl',1.55,1500)});
+mu.set(.03);mv('bm',900,790,800,'ease-out');pose('bm','idleDown',{f:1,face:'n',h:-4,b:10});
+at(3300,()=>pose('nl','stand',{face:'hard',h:2}));
 await bm('最近几天晚上也有一些小道消息。你看场子的时候多听听，说不定会有些委托，也能赚上一笔。');
 /* 他慢慢点头，这才拿起那杯一直没碰的水，一口喝完 */
 pose('nl','take',{face:'hard',h:4});gl('gw',663,606,1,500);await w(900);
 pose('nl','take',{face:'hard',h:-14});await w(800);tn(2300,.1,'sine',.04);
-gl('gw',672,660,1,400);pose('nl','stand',{face:'hard',h:0});dolly(1,50,60,3600);await w(3800);mu.stop()}},
+gl('gw',672,660,1,400);pose('nl','stand',{face:'hard',h:0});await w(3800);mu.stop()}},
 {n:'巷口',sub:'老街 · 听到“莱恩”这个名字',sh:'巷口',pos:[560,190],bg:'#080a0e',set:'#set3',i:['34%','62%'],mk:()=>SETS.sign(),
 ini(){P('nl',{d:0,x:-150,s:.56,face:'n'});P('ny',{d:0,x:1760,s:.56,f:1,face:'n'});P('v1',{d:0,x:1430,s:.54,f:1})},
 async run(k,{w,go,fl,n,y,nar}){
@@ -949,6 +955,57 @@ P('nl',{face:'n',h:3});go('nl',1050,1000);await n('我会试试');
 P('ny',{face:'smile',h:0});await y('你真好，尼尔');
 P('nl',{face:'hard',h:5});await n('这是我的工作，处理麻烦是我的工作，这件事情是我没有处理好，我会去找到他的。');
 cc();mbs(2);os('.lh',.08);dolly(1.1,70,64,5000);await mono('莱恩，我会找到你的。');dolly(1,50,64,3000);await w(900)}},
+{n:'艾迪的办法',sub:'码头 · 傍晚 · 一大垛没搬完的货',sh:'艾迪',pos:[1000,830],bg:'#0a0a0d',set:'#set3',lx:700,i:['40%','60%'],mk:()=>SETS.dock(),
+ini(){$('#front').innerHTML=FRBOX;$('#front').style.opacity=0;P('ed',{d:0,show:0,x:1750,y:790,s:.6,f:1,face:'n'});P('nl',{d:0,show:0,x:-160,y:790,s:.6,f:0,face:'n'})},
+/* 取景固定；只有两次运镜：念头一转时慢慢推向尼尔，艾迪指向那垛货时慢慢拉开。人物一律走进走出，不凭空出现 */
+async run(k,{w,n,ed,nar,at,go,murmur,sigh}){
+$('#front').style.opacity=1;sp(2,700,1.3,.1,'#e0a860');const mu=murmur(.06);
+/* 艾迪扛着箱子从右边走进来，放上木箱，擦汗；尼尔从左边走来，艾迪没停手 */
+pose('ed','carry',{show:1,f:1,face:'n'});gl('cr',1638,585,1,0);
+mv('ed',800,790,5000,'linear');gl('cr',688,585,1,5000,0,'linear');
+P('nl',{show:1,d:0});pose('nl','stand',{face:'n'});
+for(let t=0;t<5000;t+=520){if(t==1500)go('nl',500,3400);stp();await w(520)}
+gl('cr',650,666,1,450);tn(90,.2,'sine',.3);bs(.1,.4,400);pose('ed','scratch',{f:1,face:'n'});await w(900);
+mv('ed',760,790,500);pose('ed','shake',{f:1,face:'n',h:-4});await w(500);
+await ed('尼尔，我从别人那儿听说，你最近是不是在找人？');
+pose('nl','stand',{face:'n',h:4});
+await n('对，有一些事，和一些混混有关。');
+/* 一听是混混，艾迪攥起拳头，咧嘴笑 */
+pose('ed','fist',{f:1,face:'smile'});tn(120,.1,'sine',.2);
+await ed('用不用我帮忙，我把他们打得落花流水。');
+/* 尼尔话说到一半停住：念头来了。镜头慢慢推向他 */
+pose('nl','stand',{face:'n',h:2});dolly(1.3,40,58,2600);
+await n('不用，他是...');
+pose('nl','stand',{face:'shock',h:-2});await w(1300);
+pose('ed','shake',{f:1,face:'n',h:0});pose('nl','stand',{face:'wry',h:-4});
+await n('对啊，也许可以换一个种方式。艾迪，你听我说....');
+/* 他凑近，艾迪也往前倾；（说了一些简单的情况）——只有低低的说话声 */
+mv('nl',540,790,700,'ease-out');mv('ed',740,790,700,'ease-out');
+const lines=nar('（说了一些简单的情况）',3800);
+for(let i=0;i<5;i++){pose('nl',i%2?'talkB':'talkA',{face:'n',h:i%2?-2:4});tn(130+i*12,.18,'triangle',.02);if(i==1)pose('ed','shake',{f:1,face:'hard',b:8,h:2});if(i==3)pose('ed','shake',{f:1,face:'hard',b:8,h:6});await w(720)}
+await lines;
+/* 艾迪直起身，边说边比划：就站在这儿，他一伸手，一把按住 */
+pose('nl','stand',{face:'n',h:0});mv('ed',760,790,500);pose('ed','point',{f:1,face:'hard',b:2});
+at(1800,()=>{pose('ed','fist',{f:1,face:'hard',b:8});tn(70,.25,'sine',.4);bs(.12,.5,350)});
+await ed('咱们在这儿埋伏着，他一伸手，就把他按住。');
+/* 尼尔垂下眼——这一句艾迪说得慢，是认真的 */
+pose('ed','shake',{f:1,face:'hard',b:4,h:-2});pose('nl','stand',{face:'sad',h:12});
+await ed('你送给他一次，还有下一次，会没完没了的。');
+await w(700);pose('ed','shake',{f:1,face:'n',b:10,h:2});
+await ed('什么时候');
+pose('nl','stand',{face:'n',h:0});
+await n('就在信上约定的那天晚上。');
+/* 艾迪挠头；转身指向右边那一大垛，镜头慢慢拉开把它带进画面 */
+pose('ed','scratch',{f:1,face:'n'});await w(900);
+pose('ed','point',{f:0,face:'wry',b:2});dolly(1,50,60,3200);
+at(2500,()=>{pose('nl','stand',{f:0,face:'wry',h:6});sigh('nl',1500)});
+await ed('那天我有班。你替我把这批活干完，我就能把那晚的班换开。');
+await w(900);
+/* 成交：两只手在木箱上方握住；艾迪把手套递给他 */
+mv('ed',720,790,500);await w(500);pose('ed','point',{f:1,face:'smile'});pose('nl','point',{f:0,face:'n'});
+await n('成交。');
+tn(150,.12,'sine',.25);bs(.08,.3,500);await w(500);
+gl('gv',690,688,1,0);await w(500);pose('nl','take',{face:'n'});gl('gv',647,600,1,500);await w(2800);mu.stop()}},
 {n:'贝恩斯',sub:'老街 · 莱恩消失之后',sh:'质问',pos:[800,170],bg:'#0d0809',set:'#set3',i:['34%','62%'],mk:()=>SETS.tavern(),
 ini(){P('bn',{d:0,x:600,s:.58,f:0,face:'hard'});P('fr',{d:0,x:1000,s:.6,f:1,face:'hard'});P('nl',{d:0,x:1800,s:.56,f:1,face:'hard'});P('v1',{d:0,x:1470,s:.54,f:1})},
 async run(k,{w,go,fl,f,b,n,nar,at,sigh,ticks}){

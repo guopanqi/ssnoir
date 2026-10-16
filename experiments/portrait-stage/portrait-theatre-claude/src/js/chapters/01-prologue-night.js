@@ -48,16 +48,16 @@ G.nl.classList.remove('swy2');pose('nl','dLean',{f:0,face:'drunk',h:22});await w
 /* ── 瞬黑 1.5 秒 → 旅馆大堂 ── */
 await cut(()=>{scene(()=>SETS.hotelLobby(),LOBF,'');dolly(1,50,60,0);
  pose('ho','sitHung',{show:1,x:940,y:790,s:.56,f:1,face:'n'});pose('nl','dWalk',{show:1,x:230,y:800,s:.6,f:0,face:'drunk'});sp(2,900,1.2,.08,'#f3d08a')});
-sw(true);mv('nl',1160,800,4200,'linear');
+dolly(1.12,60,56,9000);sw(true);mv('nl',1160,800,4200,'linear');
 const stps=(async()=>{for(let t=0;t<4200;t+=525){stp();await w(525)}})();
 await w(2200);
 /* 他经过柜台，老板抬头；尼尔不回应，也不停 */
-pose('ho','stand',{f:1,face:'n',h:-2});tn(260,.15,'triangle',.03);dolly(1.3,58,56,1800);
+pose('ho','stand',{f:1,face:'n',h:-2});tn(260,.15,'triangle',.03);
 await ho('尼尔？');cc();
 pose('ho','stand',{f:0,face:'sad',h:2});
 await stps;
 /* 上楼：斜着往右上走，越走越远，隐进黑里 */
-dolly(1.25,86,52,3600);pose('nl','dWalk',{f:0,face:'drunk'});mv('nl',1470,500,3400,'linear',.5);P('nl',{show:0,d:3400});
+pose('nl','dWalk',{f:0,face:'drunk'});mv('nl',1470,500,3400,'linear',.5);P('nl',{show:0,d:3400});
 for(let t=0;t<3400;t+=480){stp();await w(480)}
 sw(false);await w(900);
 /* ── 描线渐隐 ── */
