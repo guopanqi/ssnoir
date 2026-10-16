@@ -150,6 +150,8 @@ namespace SSNoir.Core
         {
             if (Injury.Aggravate(amount))
                 PendingCollapse = true;
+        }
+
         /// <summary>
         /// 倒下：当天剩余骰子作废，伤势与冷静归零，并在当时受伤的那个部位永久留下一道疤。
         /// 疤是这件事唯一带不走的代价——钱能再赚，伤能养好，这一条跟到结局。
