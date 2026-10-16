@@ -645,21 +645,56 @@ namespace SSNoir.Testing
             AssertEq("scripted composure floor", 0, scriptedOverflowState.Team.FindActor("player")!.Composure);
             AssertEq("scripted composure overflow injury", 1, scriptedOverflowState.Team.Injury.Severity);
 
-            // 轻伤和重伤是两种不叠加的代价：轻伤压对应能力，重伤改为封一颗骰。
-            var injuryBandState = new GameState();
-            injuryBandState.Team.Injure(1);
-            AssertEq("light injury skill penalty", -1, injuryBandState.Team.Injury.SkillPenalty);
-            AssertEq("light injury keeps action dice", false, injuryBandState.Team.Injury.CostsActionDie);
-            injuryBandState.Team.Injure(Injury.SevereThreshold - 1);
-            AssertEq("severe injury removes skill penalty", 0, injuryBandState.Team.Injury.SkillPenalty);
-            AssertEq("severe injury costs action die", true, injuryBandState.Team.Injury.CostsActionDie);
+            // 冷静只影响新抽到的骰子，不影响已持有的骰子。
+            AssertEq("full composure quality", 0, TeamState.ComposureDicePenalty(5));
+            AssertEq("calm tier quality", 0, TeamState.ComposureDicePenalty(4));
+            AssertEq("low composure quality", -1, TeamState.ComposureDicePenalty(3));
+            AssertEq("very low composure quality", -1, TeamState.ComposureDicePenalty(2));
+            AssertEq("critical composure quality", -2, TeamState.ComposureDicePenalty(1));
+            AssertEq("empty composure quality", -2, TeamState.ComposureDicePenalty(0));
+            var calmState = new GameState();
+            calmState.Team.RollActionDice(isInEncounter: false);
+            var initialDice = calmState.Team.FindActor("player")!.ActionDice.ToArray();
+            calmState.Team.SpendComposure("player", 2);
+            AssertEq("already rolled dice stay unchanged", true,
+                initialDice.SequenceEqual(calmState.Team.FindActor("player")!.ActionDice));
+            calmState.Team.RollActionDice(isInEncounter: false);
+            AssertEq("low composure next roll has four dice", 4,
+                calmState.Team.FindActor("player")!.ActionDice.Count);
+            AssertEq("low composure next roll values", true,
+                calmState.Team.FindActor("player")!.ActionDice.All(d => d <= 5));
+            calmState.Team.SpendComposure("player", 3);
+            calmState.Team.RollActionDice(isInEncounter: false);
+            AssertEq("zero composure next roll values", true,
+                calmState.Team.FindActor("player")!.ActionDice.All(d => d <= 4));
 
-            // 谷底仍须保留三颗骰：重伤减一颗，冷静见底本身不再征用或降质任何骰子。
+            // 身体完好四颗、轻伤三颗、重伤两颗；当前手中的禁用骰位立即失效。
+            var injuryBandState = new GameState();
+            injuryBandState.Team.RollActionDice(isInEncounter: false);
+            AssertEq("healthy dice count", 4, injuryBandState.Team.FindActor("player")!.ActionDice.Count);
+            injuryBandState.Team.Injure(1);
+            AssertEq("light injury has no skill penalty", 0, injuryBandState.Team.Injury.SkillPenalty);
+            AssertEq("light injury removes one held die", 3, injuryBandState.Team.FindActor("player")!.ActionDice.Count);
+            injuryBandState.Team.RollActionDice(isInEncounter: false);
+            AssertEq("light injury daily dice count", 3, injuryBandState.Team.FindActor("player")!.ActionDice.Count);
+            injuryBandState.Team.Injure(Injury.SevereThreshold - 1);
+            AssertEq("severe injury removes two held dice", 2, injuryBandState.Team.FindActor("player")!.ActionDice.Count);
+            injuryBandState.Team.RollActionDice(isInEncounter: false);
+            AssertEq("severe injury daily dice count", 2, injuryBandState.Team.FindActor("player")!.ActionDice.Count);
+            injuryBandState.Team.HealInjury(Injury.SevereThreshold);
+            AssertEq("healing does not immediately redraw dice", 2,
+                injuryBandState.Team.FindActor("player")!.ActionDice.Count);
+            injuryBandState.Team.RollActionDice(isInEncounter: false);
+            AssertEq("healed daily dice count", 4, injuryBandState.Team.FindActor("player")!.ActionDice.Count);
+
+            // 最低谷仍有两枚骰子，低冷静只能影响骰面，不进一步减少骰子数量。
             var bottomState = new GameState();
             bottomState.Team.Injure(Injury.SevereThreshold);
             bottomState.Team.SpendComposure("player", TeamState.MaxComposure);
             bottomState.Team.RollActionDice(isInEncounter: false);
-            AssertEq("bottom-state dice", 3, bottomState.Team.FindActor("player")!.ActionDice.Count);
+            AssertEq("bottom-state dice", 2, bottomState.Team.FindActor("player")!.ActionDice.Count);
+            AssertEq("bottom-state dice values", true,
+                bottomState.Team.FindActor("player")!.ActionDice.All(d => d <= 4));
 
             // 伤势刻度的终点是立即结算线，不是“再挨一次才倒下”的预告线。
             var collapseState = new GameState();
