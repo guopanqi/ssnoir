@@ -1,6 +1,7 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Diagnostics;
 using System.IO;
 using SSNoir.Scripting;
@@ -834,7 +835,7 @@ namespace SSNoir.Core
                     SpentGrowthPoints = actor.SpentGrowthPoints,
                     Stats = new Dictionary<string, int>(actor.Stats),
                     ActionSlotCount = actor.ActionSlotCount,
-                    ActionDice = actor.ActionDice.ToArray(),
+                    ActionDice = actor.ActionDice.Select(v => TeamState.EffectiveDieValue(actor, v)).ToArray(),
                     ActionDiceSlotIds = actor.ActionDiceSlotIds.ToArray(),
                     IsDrunk = actor.IsDrunk,
                     ActiveActionSlotStatuses = _gameState.Team.GetActiveActionSlotStatuses(actor),
@@ -1495,9 +1496,9 @@ namespace SSNoir.Core
                             throw new InvalidOperationException($"Action slot {slotId} has no available die for actor '{actorId}'.");
                         }
 
-                        if (a.ActionDice[idx] != slot.Value)
+                        if (TeamState.EffectiveDieValue(a, a.ActionDice[idx]) != slot.Value)
                         {
-                            throw new InvalidOperationException($"Die value mismatch: slotted die has value {slot.Value}, but actor's slot {slotId} has value {a.ActionDice[idx]}.");
+                            throw new InvalidOperationException($"Die value mismatch: slotted die has value {slot.Value}, but actor's slot {slotId} has effective value {TeamState.EffectiveDieValue(a, a.ActionDice[idx])}.");
                         }
 
                         if (!usedDicePerActor.ContainsKey(actorId))

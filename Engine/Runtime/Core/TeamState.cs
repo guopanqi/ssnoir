@@ -9,22 +9,18 @@ namespace SSNoir.Core
         public const int MinStatLevel = -1;
         public const int MaxStatLevel = 4;
 
-        // 冷静是纯缓冲，本身没有档位效果：花到 0 之前不产生任何惩罚，
-        // 0 之后消耗一比一转成伤势——它是身体前面的一层垫子，垫子用完，代价照原价打在身上。
-        // 失态/失控两档已删除——它们和轻伤/重伤同构（都是"随机挑一个东西 −1"），
-        // 让玩家要学两套同样的惩罚语言。机械效果现在只由伤势一处承担。
-        //
-        // 5 点，而且**睡觉只回 2 点**：这条轴要跨天，不能一觉抹平。
-        // 一天四颗骰，顺的一天大约掉 2（一次坏结果），糟的一天掉 4 以上；
-        // 于是平稳的日子刚好打平，连着硬干就一天比一天低，必须主动花一颗骰去散步
-        // 或者花钱喝一杯把它拉回来——"恢复"这件事因此才存在。
-        //
-        // 代价的刻度（内容层照这个写，别再全部写 1）：
-        //   中结果的小磨损 1 ／ 坏结果 2 ／ 高风险工作与交锋里重的那种 3
-        //   交锋每回合自动流失 1（见 SceneManager.EncounterTurnComposureCost）
-        // 一比一意味着这些数字就是击穿之后的伤害，卡上写几点就是几点——不要再往中间塞换算率。
-        // 交锋因此有一条可以数出来的时间表：满冷静五个免费回合，之后每回合 1 点伤，第 11 回合倒下。
+        // 冷静即时限制当前骰面：4–5 点为 1–6，2–3 点为 1–5，1 点为 1–4，0 点为 1–3。
+        // 冷静见底后继续消耗，一比一转成伤势；交锋每次换手仍然收取冷静作为时间代价。
+        // 骰池保存原始值，冷静变化仅改变有效值，已经取得的骰子无须重掷。
         public const int MaxComposure = 5;
+
+        public static int ComposureDieCeiling(int composure)
+            => composure >= 4 ? 6 : composure >= 2 ? 5 : composure == 1 ? 4 : 3;
+
+        public static int EffectiveDieValue(ActorState actor, int rawValue)
+            => actor.Role == "protagonist" && actor.FixedDieValue == null
+                ? Math.Min(rawValue, ComposureDieCeiling(actor.Composure))
+                : rawValue;
 
         /// <summary>队伍唯一的身体轴，取代旧的健康血条。规则与档位见 <see cref="Core.Injury"/>。</summary>
         public Injury Injury { get; } = new Injury();
@@ -217,7 +213,7 @@ namespace SSNoir.Core
                     ActorId = actor.Id,
                     DieIndex = actor.ActionDiceSlotIds[chosenIndex],
                     SourceIndex = actor.ActionDiceSlotIds[chosenIndex],
-                    Value = actor.ActionDice[chosenIndex],
+                    Value = EffectiveDieValue(actor, actor.ActionDice[chosenIndex]),
                 });
                 actor.ActionDice.RemoveAt(chosenIndex);
                 actor.ActionDiceSlotIds.RemoveAt(chosenIndex);
