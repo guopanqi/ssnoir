@@ -460,6 +460,50 @@ namespace SSNoir.Testing
                 AssertEq("world die slots after encounter", "0,1,2,3",
                     string.Join(",", loadedPlayer.ActionDiceSlotIds));
 
+                // 城市发出的骰子属于当天，不被交锋途中得到的伤势追回。
+                // 下一次交锋发骰应用新伤势，但返回城市必须还回原先那手。
+                var deferred = new GameState();
+                var deferredScenes = new SceneManager(deferred, new LocalScriptLoader());
+                deferredScenes.LoadScene("world");
+                var deferredActor = deferred.Team.FindActor("player")!;
+                AssertEq("deferred initial lock", 0, deferredActor.IssuedInjuryDieLoss);
+                deferredScenes.StartEncounter("失控的机械");
+                deferred.Team.Injure(1);
+                AssertEq("encounter injury does not alter current hand", 4, deferredActor.ActionDice.Count);
+                AssertEq("encounter current hand still unlocked", 0, deferredActor.IssuedInjuryDieLoss);
+                deferredScenes.EndEncounter();
+                AssertEq("return to world preserves original hand", 4, deferredActor.ActionDice.Count);
+                AssertEq("return to world preserves original lock", 0, deferredActor.IssuedInjuryDieLoss);
+                deferredScenes.StartEncounter("失控的机械");
+                AssertEq("subsequent encounter applies injury", 3, deferredActor.ActionDice.Count);
+                AssertEq("subsequent encounter locks one", 1, deferredActor.IssuedInjuryDieLoss);
+                deferredScenes.EndEncounter();
+
+                // 存档必须分开保存“现有伤势”和“本手封锁”：受伤、康复的效果都等下次掷骰。
+                deferredScenes.SaveGame(savePath);
+                var deferredLoaded = new GameState();
+                var deferredLoadedScenes = new SceneManager(deferredLoaded, new LocalScriptLoader());
+                deferredLoadedScenes.LoadGame(savePath);
+                var deferredLoadedActor = deferredLoaded.Team.FindActor("player")!;
+                AssertEq("pending injury persists", 1, deferredLoaded.Team.Injury.Severity);
+                AssertEq("pending injury does not eat restored world dice", 4, deferredLoadedActor.ActionDice.Count);
+                AssertEq("pending injury preserves hand lock", 0, deferredLoadedActor.IssuedInjuryDieLoss);
+                deferredLoaded.Team.RollActionDice(isInEncounter: false);
+                AssertEq("injury applies after restored roll", 3, deferredLoadedActor.ActionDice.Count);
+                deferredLoaded.Team.HealInjury(1);
+                AssertEq("healing keeps current hand locked", 1, deferredLoadedActor.IssuedInjuryDieLoss);
+                deferredLoadedScenes.SaveGame(savePath);
+                var recoveredLoaded = new GameState();
+                var recoveredScenes = new SceneManager(recoveredLoaded, new LocalScriptLoader());
+                recoveredScenes.LoadGame(savePath);
+                AssertEq("healed hand stays locked after save", 1,
+                    recoveredLoaded.Team.FindActor("player")!.IssuedInjuryDieLoss);
+                AssertEq("healed hand keeps three dice after save", 3,
+                    recoveredLoaded.Team.FindActor("player")!.ActionDice.Count);
+                recoveredLoaded.Team.RollActionDice(isInEncounter: false);
+                AssertEq("healed hand unlocks on roll after save", 4,
+                    recoveredLoaded.Team.FindActor("player")!.ActionDice.Count);
+
                 var growthState = new GameState();
                 growthState.Team.GrowthLevel = 3;
                 var growthPlayer = growthState.Team.FindActor("player")!;
@@ -668,24 +712,32 @@ namespace SSNoir.Testing
             AssertEq("zero composure next roll values", true,
                 calmState.Team.FindActor("player")!.ActionDice.All(d => d <= 4));
 
-            // 身体完好四颗、轻伤三颗、重伤两颗；当前手中的禁用骰位立即失效。
+            // 身体完好四颗、轻伤三颗、重伤两颗；状态变化不追回当前手中任何骰子。
             var injuryBandState = new GameState();
             injuryBandState.Team.RollActionDice(isInEncounter: false);
             AssertEq("healthy dice count", 4, injuryBandState.Team.FindActor("player")!.ActionDice.Count);
             injuryBandState.Team.Injure(1);
             AssertEq("light injury has no skill penalty", 0, injuryBandState.Team.Injury.SkillPenalty);
-            AssertEq("light injury removes one held die", 3, injuryBandState.Team.FindActor("player")!.ActionDice.Count);
+            AssertEq("light injury preserves held dice", 4, injuryBandState.Team.FindActor("player")!.ActionDice.Count);
+            AssertEq("new light injury awaits next roll", 0, injuryBandState.Team.FindActor("player")!.IssuedInjuryDieLoss);
             injuryBandState.Team.RollActionDice(isInEncounter: false);
             AssertEq("light injury daily dice count", 3, injuryBandState.Team.FindActor("player")!.ActionDice.Count);
+            AssertEq("light injury locks one issued slot", 1, injuryBandState.Team.FindActor("player")!.IssuedInjuryDieLoss);
             injuryBandState.Team.Injure(Injury.SevereThreshold - 1);
-            AssertEq("severe injury removes two held dice", 2, injuryBandState.Team.FindActor("player")!.ActionDice.Count);
+            AssertEq("severe injury preserves previously issued dice", 3, injuryBandState.Team.FindActor("player")!.ActionDice.Count);
+            AssertEq("new severe injury still shows one locked slot", 1, injuryBandState.Team.FindActor("player")!.IssuedInjuryDieLoss);
             injuryBandState.Team.RollActionDice(isInEncounter: false);
             AssertEq("severe injury daily dice count", 2, injuryBandState.Team.FindActor("player")!.ActionDice.Count);
+            AssertEq("severe injury locks two issued slots", 2, injuryBandState.Team.FindActor("player")!.IssuedInjuryDieLoss);
             injuryBandState.Team.HealInjury(Injury.SevereThreshold);
             AssertEq("healing does not immediately redraw dice", 2,
                 injuryBandState.Team.FindActor("player")!.ActionDice.Count);
+            AssertEq("healing leaves already issued locks", 2,
+                injuryBandState.Team.FindActor("player")!.IssuedInjuryDieLoss);
             injuryBandState.Team.RollActionDice(isInEncounter: false);
             AssertEq("healed daily dice count", 4, injuryBandState.Team.FindActor("player")!.ActionDice.Count);
+            AssertEq("healed next roll unlocks slots", 0,
+                injuryBandState.Team.FindActor("player")!.IssuedInjuryDieLoss);
 
             // 最低谷仍有两枚骰子，低冷静只能影响骰面，不进一步减少骰子数量。
             var bottomState = new GameState();
