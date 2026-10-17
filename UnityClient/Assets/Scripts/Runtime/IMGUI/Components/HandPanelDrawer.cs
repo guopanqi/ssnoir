@@ -1090,8 +1090,8 @@ namespace SSNoir.IMGUI
             }
         }
 
-        // 伤势细条：格数即刻度，越满越糟——和冷静条方向相反。重伤线用一道留白分开，
-        // 让"再挨几下就跨过去"直接看得见。完好时整条不画，由调用方决定。
+        // 伤势细条：格数即刻度，越满越糟——和冷静条方向相反。每两格标出一个封位阈值；
+        // 完好时整条不画，由调用方决定。
         private static void DrawInjuryBar(
             float x,float y,float w,PresentationSnapshot snapshot,SSNoirGameManager gameManager)
         {
@@ -1106,7 +1106,7 @@ namespace SSNoir.IMGUI
             {
                 var cell=new Rect(barX+i*(cellW+gap),y+4f,cellW,12f);
                 DrawVitalCell(cell,i<severity,fill,gameManager.GetInjuryCellPulse(i));
-                if(i+1==Injury.LightThreshold || i+1==Injury.SevereThreshold)
+                if((i+1)%Injury.ActionSlotLossStep==0)
                     DrawDisabledDie(new Rect(cell.center.x-8f,y+18f,16f,16f),muted:severity < i+1);
             }
         }

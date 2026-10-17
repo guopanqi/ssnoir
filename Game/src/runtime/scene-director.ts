@@ -64,7 +64,7 @@ export class GameSceneDirector {
     await world.loadFile("scenes/world/world.scm");
     const actions=await GameActionRunner.create(world,state,new ActionTurnState(random));
     self=new GameSceneDirector(state,world,actions,sources,std,random);
-    state.team.rollDice(random,false,true,state.injury.losesDie);
+    state.team.rollDice(random,false,true,state.injury.actionSlotLoss);
     await actions.prepare();
     return self;
   }
@@ -89,7 +89,7 @@ export class GameSceneDirector {
     if(this.refreshRequested){
       this.refreshRequested=false;
       if(!this.encounter)throw new Error("encounter dice refresh requested outside encounter");
-      this.state.team.rollDice(this.random,true,false,this.state.injury.losesDie);
+      this.state.team.rollDice(this.random,true,false,this.state.injury.actionSlotLoss);
     }
     if(this.pendingEndTurn){
       this.pendingEndTurn=false;
@@ -140,7 +140,7 @@ export class GameSceneDirector {
           const stash=this.state.team.diceSnapshot();
           const id=String(args[0]);
           this.state.team.recruit(id,String(args[1]),stats as import("./team-state.ts").Stats,true);
-          this.state.team.rollDice(this.random,true,false,this.state.injury.losesDie);
+          this.state.team.rollDice(this.random,true,false,this.state.injury.actionSlotLoss);
           const rolled=this.state.team.diceSnapshot();
           this.state.team.restoreDice({...stash,[id]:rolled[id]});
           return undefined;
@@ -166,7 +166,7 @@ export class GameSceneDirector {
       await encounter.loadFile(sourceName);
       const runner=await GameActionRunner.create(encounter,this.state,new ActionTurnState(this.random));
       this.encounter=encounter;this.encounterActions=runner;
-      this.state.team.rollDice(this.random,true,false,this.state.injury.losesDie);
+      this.state.team.rollDice(this.random,true,false,this.state.injury.actionSlotLoss);
       this.state.beginActionReport();
       try{await encounter.evaluate("(on-encounter-enter)");this.state.takeActionReport();}
       catch(error){this.state.cancelActionReport();throw error;}
@@ -217,7 +217,7 @@ export class GameSceneDirector {
       }
       if(this.ended){await this.flush();capture("encounter-ended");return frames;}
       this.state.team.dismissTemporary();
-      this.state.team.rollDice(this.random,true,false,this.state.injury.losesDie);
+      this.state.team.rollDice(this.random,true,false,this.state.injury.actionSlotLoss);
       capture("new-dice");
       for(let i=0;i<this.autoActions.length;i++){
         const auto=this.autoActions[i];

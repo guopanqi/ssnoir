@@ -104,6 +104,7 @@ namespace SSNoir.Scripting
                 if (amount <= 0) throw new ArgumentException("injury amount must be positive");
                 var injury = gameState.Team.Injury;
                 int before = injury.Severity;
+                int actionSlotsLostBefore = injury.ActionDieLoss;
                 gameState.Team.Injure(amount);
                 // 倒下会立刻完成医疗数值结算并把伤势归零；结果条仍应报告这一下把刻度顶满，
                 // 不能因最终数值变小而谎报成“伤势恢复”。
@@ -111,13 +112,15 @@ namespace SSNoir.Scripting
                     ? Injury.MaxSeverity - before
                     : injury.Severity - before;
                 ReportInjuryChange(gameState, reportedDelta);
-                if (injury.Severity > before)
+                int newlyBlockedSlots = injury.ActionDieLoss - actionSlotsLostBefore;
+                if (newlyBlockedSlots > 0)
                     gameState.CurrentActionReport?.AddSupplement(
-                        injury.Band == InjuryBand.Severe
-                            ? $"{injury.Part}上的伤进了重伤：少一颗行动骰。"
-                            : before == 0
-                                ? $"伤在{injury.Part}上：{injury.SkillName}判定 {injury.SkillPenalty}。"
-                                : $"{injury.Part}上的伤又重了：{injury.SkillName}判定 {injury.SkillPenalty}。");
+                        $"{injury.Part}上的伤封锁了{newlyBlockedSlots}个行动位。");
+                else if (injury.Severity > before)
+                    gameState.CurrentActionReport?.AddSupplement(
+                        before == 0
+                            ? $"伤在{injury.Part}上：{injury.SkillName}判定 {injury.SkillPenalty}。"
+                            : $"{injury.Part}上的伤又重了：{injury.SkillName}判定 {injury.SkillPenalty}。");
                 return new None();
             }, "__injure!"));
 

@@ -151,17 +151,17 @@ export class TeamState {
   }
   /**
    * Original TeamState.RollActionDice: slot IDs are stable, dice are ephemeral.
-   * A serious injury removes the final protagonist slot, not an arbitrary
+   * Injury removes the final protagonist slots, not arbitrary
    * array index. Hangover affects slot 0 on the NEXT city refresh only.
    */
-  rollDice(random:()=>number,isEncounter=false,consumeHangover=true,injuryCostsDie=false):void {
+  rollDice(random:()=>number,isEncounter=false,consumeHangover=true,injurySlotLoss=0):void {
     for(const actor of this.actors){
       if(!isEncounter&&consumeHangover)actor.isDrunk=false;
       const applyHangover=!isEncounter&&consumeHangover&&actor.hangoverSlotId!==null;
       actor.actionDice=[];actor.actionDiceSlotIds=[];
       if(actor.status!=="active")continue;
       let count=actor.actionSlotCount;
-      if(actor.role==="protagonist"&&injuryCostsDie)count--;
+      if(actor.role==="protagonist")count-=injurySlotLoss;
       for(let slot=0;slot<count;slot++){
         const n=random();
         if(!Number.isFinite(n)||n<0||n>=1)throw new Error("invalid random d6");

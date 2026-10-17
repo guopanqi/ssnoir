@@ -13,7 +13,8 @@ export class InjuryState {
   get band():0|1|2 { return this.severity>=4?2:this.severity>0?1:0; }
   get skill():string { return SITES.find(s=>s.part===this.part)?.skill??""; }
   get modifier():number { return this.band===1?-1:0; }
-  get losesDie():boolean { return this.band===2; }
+  /** Each two injury points block one action slot. */
+  get actionSlotLoss():number { return Math.floor(this.severity/2); }
   injure(amount:number,random:()=>number=Math.random):boolean {
     if (!Number.isSafeInteger(amount)||amount<=0)throw new Error("injury amount must be positive");
     if(this.severity===0) {

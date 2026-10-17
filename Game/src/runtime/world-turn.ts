@@ -33,7 +33,7 @@ export class WorldTurnController {
       if(typeof after!=="number"||after!==before+1)throw new Error("authored calendar rule must advance exactly one day");
       this.state.team.dismissTemporary();
       const returned=this.state.team.beginCityDay();
-      this.state.team.rollDice(random,false,true,this.state.injury.losesDie);
+      this.state.team.rollDice(random,false,true,this.state.injury.actionSlotLoss);
       this.state.takeActionReport();
       this.state.beginActionReport();
       await this.world.evaluate("(on-turn-start)");

@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {InjuryState} from "../src/runtime/injury.ts";
 
-test("injury mirrors the single C# skill-specific 0/1-3/4-6/7 scale",()=>{
+test("injury blocks one action slot at 2, 4, and 6 points",()=>{
  const i=new InjuryState();
  assert.equal(i.band,0);
  assert.equal(i.injure(1,()=>0),false);
@@ -13,9 +13,10 @@ test("injury mirrors the single C# skill-specific 0/1-3/4-6/7 scale",()=>{
  i.injure(3);
  assert.equal(i.band,2);
  assert.equal(i.modifier,0);
- assert.equal(i.losesDie,true);
+ assert.equal(i.actionSlotLoss,2);
  i.heal(1);
  assert.equal(i.band,1);
+ assert.equal(i.actionSlotLoss,1);
  i.heal(20);
  assert.deepEqual(i.snapshot(),{severity:0,part:"",scars:[]});
 });

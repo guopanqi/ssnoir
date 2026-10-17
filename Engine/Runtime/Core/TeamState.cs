@@ -532,8 +532,8 @@ namespace SSNoir.Core
                 }
                 actor.ActionDice.Clear();
                 actor.ActionDiceSlotIds.Clear();
-                if (actorData.IssuedInjuryDieLoss < 0 || actorData.IssuedInjuryDieLoss > 2)
-                    throw new ArgumentOutOfRangeException(nameof(data), "Saved injury die loss must be between 0 and 2.");
+                if (actorData.IssuedInjuryDieLoss < 0 || actorData.IssuedInjuryDieLoss > 3)
+                    throw new ArgumentOutOfRangeException(nameof(data), "Saved injury die loss must be between 0 and 3.");
                 actor.IssuedInjuryDieLoss = data.HasSavedActionDice && actor.Role == "protagonist"
                     ? actorData.IssuedInjuryDieLoss : 0;
                 if (data.HasSavedActionDice)

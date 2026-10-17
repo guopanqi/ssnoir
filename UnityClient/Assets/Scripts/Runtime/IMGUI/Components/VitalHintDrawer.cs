@@ -75,7 +75,7 @@ namespace SSNoir.IMGUI
             int count = player.ActionSlotCount;
             int available = count-snapshot.InjuryActionDieLoss;
             string cadence = snapshot.IsInEncounter ? "每回合" : "每天";
-            string injuryText = $"伤势会影响骰子数量，当前{cadence}掷出 {available} 颗骰子。";
+            string injuryText = $"伤势到 2、4、6 点时会封锁行动位，当前{cadence}可用 {available} 个。";
             string composureText = actor.Role == "protagonist"
                 ? $"冷静会影响骰子质量，当前从 1–{maximum} 中投掷。"
                 : "同伴的冷静耗尽后会离开。";
