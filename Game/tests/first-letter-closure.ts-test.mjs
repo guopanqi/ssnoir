@@ -39,7 +39,8 @@ test("late marriage job never reopens first-letter source hunt after interceptio
  await setStages(vm,2,3,1); // rainy interception just finished, no city-day advanced
  assert.equal(await truth(vm,"(photo-case 'shop-open?)"),0);
  assert.equal(await vm.evaluateNumber('(length (photo-case \'nodes-at "照相馆"))'),0);
- assert.equal(await vm.evaluateNumber('(length (photo-case \'nodes-at "老街酒馆"))'),2); // wife + marital handoff; no source talk
+ assert.equal(await vm.evaluateNumber('(length (photo-case \'nodes-at "街角咖啡馆"))'),2); // wife + marital handoff; no source talk
+ assert.equal(await vm.evaluateNumber('(length (photo-case \'nodes-at "老街酒馆"))'),0);
 });
 test("unfinished marriage film processing remains legal, stale source talk closes",async()=>{
  const vm=await makeWorld();
