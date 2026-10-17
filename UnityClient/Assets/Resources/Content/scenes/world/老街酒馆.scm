@@ -44,10 +44,9 @@
               (random-choice (list "醉客纠缠" "门口争执" "赖账客人")))
             (watch-progress 'reset!)
             (play-watch-trouble-noise! watch-trouble first?)) #f))
-      (photo-case 'hear-rumours! 1))
+      #t)
     (define (watch-subtitle)
-      (string-append "维持秩序；失手可能有人闹事"
-        (if (photo-case 'rumours-active?) "；小道消息+1" "")))
+      "维持秩序；失手可能有人闹事")
     (define (watch-handle! n)
       (watch-progress 'advance! n)
       (if (watch-progress 'full?)
@@ -476,19 +475,16 @@
         (outcome (lambda ()
             (add-item! "金钱" 8)
             (lost-property 'hear-rumours! 1)
-            (photo-case 'hear-rumours! 1)
             (if character-stories-open? (change-tavern-rank! 1) #f)
             (if (not opening-talk-heard?) (meet-or-echo!)
                 (if (maybe-give-tip!) #f (meet-or-echo!)))))
         (outcome (lambda ()
             (add-item! "金钱" 5)
             (lost-property 'hear-rumours! 1)
-            (photo-case 'hear-rumours! 1)
             (meet-or-echo!)))
         (outcome (lambda ()
             (add-item! "金钱" 3)
             (lost-property 'hear-rumours! 1)
-            (photo-case 'hear-rumours! 1)
             (spend-composure! 1)
             (if character-stories-open? (change-tavern-rank! -1) #f)
             (meet-or-echo!)))
@@ -569,13 +565,9 @@
     ;; 当场点酒不限次数；drank-today? 只记录当天首次喝酒，供招待和特殊表现使用。
     ;; :resolve 用 outcome 包一层，结果才会像判定一样以锚定卡片弹出，而不是只飘过一条 notify!。
     (define (drink-subtitle)
-      (string-append "恢复4点冷静"
-        (cond
-          ((and (lost-property 'rumours-active?) (photo-case 'rumours-active?))
-           "；两条小道消息各+3")
-          ((or (lost-property 'rumours-active?) (photo-case 'rumours-active?))
-           "；小道消息+3")
-          (else ""))))
+      (if (lost-property 'rumours-active?)
+          "恢复4点冷静；失物小道消息+3"
+          "恢复4点冷静"))
     (define (node-drink-here)
       (node "点一杯酒"
         :anchor "老街酒馆-购买"
@@ -586,7 +578,6 @@
               (let ((ruth-offers-now? (and character-stories-open? (= ruth-stage 0))))
                 (home 'drink!)
                 (lost-property 'hear-rumours! 3)
-            (photo-case 'hear-rumours! 3)
                 (if ruth-offers-now? (offer-special-drink!) #f)
                 ;; 露丝第一次推酒已经占了这杯的表现，别再叠一段闲话。
                 (if (and character-stories-open? (not ruth-offers-now?)) (meet-or-echo!) #f)))))))
