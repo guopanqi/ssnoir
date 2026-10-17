@@ -83,7 +83,7 @@ namespace SSNoir.IMGUI
         // ── 基底 ──
         public static readonly Color Ink        = new Color(0.051f, 0.071f, 0.125f, 0.96f); // #0D1220 @96% 暗版节点填充
         // 城市覆盖层：微透蓝黑底，暖灰细边，与建筑描线保持同一视觉层级。
-        public static readonly Color CityPlateBg = new Color(0.025f, 0.033f, 0.047f, 0.82f);
+        public static readonly Color CityPlateBg = new Color(0.006f, 0.010f, 0.016f, 0.96f).linear;
         public static readonly Color CityPlateLine = new Color(0.64f, 0.63f, 0.58f, 0.38f);
 
         public static readonly Color PhotoBlack = new Color(0.047f, 0.047f, 0.055f, 1f);     // #0C0C0E 照片块专用黑
@@ -110,8 +110,8 @@ namespace SSNoir.IMGUI
         public static readonly Color DisabledWash = PaperTextDisabled; // #8A8375，暗卡上的统一禁用灰
 
         // ── 强调色：做旧金（全局唯一主强调色）──
-        public static readonly Color Gold       = new Color(0.910f, 0.765f, 0.353f, 1f); // #E8C35A
-        public static readonly Color GoldOnDark  = new Color(0.165f, 0.129f, 0.027f, 1f); // #2A2107 金底上的深字
+        public static readonly Color Gold       = new Color(232f / 255f, 195f / 255f, 90f / 255f, 1f).linear; // sRGB #E8C35A，与 HTML 设计稿一致
+        public static readonly Color GoldOnDark  = new Color(42f / 255f, 33f / 255f, 7f / 255f, 1f).linear; // #2A2107 金底上的深字
 
         // ── 印章红（高危 / 失败，专用不做按钮）──
         public static readonly Color SealRed = new Color(0.702f, 0.251f, 0.165f, 1f); // #B3402A
@@ -125,7 +125,7 @@ namespace SSNoir.IMGUI
         public static readonly Color TabMutedInk   = new Color(0.290f, 0.271f, 0.235f, 1f); // #4A453C
 
         // ── 概率/结果三色（沉着版）──
-        public static readonly Color OddsFail    = new Color(0.820f, 0.416f, 0.306f, 1f); // #D16A4E 陶红
+        public static readonly Color OddsFail    = new Color(232f/255f, 51f/255f, 35f/255f, 1f).linear; // #E83323 损伤 / 失败
         public static readonly Color OddsNeutral = new Color(0.831f, 0.694f, 0.345f, 1f); // #D4B158 赭黄
         public static readonly Color OddsSuccess = new Color(0.576f, 0.690f, 0.416f, 1f); // #93B06A 苔绿
 
@@ -141,8 +141,8 @@ namespace SSNoir.IMGUI
         // 明确告诉玩家后面不可点。
         public static readonly Color Blocker = new Color(0f, 0f, 0f, 0.60f);
         // 判定结果三色（与命运预览同源）
-        public static readonly Color OutcomeSuccess = OddsSuccess;
-        public static readonly Color OutcomeNeutral = OddsNeutral;
+        public static readonly Color OutcomeSuccess = Gold;
+        public static readonly Color OutcomeNeutral = Paper;
         public static readonly Color OutcomeFail    = OddsFail;
 
         // Styles
@@ -260,11 +260,14 @@ namespace SSNoir.IMGUI
         /// 标题 28px：对 14px 的正文是 2 倍差。原来 22 只有 1.6 倍，层级几乎全靠灰度撑，
         /// 而灰度差在纸底上最先被吃掉。
         /// </summary>
-        public static bool DrawModalChrome(Rect panelRect, string title, IMGUIInteractionContext ui)
+        public static bool DrawModalChrome(Rect panelRect, string title, IMGUIInteractionContext ui, bool dimBackground = true)
         {
-            SetColor(Blocker);
-            GUI.DrawTexture(new Rect(0f, 0f, UIScale.VW, UIScale.VH), Texture2D.whiteTexture);
-            ResetColor();
+            if (dimBackground)
+            {
+                SetColor(Blocker);
+                GUI.DrawTexture(new Rect(0f, 0f, UIScale.VW, UIScale.VH), Texture2D.whiteTexture);
+                ResetColor();
+            }
 
             DrawShadow(panelRect, new Vector2(5f, 6f), 0.50f);
             SetColor(ModalBg);

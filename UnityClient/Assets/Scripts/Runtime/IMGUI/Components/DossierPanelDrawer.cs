@@ -140,7 +140,7 @@ namespace SSNoir.IMGUI
             if (clockH > 0f)
             {
                 foreach (var c in entry.Clocks)
-                    clockW += Mathf.Min(CardDrawer.MeasureClockBadge(c), innerW) + ClockGap;
+                    clockW += Mathf.Min(MeasureClockWidth(c), innerW) + ClockGap;
                 clockW = Mathf.Min(clockW - ClockGap, innerW);
             }
 
@@ -547,6 +547,183 @@ namespace SSNoir.IMGUI
 
         // 一排放不下就换行，绝不把徽章压窄——压窄的代价是标签被裁，读出来是「踩 i▯▯▯」
         // 这种半个词。宽度是版面的约束，字数不是；放不下就往下长。
+        // 卷宗（含右上角 pin）拥有自己的版面尺寸；不跟随场景 Clock 的放大调整。
+        private const float DossierClockRowHeight = 24f;
+        private const float CompactClockBadgePadX = 6f;
+        private const float ClockBadgePadX = 10f;
+        private const float CompactClockLabelValueGap = 4f;
+        private const float ClockLabelValueGap = 8f;
+        private const float CompactDialDiameter = 20f;
+        private const float DialDiameter = 24f;
+        private const float CompactSegmentSize = 7f;
+        private const float CompactSegmentSpacing = 3f;
+        private const float MinSegmentSize = 4f;
+        private const float MinSegmentSpacing = 2f;
+        private static float MeasureNodeClockBadgeWidth(GameClock clock, bool compact = false)
+        {
+            var labelStyle = new GUIStyle(IMGUIStyles.ClockLabel)
+            {
+                fontSize = IMGUIStyles.FontSize(compact ? 12 : 14),
+                fontStyle = FontStyle.Bold
+            };
+            IMGUIStyles.ApplyStrongFont(labelStyle);
+
+            float labelW = labelStyle.CalcSize(new GUIContent(clock.ShownLabel)).x;
+            float padX = compact ? CompactClockBadgePadX : ClockBadgePadX;
+            float gap = compact ? CompactClockLabelValueGap : ClockLabelValueGap;
+            return padX * 2f + labelW + gap + MeasureNodeClockValueWidth(clock, compact);
+        }
+
+        private static void DrawNodeClockBadge(Rect rect, GameClock clock, bool compact)
+        {
+            // 值一变，整枚徽章描边亮成金、外面再浮一圈光，格子/表盘再一格一格地换（见 ClockPulse）。
+            ClockPulse.Note(clock);
+            float glow = ClockPulse.Glow(clock);
+            // 值一变徽章整枚弹一下（绕自己中心放大再落回），先抓住眼睛，格子再一格一格换。
+            float pop = ClockPulse.Pop(clock);
+            Matrix4x4 savedMatrix = GUI.matrix;
+            if (pop > 0f)
+                GUIUtility.ScaleAroundPivot(Vector2.one * (1f + pop * 0.16f), rect.center);
+            Color activeColor = Color.Lerp(IMGUIStyles.Gold, Color.white, glow * 0.35f);
+            Color inactiveColor = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.25f);
+            Color outline = Color.Lerp(
+                new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.55f),
+                IMGUIStyles.Gold, glow);
+
+            if (glow > 0f)
+            {
+                var halo = new Color(IMGUIStyles.Gold.r, IMGUIStyles.Gold.g, IMGUIStyles.Gold.b, 0.45f * glow);
+                IMGUIStyles.DrawOutline(new Rect(rect.x - 2f, rect.y - 2f, rect.width + 4f, rect.height + 4f), 2f, halo);
+            }
+            IMGUIStyles.SetColor(new Color(IMGUIStyles.Ink.r, IMGUIStyles.Ink.g, IMGUIStyles.Ink.b, 0.96f));
+            GUI.DrawTexture(rect, Texture2D.whiteTexture);
+            IMGUIStyles.ResetColor();
+            IMGUIStyles.DrawOutline(rect, 1f, outline);
+
+            var labelStyle = new GUIStyle(IMGUIStyles.ClockLabel)
+            {
+                fontSize = IMGUIStyles.FontSize(compact ? 12 : 14),
+                alignment = TextAnchor.MiddleLeft,
+                clipping = TextClipping.Clip
+            };
+            IMGUIStyles.ApplyStrongFont(labelStyle);
+
+            // 徽章会随卡片收窄。不能只收窄外框、继续以固定的 valueW 画内容：这样长分数
+            // （如 74/100）与饼图会从框内探出去。值优先占据可用空间，标签再使用剩余部分；
+            // 两个 Label 都显式 Clip，作为数值或卡片异常窄时的最后一道边界。
+            float padX = compact ? CompactClockBadgePadX : ClockBadgePadX;
+            float labelValueGap = compact ? CompactClockLabelValueGap : ClockLabelValueGap;
+            float innerW = Mathf.Max(0f, rect.width - padX * 2f);
+            float desiredValueW = MeasureNodeClockValueWidth(clock, compact);
+            // 进度格（Gauge）可以压缩到最小格距仍画全每一格；数字和表盘不可压，缺一位就读错。
+            float minValueW = clock.Style == ClockStyle.Gauge
+                ? MinGaugeWidth(clock.Max)
+                : desiredValueW;
+            float gap = desiredValueW > 0f && !string.IsNullOrEmpty(clock.ShownLabel) ? labelValueGap : 0f;
+            float labelIdealW = labelStyle.CalcSize(new GUIContent(clock.ShownLabel)).x;
+            // 标签先拿它需要的，但至少给值留下不可压的那一份——宽度紧张时压的是格距，不是字。
+            float labelW = Mathf.Clamp(
+                Mathf.Min(labelIdealW, innerW - Mathf.Min(minValueW, innerW) - gap), 0f, innerW);
+            float valueW = Mathf.Min(desiredValueW, Mathf.Max(0f, innerW - labelW - gap));
+
+            var valueRect = new Rect(rect.xMax - padX - valueW, rect.y, valueW, rect.height);
+            IMGUIStyles.DrawLabel(new Rect(rect.x + padX, rect.y, labelW, rect.height), clock.ShownLabel, labelStyle);
+
+            if (clock.Style == ClockStyle.Countdown)
+            {
+                // 圆环占满值区，剩余数字写在圆心——这是圆环相对横排分数省下的那点宽度。
+                float diameter = Mathf.Min(compact ? CompactDialDiameter : DialDiameter,
+                    Mathf.Min(valueW, rect.height - 2f));
+                // 环和数字必须共用同一个整数 Rect，否则半像素的差在 24px 上就看得出来。
+                var dialRect = UIScale.PixelSnap(
+                    new Rect(valueRect.xMax - diameter, rect.center.y - diameter * 0.5f, diameter, diameter));
+                var track = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.22f);
+                // 刚退掉的那一扇先画成白的余像再淡掉：看得见是哪一块走了，不只是中心的数字换了。
+                if (ClockPulse.TryGetFadingLoss(clock, out int previous, out float ghost))
+                    ShapeDrawer.DrawDial(dialRect, previous, clock.Max, new Color(1f, 1f, 1f, ghost), track);
+                ShapeDrawer.DrawDial(dialRect, clock.Current, clock.Max, activeColor,
+                    ghost > 0f ? Color.clear : track);
+
+                var centerStyle = new GUIStyle(IMGUIStyles.ClockValue)
+                {
+                    // 环细了之后中心的空大了一圈，数字可以比第一版大一号。
+                    fontSize = IMGUIStyles.FontSize(clock.Current >= 10
+                        ? (compact ? 10 : 11)
+                        : (compact ? 11 : 13)),
+                    alignment = TextAnchor.MiddleCenter,
+                    clipping = TextClipping.Clip,
+                    normal = { textColor = IMGUIStyles.Gold }
+                };
+                IMGUIStyles.ApplyStrongFont(centerStyle);
+                IMGUIStyles.DrawInkCenteredText(dialRect, clock.Current.ToString(), centerStyle);
+            }
+            else if (clock.Style == ClockStyle.Gauge)
+            {
+                float dot = compact ? CompactSegmentSize : 10f;
+                float spacing = compact ? CompactSegmentSpacing : 5f;
+                // 放不下就整体等比缩小格子与格距（有下限），而不是把末尾几格悄悄不画。
+                float needW = clock.Max * dot + Mathf.Max(0, clock.Max - 1) * spacing;
+                if (needW > valueW && needW > 0f)
+                {
+                    float f = valueW / needW;
+                    dot = Mathf.Max(MinSegmentSize, dot * f);
+                    spacing = Mathf.Max(MinSegmentSpacing, spacing * f);
+                }
+                float dotStartX = valueRect.x;
+                float dotY = rect.y + (rect.height - dot) * 0.5f;
+                int visibleCount = clock.Max;
+                var emptyOutline = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.40f);
+                for (int i = 0; i < visibleCount; i++)
+                {
+                    var dotRect = new Rect(dotStartX + i * (dot + spacing), dotY, dot, dot);
+                    ClockPulse.DrawCell(dotRect, i < clock.Current, activeColor, inactiveColor,
+                        ClockPulse.CellPulse(clock, i), r => IMGUIStyles.DrawOutline(r, 1f, emptyOutline));
+                }
+            }
+            else // Readout：不触发任何事的当前值，纯文字
+            {
+                var valueStyle = new GUIStyle(IMGUIStyles.ClockValue)
+                {
+                    fontSize = IMGUIStyles.FontSize(compact ? 13 : 15),
+                    alignment = TextAnchor.MiddleRight,
+                    clipping = TextClipping.Clip,
+                    normal = { textColor = IMGUIStyles.Gold }
+                };
+                IMGUIStyles.DrawLabel(valueRect, $"{clock.Current}/{clock.Max}", valueStyle);
+            }
+
+            if (pop > 0f)
+                GUI.matrix = savedMatrix;
+        }
+        private static float MinGaugeWidth(int max)
+            => Mathf.Max(0f, max * MinSegmentSize + Mathf.Max(0, max - 1) * MinSegmentSpacing);
+
+        private static float MeasureNodeClockValueWidth(GameClock clock, bool compact = false)
+        {
+            string fraction = $"{clock.Current}/{clock.Max}";
+            return clock.Style switch
+            {
+                ClockStyle.Countdown => compact ? CompactDialDiameter : DialDiameter,
+                ClockStyle.Gauge => compact
+                    ? Mathf.Max(0f, clock.Max * CompactSegmentSize + Mathf.Max(0, clock.Max - 1) * CompactSegmentSpacing)
+                    : Mathf.Max(0f, clock.Max * 10f + Mathf.Max(0, clock.Max - 1) * 5f),
+                _ => MeasureClockValueTextWidth(fraction, compact ? 13 : 15)
+            };
+        }
+
+        private static float MeasureClockValueTextWidth(string text, int fontSize)
+        {
+            var style = new GUIStyle(IMGUIStyles.ClockValue)
+            {
+                fontSize = IMGUIStyles.FontSize(fontSize),
+                fontStyle = FontStyle.Bold
+            };
+            IMGUIStyles.ApplyStrongFont(style);
+            return style.CalcSize(new GUIContent(text)).x;
+        }
+
+        private static float MeasureClockWidth(GameClock clock) => MeasureNodeClockBadgeWidth(clock, true);
+
         private const float ClockGap = 8f;
         private const float ClockRowGap = 6f;
 
@@ -561,7 +738,7 @@ namespace SSNoir.IMGUI
         {
             if (clocks.Count == 0) return 0f;
 
-            float rowH = CardDrawer.ClockBadgeHeightCompact;
+            float rowH = DossierClockRowHeight;
             float x = rect.x;
             float y = rect.y;
             bool rowEmpty = true;
@@ -570,7 +747,7 @@ namespace SSNoir.IMGUI
             {
                 // 徽章本身可以比整行还宽（长标签 + 多段进度）；那时它独占一行并收到行宽，
                 // 由徽章自己去收标签，这是它已经会做的事。
-                float w = Mathf.Min(CardDrawer.MeasureClockBadge(clock), rect.width);
+                float w = Mathf.Min(MeasureClockWidth(clock), rect.width);
                 if (!rowEmpty && x + w > rect.xMax)
                 {
                     x = rect.x;
@@ -578,7 +755,7 @@ namespace SSNoir.IMGUI
                     rowEmpty = true;
                 }
                 if (draw)
-                    CardDrawer.DrawClockBadge(new Rect(x, y, w, rowH), clock);
+                    DrawNodeClockBadge(new Rect(x, y, w, rowH), clock, true);
                 x += w + ClockGap;
                 rowEmpty = false;
             }

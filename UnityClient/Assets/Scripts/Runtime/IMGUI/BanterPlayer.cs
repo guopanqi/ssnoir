@@ -59,9 +59,7 @@ namespace SSNoir.IMGUI
             float longest = 0f;
             foreach (var line in lines)
             {
-                float dwell = line.DwellSeconds > 0f
-                    ? line.DwellSeconds
-                    : Mathf.Clamp(1.2f + line.Text.Length * 0.06f, 1.5f, 5f);
+                float dwell = DefaultDwellSeconds(line);
                 longest = Mathf.Max(longest, dwell);
                 _visible.Add(new Bubble
                 {
@@ -129,12 +127,14 @@ namespace SSNoir.IMGUI
             }
         }
 
+        private static float DefaultDwellSeconds(DialogueLine line)
+            => line.DwellSeconds > 0f ? line.DwellSeconds
+                : Mathf.Clamp(1.6f + line.Text.Length * .075f, 2f, 6f);
+
         private void ShowCurrentLine()
         {
             var line = _current!.Lines[_index];
-            float textDwell = line.DwellSeconds > 0f
-                ? line.DwellSeconds
-                : Mathf.Clamp(1.2f + line.Text.Length * 0.06f, 1.5f, 5f);
+            float textDwell = DefaultDwellSeconds(line);
             float voiceDuration = _voice?.Play(line.VoiceId) ?? 0f;
             // 配音是停留时间的下限。显式 dwell 仍可延长气泡，但不能把音频截断。
             float dwell = Mathf.Max(textDwell, voiceDuration + VoiceTailSeconds);

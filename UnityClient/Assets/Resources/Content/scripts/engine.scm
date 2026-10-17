@@ -546,9 +546,9 @@
         (list (随身动作 "抽烟" "香烟" 2 "恢复两点冷静" "抽了一口"
                 (lambda () #f)))
         '())
-    ;; 酒回得多，代价推到明天：下一次城市骰池里有一格带宿醉。
+    ;; 酒恢复 4 点冷静，代价推到明天：下一次城市骰池里有一格带宿醉。
     (if (has-item? "酒" 1)
-        (list (随身动作 "喝酒" "酒" 3 "恢复三点冷静，明日宿醉" "灌了一口"
+        (list (随身动作 "喝酒" "酒" 4 "恢复四点冷静，明日宿醉" "灌了一口"
                 (lambda () (apply-hangover!))))
         '())))
 
@@ -1185,7 +1185,9 @@
 
 (define (play-intertitle! hold-black . pages) (__play-intertitle! hold-black pages))
 ;; place 为空只运镜；非空在运镜结束后进入地点。
-(define (play-camera! anchor hold-seconds place) (__play-camera! anchor hold-seconds place))
+(define (play-camera! anchor hold-seconds place) (__play-camera! anchor hold-seconds place #f))
+;; 明确的剪辑切镜，不把停留0秒误当成瞬切，也不受玩家的减少动画设置影响。
+(define (cut-camera! anchor place) (__play-camera! anchor 0 place #t))
 
 (define (play-narration! id)
   (__play-narration! id))
@@ -1252,6 +1254,7 @@
     (list "门廊里的男人" (tr "门廊里的男人" "Man in the Doorway"))
     (list "桥廊住户" (tr "桥廊住户" "Bridgewalk Resident"))
     (list "酒保" (tr "酒保" "Bartender"))
+    (list "酒吧老板" (tr "酒吧老板" "Bar Owner"))
     (list "水手" (tr "水手" "Sailor"))
     (list "舞台监督" (tr "舞台监督" "Stage Manager"))
     (list "赞助人" (tr "赞助人" "Patron"))

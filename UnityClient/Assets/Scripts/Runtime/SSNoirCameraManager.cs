@@ -1325,6 +1325,17 @@ namespace SSNoir
             return true;
         }
 
+        // 剧情明确要求的切镜：复用同一套机位清理与单帧 Cut 生命周期。
+        public void CutFocusTo(Cinemachine.CinemachineVirtualCamera focusCamera)
+        {
+            if (focusCamera == null) throw new System.ArgumentNullException(nameof(focusCamera));
+            FinishFocusTravel();
+            _lastFocusCamera = focusCamera;
+            var brain = Camera.main != null ? Camera.main.GetComponent<Cinemachine.CinemachineBrain>() : null;
+            if (brain == null) throw new System.InvalidOperationException("剧情切镜需要主相机与 CinemachineBrain");
+            BeginInstantFocusChange(focusCamera, brain);
+        }
+
         /// <summary>
         /// Zero-duration focus change when two virtual cameras already show the
         /// same pose. Real navigation over a nonzero distance must keep its arc.

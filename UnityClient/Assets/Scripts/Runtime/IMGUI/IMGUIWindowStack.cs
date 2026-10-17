@@ -7,6 +7,7 @@ namespace SSNoir.IMGUI
     public enum IMGUIWindowLayer
     {
         World = 0,
+        HudHint = 5,
         Panel = 10,
         Modal = 20,
     }
@@ -20,6 +21,7 @@ namespace SSNoir.IMGUI
 
     public enum IMGUIWindowId
     {
+        VitalHint,
         DossierPanel,
         SettingsPanel,
         FeedbackPanel,

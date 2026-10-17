@@ -529,7 +529,7 @@
 
     (define (node-watch-fight)
       (node "看比赛"
-        :subtitle "不耗行动骰，也不再花钱"
+        :subtitle "不花行动骰，也不花钱"
         :resolve (instant
           (outcome (lambda ()
               (cond ((= night 1) (fight-1!))
@@ -705,7 +705,7 @@
     ;; 和他坐一会儿。不吃骰，免得一次陪伴又变成当晚必须排进计划的工作。
     (define (node-share-drink-after-crush)
       (node "请艾迪喝一杯"
-        :anchor "老街酒馆"
+        :anchor "老街酒馆-购买"
         :subtitle "陪他坐一会儿"
         :requires (list (req-item "金钱" 15))
         :resolve (instant

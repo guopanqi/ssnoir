@@ -94,10 +94,6 @@ namespace SSNoir.IMGUI
         // 所以这个策略必须贯穿整串步骤，不能用“一次性跳过”标志。
         private bool _allowOutcomeHoldAfterBlocking = true;
         // 结果条挂多久。
-        private const float OutcomeHoldBaseSeconds = 1.6f;
-        private const float OutcomeHoldPerEffectSeconds = 0.35f;
-        private const float OutcomeHoldRollExtraSeconds = 0.4f;
-        private const float OutcomeHoldMaxSeconds = 4.0f;
         private readonly Queue<BlockingStoryStep> _pendingBlockingSteps = new Queue<BlockingStoryStep>();
         // 自动行动（别人拿走你的骰子去办的一件事）按玩家自己出手的节奏走，只是每一步都替他做了：
         //   卡出现 → 骰子从手里飞过去 → 落定停一拍 → 执行 → 结果条挂在卡下停一会 → 收起。
@@ -174,6 +170,7 @@ namespace SSNoir.IMGUI
         private void OnDestroy()
         {
             ReleaseSkipPresentationPress();
+            TutorialCardDrawer.StopVideo();
             _feedback?.Dispose();
             _theatrePlayer?.Dispose();
             if (_gameManager != null)
@@ -206,6 +203,7 @@ namespace SSNoir.IMGUI
             if (_theatrePlayer.IsActive || _storyStagePlayer.IsActive || _conversationPlayer.IsActive)
                 throw new InvalidOperationException("线绘舞台与其他对白不能重叠");
             _banterPlayer.Suspend();
+            _narrationPlayer.Stop();
             try { _theatrePlayer.Start(scene, () => _banterPlayer.Resume()); }
             catch { _banterPlayer.Resume(); throw; }
         }
@@ -216,12 +214,15 @@ namespace SSNoir.IMGUI
             if (_storyStagePlayer.IsActive || _theatrePlayer.IsActive || _conversationPlayer.IsActive)
                 throw new InvalidOperationException("舞台演出与对白不能重叠");
             _banterPlayer.Suspend();
+            _narrationPlayer.Stop();
             _storyStagePlayer.Start(sequence, () => _banterPlayer.Resume());
         }
 
         private void StartNextImmediateDialogue(SSNoir.Core.DialogueSequence sequence)
         {
             ReleaseSkipPresentationPress();
+            // 阻塞演出接管字幕和人声，上一段非阻塞旁白退场。
+            _narrationPlayer.Stop();
             // 动作外即时对话仍以"此刻是否在场"校验说话人；普通 dialogue 不在场时会报警。
             StoryStageDrawer.BeginConversation();
             _conversationPlayer.Start(sequence, () =>
@@ -388,7 +389,7 @@ namespace SSNoir.IMGUI
         private IEnumerator PlayCameraStep(BlockingStoryStep step)
         {
             _storyCameraActive = true;
-            try { yield return _gameManager.PlayStoryCamera(step.CameraAnchor, step.CameraHoldSeconds, step.PlaceName); }
+            try { yield return _gameManager.PlayStoryCamera(step.CameraAnchor, step.CameraHoldSeconds, step.PlaceName, step.CameraCut); }
             finally { _storyCameraActive = false; }
             AdvanceToBlockingPresentationOrFinish();
         }
@@ -495,6 +496,7 @@ namespace SSNoir.IMGUI
                         _activeActionSpotlight = step.Spotlight;
                         return;
                     case BlockingStoryStepKind.Dialogue:
+                        _narrationPlayer.Stop();
                         _banterPlayer.Suspend();   // 对话聚焦,杂音让位
                         // 动作内先尝试锚定动作前画面；普通对话失败时由绘制层报警并降级为场外卡，
                         // 显式 remote 则直接允许场外说话人且不报警。
@@ -506,6 +508,7 @@ namespace SSNoir.IMGUI
                         });
                         return;
                     case BlockingStoryStepKind.Theatre:
+                        _narrationPlayer.Stop();
                         ReleaseFilmBlackForTurn();
                         _banterPlayer.Suspend();
                         _theatrePlayer.Start(step.Theatre!, () =>
@@ -515,6 +518,7 @@ namespace SSNoir.IMGUI
                         });
                         return;
                     case BlockingStoryStepKind.Stage:
+                        _narrationPlayer.Stop();
                         _banterPlayer.Suspend();
                         _storyStagePlayer.Start(step.Stage!, () =>
                         {
@@ -607,10 +611,7 @@ namespace SSNoir.IMGUI
 
         private static float OutcomeHoldSeconds(ActionReport report)
         {
-            float seconds = OutcomeHoldBaseSeconds + report.Effects.Count * OutcomeHoldPerEffectSeconds;
-            if (report.Type == ActionType.Roll)
-                seconds += OutcomeHoldRollExtraSeconds;
-            return Mathf.Min(seconds, OutcomeHoldMaxSeconds);
+            return 5f;
         }
 
         // ESC：停住的先放行；没停住就把挂着的结果条都收了。
@@ -948,6 +949,7 @@ namespace SSNoir.IMGUI
         // Called on scene load/reset to close all overlay panels.
         public void ResetUiState()
         {
+            VitalHintDrawer.Close();
             ReleaseSkipPresentationPress();
             _isGrowthPanelOpen = false;
             _inputLocked = false;
@@ -1327,12 +1329,15 @@ namespace SSNoir.IMGUI
             bool baseLocked = IsPresentationInputLocked || IsAnimationPlaying;
             if (baseLocked)
                 IMGUIInteractionContext.ConsumeCurrentPress();
+            VitalHintDrawer.Suppressed = _gameManager.IsDraggingResource;
+            VitalHintDrawer.RegisterBlockers(_windowStack);
             _windowStack.Update();
 
             // 阻塞对白期间世界的界面整个收起来：标签、动作卡、卷宗、顶栏都不画——舞台上只留城市和人。
             // 锚点表故意不清：对白是阻塞的，导航和相机都冻着，上一帧登记的「谁在场」在整段对白里
             // 都作数，舞台照旧用它判断说话人在不在场。
             bool worldUiHidden = _intertitleActive || _storyCameraActive || _filmBlackAlpha > 0f || _conversationPlayer.IsActive || _storyStagePlayer.IsActive || _theatrePlayer.IsActive;
+            if (worldUiHidden) VitalHintDrawer.Close();
             var panelUi = _windowStack.MakeContext(IMGUIWindowLayer.Panel, baseLocked);
             if (!worldUiHidden)
             {
@@ -1370,7 +1375,11 @@ namespace SSNoir.IMGUI
             // 淡入途中的卡片不接点击，它的附件同理。
             if (_cardLayerReveal >= 0.999f && !pointerOnFixedHud)
                 HandleAttachmentTaps(worldUi);
+            VitalHintDrawer.Interaction = _windowStack.MakeContext(IMGUIWindowLayer.HudHint, baseLocked);
             HandPanelDrawer.Draw(_gameManager, worldUi, _dialogueAnchors, PendingAutoActionReservedDice());
+            VitalHintDrawer.Suppressed = _gameManager.IsDraggingResource;
+            VitalHintDrawer.Draw(_gameManager.DisplayedSnapshot,
+                _windowStack.MakeContext(IMGUIWindowLayer.HudHint, baseLocked));
             AddAttachmentsForHandCards();
             float attachmentRestore = IMGUIStyles.BeginLayer(_cardLayerReveal);
             DrawCardAttachmentOverlays(cardOverlayUi);
@@ -1508,7 +1517,10 @@ namespace SSNoir.IMGUI
                 TutorialDirector.Draw(
                     _gameManager,
                     _windowStack.MakeContext(IMGUIWindowLayer.Modal),
-                    _firstActionCardRect);
+                    GetTutorialTargetRect());
+
+            if (!HelpPanelDrawer.IsOpen && !(TutorialDirector.IsOpen && tutorialQuiet))
+                TutorialCardDrawer.StopVideo();
 
             // ── Animation Modal ──
             _animator.DrawModal();
@@ -1986,14 +1998,14 @@ namespace SSNoir.IMGUI
                 layout.IsAnnotation ? WorldLabelLayout.Kind.Annotation
                     : layout.Node.IsContainer ? WorldLabelLayout.Kind.Location
                     : WorldLabelLayout.Kind.Action,
-                layout.AnchorPos, layout.TargetCenter,
-                new Vector2(layout.Width, layout.Height), layout.DeclarationOrder)).ToList();
+                layout.AnchorPos, layout.TargetCenter + layout.AttachmentReserve * .5f,
+                new Vector2(layout.Width, layout.Height) + layout.AttachmentReserve, layout.DeclarationOrder)).ToList();
             // Existing cards reserve their remembered positions first; only new
             // cards are placed into the remaining space. Pan and Orbit are identical.
             var placements = _labelPlacements.Arrange(keepOut, requests);
             foreach (var layout in layouts)
             {
-                layout.CurrentCenter = placements[layout.Key].center;
+                layout.CurrentCenter = placements[layout.Key].center - layout.AttachmentReserve * .5f;
                 _cardCenters[layout.Key] = layout.CurrentCenter;
             }
             foreach (var key in keepOut.Overflow)
@@ -2359,7 +2371,8 @@ namespace SSNoir.IMGUI
         {
             foreach (var attachment in _cardAttachmentOverlays)
             {
-                if (attachment.ConsoleNode != null && ConsoleRect(attachment).Contains(pointer))
+                if (attachment.ConsoleNode != null && (ConsoleRect(attachment).Contains(pointer)
+                    || ActionNodeDrawer.OddsPreviewRect(attachment.CardRect).Contains(pointer)))
                     return true;
                 if (attachment.Residue != null
                     && ActionNodeDrawer.ResidueAttachmentRect(attachment.CardRect, attachment.Residue, attachment.Above).Contains(pointer))
@@ -2417,7 +2430,7 @@ namespace SSNoir.IMGUI
         // 250 是按内容反推的：副标题一行 14 字、标题 10 字、三个骰位横排 196px 都放得下，
         // 而 826 宽的画布正好排得下三列。
         // 地点牌的宽度不在这儿：它由地名实际多长决定，见 ContainerNodeDrawer.PreferredLocationWidth。
-        private const float ActionCardDesignWidth = 250f;
+        private const float ActionCardDesignWidth = 290f;
         private const float FocusedCardWidth = 330f;
 
         // 网格卡的基准宽度。实际宽度由 GridCardWidth 按当前列数摊开：列数定死之后，
@@ -2489,13 +2502,7 @@ namespace SSNoir.IMGUI
             {
                 int column = i % columnCount;
                 bool mustHandle = RestBlockerPresentation.ContainsTarget(nodes[i], _gameManager.DisplayedSnapshot.RestBlockers);
-                // 动作卡的「必须处理」是一张顶部书签（见 ActionNodeDrawer.DrawTopTabs）；
-                // 只有人物/地点这类没有书签的卡还挂卡外的牌子。
-                bool isActionCard = nodes[i].HasResolve;
-                float markerSpace = mustHandle && !isActionCard ? CardDrawer.ExternalRestBlockerMarkerSpace : 0f;
-                // 卡顶书签探出卡外，网格行距只有 GridSpacing，不预留就会盖住上一张卡的底。
-                if (isActionCard && ActionNodeDrawer.HasTopTabs(nodes[i], mustHandle))
-                    markerSpace += ActionNodeDrawer.TopTabsRise();
+                float markerSpace = ActionNodeDrawer.TopTabsRise(nodes[i], GridCardWidth, mustHandle);
                 // 每张网格卡按自身内容定高（瀑布流本来就允许列内高度不齐）。以前这里是固定
                 // 190：副标题长一点、时钟徽章多一个，内容就只能在同一个盒子里互相挤。
                 float cardHeight = CardDrawer.MeasureCardHeight(
@@ -2733,6 +2740,18 @@ namespace SSNoir.IMGUI
 
             public static CardAttachmentOverlay ForResidue(Rect cardRect, CardPresentationResidue residue)
                 => new CardAttachmentOverlay(cardRect, residue.HostNodeName, null, null, null, 0f, residue, residue.AttachAbove);
+        }
+
+        private Rect? GetTutorialTargetRect()
+        {
+            var entry = TutorialDirector.Current;
+            foreach (var node in _gameManager.VisibleNodes)
+            {
+                bool target = entry?.Id == TutorialLibrary.EndOfDay ? node.Name == "睡觉"
+                    : entry?.Id == TutorialLibrary.ActionDice && node.Tags.Contains("工作");
+                if (target && _drawnCardRects.TryGetValue(node.Name, out var rect)) return rect;
+            }
+            return null;
         }
 
         // 引线不在这里画：它是所有卡片之前的一整层，见 CardLeaderLineDrawer。
@@ -3177,7 +3196,7 @@ namespace SSNoir.IMGUI
                 _dialogueAnchors,
                 _gameManager,
                 speaker => ReportRemoteFallback("play-bubble!", speaker),
-                _worldLabelSpace, _banterPlacements);
+                _worldLabelSpace, _banterPlacements, !string.IsNullOrWhiteSpace(_narrationPlayer.CurrentSubtitle));
         }
 
         // 阻塞：立绘舞台覆盖世界；Say 拍全屏左键推进（打字中补全，否则下一句），无字动作拍吞掉点击自动播完，后方控件由 IsInputLocked 显式禁用。
@@ -3278,22 +3297,10 @@ namespace SSNoir.IMGUI
             if (string.IsNullOrWhiteSpace(text))
                 return;
 
-            float bandH = 96f;
-            var rect = new Rect(0f, UIScale.VH - bandH, UIScale.VW, bandH);
-
-            var oldColor = GUI.color;
-            GUI.color = new Color(0f, 0f, 0f, 0.76f);
-            GUI.DrawTexture(rect, Texture2D.whiteTexture);
-            GUI.color = oldColor;
-
-            var style = new GUIStyle(IMGUIStyles.ModalBody)
-            {
-                alignment = TextAnchor.MiddleCenter,
-                fontSize = IMGUIStyles.FontSize(22),
-                wordWrap = true
-            };
-            style.normal.textColor = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.65f);
-            IMGUIStyles.DrawLabel(new Rect(160f, rect.y + 18f, UIScale.VW - 320f, bandH - 36f), text, style);
+            // 阻塞演出已有自己的句子，背景旁白不叠出第二套字幕。
+            if (_conversationPlayer.IsActive || _storyStagePlayer.IsActive || _theatrePlayer.IsActive
+                || _intertitleActive || _gameManager.Cutscene.IsActive || _activeVideoTag != null) return;
+            StoryCaptionDrawer.DrawWorldNarration(text, HandPanelDrawer.BottomGap(_gameManager));
         }
 
         // Modals occlude the world; opening a panel never shuffles its card layout.
@@ -3342,7 +3349,9 @@ namespace SSNoir.IMGUI
             public Vector2 CurrentCenter { get; set; }
             public float Width { get; }
             public float Height { get; }
-            // Attachments remain visual extensions; only the card body occupies layout space.
+            // Reserve attachment space before placing neighbours; inserting a resource never moves the host.
+            public Vector2 AttachmentReserve => IsAnnotation || Node.IsContainer ? Vector2.zero
+                : new Vector2(Node.Resolve?.Type == ResolveType.Roll ? 138f : 0f,72f);
             public Rect Rect => new Rect(CurrentCenter.x - Width / 2f, CurrentCenter.y - Height / 2f, Width, Height);
 
             public ProjectedCardLayout(

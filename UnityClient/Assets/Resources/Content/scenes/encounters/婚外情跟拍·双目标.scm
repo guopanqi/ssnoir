@@ -30,26 +30,36 @@
   (let ((before (identity 'current)))
     (identity 'advance! n)
     (if (and (< before 4) (>= (identity 'current) 4))
-      (play-dialogue! (line "世界" "服务员称她哈珀小姐。她似乎常来这里。")) #f)
+      (play-bubble!
+        (line "服务员" "哈珀小姐，还是老样子？" :at "双目标跟拍-侍者")
+        (line "女子" "嗯，谢谢。" :at "双目标跟拍-餐桌")) #f)
     (if (and (< before 8) (>= (identity 'current) 8))
-      (play-dialogue! (line "世界" "她在梅森百货工作。姓氏和工作地点都对上了。")) #f)
+      (play-bubble!
+        (line "丈夫" "今天又这么晚？梅森百货还没下班？" :at "双目标跟拍-丈夫座位")
+        (line "女子" "盘货，拖了一会儿。" :at "双目标跟拍-餐桌")) #f)
     (if (and (< before 12) (identity 'full?))
-      (play-dialogue! (line "世界" "停车侍者认得她：伊芙琳·哈珀，梅森百货的职员。")) #f)))
+      (play-bubble!
+        (line "停车侍者" "哈珀小姐的车到了。" :at "双目标跟拍-侍者")
+        (line "另一名侍者" "伊芙琳·哈珀？梅森百货那位？" :at "双目标跟拍-侍者")
+        (line "停车侍者" "对，她常来。" :at "双目标跟拍-侍者")) #f)))
 (define (progress! goal n)
   (cond ((eq? goal '找人)
          (finding 'advance! n)
          (if (and (finding 'full?) (not meeting?))
            (begin (set! meeting? #t)
-             (play-dialogue!
-               (line "世界" "丈夫走进饭店，与窗边的女人坐在一起。")
-               (line "世界" "你可以拍照交差，也可以查清她的身份。"))) #f))
+             (play-bubble!
+               (line "丈夫" "路上耽搁了一会儿。" :at "双目标跟拍-丈夫座位")
+               (line "女子" "没关系，我也才刚到一会儿。" "" 2.8 :at "双目标跟拍-餐桌")
+               (line "尼尔" "看来就是他们了" :at "双目标跟拍-观察位"))) #f))
         ((eq? goal '照片) (photos 'advance! n))
         ((eq? goal '身份) (identity-progress! n))
         ((eq? goal '掩饰)
          (disguise 'advance! n)
          (if (disguise 'full?)
            (begin (set! crisis? #f) (alertness 'advance! -2)
-             (play-dialogue! (line "世界" "男人看了一会儿，没有发现相机，回到桌边。"))) #f))
+             (play-bubble!
+               (line "丈夫" "看来是我想多了，不过刚才那个男的是有点奇怪。"
+                 :at "双目标跟拍-丈夫座位"))) #f))
         (else (error "双目标跟拍：未知目标"))))
 (define (resolve! goal risky? grade)
   (cond ((eq? grade '坏)
@@ -62,18 +72,22 @@
   (if (and crisis? (not (eq? goal '掩饰))) (alertness 'advance! 1) #f)
   (check!))
 (define (action-anchor title goal risky?)
-  (cond ((eq? goal '找人) (if risky? "双目标跟拍-门口" "双目标跟拍-观察位"))
+  (cond ((eq? goal '找人) "双目标跟拍-观察位")
         ((eq? goal '照片) (if risky? "双目标跟拍-窗外" "双目标跟拍-观察位"))
         ((eq? goal '身份) (if risky? "双目标跟拍-侍者" "双目标跟拍-餐桌"))
         ((eq? goal '掩饰) (if (equal? title "假装等人") "双目标跟拍-门房" "双目标跟拍-报摊"))
         (else (error "双目标跟拍：行动缺少空间落点"))))
-(define (action-node title subtitle skill goal risky?)
-  (node title :anchor (action-anchor title goal risky?) :subtitle subtitle :tags (list (if risky? "高风险" "低风险"))
-    :requires (list (req-die))
-    :resolve (roll skill
-      (outcome (lambda () (resolve! goal risky? '坏)))
-      (outcome (lambda () (resolve! goal risky? '中)))
-      (outcome (lambda () (resolve! goal risky? '好))))))
+(define (action-node title subtitle skill goal risky? anchored?)
+  (let ((node-data
+          (node title :subtitle subtitle :tags (list (if risky? "高风险" "低风险"))
+            :requires (list (req-die))
+            :resolve (roll skill
+              (outcome (lambda () (resolve! goal risky? '坏)))
+              (outcome (lambda () (resolve! goal risky? '中)))
+              (outcome (lambda () (resolve! goal risky? '好)))))))
+    (if anchored?
+        (at-anchor (action-anchor title goal risky?) node-data)
+        node-data)))
 (define-opponent-rule "男人继续查看"
   (lambda () (and (not finished?) crisis?))
   (lambda () (alertness 'advance! 1) (check!)))
@@ -91,11 +105,23 @@
         (cond ((= stage 0) "留意称呼") ((= stage 1) "留意随身物") (else "核对去向"))
         (cond ((= stage 0) "留意服务员怎样称呼她") ((= stage 1) "从她随身纸袋辨认工作地点")
               (else "依据姓氏和工作地点，核对接送与去向"))
-        (if (= stage 0) 'sharpness 'knowledge) '身份 #f)
+        (if (= stage 0) 'sharpness 'knowledge) '身份 #f #t)
       (action-node
         (cond ((= stage 0) "打听熟客") ((= stage 1) "询问工作") (else "询问侍者"))
         "靠近向员工打听；进展快，但易引起注意"
-        'social '身份 #t))))
+        'social '身份 #t #t))))
+(define (photo-action-nodes)
+  (list
+    (action-node "隔街拍摄" "隔街取景；好2、中1，坏扣冷静1和警觉1" 'sharpness '照片 #f #t)
+    (action-node "靠窗取景" "穿过人流稳住相机；好3、中2并增加警觉1" 'violence '照片 #t #t)))
+(define (photo-container)
+  (node "照片取证"
+    :anchor "双目标跟拍-观察位"
+    :children (photo-action-nodes)))
+(define (identity-container)
+  (node "调查身份"
+    :anchor "双目标跟拍-侍者"
+    :children (identity-nodes)))
 (define (on-encounter-enter)
   (play-dialogue!
     (line "尼尔" "就是这里。她说他晚上会来。")
@@ -119,16 +145,14 @@
         (append
           (map (lambda (n) (at-anchor "双目标跟拍-餐桌" n))
             (clock-nodes (photos 'render-data) (identity 'render-data)))
-          (if (photos 'full?) '()
-            (list (action-node "隔街拍摄" "隔街取景；好2、中1，坏扣冷静1和警觉1" 'sharpness '照片 #f)
-                  (action-node "靠窗取景" "穿过人流稳住相机；好3、中2并增加警觉1" 'violence '照片 #t)))
-          (if (identity 'full?) '() (identity-nodes))
+          (if (photos 'full?) '() (list (photo-container)))
+          (if (identity 'full?) '() (list (identity-container)))
           (if (or (photos 'full?) (identity 'full?))
             (list (instant-action "收手离开" (lambda () (finish! '收手)))) '()))
         (append (clock-nodes (finding 'render-data))
-          (list (action-node "人群辨认" "根据照片寻找面孔；好2、中1" 'sharpness '找人 #f)
-                (action-node "判断去向" "提前靠近入口核对；好3、中2并增加警觉1" 'knowledge '找人 #t))))
+          (list (action-node "人群辨认" "根据照片寻找面孔；好2、中1" 'sharpness '找人 #f #t)
+                (action-node "判断去向" "提前靠近入口核对；好3、中2并增加警觉1" 'knowledge '找人 #t #t))))
       (if crisis?
         (append (clock-nodes (disguise 'render-data))
-          (list (action-node "假装等人" "与门房攀谈；好2、中1，坏扣冷静1和警觉1" 'social '掩饰 #f)
-                (action-node "借街景遮掩" "收起相机退到报摊；好2、中1" 'knowledge '掩饰 #f))) '()))))
+          (list (action-node "假装等人" "与门房攀谈；好2、中1，坏扣冷静1和警觉1" 'social '掩饰 #f #t)
+                (action-node "借街景遮掩" "收起相机退到报摊；好2、中1" 'knowledge '掩饰 #f #t))) '()))))

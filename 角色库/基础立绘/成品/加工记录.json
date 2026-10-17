@@ -416,5 +416,24 @@
     "scale": 0.8430493273542601,
     "ground": 1000,
     "bodyPixels": 752
+  },
+  {
+    "name": "妻子",
+    "source": "角色库/基础立绘/源图/妻子.png",
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "bounds": [
+      424,
+      38,
+      791,
+      1217
+    ],
+    "crown": 48,
+    "footCenter": 643,
+    "scale": 0.6432848588537211,
+    "ground": 1000,
+    "bodyPixels": 752
   }
 ]

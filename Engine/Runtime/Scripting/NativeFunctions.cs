@@ -459,10 +459,10 @@ namespace SSNoir.Scripting
 
             interpreter.DefineGlobal(Symbol.FromString("__play-camera!"), new NativeProcedure(args =>
             {
-                if (args.Count != 3 || args[0] is not string anchor || args[2] is not string place)
-                    throw new ArgumentException("__play-camera! requires anchor, hold seconds, and destination place");
+                if (args.Count != 4 || args[0] is not string anchor || args[2] is not string place || args[3] is not bool cut)
+                    throw new ArgumentException("__play-camera! requires anchor, hold seconds, destination place, and cut boolean");
                 var report = gameState.CurrentActionReport ?? throw new InvalidOperationException("camera requires an action");
-                report.BlockingStorySteps.Add(BlockingStoryStep.ForCamera(anchor, Convert.ToSingle(args[1]), place));
+                report.BlockingStorySteps.Add(BlockingStoryStep.ForCamera(anchor, Convert.ToSingle(args[1]), place, cut));
                 return new None();
             }, "__play-camera!"));
 

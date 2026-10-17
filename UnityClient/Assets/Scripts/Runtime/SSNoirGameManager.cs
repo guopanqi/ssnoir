@@ -29,6 +29,7 @@ namespace SSNoir
     public class SSNoirGameManager : MonoBehaviour
     {
         private const string ReduceMotionSettingKey = "reduceMotion";
+        private const string DicePipsOnlySettingKey = "dicePipsOnly";
         private const string MusicVolumeSettingKey = "musicVolume";
         private const string SfxVolumeSettingKey = "sfxVolume";
         private const string DialogueVolumeSettingKey = "dialogueVolume";
@@ -606,7 +607,7 @@ namespace SSNoir
         }
 
         /// <summary>按内容指定的已有城市锚点运镜；地点落点与镜头目标分别声明。</summary>
-        public IEnumerator PlayStoryCamera(string anchorName, float holdSeconds, string placeName)
+        public IEnumerator PlayStoryCamera(string anchorName, float holdSeconds, string placeName, bool cut = false)
         {
             if (!string.IsNullOrEmpty(placeName)) EnterForcedPlace(placeName, updateCamera: false);
             var directory = _sceneDirectory ?? throw new InvalidOperationException("城市场景目录尚未初始化");
@@ -614,7 +615,8 @@ namespace SSNoir
                 ?? throw new InvalidOperationException($"剧情运镜锚点不存在: {anchorName}");
             var camera = anchor.FocusVirtualCamera
                 ?? throw new InvalidOperationException($"剧情运镜锚点缺少机位: {anchorName}");
-            _cameraManager.BeginFocusTravel(camera, respectReduceMotion: false, path: FocusTravelPath.AuthoredArc);
+            if (cut) _cameraManager.CutFocusTo(camera);
+            else _cameraManager.BeginFocusTravel(camera, respectReduceMotion: false, path: FocusTravelPath.AuthoredArc);
             PromoteFocusCamera(camera);
             yield return null;
             var brain = Camera.main != null ? Camera.main.GetComponent<Cinemachine.CinemachineBrain>() : null;
@@ -1708,6 +1710,7 @@ namespace SSNoir
                 var path = filePath ?? SaveManager.DefaultSavePath;
                 _sceneManager.Settings.Remove("language");
                 _sceneManager.Settings[ReduceMotionSettingKey] = MotionSettings.ReduceMotion;
+                _sceneManager.Settings[DicePipsOnlySettingKey] = HandPanelDrawer.ColorDicePipsOnly;
                 // Settings 只认 string/int/long/double/bool（见 SaveManager.WritePrimitive），
                 // 音量存 double，读出来也一定是 double。
                 _sceneManager.Settings[MusicVolumeSettingKey] = (double)AudioVolumes.Music;
@@ -1747,6 +1750,17 @@ namespace SSNoir
                 {
                     MotionSettings.ReduceMotion = false;
                 }
+                if (_sceneManager.Settings.TryGetValue(DicePipsOnlySettingKey, out object savedDicePipsOnly))
+                {
+                    if (savedDicePipsOnly is not bool dicePipsOnly)
+                        throw new System.IO.InvalidDataException(
+                            $"Save setting '{DicePipsOnlySettingKey}' must be a boolean.");
+                    HandPanelDrawer.ColorDicePipsOnly = dicePipsOnly;
+                }
+                else
+                {
+                    HandPanelDrawer.ColorDicePipsOnly = true;
+                }
                 AudioVolumes.Music = ReadVolumeSetting(
                     MusicVolumeSettingKey, AudioVolumes.MusicDefault);
                 AudioVolumes.Sfx = ReadVolumeSetting(
@@ -1770,6 +1784,7 @@ namespace SSNoir
             ResetInventoryGainPulseBaseline();
             _sceneManager.ResetForNewGame();
             MotionSettings.ReduceMotion = false;
+            HandPanelDrawer.ColorDicePipsOnly = true;
             AudioVolumes.ResetToDefaults();
             _stateTainted = false;
         }

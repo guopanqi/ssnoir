@@ -24,6 +24,9 @@ namespace SSNoir.IMGUI
             ["判定失败"] = "Failure",
             ["判定成功"] = "Success",
             ["判定结果"] = "Result",
+            ["成功"] = "Success",
+            ["部分成功"] = "Partial Success",
+            ["失败"] = "Failure",
             ["卷宗"] = "Dossier",
             ["按概率判定..."] = "Resolving odds...",
             ["回 家"] = "Home",
@@ -54,6 +57,8 @@ namespace SSNoir.IMGUI
             ["退出游戏"] = "Quit",
             ["高风险"] = "High Risk",
             ["必须处理"] = "Required",
+            ["工作"] = "Work",
+            ["紧急"] = "Urgent",
             ["点击返回"] = "Tap to return",
             ["冷静"] = "Composure",
             ["见底"] = "Empty",
@@ -103,9 +108,9 @@ namespace SSNoir.IMGUI
         {
             string label = outcome switch
             {
-                RollOutcome.Fail => GameLanguage.Current == GameLanguage.English ? "Fail" : "坏",
-                RollOutcome.Neutral => GameLanguage.Current == GameLanguage.English ? "Mixed" : "中",
-                RollOutcome.Success => GameLanguage.Current == GameLanguage.English ? "Good" : "好",
+                RollOutcome.Fail => GameLanguage.Current == GameLanguage.English ? "Failure" : "失败",
+                RollOutcome.Neutral => GameLanguage.Current == GameLanguage.English ? "Partial success" : "部分成功",
+                RollOutcome.Success => GameLanguage.Current == GameLanguage.English ? "Success" : "成功",
                 _ => throw new ArgumentOutOfRangeException(nameof(outcome))
             };
             return $"{label} {percent}%";

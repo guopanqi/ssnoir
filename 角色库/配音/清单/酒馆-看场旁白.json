@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "location": "老街酒馆",
+  "cues": [
+    {
+      "id": "酒馆/看场/首次麻烦/01/尼尔",
+      "speaker": "尼尔",
+      "mode": "preset",
+      "voice": "白桦",
+      "text": "这事得我摆平。不然，老板要扣我五块钱。",
+      "direction": "【对话历史】\n醉客：别拉我！我这杯还没喝完！\n客人：你把酒都泼我身上了！\n【指导】疲惫自嘲，清醒克制；只说当前这一句一次，不复诵，不念对话历史。",
+      "sourcePath": "UnityClient/Assets/Resources/Narrations/酒馆看场职责.json"
+    }
+  ]
+}

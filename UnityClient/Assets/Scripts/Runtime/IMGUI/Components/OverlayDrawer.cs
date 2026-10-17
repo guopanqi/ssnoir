@@ -68,7 +68,7 @@ namespace SSNoir.IMGUI
 
             Cursor.visible = true;
             // 跟在指针上的那块和手牌里拿起来的那块必须一样大，否则拖起来会「变形」。
-            float tokenSize = HandPanelDrawer.TokenSize;
+            float tokenSize = selected.Type == "die" ? HandPanelDrawer.HandDieSize : HandPanelDrawer.TokenSize;
             var rect = new Rect(mousePos.x - tokenSize * 0.5f, mousePos.y - tokenSize * 0.5f, tokenSize, tokenSize);
 
             // 拖拽 ghost 使用与手牌/slot 同一族方块，不退回成文字标签。
@@ -80,14 +80,7 @@ namespace SSNoir.IMGUI
 
             if (selected.Type == "die")
             {
-                var style = new GUIStyle(IMGUIStyles.SlotLabel)
-                {
-                    fontSize = IMGUIStyles.FontSize(24),
-                    alignment = TextAnchor.MiddleCenter,
-                    normal = { textColor = IMGUIStyles.Gold }
-                };
-                IMGUIStyles.ApplyStrongFont(style);
-                IMGUIStyles.DrawLabel(rect, selected.Value.ToString(), style);
+                HandPanelDrawer.DrawDieFace(rect, selected.Value, borderOverride: IMGUIStyles.Gold);
             }
             else
             {

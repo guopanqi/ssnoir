@@ -68,7 +68,10 @@ namespace SSNoir.UnityTheatre
                 if (_target != null) { _target.Release(); Release(_target); }
                 if (_display != null) { _display.Release(); Release(_display); }
                 if (_focusTarget != null) { _focusTarget.Release(); Release(_focusTarget); }
-                _target = new RenderTexture(width, height, 0, RenderTextureFormat.ARGBHalf, RenderTextureReadWrite.Linear) { name = "Line Theatre", filterMode = FilterMode.Bilinear };
+                // The stage renders without a camera, so camera/URP MSAA never reaches its thin
+                // line meshes. Sample their edges here before resolving for focus and display.
+                _target = new RenderTexture(width, height, 0, RenderTextureFormat.ARGBHalf, RenderTextureReadWrite.Linear)
+                    { name = "Line Theatre", filterMode = FilterMode.Bilinear, antiAliasing = 4 };
                 _target.Create();
                 _focusTarget = new RenderTexture(width, height, 0, RenderTextureFormat.ARGBHalf, RenderTextureReadWrite.Linear) { name = "Line Theatre Focus", filterMode = FilterMode.Bilinear };
                 _focusTarget.Create();

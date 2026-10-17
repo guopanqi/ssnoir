@@ -61,7 +61,7 @@ namespace SSNoir.Core
                     data.Settings[prop.Name] = ReadPrimitive(prop.Value, "settings." + prop.Name);
 
             foreach (var prop in ((JObject)root["globals"]!).Properties())
-                data.Globals[prop.Name] = ReadPrimitive(prop.Value, "globals." + prop.Name);
+                data.Globals[prop.Name] = ReadGlobal(prop.Value, "globals." + prop.Name);
 
             data.Team = ReadTeam((JObject)root["team"]!);
 
@@ -79,8 +79,18 @@ namespace SSNoir.Core
         {
             var obj = new JObject();
             foreach (var kv in globals)
-                obj[kv.Key] = WritePrimitive(kv.Value, "globals." + kv.Key);
+            {
+                string path = "globals." + kv.Key;
+                obj[kv.Key] = kv.Value is List<object> list
+                    ? WriteSchemeList(list, path)
+                    : WritePrimitive(kv.Value, path);
+            }
             return obj;
+        }
+
+        private static object ReadGlobal(JToken token, string path)
+        {
+            return token is JArray ? ReadScheme(token, path) : ReadPrimitive(token, path);
         }
 
         private static JToken WritePrimitive(object? value, string path)

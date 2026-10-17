@@ -43,6 +43,7 @@ namespace SSNoir.Core
         public bool HoldBlack { get; init; }
         public string CameraAnchor { get; init; } = string.Empty;
         public float CameraHoldSeconds { get; init; }
+        public bool CameraCut { get; init; }
 
         public string VideoTag { get; init; } = string.Empty;       // Kind == Video
         public string MotionProp { get; init; } = string.Empty;     // Kind == Motion：地点/道具；道具部分是 clip 名前半
@@ -66,11 +67,11 @@ namespace SSNoir.Core
             return new BlockingStoryStep { Kind = BlockingStoryStepKind.Intertitle, IntertitlePages = pages, HoldBlack = holdBlack };
         }
 
-        public static BlockingStoryStep ForCamera(string anchor, float holdSeconds, string place)
+        public static BlockingStoryStep ForCamera(string anchor, float holdSeconds, string place, bool cut = false)
         {
             if (string.IsNullOrWhiteSpace(anchor) || float.IsNaN(holdSeconds) || float.IsInfinity(holdSeconds) || holdSeconds < 0)
                 throw new ArgumentException("camera requires anchor and nonnegative hold time");
-            return new BlockingStoryStep { Kind = BlockingStoryStepKind.Camera, CameraAnchor = anchor, CameraHoldSeconds = holdSeconds, PlaceName = place };
+            return new BlockingStoryStep { Kind = BlockingStoryStepKind.Camera, CameraAnchor = anchor, CameraHoldSeconds = holdSeconds, PlaceName = place, CameraCut = cut };
         }
 
         public static BlockingStoryStep ForVideo(string tag)

@@ -4,7 +4,7 @@ using UnityEngine;
 namespace SSNoir.IMGUI
 {
     /// <summary>
-    /// 玩家设置面板：界面尺寸、镜头动画、教程提示、背景音乐、音效、对白六项设置。
+    /// 玩家设置面板：界面尺寸、镜头动画、骰子配色、教程提示与三项音量设置。
     /// 跟成长面板同一套「纸物件」形式：居中卡片 + 压暗背景，而不是挂在按钮下面的半透明下拉。
     /// </summary>
     public static class SettingsPanelDrawer
@@ -80,13 +80,21 @@ namespace SSNoir.IMGUI
             // 原来这一项叫「减少动画」，控件上写「已开启」——标题说的是要做的事，
             // 按钮说的却是当前状态，两句话方向相反，读的人得在脑子里绕一圈。
             // 现在和上面一项同构：标题是这项设置的名字，控件直接摆出两个可选的档。
+            // 镜头与骰子配色并排，共用这一行，面板高度保持在安全区内。
+            float halfW = (contentW - 16f) / 2f;
             bool reduceMotion = MotionSettings.ReduceMotion;
             int pickedMotion = DrawSetting(
-                new Rect(contentX, y, contentW, BlockH),
+                new Rect(contentX, y, halfW, BlockH),
                 "镜头动画",
                 new[] { "正常", "减少" }, reduceMotion ? 1 : 0, ui);
             if (pickedMotion >= 0)
                 MotionSettings.ReduceMotion = pickedMotion == 1;
+            int pickedDice = DrawSetting(
+                new Rect(contentX + halfW + 16f, y, halfW, BlockH),
+                "骰子配色",
+                new[] { "整体色阶", "骰点染色" }, HandPanelDrawer.ColorDicePipsOnly ? 1 : 0, ui);
+            if (pickedDice >= 0)
+                HandPanelDrawer.ColorDicePipsOnly = pickedDice == 1;
             y += BlockH + BlockGap;
 
             // ── 教程提示 ──

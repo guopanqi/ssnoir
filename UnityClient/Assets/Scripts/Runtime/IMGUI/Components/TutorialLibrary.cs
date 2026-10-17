@@ -12,6 +12,7 @@ namespace SSNoir.IMGUI
         ActionDiceAndCard,
         /// <summary>主角骰子上方的冷静 / 伤势读数。</summary>
         Vitals,
+        RestCard,
         /// <summary>右下角的功能键（城里是「回家」）。</summary>
         FunctionKey,
     }
@@ -20,6 +21,7 @@ namespace SSNoir.IMGUI
     {
         public string Id { get; set; } = "";
         public string Title { get; set; } = "";
+        public string VideoFileName { get; set; } = "";
         /// <summary>正文按段落写。一段一句话，不要塞成一大坨——窗口里只讲一件事。</summary>
         public string[] Paragraphs { get; set; } = System.Array.Empty<string>();
         public TutorialHighlight Highlight { get; set; } = TutorialHighlight.None;
@@ -44,11 +46,12 @@ namespace SSNoir.IMGUI
             new TutorialEntry
             {
                 Id = ActionDice,
-                Title = "行动骰",
+                Title = "把骰子投入行动",
+                VideoFileName = "教程-投入行动.mp4",
                 Paragraphs = new[]
                 {
-                    "身体完好时每天有四颗行动骰。把一颗骰子拖拽到动作中来做一件事情。",
-                    "不同点数的骰子代表不同质量的行动，它会影响动作的结果好坏。",
+                    "身体完好时每天有四颗行动骰。把左下角的一颗拖到动作卡的骰子槽，再点击「执行」。",
+                    "投入的点数会影响结果的好坏；执行前可以查看结果的概率。",
                 },
                 Highlight = TutorialHighlight.ActionDiceAndCard,
             },
@@ -79,13 +82,14 @@ namespace SSNoir.IMGUI
             new TutorialEntry
             {
                 Id = EndOfDay,
-                Title = "结束这一天",
+                Title = "休息与新的一天",
+                VideoFileName = "教程-休息.mp4",
                 Paragraphs = new[]
                 {
-                    "点击「回家」或者「家」回到家里，点击「睡觉」来结束这一天。",
-                    "新的一天会刷新你所有的行动骰子，推进世界时间，触发新的事件。",
+                    "在家中点击「睡觉」结束这一天；在外面时，可以先点右下角的「回家」。",
+                    "新的一天会刷新行动骰、推进时间，也可能带来新的事件。睡觉不会自动恢复冷静。",
                 },
-                Highlight = TutorialHighlight.FunctionKey,
+                Highlight = TutorialHighlight.RestCard,
             },
         };
 
@@ -118,7 +122,7 @@ namespace SSNoir.IMGUI
 
         public static bool Enabled
         {
-            get => CurrentGameState.Get(EnabledKey, false);
+            get => CurrentGameState.Get(EnabledKey, true);
             set
             {
                 bool was = Enabled;

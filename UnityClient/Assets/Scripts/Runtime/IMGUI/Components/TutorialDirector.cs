@@ -15,16 +15,12 @@ namespace SSNoir.IMGUI
     /// </summary>
     public static class TutorialDirector
     {
-        private const float PanelW = 440f;
+        private const float PanelW = 760f;
         private const float PadX = 24f;
-        private const float ParagraphGap = 12f;
         private const float ButtonH = 34f;
         private const float BottomPad = 20f;
 
         private static readonly List<string> _queue = new();
-
-        // 触发条件里那几个「第一次」的记号。看过没有由 TutorialState 说了算，这里只防同一帧重复排队。
-        private static bool _sawAnyCard;
 
         public static bool IsOpen => _queue.Count > 0;
 
@@ -42,24 +38,14 @@ namespace SSNoir.IMGUI
         public static void Reset()
         {
             _queue.Clear();
-            _sawAnyCard = false;
+            TutorialCardDrawer.StopVideo();
         }
 
-        /// <summary>
-        /// 每帧看一眼该不该弹。三条的触发点：
-        ///   行动骰 —— 第一次看见动作卡（也就是第一次真的能做事）
-        ///   冷静   —— 第一次下降到影响下一手骰子品质的档位
-        ///   结束一天 —— 骰子用空、人还在城里
-        /// </summary>
+        /// <summary>只在对应界面真正可见时提示；开关重新打开后仍能触发。</summary>
         public static void Observe(SSNoirGameManager gameManager, bool hasActionCards)
         {
             var snapshot = gameManager.DisplayedSnapshot;
-
-            if (hasActionCards && !_sawAnyCard)
-            {
-                _sawAnyCard = true;
-                Request(TutorialLibrary.ActionDice);
-            }
+            if (snapshot.IsInEncounter) return;
 
             // 冷静与伤势按实际状态触发教程；失败未扣冷静时不误触发。
             foreach (var actor in snapshot.Actors)
@@ -72,69 +58,68 @@ namespace SSNoir.IMGUI
             if (snapshot.InjurySeverity > 0)
                 Request(TutorialLibrary.Injury);
 
-            // 骰子用空：城里才提示。交锋里没有「回家睡觉」这条路，说了是错的。
-            if (!snapshot.IsInEncounter && _sawAnyCard)
+            foreach (var node in gameManager.VisibleNodes)
             {
-                bool anyOnStage = false, anyDieLeft = false;
-                foreach (var actor in snapshot.Actors)
-                {
-                    if (!actor.OnStage) continue;
-                    anyOnStage = true;
-                    if (actor.ActionDice.Count > 0) anyDieLeft = true;
-                }
-                if (anyOnStage && !anyDieLeft)
+                // 家的显示标题是「旅馆」，节点身份始终是「家」。
+                if (gameManager.NavigationStack.Exists(node => node.Name == "家") && node.Name == "睡觉")
                     Request(TutorialLibrary.EndOfDay);
+                if (gameManager.NavigationStack.Exists(node => node.Name == "老街酒馆") && hasActionCards
+                    && node.Tags.Contains("工作"))
+                    Request(TutorialLibrary.ActionDice);
             }
         }
 
-        /// <summary>
-        /// 窗口摆在哪儿：**先让开自己圈出来的东西**。
-        ///
-        /// 一条教程说的是"看这里"，窗口却压在那块地方上，等于自己把话收回去了。
-        /// 所以这里拿到本条要圈的所有框，在几个候选位里挑一个和它们都不重叠的；
-        /// 实在挤不开（窄屏、框铺满了）就挑遮挡面积最小的那个——顺序即偏好，
-        /// 排在前面的是版面上更舒服的位置。
-        /// </summary>
+        /// <summary>保留旧调用入口；实际教程触发以快照里的冷静状态为准。</summary>
+        public static void RequestOnFailedRoll() => Request(TutorialLibrary.Composure);
+
+        /// <summary>以目标卡为边界分配剩余空间，优先选能容下大教程的左右区域。</summary>
         public static Rect GetPanelRect(TutorialEntry entry, IReadOnlyList<Rect> highlights)
         {
             Rect safe = UIScale.SafeArea;
-            float w = Mathf.Min(PanelW, safe.width - 32f);
-            float h = Mathf.Min(MeasureHeight(entry, w), safe.height - 24f);
-
-            // 竖直方向偏上：底下要露出行动骰和功能键——那正是这几条教程在指的东西。
-            float defaultY = safe.y + Mathf.Max(12f, (safe.height - h) * 0.32f);
-            float centerX = safe.x + (safe.width - w) / 2f;
-            float leftX = safe.x + 16f;
-            float rightX = safe.xMax - w - 16f;
-            float topY = safe.y + 12f;
-            float bottomY = safe.yMax - h - 12f;
-
-            var candidates = new[]
+            safe = new Rect(safe.x + 16f, safe.y + 12f, safe.width - 32f, safe.height - 24f);
+            Rect? target = null;
+            // 动作卡排在高亮列表首位，骰池不决定左右布局。
+            foreach (var rect in highlights)
+                if (rect.width > 1f && rect.height > 1f) { target = rect; break; }
+            if (!target.HasValue)
             {
-                new Vector2(centerX, defaultY),
-                new Vector2(centerX, topY),
-                new Vector2(leftX, topY),
-                new Vector2(rightX, topY),
-                new Vector2(leftX, defaultY),
-                new Vector2(rightX, defaultY),
-                new Vector2(centerX, bottomY),
-                new Vector2(leftX, bottomY),
-                new Vector2(rightX, bottomY),
+                float width = Mathf.Min(PanelW, safe.width);
+                float height = Mathf.Min(MeasureHeight(entry, width), safe.height);
+                return UIScale.PixelSnap(new Rect(safe.center.x - width / 2f,
+                    safe.center.y - height / 2f, width, height));
+            }
+
+            Rect card = target.Value;
+            const float gap = 24f; // 金框及呼吸光也须留在教程之外。
+            var regions = new[]
+            {
+                new Rect(safe.x, safe.y, Mathf.Max(0f, card.x - gap - safe.x), safe.height),
+                new Rect(card.xMax + gap, safe.y, Mathf.Max(0f, safe.xMax - card.xMax - gap), safe.height),
+                new Rect(safe.x, safe.y, safe.width, Mathf.Max(0f, card.y - gap - safe.y)),
+                new Rect(safe.x, card.yMax + gap, safe.width, Mathf.Max(0f, safe.yMax - card.yMax - gap)),
             };
-
-            Rect best = new Rect(candidates[0].x, candidates[0].y, w, h);
-            float bestOverlap = float.MaxValue;
-            foreach (var pos in candidates)
+            Rect best = safe;
+            float bestScore = float.MinValue;
+            foreach (var region in regions)
             {
-                var rect = new Rect(Mathf.Max(safe.x, pos.x), Mathf.Max(safe.y, pos.y), w, h);
-                float overlap = TotalOverlap(rect, highlights);
-                if (overlap <= 0f)
-                    return UIScale.PixelSnap(rect);
-                if (overlap < bestOverlap)
-                {
-                    bestOverlap = overlap;
-                    best = rect;
-                }
+                float width = Mathf.Min(PanelW, region.width);
+                if (width < Mathf.Min(400f, safe.width)) continue;
+                float height = Mathf.Min(MeasureHeight(entry, width), region.height);
+                // 文字、视频和页脚必须都能放下，不能只因宽度大就选一条扁带。
+                if (height < Mathf.Min(MeasureHeight(entry, width), safe.height) * 0.78f) continue;
+                var panel = new Rect(
+                    Mathf.Clamp(card.center.x - width / 2f, region.x, region.xMax - width),
+                    Mathf.Clamp(card.center.y - height / 2f, region.y, region.yMax - height), width, height);
+                float score = width * height - TotalOverlap(panel, highlights) * 4f;
+                if (score > bestScore) { bestScore = score; best = panel; }
+            }
+            // 极窄画布仍以露出目标为先，使用空间更宽的一侧。
+            if (bestScore == float.MinValue)
+            {
+                Rect region = regions[0].width >= regions[1].width ? regions[0] : regions[1];
+                float width = Mathf.Min(PanelW, region.width);
+                float height = Mathf.Min(MeasureHeight(entry, width), region.height);
+                best = new Rect(region.x, region.y, width, height);
             }
             return UIScale.PixelSnap(best);
         }
@@ -163,7 +148,10 @@ namespace SSNoir.IMGUI
             switch (highlight)
             {
                 case TutorialHighlight.ActionDiceAndCard:
+                    if (firstCardRect.HasValue) rects.Add(firstCardRect.Value);
                     rects.Add(HandPanelDrawer.ActionDiceRect(gameManager));
+                    break;
+                case TutorialHighlight.RestCard:
                     if (firstCardRect.HasValue) rects.Add(firstCardRect.Value);
                     break;
                 case TutorialHighlight.Vitals:
@@ -178,22 +166,8 @@ namespace SSNoir.IMGUI
 
         private static float MeasureHeight(TutorialEntry entry, float panelW)
         {
-            var body = BodyStyle();
-            float textW = panelW - PadX * 2f;
-            float h = IMGUIStyles.ModalContentTop;
-            foreach (var paragraph in entry.Paragraphs)
-                h += body.CalcHeight(new GUIContent(paragraph), textW) + ParagraphGap;
-            return h + 8f + ButtonH + BottomPad;
-        }
-
-        private static GUIStyle BodyStyle()
-        {
-            return new GUIStyle(IMGUIStyles.ModalBody)
-            {
-                fontSize = IMGUIStyles.FontSize(15),
-                alignment = TextAnchor.UpperLeft,
-                wordWrap = true,
-            };
+            return IMGUIStyles.ModalContentTop + TutorialCardDrawer.MeasureHeight(entry, panelW - PadX * 2f)
+                + 8f + ButtonH + BottomPad;
         }
 
         public static TutorialEntry? Current =>
@@ -209,21 +183,16 @@ namespace SSNoir.IMGUI
             var panel = GetPanelRect(entry, highlights);
 
             // 压暗 + 纸底 + 标题 + 关闭 X。关掉 X 和「继续」等价：都算读过了。
-            bool closed = IMGUIStyles.DrawModalChrome(panel, entry.Title, ui);
+            DrawBackdrop(highlights);
+            bool closed = IMGUIStyles.DrawModalChrome(panel, entry.Title, ui, dimBackground: false);
 
             // 高亮画在压暗之后：被指的那块地方要浮在暗幕上面，否则等于没指。
             foreach (var rect in highlights)
                 DrawRing(rect);
 
-            var body = BodyStyle();
-            float textW = panel.width - PadX * 2f;
-            float y = panel.y + IMGUIStyles.ModalContentTop;
-            foreach (var paragraph in entry.Paragraphs)
-            {
-                float h = body.CalcHeight(new GUIContent(paragraph), textW);
-                IMGUIStyles.DrawLabel(new Rect(panel.x + PadX, y, textW, h), paragraph, body);
-                y += h + ParagraphGap;
-            }
+            TutorialCardDrawer.Draw(entry, new Rect(panel.x + PadX,
+                panel.y + IMGUIStyles.ModalContentTop, panel.width - PadX * 2f,
+                panel.height - IMGUIStyles.ModalContentTop - BottomPad - ButtonH - 8f), ui);
 
             var buttonRect = UIScale.PixelSnap(new Rect(
                 panel.xMax - PadX - 120f, panel.yMax - BottomPad - ButtonH, 120f, ButtonH));
@@ -231,7 +200,34 @@ namespace SSNoir.IMGUI
             {
                 TutorialState.MarkSeen(entry.Id);
                 _queue.RemoveAt(0);
+                TutorialCardDrawer.StopVideo();
             }
+        }
+
+        // 从暗幕中挖出目标区域，让真实动作卡保持原亮度，交互仍由模态上下文锁定。
+        private static void DrawBackdrop(IReadOnlyList<Rect> highlights)
+        {
+            var pieces = new List<Rect> { new Rect(0f, 0f, UIScale.VW, UIScale.VH) };
+            foreach (var target in highlights)
+            {
+                var hole = new Rect(target.x - 8f, target.y - 8f, target.width + 16f, target.height + 16f);
+                var next = new List<Rect>();
+                foreach (var piece in pieces)
+                {
+                    if (!piece.Overlaps(hole)) { next.Add(piece); continue; }
+                    float x0 = Mathf.Max(piece.x, hole.x), x1 = Mathf.Min(piece.xMax, hole.xMax);
+                    float y0 = Mathf.Max(piece.y, hole.y), y1 = Mathf.Min(piece.yMax, hole.yMax);
+                    next.Add(new Rect(piece.x, piece.y, piece.width, y0 - piece.y));
+                    next.Add(new Rect(piece.x, y1, piece.width, piece.yMax - y1));
+                    next.Add(new Rect(piece.x, y0, x0 - piece.x, y1 - y0));
+                    next.Add(new Rect(x1, y0, piece.xMax - x1, y1 - y0));
+                }
+                pieces = next;
+            }
+            IMGUIStyles.SetColor(IMGUIStyles.Blocker);
+            foreach (var piece in pieces)
+                if (piece.width > 0f && piece.height > 0f) GUI.DrawTexture(piece, Texture2D.whiteTexture);
+            IMGUIStyles.ResetColor();
         }
 
         // 圈出来的框：金描边 + 金光呼吸，和「这张卡正在发生」用的是同一种金——

@@ -2,7 +2,7 @@
 (define photo-case
   (let ()
     (define rumours (make-clock "小道消息" 4 'gauge "看场+1，喝酒+3；留意客人的谈话。"))
-    (define stage 0) ; 0未接 1约会待处理 2待冲印 3可交付 4已交付
+    (define stage 0) ; 0未接 1约会待处理 2待冲印 3可交付 4已交付 5酒馆邀约待回应
     (define evidence "无成果")
     (define source-stage 0) ; 0未开放 1可调查 2失败 3有线索 4已商量
     (define (rumours-active?)
@@ -20,13 +20,16 @@
       (rest-release! "照片委托/丈夫的约会")
       (if (= stage 1)
           (rest-block! "照片委托/丈夫的约会" "丈夫的约会还未调查" "格兰德酒店" "丈夫的约会") #f))
+    (define (invite-case!)
+      (set! stage 5)
+      (play-dialogue!
+        (line "妻子" "要是有人能查清楚就好了。" :at "老街酒馆-工作")
+        (line "调酒师" "我们那位看场的，就是个私家侦探。尼尔！" :at "老街酒馆-工作")))
     (define (accept!)
+      (if (= stage 5) #t (error "照片委托：尚未出现酒馆邀约"))
       (set! stage 1)
       (grant-story-item! "家庭胶卷" 1)
       (sync-blockers!)
-      (play-bubble!
-        (line "妻子" "要是有人能查清楚就好了。" :at "老街酒馆")
-        (line "调酒师" "我们那位看场的，就是个私家侦探。尼尔！" :at "老街酒馆"))
       (play-dialogue!
         (line "妻子" "你是侦探？能帮我查件事吗？")
         (line "尼尔" "你想查什么？")
@@ -41,6 +44,11 @@
         (line "尼尔" "好。拿到东西后，我会把照片给你。")
         (line "妻子" "还有这卷照片，替我洗出来吧。一直搁着。")
         (line "尼尔" "好，一起交给你。")))
+    (define (invitation-node)
+      (node "妻子的疑问"
+        :anchor "老街酒馆-工作"
+        :subtitle "她想请你查清丈夫最近的行踪"
+        :resolve (instant (lambda () (accept!)))))
     (define (on-follow-result result)
       (if (and (= stage 1) (list? result) (= (length result) 4)) #t
           (error "照片委托：跟拍结算状态或结果非法"))
@@ -141,7 +149,7 @@
         (line "尼尔" "也许我们还是应该做点儿什么。我再想想。")))
     (define (case-dossier)
       (append
-        (if (= stage 0) '()
+        (if (or (= stage 0) (= stage 5)) '()
             (list (dossier "婚外情调查" :kind '委托
               :status (if (= stage 4) '了结 '进行中)
               :now (cond ((= stage 1) "赴约找到丈夫，拍照或查清女子身份。")
@@ -179,14 +187,16 @@
       (cond
         ((equal? location "老街酒馆")
          (append
-           (if (and (= stage 0) (= (three-letters 'story-stage) 1) (opening-life 'routes-open?))
-             (list (at-anchor "老街酒馆" (clock-node "酒馆委托消息" (rumours 'render-data)))) '())
+           (if (= stage 5)
+             (list (invitation-node)) '())
+           (if (rumours-active?)
+             (list (at-anchor "老街酒馆-购买" (clock-node "酒馆委托消息" (rumours 'render-data)))) '())
            (if (and (> stage 0) (< stage 4))
              (list (at-anchor "老街酒馆" (note-node "妻子" "妻子" "她在等调查的消息。"))) '())
            (if (= stage 3)
-               (list (at-anchor "老街酒馆" (instant-action "交付调查" deliver!))) '())
+               (list (at-anchor "老街酒馆-工作" (instant-action "交付调查" deliver!))) '())
            (if (source-talkable?)
-               (list (at-anchor "老街酒馆" (instant-action "与夜莺商量" talk!))) '())))
+               (list (at-anchor "老街酒馆-工作" (instant-action "与夜莺商量" talk!))) '())))
         ((and (equal? location "格兰德酒店") (= stage 1))
          (list (at-anchor "格兰德酒店-大厅"
                  (encounter-action "丈夫的约会"
@@ -205,15 +215,19 @@
       (cond
         ((eq? (car args) 'dossier) (case-dossier))
         ((eq? (car args) 'nodes-at) (nodes-at (cadr args)))
-        ((eq? (car args) 'hotel-open?) (= stage 1))
+        ;; 接下婚外情委托后，酒店就成为尼尔认识的地点，委托结案也不再移除它。
+        ;; 阶段5只是酒馆邀约待回应，还没接下调查，不提前开放酒店。
+        ((eq? (car args) 'hotel-open?) (member? stage '(1 2 3 4)))
         ((eq? (car args) 'shop-open?) (or (= stage 2) (source-investigable?)))
+        ((eq? (car args) 'source-lead-known?)
+         (and (source-window-open?) (member? source-stage '(1 3 4))))
         ((eq? (car args) 'source-record-known?) (source-record-known?))
         ((eq? (car args) 'sync-blockers!) (sync-blockers!))
         ((eq? (car args) 'rumours-active?) (rumours-active?))
         ((eq? (car args) 'hear-rumours!)
          (if (rumours-active?)
            (begin (rumours 'advance! (cadr args))
-             (if (rumours 'full?) (accept!) #f)) #f))
+             (if (rumours 'full?) (invite-case!) #f)) #f))
         ((eq? (car args) 'save)
          (list (list "stage" stage) (list "evidence" evidence)
                (list "source-stage" source-stage) (list "rumours" (rumours 'save))))
@@ -223,11 +237,11 @@
            (set! evidence (assoc-get data "evidence" "无成果"))
            (set! source-stage (assoc-get data "source-stage" 0))
            (rumours 'load! (assoc-get data "rumours" 0))
-           (if (and (member? stage '(0 1 2 3 4))
+           (if (and (member? stage '(0 1 2 3 4 5))
                     (member? source-stage '(0 1 2 3 4))
                     (member? evidence (list "无成果" "照片" "身份" "照片与身份"))
-                    (or (and (< stage 3) (= source-stage 0))
-                        (and (>= stage 3) (> source-stage 0)))) #t
+                    (or (and (member? stage '(0 1 2 5)) (= source-stage 0))
+                        (and (member? stage '(3 4)) (> source-stage 0)))) #t
                (error "照片委托：非法存档阶段"))))
         (else (error "照片委托：未知消息"))))))
 (define photo-shop (纯投射地点 "照相馆" "照相馆"))

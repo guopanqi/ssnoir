@@ -68,13 +68,14 @@ namespace SSNoir
         }
         private void Restore(Renderer renderer)
         {
+            if (renderer is null) return;
             if(!_renderers.TryGetValue(renderer,out var entry))return;
+            _renderers.Remove(renderer);
             if(renderer!=null)
             {
                 renderer.sharedMaterials=entry.Original;
                 for(int i=0;i<entry.Saved.Length;i++)renderer.SetPropertyBlock(entry.Saved[i],i);
             }
-            _renderers.Remove(renderer);
         }
         public void Dispose()
         {

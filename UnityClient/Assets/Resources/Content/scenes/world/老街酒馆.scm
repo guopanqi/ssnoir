@@ -4,12 +4,12 @@
   (let ()
     (define character-stories-open? #f) ; 人物支线等待重新排布
     (define opening-talk-heard? #f)
-    ;; 看场当场付钱；当天麻烦未解决，日终只扣款。
-    (define watch-first? #t)
+    ;; 好14、中5、坏0且冷静-1；只有坏结果可能闹事。
+    (define watch-first? #t) ; 仅用于首次闹事的职责提示，不影响判定或触发概率
     (define watch-trouble-day 0)
     (define watch-trouble "")
-    (define watch-progress (make-clock "处理麻烦" 3 'gauge "当天处理；未解决扣本日工资5美元。"))
-    ;; 麻烦发生时先让场内的人吵起来，再由调酒师指给尼尔。
+    (define watch-progress (make-clock "处理麻烦" 3 'gauge "当天处理；未解决挨骂，冷静额外减1。"))
+    ;; 气泡演争执；第一次用对白交代必须处理的职责。
     ;; 两个已存在的场景落点：人群靠工作台、另一人靠酒馆中央。
     ;; 不引入新的隐藏节点或独立计时器。
     (define (play-watch-trouble-noise! kind first?)
@@ -28,28 +28,25 @@
            (line "客人" "我付过了！少来这套！" :at "老街酒馆")))
         (else (error "看场：未知麻烦类型")))
       (if first?
-          (play-bubble!
-            (line "尼尔" "那桌吵起来了。" :at "老街酒馆-工作")
-            (line "调酒师" "你负责看场，这种事就得你去处理。" :at "老街酒馆-工作")
-            (line "调酒师" "今晚放着不管，从你这班工钱里扣五块。" :at "老街酒馆-工作"))
-          (play-bubble!
-            (line "调酒师" "尼尔，场子交给你了。今晚不处理，扣五块。" :at "老街酒馆-工作"))))
+        (play-dialogue!
+          (line "尼尔" "这事得我摆平。拖到打烊，老板准得骂我。")) #f))
 
-    (define (watch-work!)
-      (add-item! "金钱" 10)
-      (if (and (not (= watch-trouble-day world-day))
-               (or watch-first? (random-choice (list #t #f #f))))
-        (begin
-          (set! watch-trouble-day world-day)
-          (let ((first? watch-first?))
-            (set! watch-trouble (if first? "醉客纠缠"
-              (random-choice (list "醉客纠缠" "门口争执" "赖账客人"))))
+    (define (watch-work! pay bad?)
+      (let ((first? watch-first?))
+        (if (> pay 0) (add-item! "金钱" pay) #f)
+        (if bad? (spend-composure! 1) #f)
+        (if (and bad? (not (= watch-trouble-day world-day))
+                 (random-choice (list #t #f #f)))
+          (begin
+            (set! watch-trouble-day world-day)
             (set! watch-first? #f)
+            (set! watch-trouble
+              (random-choice (list "醉客纠缠" "门口争执" "赖账客人")))
             (watch-progress 'reset!)
-            (play-watch-trouble-noise! watch-trouble first?))) #f)
+            (play-watch-trouble-noise! watch-trouble first?)) #f))
       (photo-case 'hear-rumours! 1))
     (define (watch-subtitle)
-      (string-append "在酒吧维护秩序，装装样子，但偶尔会有酒客闹事"
+      (string-append "维持秩序；失手可能有人闹事"
         (if (photo-case 'rumours-active?) "；小道消息+1" "")))
     (define (watch-handle! n)
       (watch-progress 'advance! n)
@@ -64,28 +61,31 @@
           (outcome (lambda () (watch-handle! 2))))))
     (define (watch-nodes)
       (append
-        (list (工作 "看场子" '低 'social
-          (outcome (lambda () (watch-work!)))
-          (outcome (lambda () (watch-work!)))
-          (outcome (lambda () (watch-work!)))
-          (watch-subtitle) :anchor "老街酒馆-工作"))
+        (list (node "看场子" :anchor "老街酒馆-工作"
+          :subtitle (watch-subtitle)
+          :tags (list "工作" "低风险")
+          :requires (list (req-die))
+          :resolve (roll 'social
+            (outcome (lambda () (watch-work! 0 #t)))
+            (outcome (lambda () (watch-work! 5 #f)))
+            (outcome (lambda () (watch-work! 14 #f))))))
         (if (equal? watch-trouble "") '()
-          (list (node (string-append "闹事:" watch-trouble) :anchor "老街酒馆-工作"
-            :subtitle "今天不处理，扣5美元"
+          (list (node (string-append "闹事：" watch-trouble) :anchor "老街酒馆-工作"
+            :subtitle "今天不处理，挨骂且冷静−1"
             :tags (list "紧急")
             ;; 入口给概要，进入后显示同一进度钟的 clock-node，不复制状态。
             :clocks (list (watch-progress 'render-data))
             :children (list
               (clock-node "标注：看场麻烦处理" (watch-progress 'render-data))
               (watch-action (cond ((equal? watch-trouble "门口争执") "打圆场")
-                                 ((equal? watch-trouble "赖账客人") "问清账单") (else "劝他离席")) 'social)
+                                 ((equal? watch-trouble "赖账客人") "问清账单") (else "劝他住手")) 'social)
               (watch-action (cond ((equal? watch-trouble "门口争执") "隔开两人")
-                                 ((equal? watch-trouble "赖账客人") "拦住离席") (else "请他出去")) 'violence)))))))
-    (define-turn-rule "看场麻烦扣款"
+                                 ((equal? watch-trouble "赖账客人") "拦住离席") (else "赶走他")) 'violence)))))))
+    (define-turn-rule "看场麻烦挨骂"
       (lambda () (not (equal? watch-trouble "")))
       (lambda ()
-        (spend-up-to! "金钱" 5)
-        (play-remote-bubble! (line "调酒师" "那桌的损失从你这班里扣。"))
+        (spend-actor-composure! 'player 1)
+        (play-remote-dialogue! (line "酒吧老板" "让你看场子，你就看着他们闹？下回给我管住！"))
         (set! watch-trouble "") (watch-progress 'reset!)))
 
     (define closed-days 0)
@@ -217,9 +217,7 @@
          (play-bubble!
            (line "客人" "放手！出去打一场！" :at "老街酒馆")
            (line "另一名客人" "好啊！你先别跑！" :at "老街酒馆-工作")))
-        (else (error "老街酒馆：未知的领班麻烦")))
-      (play-bubble!
-        (line "调酒师" "领班，出事了！趁打烊前收拾好！" :at "老街酒馆-工作")))
+        (else (error "老街酒馆：未知的领班麻烦"))))
 
     (define (start-tavern-trouble!)
       (if (equal? tavern-trouble "无")
@@ -228,7 +226,7 @@
             (set! tavern-trouble-outcome "未了")
             ;; 满格起、往下走：这是一条死线，不是玩家在推进的东西。
             (tavern-trouble-clk 'set! (tavern-trouble-clk 'max))
-            (result-supplement! (string-append "今晚之内：闹事:" tavern-trouble))
+            (result-supplement! (string-append "今晚之内：闹事：" tavern-trouble))
             (play-foreman-trouble-noise! tavern-trouble))
           #f))
 
@@ -533,7 +531,7 @@
     ;; 日终按收场结算考核（见「领班麻烦结算」）。
     ;; 没收住不算收场：麻烦还压在手里，只要还有骰子就能再来一次。
     (define (node-tavern-trouble)
-      (node (string-append "闹事:" tavern-trouble)
+      (node (string-append "闹事：" tavern-trouble)
         :anchor "老街酒馆-工作"
         :subtitle "今晚打烊前得有个交代"
         :clocks (list (tavern-trouble-clk 'render-data))
@@ -545,14 +543,13 @@
           (outcome (lambda () (resolve-tavern-trouble! "压下")))
           (outcome (lambda () (resolve-tavern-trouble! "干净"))))))
 
-    ;; 这里曾有一张「打一壶酒」：25 金买一壶带走，回住所再喝。它和「点一杯酒」
-    ;; 同价、同效果、共用同一次"当天第一杯"，区别只有"在哪儿喝"——而那个区别
-    ;; 不改变任何决定。酒馆只留当场喝的那杯。
+    ;; 这里曾有一张「打一壶酒」：25 美元买一壶带走，回住所再喝。它曾与「点一杯酒」
+    ;; 同价、同效果、共用同一次"当天第一杯"；酒价下调后，只保留酒馆当场喝的那杯。
     ;; 家里那张「喝酒」跟着一起删了：酒买不到了，那张卡就永远是灰的。
 
     ;; 烟只在交锋里有用：兜里有烟，那一场的树上就多一张「抽烟」卡（见 engine.scm 的
 ;; carry-nodes）。投一颗行动骰抽掉，恢复 2 点冷静。交锋每回合自动流失 1，
-;; 所以一根烟买回来的是两个回合——这是它值 15 金的理由，也是它的单位。
+;; 所以一根烟买回来的是两个回合——这是它值 20 美元的理由，也是它的单位。
 ;; 它要投骰是故意的：走到旁边点一根烟本来就花掉了一段时间，角落里不该有免费按钮。
 ;; 骰面不参与结算，所以那是全场唯一一处该把最烂那颗骰扔进去的地方。
 ;; 开局自带两根（见 GameState），玩家不用先学规则再来买。
@@ -562,30 +559,27 @@
       (node "买烟"
         :anchor "老街酒馆-购买"
         ;; 兜里揣不下第六包（见 engine.scm 的 item-capacities）。满了就灰掉，
-        ;; 别让玩家付完 15 金才知道多买的那根凭空没了。
+        ;; 别让玩家付完 20 美元才知道多买的那根凭空没了。
         :subtitle (if (item-full? "香烟") "身上带不下更多烟了" "")
         :disabled (item-full? "香烟")
-        :requires (list (req-item "金钱" 15))
+        :requires (list (req-item "金钱" 20))
         :resolve (instant
           (outcome (lambda () (add-item! "香烟" 1))))))
 
-    ;; 当场点一杯：效果与在家喝自带的酒完全一样，共用同一次“当天第一杯”（home 的 drank-today?）。
+    ;; 当场点酒不限次数；drank-today? 只记录当天首次喝酒，供招待和特殊表现使用。
     ;; :resolve 用 outcome 包一层，结果才会像判定一样以锚定卡片弹出，而不是只飘过一条 notify!。
     (define (drink-subtitle)
-      (if (home 'drank-today?) "今天已经喝过了"
-        (string-append "恢复冷静2点"
-          (cond
-            ((and (lost-property 'rumours-active?) (photo-case 'rumours-active?))
-             "；两条小道消息各+3")
-            ((or (lost-property 'rumours-active?) (photo-case 'rumours-active?))
-             "；小道消息+3")
-            (else "")))))
+      (string-append "恢复4点冷静"
+        (cond
+          ((and (lost-property 'rumours-active?) (photo-case 'rumours-active?))
+           "；两条小道消息各+3")
+          ((or (lost-property 'rumours-active?) (photo-case 'rumours-active?))
+           "；小道消息+3")
+          (else ""))))
     (define (node-drink-here)
       (node "点一杯酒"
         :anchor "老街酒馆-购买"
-        ;; 效果只在仍可产生时显示；喝过后只解释禁用原因。
         :subtitle (drink-subtitle)
-        :disabled (home 'drank-today?)
         :requires (list (req-item "金钱" 15))
         :resolve (instant
           (outcome (lambda ()
@@ -616,6 +610,7 @@
 
     (define (node-eat)
       (node "吃点东西"
+        :anchor "老街酒馆-购买"
         :subtitle (if (ate-today?) "今天已经吃过了" "老街熟人价，恢复 2 点冷静")
         :disabled (ate-today?)
         :requires (list (req-item "金钱" 6))
@@ -791,12 +786,7 @@
              (set! watch-first? (assoc-get data "watch-first?" #t))
              (set! watch-trouble-day (assoc-get data "watch-trouble-day" 0))
              (set! watch-trouble (assoc-get data "watch-trouble" ""))
-             ;; 改名迁移：旧档记的是无前缀的麻烦名，读到即换成带"闹事："的新名。
-             (set! watch-trouble
-               (cond ((equal? watch-trouble "醉客纠缠") "闹事：醉客纠缠")
-                     ((equal? watch-trouble "门口争执") "闹事：门口争执")
-                     ((equal? watch-trouble "赖账客人") "闹事：赖账客人")
-                     (else watch-trouble)))
+             (watch-progress 'load! (assoc-get data "watch-progress" 0))
              (watch-progress 'load! (assoc-get data "watch-progress" 0))
              (if (member? watch-trouble '("" "醉客纠缠" "门口争执" "赖账客人")) #t
                (error "看场存档：麻烦类型非法"))

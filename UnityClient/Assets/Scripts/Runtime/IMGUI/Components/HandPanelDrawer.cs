@@ -26,6 +26,7 @@ namespace SSNoir.IMGUI
         // 卡里的骰位（ActionNodeDrawer.DieSlot）跟着同一个数走——
         // 拖过去的东西和接它的坑必须一样大。
         public const float TokenSize = 50f;
+        public const float HandDieSize = TokenSize - 8f;
         private const float TokenSpacing = TokenSize + 8f;
 
         // 底边到安全区底的留白。曾经是 22——比左右两侧的 16、顶栏上方的 10 都大，
@@ -208,7 +209,7 @@ namespace SSNoir.IMGUI
                 if (!actor.OnStage) continue;
                 if (string.Equals(actor.Id, actorId, StringComparison.OrdinalIgnoreCase))
                 {
-                    rect = new Rect(x + slotId * TokenSpacing, baseline - TokenSize, TokenSize, TokenSize);
+                    rect = DieInsideSlot(new Rect(x + slotId * TokenSpacing, baseline - TokenSize, TokenSize, TokenSize));
                     return true;
                 }
                 x += ClusterWidth(actor, isLead: !leadDrawn) + ClusterGap;
@@ -220,7 +221,7 @@ namespace SSNoir.IMGUI
 
         public static void DrawMovingDie(Rect rect, int value)
         {
-            DrawHandBlock(rect, value.ToString(), null, selected: false, hover: false, disabled: false);
+            DrawHandDie(rect, value, false, false, false);
         }
 
         /// <summary>主角骰子上方那两条读数（冷静，带伤时还有伤势）。</summary>
@@ -258,7 +259,7 @@ namespace SSNoir.IMGUI
         {
             int slotCount = actor.ActionSlotCount;
             float diceW = slotCount > 0 ? (slotCount - 1) * TokenSpacing + TokenSize : 0f;
-            return Mathf.Max(Mathf.Max(isLead ? 176f : 150f, diceW), 172f);
+            return Mathf.Max(Mathf.Max(isLead ? 248f : 150f, diceW), 200f);
         }
 
         // 功能键两边都只有一块：交锋里是「休息」，世界里是「回家」。
@@ -267,7 +268,7 @@ namespace SSNoir.IMGUI
         private static float FunctionWidth(SSNoirGameManager gameManager) => FunctionBlockW;
 
         private const float NameRowH   = 20f;   // 只在没有半身像时才占位
-        private const float VitalRowH  = 22f;   // 冷静 / 伤势条那一行；字比以前大一号
+        private const float VitalRowH  = 36f;   // 冷静 / 伤势条那一行；字比以前大一号
         private const float VitalLabelW = 40f;  // 两条共用同一个标签宽度，左端才对得齐
 
         // 手牌黑方块：不透明纯黑一档 + 描边 + 硬投影，让它从深蓝图纸上浮起来。
@@ -289,6 +290,7 @@ namespace SSNoir.IMGUI
             SSNoirGameManager gameManager, IMGUIInteractionContext ui, DialogueAnchors? anchors = null,
             IReadOnlyList<SlottedResource>? pendingAutoActionDice = null)
         {
+            VitalHintDrawer.Begin(ui);
             DrawnActionRects.Clear();
             float baseline = UIScale.SafeArea.yMax - BottomMargin;   // 行动骰底边
             DrawCharacters(baseline, gameManager, ui, anchors, drawPortraits: false, drawForeground: true,
@@ -381,40 +383,14 @@ namespace SSNoir.IMGUI
             // 半身像已经说明这是谁，就不再写名字——省下的一行让条子整体往下坐，上方更宽裕。
             var neon = NeonPortraitLibrary.Load(actor.Name);
             bool drawName = neon == null;
-            // 完好的人身上什么都没有：伤势条只在真的带着伤时才占位置。
-            bool showInjury = isLead && snapshot.InjurySeverity > 0;
+            // 主角常驻伤势条，和冷静条共用生命状态说明。
+            bool showInjury = isLead;
 
             float diceY = baseline - TokenSize;
             float nameY = diceY - NameRowH - 4f;
             float composureY = (drawName ? nameY : diceY - 4f) - VitalRowH - 2f;
             float injuryY = showInjury ? composureY - VitalRowH - 2f : composureY;
             string statusText = DescribeSlotStatuses(actor);
-            // 伤势是队伍级的，只挂在主角这一簇上；它和骰池状态共用同一行说明文字。
-            if (showInjury)
-            {
-                string injuryText = $"{snapshot.InjuryPart}伤 · {snapshot.InjuryBandName} · "
-                    + (snapshot.InjuryActionDieLoss == actor.IssuedInjuryDieLoss
-                        ? $"已封{actor.IssuedInjuryDieLoss}颗骰"
-                        : $"下次封{snapshot.InjuryActionDieLoss}颗骰");
-                statusText = statusText.Length > 0 ? injuryText + " ｜ " + statusText : injuryText;
-            }
-            // 冷静降低下一次发骰的点数；已有骰子不追溯变更，说明要写成「下次」。
-            int dicePenalty = isLead ? TeamState.ComposureDicePenalty(actor.Composure) : 0;
-            if (dicePenalty < 0)
-            {
-                string composureText = $"下次骰面{dicePenalty}";
-                statusText = statusText.Length > 0 ? composureText + " ｜ " + statusText : composureText;
-            }
-            if (isLead && snapshot.InjurySeverity == 0 && actor.IssuedInjuryDieLoss > 0)
-            {
-                string recoveredText = $"已康复 · 下次发骰恢复{actor.IssuedInjuryDieLoss}颗";
-                statusText = statusText.Length > 0 ? recoveredText + " ｜ " + statusText : recoveredText;
-            }
-            // 旧伤没有条子可画——它不会涨也不会退，只是一行永远在那儿的字。
-            if (isLead && snapshot.ScarSummary.Length > 0)
-                statusText = statusText.Length > 0
-                    ? statusText + " ｜ " + snapshot.ScarSummary
-                    : snapshot.ScarSummary;
             bool hasStatus = statusText.Length > 0;
             float statusY = hasStatus ? injuryY - 18f : injuryY;
             float topY = statusY;
@@ -446,6 +422,14 @@ namespace SSNoir.IMGUI
             if (!drawForeground)
                 return clusterW;
 
+            // 状态条到行动位共用一块暗底，盖住人像下缘与场景细线；人像上部仍留在城市里。
+            const float backdropPadding = 6f;
+            var backdrop = new Rect(x - backdropPadding, statusY - backdropPadding,
+                clusterW + backdropPadding * 2f, baseline - statusY + backdropPadding * 2f);
+            IMGUIStyles.SetColor(IMGUIStyles.FunctionSlotBg);
+            GUI.DrawTexture(backdrop, Texture2D.whiteTexture);
+            IMGUIStyles.ResetColor();
+
             // ── 名字：只有没有半身像的人才需要写出来，否则是重复信息。
             if (drawName)
             {
@@ -460,11 +444,23 @@ namespace SSNoir.IMGUI
                 IMGUIStyles.DrawLabel(new Rect(x, nameY, clusterW, NameRowH), actor.Name, nameStyle);
             }
 
-            DrawComposureBar(x, composureY, 172f, actor, gameManager);
+            DrawComposureBar(x, composureY, 200f, actor, gameManager);
+            var composureRect = new Rect(x, composureY, 200f, VitalRowH);
+            VitalHintDrawer.Offer(composureRect, actor, ui);
+            if (isLead)
+            {
+                // 刻度右侧留 8px，立体骰子底边与冷静行齐平；距行动位保留完整行间距。
+                const float rangeSize = 40f;
+                var rangeRect = new Rect(composureRect.xMax + 8f,
+                    composureRect.yMax - rangeSize, rangeSize, rangeSize);
+                DiceCubeDrawer.DrawRange(rangeRect, 6 + TeamState.ComposureDicePenalty(actor.Composure));
+                VitalHintDrawer.Offer(rangeRect, actor, ui);
+            }
             if (showInjury)
             {
                 // 伤势是队伍级的，只挂在主角这一簇上。
-                DrawInjuryBar(x, injuryY, 172f, snapshot, gameManager);
+                DrawInjuryBar(x, injuryY, 200f, snapshot, gameManager);
+                VitalHintDrawer.Offer(new Rect(x, injuryY, 200f, VitalRowH), actor, ui);
             }
             if (hasStatus)
             {
@@ -489,38 +485,24 @@ namespace SSNoir.IMGUI
                 IMGUIStyles.DrawLabel(textRect, statusText, statusStyle);
             }
 
-            // ── 行动骰（手牌方块；选中金描边+上浮+金字；已放入卡槽降为禁用亮度）
+            // 行动位是固定容器，骰子是其中每轮发放的物件。先画槽，再画骰子。
+            int blockedFromSlot = actor.ActionSlotCount - (isLead ? snapshot.InjuryActionDieLoss : 0);
+            for (int slotId = 0; slotId < actor.ActionSlotCount; slotId++)
+            {
+                var slotRect = new Rect(x + slotId * TokenSpacing, diceY, TokenSize, TokenSize);
+                DrawActionSlot(slotRect, slotId >= blockedFromSlot);
+                if (!ContainsActionSlot(actor.ActionDiceSlotIds, slotId))
+                {
+                    int reserved = FindPendingReservedValue(pendingAutoActionDice, actor.Id, slotId);
+                    if (reserved > 0) DrawMovingDie(DieInsideSlot(slotRect), reserved);
+                }
+            }
             NoteDiceArrivals(actor, snapshot);
             for (int d = 0; d < diceCount; d++)
             {
-                float dieX = x + actor.ActionDiceSlotIds[d] * TokenSpacing;
-                DrawDie(new Rect(dieX, diceY, TokenSize, TokenSize), actor.ActionDice[d], flatDieOffset + d,
-                        RollProgress(actor, d), SettleGlow(actor, d), gameManager, ui);
-            }
-
-            // 空掉的骰位要留在原地。骰子投出去以后 ActionDice 就少一条，但那一格是这个人
-            // 「今天有几次出手」的量器——把它抹掉，四颗变三颗，玩家看见的是"我有三颗骰子"，
-            // 而不是"我用掉了一颗"。代价（用掉的那一次）必须留下痕迹，否则花出去的东西
-            // 在界面上从来没存在过。
-            //
-            // 空位画成一个没有底、没有影子的浅框：它是纸上的一个坑，不是一块可以拿的器物。
-            // 只封锁当前这手发骰时的伤位；新的伤势/康复只预告下次封锁数量。
-            // 是两回事，不能长得一样。
-            int blockedFromSlot = isLead ? actor.ActionSlotCount - actor.IssuedInjuryDieLoss : actor.ActionSlotCount;
-            for (int slotId = 0; slotId < actor.ActionSlotCount; slotId++)
-            {
-                if (ContainsActionSlot(actor.ActionDiceSlotIds, slotId))
-                    continue;
-                var slotRect = new Rect(x + slotId * TokenSpacing, diceY, TokenSize, TokenSize);
-                // 这颗骰子已经被一个还没出场的 auto-action 提前扣走了（见调用方注释）；
-                // 在玩家看见那张卡之前，这一格该看着还在手上，不是已经用掉了。
-                int reservedValue = FindPendingReservedValue(pendingAutoActionDice, actor.Id, slotId);
-                if (reservedValue > 0)
-                    DrawMovingDie(slotRect, reservedValue);
-                else if (slotId >= blockedFromSlot)
-                    DrawDisabledDie(slotRect);
-                else
-                    DrawSpentDieSlot(slotRect);
+                var slot = new Rect(x + actor.ActionDiceSlotIds[d] * TokenSpacing, diceY, TokenSize, TokenSize);
+                DrawDie(DieInsideSlot(slot), actor.ActionDice[d], flatDieOffset + d,
+                    RollProgress(actor, d), SettleGlow(actor, d), gameManager, ui);
             }
 
             anchors?.RegisterActor(actor.Id, actor.Name, speakingAnchor);
@@ -630,58 +612,55 @@ namespace SSNoir.IMGUI
         }
 
         private static void DrawComposureBar(
-            float x, float y, float w, ActorSnapshot actor, SSNoirGameManager gameManager)
+            float x,float y,float w,ActorSnapshot actor,SSNoirGameManager gameManager)
         {
-            int composure = actor.Composure;
-            int max = actor.MaxComposure;
-
-            var labelStyle = new GUIStyle(GUI.skin.label)
+            bool player=actor.Role=="protagonist";
+            Color fill = IMGUIStyles.Paper;
+            DrawVitalTitle(x,y,"冷静");
+            float barX=x+VitalLabelW+8f,barW=w-(VitalLabelW+8f);
+            const float gap=2f;
+            DrawVitalTrack(new Rect(barX-2f,y+2f,barW+4f,16f), actor.Composure == 0);
+            float cellW=(barW-gap*(actor.MaxComposure-1))/actor.MaxComposure;
+            for(int i=0;i<actor.MaxComposure;i++)
             {
-                font = IMGUIStyles.ChineseFont,
-                fontSize = IMGUIStyles.FontSize(15),
-                alignment = TextAnchor.MiddleLeft,
-                normal = { textColor = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.78f) },
-            };
-            IMGUIStyles.DrawLabel(new Rect(x, y, VitalLabelW, VitalRowH), UiText.Get("冷静"), labelStyle);
-
-            // 冷静降至 3 点开始降低下一手骰面，警告色与实际档位保持一致。
-            Color fill = composure <= 0 ? IMGUIStyles.SealRed
-                       : TeamState.ComposureDicePenalty(composure) < 0 ? IMGUIStyles.OddsNeutral
-                       : IMGUIStyles.TextPrimary;
-
-            float barX = x + VitalLabelW + 8f;
-            float barW = w - (VitalLabelW + 8f) - 40f;
-            float barH = 9f;
-            float barY = y + (VitalRowH - barH) / 2f;
-            const float cellGap = 2f;
-            float cellW = (barW - cellGap * (max - 1)) / max;
-
-            // 值一变整条（格子 + 读数）绕中心弹一下，格子再一格一格过曝。
-            float pop = gameManager.ComposurePop(actor.Id);
-            Matrix4x4 savedMatrix = GUI.matrix;
-            if (pop > 0f)
-                GUIUtility.ScaleAroundPivot(Vector2.one * (1f + pop * 0.14f),
-                    new Vector2(barX + (barW + 42f) * 0.5f, y + VitalRowH * 0.5f));
-
-            for (int i = 0; i < max; i++)
-            {
-                var cell = new Rect(barX + i * (cellW + cellGap), barY, cellW, barH);
-                DrawVitalCell(cell, i < composure, fill, gameManager.GetComposureCellPulse(actor.Id, i));
+                var cell=new Rect(barX+i*(cellW+gap),y+4f,cellW,12f);
+                DrawVitalCell(cell,i<actor.Composure,fill,gameManager.GetComposureCellPulse(actor.Id,i));
+                if(!player) continue;
+                // 标记的是跨过这里后失去的骰面，不是当前还能掷出的最大值。
+                int maximum=6+TeamState.ComposureDicePenalty(i+1);
+                int previous=6+TeamState.ComposureDicePenalty(i+2);
+                if(maximum<previous)
+                    DrawVitalFaceMark(new Rect(cell.center.x-9f,y+17f,18f,18f),previous,
+                        actor.Composure <= i+1);
             }
-            GUI.color = Color.white;
+        }
 
-            var valStyle = new GUIStyle(GUI.skin.label)
+        private static void DrawVitalTrack(Rect rect, bool depleted)
+        {
+            IMGUIStyles.SetColor(new Color(.006f,.008f,.012f,.94f));
+            GUI.DrawTexture(rect,Texture2D.whiteTexture);
+            IMGUIStyles.DrawOutline(rect,1f,IMGUIStyles.FunctionSlotLine);
+            if(depleted)
             {
-                font = IMGUIStyles.ChineseFont,
-                fontSize = IMGUIStyles.FontSize(15),
-                alignment = TextAnchor.MiddleRight,
-                normal = { textColor = fill },
-            };
-            // 见底比 "0/2" 说得清楚：再扛一次就进身体。
-            IMGUIStyles.DrawLabel(new Rect(barX + barW + 4f, y, 38f, VitalRowH),
-                composure > 0 ? $"{composure}/{max}" : UiText.Get("见底"), valStyle);
-            if (pop > 0f)
-                GUI.matrix = savedMatrix;
+                var red=IMGUIStyles.OddsFail; red.a=.6f;
+                IMGUIStyles.SetColor(red);
+                GUI.DrawTexture(new Rect(rect.x+2f,rect.y+2f,rect.width-4f,rect.height-4f),Texture2D.whiteTexture);
+            }
+            IMGUIStyles.ResetColor();
+        }
+
+        private static void DrawVitalTitle(float x,float y,string title)
+        {
+            var style=new GUIStyle(IMGUIStyles.CardSubtitle) {fontSize=IMGUIStyles.FontSize(15),
+                alignment=TextAnchor.MiddleLeft,normal={textColor=IMGUIStyles.TextSecondary}};
+            IMGUIStyles.DrawLabel(new Rect(x,y,VitalLabelW,22f),title,style);
+        }
+
+        private static void DrawVitalFaceMark(Rect rect,int value,bool active)
+        {
+            Color ink = active ? IMGUIStyles.OddsFail : Paper35;
+            IMGUIStyles.DrawOutline(rect,1f,ink);
+            DrawDieFace(rect,value,disabled:true,showBackground:false,pipOverride:ink);
         }
 
         // 冷静 / 伤势条上的一格。两条轴共用这一个画法——它们的方向相反，但"变好变坏"
@@ -694,8 +673,9 @@ namespace SSNoir.IMGUI
             Rect cell, bool filledNow, Color fill, SSNoirGameManager.VitalPulse pulse)
         {
             bool filled = pulse.Pending ? !filledNow : filledNow;
-            GUI.color = filled ? fill : Paper14;
+            GUI.color = filled ? fill : Color.clear;
             GUI.DrawTexture(cell, Texture2D.whiteTexture);
+
 
             if (pulse.Strength > 0f)
             {
@@ -710,22 +690,9 @@ namespace SSNoir.IMGUI
 
         // ── 骰子落定 ───────────────────────────────────────────────────
         //
-        // 拿到新骰子要有一个「停下来」的动作。卡里的判定条已经是这个语言：六格里有一格
-        // 亮着，那一格就是结果。手牌这边原来是数字凭空换掉——玩家看不见"这颗骰子刚刚掷过"，
-        // 只看见 HUD 变了个字。
-        //
-        // 所以让它从 1 起纵向滚，先匀速转、后减速停在点数上。
-        //
-        // 手感全在<b>两段</b>上：老虎机不是一条缓出曲线从头减到尾——那样一开始快得只剩闪烁，
-        // 最后一小截才看得见在动。真正像的是「先以一个看得清的速度匀速转一阵，再慢下来
-        // 咬住那一格」。所以 RollHoldFrac 那段是匀速的，之后才缓出，而且两段的速度在接缝处
-        // 对齐（RollHoldDist 由此推出），否则接缝上会突然一顿或一窜。
+        // 立体骰子短暂转动，结果面朝前后落入固定行动位；结果仍由引擎先行决定。
         private const float RollDuration = 0.7f;
         private const float RollStagger  = 0.08f;   // 一颗接一颗停，不是齐刷刷落地
-        private const int   RollSpins    = 2;
-        private const float RollHoldFrac = 0.45f;   // 前 45% 的时间匀速转
-        // 接缝处速度相等：a/h = 3(1−a)/(1−h)，h=0.45 解得 a≈0.71。改 RollHoldFrac 要一起改这个。
-        private const float RollHoldDist = 0.71f;   // 匀速段吃掉 71% 的行程
 
         // 停住那一下的金色回闪。骰子落定是玩家该看见的一个事件，不是一个静止结果。
         private const float SettleFlash = 0.3f;
@@ -834,51 +801,17 @@ namespace SSNoir.IMGUI
                 _dieRolls.Remove(key);
         }
 
-        /// <summary>匀速一段，再三次方缓出；接缝处两段速度相等，所以中间不会顿一下。</summary>
-        private static float RollEase(float t)
+        private static void DrawRollingDie(Rect rect, int finalValue, float progress)
         {
-            if (t <= RollHoldFrac)
-                return RollHoldDist * (t / RollHoldFrac);
-            float u = (t - RollHoldFrac) / (1f - RollHoldFrac);
-            return RollHoldDist + (1f - RollHoldDist) * (1f - Mathf.Pow(1f - u, 3f));
+            DrawSpentDieSlot(rect);
+            float landing = Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(.65f, 1f, progress));
+            float side = rect.width * Mathf.Lerp(1.05f, 1.02f, landing);
+            var cube = new Rect(rect.center.x-side/2f, rect.center.y-side/2f-12f*(1f-landing), side, side);
+            DiceCubeDrawer.DrawRolling(cube, finalValue, progress);
         }
 
         /// <summary>
-        /// 方块里那一列滚动的数字。从 1 起，转 <see cref="RollSpins"/> 圈之后正好落在点数上：
-        /// 终点步数 ≡ val−1 (mod 6)，所以停下来那一格一定是它。
-        /// 缓出用三次方——尾巴上那一下慢，"停住"才看得出来是停住，而不是被切断。
-        /// </summary>
-        private static void DrawRollingDigits(Rect rect, int finalValue, float t, bool disabled)
-        {
-            float eased = RollEase(Mathf.Clamp01(t));
-            int endStep = RollSpins * 6 + Mathf.Clamp(finalValue - 1, 0, 5);
-            float pos = eased * endStep;
-            float cell = rect.height;
-
-            var style = new GUIStyle(IMGUIStyles.SlotLabel)
-            {
-                fontSize = IMGUIStyles.FontSize(24),
-                alignment = TextAnchor.MiddleCenter
-            };
-            IMGUIStyles.ApplyStrongFont(style);
-            Color baseColor = disabled ? DisabledResourceText : IMGUIStyles.Paper;
-
-            GUI.BeginClip(rect);
-            int first = Mathf.FloorToInt(pos) - 1;
-            for (int k = first; k <= first + 2; k++)
-            {
-                if (k < 0) continue;
-                float dy = (k - pos) * cell;
-                // 离中心越远越淡：一列数字滚过去，眼睛只跟得住中间那个。
-                float fade = 1f - Mathf.Clamp01(Mathf.Abs(k - pos)) * 0.7f;
-                style.normal.textColor = new Color(baseColor.r, baseColor.g, baseColor.b, baseColor.a * fade);
-                IMGUIStyles.DrawLabel(new Rect(0f, dy, rect.width, cell), (k % 6 + 1).ToString(), style);
-            }
-            GUI.EndClip();
-        }
-
-        /// <summary>
-        /// 落定那一下：描边和数字一起被推向金色，然后凉回去。
+        /// 落定那一下：描边被推向金色，然后凉回去。
         /// 是回闪不是高亮——它一亮就在灭，所以读起来是"刚刚发生了一件事"，
         /// 而不是"这颗骰子被选中了"（那是金描边常驻的意思，两者不能撞）。
         /// </summary>
@@ -889,14 +822,7 @@ namespace SSNoir.IMGUI
 
             IMGUIStyles.DrawOutline(rect, 2f, new Color(gold.r, gold.g, gold.b, k));
 
-            var style = new GUIStyle(IMGUIStyles.SlotLabel)
-            {
-                fontSize = IMGUIStyles.FontSize(24),
-                alignment = TextAnchor.MiddleCenter,
-                normal = { textColor = new Color(gold.r, gold.g, gold.b, k) }
-            };
-            IMGUIStyles.ApplyStrongFont(style);
-            IMGUIStyles.DrawLabel(rect, val.ToString(), style);
+
         }
 
         private static void DrawDie(Rect dieRect, int val, int globalIdx, float roll, float settle,
@@ -914,9 +840,7 @@ namespace SSNoir.IMGUI
                 GUI.DrawTexture(dieRect, Texture2D.whiteTexture);
                 GUI.color = Color.white;
                 IMGUIStyles.DrawOutline(dieRect, 1f, new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.20f));
-                var dimStyle = new GUIStyle(IMGUIStyles.SlotLabel) { fontSize = IMGUIStyles.FontSize(22) };
-                dimStyle.normal.textColor = Paper25;
-                IMGUIStyles.DrawLabel(dieRect, val.ToString(), dimStyle);
+                DrawDieFace(dieRect, val, disabled: true, showBackground: false, opacity: 0.6f);
                 return;
             }
 
@@ -927,12 +851,12 @@ namespace SSNoir.IMGUI
             if (roll < 1f)
             {
                 DrawHandBlock(dieRect, string.Empty, null, false, false, disabled);
-                DrawRollingDigits(dieRect, val, roll, disabled);
+                DrawRollingDie(dieRect, val, roll);
                 return;
             }
 
             // 骰子与物品同一族方块：骰值居中（无下方标签）。
-            DrawHandBlock(dieRect, val.ToString(), null, isSelected, hover, disabled);
+            DrawHandDie(dieRect, val, isSelected, hover, disabled);
             if (settle > 0f && !disabled && !isSelected)
                 DrawSettleFlash(dieRect, val, settle);
 
@@ -973,31 +897,141 @@ namespace SSNoir.IMGUI
             IMGUIStyles.DrawOutline(rect, 1f, new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.18f));
         }
 
-        // 伤势封掉的骰位：一道封条。
-        //
-        // 原来是个红叉。叉是记号笔画上去的东西——它属于表格和待办清单，不属于这张图纸；
-        // 而且两笔交叉在 50 见方的方块里挤成一团，远看只是一个红点。
-        // 封条不一样：它是<b>贴上去的一件东西</b>，斜着压过整格，一眼看出这一格被人封了，
-        // 不是自己空的。城里贴封条的说法本来就在（拳场那扇门），HUD 用同一个动作。
-        //
-        // 底子和"用掉了"的空位是同一张：一样的浅框、一样没有底和影子。区别只有那一道红。
-        // 同族、一处不同——这才读得出"这两格都没有骰子，但不是同一个原因"。
-        private static void DrawDisabledDie(Rect rect)
-        {
-            var seal = IMGUIStyles.SealRed;
-            IMGUIStyles.DrawOutline(rect, 1f, new Color(seal.r, seal.g, seal.b, 0.30f));
+        public static Rect DieInsideSlot(Rect rect)
+            => new Rect(rect.x + 4f, rect.y + 4f, rect.width - 8f, rect.height - 8f);
 
-            // 斜带压过整格，两端留一点，让它像贴在框上而不是画在框里。
-            const float inset = 5f;
-            var a = new Vector2(rect.x + inset, rect.yMax - inset);
-            var b = new Vector2(rect.xMax - inset, rect.y + inset);
-            IMGUIStyles.DrawLine(a, b, new Color(seal.r, seal.g, seal.b, 0.22f), 9f);   // 纸带
-            IMGUIStyles.DrawLine(a, b, new Color(seal.r, seal.g, seal.b, 0.70f), 2f);   // 带子上那道印
+        public static void DrawActionSlot(Rect rect, bool blocked)
+        {
+            if (blocked) DrawDisabledDie(rect);
+            else IMGUIStyles.DrawOutline(rect, 1f, Paper14);
+        }
+
+        // 伤势封位：红色虚线和裂纹；用掉的槽仍是淡色空框。
+        public static void DrawDisabledDie(Rect rect, bool muted = false)
+        {
+            var red = muted ? Paper35 : IMGUIStyles.OddsFail;
+            if (!muted) red.a = .85f;
+            GUI.color = muted ? new Color(0f,0f,0f,0f) : new Color(IMGUIStyles.OddsFail.r,IMGUIStyles.OddsFail.g,IMGUIStyles.OddsFail.b,.15f);
+            GUI.DrawTexture(rect,Texture2D.whiteTexture); GUI.color = Color.white;
+            const float dash=6f, gap=5f;
+            for(float d=0;d<rect.width;d+=dash+gap)
+            {
+                float n=Mathf.Min(dash,rect.width-d);
+                IMGUIStyles.DrawLine(new Vector2(rect.x+d,rect.y),new Vector2(rect.x+d+n,rect.y),red,1.5f);
+                IMGUIStyles.DrawLine(new Vector2(rect.x+d,rect.yMax),new Vector2(rect.x+d+n,rect.yMax),red,1.5f);
+            }
+            for(float d=0;d<rect.height;d+=dash+gap)
+            {
+                float n=Mathf.Min(dash,rect.height-d);
+                IMGUIStyles.DrawLine(new Vector2(rect.x,rect.y+d),new Vector2(rect.x,rect.y+d+n),red,1.5f);
+                IMGUIStyles.DrawLine(new Vector2(rect.xMax,rect.y+d),new Vector2(rect.xMax,rect.y+d+n),red,1.5f);
+            }
+            Vector2 a=new(rect.x+rect.width*.60f,rect.y+2f), b=new(rect.x+rect.width*.43f,rect.y+rect.height*.37f);
+            Vector2 c=new(rect.x+rect.width*.61f,rect.y+rect.height*.55f), d2=new(rect.x+rect.width*.40f,rect.yMax-2f);
+            IMGUIStyles.DrawLine(a,b,red,1.5f); IMGUIStyles.DrawLine(b,c,red,1.5f); IMGUIStyles.DrawLine(c,d2,red,1.5f);
         }
 
         // 手牌方块（骰子 / 物品共用）：黑方块 + 描边 + 硬投影；大字（骰值或物品符号）在上/中，
         // 下方可选小标签（物品的数量/金额）。选中：金描边 + 上浮 + 金字；禁用：整体降到 35%。
         // capacitySegments > 0 时，方块底下那一行不写数量，改画一排容量刻度（见 DrawCapacityGauge）。
+        // 用户选定的 A 配色（sRGB）：低 #07090C/#FFFFFF/#606974，
+        // 中 #C0A782/#1D1B19/#C3A273，高 #FFDD94/#1D1B19/#F1D8A6。
+        // 转换为 Linear 后送入 IMGUI，避免深色骰点和金底被抬灰。
+        private static readonly Color[] DieBackgrounds = {
+            new Color32(7, 9, 12, 255), new Color32(192, 167, 130, 255), new Color32(255, 221, 148, 255)
+        };
+        private static readonly Color[] DieBorders = {
+            new Color32(96, 105, 116, 255), new Color32(195, 162, 115, 255), new Color32(241, 216, 166, 255)
+        };
+        /// <summary>骰子配色偏好，由现有存档 Settings 保存。</summary>
+        public static bool ColorDicePipsOnly { get; set; } = true;
+        private static readonly Color PipOnlyBackground = new Color32(30, 33, 37, 255);
+        private static readonly Color PipOnlyBorder = new Color32(80, 87, 97, 255);
+        private static readonly Color[] PipOnlyColors = {
+            new Color32(163, 173, 182, 255), new Color32(195, 160, 109, 255), new Color32(245, 211, 141, 255)
+        };
+        private static Texture2D? _diePipTexture;
+
+        private static void DrawHandDie(Rect rect, int value, bool selected, bool hover, bool disabled)
+        {
+            if (selected && !disabled) rect.y -= 4f;
+            if (!disabled) IMGUIStyles.DrawShadow(rect, new Vector2(2f, 2f), 0.45f);
+            Color? border = !disabled && selected ? IMGUIStyles.Gold
+                : !disabled && hover ? IMGUIStyles.Paper : (Color?)null;
+            DrawDieFace(rect, value, disabled, border);
+        }
+
+        public static void GetDieColors(int value, out Color background, out Color border, out Color pip)
+        {
+            UnityEngine.Assertions.Assert.IsTrue(value >= 1 && value <= 6);
+            int tier = (value - 1) / 2;
+            background = (ColorDicePipsOnly ? PipOnlyBackground : DieBackgrounds[tier]).linear;
+            border = (ColorDicePipsOnly ? PipOnlyBorder : DieBorders[tier]).linear;
+            pip = (ColorDicePipsOnly ? PipOnlyColors[tier] : tier == 0 ? Color.white : (Color)new Color32(29,27,25,255)).linear;
+        }
+
+        public static void DrawDieFace(Rect rect, int value, bool disabled = false,
+            Color? borderOverride = null, bool octagon = false, bool showBackground = true, float opacity = 1f, bool neutral = false, Color? pipOverride = null)
+        {
+            UnityEngine.Assertions.Assert.IsTrue(value >= 1 && value <= 6, "骰面必须在 1～6 之间");
+            GetDieColors(value, out var background, out var border, out var pip);
+            if (neutral) { background = CardBlockBg; border = Paper55; pip = IMGUIStyles.Paper; }
+            if (disabled) { background = DisabledResourceBg; border = Paper35; pip = DisabledResourceText; }
+            if (borderOverride.HasValue) border = borderOverride.Value;
+            if (pipOverride.HasValue) pip = pipOverride.Value;
+            pip.a *= opacity;
+            Color previous = GUI.color;
+            if (showBackground)
+            {
+                if (octagon)
+                {
+                    ShapeDrawer.DrawOctagon(rect, background);
+                    ShapeDrawer.DrawOctagonOutline(rect, borderOverride.HasValue ? 2f : 1f, border);
+                }
+                else
+                {
+                    GUI.color = background;
+                    GUI.DrawTexture(rect, Texture2D.whiteTexture);
+                    IMGUIStyles.DrawOutline(rect, borderOverride.HasValue ? 2f : 1f, border);
+                }
+            }
+            if (_diePipTexture == null)
+            {
+                const int size = 32;
+                _diePipTexture = new Texture2D(size, size, TextureFormat.RGBA32, false)
+                {
+                    name = "DiePip", hideFlags = HideFlags.HideAndDontSave,
+                    filterMode = FilterMode.Bilinear, wrapMode = TextureWrapMode.Clamp
+                };
+                var pixels = new Color[size * size];
+                for (int y = 0; y < size; y++)
+                    for (int x = 0; x < size; x++)
+                    {
+                        float distance = new Vector2(x + 0.5f - size / 2f, y + 0.5f - size / 2f).magnitude;
+                        pixels[y * size + x] = new Color(1f, 1f, 1f, Mathf.Clamp01(size / 2f - 1f - distance));
+                    }
+                _diePipTexture.SetPixels(pixels);
+                _diePipTexture.Apply(false, true);
+            }
+            float side = Mathf.Min(rect.width, rect.height);
+            float spacing = side * 0.22f;
+            float diameter = side * 0.14f;
+            GUI.color = pip;
+            for (int row = -1; row <= 1; row++)
+                for (int column = -1; column <= 1; column++)
+                {
+                    bool center = row == 0 && column == 0;
+                    bool diagonal = row != 0 && row == column;
+                    bool corner = row != 0 && column != 0;
+                    bool dot = (value % 2 == 1 && center) || (value >= 2 && diagonal)
+                        || (value >= 4 && corner) || (value == 6 && row == 0 && column != 0);
+                    if (dot)
+                        GUI.DrawTexture(new Rect(rect.center.x + column * spacing - diameter / 2f,
+                            rect.center.y + row * spacing - diameter / 2f, diameter, diameter), _diePipTexture);
+                }
+            GUI.color = previous;
+        }
+
         private static void DrawHandBlock(
             Rect rect, string big, string? small, bool selected, bool hover, bool disabled,
             int capacitySegments = 0, int capacityFilled = 0, string? iconItem = null)
@@ -1059,54 +1093,22 @@ namespace SSNoir.IMGUI
         // 伤势细条：格数即刻度，越满越糟——和冷静条方向相反。重伤线用一道留白分开，
         // 让"再挨几下就跨过去"直接看得见。完好时整条不画，由调用方决定。
         private static void DrawInjuryBar(
-            float x, float y, float w, PresentationSnapshot snapshot, SSNoirGameManager gameManager)
+            float x,float y,float w,PresentationSnapshot snapshot,SSNoirGameManager gameManager)
         {
-            var labelStyle = new GUIStyle(GUI.skin.label)
+            DrawVitalTitle(x,y,"伤势");
+            int max=snapshot.InjuryMaxSeverity,severity=snapshot.InjurySeverity;
+            Color fill=IMGUIStyles.OddsFail;
+            float barX=x+VitalLabelW+8f,barW=w-(VitalLabelW+8f);
+            const float gap=2f;
+            DrawVitalTrack(new Rect(barX-2f,y+2f,barW+4f,16f),false);
+            float cellW=(barW-gap*(max-1))/max;
+            for(int i=0;i<max;i++)
             {
-                font = IMGUIStyles.ChineseFont,
-                fontSize = IMGUIStyles.FontSize(15),
-                alignment = TextAnchor.MiddleLeft,
-                normal = { textColor = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.78f) },
-            };
-            IMGUIStyles.DrawLabel(new Rect(x, y, VitalLabelW, VitalRowH), "伤势", labelStyle);
-
-            int max = snapshot.InjuryMaxSeverity;
-            int severity = Mathf.Clamp(snapshot.InjurySeverity, 0, max);
-            Color fill = snapshot.InjuryActionDieLoss >= 2 ? IMGUIStyles.SealRed
-                       : severity > 0 ? IMGUIStyles.OddsNeutral
-                       : IMGUIStyles.TextPrimary;
-
-            float barX = x + VitalLabelW + 8f;
-            float barW = w - (VitalLabelW + 8f) - 40f;
-            float barH = 9f;
-            float barY = y + (VitalRowH - barH) / 2f;
-            const float cellGap = 2f;
-            const float boundaryGap = 6f;   // 重伤线：以留白替代刻度线
-            float cellW = (barW - cellGap * (max - 1) - (boundaryGap - cellGap)) / max;
-            float pop = gameManager.InjuryPop();
-            Matrix4x4 savedMatrix = GUI.matrix;
-            if (pop > 0f)
-                GUIUtility.ScaleAroundPivot(Vector2.one * (1f + pop * 0.14f),
-                    new Vector2(barX + (barW + 42f) * 0.5f, y + VitalRowH * 0.5f));
-            for (int i = 0; i < max; i++)
-            {
-                float offset = i * (cellW + cellGap)
-                             + (i >= Injury.SevereThreshold ? boundaryGap - cellGap : 0f);
-                DrawVitalCell(new Rect(barX + offset, barY, cellW, barH),
-                    i < severity, fill, gameManager.GetInjuryCellPulse(i));
+                var cell=new Rect(barX+i*(cellW+gap),y+4f,cellW,12f);
+                DrawVitalCell(cell,i<severity,fill,gameManager.GetInjuryCellPulse(i));
+                if(i+1==Injury.LightThreshold || i+1==Injury.SevereThreshold)
+                    DrawDisabledDie(new Rect(cell.center.x-8f,y+18f,16f,16f),muted:severity < i+1);
             }
-            GUI.color = Color.white;
-
-            var valStyle = new GUIStyle(GUI.skin.label)
-            {
-                font = IMGUIStyles.ChineseFont,
-                fontSize = IMGUIStyles.FontSize(15),
-                alignment = TextAnchor.MiddleRight,
-                normal = { textColor = fill },
-            };
-            IMGUIStyles.DrawLabel(new Rect(barX + barW + 4f, y, 38f, VitalRowH), $"{severity}/{max}", valStyle);
-            if (pop > 0f)
-                GUI.matrix = savedMatrix;
         }
 
         // ── 右下：物品 + 功能 ──────────────────────────────────────────

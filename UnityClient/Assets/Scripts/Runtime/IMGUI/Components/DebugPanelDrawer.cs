@@ -41,10 +41,14 @@ namespace SSNoir.IMGUI
 
         private static readonly ChapterJump[] ChapterJumps =
         {
-            new ChapterJump { Label = "剧场试演：醉归", Code = "(begin (load-file \"scripts/theatre/第一节生活.scm\") (第一节-醉归))" },
-            new ChapterJump { Label = "剧场试演：清晨敲门", Code = "(begin (load-file \"scripts/theatre/第一节生活.scm\") (第一节-清晨敲门))" },
-            new ChapterJump { Label = "剧场试演：酒馆初访", Code = "(begin (load-file \"scripts/theatre/第一节生活.scm\") (第一节-酒馆初访))" },
-            new ChapterJump { Label = "剧场试演：酒馆接案后", Code = "(begin (load-file \"scripts/theatre/第一节生活.scm\") (第一节-酒馆接案后))" },
+            new ChapterJump { Label = "剧场试演：序幕（新版）", Code = "(begin (load-file \"scripts/theatre/第一节开场新版.scm\") (开场新版-序幕))" },
+            new ChapterJump { Label = "剧场试演：清晨（新版）", Code = "(begin (load-file \"scripts/theatre/第一节开场新版.scm\") (开场新版-清晨))" },
+            new ChapterJump { Label = "剧场试演：酒馆（新版）", Code = "(begin (load-file \"scripts/theatre/第一节开场新版.scm\") (开场新版-酒馆初访))" },
+            new ChapterJump { Label = "剧场试演：再访（新版）", Code = "(begin (load-file \"scripts/theatre/第一节开场新版.scm\") (开场新版-酒馆再访))" },
+            new ChapterJump { Label = "剧场试演：醉归（旧版）", Code = "(begin (load-file \"scripts/theatre/第一节生活.scm\") (第一节-醉归))" },
+            new ChapterJump { Label = "剧场试演：清晨敲门（旧版）", Code = "(begin (load-file \"scripts/theatre/第一节生活.scm\") (第一节-清晨敲门))" },
+            new ChapterJump { Label = "剧场试演：酒馆初访（旧版）", Code = "(begin (load-file \"scripts/theatre/第一节生活.scm\") (第一节-酒馆初访))" },
+            new ChapterJump { Label = "剧场试演：酒馆接案后（旧版）", Code = "(begin (load-file \"scripts/theatre/第一节生活.scm\") (第一节-酒馆接案后))" },
             new ChapterJump { Label = "剧场试演：艾迪相识", Code = "(begin (load-file \"scripts/theatre/第一节生活.scm\") (第一节-艾迪相识))" },
 
             new ChapterJump { Label = "剧场试演：雨夜来访", Code = "(begin (load-file \"scripts/theatre/雨夜来访.scm\") (雨夜来访-演出))" },

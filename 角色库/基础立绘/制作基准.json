@@ -159,6 +159,13 @@
       "relativeHeight": 0.94,
       "crownInset": 0,
       "footCenter": null
+    },
+    {
+      "name": "妻子",
+      "source": "角色库/基础立绘/源图/妻子.png",
+      "relativeHeight": 0.94,
+      "crownInset": 10,
+      "footCenter": null
     }
   ]
 }

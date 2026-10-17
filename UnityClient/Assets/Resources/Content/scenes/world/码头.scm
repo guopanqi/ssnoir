@@ -41,7 +41,7 @@
     (define exploration (make-clock "熟悉码头" 4 'gauge "2格发现搬运，4格找到信上的邮箱。"))
     (define mailbox-viewed? #f)
     (define worker-joined? #f)
-    (define worker-shift (make-clock "替艾迪干活" 4 'gauge
+    (define worker-shift (make-clock "帮艾迪调班" 4 'gauge
       "这班活替他做完，他才有空在取信那晚帮忙。"))
     ;; 搬运每次消耗骰子并正常结算工资；替班也消耗骰子，但不发工资。
 
@@ -150,7 +150,12 @@
     (define (finish-haul! grade)
       (let ((partner (random-choice (partner-pool))))
         (if (worker-messages-active?)
-          (worker-familiarity 'tick!) #f)
+          (begin
+            (worker-familiarity 'tick!)
+            (if (worker-familiarity 'full?)
+              (play-dialogue!
+                (line "艾迪" "伙计们，歇会儿吧。到那边抽根烟。")
+                (line "尼尔" "正好，肩膀都抬不动了。")) #f)) #f)
         (cond
           ((equal? grade '好)
            (add-item! "金钱" (if (< (three-letters 'story-stage) 2) 20
@@ -232,9 +237,9 @@
             (list (at-anchor "码头-货堆" (clock-node "标注：工友之间的消息" (worker-familiarity 'render-data)))) '())
           ;; 满格后保留入口，直到玩家主动交谈；不会因换日而消失。
           (if (and (worker-familiarity 'full?) (not worker-asked?))
-            (list (anchored-instant-action "歇会儿聊聊" "码头-货堆" chat-with-workers!)) '())
+            (list (anchored-instant-action "和他们聊聊" "码头-货堆" chat-with-workers!)) '())
           (if (and worker-asked? (not worker-joined?))
-            (list (node "替艾迪干活" :anchor "码头-货堆"
+            (list (node "帮艾迪调班" :anchor "码头-货堆"
               :subtitle "不领工资；做完后艾迪当晚会到场"
               :clocks (list (worker-shift 'render-data))
               :requires (list (req-die))

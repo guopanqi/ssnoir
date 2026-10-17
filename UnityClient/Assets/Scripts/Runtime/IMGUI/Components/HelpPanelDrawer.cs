@@ -11,9 +11,8 @@ namespace SSNoir.IMGUI
     /// </summary>
     public static class HelpPanelDrawer
     {
-        private const float PanelW = 440f;
+        private const float PanelW = 760f;
         private const float PadX = 24f;
-        private const float ParagraphGap = 12f;
         private const float ButtonH = 34f;
         private const float BottomPad = 20f;
         private const float FooterGap = 14f;
@@ -23,11 +22,15 @@ namespace SSNoir.IMGUI
 
         public static bool IsOpen => _isOpen;
 
-        public static void Close() => _isOpen = false;
+        public static void Close()
+        {
+            _isOpen = false;
+            TutorialCardDrawer.StopVideo();
+        }
 
         public static void Reset()
         {
-            _isOpen = false;
+            Close();
             _page = 0;
         }
 
@@ -43,29 +46,16 @@ namespace SSNoir.IMGUI
         // 面板高度按**最长的一条**定，不按当前页——翻页时纸的大小跳来跳去，读的人会以为换了个东西。
         private static float MeasureHeight(float panelW)
         {
-            var body = BodyStyle();
-            float textW = panelW - PadX * 2f;
             float tallest = 0f;
             foreach (var entry in TutorialLibrary.Entries)
-            {
-                float h = 0f;
-                foreach (var paragraph in entry.Paragraphs)
-                    h += body.CalcHeight(new GUIContent(paragraph), textW) + ParagraphGap;
-                tallest = Mathf.Max(tallest, h);
-            }
+                tallest = Mathf.Max(tallest, TutorialCardDrawer.MeasureHeight(entry, panelW - PadX * 2f));
             return IMGUIStyles.ModalContentTop + tallest + FooterGap + ButtonH + BottomPad;
         }
-
-        private static GUIStyle BodyStyle() => new GUIStyle(IMGUIStyles.ModalBody)
-        {
-            fontSize = IMGUIStyles.FontSize(15),
-            alignment = TextAnchor.UpperLeft,
-            wordWrap = true,
-        };
 
         public static void Draw(IMGUIInteractionContext ui, TopHudLayout topHud)
         {
             var (toggleRect, panel) = GetRects(topHud);
+            bool helpWasOpen = _isOpen;
 
             if (IMGUIButton.DrawTopTextToggle(toggleRect, UiText.Get("帮助"), _isOpen, ui))
             {
@@ -73,7 +63,11 @@ namespace SSNoir.IMGUI
                 if (_isOpen) _page = 0;
             }
 
-            if (!_isOpen) return;
+            if (!_isOpen)
+            {
+                if (helpWasOpen) TutorialCardDrawer.StopVideo();
+                return;
+            }
 
             var entries = TutorialLibrary.Entries;
             if (entries.Length == 0) { _isOpen = false; return; }
@@ -82,19 +76,13 @@ namespace SSNoir.IMGUI
 
             if (IMGUIStyles.DrawModalChrome(panel, entry.Title, ui))
             {
-                _isOpen = false;
+                Close();
                 return;
             }
 
-            var body = BodyStyle();
-            float textW = panel.width - PadX * 2f;
-            float y = panel.y + IMGUIStyles.ModalContentTop;
-            foreach (var paragraph in entry.Paragraphs)
-            {
-                float h = body.CalcHeight(new GUIContent(paragraph), textW);
-                IMGUIStyles.DrawLabel(new Rect(panel.x + PadX, y, textW, h), paragraph, body);
-                y += h + ParagraphGap;
-            }
+            TutorialCardDrawer.Draw(entry, new Rect(panel.x + PadX,
+                panel.y + IMGUIStyles.ModalContentTop, panel.width - PadX * 2f,
+                panel.height - IMGUIStyles.ModalContentTop - BottomPad - ButtonH - FooterGap), ui);
 
             // 页脚：上一页 / 第几页 / 下一页。页码在正中，两个按钮贴着纸的两边。
             float footerY = panel.yMax - BottomPad - ButtonH;

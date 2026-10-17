@@ -121,10 +121,8 @@ namespace SSNoir.IMGUI
             {
                 int count = _currentLineCompletedInstantly ? content.Length : Mathf.Min(content.Length, VisibleCharacterCount());
                 string visible = count >= content.Length ? content : content.Substring(0, count);
-                bool neon = State.TryGetActor(speaker, out var actor) && !actor.Missing;
-                var glow = neon ? actor!.CurrentAccent(now) : DefaultGlow;
-                DialogueBoxDrawer.Draw(line.DisplaySpeaker, visible, content, count < content.Length, false, false,
-                    speaker == StageState.Protagonist, neon, 1f, negative, glow);
+                DialogueBoxDrawer.Draw(line.DisplaySpeaker, visible, content, count < content.Length, speaker == NarratorSpeaker, false,
+                    1f, negative);
             }
             StageScreenPainter.PaintFlash(State.FlashAlpha(now), negative);
         }
@@ -178,12 +176,9 @@ namespace SSNoir.IMGUI
             float negative = State.NegativeAmount(now);
             StageScreenPainter.PaintBackdrop(negative);
             DrawActors(isNarration ? string.Empty : speaker, negative, now);
-            StageActor? speakerActor = null;
-            bool speakerIsNeon = !isNarration && State.TryGetActor(speaker, out speakerActor) && !speakerActor.Missing;
-            var speakerGlow = speakerIsNeon && speakerActor != null ? speakerActor.CurrentAccent(now) : DefaultGlow;
             DialogueBoxDrawer.Draw(
                 displaySpeaker, visibleText, text, isTyping, isNarration, cue.Inner,
-                speaker == StageState.Protagonist, speakerIsNeon, lineEase, negative, speakerGlow);
+                lineEase, negative);
             StageScreenPainter.PaintFlash(State.FlashAlpha(now), negative);
             return usedRemoteFallback;
         }

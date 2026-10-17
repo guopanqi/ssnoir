@@ -16,10 +16,20 @@ namespace SSNoir
             if (!Application.isPlaying || duration <= 0) Complete();
             else apply(0);
         }
-        private void Update()
+        private void Update() => Advance(_unscaled ? Time.unscaledDeltaTime : Time.deltaTime);
+#if UNITY_EDITOR
+        // 离屏录制只更换时钟，仍执行正式插值；必须先停自动更新，避免重复推进。
+        public void AdvanceEditorPreview(float seconds)
+        {
+            if (enabled || !float.IsFinite(seconds) || seconds < 0)
+                throw new InvalidOperationException("手动预览过渡必须关闭自动更新并提供非负步长");
+            Advance(seconds);
+        }
+#endif
+        private void Advance(float seconds)
         {
             if (_apply == null) return;
-            _elapsed += _unscaled ? Time.unscaledDeltaTime : Time.deltaTime;
+            _elapsed += seconds;
             float t = Mathf.Clamp01(_elapsed / _duration);
             _apply(_smooth ? t * t * (3 - 2 * t) : t);
             if (t >= 1) _apply = null;

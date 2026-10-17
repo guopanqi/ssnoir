@@ -3,7 +3,7 @@
 ;;
 ;; 起点为长期住宿的廉价旅馆；保留住所存档身份与后续搬家系统。
 ;; 日常添置的是可搬走的个人物品；公寓仍是后续另一处住所。
-;; 冷静不自动恢复：花行动骰静坐 +2；酒馆花 15 金喝酒 +2。
+;; 冷静不自动恢复：花行动骰静坐 +2；酒馆花 15 美元喝酒 +4。
 ;; 健康按伤势 0–7 表示：轻伤少一枚骰、重伤少两枚；睡两夜在屋里缓和 1 点伤势。
 ;; 诊所、药品、弹簧床垫的主动养伤仍是更快的恢复方式。
 
@@ -19,7 +19,7 @@
     (define drank-today? #f)
     (define flower-today? #f)
     (define medicated-today? #f)
-    (define apartment-offer-known? #f) ; 第一次收租时，旅馆老板才告诉玩家可以买断公寓
+    (define 老板来过? #f) ; 老板第一次上门收租：问候只走那一趟，也是「添置家具」的开闸点
 
     ;; 住宿费（仅租房时）：固定 4 天的收租周期。平时没有交租动作；倒计时归零时旅馆老板自动上门，
     ;; 有钱就当场扣 40 金并重开下一周期，钱不够才进入宽限。
@@ -76,23 +76,12 @@
     (define (rent-money-ready?)
       (>= (item-count "金钱") rent-amount))
 
-    (define (rent-demand-line)
-      (string-append "住宿费到期了。" (number->string rent-amount) "美元。"))
-
-    ;; 买断不是开局就摆在面前的商品。旅馆老板第一次上门收租时才顺口告诉玩家有这条路；
-    ;; 此后报价进入住所的常驻选择，不会在每次收租时重复念。
-    (define (play-rent-dialogue! lines)
-      (if apartment-offer-known?
-          (apply play-dialogue! lines)
-          (begin
-            (apply play-dialogue!
-              (append lines
-                (list
-                  (line "旅馆老板"
-                    (string-append
-                      "等你手头有了 " (number->string apartment-price)
-                      " 美元，我还有间公寓可以卖你。买下以后，不再收租。")))))
-            (set! apartment-offer-known? #t))))
+    ;; 老板第一次上门才顺口聊两句近况；那点人情用完就没了，往后他上门只谈钱。
+    ;; 这一趟同时也是「添置家具」的开闸点：老板露过面，玩家才开始往住处添自己的东西。
+    (define (first-visit-lines)
+      (if 老板来过?
+          '()
+          (list (line "旅馆老板" "尼尔，这阵子没怎么见你，有活儿吗？"))))
 
     ;; 收租、补交、宽限用尽，三条路都只在对白里交代。日终规则跑不出结算行
     ;; （result-supplement! 只在动作结算内有效），扣钱本身又是静默的——不写进对白，
@@ -100,17 +89,18 @@
     (define (collect-rent!)
       (if (rent-money-ready?)
           (let ((credit-up? (< grace grace-max)))
-            (play-rent-dialogue!
+            (apply play-dialogue!
               (append
+                (first-visit-lines)
                 (list
-                  (line "旅馆老板" (rent-demand-line))
-                  (line "尼尔" "数清楚。")
+                  (line "尼尔" "这是这几天的房费。最近还行。")
                   (line "世界" (string-append "他点了两遍，钱进了外套内袋。下一次收租在 "
-                                              (number->string rent-cycle) " 天后。")))
-                ;; 准时交回来的那一天信用才涨。不说，玩家不会知道旅馆老板为什么忽然肯多等。
-                (if credit-up?
-                    (list (line "旅馆老板" "这回痛快。往后你要是晚一天，我不至于当天就锁门。"))
-                    '())))
+                                              (number->string rent-cycle) " 天后。"))
+                  ;; 准时交回来的那一天信用才涨。不说，玩家不会知道旅馆老板为什么忽然肯多等。
+                  (if credit-up?
+                      (list (line "旅馆老板" "这回痛快。往后你要是晚一天，我不至于当天就锁门。"))
+                      '()))))
+            (set! 老板来过? #t)
             (remove-item! "金钱" rent-amount)
             (set! grace (min grace-max (+ grace 1)))
             (reset-rent-cycle!))
@@ -118,18 +108,19 @@
               (begin
                 (set! overdue? #t)
                 (grace-clk 'set! grace)
-                (play-rent-dialogue!
-                  (list
-                    (line "旅馆老板" (rent-demand-line))
-                    (line "尼尔" "今晚拿不出来。")
-                    (line "旅馆老板"
-                      (string-append "我再等 " (number->string grace) " 天。到时候别让我再问。")))))
+                (apply play-dialogue!
+                  (append
+                    (first-visit-lines)
+                    (list
+                      (line "尼尔" (string-append "最近遇到点事情，能再等 "
+                                                  (number->string grace) " 天吗？"))
+                      (line "旅馆老板" "行，可以。不过不能再久了，尼尔。"))))
+                (set! 老板来过? #t))
               (begin
-                (play-rent-dialogue!
-                  (list
-                    (line "旅馆老板" (rent-demand-line))
-                    (line "尼尔" "我没有。")
-                    (line "旅馆老板" "那就把东西拿出来。门今晚要锁。")))
+                (play-dialogue!
+                  (line "旅馆老板" "尼尔，今天是最后一天了。")
+                  (line "尼尔" "我凑不齐。")
+                  (line "旅馆老板" "我知道。别怪我，尼尔。今晚我把门锁上。"))
                 (evict!)))))
 
     (define (expire-grace!)
@@ -169,10 +160,10 @@
     ;; 白天静坐花骰子，喝酒花金钱；睡觉只刷新骰子，不自动回复冷静。
     ;; 喝酒不占骰子，走“花钱买酒”这条线：当场大量恢复冷静。
     ;; 效果只写这一份：酒馆当场点酒（'drink! 消息）与家中喝自带的酒共用同一次“当天第一杯”。
-    ;; 15 金回 2 点：比睡觉多花钱，换来不结束这一天。它不再附加宿醉。
+    ;; 15 美元回 4 点：花钱买更快的恢复，不结束这一天，也不附加宿醉。
     (define (apply-drink-effect!)
       (set! drank-today? #t)
-      (restore-actor-composure! 'player 2))
+      (restore-actor-composure! 'player 4))
 
     ;; 家里曾有一张「喝酒」：喝掉从酒馆打回来的那一壶。买酒的卡删掉之后（见
     ;; 老街酒馆.scm），「酒」这件物品没有来路了，这张卡只会一直灰在客厅里。
@@ -298,7 +289,7 @@
         :anchor "床边"
         :subtitle (cond
                     (刚睡过? "刚醒。出门走走再回来睡")
-                    (else "刷新骰子；两晚养好1点伤势，不回冷静"))
+                    (else "重置每天的骰子；缓慢恢复伤势"))
         :disabled (sleep-locked?)
         :tags (sleep-tags)
         :resolve (instant
@@ -501,8 +492,8 @@
     ;; 买下公寓后暂时仍走进同一间（公寓自己的 Stage 还没做；做了以后门卡按 residence 换名字）。
 
     ;; 你自己搬进来的东西：租的房间里就摆得下，搬家时当然也跟着走。
-    ;; 第一次收租时旅馆老板提过公寓以后，玩家才开始考虑往住处添东西——
-    ;; 买下公寓不是添家具的前置条件，那是两笔各自成立的钱。
+    ;; 老板第一次上门收租之后，玩家才开始考虑往住处添东西——不是买断公寓的前置条件，
+    ;; 那是两笔各自成立的钱。
     (define (order-children)
       (append
         (if has-flower? '() (list (node-buy-flower)))
@@ -510,7 +501,7 @@
         (if has-gramophone? '() (list (node-buy-gramophone)))))
 
     (define (order-nodes)
-      (if (or (not apartment-offer-known?) (null? (order-children)))
+      (if (or (not 老板来过?) (null? (order-children)))
           '()
           (list (node "添置家具" :anchor "租屋-书桌" :children (order-children)))))
 
@@ -561,14 +552,10 @@
         (cond
           ((equal? msg 'dossier)
            (if (and (> world-day 1) (renting?) (not (get-global '首次房租已交)))
-               (list (dossier "准备住宿费"
+               (list (dossier "旅馆房费"
                  :kind '城市 :primary #t
                  :status '进行中
-                 :now (cond
-                   (evicted? "凑齐四十块，回家补交住宿费。")
-                   (overdue? "住宿费已经到期，凑齐四十块后回家补交。")
-                   ((rent-money-ready?) "四十块住宿费已备齐。留住这笔钱，到期旅馆老板会来收。")
-                   (#t "去做点零工，凑够住宿费。"))
+                 :now "每过一些天，你需要支付旅馆的房费才能继续住下去"
                  :where (if (or overdue? evicted?) "家" "")
                  :clocks (cond (evicted? '())
                                (overdue? (list (grace-clk 'render-data)))
@@ -602,7 +589,7 @@
              (list "flower-today?" flower-today?)
              (list "medicated-today?" medicated-today?)
              (list "sleep-mend-nights" 养伤夜数)
-             (list "apartment-offer-known?" apartment-offer-known?)
+             (list "boss-visited?"   老板来过?)
              (list "rent-left"      (rent-clk 'save))
              (list "grace"          grace)
              (list "overdue?"       overdue?)
@@ -624,7 +611,10 @@
              (set! 养伤夜数 (assoc-get data "sleep-mend-nights" 0))
              (if (and (number? 养伤夜数) (>= 养伤夜数 0) (<= 养伤夜数 1))
                  #t (error "住所存档错误：养伤夜数非法"))
-             (set! apartment-offer-known? (required-field data "apartment-offer-known?"))
+             ;; 一次性改名迁移：老板第一次上门这件事，旧档记在 apartment-offer-known? 名下。
+             ;; 显式写在这儿而不是让 required-field 静默放行；等旧档不再需要就删掉这一段。
+             (set! 老板来过? (assoc-get data "boss-visited?"
+                                    (assoc-get data "apartment-offer-known?" #f)))
              (rent-clk 'load!     (required-field data "rent-left"))
              (set! grace          (required-field data "grace"))
              (set! overdue?       (required-field data "overdue?"))
@@ -645,7 +635,7 @@
                       (boolean-value? has-gramophone?)
                       (boolean-value? drank-today?)
                       (boolean-value? medicated-today?)
-                      (boolean-value? apartment-offer-known?)
+                      (boolean-value? 老板来过?)
                       (boolean-value? overdue?)
                       (boolean-value? evicted?))
                  #t (error "住所存档错误：布尔状态非法"))

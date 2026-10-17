@@ -452,13 +452,11 @@
         (lambda ()
           (set! opening-heard? #t)
           (apply-drunk!)
-          ;; 城市既有机位依次穿行，最后落到酒馆。
-          (play-camera! "格兰德酒店" .8 "")
-          (play-camera! "剧院" .8 "")
-          (play-camera! "老街酒馆" .4 "")
-          (load-file "scripts/theatre/第一节生活.scm")
-          (第一节-醉归)
-          (play-camera! "门口" .2 "家")
+          ;; 先运镜到酒吧；醉归演出结束后剪辑切回住处，不展示返程运镜。
+          (play-camera! "老街酒馆" 0 "")
+          (load-file "scripts/theatre/第一节开场新版.scm")
+          (开场新版-序幕)
+          (cut-camera! "门口" "家")
           ;; Bubble 在演出结束、新画面采用后出现，直接引导首夜休息。
           (play-bubble! (line "世界" "头疼得厉害。该睡了。")))))
 
@@ -470,7 +468,10 @@
       (lambda () (and opening-heard? (= world-day 2) (= story-stage 0)))
       (lambda ()
         (set-global! '天气 "雨")
-        (begin (load-file "scripts/theatre/第一节生活.scm") (第一节-清晨敲门))))
+        (load-file "scripts/theatre/第一节开场新版.scm")
+        (开场新版-清晨)
+        ;; 旁白随换日报告在剧场结束、世界画面采用后释放。
+        (play-narration! "序章清晨引导")))
 
     ;; 雨覆盖准备期和投信当日，过完勒索日才停；不硬编码绝对日期。
     (define-turn-start-rule "勒索日后雨停"
@@ -519,17 +520,6 @@
       (make-clock "自己找上门" frank-search-max 'gauge
         "夜莺走了，这一趟没有人替你开口，只能一层一层敲过去。填满你就站在他面前。"))
 
-
-    (define (delivery-fund-clock)
-      ;; 玩家即使已招募艾迪也可能临时选择交钱，资金信息必须一直可见。
-      (list
-        (list 'clock "勒索款筹集" (min delivery-price (item-count "金钱"))
-              delivery-price 'readout
-              (string-append
-                "这是交钱方案的准备：最多拿出一百美元，也可选择别的方案。"
-                "夜莺最多能替你补 " (number->string nightingale-cover-max)
-                " 美元：差在这个数以内，她当首饰，处境差一档；"
-                "差得更多，信封就是薄的，写信的人清点之后会先动手。"))))
 
     (define (ambush-helpers)
       (if (dock 'ambush-eddie?) (list "艾迪") '()))
@@ -1277,7 +1267,7 @@
     ;; 走线绘剧场完整版：照片、当票首饰、赎金钓鱼，见 scripts/theatre/室内求助.scm。
     (define (commission-dialogue!)
       (室内求助-theatre!)
-      ;; 剧场结束后的内心念白使用底部字幕，不播放配音，也不让尼尔站上对白舞台。
+      ;; 剧场结束后的内心念白走 Narration 配音与统一字幕，不让尼尔站上对白舞台。
       (play-narration! "序章接案后"))
 
     ;; 她不取消（Debug 可单独试演）
@@ -2259,9 +2249,11 @@
 (define (current-objective)
       (cond
         ((= story-stage 1)
-         (if delivery-pending?
-             "去码头决定今晚怎样处理勒索信"
-             "在勒索信约定的日子前想出办法解决麻烦"))
+         (string-append
+           "筹集金钱 " (number->string (min delivery-price (item-count "金钱")))
+           "/" (number->string delivery-price)
+           (if (dock 'eddie-met?) "；或 找到帮手" "")
+           (if (photo-case 'source-lead-known?) "；或 追查照片线索" "")))
         ((= story-stage 2)
          (cond
            ((not (has-flag? '伤后探望))
@@ -2420,10 +2412,9 @@
 
     (define (card-clocks)
       (cond
-        ;; 踩点钟挂在码头；完整诱捕改用假信封，筹款钟也就不显示。
+        ;; 勒索信卷宗只显示赴约日期；筹款金额由任务描述实时显示。
         ((= story-stage 1)
-         (append (list (delivery-deadline-clock))
-                 (delivery-fund-clock)))
+         (list (delivery-deadline-clock)))
         ((and (= story-stage 2) (singer-waiting?))
          (list (singer-wait-clock)))
         ((and (= story-stage 2) (patience-running?)) (patience-clock))

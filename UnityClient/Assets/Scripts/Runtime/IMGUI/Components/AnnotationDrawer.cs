@@ -110,6 +110,9 @@ namespace SSNoir.IMGUI
             string body = resolve.NoteText ?? string.Empty;
             var clock = resolve.Clock;
 
+            if(clock!=null && clock.Style!=ClockStyle.Readout)
+                return LayoutProminentClock(rect,title,body,clock,draw,pulse);
+
             float y = rect.y;
 
             // 先罩雾再写字：字底下的线条退进场景底色里，字才读得出来，场景又没被盖住。
@@ -174,6 +177,35 @@ namespace SSNoir.IMGUI
             }
 
             return y - rect.y;
+        }
+
+        // 标注仍直接落在空间中；图形、名称、正文共用测量，图形不再挤在标题尾部。
+        private static float LayoutProminentClock(Rect rect,string title,string body,GameClock clock,bool draw,float pulse)
+        {
+            bool ring=clock.Style==ClockStyle.Countdown;
+            float graphicSize=80f,gap=14f;
+            float textWidth=ring?Mathf.Max(48f,rect.width-graphicSize-gap):Mathf.Max(48f,rect.width-72f);
+            var titleStyle=TitleStyle();titleStyle.wordWrap=true;
+            float titleH=string.IsNullOrWhiteSpace(title)?0f:titleStyle.CalcHeight(new GUIContent(title),textWidth);
+            float bodyH=string.IsNullOrWhiteSpace(body)?0f:BodyStyle(pulse).CalcHeight(new GUIContent(body),ring?textWidth:rect.width);
+            float textH=titleH+(bodyH>0f?TitleToBody+bodyH:0f);
+            float h=ring?Mathf.Max(graphicSize,textH):40f+Mathf.Max(TitleRowH,titleH)+(bodyH>0f?TitleToBody+bodyH:0f);
+            if(!draw) return h;
+            var cam=Camera.main;
+            IMGUIStyles.DrawFogPatch(new Rect(rect.x,rect.y,rect.width,h),cam!=null?cam.backgroundColor:IMGUIStyles.Ink,FogAlpha,FogFeather);
+            float y=rect.y;
+            if(ring)
+                CardDrawer.DrawClockGraphic(new Rect(rect.xMax-graphicSize,rect.y,graphicSize,graphicSize),clock);
+            else
+            {
+                CardDrawer.DrawClockGraphic(new Rect(rect.x,y,rect.width,26f),clock);y+=40f;
+                var valueStyle=ReadoutStyle(IMGUIStyles.TextSecondary,TextAnchor.MiddleRight);
+                LabelWithHalo(new Rect(rect.xMax-66f,y,66f,TitleRowH),$"{clock.Current}/{clock.Max}",valueStyle);
+                textWidth=Mathf.Max(48f,rect.width-72f);
+            }
+            if(titleH>0f) LabelWithHalo(new Rect(rect.x,y,textWidth,titleH),title,titleStyle);
+            if(bodyH>0f) LabelWithHalo(new Rect(rect.x,y+titleH+TitleToBody,ring?textWidth:rect.width,bodyH),body,BodyStyle(pulse));
+            return h;
         }
 
         private static GUIStyle TitleStyle()
@@ -486,7 +518,7 @@ namespace SSNoir.IMGUI
             if (!string.IsNullOrWhiteSpace(resolve.NoteTitle))
                 titleRow = TitleStyle().CalcSize(new GUIContent(resolve.NoteTitle)).x;
             if (resolve.Clock != null)
-                titleRow += (titleRow > 0f ? LabelReadoutGap : 0f) + ReadoutWidth(resolve.Clock);
+                titleRow = resolve.Clock.Style==ClockStyle.Countdown ? titleRow+94f : Mathf.Max(210f,titleRow+72f);
 
             float bodyRow = 0f;
             if (!string.IsNullOrWhiteSpace(resolve.NoteText))
