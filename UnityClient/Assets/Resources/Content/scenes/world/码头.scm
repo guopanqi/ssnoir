@@ -212,7 +212,7 @@
             :clocks (list (exploration 'render-data))
             :requires (list (req-die))
             :resolve (roll 'sharpness
-              (outcome (lambda () #f))
+              (outcome (lambda () (spend-composure! 1)))
               (outcome (lambda () (explore! 1)))
               (outcome (lambda () (explore! 2)))))))
         (if (and (= (three-letters 'story-stage) 1) (exploration 'full?))

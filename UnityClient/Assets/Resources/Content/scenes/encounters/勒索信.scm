@@ -342,7 +342,7 @@
        :tags (list "低风险")
        :requires (list (req-die))
        :resolve (roll 'sharpness
-         (outcome (lambda () #f))
+         (outcome (lambda () (spend-composure! 1)))
          (outcome (lambda () (catch-clk 'tick!)))
          (outcome (lambda () (catch+ 2))))))
     ((= seg 1)
