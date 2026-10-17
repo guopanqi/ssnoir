@@ -12,12 +12,13 @@ export interface RollResult {
 }
 export function probabilities(prepared: number): [number, number, number] {
   if (!Number.isSafeInteger(prepared)) throw new Error("invalid prepared value");
-  if (prepared <= 1) return [60, 40, 0];
-  if (prepared === 2) return [45, 45, 10];
-  if (prepared === 3) return [35, 45, 20];
-  if (prepared === 4) return [20, 35, 45];
-  if (prepared === 5) return [0, 40, 60];
-  if (prepared === 6) return [0, 25, 75];
+  // 1–2 dangerous, 3–4 risky, 5–6 reliable. Keep 7+ high-B scaling.
+  if (prepared <= 1) return [80, 20, 0];
+  if (prepared === 2) return [60, 40, 0];
+  if (prepared === 3) return [40, 50, 10];
+  if (prepared === 4) return [30, 50, 20];
+  if (prepared === 5) return [0, 70, 30];
+  if (prepared === 6) return [0, 50, 50];
   if (prepared === 7) return [0, 10, 90];
   return [0, 0, 100];
 }

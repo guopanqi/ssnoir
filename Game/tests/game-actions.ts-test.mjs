@@ -14,8 +14,8 @@ const binary=readFileSync("node_modules/lips/dist/std.xcb");
 
 test("A+ percentage rows match C# and every percentile resolves consistently",()=>{
  const rows=[
-  [0,[60,40,0]],[1,[60,40,0]],[2,[45,45,10]],[3,[35,45,20]],
-  [4,[20,35,45]],[5,[0,40,60]],[6,[0,25,75]],
+  [0,[80,20,0]],[1,[80,20,0]],[2,[60,40,0]],[3,[40,50,10]],
+  [4,[30,50,20]],[5,[0,70,30]],[6,[0,50,50]],
   [7,[0,10,90]],[8,[0,0,100]],[10,[0,0,100]]
  ];
  for(const [prepared,[fail,neutral,success]] of rows){
@@ -28,8 +28,8 @@ test("A+ percentage rows match C# and every percentile resolves consistently",()
     assert.equal(resolveFate(4,0,prepared-4,roll).outcome,strip[roll-1]);
  }
  assert.equal(resolveFate(3,1,0,1).outcome,"fail");
- assert.equal(resolveFate(3,1,0,21).outcome,"neutral");
- assert.equal(resolveFate(3,1,0,56).outcome,"success");
+ assert.equal(resolveFate(3,1,0,31).outcome,"neutral");
+ assert.equal(resolveFate(3,1,0,81).outcome,"success");
  assert.throws(()=>resolveFate(4,0,0,0),/percentage roll/);
  assert.throws(()=>resolveFate(4,0,0,101),/percentage roll/);
 });

@@ -634,14 +634,14 @@ namespace SSNoir.Testing
 
             static (int fail, int neutral, int success) ExpectedPercentages(int prepared)
             {
-                if (prepared <= 1) return (60, 40, 0);
+                if (prepared <= 1) return (80, 20, 0);
                 return prepared switch
                 {
-                    2 => (45, 45, 10),
-                    3 => (35, 45, 20),
-                    4 => (20, 35, 45),
-                    5 => (0, 40, 60),
-                    6 => (0, 25, 75),
+                    2 => (60, 40, 0),
+                    3 => (40, 50, 10),
+                    4 => (30, 50, 20),
+                    5 => (0, 70, 30),
+                    6 => (0, 50, 50),
                     7 => (0, 10, 90),
                     _ => (0, 0, 100),
                 };
@@ -892,8 +892,8 @@ namespace SSNoir.Testing
             AssertEq("smoke composure restore", 2, consumableState.Team.FindActor("player")!.Composure);
             // 它要投一颗行动骰：角落里那种一按就生效的按钮已经不存在了。
             AssertEq("smoke spends an action die", diceBeforeSmoke - 1, consumablePlayer.ActionDice.Count);
-            AssertEq("B=1 summary", "坏 60% · 中 40% · 好 0%", FateStrip.Describe(FateStrip.Compute(1, 0, 0)));
-            AssertEq("B=4 summary", "坏 20% · 中 35% · 好 45%", FateStrip.Describe(FateStrip.Compute(4, 0, 0)));
+            AssertEq("B=1 summary", "坏 80% · 中 20% · 好 0%", FateStrip.Describe(FateStrip.Compute(1, 0, 0)));
+            AssertEq("B=4 summary", "坏 30% · 中 50% · 好 20%", FateStrip.Describe(FateStrip.Compute(4, 0, 0)));
             AssertEq("B=7 summary", "坏 0% · 中 10% · 好 90%", FateStrip.Describe(FateStrip.Compute(6, 1, 0)));
 
             AssertThrows(() => FateStrip.Compute(0, 0, 0), "invalid placed die");
