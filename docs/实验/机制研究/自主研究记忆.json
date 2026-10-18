@@ -1,7 +1,7 @@
 {
   "schema": "ssnoir.autonomous-pattern-memory/v1",
-  "updated": "2026-10-16",
-  "batch": "实体成果否决与压力损坏未来行动：实体结果身份、行动容量、强安全旁路跨族审计",
+  "updated": "2026-10-18",
+  "batch": "DUAL-USE：半成品进展转用 vs 普通库存全树同构与强安全备用",
   "rounds": 170,
   "totalArchivedRounds": 478,
   "objective": "长期自主发展可复用的玩法模式语言，覆盖已知作品先例、基础原语、完整交锋、跨阶段结构、组合条件与重要负例；评价玩家实际反复作出的判断、反馈、后果。历史20是广度愿景，不是价值认证名单或完成配额。",
@@ -337,7 +337,7 @@
     "latestCounterfactual": "IWT01：四手Hidden A/B各半，3份正确WORK得10/8，TRACK工作必+1并有75%准确类型线索；纯INSPECT100%占一手。无信息6、只TRACK119/16、INSPECT9；INSPECT耗时两手TRACK重新胜119/16；完美TRACK19/2、50%TRACK6、TRACK首手限定29/4。正向枚举核对全部潜在真实类型；保留已有DISC/FOCUS/SIG组合。",
     "crossFamilyAudit": "PL-IWT01→PL-DISC01（工作+信息两种不同产出）、FOCUS02/03（及时兑现行动窗口、完美检查强旁路）、SIG01（非战略性线索噪声有别于他者可伪装的行动信号）。"
   },
-  "lastFinding": "2026-10-16新批ENTITY-VETO/STRESS-CAPACITY：从main b1509a34331a接续CUSTODY、ACT、STAKE、HEDGE、DICE/CRISIS/RETURN成熟研究。非补偿实体保A授权：公开可信AA/AB/BA/BB四世界条件计划，伙伴明确要求所有W始终A才JOIN，唯AA合法，玩家收益9；SAFE不加入B-only也9但成果身份完全相反；增加任何金钱并不改变物理许可；若有真实同成本完成A+B的普通工作净费用3，根15压过AA9。该结构后期退化固定AA/早退，不是新玩法原语。独立压力模式：早期PUSH给A+2、半概率造成未来动作2→1，WAIT先SIDE1且保持2行动；W=A/B后到等概率，A完工总需3格B需2格，匹配奖励12不匹配成果4，SIDE1。完整合法动作：PUSH41/4=10.25，WAIT9（首次CI漏算WAIT对W=A可完成不匹配B4，失败后更正）。正常W=B健康两手做B，受损只剩一手转而做已准备A。对应成果PUSH实际损坏版P(A)=3/4,P(B)=1/4,P(满足W)=3/4；将伤害改为不丢行动而损失9/2分，数学期望同41/4但完成A/B各1/2、满足W=1，故标量同值不等价成果/可用机会。可安全COMMON给两目标各+1或无条件恢复损坏行动，则根25/2压过危险PUSH。普通条件短口诀全部解释最优；先验p(A)的PUSH/WAIT首手阈值2/5。两份Fraction脚本真实GitHub Actions 38823071087独立CI回归38项0失败。外部CS2 press kit与开发者采访是已发行作品压力/骰损/高风险合同先例，本批模型非其官方数值。无真人、独立Agent盲评或Unity正式体验。批次 docs/实验/机制研究/批次/2026-10-16-实体保全否决与行动容量风险/研究记录.md；另存压力四种决策作用归纳。",
-  "nextResearchQuestion": "停止加保护目标、保证金、Stress阈值或第三次损坏。若有无提示人类观察，第一优先检验参与者是否能辨认未来容量真的关闭了W=B的完成机会、是否实际在意A/B不同成果，而非仅最大化总分；需逐步记录行动与原话，不可用38脚本CI替代体验证据。无参与者时横向检验动作操作方式变换、可逆探索与不可逆兑现、资源在两目标间改用途等不同心理动词；先复审REC/ACTION-SWITCH固化ABAB、CRISIS/HEDGE可达性强旁路、成熟CS2 Contract组合，先评心理循环再建精确模型，不重复RETURN/CUSTODY同类数值调整。",
-  "lastResearchMaintenance": "2026-10-16 main b1509a343起读研究定位、AGENTS、Skill、最新状态/队列、ACT/GRC/RELAY/HEDGE和模式地图；反馈inbox仍R37/R50/R54，questions空。加入pattern_noncompensable_veto_20261016.py及pattern_future_capacity_stress_20261016.py，runner36→38，更新GitHub Actions监听。第一次CI 38822838178 failure暴露WAIT漏考虑合法不匹配B，修为WAIT9、PUSH/WAIT先验阈值2/5；新CI 38823071087确认38份全部成功、0失败。完成研究报告与压力四种因果作用横向归纳；长期知识地图新增PL-ENTITY-VETO01、PL-STRESS-CAPACITY-IDENTITY01及8条关系边，状态/队列同步。正式Game、六精选、20历史候选、Debug仍冻结。没有真人或独立Agent盲测。"
+  "lastFinding": "2026-10-18持续抽象研究：在GitHub main由近期正式内容提交之后读取AGENTS/Skill/定位/队列/状态/模式语言地图/REC/ACTION-SWITCH/BIL/HEDGE，并确认feedback inbox仍只有R37、R50、R54，questions空。新DUAL-USE四手完整菜单：A_WORK使A半成品+1，B_WORK使B+1，RECYCLE消耗1A改得2B，SIDE+1，A需3份B需2份，需求W=A/B各半且前两手不知，完成需求匹配12不匹配2。全状态Fraction枚举动态根27/2，禁转换根13，最强事前固定全四手根9；最优真实第一两手A,SIDE之后W=A走A,A得13、W=B走RECYCLE,SIDE得14；W在第三手后才公布根13，最后才公布根9。同成本普通COMMON每手同时+1A/+1B，则固定无需看世界的根15，严格压过动态13.5。最强同构：对每个正常可达状态、合法玩家动作、后继和两种结果计分，A半成品可改叫可消耗库存stock_a，RECYCLE对应消费一库存加2B，完全全树状态同构，不是新资源原语或实质玩法发明；虽有效展示后到信息改变过去投入的用途，却由两分支短口诀全优。脚本 tools/content-validator/experiments/pattern_dual_use_progress_20261018.py，文档 docs/实验/机制研究/批次/2026-10-18-进展改用途与模式转换边界/研究记录.md；独立Actions 39140474208确认39近期研究脚本0失败。无真人/第二Agent盲评/Unity正式原生体验。知识地图新增PL-DUAL-USE-ISOMORPHISM01、与REC/ACTION/HEDGE/STAKE/CUSTODY/RETURN七条关系；未自动晋升精选/候选/Debug或更改Game。",
+  "nextResearchQuestion": "DUAL-USE和REC/ACTION-SWITCH的数学/普通库存同构负例已完成，停调库存兑换汇率、更多回合数。后续主动探索不同的玩家操作方式，而非只把A工作重叫stock：新的行动在正常可达历史中需真实改变未来合法行为、需要玩家再次做决策，并验证安全同价通用工作、普通许可票、返回菜单预编译政策和具体A/B结果身份；若一个短可读策略完全解释则保留成熟组合不宣称新原语。没有真实人类参与者时继续吸收成熟游戏交锋结构的可学心理活动，或跨其他机制族反证；不以CI代码数量当乐趣。",
+  "lastResearchMaintenance": "2026-10-18恢复仓库main（外部Agent有正式游戏日常内容新提交，未修改它们），读取研究定位/Skill和历史REC/ACTION-SWITCH/BIL研究与反馈。用独立本地Python Fraction实验先验证DUAL-USE逐分支最优、信息晚到/强普通COMMON与全树库存同构；向GitHub main提交可执行脚本，CI runner从38→39及workflow监听；GitHub Actions 39140474208日志真实确认PASS pattern_dual_use_progress_20261018.py，Checked 39 committed experiments, 0 failures。新建详细研究记录和知识地图节点PL-DUAL-USE-ISOMORPHISM01与七关系边、更新当前状态/队列/记忆。无真人、独立Agent、正式引擎/Debug/精选变更。"
 }
