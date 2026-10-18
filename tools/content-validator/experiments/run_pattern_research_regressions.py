@@ -19,6 +19,7 @@ SCRIPTS = (
     "pattern_third_party_bond_20261016.py",
     "pattern_noncompensable_veto_20261016.py",
     "pattern_future_capacity_stress_20261016.py",
+    "pattern_dual_use_progress_20261018.py",
     "pattern_return_world_local_loop_20261015.py",
     "pattern_return_macro_equivalence_20261015.py",
     "pattern_bridge_two_feedbacks_20261015.py",
