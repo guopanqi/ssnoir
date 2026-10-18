@@ -14,6 +14,7 @@ on:
       - 'tools/content-validator/experiments/pattern_third_party_bond_20261016.py'
       - 'tools/content-validator/experiments/pattern_noncompensable_veto_20261016.py'
       - 'tools/content-validator/experiments/pattern_future_capacity_stress_20261016.py'
+      - 'tools/content-validator/experiments/pattern_dual_use_progress_20261018.py'
       - 'tools/content-validator/experiments/run_pattern_research_regressions.py'
       - '.github/workflows/research-pattern-regressions.yml'
   workflow_dispatch:
