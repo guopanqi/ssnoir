@@ -1,4 +1,4 @@
-{n:'艾迪的办法',sub:'码头 · 傍晚 · 一大垛没搬完的货',sh:'艾迪',pos:[1000,830],bg:'#0a0a0d',set:'#set3',lx:700,i:['40%','60%'],mk:()=>SETS.dock(),
+{g:'S 系列',n:'艾迪的办法',sub:'码头 · 傍晚 · 一大垛没搬完的货',sh:'艾迪',pos:[1000,830],bg:'#0a0a0d',set:'#set3',lx:700,i:['40%','60%'],mk:()=>SETS.dock(),
 ini(){$('#front').innerHTML=FRBOX;$('#front').style.opacity=0;P('ed',{d:0,show:0,x:1750,y:790,s:.6,f:1,face:'n'});P('nl',{d:0,show:0,x:-160,y:790,s:.6,f:0,face:'n'})},
 /* 取景固定；只有两次运镜：念头一转时慢慢推向尼尔，艾迪指向那垛货时慢慢拉开。人物一律走进走出，不凭空出现 */
 async run(k,{w,n,ed,nar,at,go,murmur,sigh}){

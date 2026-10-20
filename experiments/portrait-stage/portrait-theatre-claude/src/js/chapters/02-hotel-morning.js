@@ -1,4 +1,4 @@
-{n:'第一日清晨',sub:'旅馆 · 尼尔的房间 · 门外的老板',sh:'清晨',pos:[540,830],bg:'#0b0907',set:'#set3',lx:830,i:['40%','60%'],mk:()=>SETS.hotelRoom(),
+{g:'S 系列',n:'第一日清晨',sub:'旅馆 · 尼尔的房间 · 门外的老板',sh:'清晨',pos:[540,830],bg:'#0b0907',set:'#set3',lx:830,i:['40%','60%'],mk:()=>SETS.hotelRoom(),
 ini(){$('#front').innerHTML=BED;$('#front').style.opacity=0;P('nl',{d:0,show:0,x:470,y:830,s:.62,f:0,face:'drunk'});P('ho',{d:0,show:0,x:1340,y:790,s:.6,f:1,face:'n'})},
 /* 门内是宿醉的尼尔，门外是来收房钱却不想逼他的老板；镜头基本不动，只在“谢谢了....”那一拍慢慢推向尼尔 */
 async run(k,{w,n,ho,nar,at}){

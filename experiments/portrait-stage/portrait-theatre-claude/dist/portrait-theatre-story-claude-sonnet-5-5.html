@@ -77,7 +77,7 @@ button.cur,#go:hover{background:#e9d9b0;color:#000;border-color:#e9d9b0}
 <div id="title"><h1>片段一 · 雨夜求助</h1><p>格兰德酒店门前</p></div>
 <div id="cap" aria-live="polite"></div>
 </div>
-<div id="bar"><button id="pp" disabled>暂停</button><button id="rp" disabled>重播</button><span>片段</span><span id="chips"></span><button id="all">连播全剧</button><span>人物</span><button id="ga" class="cur">融入线绘</button><button id="gb">暖色突出</button><span>画面</span><button id="mk" class="cur">光孔遮罩 开</button><button id="rx" class="cur">背景反应 开</button><button id="mu">声音 开</button></div>
+<div id="bar"><button id="pp" disabled>暂停</button><button id="rp" disabled>重播</button><span>系列</span><span id="gtabs"></span><span>片段</span><span id="chips"></span><button id="all">连播本组</button><span>人物</span><button id="ga" class="cur">融入线绘</button><button id="gb">暖色突出</button><span>画面</span><button id="mk" class="cur">光孔遮罩 开</button><button id="rx" class="cur">背景反应 开</button><button id="mu">声音 开</button></div>
 </div>
 <script>
 const $=s=>document.querySelector(s);
@@ -234,6 +234,7 @@ const mv=(id,x,y,ms,ease='linear',s)=>{G[id].style.transitionTimingFunction=ease
 const dolly=(s=1,x=50,y=60,ms=4000)=>{for(const q of['#bg','#fg']){const e=$(q);e.style.transformOrigin=`${x}% ${y}%`;e.dataset.dms=ms;camTr(e);e.style.transform=s==1?'':`scale(${s})`}};
 const inset=(id,x,y,s,o,ms=500)=>{const e=$('#'+id);e.style.transition=`transform ${ms}ms cubic-bezier(.2,.8,.3,1),opacity ${ms}ms`;e.style.transform=`translate(${x}px,${y}px) scale(${s})`;e.style.opacity=o};
 function H(k){const w=ms=>sleep(ms,k);/* at(ms,fn)：不阻塞地在台词进行中触发动作；sigh：原地叹气（头低、微前倾、气声）；ticks：钟表滴答 */
+let spd=1;/* 台词节奏倍率：快速对白可 pace(.8) */const pace=v=>spd=v;
 const at=(ms,fn)=>setTimeout(()=>{if(k===gen)fn()},ms);
 const sigh=async(id,ms=1500)=>{P(id,{h:14,b:6,d:900});bs(.5,.07,700);tn(190,.7,'sine',.02);await w(ms*.6);P(id,{h:3,b:0,d:900});await w(ms*.4)};
 /* 电影式硬切：瞬黑（无过渡）→ 黑场 hold 毫秒 → 瞬亮。swap 在黑场里执行，换景后的线稿直接画满（.now 关掉描线过渡），亮起时是完整的下一场景。 */
@@ -247,14 +248,14 @@ const clink=()=>{tn(2300,.18,'sine',.07);tn(3100,.12,'sine',.05,.02)};
 const faceCam=(id,s=1.6,ms=1800)=>dolly(s,G[id].st.x/16,56,ms);
 const ticks=(n,gap=900)=>{for(let i=0;i<n;i++)at(i*gap,()=>tn(i%2?1500:1250,.03,'square',.025))};
 
-const say=async(who,text,o)=>{if(k!==gen)throw 0;const n=NM[who];cap.innerHTML=`<b style="color:${n[1]}">${n[0]}${o==1?'（电铃）':o==2?'（独白）':''}</b>`+(o==2?'<em>':'')+[...text].map((ch,i)=>`<span style="animation-delay:${i*48}ms">${ch}</span>`).join('')+(o==2?'</em>':'');const dur=450+text.length*105;
+const say=async(who,text,o)=>{if(k!==gen)throw 0;const n=NM[who];cap.innerHTML=`<b style="color:${n[1]}">${n[0]}${o==1?'（电铃）':o==2?'（独白）':''}</b>`+(o==2?'<em>':'')+[...text].map((ch,i)=>`<span style="animation-delay:${i*48}ms">${ch}</span>`).join('')+(o==2?'</em>':'');const dur=(450+text.length*105)*spd;
 if(o==1){op('#sg',1);$('#vr').classList.add('on');$('#nw').classList.add('lit');const iv=setInterval(()=>op('#sg',Math.random()>.5?1:.55),160);try{await w(dur)}finally{clearInterval(iv);op('#sg',0);$('#vr').classList.remove('on')}}
 else if(o==2){await w(dur+600)}
 else{const g=G[who];sp(1,g.st.x,.55,.13,'#9db0e0');setIx(g.st.x);g.classList.add('tk');try{await w(dur)}finally{g.classList.remove('tk')}}};
 const go=(id,x,ms,o={})=>{P(id,{x,d:ms,cl:{wk:1},...o});steps(ms);setTimeout(()=>{if(k===gen)P(id,{cl:{wk:0}})},ms)};
 const fl=async()=>{for(const v of[.15,1,.3,.9,.5,1]){lamp(v);zap();await w(110)}};
 const nar=async(t,ms)=>{cap.innerHTML='<em>'+t+'</em>';await w(ms??700+t.length*85)};
-return{w,say,go,fl,nar,at,sigh,ticks,cut,scene,murmur,clink,faceCam,n:t=>say('nl',t),y:t=>say('ny',t),f:t=>say('fr',t),m:t=>say('mg',t),b:t=>say('bn',t),l:t=>say('ld',t),s:t=>say('sk',t),bm:t=>say('bm',t),ed:t=>say('ed',t),ho:t=>say('ho',t),mono:t=>say('nl',t,2)}}
+return{pace,jazz:JZ(k),vocal:VOCAL(k),w,say,go,fl,nar,at,sigh,ticks,cut,scene,murmur,clink,faceCam,n:t=>say('nl',t),y:t=>say('ny',t),f:t=>say('fr',t),m:t=>say('mg',t),b:t=>say('bn',t),l:t=>say('ld',t),s:t=>say('sk',t),bm:t=>say('bm',t),ed:t=>say('ed',t),ho:t=>say('ho',t),mono:t=>say('nl',t,2)}}
 /* 共用立绘姿势表（章节内可用 Object.assign(POSES,…) 追加私有姿势） */
 Object.assign(POSES,{
  dHang:{ll:0,lr:4,ar:10,al:12,b:-6,h:22},
@@ -270,7 +271,9 @@ Object.assign(POSES,{point:{ar:-90,al:6,b:4,h:0},talkA:{ar:-50,al:8,b:6,h:4},tal
 /* 舞台道具助手：gl 移动/淡入任意 SVG 道具；hum 在 #props 放一群轻轻摇晃的剪影；酒保擦杯/上架两个共用动作 */
 const gl=(id,x,y,o=1,ms=500,r=0,ease='ease')=>{const e=$('#'+id);if(!e)return;e.style.transition=`transform ${ms}ms ${ease},opacity .25s`;e.style.transform=`translate(${x}px,${y}px) rotate(${r}deg)`;e.style.opacity=o};
 const GL=id=>`<g id="${id}" style="opacity:0"><path d="M-11 0L-9 -26H9L11 0Z" fill="#0b0f1c" stroke="#e6eeff" stroke-width="2.5"/><path d="M-10 -9H10" stroke="#e0b060" stroke-width="3"/></g>`;
-const hum=list=>{const g=$('#props');list.forEach(([x,y,s,f],i)=>{g.insertAdjacentHTML('beforeend',`<g transform="translate(${x} ${y})"><g style="transform-box:fill-box;transform-origin:50% 100%">${SIL(0,0,s,f)}</g></g>`);g.lastElementChild.firstElementChild.animate([{transform:'rotate(-2.5deg)'},{transform:'rotate(2.5deg)'}],{duration:1500+((i*377)%900),direction:'alternate',iterations:Infinity,easing:'ease-in-out',delay:-i*300})})};
+const hum=list=>{const g=$('#props'),els=[];list.forEach(([x,y,s,f],i)=>{g.insertAdjacentHTML('beforeend',`<g transform="translate(${x} ${y})"><g><g style="transform-box:fill-box;transform-origin:50% 100%">${SIL(0,0,s,f)}</g></g></g>`);g.lastElementChild.firstElementChild.firstElementChild.animate([{transform:'rotate(-2.5deg)'},{transform:'rotate(2.5deg)'}],{duration:1500+((i*377)%900),direction:'alternate',iterations:Infinity,easing:'ease-in-out',delay:-i*300});els.push(g.lastElementChild.firstElementChild)});return els};
+/* 掌声/欢呼：几个剪影一起上下蹦几下，配拍手噪声 */
+const cheer=(els,ms=2400)=>{els.forEach((e,i)=>e.animate([{transform:e.style.transform||'none'},{transform:'translateY(-14px)'},{transform:'none'}],{duration:260,iterations:Math.ceil(ms/260),delay:i*70,easing:'ease-out'}));for(let t=0;t<ms;t+=90)setTimeout(()=>bs(.05,.12+Math.random()*.12,2600+Math.random()*2000),t)};
 /* 酒保：擦杯口（杯在手边轻晃）、转身把杯子放回架子（整张立绘切换） */
 const wipeGlass=async(w,n=3)=>{pose('bm','wipe',{show:1,f:1,face:'n',back:0});gl('gl',923,592,1,0);for(let i=0;i<n;i++){gl('gl',929,590,1,320,8);await w(380);gl('gl',917,594,1,320,-8);await w(380)}};
 const shelveGlass=async w=>{pose('bm','turnUp',{f:1,back:1});gl('gl',998,476,1,650);await w(800);pose('bm','idleDown',{f:1,back:0,face:'n'});await w(300)};
@@ -282,6 +285,19 @@ const cv=$('#rain'),cx=cv.getContext('2d'),dr=Array.from({length:260},()=>({x:Ma
 (function(){const c=document.createElement('canvas');c.width=c.height=200;const x=c.getContext('2d'),d=x.createImageData(200,200);for(let i=0;i<d.data.length;i+=4){const v=Math.random()*255;d.data[i]=d.data[i+1]=d.data[i+2]=v;d.data[i+3]=255}x.putImageData(d,0,0);$('#grain').style.background=`url(${c.toDataURL()})`})();
 
 
+/* 现场音乐（Web Audio 合成）：JZ = 爵士伴奏（走动贝斯 + 踩镲 + 稀疏钢琴和弦），VOCAL = 带颤音的人声旋律。
+   都是 H(k) 里的工厂：章节被打断（k!==gen）时伴奏自动停。 */
+const JZ=k=>(bpm=112,lv0=.6)=>{let lv=lv0,b=0;const ms=60000/bpm/2,BASS=[55,61.7,65.4,73.4,82.4,73.4,65.4,61.7],CH=[[220,261.6,329.6,392],[196,246.9,293.7,392],[174.6,220,261.6,329.6],[196,246.9,293.7,370]];
+const iv=setInterval(()=>{if(k!==gen){clearInterval(iv);return}if(paused||lv<=0)return;
+if(b%2==0){tn(BASS[(b/2)%8|0],.38,'triangle',.13*lv);bs(.04,.07*lv,7000)}else if(b%4==3)bs(.03,.04*lv,7000);
+if(b%16==0)CH[(b/16)%4|0].forEach((f,i)=>tn(f,1.6,'triangle',.045*lv,i*.03));
+if(b%8==4)tn(130+Math.random()*10,.12,'sine',.05*lv);b++},ms);
+return{set:v=>{lv=v},stop:()=>{lv=0;clearInterval(iv)}}};
+/* 人声：notes=[[Hz,拍数],…]，每拍 beatMs 毫秒，返回总时长(ms)。基音 + 八度泛音 + 5.5Hz 颤音。 */
+const VOCAL=k=>(notes,beatMs=536,lv=1)=>{if(!AC)return notes.reduce((a,n)=>a+n[1]*beatMs,0);let t=AC.currentTime+.05;
+for(const[f,bt]of notes){const d=bt*beatMs/1000;if(f>0){const o=AC.createOscillator(),o2=AC.createOscillator(),g=AC.createGain(),lf=AC.createOscillator(),lg=AC.createGain();o.type='sine';o2.type='triangle';o.frequency.value=f;o2.frequency.value=f*2;lf.frequency.value=5.5;lg.gain.value=f*.012;lf.connect(lg);lg.connect(o.frequency);lg.connect(o2.frequency);
+g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.09*lv,t+.08);g.gain.setValueAtTime(.09*lv,t+d*.75);g.gain.linearRampToValueAtTime(0,t+d);const g2=AC.createGain();g2.gain.value=.25;o.connect(g);o2.connect(g2);g2.connect(g);g.connect(MG);for(const x of[o,o2,lf]){x.start(t);x.stop(t+d+.05)}}t+=d}
+return notes.reduce((a,n)=>a+n[1]*beatMs,0)};
 /* sets */
 const LL=(d,c='',dl=0,sw=2,col)=>`<path class="${c}" d="${d}" pathLength="1" style="--d:${dl}s;stroke-width:${sw};${col?'stroke:'+col:''}"/>`,RR=(x,y,w,h,c,dl,sw,col)=>LL(`M${x} ${y}h${w}v${h}h${-w}z`,c,dl,sw,col);
 const masked=s=>`<g mask="url(#fade)">${s}</g>`,GROUND=masked(LL('M0 790H1600','',0,1.5,'#5a6f9c')+LL('M0 806H1600','',.4,1,'#33466e'));
@@ -388,6 +404,16 @@ SETS.dock=()=>{let w='';for(let i=0;i<6;i++)w+=LL(`M${i*300} ${836+i%2*14}h200`,
 const cr=(x,y)=>RR(x,y,110,100,'s',1.2,2.5,'#cdbf9e')+LL(`M${x} ${y}L${x+110} ${y+100}M${x+110} ${y}L${x} ${y+100}`,'',1.4,1.5,'#8a7a5c');
 return GROUND+w+cr(120,690)+cr(230,690)+cr(175,590)+cr(1150,690)+cr(1260,690)+cr(1150,590)+cr(1260,590)+cr(1205,490)+LL('M1480 40V790','',.4,4,'#9fb4e0')+LL('M1480 90H900','',.5,3,'#9fb4e0')+LL('M1480 150L1380 90','',.6,2,'#7f95c4')+LL('M930 90V300','',.9,1.5,'#7f95c4')+LL('M930 300q-18 0 -18 22q0 20 18 20','',1,2.5,'#cfe0ff')+LL('M560 790V380','',.7,3,'#9fb4e0')+RR(540,340,40,40,'s',1,2.5,'#e6eeff')+'<circle cx="560" cy="360" r="120" fill="#f3d08a" opacity=".13"/>'+RR(900,744,40,46,'s',1.5,2,'#9fb4e0')};
 const FRBOX='<path d="M610 700H790V790H610Z" fill="#07080c" stroke="#cdbf9e" stroke-width="2.5"/><path d="M610 700L790 790M790 700L610 790" stroke="#8a7a5c" stroke-width="2"/><path d="M610 700H790" stroke="#f0f4ff" stroke-width="4"/>'+CRATE('cr')+'<g id="gv" style="opacity:0"><rect x="-16" y="-9" width="32" height="18" rx="5" fill="#6a4a2a" stroke="#c9a06a" stroke-width="2"/></g>';
+
+/* ===== SC-A 系列：夜晚的酒吧（效果优先，不沿用 S 系列的酒吧）=====
+   左：吧台（前景层）+ 酒保 + 镜子/酒架/霓虹；中：卡座隔断（前景层，遮住坐着的客人下半身）；右：带幕布的小舞台，追光 #spt，话筒立在前景层，钢琴在前景层 */
+SETS.barNight=()=>{let cur='';for(let i=0;i<7;i++)cur+=LL(`M${1190+i*58} 270V690`,'',1.1+i*.05,1.5,'#7f6a55');
+return GROUND+RR(430,140,360,140,'s',.7,3,'#9fb4e0')+LL('M470 250L520 170M560 250L640 170','',1.2,1.5,'#4f6490')+BOT(400,840,470)+SCONCE(320,330)+SCONCE(880,330)+NEONC(1010,100)
++RR(1170,250,420,450,'',.8,2.5,'#7f6a55')+cur+RR(1160,700,440,90,'s',1,3,'#e0c890')+LL('M1160 718H1600','',1.4,1.5,'#7f6a55')
++'<polygon id="spt" points="1250,0 1310,0 1480,700 1090,700" fill="url(#cn)" stroke="none" style="opacity:0;transition:opacity .35s"/><ellipse id="spg" cx="1290" cy="705" rx="200" ry="22" fill="#f3d08a" opacity="0" style="transition:opacity .35s"/>'};
+const BNF=DK(340,860,650,860)+DK(880,1130,694,860)+'<path d="M910 694l-4 -22h12zM1060 694l-4 -30h16z" fill="#07080c" stroke="#e6eeff" stroke-width="2"/><circle cx="1000" cy="684" r="46" fill="#f3d08a" opacity=".1"/><circle cx="1000" cy="690" r="5" fill="#ffd98a"/>'
++'<g stroke="#e6eeff" stroke-width="3" fill="none"><path d="M1210 700V500"/><path d="M1190 700h40"/><path d="M1210 500q0 -26 22 -26" stroke-linecap="round"/></g><ellipse cx="1236" cy="474" rx="10" ry="14" fill="#07080c" stroke="#e6eeff" stroke-width="2.5"/>'
++'<path d="M1380 650H1590V700H1380Z" fill="#07080c" stroke="#e0c890" stroke-width="2.5"/><path d="M1380 650H1590" stroke="#f0f4ff" stroke-width="4"/><path d="M1380 650l16 -54H1590" fill="none" stroke="#e0c890" stroke-width="2.5"/>'+GL('gl')+GL('gw');
 /* chapters */
 const C1=Object.assign({t:'<h1>片段一 · 雨夜求助</h1><p>格兰德酒店门前</p>',o:'920px 610px',bg:'#070a12',set:'#hotel',i:['20%','52%'],
 ini(){P('ny',{d:0,x:-200,s:.54,hat:1,umo:1})},
@@ -429,7 +455,7 @@ cc();go('ny',1850,5600);await w(2200);P('nl',{face:'n',h:5,b:2});await w(1600);
 P('nl',{ar:0,al:0,b:0});go('nl',1850,5800);await w(1900);os('.lh',.95);sp(2,800,1.3,.34,'#f3d08a');await w(1000);os('.lh',.4);sp(2,800,1.1,.22,'#f3d08a');await w(3000);
 await w(800);await fl();lamp(1);await w(2200);lamp(.6)}},{n:'隐瞒莱恩后的争执',sub:'离开老街之后 · 一盏路灯',sh:'路灯',pos:[430,720]});
 const SC=[
-{n:'序幕夜',sub:'贝尔维尔 · 不夜城 · 酒吧、街口、旅馆',sh:'序幕',pos:[260,540],bg:'#0a0709',set:'#set3',lx:760,i:['40%','60%'],hardOut:1,mk:()=>SETS.barBooth(),
+{g:'S 系列',n:'序幕夜',sub:'贝尔维尔 · 不夜城 · 酒吧、街口、旅馆',sh:'序幕',pos:[260,540],bg:'#0a0709',set:'#set3',lx:760,i:['40%','60%'],hardOut:1,mk:()=>SETS.barBooth(),
 ini(){$('#front').innerHTML=BTBL+GL('gl');$('#front').style.opacity=0;P('nl',{d:0,show:0,x:760,y:812,s:.62,f:0,face:'drunk'});P('ho',{d:0,show:0,x:940,y:790,s:.56,f:1,face:'n'})},
 /* 四个镜头：卡座 → 吧台 → 酒吧门外 → 旅馆大堂；镜头之间全是硬切（瞬黑 1.5 秒、瞬亮），没有任何渐变 */
 async run(k,{w,n,ho,cut,scene,murmur,clink,at}){
@@ -493,7 +519,7 @@ for(let t=0;t<3400;t+=480){stp();await w(480)}
 sw(false);await w(900);
 /* ── 描线渐隐 ── */
 $('#front').style.transition='opacity 1.8s';$('#front').style.opacity=0;P('ho',{show:0,d:1800});SET.classList.remove('on','f');dolly(1,50,60,2400);await w(2800)}},
-{n:'第一日清晨',sub:'旅馆 · 尼尔的房间 · 门外的老板',sh:'清晨',pos:[540,830],bg:'#0b0907',set:'#set3',lx:830,i:['40%','60%'],mk:()=>SETS.hotelRoom(),
+{g:'S 系列',n:'第一日清晨',sub:'旅馆 · 尼尔的房间 · 门外的老板',sh:'清晨',pos:[540,830],bg:'#0b0907',set:'#set3',lx:830,i:['40%','60%'],mk:()=>SETS.hotelRoom(),
 ini(){$('#front').innerHTML=BED;$('#front').style.opacity=0;P('nl',{d:0,show:0,x:470,y:830,s:.62,f:0,face:'drunk'});P('ho',{d:0,show:0,x:1340,y:790,s:.6,f:1,face:'n'})},
 /* 门内是宿醉的尼尔，门外是来收房钱却不想逼他的老板；镜头基本不动，只在“谢谢了....”那一拍慢慢推向尼尔 */
 async run(k,{w,n,ho,nar,at}){
@@ -537,7 +563,7 @@ P('ho',{x:1420,d:1300,show:0});await w(1200);
 door.style.transform='scaleX(1)';$('#rcl').style.opacity=0;tn(70,.3,'sine',.4);bs(.1,.6,300);await w(1200);
 /* 一个人站在晨光里，镜头慢慢拉开 */
 pose('nl','stand',{f:1,face:'n',h:6});dolly(1,50,60,4000);await w(4200)}},
-{n:'第一日酒馆',sub:'酒馆 · 白天 · 吧台两侧',sh:'酒馆',pos:[520,600],bg:'#0b0a0c',set:'#set3',lx:900,i:['40%','60%'],mk:()=>SETS.barDay(),
+{g:'S 系列',n:'第一日酒馆',sub:'酒馆 · 白天 · 吧台两侧',sh:'酒馆',pos:[520,600],bg:'#0b0a0c',set:'#set3',lx:900,i:['40%','60%'],mk:()=>SETS.barDay(),
 ini(){$('#front').innerHTML=BDC;$('#front').style.opacity=0;P('bm',{d:0,show:0,x:1050,y:790,s:.6,f:1,face:'n'});P('nl',{d:0,show:0,x:-160,y:790,s:.6,f:0,face:'n'})},
 /* 白天，客人稀疏。熟不熟全靠动作：酒保没抬头就递来一杯水，尼尔不用开口就接住 */
 async run(k,{w,n,bm,at,go,murmur}){
@@ -824,7 +850,7 @@ P('ny',{face:'n'});go('ny',650,900);await y('明天我带你进去');P('nl',{h:0
 cc();P('ny',{face:'sad',h:8});ticks(4,800);lamp(.65);await w(2600);P('ny',{h:0});
 await y('我不想回去，特别不想。可是，什么时候也不能都只让你去。');
 dolly(1.1,52,64,6000);await w(900);await sigh('nl',1600);lamp(.85);await w(1200)}},
-{n:'第二日酒馆',sub:'酒馆 · 白天 · 和昨天不一样',sh:'再访',pos:[300,800],bg:'#0b0a0c',set:'#set3',lx:900,i:['40%','60%'],mk:()=>SETS.barDay(),
+{g:'S 系列',n:'第二日酒馆',sub:'酒馆 · 白天 · 和昨天不一样',sh:'再访',pos:[300,800],bg:'#0b0a0c',set:'#set3',lx:900,i:['40%','60%'],mk:()=>SETS.barDay(),
 ini(){$('#front').innerHTML=BDC;$('#front').style.opacity=0;P('bm',{d:0,show:0,x:1050,y:790,s:.6,f:1,face:'n'});P('nl',{d:0,show:0,x:-160,y:790,s:.6,f:0,face:'hard'})},
 /* 复用第一日的吧台和擦杯开场，但今天：光更冷、人更少、取景更近（整场固定，不运镜）；尼尔走得快，不碰那杯水，一进门就开口 */
 async run(k,{w,n,bm,at,go,murmur}){
@@ -955,7 +981,7 @@ P('nl',{face:'n',h:3});go('nl',1050,1000);await n('我会试试');
 P('ny',{face:'smile',h:0});await y('你真好，尼尔');
 P('nl',{face:'hard',h:5});await n('这是我的工作，处理麻烦是我的工作，这件事情是我没有处理好，我会去找到他的。');
 cc();mbs(2);os('.lh',.08);dolly(1.1,70,64,5000);await mono('莱恩，我会找到你的。');dolly(1,50,64,3000);await w(900)}},
-{n:'艾迪的办法',sub:'码头 · 傍晚 · 一大垛没搬完的货',sh:'艾迪',pos:[1000,830],bg:'#0a0a0d',set:'#set3',lx:700,i:['40%','60%'],mk:()=>SETS.dock(),
+{g:'S 系列',n:'艾迪的办法',sub:'码头 · 傍晚 · 一大垛没搬完的货',sh:'艾迪',pos:[1000,830],bg:'#0a0a0d',set:'#set3',lx:700,i:['40%','60%'],mk:()=>SETS.dock(),
 ini(){$('#front').innerHTML=FRBOX;$('#front').style.opacity=0;P('ed',{d:0,show:0,x:1750,y:790,s:.6,f:1,face:'n'});P('nl',{d:0,show:0,x:-160,y:790,s:.6,f:0,face:'n'})},
 /* 取景固定；只有两次运镜：念头一转时慢慢推向尼尔，艾迪指向那垛货时慢慢拉开。人物一律走进走出，不凭空出现 */
 async run(k,{w,n,ed,nar,at,go,murmur,sigh}){
@@ -1154,18 +1180,81 @@ P('sk',{look:0,face:'hard',b:-8,h:-4,ar:-30,al:30});go('sk',1040,600);tn(140,.3,
 await s('你到底想问什么？');
 /* 5 演出结束：不展示订单、取件人或调查结论 */
 P('nl',{h:3});ticks(3,800);await w(1800);dolly(1,50,66,3500);await w(900)}},
+{g:'SC-A 系列',n:'SC-A02 酒保与夜莺',sub:'酒馆 · 吧台与小舞台 · 夜莺第一次登台',sh:'酒保夜莺',pos:[800,620],bg:'#0a0709',set:'#set3',lx:700,i:['40%','60%'],mk:()=>SETS.barNight(),
+ini(){$('#front').innerHTML=BNF;$('#front').style.opacity=0;P('bm',{d:0,show:0,x:600,y:790,s:.6,f:1,face:'n'});P('nl',{d:0,show:0,x:-160,y:790,s:.6,f:0,face:'n'});P('ny',{d:0,show:0,x:1175,y:700,s:.54,f:0,face:'n',hat:0,bag:0,umo:0,umc:0})},
+/* 有酒吧的劲儿：对白紧凑（pace .8），酒保手上一直有活，伴奏、人群、烟雾都在动；镜头固定在稍远处，只在夜莺听到掌声时慢慢推近，再拉开 */
+async run(k,{w,n,bm,at,go,murmur,pace,jazz,vocal}){
+Object.assign(POSES,{micAdj:{ar:-125,al:6,b:2,h:0},singP:{ar:-20,al:12,b:-2,h:-4}});
+$('#front').style.opacity=1;
+const crowd=hum([[930,790,.95,1],[1010,790,1.05,-1],[1100,790,.9,1],[1430,700,.7,-1],[1490,700,.72,-1]]);
+$('#props').insertAdjacentHTML('beforeend','<g class="st"><path d="M1000 650q-8 -14 0 -28t0 -28"/></g><g class="st" style="animation-delay:.8s"><path d="M920 650q-8 -14 0 -28t0 -28"/></g>');
+sp(2,600,1.4,.1,'#f3d08a');const mu=murmur(.55);pace(.8);
+/* 酒保手上一直有活：擦杯子（杯子在手边飞快地晃） */
+let wiping=false;const wipe=async()=>{wiping=true;pose('bm','wipe',{show:1,f:1,face:'n'});try{while(wiping&&k===gen){gl('gl',480,586,1,170,10);await w(200);gl('gl',466,594,1,170,-10);await w(200)}}catch(e){}};
+const rest=(p,o)=>{wiping=false;gl('gl',560,650,1,220);pose('bm',p,o)};
+gl('gw',395,650,1,0);wipe();
+await w(500);P('nl',{show:1,d:0});pose('nl','stand',{face:'n'});go('nl',230,1700);await w(1200);
+await bm('又没活儿了？');
+pose('nl','shrug',{face:'wry'});
+await n('有就不来问你了。');
+rest('point',{f:1,face:'smile'});
+await bm('码头，咖啡馆都有零工可做 。');
+pose('nl','stand',{face:'n',h:4});
+await n('你这儿呢？');
+pose('bm','talkA',{f:1,face:'n'});
+/* 夜莺从幕布后走出来，黑着灯走到话筒前；酒保这句说完，台上响起话筒的噪声 */
+at(900,async()=>{pose('ny','stand',{show:1,d:500,f:0,face:'n'});go('ny',1330,1500)});
+await bm('还是和以前一样，看场子，有人闹事就你来处理。至于平常的工钱，你知道。');
+pose('nl','shrug',{face:'sad'});
+pose('ny','micAdj',{f:1,face:'n'});bs(.18,.55,6000);tn(1800,.35,'sawtooth',.03);tn(120,.2,'square',.05);
+await w(500);
+pose('bm','idleDown',{f:0,face:'n',h:-6});pose('nl','stand',{f:0,face:'n',h:-2});await w(800);
+/* 追光亮起；她把话筒扶正，往前站一步；伴奏起，过两小节 */
+op('#spt',1);op('#spg',.4);sp(1,1290,1.2,.16,'#f3d08a');mu.set(.2);
+const jz=jazz(112,.7);
+await w(700);mv('ny',1285,700,500,'ease-out');pose('ny','singP',{f:1,face:'n'});
+const beat=async()=>{try{for(let i=0;k===gen&&i<40;i++){P('bm',{b:i%2?7:3,d:230});await w(536)}}catch(e){}};beat();
+await w(3400);
+pose('ny','singP',{f:1,face:'n',h:-9});await w(700);
+/* 开口唱：镜头保持稍远，台上台下都看得见 */
+const M1=[[440,1],[493.9,1],[523.3,2],[493.9,1],[440,1],[392,2],[329.6,1],[392,1],[440,2],[0,1],[523.3,1],[587.3,1.5],[523.3,.5],[493.9,2],[440,3]];
+const sing=vocal(M1,536,1);
+at(5200,()=>pose('ny','singHi',{f:1,face:'n',ar:-34,al:-4,h:-10}));
+await w(sing+200);
+/* 一曲唱完：掌声、欢呼；镜头慢慢推到她侧脸，她听见掌声，笑了一下 */
+cheer(crowd,2400);pose('ny','singP',{f:1,face:'smile',h:2});dolly(1.6,80,56,3200);
+await w(4200);
+/* 拉开，回到吧台这边 */
+dolly(1,50,60,2800);jz.set(.3);pace(1);await w(900);
+pose('nl','stand',{f:0,face:'n',h:-4});
+await n('她是谁？');
+pose('bm','idleDown',{f:0,face:'n',h:-4,b:3});
+await bm('夜莺。就快去大剧院了。');
+pose('bm','idleDown',{f:1,face:'n',h:0});pose('nl','stand',{f:0,face:'wry',h:2});
+await n('那里会要我们这儿的人？');
+pose('bm','shrug',{f:1,face:'smile'});
+await bm('也许是她唱得好吧。');
+/* 夜莺向乐手点头，继续下一段；酒保收走尼尔面前的空杯 */
+jz.set(.7);pose('ny','singP',{f:1,face:'n',h:8});await w(500);pose('ny','singP',{f:1,face:'n',h:-6});
+vocal([[440,1],[523.3,1],[587.3,2],[523.3,1],[493.9,1],[440,2],[392,1],[440,1],[329.6,3]],536,.8);
+pose('bm','push',{f:1,face:'n'});gl('gw',470,640,1,420,0,'ease-out');await w(480);gl('gw',470,640,0,200);pose('bm','idleDown',{f:1,face:'n'});
+pose('nl','stand',{f:0,face:'smile',h:2});
+await w(4200);jz.set(.15);await w(1200);jz.stop();mu.stop()}},
 ];
 const ZH=n=>{const d='零一二三四五六七八九';return n<10?d[n]:n<20?'十'+(n%10?d[n%10]:''):d[(n/10)|0]+'十'+(n%10?d[n%10]:'')};
-SC.forEach((s,i)=>{s.o=s.pos[0]+'px '+s.pos[1]+'px';s.num=ZH(i+1)});
+/* 分组：章节对象的 g 是系列名（缺省“早期片段”）；序号按组内计数；地图只显示当前组的地点 */
+const GROUPS=[],gcnt={};SC.forEach(s=>{s.g=s.g||'早期片段';if(!GROUPS.includes(s.g))GROUPS.push(s.g);gcnt[s.g]=(gcnt[s.g]||0)+1;s.num=ZH(gcnt[s.g]);s.o=s.pos[0]+'px '+s.pos[1]+'px'});
+let curG=GROUPS[GROUPS.length-1];
+const nextIn=j=>{for(let m=j+1;m<SC.length;m++)if(SC[m].g===SC[j].g)return m;return null};
 /* world markers */
-(function(){let h='';SC.forEach((s,i)=>{const[x,y]=s.pos;h+=`<rect x="${x-34}" y="${y-48}" width="68" height="92" fill="#05070e"/><g class="mkr" data-i="${i}"><g filter="url(#glow)"><rect x="${x-12}" y="${y-22}" width="24" height="30" fill="#0b0f1c" stroke="#ffd98a" stroke-width="2.5"/><rect x="${x-18}" y="${y+6}" width="36" height="8" fill="#0b0f1c" stroke="#ffd98a" stroke-width="2"/></g><circle class="pl" cx="${x}" cy="${y-6}" r="30"/><circle cx="${x}" cy="${y-6}" r="40" fill="rgba(0,0,0,0)" style="pointer-events:all"/><text x="${x}" y="${y-32}" text-anchor="middle" font-size="17" letter-spacing="2" fill="#ffd98a" opacity=".9" font-family="serif">${s.num} ${s.sh}</text></g>`});$('#hm')&&$('#hm').remove();$('#world').insertAdjacentHTML('beforeend',h)})();
+(function(){let h='';SC.forEach((s,i)=>{const[x,y]=s.pos;h+=`<g class="mk" data-g="${s.g}"><rect x="${x-34}" y="${y-48}" width="68" height="92" fill="#05070e"/><g class="mkr" data-i="${i}"><g filter="url(#glow)"><rect x="${x-12}" y="${y-22}" width="24" height="30" fill="#0b0f1c" stroke="#ffd98a" stroke-width="2.5"/><rect x="${x-18}" y="${y+6}" width="36" height="8" fill="#0b0f1c" stroke="#ffd98a" stroke-width="2"/></g><circle class="pl" cx="${x}" cy="${y-6}" r="30"/><circle cx="${x}" cy="${y-6}" r="40" fill="rgba(0,0,0,0)" style="pointer-events:all"/><text x="${x}" y="${y-32}" text-anchor="middle" font-size="17" letter-spacing="2" fill="#ffd98a" opacity=".9" font-family="serif">${s.num} ${s.sh}</text></g></g>`});$('#hm')&&$('#hm').remove();$('#world').insertAdjacentHTML('beforeend',h)})();
 function reset(){dolly(1,50,60,0);const W=$('#world'),stg=$('#stage');W.style.cssText='transition:none;transform:scale(1);filter:none;opacity:1';
 document.querySelectorAll('.set').forEach(s=>{s.style.transition='none';s.setAttribute('class','set');s.style.opacity=0});void W.offsetWidth;W.style.cssText='';document.querySelectorAll('.set').forEach(s=>s.style.transition='');
 $('#set3').innerHTML='';$('#props').innerHTML='';$('#front').innerHTML='';$('#front').style.opacity=1;fxf('none',0);pk(0,0,.01,0,0,10);gh(1000,670,.3,0);
 $('#leaf').style.transform='';for(const s of['#bt','#sg','#dl'])op(s,0);$('#nw').classList.remove('lit');$('#vr').classList.remove('on');$('#fx').classList.remove('rn');
 for(const id in G)P(id,{d:0,show:0,x:-400,y:790,s:.56,f:0,b:0,h:0,al:0,ar:0,face:'n',tr:0,look:0,back:0,hat:0,bag:0,umo:0,umc:0,cg:0,ll:0,lr:0,cl:{tk:0,wk:0,sob:0,run:0,snap:0,bnc:0,swy:0,swy2:0}});
 sp(1,800,1,0);sp(2,800,1,0);rainI=0;rainS(0);cc();$('#title').classList.remove('on');stg.style.setProperty('--ix','50%');stg.style.background='#05070e'}
-const chips=()=>document.querySelectorAll('#chips button').forEach((b,i)=>b.classList.toggle('cur',i===cur));
+const chips=()=>document.querySelectorAll('#chips button').forEach(b=>b.classList.toggle('cur',+b.dataset.i===cur));
 function idle(msg){reset();$('#stage').classList.add('idl');$('#title').innerHTML=msg||'<h1>立绘剧场 · 线绘世界</h1><p>亮着的地方藏着故事 · 点击地图上的地点，或使用下方按钮</p>';$('#title').classList.add('on');chips()}
 async function chapter(S,k){const stg=$('#stage'),W=$('#world'),h=H(k),w=h.w;reset();stg.classList.remove('idl');
 stg.style.setProperty('--i1',S.i?S.i[0]:'20%');stg.style.setProperty('--i2',S.i?S.i[1]:'52%');
@@ -1181,12 +1270,15 @@ dolly(1,50,60,900);
 SET.style.opacity=0;$('#front').style.opacity=0;op('#pack',0);op('#gh',0);rainI=0;rainS(0);cc();$('#props').innerHTML='';await w(900);
 W.style.transition='transform 3.8s cubic-bezier(.65,0,.25,1),filter 3.8s,opacity 1.4s';W.style.transform='scale(1)';W.style.filter='none';W.style.opacity=1;stg.style.background='#05070e';whoosh();await w(4000)}
 async function play(i,seq){ai();if(AC.state==='suspended')AC.resume();const k=++gen;if(paused)tgl(true);$('#pp').disabled=$('#rp').disabled=false;
-try{for(let j=i;j<SC.length;j++){cur=j;chips();await chapter(SC[j],k);if(!seq)break}
-idle(seq?'<h1>终</h1><p>立绘剧场 · 线绘世界 · 全剧连播结束</p>':'<h1>'+SC[cur].num+' · '+SC[cur].n+' · 完</h1><p>选择下一个地点，或重播</p>')}catch(e){if(e!==0)throw e}}
+try{for(let j=i;j!==null;j=nextIn(j)){cur=j;showGroup(SC[j].g);await chapter(SC[j],k);if(!seq)break}
+idle(seq?'<h1>终</h1><p>立绘剧场 · 线绘世界 · 本组连播结束</p>':'<h1>'+SC[cur].num+' · '+SC[cur].n+' · 完</h1><p>选择下一个地点，或重播</p>')}catch(e){if(e!==0)throw e}}
 function tgl(f){paused=f?false:!paused;if(paused){held=document.getAnimations().filter(a=>a.playState==='running');held.forEach(a=>a.pause());AC&&AC.suspend()}else{held.forEach(a=>{try{a.play()}catch(e){}});held=[];AC&&AC.resume()}$('#pp').textContent=paused?'继续':'暂停'}
-SC.forEach((s,i)=>{const b=document.createElement('button');b.textContent=s.num+' '+s.sh;b.title=s.n;b.onclick=()=>play(i);$('#chips').appendChild(b)});
+function showGroup(g){curG=g;document.querySelectorAll('#gtabs button').forEach(b=>b.classList.toggle('cur',b.dataset.g===g));
+$('#chips').innerHTML='';SC.forEach((s,i)=>{if(s.g!==g)return;const b=document.createElement('button');b.textContent=s.num+' '+s.sh;b.title=s.n;b.dataset.i=i;b.onclick=()=>play(i);$('#chips').appendChild(b)});
+document.querySelectorAll('.mk').forEach(m=>m.style.display=m.dataset.g===g?'':'none');chips()}
+GROUPS.forEach(g=>{const b=document.createElement('button');b.textContent=g;b.dataset.g=g;b.onclick=()=>showGroup(g);$('#gtabs').appendChild(b)});showGroup(curG);
 document.querySelectorAll('.mkr').forEach(m=>m.onclick=()=>play(+m.dataset.i));
-$('#all').onclick=()=>play(0,true);$('#rp').onclick=()=>play(Math.max(cur,0));$('#pp').onclick=()=>tgl();
+$('#all').onclick=()=>play(SC.findIndex(s=>s.g===curG),true);$('#rp').onclick=()=>play(Math.max(cur,0));$('#pp').onclick=()=>tgl();
 $('#ga').onclick=()=>{$('#chs').className.baseVal='a';$('#ga').classList.add('cur');$('#gb').classList.remove('cur')};
 $('#gb').onclick=()=>{$('#chs').className.baseVal='b';$('#gb').classList.add('cur');$('#ga').classList.remove('cur')};
 $('#mk').onclick=()=>{const s=$('#stage');s.classList.toggle('noiris');const on=!s.classList.contains('noiris');$('#mk').textContent='光孔遮罩 '+(on?'开':'关');$('#mk').classList.toggle('cur',on)};

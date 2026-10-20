@@ -27,6 +27,7 @@ const mv=(id,x,y,ms,ease='linear',s)=>{G[id].style.transitionTimingFunction=ease
 const dolly=(s=1,x=50,y=60,ms=4000)=>{for(const q of['#bg','#fg']){const e=$(q);e.style.transformOrigin=`${x}% ${y}%`;e.dataset.dms=ms;camTr(e);e.style.transform=s==1?'':`scale(${s})`}};
 const inset=(id,x,y,s,o,ms=500)=>{const e=$('#'+id);e.style.transition=`transform ${ms}ms cubic-bezier(.2,.8,.3,1),opacity ${ms}ms`;e.style.transform=`translate(${x}px,${y}px) scale(${s})`;e.style.opacity=o};
 function H(k){const w=ms=>sleep(ms,k);/* at(ms,fn)：不阻塞地在台词进行中触发动作；sigh：原地叹气（头低、微前倾、气声）；ticks：钟表滴答 */
+let spd=1;/* 台词节奏倍率：快速对白可 pace(.8) */const pace=v=>spd=v;
 const at=(ms,fn)=>setTimeout(()=>{if(k===gen)fn()},ms);
 const sigh=async(id,ms=1500)=>{P(id,{h:14,b:6,d:900});bs(.5,.07,700);tn(190,.7,'sine',.02);await w(ms*.6);P(id,{h:3,b:0,d:900});await w(ms*.4)};
 /* 电影式硬切：瞬黑（无过渡）→ 黑场 hold 毫秒 → 瞬亮。swap 在黑场里执行，换景后的线稿直接画满（.now 关掉描线过渡），亮起时是完整的下一场景。 */
@@ -40,11 +41,11 @@ const clink=()=>{tn(2300,.18,'sine',.07);tn(3100,.12,'sine',.05,.02)};
 const faceCam=(id,s=1.6,ms=1800)=>dolly(s,G[id].st.x/16,56,ms);
 const ticks=(n,gap=900)=>{for(let i=0;i<n;i++)at(i*gap,()=>tn(i%2?1500:1250,.03,'square',.025))};
 
-const say=async(who,text,o)=>{if(k!==gen)throw 0;const n=NM[who];cap.innerHTML=`<b style="color:${n[1]}">${n[0]}${o==1?'（电铃）':o==2?'（独白）':''}</b>`+(o==2?'<em>':'')+[...text].map((ch,i)=>`<span style="animation-delay:${i*48}ms">${ch}</span>`).join('')+(o==2?'</em>':'');const dur=450+text.length*105;
+const say=async(who,text,o)=>{if(k!==gen)throw 0;const n=NM[who];cap.innerHTML=`<b style="color:${n[1]}">${n[0]}${o==1?'（电铃）':o==2?'（独白）':''}</b>`+(o==2?'<em>':'')+[...text].map((ch,i)=>`<span style="animation-delay:${i*48}ms">${ch}</span>`).join('')+(o==2?'</em>':'');const dur=(450+text.length*105)*spd;
 if(o==1){op('#sg',1);$('#vr').classList.add('on');$('#nw').classList.add('lit');const iv=setInterval(()=>op('#sg',Math.random()>.5?1:.55),160);try{await w(dur)}finally{clearInterval(iv);op('#sg',0);$('#vr').classList.remove('on')}}
 else if(o==2){await w(dur+600)}
 else{const g=G[who];sp(1,g.st.x,.55,.13,'#9db0e0');setIx(g.st.x);g.classList.add('tk');try{await w(dur)}finally{g.classList.remove('tk')}}};
 const go=(id,x,ms,o={})=>{P(id,{x,d:ms,cl:{wk:1},...o});steps(ms);setTimeout(()=>{if(k===gen)P(id,{cl:{wk:0}})},ms)};
 const fl=async()=>{for(const v of[.15,1,.3,.9,.5,1]){lamp(v);zap();await w(110)}};
 const nar=async(t,ms)=>{cap.innerHTML='<em>'+t+'</em>';await w(ms??700+t.length*85)};
-return{w,say,go,fl,nar,at,sigh,ticks,cut,scene,murmur,clink,faceCam,n:t=>say('nl',t),y:t=>say('ny',t),f:t=>say('fr',t),m:t=>say('mg',t),b:t=>say('bn',t),l:t=>say('ld',t),s:t=>say('sk',t),bm:t=>say('bm',t),ed:t=>say('ed',t),ho:t=>say('ho',t),mono:t=>say('nl',t,2)}}
+return{pace,jazz:JZ(k),vocal:VOCAL(k),w,say,go,fl,nar,at,sigh,ticks,cut,scene,murmur,clink,faceCam,n:t=>say('nl',t),y:t=>say('ny',t),f:t=>say('fr',t),m:t=>say('mg',t),b:t=>say('bn',t),l:t=>say('ld',t),s:t=>say('sk',t),bm:t=>say('bm',t),ed:t=>say('ed',t),ho:t=>say('ho',t),mono:t=>say('nl',t,2)}}

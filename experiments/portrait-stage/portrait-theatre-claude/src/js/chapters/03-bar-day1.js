@@ -1,4 +1,4 @@
-{n:'第一日酒馆',sub:'酒馆 · 白天 · 吧台两侧',sh:'酒馆',pos:[520,600],bg:'#0b0a0c',set:'#set3',lx:900,i:['40%','60%'],mk:()=>SETS.barDay(),
+{g:'S 系列',n:'第一日酒馆',sub:'酒馆 · 白天 · 吧台两侧',sh:'酒馆',pos:[520,600],bg:'#0b0a0c',set:'#set3',lx:900,i:['40%','60%'],mk:()=>SETS.barDay(),
 ini(){$('#front').innerHTML=BDC;$('#front').style.opacity=0;P('bm',{d:0,show:0,x:1050,y:790,s:.6,f:1,face:'n'});P('nl',{d:0,show:0,x:-160,y:790,s:.6,f:0,face:'n'})},
 /* 白天，客人稀疏。熟不熟全靠动作：酒保没抬头就递来一杯水，尼尔不用开口就接住 */
 async run(k,{w,n,bm,at,go,murmur}){

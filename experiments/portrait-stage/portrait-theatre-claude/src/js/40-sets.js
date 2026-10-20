@@ -104,3 +104,13 @@ SETS.dock=()=>{let w='';for(let i=0;i<6;i++)w+=LL(`M${i*300} ${836+i%2*14}h200`,
 const cr=(x,y)=>RR(x,y,110,100,'s',1.2,2.5,'#cdbf9e')+LL(`M${x} ${y}L${x+110} ${y+100}M${x+110} ${y}L${x} ${y+100}`,'',1.4,1.5,'#8a7a5c');
 return GROUND+w+cr(120,690)+cr(230,690)+cr(175,590)+cr(1150,690)+cr(1260,690)+cr(1150,590)+cr(1260,590)+cr(1205,490)+LL('M1480 40V790','',.4,4,'#9fb4e0')+LL('M1480 90H900','',.5,3,'#9fb4e0')+LL('M1480 150L1380 90','',.6,2,'#7f95c4')+LL('M930 90V300','',.9,1.5,'#7f95c4')+LL('M930 300q-18 0 -18 22q0 20 18 20','',1,2.5,'#cfe0ff')+LL('M560 790V380','',.7,3,'#9fb4e0')+RR(540,340,40,40,'s',1,2.5,'#e6eeff')+'<circle cx="560" cy="360" r="120" fill="#f3d08a" opacity=".13"/>'+RR(900,744,40,46,'s',1.5,2,'#9fb4e0')};
 const FRBOX='<path d="M610 700H790V790H610Z" fill="#07080c" stroke="#cdbf9e" stroke-width="2.5"/><path d="M610 700L790 790M790 700L610 790" stroke="#8a7a5c" stroke-width="2"/><path d="M610 700H790" stroke="#f0f4ff" stroke-width="4"/>'+CRATE('cr')+'<g id="gv" style="opacity:0"><rect x="-16" y="-9" width="32" height="18" rx="5" fill="#6a4a2a" stroke="#c9a06a" stroke-width="2"/></g>';
+
+/* ===== SC-A 系列：夜晚的酒吧（效果优先，不沿用 S 系列的酒吧）=====
+   左：吧台（前景层）+ 酒保 + 镜子/酒架/霓虹；中：卡座隔断（前景层，遮住坐着的客人下半身）；右：带幕布的小舞台，追光 #spt，话筒立在前景层，钢琴在前景层 */
+SETS.barNight=()=>{let cur='';for(let i=0;i<7;i++)cur+=LL(`M${1190+i*58} 270V690`,'',1.1+i*.05,1.5,'#7f6a55');
+return GROUND+RR(430,140,360,140,'s',.7,3,'#9fb4e0')+LL('M470 250L520 170M560 250L640 170','',1.2,1.5,'#4f6490')+BOT(400,840,470)+SCONCE(320,330)+SCONCE(880,330)+NEONC(1010,100)
++RR(1170,250,420,450,'',.8,2.5,'#7f6a55')+cur+RR(1160,700,440,90,'s',1,3,'#e0c890')+LL('M1160 718H1600','',1.4,1.5,'#7f6a55')
++'<polygon id="spt" points="1250,0 1310,0 1480,700 1090,700" fill="url(#cn)" stroke="none" style="opacity:0;transition:opacity .35s"/><ellipse id="spg" cx="1290" cy="705" rx="200" ry="22" fill="#f3d08a" opacity="0" style="transition:opacity .35s"/>'};
+const BNF=DK(340,860,650,860)+DK(880,1130,694,860)+'<path d="M910 694l-4 -22h12zM1060 694l-4 -30h16z" fill="#07080c" stroke="#e6eeff" stroke-width="2"/><circle cx="1000" cy="684" r="46" fill="#f3d08a" opacity=".1"/><circle cx="1000" cy="690" r="5" fill="#ffd98a"/>'
++'<g stroke="#e6eeff" stroke-width="3" fill="none"><path d="M1210 700V500"/><path d="M1190 700h40"/><path d="M1210 500q0 -26 22 -26" stroke-linecap="round"/></g><ellipse cx="1236" cy="474" rx="10" ry="14" fill="#07080c" stroke="#e6eeff" stroke-width="2.5"/>'
++'<path d="M1380 650H1590V700H1380Z" fill="#07080c" stroke="#e0c890" stroke-width="2.5"/><path d="M1380 650H1590" stroke="#f0f4ff" stroke-width="4"/><path d="M1380 650l16 -54H1590" fill="none" stroke="#e0c890" stroke-width="2.5"/>'+GL('gl')+GL('gw');

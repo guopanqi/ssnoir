@@ -1,4 +1,4 @@
-{n:'序幕夜',sub:'贝尔维尔 · 不夜城 · 酒吧、街口、旅馆',sh:'序幕',pos:[260,540],bg:'#0a0709',set:'#set3',lx:760,i:['40%','60%'],hardOut:1,mk:()=>SETS.barBooth(),
+{g:'S 系列',n:'序幕夜',sub:'贝尔维尔 · 不夜城 · 酒吧、街口、旅馆',sh:'序幕',pos:[260,540],bg:'#0a0709',set:'#set3',lx:760,i:['40%','60%'],hardOut:1,mk:()=>SETS.barBooth(),
 ini(){$('#front').innerHTML=BTBL+GL('gl');$('#front').style.opacity=0;P('nl',{d:0,show:0,x:760,y:812,s:.62,f:0,face:'drunk'});P('ho',{d:0,show:0,x:940,y:790,s:.56,f:1,face:'n'})},
 /* 四个镜头：卡座 → 吧台 → 酒吧门外 → 旅馆大堂；镜头之间全是硬切（瞬黑 1.5 秒、瞬亮），没有任何渐变 */
 async run(k,{w,n,ho,cut,scene,murmur,clink,at}){
