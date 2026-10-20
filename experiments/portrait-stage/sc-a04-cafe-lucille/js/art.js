@@ -229,15 +229,15 @@
     s += line(x0 + 14, 790, x1, 790, { delay: .98, dur: .8, width: 1.6 });
 
     // 派柜
-    s += solidRect(x0 + 62, top - 88, 122, 88, '#0b1018', { opacity: .9 });
-    s += ink(`M${x0 + 62} ${top - 88}H${x0 + 184}V${top}H${x0 + 62}Z`, { delay: .88, dur: .8, width: 1.4 });
-    s += `<path class="solid" d="M${x0 + 74} ${top - 96}Q${x0 + 122} ${top - 140} ${x0 + 170} ${top - 96}Z" fill="#16202e" opacity=".85"/>`;
-    s += ink(`M${x0 + 74} ${top - 96}Q${x0 + 122} ${top - 140} ${x0 + 170} ${top - 96}`, { delay: .94, dur: .7, width: 1.2, stroke: LINE_DIM });
-    s += line(x0 + 82, top - 78, x0 + 162, top - 78, { delay: .96, dur: .5, width: .8, stroke: LINE_DIM });
+    s += solidRect(x0 + 230, top - 88, 122, 88, '#0b1018', { opacity: .9 });
+    s += ink(`M${x0 + 230} ${top - 88}H${x0 + 352}V${top}H${x0 + 230}Z`, { delay: .88, dur: .8, width: 1.4 });
+    s += `<path class="solid" d="M${x0 + 242} ${top - 96}Q${x0 + 290} ${top - 140} ${x0 + 338} ${top - 96}Z" fill="#16202e" opacity=".85"/>`;
+    s += ink(`M${x0 + 242} ${top - 96}Q${x0 + 290} ${top - 140} ${x0 + 338} ${top - 96}`, { delay: .94, dur: .7, width: 1.2, stroke: LINE_DIM });
+    s += line(x0 + 250, top - 78, x0 + 330, top - 78, { delay: .96, dur: .5, width: .8, stroke: LINE_DIM });
     // 派
-    s += `<ellipse cx="${x0 + 122}" cy="${top - 26}" rx="46" ry="11" fill="#3a2416" stroke="#c9a45c" stroke-width="1.1" class="soft"/>`;
+    s += `<ellipse cx="${x0 + 290}" cy="${top - 26}" rx="46" ry="11" fill="#3a2416" stroke="#c9a45c" stroke-width="1.1" class="soft"/>`;
     for (let i = -2; i <= 2; i++) {
-      s += line(x0 + 122 + i * 16, top - 33, x0 + 122 + i * 16, top - 18, { delay: 1, dur: .3, width: .8, stroke: '#c9a45c' });
+      s += line(x0 + 290 + i * 16, top - 33, x0 + 290 + i * 16, top - 18, { delay: 1, dur: .3, width: .8, stroke: '#c9a45c' });
     }
 
     // 收银机
@@ -261,13 +261,13 @@
     </g>`;
 
     // 一摞碟子与零钱
-    s += cup(x0 + 296, top - 6, .85, { delay: 1 });
-    s += cup(x0 + 322, top - 12, .85, { delay: 1.04 });
+    s += cup(x0 + 42, top - 6, .85, { delay: 1 });
+    s += cup(x0 + 68, top - 12, .85, { delay: 1.04 });
     s += `<g id="coins">
-      <ellipse cx="${x0 + 424}" cy="${top - 6}" rx="15" ry="4" fill="#c9a45c" opacity=".8"/>
-      <ellipse cx="${x0 + 424}" cy="${top - 10}" rx="15" ry="4" fill="#e0bd78" opacity=".85"/>
-      <ellipse cx="${x0 + 440}" cy="${top - 4}" rx="9" ry="3" fill="#c9a45c" opacity=".8"/>
-      <ellipse cx="${x0 + 408}" cy="${top - 3}" rx="8" ry="2.6" fill="#c9a45c" opacity=".7"/>
+      <ellipse cx="${x0 + 164}" cy="${top - 6}" rx="15" ry="4" fill="#c9a45c" opacity=".8"/>
+      <ellipse cx="${x0 + 164}" cy="${top - 10}" rx="15" ry="4" fill="#e0bd78" opacity=".85"/>
+      <ellipse cx="${x0 + 180}" cy="${top - 4}" rx="9" ry="3" fill="#c9a45c" opacity=".8"/>
+      <ellipse cx="${x0 + 148}" cy="${top - 3}" rx="8" ry="2.6" fill="#c9a45c" opacity=".7"/>
     </g>`;
 
     return s;
@@ -390,18 +390,20 @@
     return `${defs()}
       <g id="setBack">${backWall()}</g>
       ${lightPools()}
-      <g id="setFront">
+      <g id="setStructure">
         ${windowSet()}
         ${doorSet()}
         ${wallClock()}
         ${coatRack()}
         ${backBar()}
-        ${counter()}
+      </g>
+      <g id="castLu"></g>
+      <g id="setCounter">${counter()}</g>
+      <g id="setFront">
         ${tableSet()}
         ${lamps()}
       </g>
       <g id="cupFly-wrap">${cupFly()}</g>
-      <g id="castLu"></g>
       <g id="castNl"></g>
       <g id="houseDim-wrap"><rect id="houseDim" x="0" y="0" width="1600" height="900" fill="url(#dimGrad)"/></g>
       <g id="fg"></g>`;
