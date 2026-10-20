@@ -80,8 +80,8 @@ export class WorldSaveController {
     // JSON quoted Scheme strings are safe string literals. `read` returns
     // the saved datum and never evaluates a procedure or authored game action.
     const literal=JSON.stringify(data.worldDatum);
-    const nativeDay=data.state.globals?.["世界日"];
-    if(typeof nativeDay!=="number"||!Number.isSafeInteger(nativeDay)||nativeDay<1)
+    const savedNativeDay=data.state.globals?.["世界日"];
+    if(typeof savedNativeDay!=="number"||!Number.isSafeInteger(savedNativeDay)||savedNativeDay<1)
       throw new Error("save calendar mismatch: invalid native day");
     // The authored world-load! deliberately writes '世界日 from its Scheme
     // datum. Compare BOTH saved copies before invoking that mutation, or an
@@ -90,7 +90,7 @@ export class WorldSaveController {
     await fresh.session.evaluate(
       '(let ((datum (read (open-input-string '+literal+')))) '+
       '(if (and (number? (assoc-get datum "day" #f)) '+
-      '(= (assoc-get datum "day" #f) '+nativeDay+')) '+
+      '(= (assoc-get datum "day" #f) '+savedNativeDay+')) '+
       '(world-load! datum) (error "save calendar mismatch: authored day differs")))'
     );
     // world-load! owns the authored calendar, while the typed save also
