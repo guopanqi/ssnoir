@@ -1,6 +1,6 @@
 # Phase 2 — single-runtime acceptance contract
 
-**Status: IN PROGRESS. Real world/engine smoke and all four platform mock regressions passed in GitHub Actions run [38116949362](https://github.com/guopanqi/ssnoir/actions/runs/38116949362), commit `e59c0771`. This is a partial gate, not Phase 2 acceptance.**
+**Status: IN PROGRESS. Latest verified runtime checkpoint [Game Foundation 39373675180](https://github.com/guopanqi/ssnoir/actions/runs/39373675180) and [Phase 2 Authored Contracts 39373675233](https://github.com/guopanqi/ssnoir/actions/runs/39373675233), both successful at commit `58f8932e3f0dfd32a5d88b33d293d189f56e606b` (2026-10-20). Phase 2 as a whole is NOT accepted yet.**
 The user approved Phase 1 locally. Phase 2 is to replace the *game runtime* while preserving real authored SSNoir content and first-stage Web/WeChat/TapTap/Electron infrastructure.
 
 ## End-to-end completion gates
@@ -117,3 +117,21 @@ This closes only **the encounter carry-card subgate**, not the full multi-actor 
 - Portable restore checks the typed saved world day **against** the original Scheme datum *before* invoking `world-load!`. That original callback overwrites the global calendar, so checking afterward cannot detect tampering. The check shares the same `read` invocation and adds no extra full-datum parsing.
 
 These changes repair CI-detected discrepancies without modifying the authoritative original story scripts. Verify all Phase 2 and four-platform CI results before marking this increment accepted.
+
+## Verified October 20 checkpoint — genuine encounter carry actions, camera, save consistency
+
+- **Phase 2 authored runtime workflow [39373675233](https://github.com/guopanqi/ssnoir/actions/runs/39373675233): success; 30 tests passed, 0 failed.** Original chapter-one tavern → two nights → Nightingale commission → save/load, the original blackmail encounter, relationship support and failed-support rollback were among the passing tests.
+- **Game Foundation [39373675180](https://github.com/guopanqi/ssnoir/actions/runs/39373675180): success.** This includes TypeScript, source-level tests, Web and WeChat builds, TapTap 2.0.5 conversion, real browser Playwright interaction and save smoke, Electron headless, WeChat and TapTap mocked offscreen Canvas/compatibility variants. These results do not constitute a real-device compatibility certification for the new runtime.
+- The C# `CurrentCarryNodes` pathway is now implemented from the original `(encounter-action-nodes)`: tobacco/liquor are **item + die** actions, and Frank's support summons a temporary companion. The engine, not authored actions, controls once-per-encounter support consumption. The cards remain outside the scenario render tree but are accessible in the real encounter UI.
+- The four-argument C# `__play-camera!` contract retains the cut boolean in a typed story event. It currently displays as a provisional camera cue; actual Unity-style anchor travel is **not** yet implemented.
+- Saving rejects native/authoring calendar mismatch **before** `world-load!` overwrites the typed global date. The source story scripts and story state are left unchanged.
+- Regression tests for the original old-street tavern now reflect the canonical two visible trouble clocks and the conditional day-two access to its cafe/harbor introduction, rather than changing the story to accommodate stale tests.
+
+### Explicitly outstanding
+
+1. Full Chapter 1 route and Chapter 2 representative multi-day/encounter reference traces comparing **C# and TS** outcomes, including failure branches, time pressure, follow-on clocks, story consequences, hospitalization and re-entry.
+2. Complete narrative asset/runtime parity (missing portraits/props, named camera transitions, motion/video and voice/audio). Existing visible placeholders are not completion evidence.
+3. Full native-SDK on-device validation of the actual *Phase 2 playable runtime* on WeChat Android/iOS and converted TapTap, plus Windows/macOS Electron release builds. Phase 1 approval remains intact but cannot substitute for these new playthrough gates.
+4. Remaining UI lifecycle and persistence edge cases, especially in-game actor/die choice and save/replay across more actual authored story boundaries.
+
+Maintain single `main` branch and one game implementation. Test new functionality against unchanged source content. Do not mark Phase 2 complete until all eight acceptance gates are closed by reproducible evidence.
