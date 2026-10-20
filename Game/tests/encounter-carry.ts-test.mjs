@@ -77,3 +77,15 @@ test("support for a different carried relationship cannot be executed through a 
   assert.equal(director.supportUsed,false);
   assert.equal(director.state.team.find("老街帮手"),undefined);
 });
+
+test("failed support effect restores once-per-encounter flag",async()=>{
+ const director=await build();
+ director.state.team.grantSupport("弗兰克");
+ await director.start("勒索信");
+ // Disposable VM-only failure injection; original story scripts are unmodified.
+ await director.encounter.evaluate('(define (support-frank) (node "叫个人来" :support "弗兰克" :resolve (instant (outcome (lambda () (error "support failed"))))))');
+ await director.actions.prepare();
+ await assert.rejects(director.actions.performSlots("叫个人来",[]),/support failed/);
+ assert.equal(director.supportUsed,false);
+ assert.equal(director.state.team.find("老街帮手"),undefined);
+});

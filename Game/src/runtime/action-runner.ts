@@ -79,7 +79,7 @@ function findNode(root:RuntimeNode, name:string):RuntimeNode|undefined {
 }
 export interface EncounterCarryHooks {
   isSupportUsed():boolean;
-  markSupportUsed():void;
+  setSupportUsed(used:boolean):void;
   getCarriedSupport():string|false;
 }
 export class GameActionRunner {
@@ -207,6 +207,7 @@ export class GameActionRunner {
     const actorId=dice[0]?.actorId??"player",actor=this.state.team.require(actorId);
     if(actor.status!=="active")throw new Error("inactive acting actor");
     const before=this.state.snapshot();
+    const priorSupportUsed=this.carryHooks?.isSupportUsed()??false;
     this.state.beginActionContext(actorId,this.state.currentMode() as "world"|"encounter");
     this.state.beginActionReport();
     try{
@@ -231,9 +232,11 @@ export class GameActionRunner {
         roll=resolveFate(dice[0].value,this.state.team.stat(actorId,skill),
           modifier,this.turn.rollPercentage());
       }
+      // In C# the support is charged before its effect; failures restore
+      // the TS-only flag consistently with the native-state rollback.
+      if(node.supportId)this.carryHooks!.setSupportUsed(true);
       await this.scripts.evaluate("(__ssnoir-run-captured-node! "+
         JSON.stringify(name)+" "+JSON.stringify(roll?.outcome??"success")+")");
-      if(node.supportId)this.carryHooks!.markSupportUsed();
       for(const item of slots){
         if(item.type==="die")this.state.team.spendDie(item.actorId,item.slotId);
         // C# SceneManager.ExecuteAction clips an item-slot spend to zero.
@@ -244,7 +247,9 @@ export class GameActionRunner {
         chosenDie:dice[0]?.value,prepared:roll?.prepared,percentageRoll:roll?.percentageRoll,
         before,after:this.state.snapshot(),clockEffects:this.state.takeActionReport()};
     }catch(error){
-      this.state.cancelActionReport();this.state.restore(before);throw error;
+      this.state.cancelActionReport();this.state.restore(before);
+      if(node.supportId)this.carryHooks?.setSupportUsed(priorSupportUsed);
+      throw error;
     }finally{this.state.clearActionContext();}
   }
 

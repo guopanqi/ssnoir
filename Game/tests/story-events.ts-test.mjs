@@ -38,3 +38,16 @@ test("video outside action is intentionally ignored, but dialogue goes to immedi
  assert.equal(queue[0].immediate,true);
  assert.equal(queue[0].kind,"dialogue");
 });
+
+test("current four-field C# camera native validates and queues cut/glide without dropping flag",()=>{
+ const state=new GameRuntimeState(),bridge=createNativeBridge(state);
+ state.beginActionReport();
+ assert.throws(()=>bridge["__play-camera!"]("老街",0.5,"家"),/expects 4/);
+ assert.throws(()=>bridge["__play-camera!"]("老街",0.5,"家","yes"),/invalid camera/);
+ bridge["__play-camera!"]("老街",0.5,"家",false);
+ bridge["__play-camera!"]("剧院",0,"后台",true);
+ state.takeActionReport();
+ const events=state.takeStoryEvents();
+ assert.deepEqual(events.map(x=>x.args),[["老街",0.5,"家",false],["剧院",0,"后台",true]]);
+ assert.ok(events.every(x=>x.kind==="camera"&&x.blocking));
+});

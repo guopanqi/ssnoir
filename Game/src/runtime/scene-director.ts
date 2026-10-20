@@ -166,7 +166,7 @@ export class GameSceneDirector {
       await encounter.loadFile(sourceName);
       const runner=await GameActionRunner.create(encounter,this.state,new ActionTurnState(this.random),{
         isSupportUsed:()=>this.supportUsed,
-        markSupportUsed:()=>{this.supportUsed=true;},
+        setSupportUsed:(used)=>{this.supportUsed=used;},
         getCarriedSupport:()=>this.state.team.getCarriedSupport()
       });
       this.encounter=encounter;this.encounterActions=runner;

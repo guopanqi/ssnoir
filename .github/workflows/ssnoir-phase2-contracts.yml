@@ -39,4 +39,6 @@ jobs:
             tests/world-save.ts-test.mjs \
             tests/tavern-watch.ts-test.mjs \
             tests/encounter-director.ts-test.mjs \
+            tests/encounter-carry.ts-test.mjs \
+            tests/story-events.ts-test.mjs \
             tests/encounter-round.ts-test.mjs
