@@ -42,7 +42,11 @@ const DISPATCH = `
               (error "malformed place arrival")))
           (get-kwarg (cddr place) ':arrivals '())))))
 (define (__ssnoir-run-captured-node! name chosen)
-  (let ((n (__ssnoir-find-node __ssnoir-active-render-root name)))
+  (let ((n (or (__ssnoir-find-node __ssnoir-active-render-root name)
+               (if (and (defined? '__ssnoir-carry-render-root)
+                        __ssnoir-carry-render-root)
+                   (__ssnoir-find-node __ssnoir-carry-render-root name)
+                   #f))))
     (if (not n)
       (error "action node vanished from render tree")
       (let ((resolve (get-kwarg (cddr n) ':resolve #f)))
@@ -73,17 +77,24 @@ function findNode(root:RuntimeNode, name:string):RuntimeNode|undefined {
     if(n)return n;
   }
 }
+export interface EncounterCarryHooks {
+  isSupportUsed():boolean;
+  markSupportUsed():void;
+  getCarriedSupport():string|false;
+}
 export class GameActionRunner {
   private root:RuntimeNode|null=null;
+  private carry:RuntimeNode[]=[];
   readonly scripts:GameScriptSession;
   readonly state:GameRuntimeState;
   readonly turn:ActionTurnState;
-  private constructor(scripts:GameScriptSession,state:GameRuntimeState,turn:ActionTurnState) {
-    this.scripts=scripts; this.state=state; this.turn=turn;
+  private readonly carryHooks?:EncounterCarryHooks;
+  private constructor(scripts:GameScriptSession,state:GameRuntimeState,turn:ActionTurnState,carryHooks?:EncounterCarryHooks) {
+    this.scripts=scripts; this.state=state; this.turn=turn;this.carryHooks=carryHooks;
   }
-  static async create(scripts:GameScriptSession,state:GameRuntimeState,turn:ActionTurnState):Promise<GameActionRunner>{
+  static async create(scripts:GameScriptSession,state:GameRuntimeState,turn:ActionTurnState,carryHooks?:EncounterCarryHooks):Promise<GameActionRunner>{
     await scripts.evaluate(DISPATCH);
-    const result=new GameActionRunner(scripts,state,turn);
+    const result=new GameActionRunner(scripts,state,turn,carryHooks);
     return result;
   }
 
@@ -91,6 +102,23 @@ export class GameActionRunner {
     // Store Scheme closures in the interpreter, not in serializable game state.
     const value=await this.scripts.evaluate("(define __ssnoir-active-render-root "+source+") __ssnoir-active-render-root");
     this.root=convertNode(value);
+    if(this.carryHooks){
+      // These authored cards live beside the encounter tree, as in C# CurrentCarryNodes.
+      // Keep the Scheme closures in their original encounter VM.
+      const raw=await this.scripts.evaluate(
+        '(define __ssnoir-carry-render-root (node "__ssnoir-carry" :children (encounter-action-nodes))) __ssnoir-carry-render-root'
+      );
+      const carry=convertNode(raw).children;
+      const seen=new Set<string>();
+      const visit=(n:RuntimeNode)=>{seen.add(n.name);for(const child of n.children)visit(child);};
+      visit(this.root);
+      for(const card of carry){
+        if(seen.has(card.name))throw new Error("Encounter carry card name conflicts with scene: "+card.name);
+        if(!card.resolve||card.children.length||card.isPlace)throw new Error("invalid encounter carry card: "+card.name);
+        if(card.supportId&&card.requires.length)throw new Error("support cards must not have requirement slots");
+      }
+      this.carry=carry;
+    }else this.carry=[];
     return this.root;
   }
 
@@ -99,6 +127,7 @@ export class GameActionRunner {
    * world tree again after enterPlace has already refreshed it.
    */
   getPreparedRoot():RuntimeNode|null {return this.root;}
+  getCarryNodes():RuntimeNode[]{return [...this.carry];}
 
   /** World navigation is not an action; it never consumes a die or advances a day. */
   async enterPlace(name:string):Promise<RuntimeNode>{
@@ -144,11 +173,18 @@ export class GameActionRunner {
     {type:"item";itemId:string;qty:number}
   )[]):Promise<ActionResult>{
     if(!this.root)throw new Error("render tree must be prepared");
-    const node=findNode(this.root,name);
+    const node=findNode(this.root,name)??this.carry.find(n=>n.name===name);
     if(!node||node.disabled||!node.resolve||
       (node.resolve.kind!=="roll"&&node.resolve.kind!=="instant"))
       throw new Error("unavailable action "+name);
     if(slots.length!==node.requires.length)throw new Error("slot count mismatch");
+    if(node.supportId){
+      if(!this.carryHooks||this.state.currentMode()!=="encounter")
+        throw new Error("support card only usable during an encounter");
+      if(this.carryHooks.getCarriedSupport()!==node.supportId)
+        throw new Error("support card does not match the carried relationship");
+      if(this.carryHooks.isSupportUsed())throw new Error("support already used this encounter");
+    }
     const dice:Array<{actorId:string;slotId:number;value:number}>=[];
     const used=new Set<string>();
     for(let i=0;i<slots.length;i++){
@@ -197,9 +233,11 @@ export class GameActionRunner {
       }
       await this.scripts.evaluate("(__ssnoir-run-captured-node! "+
         JSON.stringify(name)+" "+JSON.stringify(roll?.outcome??"success")+")");
+      if(node.supportId)this.carryHooks!.markSupportUsed();
       for(const item of slots){
         if(item.type==="die")this.state.team.spendDie(item.actorId,item.slotId);
-        else this.state.setItemCount(item.itemId,this.state.getItemCount(item.itemId)-item.qty);
+        // C# SceneManager.ExecuteAction clips an item-slot spend to zero.
+        else this.state.setItemCount(item.itemId,Math.max(0,this.state.getItemCount(item.itemId)-item.qty));
       }
       if(!this.state.hasPendingHospitalization())await this.scripts.evaluate("(on-action)");
       return {name,mode:node.resolve.kind,outcome:roll?.outcome,

@@ -233,8 +233,10 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
     const visible=displayedNames.slice(listPage*7,(listPage+1)*7);
     for(let i=0;i<visible.length;i++){
       const name=visible[i],x=wx+18,y=wy+92+i*42,width=panelWidth-36,height=35;
-      const candidate=(currentContainer?.children??authoredWorld?.root.children??[])
-        .find(n=>n.name===name);
+      const inEncounter=authoredWorld?.mode==="encounter";
+      const candidates=(currentContainer?.children??authoredWorld?.root.children??[]);
+      const candidate=candidates.find(n=>n.name===name)??(
+        inEncounter?authoredWorld?.runner.getCarryNodes().find(n=>n.name===name):undefined);
       const shownName=name==="__dossier"?"卷宗 · 线索与委托":
         name.startsWith("__dossier-entry:")?"◇ "+name.slice("__dossier-entry:".length):
         name.startsWith("__dossier-row:")?dossierRowDetails[Number(name.slice("__dossier-row:".length))]??name:
@@ -326,7 +328,9 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
     currentContainer=node;
     worldHeading.text="场景 / "+node.name;
     worldStatus.text=node.subtitle||"查看行动，或返回上一级";
-    renderPlaces(node.children.map(n=>n.name),true);
+    const sideActions=authoredWorld?.mode==="encounter"&&
+      node===authoredWorld.root?authoredWorld.runner.getCarryNodes():[];
+    renderPlaces([...node.children,...sideActions].map(n=>n.name),true);
     updateHud(node.subtitle||node.title);
   };
   // Keep foundation startup independent of a content load failure.
@@ -479,7 +483,9 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
         selectedPlace="__world-action";
       }
       if(!currentContainer)return;
-      const target=currentContainer.children.find(x=>x.name===name);
+      const target=currentContainer.children.find(x=>x.name===name)??
+        (authoredWorld.mode==="encounter"&&currentContainer===authoredWorld.root?
+          authoredWorld.runner.getCarryNodes().find(x=>x.name===name):undefined);
       if(!target||target.disabled)throw new Error("unavailable node "+name);
       if(target.children.length){
         navigationStack.push(currentContainer.name);showContainer(target);return;

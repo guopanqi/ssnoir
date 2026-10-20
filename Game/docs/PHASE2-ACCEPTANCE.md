@@ -103,3 +103,9 @@ The actual revised tavern prologue invokes C# natives `__apply-drunk!`, `__play-
 ## Graphic-noir city preview
 
 The phase-one eight bare WebGL cuboids are now architecturally legible through hard roof cornices, restrained instanced lit windows, a street lamp, and localized lighting. This is an inexpensive shared WebGL2 backdrop with no extra texture/network dependencies. It is **not** a substitute for original CityBox art assets, whose migration still has a separate acceptance gate. While an authored place is loading, every gameplay control is locked against racing the script's world entry effects.
+
+## Encounter carry cards and relationship supports — 2026-10-20
+
+The C# `SceneManager.CurrentCarryNodes` path was absent from the TypeScript encounter host. The same authored `(encounter-action-nodes)` now produces a separate typed list of carry/support cards, outside `get-render-data`. Cards retain Scheme effect closures in the encounter VM; UI shows them beside encounter cards rather than adding them to the authored scenario tree. The engine enforces exactly one carried relationship support per encounter and disables it on use. On exit/re-entry the limit resets. The original C# item slot consumer clips remaining stock at zero. The new regression runs the original Frank support card and cigarette action in `勒索信`; platform builds must pass before acceptance.
+
+This closes only **the encounter carry-card subgate**, not the full multi-actor or visual parity gates. The game still needs a full C# vs TS trace through several authored encounters.

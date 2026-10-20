@@ -164,7 +164,11 @@ export class GameSceneDirector {
         "__ssnoir-mode":()=>this.mode
       },this.random);
       await encounter.loadFile(sourceName);
-      const runner=await GameActionRunner.create(encounter,this.state,new ActionTurnState(this.random));
+      const runner=await GameActionRunner.create(encounter,this.state,new ActionTurnState(this.random),{
+        isSupportUsed:()=>this.supportUsed,
+        markSupportUsed:()=>{this.supportUsed=true;},
+        getCarriedSupport:()=>this.state.team.getCarriedSupport()
+      });
       this.encounter=encounter;this.encounterActions=runner;
       this.state.team.rollDice(this.random,true,false,this.state.injury.actionSlotLoss);
       this.state.beginActionReport();
