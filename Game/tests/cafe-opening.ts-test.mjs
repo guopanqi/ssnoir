@@ -20,6 +20,10 @@ test("bartender's second visit reveals both livelihood locations and cafe offers
  const state=new GameRuntimeState();
  const vm=await GameScriptSession.create("cafe-introduction",state,sources,standard);
  await vm.loadFile("scenes/world/world.scm");
+ // Current authored map hides the tavern on day one; this second-visit
+ // conversation is evaluated on the next city day.
+ await vm.evaluate("(set! world-day 2)");
+ state.setGlobal("世界日",2);
  await vm.evaluate(`(three-letters 'load! (list (list "story-stage" 1)))`);
  const truth=async(expr)=>await vm.evaluateNumber(`(if ${expr} 1 0)`);
  const visible=(name)=>truth(`(member? "${name}" (map (lambda (loc) (car (loc 'render-data))) '()))`);
