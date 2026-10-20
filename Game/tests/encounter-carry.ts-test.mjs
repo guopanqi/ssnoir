@@ -24,13 +24,19 @@ test("real blackmail encounter exposes original carry item, not inside the autho
   assert.ok(carry.some(n=>n.name==="抽烟"&&n.carryItemId==="香烟"));
   assert.ok(!root.children.some(n=>n.name==="抽烟"),"carry card must be outside scenario tree");
   const before=director.state.getItemCount("香烟");
-  const action=await director.actions.performSlots("抽烟",[]);
+  assert.deepEqual(carry.find(n=>n.name==="抽烟")?.requires.map(x=>x.type),["item","die"],
+    "original carry action spends one consumable and one die");
+  const action=await director.actions.performSlots("抽烟",[
+    {type:"item",itemId:"香烟",qty:1},{type:"die",actorId:"player",slotId:0}
+  ]);
   assert.equal(action.mode,"instant");
   assert.equal(director.state.getItemCount("香烟"),before-1);
-  assert.equal(director.state.team.dice("player").length,4,"carry card consumes no die");
+  assert.equal(director.state.team.dice("player").length,3,"original carry action spends a die");
   await director.actions.prepare();
   assert.ok(director.actions.getCarryNodes().some(n=>n.name==="抽烟"));
-  await director.actions.performSlots("抽烟",[]);
+  await director.actions.performSlots("抽烟",[
+    {type:"item",itemId:"香烟",qty:1},{type:"die",actorId:"player",slotId:1}
+  ]);
   assert.equal(director.state.getItemCount("香烟"),0);
   await director.actions.prepare();
   assert.ok(!director.actions.getCarryNodes().some(n=>n.name==="抽烟"),

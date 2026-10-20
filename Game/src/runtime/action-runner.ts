@@ -11,6 +11,7 @@ import { resolveFate, type RollOutcome } from "./fate-strip.ts";
  * or tries to serialize live procedures.
  */
 const DISPATCH = `
+(define __ssnoir-carry-render-root #f)
 (define (__ssnoir-find-node node name)
   (if (equal? (cadr node) name)
     node
@@ -43,8 +44,7 @@ const DISPATCH = `
           (get-kwarg (cddr place) ':arrivals '())))))
 (define (__ssnoir-run-captured-node! name chosen)
   (let ((n (or (__ssnoir-find-node __ssnoir-active-render-root name)
-               (if (and (defined? '__ssnoir-carry-render-root)
-                        __ssnoir-carry-render-root)
+               (if __ssnoir-carry-render-root
                    (__ssnoir-find-node __ssnoir-carry-render-root name)
                    #f))))
     (if (not n)
