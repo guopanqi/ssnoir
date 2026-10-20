@@ -57,7 +57,7 @@ test("every watch and foreman disturbance has authored spatial noise; first expl
   const content=sources["scenes/world/老街酒馆.scm"];
   for(const trouble of ["醉客纠缠","门口争执","赖账客人","醉客闹事","账目短缺","后门斗殴"])
     assert.ok(content.includes(`(equal? kind "${trouble}")`),`missing noise variant: ${trouble}`);
-  assert.match(content,/play-watch-trouble-noise! watch-trouble first\?/);
+  assert.match(content,/play-watch-trouble-noise! watch-trouble \(and first\? \(= world-day 1\)\)/);
   assert.match(content,/play-foreman-trouble-noise! tavern-trouble/);
   assert.match(content,/尼尔，那桌有人闹事/);
   assert.match(content,/有些时候，这里会出现一些麻烦/);
