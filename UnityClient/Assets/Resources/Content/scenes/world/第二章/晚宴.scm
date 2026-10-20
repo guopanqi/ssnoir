@@ -82,7 +82,7 @@
 
     (define (node-go)
       (node "赴晚宴"
-        :title (tr "赴晚宴" "Go to the Banquet")
+        :name (tr "赴晚宴" "Go to the Banquet")
         :anchor "格兰德酒店"
         :tags (list "交锋")
         :resolve (instant (lambda ()

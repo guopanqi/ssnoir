@@ -396,7 +396,7 @@
   (append
     (map (lambda (entry) (岗位节点 (car entry))) 可用岗位)
     (list (node "委派人员" :anchor "勒索信-报摊"
-      :title (if 已提醒待命? "仍有人待命" "委派人员")
+      :name (if 已提醒待命? "仍有人待命" "委派人员")
       :subtitle (cond
         (已提醒待命? (string-append (待命姓名) "尚未委派；仍要开始吗？"))
         ((null? (待命人员)) "人员已就位；开始后进入蹲守阶段")

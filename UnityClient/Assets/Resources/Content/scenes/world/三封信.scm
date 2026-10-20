@@ -388,7 +388,7 @@
         ((and (= story-stage 0) (> world-day 2))
          (rest-block! "三封信/开场敲门" "有人敲门" "家" "有人敲门"))
         (delivery-pending?
-         (rest-block! "三封信/勒索信" "今晚必须处理勒索信" "码头" "交信之夜"))
+         (rest-block! "三封信/勒索信" "今晚必须处理勒索信" "码头" "处理勒索信"))
         ((and (= story-stage 2) (not (has-flag? '伤后探望)))
          (rest-block! "三封信/伤后探望" "她在门外等你" "家" "她来看你"))
         ((second-letter-pending?)
@@ -653,31 +653,45 @@
         (else (error "三封信：照片尾随判定结果非法")))
       (on-delivery-result (list (if (eq? grade '坏) '跟丢 '拿到线索) 0)))
 
+    ;; 现金不足时只在其他路线都不可执行时保留交付兜底；禁用的设伏不算可用路线。
+    (define (delivery-envelope-visible?)
+      (or (>= (item-count "金钱") delivery-price)
+          (and (not (ambush-ready?))
+               (not (photo-case 'source-record-known?)))))
+
     (define (node-delivery-entry)
-      (at-anchor "勒索信"
-        (container "交信之夜"
+      ;; 入口和行动共用码头主锚点与码头机位，不切进邮箱的局部机位。
+      (define anchor "码头")
+      (at-anchor anchor
+        (container "处理勒索信"
           (if photo-follow-choice?
             (list
               (note-node "标注：尾随风险" ""
                 "放取信者带走假信封，今晚不拦截。失手可能再也找不到他。")
               (node "坚持尾随"
+                :anchor anchor
                 :subtitle "确认后投入一枚骰子，成功可获得物证"
                 :requires (list (req-die))
                 :resolve (roll 'sharpness
                   (outcome (lambda () (执行照片尾随! '坏)))
                   (outcome (lambda () (执行照片尾随! '中)))
                   (outcome (lambda () (执行照片尾随! '好)))))
-              (instant-action "再考虑其他办法"
-                (lambda () (set! photo-follow-choice? #f))))
+              (at-anchor anchor
+                (instant-action "再考虑其他办法"
+                  (lambda () (set! photo-follow-choice? #f)))))
             (append
-              (list
-                (node "交付信封"
-                  :subtitle (if (>= (item-count "金钱") delivery-price)
-                    "现金足额；交付后独自盯梢"
-                    "不足额用报纸掩饰；对方发现后可能报复")
-                  :resolve (instant 交钱赴约!)))
+              (if (delivery-envelope-visible?)
+                (list
+                  (node "交付信封"
+                    :anchor anchor
+                    :subtitle (if (>= (item-count "金钱") delivery-price)
+                      "现金足额；交付后独自盯梢"
+                      "不足额用报纸掩饰；对方发现后可能报复")
+                    :resolve (instant 交钱赴约!)))
+                '())
               (if (dock 'eddie-met?)
                 (list (node "设伏抓人"
+                  :anchor anchor
                   :subtitle (if (ambush-ready?)
                     "艾迪会到场；用假信封，不花赎金"
                     "艾迪尚未换好班，今晚无法到场")
@@ -686,6 +700,7 @@
                 '())
               (if (photo-case 'source-record-known?)
                 (list (node "利用照片尾随"
+                  :anchor anchor
                   :subtitle "让他拿走假信封；不拦截，有跟丢风险"
                   :resolve (instant 提出照片尾随!)))
                 '()))))))
@@ -2246,14 +2261,22 @@
 ;; "回家见夜莺"是任务；"听她讲码头居民区"是她要说的话——写在这儿等于替玩家
 ;; 先把那场戏剧透了一半，而且那句话还没发生。会发生什么由情势那段（situation-text）
 ;; 和真正演出来的对白负责，这一行只负责指路。
-(define (current-objective)
+    ;; 三条路径共享同一就绪条件；只读取现有事实，不另存任务进度。
+    (define (delivery-ready?)
+      (or (>= (item-count "金钱") delivery-price)
+          (ambush-ready?)
+          (photo-case 'source-record-known?)))
+
+    (define (current-objective)
       (cond
         ((= story-stage 1)
-         (string-append
-           "筹集金钱 " (number->string (min delivery-price (item-count "金钱")))
-           "/" (number->string delivery-price)
-           (if (dock 'eddie-met?) "；或 找到帮手" "")
-           (if (photo-case 'source-lead-known?) "；或 追查照片线索" "")))
+         (if (delivery-ready?)
+           "已就绪"
+           (string-append
+             "赚够要求的钱 " (number->string (item-count "金钱"))
+             "/" (number->string delivery-price)
+             (if (dock 'eddie-met?) "\n或 和艾迪制定计划" "")
+             (if (photo-case 'source-lead-known?) "\n或 调查照片线索" "\n或 寻找其他办法"))))
         ((= story-stage 2)
          (cond
            ((not (has-flag? '伤后探望))
@@ -2494,7 +2517,7 @@
               (#t "家"))
         (if (= story-stage 1) (card-clocks) '())
         (list (step "准备赴约"
-                    (or (has-flag? '勒索信已结算) (>= (item-count "金钱") delivery-price)))
+                    (or (has-flag? '勒索信已结算) (delivery-ready?)))
               (step "投信之夜，盯住邮箱" (has-flag? '勒索信已结算))
               (step "回家见夜莺" (ransom-done?)))))
 

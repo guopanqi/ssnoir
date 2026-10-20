@@ -4,17 +4,19 @@
   (let ()
     (define character-stories-open? #f) ; 人物支线等待重新排布
     (define opening-talk-heard? #f)
-    ;; 好14、中5、坏0且冷静-1；首日首班必定出现赖账客人，之后保留随机闹事。
+    ;; 好14、中5、坏0且冷静-1；首次看场子必定出现赖账客人，之后保留随机闹事。
     (define watch-first? #t) ; 首次工作完成前；随存档保存，避免重复触发
     (define watch-trouble-day 0)
     (define watch-trouble "")
-    (define watch-reward 15)
-    (define watch-progress (make-clock "解决麻烦" 3 'gauge "填满后获得额外报酬。"))
-    ;; 气泡演争执；首日首班后由调酒师说明可选的额外差事。
+    (define watch-reward 5) ; 本次事件报酬：首次剧情10，日常随机5
+    (define watch-progress (make-clock "解决麻烦" 2 'gauge "填满后获得额外报酬。"))
+    ;; 气泡演争执；首次看场子后由调酒师过来招呼尼尔。
     ;; 两个已存在的场景落点：人群靠工作台、另一人靠酒馆中央。
     ;; 两天期限由麻烦出现的日期推导，读档后与世界日历保持一致。
     (define (watch-deadline)
-      (日期倒计时 "麻烦期限" (+ watch-trouble-day 2) 2 "两天内解决可获额外报酬；到期散场。"))
+      (clock-priority
+        (日期倒计时 "麻烦期限" (+ watch-trouble-day 2) 2 "两天内解决可获额外报酬；到期散场。")
+        'secondary))
     (define (play-watch-trouble-noise! kind first?)
       (cond
         ((equal? kind "醉客纠缠")
@@ -31,12 +33,15 @@
            (line "客人" "我付过了！少来这套！" :at "老街酒馆")))
         (else (error "看场：未知麻烦类型")))
       (play-dialogue!
+        (line "世界" "调酒师从吧台后绕出来，走到尼尔身边。")
         (line "调酒师" (if first?
                             "尼尔，那桌有人闹事。赖着酒钱不肯走，帮我处理一下？"
                             "尼尔，那边又闹起来了。帮我处理一下？"))
         (line "调酒师" "有些时候，这里会出现一些麻烦，解决麻烦会带来回报。")
         (line "调酒师" "不过说过来，这本来就是你看场子应该做的……")
-        (line "调酒师" "这件事给你两天，解决了另外给你十五块。")))
+        (line "调酒师" (if first?
+                           "这件事给你两天，解决了另外给你十块。"
+                           "这件事给你两天，解决了另外给你五块。"))))
 
     (define (watch-work! pay bad?)
       (let ((first? watch-first?))
@@ -44,16 +49,17 @@
         (if bad? (spend-composure! 1) #f)
         (set! watch-first? #f)
         (if (and (equal? watch-trouble "")
-                 (or (and first? (= world-day 1))
+                 (or first?
                      (and bad? (not (= watch-trouble-day world-day))
                           (random-choice (list #t #f #f)))))
           (begin
             (set! watch-trouble-day world-day)
+            (set! watch-reward (if first? 10 5))
             (set! watch-trouble
-              (if (and first? (= world-day 1)) "赖账客人"
+              (if first? "赖账客人"
                   (random-choice (list "醉客纠缠" "门口争执" "赖账客人"))))
             (watch-progress 'reset!)
-            (play-watch-trouble-noise! watch-trouble (and first? (= world-day 1)))) #f))
+            (play-watch-trouble-noise! watch-trouble first?)) #f))
       #t)
     (define (watch-subtitle)
       "维持秩序；解决闹事可获额外报酬")
@@ -63,8 +69,8 @@
         (begin (set! watch-trouble "")
           (add-item! "金钱" watch-reward)
           (play-bubble! (line "调酒师" "多亏有你在，尼尔。" :at "老街酒馆-工作"))) #f))
-    (define (watch-action title skill)
-      (node title :anchor "老街酒馆-工作" :requires (list (req-die))
+    (define (watch-action title skill description)
+      (node title :anchor "老街酒馆-工作" :subtitle description :requires (list (req-die))
         :resolve (roll skill
           (outcome (lambda () (spend-composure! 1)))
           (outcome (lambda () (watch-handle! 1)))
@@ -90,9 +96,15 @@
               (clock-node "标注：看场麻烦处理" (watch-progress 'render-data))
               (clock-node "标注：看场麻烦期限" (watch-deadline))
               (watch-action (cond ((equal? watch-trouble "门口争执") "打圆场")
-                                 ((equal? watch-trouble "赖账客人") "问清账单") (else "劝他住手")) 'social)
+                                 ((equal? watch-trouble "赖账客人") "问清账单") (else "劝他住手")) 'social
+                (cond ((equal? watch-trouble "门口争执") "客气劝两句，给双方一个台阶。")
+                      ((equal? watch-trouble "赖账客人") "客气问清酒钱，把账单摆明白。")
+                      (else "好言相劝，让他放下酒杯。")))
               (watch-action (cond ((equal? watch-trouble "门口争执") "隔开两人")
-                                 ((equal? watch-trouble "赖账客人") "拦住离席") (else "赶走他")) 'violence)))))))
+                                 ((equal? watch-trouble "赖账客人") "拦住离席") (else "赶走他")) 'violence
+                (cond ((equal? watch-trouble "门口争执") "动手拉开两人，谁也别再上前。")
+                      ((equal? watch-trouble "赖账客人") "堵住去路，用拳头让他认账。")
+                      (else "揪住衣领，把他赶到门外。")))))))))
     ;; 两天后现场散去；不扣资源，也不触发责骂或后续剧情。
     (define-turn-start-rule "看场麻烦散场"
       (lambda () (and (not (equal? watch-trouble ""))
@@ -768,6 +780,7 @@
           ((equal? msg 'save)
            (list (list "watch-first?" watch-first?)
                  (list "watch-trouble-day" watch-trouble-day) (list "watch-trouble" watch-trouble)
+                 (list "watch-reward" watch-reward)
                  (list "watch-progress" (watch-progress 'save))
                  (list "opening-talk-heard?" opening-talk-heard?)
                  (list "closed-days" closed-days)
@@ -790,6 +803,9 @@
              (set! watch-first? (assoc-get data "watch-first?" #t))
              (set! watch-trouble-day (assoc-get data "watch-trouble-day" 0))
              (set! watch-trouble (assoc-get data "watch-trouble" ""))
+             (set! watch-reward (assoc-get data "watch-reward" 5))
+             (if (member? watch-reward '(5 10)) #t
+               (error "看场存档：麻烦报酬非法"))
              (watch-progress 'load! (assoc-get data "watch-progress" 0))
              (watch-progress 'load! (assoc-get data "watch-progress" 0))
              (if (member? watch-trouble '("" "醉客纠缠" "门口争执" "赖账客人")) #t

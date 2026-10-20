@@ -13,6 +13,8 @@
 | `.scm` 可执行结构：节点组装、新 DSL 调用、规则、Clock、save/load、encounter，或大段重构 | `./run --validate` |
 | `UnityClient/Assets/Resources/Content/scripts/engine.scm` | `./run --validate`；若同时改了 C# bridge，再按下一行构建 |
 | `Engine/Runtime/**`、`tools/content-validator/**` | `dotnet build tools/content-validator/SSNoir.ContentValidator.csproj` |
+| 节点 `Id` / 显示 `Name`、节点查找与分组钟展示契约 | `dotnet run --project tools/content-validator/SSNoir.ContentValidator.csproj -- --test-node-identity`；覆盖同名节点、重复 ID、按 ID 导航/执行和照相馆分组钟 |
+| 骰池新一手、消费与回合重置版本契约 | `dotnet run --project tools/content-validator/SSNoir.ContentValidator.csproj -- --test-dice-reset`；覆盖同值重发、未花骰覆盖、伤势封锁、刷新/消费/场景切换和日终发骰 |
 | `schemy-master/**` | `./schemy-master/build-unity-plugin.sh`（同时重建 Unity 使用的 DLL） |
 | 判定分布 | `./run --test-odds` |
 | 交锋的回合规则、目标结算、入场与结束路径 | 审阅 diff；**只有用户要求试跑时**才 `./run --playtest`（见下节） |

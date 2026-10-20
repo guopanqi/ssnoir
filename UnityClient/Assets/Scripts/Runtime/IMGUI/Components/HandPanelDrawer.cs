@@ -497,7 +497,7 @@ namespace SSNoir.IMGUI
                     if (reserved > 0) DrawMovingDie(DieInsideSlot(slotRect), reserved);
                 }
             }
-            NoteDiceArrivals(actor, snapshot);
+            NoteDiceArrivals(actor);
             for (int d = 0; d < diceCount; d++)
             {
                 var slot = new Rect(x + actor.ActionDiceSlotIds[d] * TokenSpacing, diceY, TokenSize, TokenSize);
@@ -700,55 +700,37 @@ namespace SSNoir.IMGUI
         private struct DieRollState
         {
             public int Value;
+            public long Revision;
             public float StartedAt;
             public float SeenAt;
         }
 
         private static readonly Dictionary<string, DieRollState> _dieRolls = new Dictionary<string, DieRollState>();
-        private static readonly Dictionary<string, int> _lastDiceCount = new Dictionary<string, int>();
-        private static readonly Dictionary<string, int> _lastRollDay = new Dictionary<string, int>();
-
-        // 骰位号是稳定的空间身份（见 ActionDiceSlotIds），所以拿它当键：
-        // 骰子投出去时这一条消失，补上时又出现——那正好就是"获得了新骰子"。
+        // 位置决定骰子的空间身份；Revision 决定这是否是重新发放的一手。
         private static string RollKey(ActorSnapshot actor, int index)
             => actor.Id + ":" + actor.ActionDiceSlotIds[index];
 
-        /// <summary>
-        /// 这一帧哪几颗是新的。三种都算：
-        /// 一是<b>换了一天</b>——每天早上那一把无条件重掷，哪怕昨天剩下的骰子点数一模一样；
-        /// 二是这个人的骰子总数变多了（交锋里一轮一补，那一轮没有日期可依）；
-        /// 三是这个骰位刚刚有了骰子，或者点数换了。
-        ///
-        /// 只靠"点数变了"是不够的：今天掷出 4、昨天也是 4，那一颗就会一动不动地待在那儿，
-        /// 而它其实是新的一颗。日期和总数这两条是补这个洞的。
-        /// </summary>
-        private static void NoteDiceArrivals(ActorSnapshot actor, PresentationSnapshot snapshot)
+        public static void ResetDiceAnimations() => _dieRolls.Clear();
+
+        private static void NoteDiceArrivals(ActorSnapshot actor)
         {
-            float now = Time.time;
-            int count = actor.ActionDice.Count;
-
-            _lastDiceCount.TryGetValue(actor.Id, out int lastCount);
-            bool replenished = count > lastCount;
-            _lastDiceCount[actor.Id] = count;
-
-            bool newDay = _lastRollDay.TryGetValue(actor.Id, out int lastDay) && lastDay != snapshot.WorldDay;
-            _lastRollDay[actor.Id] = snapshot.WorldDay;
-
-            bool refreshed = replenished || newDay;
-
-            for (int d = 0; d < count; d++)
+            float now = Time.unscaledTime;
+            for (int d = 0; d < actor.ActionDice.Count; d++)
             {
                 string key = RollKey(actor, d);
                 int val = actor.ActionDice[d];
-                if (_dieRolls.TryGetValue(key, out var state) && state.Value == val && !refreshed)
+                if (_dieRolls.TryGetValue(key, out var state)
+                    && state.Revision == actor.ActionDiceRevision && state.Value == val)
                 {
                     state.SeenAt = now;
                     _dieRolls[key] = state;
                     continue;
                 }
-                _dieRolls[key] = new DieRollState { Value = val, StartedAt = now, SeenAt = now };
+                _dieRolls[key] = new DieRollState
+                {
+                    Value = val, Revision = actor.ActionDiceRevision, StartedAt = now, SeenAt = now
+                };
             }
-
             PruneStaleRolls(now);
         }
 
@@ -757,7 +739,7 @@ namespace SSNoir.IMGUI
         {
             if (!_dieRolls.TryGetValue(RollKey(actor, index), out var state))
                 return 1f;
-            float elapsed = Time.time - state.StartedAt - index * RollStagger;
+            float elapsed = Time.unscaledTime - state.StartedAt - actor.ActionDiceSlotIds[index] * RollStagger;
             return Mathf.Clamp01(elapsed / RollDuration);
         }
 
@@ -766,7 +748,7 @@ namespace SSNoir.IMGUI
         {
             if (!_dieRolls.TryGetValue(RollKey(actor, index), out var state))
                 return 0f;
-            float since = Time.time - (state.StartedAt + index * RollStagger + RollDuration);
+            float since = Time.unscaledTime - (state.StartedAt + actor.ActionDiceSlotIds[index] * RollStagger + RollDuration);
             if (since < 0f || since > SettleFlash) return 0f;
             return 1f - since / SettleFlash;
         }
@@ -777,17 +759,21 @@ namespace SSNoir.IMGUI
         /// </summary>
         public static bool HasUnsettledDice(PresentationSnapshot snapshot)
         {
-            float now = Time.time;
+            float now = Time.unscaledTime;
+            bool unsettled = false;
             foreach (var actor in snapshot.Actors)
             {
+                if (!actor.OnStage) continue;
+                // 等待方也登记新一手，不依赖 OnGUI 是否已画过，避免自动行动抢在滚骰前开始。
+                NoteDiceArrivals(actor);
                 for (int index = 0; index < actor.ActionDice.Count; index++)
                 {
                     if (_dieRolls.TryGetValue(RollKey(actor, index), out var state)
-                        && now < state.StartedAt + index * RollStagger + RollDuration + SettleFlash)
-                        return true;
+                        && now < state.StartedAt + actor.ActionDiceSlotIds[index] * RollStagger + RollDuration + SettleFlash)
+                        unsettled = true;
                 }
             }
-            return false;
+            return unsettled;
         }
 
         private static void PruneStaleRolls(float now)
@@ -1143,7 +1129,7 @@ namespace SSNoir.IMGUI
             {
                 var homeRect = new Rect(functionX, functionY, functionW, functionH);
                 // 已经在家就不该再点：NavigateToHome 本来就会直接返回，按钮只是把这说出来。
-                bool alreadyAtHome = gameManager.NavigationStack.Any(node => node.Name == "家");
+                bool alreadyAtHome = gameManager.NavigationStack.Any(node => node.Id == "家");
                 if (DrawFunctionBlock(homeRect, "回 家", ui, alreadyAtHome))
                     gameManager.NavigateToHome();
             }
@@ -1236,7 +1222,7 @@ namespace SSNoir.IMGUI
             {
                 int requireCount = nodes[i].Requires?.Count ?? 0;
                 bool hasRequirements = requireCount > 0;
-                var slots = gameManager.GetSlotsForNode(nodes[i].Name);
+                var slots = gameManager.GetSlotsForNode(nodes[i].Id);
                 bool armed = !hasRequirements || (slots != null && slots.Any(slot => slot != null));
                 float h = hasRequirements
                     ? CompactCardBaseH + (armed ? CompactExecuteGap + CompactExecuteH : 0f)
@@ -1263,14 +1249,14 @@ namespace SSNoir.IMGUI
         {
             var node = nodes[index];
             var rect = EncounterActionCardRect(nodes, index, right, bottom, gameManager);
-            DrawnActionRects[node.Name] = rect;
+            DrawnActionRects[node.Id] = rect;
             if (!string.IsNullOrEmpty(node.CarryItemId)
                 && (node.Requires == null || node.Requires.Count != 2))
                 throw new InvalidOperationException(
-                    $"随身消费动作「{node.Name}」必须正好有物品和行动骰两个需求槽（见 engine.scm 的 随身动作）");
+                    $"随身消费动作「{node.Id}」必须正好有物品和行动骰两个需求槽（见 engine.scm 的 随身动作）");
 
-            var slots = gameManager.GetSlotsForNode(node.Name) ?? new List<SlottedResource?>();
-            var execution = gameManager.GetExecutionState(node.Name);
+            var slots = gameManager.GetSlotsForNode(node.Id) ?? new List<SlottedResource?>();
+            var execution = gameManager.GetExecutionState(node.Id);
             bool disabled = ui.IsLocked || node.Disabled;
 
             GUI.color = disabled ? DisabledResourceBg : CardBlockBg;
@@ -1286,15 +1272,15 @@ namespace SSNoir.IMGUI
                 normal = { textColor = disabled ? DisabledResourceText : IMGUIStyles.Paper }
             };
             IMGUIStyles.ApplyStrongFont(titleStyle);
-            IMGUIStyles.DrawLabel(new Rect(rect.x + 4f, rect.y + 3f, rect.width - 8f, 22f), node.DisplayTitle, titleStyle);
+            IMGUIStyles.DrawLabel(new Rect(rect.x + 4f, rect.y + 3f, rect.width - 8f, 22f), node.Name, titleStyle);
 
             var requirements = node.Requires ?? new List<SSNoir.Core.ActionCost>();
             if (!string.IsNullOrEmpty(node.SupportId) && requirements.Count != 0)
                 throw new InvalidOperationException(
-                    $"关系支援「{node.Name}」不应有需求槽（见 engine.scm 的 support-frank），实际有 {requirements.Count} 个。");
+                    $"关系支援「{node.Id}」不应有需求槽（见 engine.scm 的 support-frank），实际有 {requirements.Count} 个。");
             if (string.IsNullOrEmpty(node.SupportId) && string.IsNullOrEmpty(node.CarryItemId))
                 throw new InvalidOperationException(
-                    $"非场景交锋动作「{node.Name}」必须声明 :carry-item 或 :support。");
+                    $"非场景交锋动作「{node.Id}」必须声明 :carry-item 或 :support。");
             int count = requirements.Count;
             float slotsW = count * CompactSlotSize + Mathf.Max(0, count - 1) * 6f;
             float slotX = rect.center.x - slotsW * 0.5f;

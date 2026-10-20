@@ -70,7 +70,7 @@
             (theatre-sound "脚步" "StageSounds/老街酒馆/脚步" #f .4 -.2)
             (theatre-wait 2.8)))))
     ;; （你去到莱恩的家，这里很多碎片。）
-    (theatre-caption-for "旁白" "（你去到莱恩的家，这里很多碎片。）" 2.235 "#C9CFE2")
+    (theatre-caption-auto "旁白" "（你去到莱恩的家，这里很多碎片。）" 2.235 "#C9CFE2")
     (theatre-wait .9)
     ;; 尼尔逐处查看碎片：走位 + 停顿，合成提示音省略。
     (theatre-tween "尼尔位置" 'scale-x 1 .1)
@@ -83,7 +83,7 @@
       (theatre-wait 1.3))
     (theatre-wait 1.3)
     ;; （你会进行探索，分析。）
-    (theatre-caption-for "旁白" "（你会进行探索，分析。）" 1.710 "#C9CFE2")
+    (theatre-caption-auto "旁白" "（你会进行探索，分析。）" 1.710 "#C9CFE2")
     (theatre-parallel
       (theatre-tween "尼尔位置" 'x 900 1.8 'smooth)
       (theatre-wait 1.9))
@@ -100,6 +100,6 @@
       (theatre-tween "说话柔光" 'opacity .3 1)
       (theatre-wait 1.2))
     ;; （其中一个东西，你拿了起来。）
-    (theatre-caption-for "旁白" "（其中一个东西，你拿了起来。）" 2.025 "#C9CFE2")
+    (theatre-caption-auto "旁白" "（其中一个东西，你拿了起来。）" 2.025 "#C9CFE2")
     (theatre-tween "吊灯" 'brightness .5 .4)
     (theatre-wait 1)))

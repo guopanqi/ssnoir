@@ -1,0 +1,174 @@
+[
+  {
+    "path": "UnityClient/Assets/Resources/Music/.DS_Store",
+    "sha256": "858fe975316722f727fb87659ba5e6321edcecd39b90c16419cf449b3097ae13"
+  },
+  {
+    "path": "UnityClient/Assets/Resources/Music/主题-对峙.wav",
+    "sha256": "0af4076fc5c18dc898dd0f7f9f0c4687b96a1edeee8a1cdc74b96eae528d8923"
+  },
+  {
+    "path": "UnityClient/Assets/Resources/Music/主题-对峙.wav.meta",
+    "sha256": "82b93de41b29b7fc39e289789205d4b98e1d4aeae06b6c2ac35e2a8acfe0c414"
+  },
+  {
+    "path": "UnityClient/Assets/Resources/Music/主题-悲伤.wav",
+    "sha256": "892fd25334511cec6f691ce28a59a3543438fb92c2a07374b2f9fd5368bbb029"
+  },
+  {
+    "path": "UnityClient/Assets/Resources/Music/主题-悲伤.wav.meta",
+    "sha256": "6b84fcf1ef2a30c54b3cc8984d1105cef49c8b4e8fd5d9690397252aa0aaa8e6"
+  },
+  {
+    "path": "UnityClient/Assets/Resources/Music/主题-温情.wav",
+    "sha256": "cdfe2ddce05581382abb60b10a764f982c4339dc02dc81c74738a839d1436682"
+  },
+  {
+    "path": "UnityClient/Assets/Resources/Music/主题-温情.wav.meta",
+    "sha256": "fd541e4c9b92a28a426d64b11213a2dab9453ebe23f774faccb0aa607b05410d"
+  },
+  {
+    "path": "UnityClient/Assets/Resources/Music/主题-追逐.wav",
+    "sha256": "c8a14426a618144ac0c2531cf17e2c203441dc553c857b45479b80f0be84ae26"
+  },
+  {
+    "path": "UnityClient/Assets/Resources/Music/主题-追逐.wav.meta",
+    "sha256": "b51a7123a863994ae4fe4b10459a776e32d8345c12bb18019a6636a0cd6ba556"
+  },
+  {
+    "path": "UnityClient/Assets/Resources/Music/唱片-1.wav",
+    "sha256": "c60626025c4c4c8bbaa019b34aa84b37562fad981cdb058db104ac2976ef0790"
+  },
+  {
+    "path": "UnityClient/Assets/Resources/Music/唱片-1.wav.meta",
+    "sha256": "08af9694550d28fab763dc65d3cc0fd9a78821f8af7c94e3229d20a506de2d59"
+  },
+  {
+    "path": "UnityClient/Assets/Resources/Music/唱片-2.wav",
+    "sha256": "ecfebb00081bdf78cfb6e5bd98a79fee416321d771f7a6334e41039877f18d61"
+  },
+  {
+    "path": "UnityClient/Assets/Resources/Music/唱片-2.wav.meta",
+    "sha256": "aa55f2aef32271c660b9c875b817d146628174caa9f989ed60873bb55bad629b"
+  },
+  {
+    "path": "UnityClient/Assets/Resources/Music/唱片-3.wav",
+    "sha256": "856ec956f80d54b5e2317c3d480d163677cb412d24969c53b04026245f77b297"
+  },
+  {
+    "path": "UnityClient/Assets/Resources/Music/唱片-3.wav.meta",
+    "sha256": "fe741f1ec38ee33d5b39c8f76863f02e12eaaf54fa5b21882aa1c73d3dfd782c"
+  },
+  {
+    "path": "UnityClient/Assets/Resources/Music/唱片-4.wav",
+    "sha256": "7202db8349d16842fec7b0186d587ee3f03ebb210f7fee777e0f1072221b12ec"
+  },
+  {
+    "path": "UnityClient/Assets/Resources/Music/唱片-4.wav.meta",
+    "sha256": "4e8ed0c0f59a9f6b07f60dba04e00de45cc4b8a30191d3190132768f363d9c42"
+  },
+  {
+    "path": "UnityClient/Assets/Resources/Music/唱片-5.wav",
+    "sha256": "815303cdae0d5c947b824d10ed15abfa481428487cda45b5f7ec76b04dedb03d"
+  },
+  {
+    "path": "UnityClient/Assets/Resources/Music/唱片-5.wav.meta",
+    "sha256": "078bacc3a9dcb6db0c4331d7a7a242b878ae8978c27a6b872fbc3ffc2849231f"
+  },
+  {
+    "path": "UnityClient/Assets/Resources/Music/城市-圆舞.wav",
+    "sha256": "13b82762c5f533f40955c8bca0516bd7329407020a858b5398414068ffcd36f4"
+  },
+  {
+    "path": "UnityClient/Assets/Resources/Music/城市-圆舞.wav.meta",
+    "sha256": "91e5cd5973148840d191f030502aeb7627ab829a8bf6a5d269a61b3e1069865c"
+  },
+  {
+    "path": "UnityClient/Assets/Resources/Music/城市-摇摆.wav",
+    "sha256": "b870389e56301b0b5fd3f78e6900271b683504e8c85de7f1cb1df5847a48b912"
+  },
+  {
+    "path": "UnityClient/Assets/Resources/Music/城市-摇摆.wav.meta",
+    "sha256": "ed0ae4c16f6d31a2ddf7e78a86e6fb9c5237d12dcf549380f8aec6d2012e0a58"
+  },
+  {
+    "path": "UnityClient/Assets/Resources/Music/试听-C.wav",
+    "sha256": "00955fc59a305d09e10bd101d950ae510bee74df8635bec15d4d447edfd60cae"
+  },
+  {
+    "path": "UnityClient/Assets/Resources/Music/试听-C.wav.meta",
+    "sha256": "6c34ded0ac53d9d08b0a65bbf9f5340ddf7fecabbcd71a554dfb1412b4de3573"
+  },
+  {
+    "path": "UnityClient/Assets/Resources/Music/试听-D.wav",
+    "sha256": "b046872c952b695af4adc2b1030cc5c900226513a2a05f2633abaa5d27140916"
+  },
+  {
+    "path": "UnityClient/Assets/Resources/Music/试听-D.wav.meta",
+    "sha256": "6e7887cfd4f8b6b8152546da7d232066b288e2025ff789b1e4793c2f82bd082e"
+  },
+  {
+    "path": "UnityClient/Assets/Resources/Music/试听-E.wav",
+    "sha256": "b18f6f1686fa58075792999f6fe564fecdb1c347265f26c2f335253330dcfa22"
+  },
+  {
+    "path": "UnityClient/Assets/Resources/Music/试听-E.wav.meta",
+    "sha256": "9b942db7540f81f9ff114874488141f05e90ef57f26fc4945d50bf819d43ba73"
+  },
+  {
+    "path": "UnityClient/Assets/Resources/Music/试听-F.wav",
+    "sha256": "34a8a362fa18617ca798b723111d593d071a229e2e3e54a857e55073ef974800"
+  },
+  {
+    "path": "UnityClient/Assets/Resources/Music/试听-F.wav.meta",
+    "sha256": "8fa80c5eb004916e6b605cce46fe77e0aef34c7fbfce435a9710fd63a3dde612"
+  },
+  {
+    "path": "UnityClient/Assets/Resources/Music/试听-对峙1.wav",
+    "sha256": "bc8f0ebe7598d790c561d756c96858bb68eec4b2741c9390e8d68b30a4fc1f80"
+  },
+  {
+    "path": "UnityClient/Assets/Resources/Music/试听-对峙1.wav.meta",
+    "sha256": "0f68a64e2b14417b60f34d0896e1ac353f4ec3dea5b4b059687608157219ae3e"
+  },
+  {
+    "path": "UnityClient/Assets/Resources/Music/试听-对峙2.wav",
+    "sha256": "ee0f2a3c75223010aded84f013145c2cfaa888dd0ff80f71df51200cc90f8c01"
+  },
+  {
+    "path": "UnityClient/Assets/Resources/Music/试听-对峙2.wav.meta",
+    "sha256": "497c982e1b0f3e23fa61674fd89a4e6af504795762f6a41079c0dae841247da2"
+  },
+  {
+    "path": "UnityClient/Assets/Resources/Music/试听-对峙3.wav",
+    "sha256": "025dd43a36b01722c9c407d42f99ceb929860ac2d5f031fd815c76c0372a35e6"
+  },
+  {
+    "path": "UnityClient/Assets/Resources/Music/试听-对峙3.wav.meta",
+    "sha256": "66ecb38bf387acb170ed2acd149bc61953a97c420a57fc51d91220c9da363d0a"
+  },
+  {
+    "path": "UnityClient/Assets/Resources/Music/试听-对峙4.wav",
+    "sha256": "cb1725a7985dce4378cc23f2122201392e04790b7fc568b984b6dc524d1b9618"
+  },
+  {
+    "path": "UnityClient/Assets/Resources/Music/试听-对峙4.wav.meta",
+    "sha256": "3ead07ea80cd0df5f91fe58427517877666dab8712e92753ea5fb69a376ec568"
+  },
+  {
+    "path": "UnityClient/Assets/Resources/Music/试听-对峙5.wav",
+    "sha256": "820ebcae094f3cca7c764026a1ad95c955febb42b4b31174cb69a02f05a08ee4"
+  },
+  {
+    "path": "UnityClient/Assets/Resources/Music/试听-对峙5.wav.meta",
+    "sha256": "f805c265f16fda9f762a98f9db44957330f4abaa42e1b075370bd91564eeae48"
+  },
+  {
+    "path": "UnityClient/Assets/Resources/Music/试听-激昂1.wav",
+    "sha256": "1365a627c93c2f4521d8f235cbb4dc79ae30e538d4df9b381bea2ab35728046c"
+  },
+  {
+    "path": "UnityClient/Assets/Resources/Music/试听-激昂1.wav.meta",
+    "sha256": "8ca3e541ccdcfb655d4816d35ee5f3dd3d165df177df2972e1644e9cbd5880b3"
+  }
+]

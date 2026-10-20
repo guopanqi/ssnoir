@@ -119,7 +119,7 @@
 
 (define (crowd-action name title anchor subtitle skill clk fill-line)
   (node name
-    :title title
+    :name title
     :anchor anchor
     :subtitle subtitle
     :clocks (list (clk 'render-data))
@@ -132,7 +132,7 @@
 
 (define (node-rest name title anchor amount subtitle)
   (node name
-    :title title
+    :name title
     :anchor anchor
     :subtitle subtitle
     :requires (list (req-die))
@@ -160,7 +160,7 @@
 
 (define (talk-node name title subtitle skill clk thought)
   (node name
-    :title title
+    :name title
     :anchor "晚宴-卡座"
     :subtitle subtitle
     :tags (list "低风险")
@@ -174,7 +174,7 @@
 
 (define (vera-node)
   (node "和薇拉谈"
-    :title (tr "和薇拉谈" "Talk with Vera")
+    :name (tr "和薇拉谈" "Talk with Vera")
     :anchor "晚宴-卡座"
     :subtitle (tr "她不浪费一句话，也不替你填沉默"
                   "She wastes no words and will not fill your silences")
@@ -191,7 +191,7 @@
 ;; 他喝得快，跟不上就是失礼；跟上了，他记得你——过两天他会在大堂找你。
 (define (walter-node)
   (node "陪他喝一杯"
-    :title (tr "陪他喝一杯" "Have a Drink with Him")
+    :name (tr "陪他喝一杯" "Have a Drink with Him")
     :anchor "晚宴-吧台"
     :subtitle (tr "保险公司的沃尔特。他喝得快，跟不上就是失礼；跟上了话也说得快"
                   "Walter from the insurance firm drinks fast. Keep up, and he talks fast too")
@@ -331,7 +331,7 @@
 (define (get-render-data)
   ;; 根节点名就是地点名，对应 Anchor_晚宴；分幕是内部状态，不进名字。
   (node "晚宴"
-    :title (tr "晚宴" "The Banquet")
+    :name (tr "晚宴" "The Banquet")
     :children
     ;; 熟悉度是解锁条件，不再和夜莺离场绑在同一个换幕节点上。
     (if (= act 1)

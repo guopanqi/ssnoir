@@ -13,8 +13,8 @@
         (theatre-wait (+ .001 delay))
         (theatre-tween id 'reveal 1 2.2 'smooth))))))
   (define (说 who x text seconds)
-    (theatre-during
-      (theatre-caption-for who text seconds
+    (theatre-parallel
+      (theatre-caption-auto who text seconds
         (if (equal? who "夜莺") "#8FD9D0" "#F0CF8A"))
       (theatre-parallel
         (theatre-tween "焦点" 'x (+ 800 (* (- x 800) .5)) 1 'smooth)
@@ -83,6 +83,6 @@
     (说 "尼尔" 1040 "你不是不想回去吗" 1.290)
     ;; 夜莺神色黯下（HTML face sad/w2600，SVG 表情不移植，只留停顿）。
     (theatre-clear-caption)
-    (theatre-wait 2.6)
+    (theatre-wait-advance 2.6)
     (说 "夜莺" 560 "我不想回去，特别不想。可是，什么时候也不能都只让你去。" 3.285)
     (theatre-wait 2.2)))

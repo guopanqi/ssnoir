@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BGM 试听室 — 黑色电影配乐</title>
+<style>
+  :root {
+    --bg: #0b0b0e;
+    --bg2: #121216;
+    --ink: #e8e4d8;
+    --ink-dim: #9a958a;
+    --accent: #c9a15a;      /* 私家侦探的黄铜台灯 */
+    --accent2: #7fb7b0;     /* 雨后霓虹的青 */
+    --line: #26262e;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--bg); color: var(--ink); }
+  body {
+    font-family: "Songti SC", "Noto Serif CJK SC", Georgia, serif;
+    min-height: 100vh;
+    background:
+      radial-gradient(1200px 480px at 70% -10%, rgba(127, 183, 176, .08), transparent 60%),
+      radial-gradient(900px 420px at 15% 110%, rgba(201, 161, 90, .07), transparent 60%),
+      var(--bg);
+  }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 48px 24px 80px; }
+
+  header { margin-bottom: 40px; }
+  .kicker { letter-spacing: .35em; font-size: 12px; color: var(--ink-dim); text-transform: uppercase; }
+  h1 { font-size: 42px; font-weight: 700; margin-top: 10px; line-height: 1.15; }
+  h1 em { color: var(--accent); font-style: normal; }
+  .sub { color: var(--ink-dim); margin-top: 12px; font-size: 15px; max-width: 62ch; line-height: 1.8; }
+  .divider {
+    height: 1px; margin: 28px 0 34px;
+    background: linear-gradient(90deg, var(--accent) 0 46px, var(--line) 46px 100%);
+    opacity: .8;
+  }
+
+  .volume {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 22px; color: var(--ink-dim); font-size: 13px;
+  }
+  .volume input[type=range] {
+    width: 220px; accent-color: var(--accent); background: transparent;
+  }
+
+  .track {
+    border: 1px solid var(--line);
+    background: var(--bg2);
+    border-radius: 10px;
+    padding: 20px 22px;
+    margin-bottom: 18px;
+    display: grid;
+    grid-template-columns: 52px 1fr;
+    gap: 18px;
+    transition: border-color .2s, transform .15s;
+    cursor: pointer;
+  }
+  .track:hover { border-color: #3a3a44; }
+  .track.playing { border-color: var(--accent); }
+  .track.playing .num { color: var(--accent); }
+  .num {
+    font-size: 30px; color: #3c3c46; font-weight: 700; line-height: 1;
+    padding-top: 4px;
+  }
+  .group {
+    margin: 40px 0 16px; font-size: 13px; letter-spacing: .28em;
+    color: var(--ink-dim); border-bottom: 1px solid var(--line); padding-bottom: 10px;
+  }
+  .group b { color: var(--accent); font-weight: 700; margin-right: 10px; }
+  .t-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  .t-title { font-size: 21px; font-weight: 700; }
+  .t-tags { font-size: 12px; color: var(--accent2); letter-spacing: .05em; }
+  .t-desc { color: var(--ink-dim); font-size: 14px; line-height: 1.75; margin-top: 8px; max-width: 68ch; }
+  .t-controls { display: flex; align-items: center; gap: 14px; margin-top: 14px; }
+  .play {
+    width: 40px; height: 40px; border-radius: 50%;
+    border: 1px solid var(--accent); background: transparent; color: var(--accent);
+    font-size: 15px; cursor: pointer; flex: none;
+    display: grid; place-items: center;
+    transition: background .15s, color .15s;
+  }
+  .play:hover { background: var(--accent); color: #0b0b0e; }
+  canvas { width: 100%; height: 34px; display: block; opacity: .55; }
+  .t-status { font-size: 12px; color: var(--ink-dim); min-width: 74px; }
+
+  .loading { position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%);
+    background: #17171c; border: 1px solid var(--line); color: var(--ink-dim);
+    padding: 10px 18px; border-radius: 999px; font-size: 13px; display: none; }
+
+  details { margin-top: 46px; border-top: 1px solid var(--line); padding-top: 24px; }
+  summary { cursor: pointer; color: var(--accent); font-size: 15px; letter-spacing: .08em; }
+  details .lang { margin-top: 18px; color: var(--ink-dim); font-size: 13px; }
+  pre {
+    background: #101014; border: 1px solid var(--line); border-radius: 8px;
+    padding: 16px; overflow-x: auto; margin-top: 10px;
+    font-family: "SF Mono", Menlo, monospace; font-size: 12.5px; line-height: 1.7;
+    color: #cfd3c8;
+  }
+  details h3 { margin-top: 22px; font-size: 15px; color: var(--ink); }
+  .note { color: var(--ink-dim); font-size: 13px; margin-top: 10px; line-height: 1.8; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="kicker">PRIVATE · SCORE ROOM</div>
+    <h1>黑色电影 · <em>BGM 试听室</em></h1>
+    <p class="sub">
+      五版程序化合成的可无缝循环配乐，底部另有「烟雾俱乐部」的四个变体。
+      每一首末尾的衰减残响已折回开头（wrap-add），
+      常驻环境层（雨声、底噪、持续音）按整周期生成——用任意播放工具开启循环播放，
+      接缝处不会出现爆音或空拍。点卡片或播放键开始试听。
+    </p>
+    <div class="divider"></div>
+    <div class="volume">
+      <span>音量</span>
+      <input type="range" id="vol" min="0" max="1" step="0.01" value="0.8" />
+      <span id="volLabel">80%</span>
+    </div>
+  </header>
+
+  <main id="list"></main>
+
+  <details>
+    <summary>把选中的 BGM 接进游戏</summary>
+    <p class="note">
+      音频都在 <code>audio/</code> 与 <code>variants/</code> 目录下（<code>.m4a</code> 为压缩分发版，<code>.wav</code> 为无损母带，
+      是由 <code>generate-bgm.mjs</code> 重新生成的）。推荐在游戏里用 Web Audio 解码后循环——内存中的
+      <code>AudioBuffer</code> 循环是逐采样无缝的，<code>&lt;audio loop&gt;</code> 在部分浏览器会有几十毫秒的间隙。
+    </p>
+    <h3>方案一 · Web Audio（推荐，真无缝）</h3>
+    <pre>async function playLoop(url, volume = 0.8) {
+  const ctx = new AudioContext();
+  const data = await (await fetch(url)).arrayBuffer();
+  const buffer = await ctx.decodeAudioData(data);
+  const src = ctx.createBufferSource();
+  src.buffer = buffer; src.loop = true;          // 逐采样无缝循环
+  const g = ctx.createGain(); g.gain.value = volume;
+  src.connect(g).connect(ctx.destination);
+  src.start(); return { src, g };
+}
+// 切场景：旧 src.stop()，新起一次 playLoop。淡入淡出用 g.gain.linearRampToValueAtTime。 </pre>
+    <h3>方案二 · Howler.js（省事）</h3>
+    <pre>new Howl({ src: ['audio/02-smoky-club.m4a'], loop: true, volume: 0.8 }).play();</pre>
+    <h3>方案三 · 原生 &lt;audio&gt;（最简单，可能有极小间隙）</h3>
+    <pre>&lt;audio src="audio/01-rainy-alley.m4a" loop autoplay volume="0.8"&gt;&lt;/audio&gt;</pre>
+    <h3>重新生成 / 调参</h3>
+    <p class="note">
+      <code>node generate-bgm.mjs</code> 重新渲染全部五版；
+      <code>node generate-bgm.mjs 1</code> 只渲染第 1 版。
+      修改风格（BPM、调性、乐器密度、音效层）直接编辑脚本里对应的
+      <code>track1()</code> … <code>track5()</code>。
+    </p>
+  </details>
+
+  <div class="loading" id="loading">解码中…</div>
+</div>
+
+<script>
+const TRACKS = [
+  {
+    file: "audio/01-rainy-alley", num: "01",
+    title: "雨夜长巷 · Rainy Alley",
+    tags: "72 BPM · D 小调 · 26.7s 循环",
+    desc: "慢板爵士叙事：弱音器小号的独白、笔刷鼓、远处的雨和重逢在转角处的唱片沙沙声。压抑、孤独、路灯在湿沥青上拖出长影。适合主菜单、慢步探索、独白章节。",
+  },
+  {
+    file: "audio/02-smoky-club", num: "02",
+    title: "烟雾俱乐部 · Smoky Club",
+    tags: "96 BPM · F 小调布鲁斯 · 30s 循环",
+    desc: "F 小调十二小节布鲁斯的即兴 Standard：walking bass 是主导者，钢琴以查尔斯顿节奏闲散地插话，ride 镲上挂着质询的火花。适合酒馆、爵士俱乐部、与线人谈条件的场景。",
+  },
+  {
+    file: "audio/03-cold-case", num: "03",
+    title: "侦探办公室 · Cold Case",
+    tags: "无节拍氛围 · 16s 循环",
+    desc: "没有心跳一样的鼓，只有低音持续层、小二度琴簇、秒针在墙上散步、以及两次不该出现的心跳。适合解谜、翻阅线索、审讯前的静场——悬疑感来自『什么都没发生』。",
+  },
+  {
+    file: "audio/04-shanghai-noir", num: "04",
+    title: "长衫侠影 · Shanghai Noir",
+    tags: "84 BPM · A 小调五声 · 22.9s 循环",
+    desc: "东方血统的一版：古筝式拨弦奏五声音阶，底板换成黑白电影的里衬——笔刷鼓、木鱼偶尔参战、远处一面低锣。武侠叙事魂 × 三十年代马路侦探（向《活侠传》式民乐气质致敬）。适合过场与江湖章节。",
+  },
+  {
+    file: "audio/05-the-manhunt", num: "05",
+    title: "缉凶行动 · The Manhunt",
+    tags: "112 BPM · E 小调 riff · 17.1s 循环",
+    desc: "向 Peter Gunn 的黑色推理剧配乐致意：拨弦贝斯踏着 E 音八分音符的凶案现场，钢琴 stab 打在点数上，萨克斯在转角处出手。跟踪、追逐、任务倒计时——这一版给『有事情正在发生』的段落。",
+  },
+  {
+    file: "variants/02a-last-call", num: "A",
+    group: "烟雾俱乐部 · <b>变体</b>",
+    title: "打烊时分 · Last Call",
+    tags: "72 BPM · 40s 循环",
+    desc: "把门放下、客走灯暗：更慢的布鲁斯，小号整段完整的头，鼓只剩笔刷呼吸，bar 12 一句下行告别到下一遍。",
+  },
+  {
+    file: "variants/02b-house-band", num: "B",
+    title: "台上乐队 · House Band",
+    tags: "116 BPM · 24.8s 循环",
+    desc: "三角旗乐队在台上：ride 更高调、八分经过音的行进贝斯、钢琴补满切分，管乐三连 riff 进出（进 Bb 段 → 进 D7 → C7 呼回主题）。",
+  },
+  {
+    file: "variants/02c-backroom-deal", num: "C",
+    title: "后房交易 · Backroom Deal",
+    tags: "88 BPM · 32.7s 循环",
+    desc: "门帘后面的那桌：亮镲收掉一半、和声只剩暗壳位、小号低声部像压低的谈判，每 4 小节的低二度钢琴簇是窗外门把的声音。",
+  },
+  {
+    file: "variants/02d-dance-floor", num: "D",
+    title: "点燃舞池 · Dance Floor",
+    tags: "132 BPM · 21.8s 循环",
+    desc: "有人点了一支快歌：八分 hat + 强 backbeat，贝斯每两小节上蹿一个八度，管乐踩着每 4 小节末拍和钢琴打乒乓。",
+  },
+];
+
+const state = { ctx: null, current: -1, gain: null, sources: new Map(), buffers: new Map() };
+const list = document.getElementById("list");
+const loadingEl = document.getElementById("loading");
+
+const cards = [];
+TRACKS.forEach((t, i) => {
+  if (t.group && t.group !== cards.lastGroup) {
+    const h = document.createElement("div");
+    h.className = "group";
+    h.innerHTML = t.group;
+    list.appendChild(h);
+  }
+  cards.lastGroup = t.group ?? cards.lastGroup;
+  const el = document.createElement("section");
+  el.className = "track";
+  el.dataset.i = i;
+  el.innerHTML = `
+    <div class="num">${t.num}</div>
+    <div>
+      <div class="t-head">
+        <div class="t-title">${t.title}</div>
+        <div class="t-tags">${t.tags}</div>
+      </div>
+      <p class="t-desc">${t.desc}</p>
+      <div class="t-controls">
+        <button class="play" aria-label="播放">▶</button>
+        <canvas></canvas>
+        <span class="t-status"></span>
+      </div>
+    </div>`;
+  el.querySelector(".play").addEventListener("click", (e) => { e.stopPropagation(); toggle(i); });
+  el.addEventListener("click", () => toggle(i));
+  list.appendChild(el);
+  cards.push(el);
+});
+
+// placeholder waveform (grid) before decode
+TRACKS.forEach((t, i) => {
+  const canvas = cards[i].querySelector("canvas");
+  const ctx2 = canvas.getContext("2d");
+  const W = (canvas.width = canvas.clientWidth * 2 || 1600);
+  const H = (canvas.height = 68);
+  ctx2.strokeStyle = "#26262e";
+  ctx2.beginPath();
+  for (let x = 0; x < W; x += 24) { ctx2.moveTo(x, H / 2 - 4); ctx2.lineTo(x, H / 2 + 4); }
+  ctx2.moveTo(0, H / 2); ctx2.lineTo(W, H / 2);
+  ctx2.stroke();
+});
+
+async function getCtx() {
+  if (!state.ctx) {
+    state.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    state.gain = state.ctx.createGain();
+    state.gain.gain.value = parseFloat(document.getElementById("vol").value);
+    state.gain.connect(state.ctx.destination);
+  }
+  if (state.ctx.state === "suspended") await state.ctx.resume();
+  return state.ctx;
+}
+
+async function getBuffer(file) {
+  if (state.buffers.has(file)) return state.buffers.get(file);
+  loadingEl.style.display = "block";
+  try {
+    const ctx = await getCtx();
+    const tryFetch = async (url) => {
+      const resp = await fetch(url);
+      if (!resp.ok) throw new Error(`HTTP ${resp.status} ${url}`);
+      return ctx.decodeAudioData(await resp.arrayBuffer());
+    };
+    let buf;
+    try { buf = await tryFetch(`${file}.m4a`); }
+    catch { buf = await tryFetch(`${file}.wav`); }
+    state.buffers.set(file, buf);
+    drawDecodedPeaks();
+    return buf;
+  } finally {
+    loadingEl.style.display = "none";
+  }
+}
+
+function drawDecodedPeaks(file) {
+  // draw real peaks for whichever tracks have been decoded so far
+  document.querySelectorAll(".track").forEach((el, i) => {
+    const canvas = el.querySelector("canvas");
+    const ctx2 = canvas.getContext("2d");
+    const W = (canvas.width = canvas.clientWidth * 2 || 1600);
+    const H = (canvas.height = 68);
+    ctx2.clearRect(0, 0, W, H);
+    const buf = state.buffers.get(TRACKS[i].file);
+    if (!buf) {
+      ctx2.strokeStyle = "#26262e";
+      ctx2.beginPath();
+      for (let x = 0; x < W; x += 24) { ctx2.moveTo(x, H / 2 - 4); ctx2.lineTo(x, H / 2 + 4); }
+      ctx2.moveTo(0, H / 2); ctx2.lineTo(W, H / 2);
+      ctx2.stroke();
+      return;
+    }
+    const ch = buf.getChannelData(0);
+    const bars = Math.floor(W / 3);
+    ctx2.fillStyle = getComputedStyle(document.body).getPropertyValue("--accent2").trim() || "#7fb7b0";
+    for (let b = 0; b < bars; b++) {
+      let peak = 0;
+      const s = Math.floor((b / bars) * ch.length), e = Math.floor(((b + 1) / bars) * ch.length);
+      for (let j = s; j < e; j += 64) { const v = Math.abs(ch[j]); if (v > peak) peak = v; }
+      const h = Math.max(2, peak * H * 0.9);
+      ctx2.fillRect(b * 3, (H - h) / 2, 2, h);
+    }
+  });
+}
+
+async function toggle(i) {
+  const el = cards[i];
+  const t = TRACKS[i];
+  if (state.current === i) { stopAll(); return; }
+  stopAll();
+  const ctx = await getCtx();
+  const buf = await getBuffer(t.file);
+  const src = ctx.createBufferSource();
+  src.buffer = buf; src.loop = true;
+  src.connect(state.gain);
+  src.start();
+  state.sources.set(i, src);
+  state.current = i;
+  el.classList.add("playing");
+  el.querySelector(".play").textContent = "■";
+  el.querySelector(".t-status").textContent = "循环播放中";
+  document.querySelectorAll(".track").forEach((o, k) => {
+    if (k !== i) { o.querySelector(".play").textContent = "▶"; o.querySelector(".t-status").textContent = ""; }
+  });
+}
+
+function stopAll() {
+  state.sources.forEach((s) => { try { s.stop(); } catch {} });
+  state.sources.clear();
+  state.current = -1;
+  document.querySelectorAll(".track").forEach((el) => {
+    el.classList.remove("playing");
+    el.querySelector(".play").textContent = "▶";
+    el.querySelector(".t-status").textContent = "";
+  });
+}
+
+document.getElementById("vol").addEventListener("input", (e) => {
+  const v = parseFloat(e.target.value);
+  document.getElementById("volLabel").textContent = Math.round(v * 100) + "%";
+  if (state.gain) state.gain.gain.value = v;
+});
+</script>
+</body>
+</html>

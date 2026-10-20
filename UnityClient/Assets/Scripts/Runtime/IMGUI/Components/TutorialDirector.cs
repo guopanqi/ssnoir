@@ -61,9 +61,9 @@ namespace SSNoir.IMGUI
             foreach (var node in gameManager.VisibleNodes)
             {
                 // 家的显示标题是「旅馆」，节点身份始终是「家」。
-                if (gameManager.NavigationStack.Exists(node => node.Name == "家") && node.Name == "睡觉")
+                if (gameManager.NavigationStack.Exists(node => node.Id == "家") && node.Id == "睡觉")
                     Request(TutorialLibrary.EndOfDay);
-                if (gameManager.NavigationStack.Exists(node => node.Name == "老街酒馆") && hasActionCards
+                if (gameManager.NavigationStack.Exists(node => node.Id == "老街酒馆") && hasActionCards
                     && node.Tags.Contains("工作"))
                     Request(TutorialLibrary.ActionDice);
             }

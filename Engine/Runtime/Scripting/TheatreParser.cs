@@ -145,12 +145,12 @@ namespace SSNoir.Scripting
                     if (!byId.TryGetValue(id, out var image) || image.Shape != TheatreShape.Image) Fail("image command requires an image object: " + id);
                     command = new TheatreCommand { Kind = TheatreCommandKind.Image, Target = id, Asset = asset };
                 }
-                else if (op == "wait") { Count(c, 2, op); command = new TheatreCommand { Kind = TheatreCommandKind.Wait, Seconds = Positive(c[1]) }; }
+                else if (op == "wait" || op == "wait-advance") { Count(c, 2, op); command = new TheatreCommand { Kind = TheatreCommandKind.Wait, CanAdvance = op == "wait-advance", Seconds = Positive(c[1]) }; }
                 else if (op == "clear-caption") { Count(c, 1, op); command = new TheatreCommand { Kind = TheatreCommandKind.ClearCaption }; }
-                else if (op == "say" || op == "caption-for")
+                else if (op == "say" || op == "caption-for" || op == "caption-auto")
                 {
                     Count(c, op == "say" ? 3 : 5, op);
-                    command = new TheatreCommand { Kind = TheatreCommandKind.Say, Target = Id(c[1]), Text = Id(c[2]),
+                    command = new TheatreCommand { Kind = TheatreCommandKind.Say, CanAdvance = op == "caption-auto", Target = Id(c[1]), Text = Id(c[2]),
                         Seconds = op == "say" ? 0f : Positive(c[3]),
                         CaptionColor = op == "say" ? new TheatreColor(.94f, .81f, .54f) : Color(Text(c[4])) };
                 }
@@ -169,7 +169,7 @@ namespace SSNoir.Scripting
                     command = new TheatreCommand { Kind = TheatreCommandKind.StopSound, Target = id };
                 }
                 else throw new ArgumentException("theatre: unknown command " + op);
-                if (background && (command.Kind == TheatreCommandKind.Say || command.Kind == TheatreCommandKind.ClearCaption)) Fail("background cannot own subtitles");
+                if (background && (command.CanAdvance || command.Kind == TheatreCommandKind.Say || command.Kind == TheatreCommandKind.ClearCaption)) Fail("background cannot own subtitles");
                 if (command.Seconds > 120f) Fail("one action cannot exceed 120 seconds");
                 return command;
             }
@@ -181,7 +181,7 @@ namespace SSNoir.Scripting
             var writes = new HashSet<string>(StringComparer.Ordinal);
             if (cue.Kind == TheatreCommandKind.Animate) writes.Add("object/" + cue.Target + "/" + cue.Property);
             if (cue.Kind == TheatreCommandKind.Image) writes.Add("object/" + cue.Target + "/asset");
-            if (cue.Kind == TheatreCommandKind.Say || cue.Kind == TheatreCommandKind.ClearCaption) writes.Add("caption");
+            if (cue.CanAdvance || cue.Kind == TheatreCommandKind.Say || cue.Kind == TheatreCommandKind.ClearCaption) writes.Add("caption");
             if (cue.Kind == TheatreCommandKind.Sound || cue.Kind == TheatreCommandKind.StopSound) writes.Add("sound/" + cue.Target);
             if (cue.Kind == TheatreCommandKind.SoundVolume) writes.Add("sound/" + cue.Target);
             foreach (var child in cue.Children) writes.UnionWith(Writes(child));

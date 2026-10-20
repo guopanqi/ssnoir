@@ -100,11 +100,11 @@ namespace SSNoir.Core
                 : new BlockingStoryStep { Kind = BlockingStoryStepKind.EnterPlace, PlaceName = placeName };
 
         public static BlockingStoryStep ForResolvedAutoAction(
-            string name, string title, string text, string? anchorName, DialogueSequence? prelude,
+            string id, string name, string text, string? anchorName, DialogueSequence? prelude,
             IReadOnlyList<SlottedResource> slots, ActionReport report)
         {
-            if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(text))
-                throw new System.ArgumentException("auto action name and text cannot be empty");
+            if (string.IsNullOrWhiteSpace(id) || string.IsNullOrWhiteSpace(text))
+                throw new System.ArgumentException("auto action id and text cannot be empty");
             if (slots == null)
                 throw new ArgumentNullException(nameof(slots));
 
@@ -115,8 +115,8 @@ namespace SSNoir.Core
                 ResolvedReport = report ?? throw new ArgumentNullException(nameof(report)),
                 AutoActionNode = new GameNode
                 {
+                    Id = id,
                     Name = name,
-                    Title = title,
                     Subtitle = text,
                     AnchorName = anchorName,
                     Resolve = new GameResolve { Type = ResolveType.Instant },

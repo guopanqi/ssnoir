@@ -79,3 +79,8 @@
 
 (define (theatre-sound-after id asset loop volume pan seconds)
   (theatre-sequence (theatre-wait seconds) (theatre-sound id asset loop volume pan)))
+
+;; 自动播放；点击只结束作者允许略过的停留，不快进并行动作。
+(define (theatre-wait-advance seconds) (list 'wait-advance seconds))
+(define (theatre-caption-auto speaker text seconds color)
+  (list 'caption-auto speaker text seconds color))

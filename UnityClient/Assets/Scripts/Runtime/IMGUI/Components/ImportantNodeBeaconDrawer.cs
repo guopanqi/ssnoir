@@ -6,13 +6,15 @@ namespace SSNoir.IMGUI
 {
     public readonly struct ImportantNodeBeacon
     {
-        public string NodeName { get; }
+        public string NodeId { get; }
+        public string Name { get; }
         public string Reason { get; }
         public Vector2 Direction { get; }
 
-        public ImportantNodeBeacon(string nodeName, string reason, Vector2 direction)
+        public ImportantNodeBeacon(string nodeId, string name, string reason, Vector2 direction)
         {
-            NodeName = nodeName;
+            NodeId = nodeId;
+            Name = name;
             Reason = reason;
             Direction = direction.sqrMagnitude > 0.0001f ? direction.normalized : Vector2.up;
         }
@@ -53,7 +55,7 @@ namespace SSNoir.IMGUI
                 if (ui.WasTapped(rect))
                 {
                     Event.current.Use();
-                    return beacon.NodeName;
+                    return beacon.NodeId;
                 }
             }
 
@@ -151,7 +153,7 @@ namespace SSNoir.IMGUI
                 normal = { textColor = IMGUIStyles.Gold }
             };
 
-            IMGUIStyles.DrawLabel(new Rect(rect.x + 14f, rect.y + 8f, rect.width - 78f, 24f), beacon.NodeName, titleStyle);
+            IMGUIStyles.DrawLabel(new Rect(rect.x + 14f, rect.y + 8f, rect.width - 78f, 24f), beacon.Name, titleStyle);
             IMGUIStyles.DrawLabel(new Rect(rect.xMax - 62f, rect.y + 9f, 50f, 20f), "定 位", locateStyle);
             IMGUIStyles.DrawLabel(new Rect(rect.x + 14f, rect.y + 35f, rect.width - 28f, 24f), beacon.Reason, reasonStyle);
         }

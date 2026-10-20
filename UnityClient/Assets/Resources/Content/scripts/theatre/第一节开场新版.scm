@@ -23,7 +23,7 @@
     (theatre-tween "镜头" 'x (- 800 (* scale x)) seconds 'smooth)
     (theatre-tween "镜头" 'y (- 570 (* scale y)) seconds 'smooth)))
 (define (开场新版-说 who text seconds)
-  (theatre-caption-for who text seconds
+  (theatre-caption-auto who text seconds
     (if (equal? who "尼尔") "#F0CF8A" "#D3DCE9")))
 (define (开场新版-杯 id parent x y)
   (list (theatre-group id parent x y)
@@ -82,10 +82,10 @@
     (if revisit?
       (theatre-sequence
         ;; 同一杯水先搁在原处：尼尔急于报出委托，直到谈完才拿。
-        (theatre-during (开场新版-说 "调酒师" "来了，今天还是——" 1.4) (开场新版-擦杯 1))
+        (theatre-parallel (开场新版-说 "调酒师" "来了，今天还是——" 1.4) (开场新版-擦杯 1))
         (开场新版-说 "尼尔" "我接了个委托。" 1.7)
         (theatre-clear-caption)
-        (theatre-wait .65)
+        (theatre-wait-advance .65)
         (开场新版-说 "调酒师" "又是哪个婚外情？" 2)
         (开场新版-说 "尼尔" "勒索案。" 1.5)
         (theatre-tween "擦杯" 'y 660 .5 'smooth)
@@ -127,7 +127,7 @@
         (开场新版-说 "尼尔" "和之前差不多，没什么活儿可做。今天酒吧还需要人手吗？" 4.6)
         (theatre-parallel (theatre-tween "水杯" 'x 680 .7 'smooth)
           (theatre-tween "水杯" 'y 660 .7 'smooth))
-        (theatre-during (开场新版-说 "调酒师" "还是老样子，帮我们看看场子，做完就结钱。" 3.6)
+        (theatre-parallel (开场新版-说 "调酒师" "还是老样子，帮我们看看场子，做完就结钱。" 3.6)
           (开场新版-擦杯 2))
         (theatre-tween "擦杯" 'y 660 .6 'smooth)
         (开场新版-说 "调酒师" "你如果真的缺钱的话，还是得找份正经的工作，这些零工是攒不到什么钱的。" 5.8)
@@ -209,7 +209,7 @@
     (theatre-tween "尼尔" 'rotation 4 .8 'smooth)
     (开场新版-说 "旅馆老板" "干不下去的话也可以和我说，我给你介绍点别的活儿。" 4.2)
     (theatre-clear-caption)
-    (theatre-wait .9)
+    (theatre-wait-advance .9)
     (开场新版-说 "尼尔" "谢谢了……" 1.8)
     (theatre-clear-caption)
     (theatre-tween "尼尔" 'rotation 0 1.3 'smooth)
@@ -295,26 +295,26 @@
   (play-theatre! (theatre-scene 1600 900 "#000000" 图形)
     (theatre-tween "幕" 'opacity 1 1 'smooth)
     (theatre-sound "酒馆人声" "StageSounds/老街酒馆/人群哗" #t .16 0)
-    (theatre-sound "钢琴" "StageSounds/剧院/钢琴" #t .07 -.4)
+
     (theatre-parallel (开场新版-镜头 1.18 780 570 4)
       (theatre-sequence (theatre-wait 1.6)
         (theatre-tween "举杯" 'y 608 1.1 'smooth)))
     (开场新版-说 "尼尔" "来，再来一杯！" 2)
     (theatre-clear-caption)
-    (theatre-wait 1)
+    (theatre-wait-advance 1)
     (theatre-stop-sound "酒馆人声")
-    (theatre-stop-sound "钢琴")
+
     (换幕 "卡座" "吧台")
     (theatre-sound "吧台人声" "StageSounds/老街酒馆/人群哗" #t .055 0)
-    (theatre-during
+    (theatre-parallel
       (theatre-sequence
         (theatre-wait .9)
         (开场新版-说 "尼尔" "私家侦探？我告诉你吧，听着像那么回事，但假如没有名声，就什么也不是！" 5.8)
         (theatre-clear-caption)
-        (theatre-wait 1.2)
+        (theatre-wait-advance 1.2)
         (开场新版-说 "尼尔" "我怎么知道？我有一个朋友……" 3)
         (theatre-clear-caption)
-        (theatre-wait 1.5))
+        (theatre-wait-advance 1.5))
       (开场新版-镜头 1.18 820 570 11)
       (theatre-tween "吧台尼尔" 'rotation 7 9 'smooth))
     (theatre-stop-sound "吧台人声")
@@ -345,5 +345,5 @@
     (theatre-parallel (theatre-tween "归来尼尔" 'x 1470 3.6 'smooth)
       (theatre-tween "归来尼尔" 'y 500 3.6 'smooth)
       (theatre-tween "归来尼尔" 'opacity 0 3.6 'smooth))
-    (theatre-wait .7)
+    (theatre-wait-advance .7)
     (theatre-tween "幕" 'opacity 0 1.2 'smooth)))

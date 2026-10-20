@@ -160,8 +160,12 @@ namespace SSNoir.Core
                     ["actionDiceSlotIds"] = new JArray(a.ActionDiceSlotIds),
                 });
             }
+            var scars = new JArray();
+            foreach (var scar in team.Scars)
+                scars.Add(new JObject { ["part"] = scar.Part, ["day"] = scar.Day });
             return new JObject
             {
+                ["scars"] = scars,
                 ["injurySeverity"] = team.InjurySeverity,
                 ["injuryPart"]     = team.InjuryPart,
                 ["growthLevel"] = team.GrowthLevel,
@@ -229,6 +233,14 @@ namespace SSNoir.Core
                 InjuryPart     = el["injuryPart"]!.Value<string>()!,
                 GrowthLevel = el["growthLevel"]!.Value<int>(),
             };
+            // 旧格式没有疤痕字段，按无旧伤读取；新格式保留每道疤的部位与日期。
+            if (el["scars"] is JArray scars)
+                foreach (JObject scar in scars)
+                    team.Scars.Add(new ScarSaveData
+                    {
+                        Part = scar["part"]!.Value<string>()!,
+                        Day = scar["day"]!.Value<int>(),
+                    });
             bool? hasSavedActionDice = null;
             foreach (var actorEl in (JArray)el["actors"]!)
             {

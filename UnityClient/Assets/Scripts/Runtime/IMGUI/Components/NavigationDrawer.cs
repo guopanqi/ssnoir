@@ -9,7 +9,7 @@ namespace SSNoir.IMGUI
         public static void Draw(SSNoirGameManager gameManager, IMGUIInteractionContext ui, TopHudLayout topHud)
         {
             // Return button
-            if (gameManager.NavigationStack.Count > 0 || !string.IsNullOrEmpty(gameManager.FocusedNodeName))
+            if (gameManager.NavigationStack.Count > 0 || !string.IsNullOrEmpty(gameManager.FocusedNodeId))
             {
                 var returnRect = topHud.Back;
 
@@ -24,7 +24,7 @@ namespace SSNoir.IMGUI
             // Breadcrumb
             // 「当前位置:」是纯损耗——面包屑本身已经说明了它是什么。
             string breadcrumbText = string.Empty;
-            string rootName = gameManager.DisplayedSnapshot.RootNode?.DisplayTitle
+            string rootName = gameManager.DisplayedSnapshot.RootNode?.Name
                 ?? UiText.Get("未加载");
             if (gameManager.NavigationStack.Count == 0)
             {
@@ -33,7 +33,7 @@ namespace SSNoir.IMGUI
             else
             {
                 breadcrumbText += rootName + " > " + string.Join(" > ",
-                    gameManager.NavigationStack.ConvertAll(n => n.DisplayTitle));
+                    gameManager.NavigationStack.ConvertAll(n => n.Name));
             }
 
             var crumbStyle = new GUIStyle(IMGUIStyles.StatusLabel);

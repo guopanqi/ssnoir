@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SC-A02 · 酒保与夜莺初次亮相</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="frame">
+  <div id="stage" aria-live="polite">
+    <svg id="world" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <g id="camera"></g>
+    </svg>
+
+    <div id="grain"></div>
+    <div id="vignette"></div>
+    <div id="haze"></div>
+
+    <div id="slate">
+      <div class="slate-no">SC-A02</div>
+      <h1>酒保与夜莺初次亮相</h1>
+      <p>酒馆 · 吧台与小舞台</p>
+    </div>
+
+    <div id="caption">
+      <div id="speaker"></div>
+      <div id="line"></div>
+    </div>
+
+    <div id="hint">点击推进对白</div>
+
+    <div id="pose-hud" hidden>
+      <div class="hud-head"><span>姿势检查</span><span id="hud-camera"></span></div>
+      <div class="hud-row"><b>酒保</b><span id="hud-bm"></span></div>
+      <div class="hud-row"><b>尼尔</b><span id="hud-nl"></span></div>
+      <div class="hud-row"><b>夜莺</b><span id="hud-ny"></span></div>
+    </div>
+
+    <div id="start">
+      <div class="start-kicker">固定开场 / 公开亮相</div>
+      <h1>酒保与夜莺</h1>
+      <p>线绘舞台 · 关节人偶定格姿势实验</p>
+      <button id="start-btn" type="button">开始演出</button>
+      <small>建议开启声音。演出约 70 秒。</small>
+    </div>
+
+    <div id="end-card" hidden>
+      <div class="slate-no">SC-A02</div>
+      <h2>完</h2>
+      <button id="again-btn" type="button">重播</button>
+    </div>
+  </div>
+
+  <div id="controls">
+    <div class="left">
+      <span class="tag">SC-A02</span>
+      <span class="note">线绘舞台 / 定格姿势</span>
+    </div>
+    <div class="right">
+      <button id="pause" type="button">暂停</button>
+      <button id="replay" type="button">重播</button>
+      <button id="sound" type="button" class="on" aria-pressed="true">声音 开</button>
+      <button id="poses" type="button" aria-pressed="false">姿势检查</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/art.js"></script>
+<script src="js/cast.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/show.js"></script>
+<script src="js/script.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

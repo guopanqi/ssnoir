@@ -74,7 +74,12 @@ namespace SSNoir.Theatre
         public void Advance()
         {
             if (IsPaused || Waiting == null || Phase != TheatrePhase.Playing) return;
-            if (VisibleCharacters < Waiting.Cue.Text.Length) { _revealed = true; return; }
+            if (Waiting.Cue.Kind == TheatreCommandKind.Say && VisibleCharacters < Waiting.Cue.Text.Length)
+            {
+                _revealed = true;
+                Waiting.AllowReadingTime(Math.Max(1f, Waiting.Cue.Text.Length * .06f));
+                return;
+            }
             Waiting.Acknowledged = true; Tick(0);
         }
         public void Tick(float seconds)
@@ -113,12 +118,18 @@ namespace SSNoir.Theatre
         internal void CaptionStart(Runner runner, float time)
         {
             Caption = runner.Cue; _captionStarted = time; _revealed = false;
-            if (runner.Cue.Seconds == 0)
+            if (runner.Cue.Seconds == 0 || runner.Cue.CanAdvance)
             {
                 if (Waiting != null) throw new InvalidOperationException("concurrent dialogue waits");
                 Waiting = runner;
             }
         }
+        internal void BeginWait(Runner runner)
+        {
+            if (Waiting != null) throw new InvalidOperationException("concurrent theatre input waits");
+            Waiting = runner;
+        }
+        internal void EndWait(Runner runner) { if (Waiting == runner) Waiting = null; }
         internal void ClearCaption() => Caption = null;
         internal void Sound(Runner owner)
         {
@@ -172,10 +183,11 @@ namespace SSNoir.Theatre
         private readonly List<Runner> _children = new();
         private bool _started, _cancelled;
         private int _index, _iterations;
-        private float _elapsed, _from;
+        private float _elapsed, _from, _readingUntil;
         public TheatreCommand Cue { get; }
         public bool Done { get; private set; }
         public bool Acknowledged;
+        public void AllowReadingTime(float seconds) { if (Cue.CanAdvance) _readingUntil = _elapsed + seconds; }
         public Runner(TheatreSession session, TheatreCommand cue) { _session = session; Cue = cue; }
         public float Step(float seconds, float now)
         {
@@ -192,6 +204,7 @@ namespace SSNoir.Theatre
                     case TheatreCommandKind.Sound:
                     case TheatreCommandKind.StopSound: _session.Sound(this); Done = true; break;
                     case TheatreCommandKind.ClearCaption: _session.ClearCaption(); Done = true; break;
+                    case TheatreCommandKind.Wait: if (Cue.CanAdvance) _session.BeginWait(this); break;
                     case TheatreCommandKind.Say: _session.CaptionStart(this, now); break;
                 }
                 if (Done) return seconds;
@@ -237,7 +250,9 @@ namespace SSNoir.Theatre
                     }
                     break;
             }
-            float step = Math.Min(seconds, Math.Max(0, Cue.Seconds - _elapsed)); _elapsed += step;
+            if (Cue.CanAdvance && Acknowledged) { _session.EndWait(this); Done = true; return seconds; }
+            float duration = Math.Max(Cue.Seconds, _readingUntil);
+            float step = Math.Min(seconds, Math.Max(0, duration - _elapsed)); _elapsed += step;
             if (Cue.Kind == TheatreCommandKind.Animate || Cue.Kind == TheatreCommandKind.SoundVolume)
             {
                 var keys = Cue.Keys; float value = keys[keys.Length - 1].Value;
@@ -252,7 +267,8 @@ namespace SSNoir.Theatre
                 if (Cue.Kind == TheatreCommandKind.SoundVolume) _session.SetVolume(Cue.Target, value);
                 else _session.Objects[Cue.Target][Cue.Property] = value;
             }
-            Done = _elapsed >= Cue.Seconds;
+            Done = _elapsed >= duration;
+            if (Done && Cue.CanAdvance) _session.EndWait(this);
             return Done ? seconds - step : 0;
         }
         public void Cancel()

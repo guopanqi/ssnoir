@@ -15,8 +15,8 @@
       (list (list x y) (list (+ x w) y) (list (+ x w) (+ y h))
         (list x (+ y h)) (list x y)) delay))
   (define (说 who x text seconds)
-    (theatre-during
-      (theatre-caption-for who text seconds
+    (theatre-parallel
+      (theatre-caption-auto who text seconds
         (if (equal? who "尼尔") "#F0CF8A" "#F4907C"))
       (theatre-parallel
         (theatre-tween "焦点" 'x (+ 800 (* (- x 800) .5)) 1 'smooth)

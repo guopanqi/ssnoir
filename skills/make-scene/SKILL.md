@@ -23,7 +23,7 @@ description: 为 SSNoir 创建交锋/地点场景的 CityBox Prefab，或用已�
 4. **锚点与机位**：锚点按空间位置组织（多卡可共用同一 Anchor），并把脚本动作映射到这些位置；Pan 机位配 `PanBounds_<名>`，所有场景默认保留宽松、可感知的平移余量；允许边角露黑，按浏览空间的自由度与极限位置的可辨认性审核。读 [references/anchors-camera.md](references/anchors-camera.md)。
 5. **整体表现、放进城市与发布**：用正式机位检查材质、描线、光影和雾是否共同服务注意力顺序，按 [视觉审核](references/visual-language.md#审核与交付) 完成自审。`city.blend` 加实例 → `./build.sh --no-publish --render --focus <名> --pan <名>` → 用户审核候选 → 在授权范围内 `./build.sh`。构建发布后用正式 Unity 预览复核实际效果；Blender 图不能替代这一步。发布规则见 `create-3d-assets/references/delivery/citybox.md` 和 `city-box/README.md`。`prefabs/review/<名>/` 保留最终布局图、`prompts.md`、视觉方案和审核图、每件道具的参考图 / `-geo.fbx` / `-low.fbx` / 预览 / `props.json`，有动画时另留最终 GIF、帧带与关键整帧。`build/prefabs/` 的预览供人回看；同一动画重渲成功时只清理上一版过时的预览，详见 [motion.md](references/motion.md)。
 
-正式名以 Scheme `GameNode.Name` 为准：`prefabs/<名>.blend`、集合、`Anchor_<名>`、`Camera_<名>`、交锋脚本的根 `container` 都用同一个名字——根节点名不一致，镜头就切不过来（晚宴曾因根叫"晚宴前半"而一直停在世界机位）。
+正式地点身份以 Scheme `GameNode.Id` 为准，`:name` 只决定显示文字：`prefabs/<名>.blend`、集合、`Anchor_<名>`、`Camera_<名>`、交锋脚本的根 `container` 都用同一个名字——根节点名不一致，镜头就切不过来（晚宴曾因根叫"晚宴前半"而一直停在世界机位）。
 
 ## 服务
 

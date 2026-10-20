@@ -18,7 +18,7 @@
 
 (define (node-inspect)
   (node "核对伤势与工时"
-    :title (tr "核对伤势与工时" "Check Injury and Hours")
+    :name (tr "核对伤势与工时" "Check Injury and Hours")
     :requires (list (req-die))
     :resolve (roll 'knowledge
       (lambda () (suspicion-clk 'tick!))
@@ -27,7 +27,7 @@
 
 (define (node-listen)
   (node "听报案人把话说完"
-    :title (tr "听报案人把话说完" "Hear the Claimant Out")
+    :name (tr "听报案人把话说完" "Hear the Claimant Out")
     :requires (list (req-die))
     :resolve (roll 'social
       (lambda () (spend-composure! 2))
@@ -36,7 +36,7 @@
 
 (define (node-confirm)
   (node "坐实骗保"
-    :title (tr "坐实骗保" "Confirm Fraud")
+    :name (tr "坐实骗保" "Confirm Fraud")
     :resolve (instant (lambda ()
       (spotlight! (tr "报告成立" "Claim Confirmed")
         (tr "那名码头工确实装了伤。他骗到的不是发财钱，只是一笔医药费。沃尔特在表格上打了勾。"
@@ -45,7 +45,7 @@
 
 (define (node-mercy)
   (node "替他放过这一笔"
-    :title (tr "替他放过这一笔" "Let the Claim Pass")
+    :name (tr "替他放过这一笔" "Let the Claim Pass")
     :subtitle (tr "高风险；沃尔特的怀疑填满后将接管调查"
                   "High risk; Walter takes over if his suspicion fills")
     :tags (list "高风险")
@@ -69,7 +69,7 @@
 
 (define (get-render-data)
   (node "核赔"
-    :title (tr "核赔" "The Claim")
+    :name (tr "核赔" "The Claim")
     :children (append (clock-nodes
       (evidence-clk 'render-data)
       (suspicion-clk 'render-data))

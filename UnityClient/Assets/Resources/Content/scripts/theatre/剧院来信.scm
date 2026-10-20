@@ -17,8 +17,8 @@
       (list (list x y) (list (+ x w) y) (list (+ x w) (+ y h))
         (list x (+ y h)) (list x y)) delay))
   (define (说 who x text seconds color)
-    (theatre-during
-      (theatre-caption-for who text seconds color)
+    (theatre-parallel
+      (theatre-caption-auto who text seconds color)
       (theatre-parallel
         (theatre-tween "焦点" 'x (+ 800 (* (- x 800) .5)) 1 'smooth)
         (theatre-tween "说话柔光" 'x x 1.2 'smooth)
@@ -75,7 +75,7 @@
           (theatre-tween "信" 'opacity 1 .4)
           (theatre-wait 1))))
     ;; （在剧院里你见到了夜莺，她在房间里反复走来走去。）
-    (theatre-caption-for "旁白" "（在剧院里你见到了夜莺，她在房间里反复走来走去。）" 3.075 "#C9CFE2")
+    (theatre-caption-auto "旁白" "（在剧院里你见到了夜莺，她在房间里反复走来走去。）" 3.075 "#C9CFE2")
     ;; 夜莺踱步：翻面 + 走位，脚步声只铺一次短音。
     (theatre-sound "脚步" "StageSounds/老街酒馆/脚步" #f .4 -.2)
     (theatre-tween "夜莺位置" 'scale-x -1 .1)
@@ -142,5 +142,5 @@
     (说 "尼尔" 1300 "这是我的工作，处理麻烦是我的工作，这件事情是我没有处理好，我会去找到他的。" 4.335 "#F0CF8A")
     (theatre-clear-caption)
     (theatre-tween "镜光" 'opacity .15 .4)
-    (theatre-caption-for "尼尔（独白）" "莱恩，我会找到你的。" 1.500 "#F0CF8A")
+    (theatre-caption-auto "尼尔（独白）" "莱恩，我会找到你的。" 1.500 "#F0CF8A")
     (theatre-wait .9)))

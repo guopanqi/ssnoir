@@ -11,7 +11,7 @@
 (define photos (make-clock "可靠照片" 8 'gauge "满8取得照片成果；可以收手，也可继续查身份。"))
 (define identity (make-clock "女子身份" 12 'gauge "4获姓氏、8获工作地点、12核实本人；两种办法用不同技能。"))
 (define alertness (make-clock "对象警觉" 8 'gauge "满8暴露；到4首次触发怀疑危机。"))
-(define disguise (make-clock "摆脱注意" 6 'gauge "好2中1；满6危机解除，警觉减2。未解除每回合警觉加1。"))
+(define disguise (make-clock "摆脱注意" 4 'gauge "好2中1；满4危机解除，警觉减2。未解除每回合警觉加1。"))
 (define (result-tier)
   (cond ((and (photos 'full?) (identity 'full?)) '照片与身份)
         ((identity 'full?) '身份) ((photos 'full?) '照片) (else '无成果)))

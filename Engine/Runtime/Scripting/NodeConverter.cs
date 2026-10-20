@@ -41,10 +41,13 @@ namespace SSNoir.Scripting
                 throw new InvalidOperationException($"Invalid node expression header (expected symbol 'node, got '{nodeExpr[0]}')");
             }
 
-            if (!(nodeExpr[1] is string name))
+            if (!(nodeExpr[1] is string id))
             {
-                throw new InvalidOperationException($"Invalid node name (expected string, got {nodeExpr[1]?.GetType().FullName ?? "null"})");
+                throw new InvalidOperationException($"Invalid node id (expected string, got {nodeExpr[1]?.GetType().FullName ?? "null"})");
             }
+
+            if (string.IsNullOrWhiteSpace(id))
+                throw new InvalidOperationException("Node ID cannot be empty.");
 
             List<GameClock> clocks = new List<GameClock>();
             List<string> tags = new List<string>();
@@ -53,7 +56,7 @@ namespace SSNoir.Scripting
             GameResolve? resolve = null;
             string? anchorName = null;
             string subtitle = string.Empty;
-            string title = name;
+            string name = id;
             string? buttonText = null;
             bool disabled = false;
             bool isPlace = false;
@@ -100,22 +103,22 @@ namespace SSNoir.Scripting
                 {
                     subtitle = val as string ?? string.Empty;
                 }
-                else if (kwStr == ":title")
+                else if (kwStr == ":name")
                 {
-                    title = val as string ?? throw new InvalidOperationException($"Node '{name}' :title must be a string.");
-                    if (string.IsNullOrWhiteSpace(title))
-                        throw new InvalidOperationException($"Node '{name}' :title cannot be empty.");
+                    name = val as string ?? throw new InvalidOperationException($"Node '{id}' :name must be a string.");
+                    if (string.IsNullOrWhiteSpace(name))
+                        throw new InvalidOperationException($"Node '{id}' :name cannot be empty.");
                 }
                 else if (kwStr == ":button-text")
                 {
                     if (!(val is string parsedButtonText) || string.IsNullOrWhiteSpace(parsedButtonText))
-                        throw new InvalidOperationException($"Node '{name}' :button-text must be a non-empty string.");
+                        throw new InvalidOperationException($"Node '{id}' :button-text must be a non-empty string.");
                     buttonText = parsedButtonText;
                 }
                 else if (kwStr == ":anchor")
                 {
                     if (!(val is string parsedAnchor) || string.IsNullOrWhiteSpace(parsedAnchor))
-                        throw new InvalidOperationException($"Node '{name}' :anchor must be a non-empty string.");
+                        throw new InvalidOperationException($"Node '{id}' :anchor must be a non-empty string.");
                     anchorName = parsedAnchor;
                 }
                 else if (kwStr == ":place")
@@ -138,7 +141,7 @@ namespace SSNoir.Scripting
                 }
                 else if (kwStr == ":arrivals")
                 {
-                    arrivals = ParseArrivals(val, name);
+                    arrivals = ParseArrivals(val, id);
                 }
                 else if (kwStr == ":disabled")
                 {
@@ -159,7 +162,7 @@ namespace SSNoir.Scripting
             if (resolve != null && children.Count > 0)
             {
                 throw new InvalidOperationException(
-                    $"Node '{name}' has both :resolve and :children. A node is either a container " +
+                    $"Node '{id}' has both :resolve and :children. A node is either a container " +
                     "(:children only) or an action (:resolve only); a resolve node's children are " +
                     "silently ignored. Move the children into a container, or drop the :resolve.");
             }
@@ -168,24 +171,24 @@ namespace SSNoir.Scripting
             if (isPlace && resolve != null)
             {
                 throw new InvalidOperationException(
-                    $"Place '{name}' 不能有 :resolve。地点只能被走进去，不能被执行。");
+                    $"Place '{id}' 不能有 :resolve。地点只能被走进去，不能被执行。");
             }
 
             // 入场节拍属于「走进一个地点」这件事，挂在别处永远不会被触发。
             if (arrivals.Count > 0 && !isPlace)
             {
                 throw new InvalidOperationException(
-                    $"Node '{name}' 声明了 :arrivals 却不是 place。入场节拍只能挂在地点上——" +
+                    $"Node '{id}' 声明了 :arrivals 却不是 place。入场节拍只能挂在地点上——" +
                     "把这个容器改成 (place ...)，或者把节拍搬到它所在的地点上。");
             }
 
             if (buttonText != null && (resolve == null || resolve.Type == ResolveType.Note))
-                throw new InvalidOperationException($"Node '{name}' :button-text requires an actionable resolve.");
+                throw new InvalidOperationException($"Node '{id}' :button-text requires an actionable resolve.");
 
             var node = new GameNode
             {
+                Id = id,
                 Name = name,
-                Title = title,
                 IsPlace = isPlace,
                 CarryItemId = carryItemId,
                 SupportId = supportId,
@@ -203,8 +206,8 @@ namespace SSNoir.Scripting
             return node;
         }
 
-        // (arrival "id" effect) 的列表。ID 只在同一个地点内要求唯一——节点名已经全局
-        // 唯一（见 SceneManager.AssertUniqueNodeNames），(地点名, ID) 就足够定位一拍。
+        // (arrival "id" effect) 的列表。ID 只在同一个地点内要求唯一——节点 ID 已经全局
+        // 唯一（见 SceneManager.AssertUniqueNodeIds），(地点名, ID) 就足够定位一拍。
         private static List<ArrivalBeat> ParseArrivals(object arrivalsExpr, string placeName)
         {
             var arrivals = new List<ArrivalBeat>();
@@ -678,10 +681,11 @@ namespace SSNoir.Scripting
             ClockStyle style = styleStr.ToLowerInvariant() switch
             {
                 "gauge" => ClockStyle.Gauge,
+                "pressure" => ClockStyle.Pressure,
                 "countdown" => ClockStyle.Countdown,
                 "readout" => ClockStyle.Readout,
                 _ => throw new InvalidOperationException(
-                    $"Clock '{label}' has unknown style '{styleStr}' (expected progress / countdown / readout).")
+                    $"Clock '{label}' has unknown style '{styleStr}' (expected gauge / pressure / countdown / readout).")
             };
 
             string note = string.Empty;
@@ -692,16 +696,27 @@ namespace SSNoir.Scripting
                 note = parsedNote;
             }
 
-            if (expr.Count > 7)
+            if (expr.Count > 8)
                 throw new InvalidOperationException($"Clock '{label}' has too many fields.");
             string displayLabel = label;
-            if (expr.Count == 7)
+            if (expr.Count >= 7)
             {
                 displayLabel = expr[6] as string ?? throw new InvalidOperationException($"Clock '{label}' display label must be a string.");
                 if (string.IsNullOrWhiteSpace(displayLabel))
                     throw new InvalidOperationException($"Clock '{label}' display label cannot be empty.");
             }
-            return new GameClock { Label = label, DisplayLabel = displayLabel, Note = note,
+            var priority = ClockPriority.Primary;
+            if (expr.Count == 8)
+            {
+                string value = expr[7] is Symbol prioritySymbol ? prioritySymbol.AsString : "";
+                priority = value switch
+                {
+                    "primary" => ClockPriority.Primary,
+                    "secondary" => ClockPriority.Secondary,
+                    _ => throw new InvalidOperationException($"Clock '{label}' has unknown priority '{value}' (expected primary / secondary).")
+                };
+            }
+            return new GameClock { Label = label, DisplayLabel = displayLabel, Note = note, Priority = priority,
                 Current = current, Max = max, Style = style };
         }
     }

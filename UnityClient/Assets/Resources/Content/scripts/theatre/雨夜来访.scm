@@ -21,7 +21,7 @@
   (define (说 who text 电铃 seconds)
     (if 电铃
       (theatre-during
-        (theatre-caption-for "尼尔（电铃）" text seconds "#F0CF8A")
+        (theatre-caption-auto "尼尔（电铃）" text seconds "#F0CF8A")
         (theatre-sequence
           (theatre-tween "楼上灯窗" 'opacity .92 .2)
           (theatre-tween "楼上信号" 'opacity .7 .2)
@@ -33,8 +33,8 @@
               (theatre-parallel
                 (theatre-tween "电铃信号" 'opacity .7 .16)
                 (theatre-tween "楼上信号" 'opacity .7 .16))))))
-      (theatre-during
-        (theatre-caption-for who text seconds "#8FD9D0")
+      (theatre-parallel
+        (theatre-caption-auto who text seconds "#8FD9D0")
         (theatre-parallel
           (theatre-tween "焦点" 'x 805 1 'smooth)
           (theatre-tween "说话柔光" 'x 810 1.2 'smooth)
@@ -145,7 +145,7 @@
     ;; 灯亮 = 尼尔的动作，不和她的台词撞在一起。
     (说 "夜莺" "可以吗？" #f 0.870)
     (theatre-clear-caption)
-    (theatre-wait .9)
+    (theatre-wait-advance .9)
     (theatre-sound "门锁" "StageSounds/雨夜求助/门锁" #f .6 0)
     (theatre-wait .9)
     (theatre-parallel

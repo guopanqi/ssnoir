@@ -5,23 +5,29 @@
   (let ()
     (define calm-rest-day 0) ; 好结果每日最多恢复一点冷静
 
-    (define (work-result! money rumour calm?)
-      (add-item! "金钱" money)
-      (if (and calm? (not (= calm-rest-day world-day)))
-          (begin
-            (set! calm-rest-day world-day)
-            (restore-actor-composure! 'player 1))
-          #f)
-      (photo-case 'hear-rumours! rumour))
+    ;; 一次帮工只做三件事：进钱、进消息、动一点冷静。
+    ;; calm 为正＝好结果回冷静（当日限一次）；为负＝坏结果掉冷静；0＝不动。
+    (define (work-result! money rumour calm)
+      (if (> money 0) (add-item! "金钱" money) #f)
+      (cond
+        ((> calm 0)
+         (if (= calm-rest-day world-day)
+             #f
+             (begin
+               (set! calm-rest-day world-day)
+               (restore-actor-composure! 'player calm))))
+        ((< calm 0) (spend-composure! (- calm)))
+        (else #f))
+      (if (> rumour 0) (photo-case 'hear-rumours! rumour) #f))
 
     (define (nodes-at location)
       (if (equal? location "街角咖啡馆")
           (list
             (工作 "咖啡馆帮工" '低 'social
-              (outcome (lambda () (work-result! 6 2 #t)))
-              (outcome (lambda () (work-result! 4 1 #f)))
-              (outcome (lambda () (work-result! 2 1 #f)))
-              "小额收入；好结果今日可恢复1冷静"))
+              (outcome (lambda () (work-result! 10 2 1)))
+              (outcome (lambda () (work-result! 4 1 0)))
+              (outcome (lambda () (work-result! 0 0 -1)))
+              "安稳的工作，工资微薄，但偶尔能够令人感觉到平静。"))
           '()))
 
     (lambda args
@@ -33,5 +39,5 @@
          (set! calm-rest-day (assoc-get (cadr args) "calm-rest-day" 0)))
         (else (error "咖啡馆：未知消息"))))))
 
-;; 咖啡馆暂无独立 3D 锚点；由现有地点系统将动作卡放在网格区域。
-(define cafe (纯投射地点 "街角咖啡馆"))
+;; 咖啡馆暂无独立 3D 锚点：先借照相馆的锚点，把帮工卡落在那一角。
+(define cafe (纯投射地点 "街角咖啡馆" "街角咖啡馆"))

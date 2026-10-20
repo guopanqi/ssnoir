@@ -18,8 +18,8 @@
       (list (list x y) (list (+ x w) y) (list (+ x w) (+ y h))
         (list x (+ y h)) (list x y)) delay))
   (define (说 who x text seconds color)
-    (theatre-during
-      (theatre-caption-for who text seconds color)
+    (theatre-parallel
+      (theatre-caption-auto who text seconds color)
       (theatre-parallel
         (theatre-tween "焦点" 'x (+ 800 (* (- x 800) .5)) 1 'smooth)
         (theatre-tween "说话柔光" 'x x 1.2 'smooth)
@@ -117,4 +117,4 @@
           (theatre-wait 2.6))))
     (说 "夜莺" 800 "这是我一直以来的梦想，尼尔，谢谢你" 2.235 "#8FD9D0")
     (theatre-clear-caption)
-    (theatre-wait 4.2)))
+    (theatre-wait-advance 4.2)))

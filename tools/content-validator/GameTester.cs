@@ -19,7 +19,7 @@ namespace SSNoir.Testing
                     throw new InvalidDataException($"Untranslated {field} in {path}: {value}");
             }
 
-            string path = sceneName + "/" + node.Name;
+            string path = sceneName + "/" + node.Id;
             if (node.Resolve?.Type == ResolveType.Note)
             {
                 English(node.Resolve.NoteTitle, "note title", path);
@@ -27,7 +27,7 @@ namespace SSNoir.Testing
             }
             else
             {
-                English(node.DisplayTitle, "title", path);
+                English(node.Name, "title", path);
                 English(node.Subtitle, "subtitle", path);
             }
             foreach (var clock in node.Clocks)
@@ -132,6 +132,7 @@ namespace SSNoir.Testing
 
                 if (sceneName == "world/world")
                 {
+                    AssertClockPriorityDsl(sceneManager);
                     AssertNodeAnchorDsl(sceneManager);
                     AssertButtonTextDsl(sceneManager);
                     AssertArrivalDsl(sceneManager);
@@ -139,7 +140,7 @@ namespace SSNoir.Testing
                     AssertStoryStageDsl(sceneManager);
                 }
 
-                Console.WriteLine($"Validated scene '{sceneName}' with root '{sceneManager.CurrentRootNode.Name}'.");
+                Console.WriteLine($"Validated scene '{sceneName}' with root '{sceneManager.CurrentRootNode.Id}'.");
             }
         }
 
@@ -214,6 +215,31 @@ namespace SSNoir.Testing
                     $"Encounter '{sceneName}' returned an invalid on-encounter-collapse policy.");
         }
 
+        private static void AssertClockPriorityDsl(SceneManager scenes)
+        {
+            GameNode Convert(string expression) => NodeConverter.ConvertSingle(
+                scenes.ActiveInterpreter.Eval(expression), scenes.ActiveInterpreter.RawInterpreter);
+            const string data = "(list 'clock \"期限\" 2 3 'countdown \"到期散场\" \"剩余期限\")";
+            var primary = Convert($"(clock-node \"主钟\" {data})").Resolve!.Clock!;
+            var secondary = Convert($"(clock-node \"次钟\" (clock-priority {data} 'secondary))").Resolve!.Clock!;
+            AssertEq("default clock priority", ClockPriority.Primary, primary.Priority);
+            AssertEq("secondary clock priority", ClockPriority.Secondary, secondary.Priority);
+            AssertEq("secondary clock semantics", primary.Style, secondary.Style);
+            AssertEq("secondary clock label", primary.ShownLabel, secondary.ShownLabel);
+            AssertEq("secondary clock current", primary.Current, secondary.Current);
+            AssertEq("secondary clock note", primary.Note, secondary.Note);
+            var card = Convert($"(node \"带钟卡\" :clocks (list {data} (clock-priority {data} 'secondary)))");
+            AssertEq("card primary clock", ClockPriority.Primary, card.Clocks[0].Priority);
+            AssertEq("card secondary clock", ClockPriority.Secondary, card.Clocks[1].Priority);
+            AssertThrowsAny(() => Convert($"(clock-node \"错主次\" (clock-priority {data} 'typo))"), "unknown clock priority");
+            AssertThrowsAny(() => Convert("(clock-node \"错字段\" (list 'clock \"期限\" 2 3 'countdown \"\" \"期限\" 'typo))"), "invalid clock priority tuple");
+            var pressure = Convert("(clock-node \"压力钟\" ((make-clock \"测试压力\" 8 'pressure \"满格危险\") 'render-data))").Resolve!.Clock!;
+            AssertEq("pressure clock style", ClockStyle.Pressure, pressure.Style);
+            AssertEq("pressure clock maximum", 8, pressure.Max);
+            AssertEq("pressure clock starts empty", 0, pressure.Current);
+            Console.WriteLine("[validate] clock priority / pressure DSL contract passed.");
+        }
+
         private static void AssertButtonTextDsl(SceneManager scenes)
         {
             GameNode Convert(string expression) => NodeConverter.ConvertSingle(
@@ -252,7 +278,7 @@ namespace SSNoir.Testing
             var defaultNode = NodeConverter.ConvertSingle(
                 defaultExpr, sceneManager.ActiveInterpreter.RawInterpreter);
             if (defaultNode.AnchorName != null
-                || defaultNode.EffectiveAnchorName != defaultNode.Name
+                || defaultNode.EffectiveAnchorName != defaultNode.Id
                 || defaultNode.HasExplicitAnchor)
             {
                 throw new InvalidDataException("node without :anchor did not preserve name-based fallback.");
@@ -573,7 +599,7 @@ namespace SSNoir.Testing
                 AssertEq("support used flag", true, loadedScenes.SupportUsedThisEncounter);
                 AssertThrowsAny(() =>
                 {
-                    var forced = new GameNode { Name = card.Name, SupportId = supportId, Resolve = card.Resolve };
+                    var forced = new GameNode { Id = card.Id, Name = card.Name, SupportId = supportId, Resolve = card.Resolve };
                     loadedScenes.ExecuteAction(forced, new List<SlottedResource?>());
                 }, "using the support twice in one encounter");
 
@@ -597,7 +623,7 @@ namespace SSNoir.Testing
                 // 城市里执行支援卡是内容错误。
                 AssertThrowsAny(() =>
                 {
-                    var stray = new GameNode { Name = "叫个人来", SupportId = supportId, Resolve = card.Resolve };
+                    var stray = new GameNode { Id = "叫个人来", Name = "叫个人来", SupportId = supportId, Resolve = card.Resolve };
                     loadedScenes.ExecuteAction(stray, new List<SlottedResource?>());
                 }, "using a support card in the city");
 
@@ -634,16 +660,14 @@ namespace SSNoir.Testing
 
             static (int fail, int neutral, int success) ExpectedPercentages(int prepared)
             {
-                if (prepared <= 1) return (80, 20, 0);
+                if (prepared <= 1) return (60, 40, 0);
                 return prepared switch
                 {
-                    2 => (60, 40, 0),
+                    2 => (50, 50, 0),
                     3 => (40, 50, 10),
-                    4 => (30, 50, 20),
+                    4 => (25, 50, 25),
                     5 => (0, 70, 30),
-                    6 => (0, 50, 50),
-                    7 => (0, 10, 90),
-                    _ => (0, 0, 100),
+                    _ => (0, 50, 50),
                 };
             }
 
@@ -862,7 +886,7 @@ namespace SSNoir.Testing
             var consumableManager = new SceneManager(consumableState, new LocalScriptLoader());
             // 任意一场活的交锋都行，这里只需要一个已载入的交锋上下文。
             consumableManager.LoadScene("encounters/巷子里在打人");
-            var smokeNode = consumableManager.CurrentCarryNodes.FirstOrDefault(n => n.Name == "抽烟")
+            var smokeNode = consumableManager.CurrentCarryNodes.FirstOrDefault(n => n.Id == "抽烟")
                 ?? throw new Exception("[saveload] 这一场没有随身动作「抽烟」");
             AssertEq("carry node names its item", "香烟", smokeNode.CarryItemId);
             AssertEq("carry node has two consumable slots", 2, smokeNode.Requires.Count);
@@ -870,9 +894,9 @@ namespace SSNoir.Testing
             AssertEq("carry node action slot", "die", smokeNode.Requires[1].Type);
             // 随身卡不进渲染树：进了树就会被排进场上的卡片区，读起来像是这一场的事。
             AssertEq("carry node stays out of the scene tree", true,
-                consumableManager.CurrentRootNode!.Children.TrueForAll(n => n.Name != "抽烟"));
+                consumableManager.CurrentRootNode!.Children.TrueForAll(n => n.Id != "抽烟"));
             AssertEq("carry node hidden without item", true,
-                consumableManager.CurrentCarryNodes.All(n => n.Name != "喝酒"));
+                consumableManager.CurrentCarryNodes.All(n => n.Id != "喝酒"));
             var consumablePlayer = consumableState.Team.FindActor("player")!;
             int diceBeforeSmoke = consumablePlayer.ActionDice.Count;
             consumableManager.ExecuteAction(smokeNode, new List<SlottedResource?>

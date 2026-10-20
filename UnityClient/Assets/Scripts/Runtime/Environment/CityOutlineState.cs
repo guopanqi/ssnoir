@@ -236,13 +236,20 @@ namespace SSNoir
             return camera != null && _cameraOwners.ContainsKey(camera);
         }
 
+        // 冻帧捕获前保持此刻的完整世界状态，避免旧画面被目标描线/配光污染。
+        public void FreezePresentation()
+        {
+            _transition.Cancel();
+            _visuals.FreezePresentation();
+        }
+
         public void SetFocusedCamera(CinemachineVirtualCamera? camera, float? transitionSeconds = null)
         {
             Place? next = null;
             if (camera != null)
                 _cameraOwners.TryGetValue(camera, out next);
 
-            if (next == _activePlace)
+            if (next == _activePlace && transitionSeconds != 0f)
                 return;
 
             // 重定向时采样当前权重；重复呈现同一地点不会重启过渡。
@@ -264,7 +271,7 @@ namespace SSNoir
                         _fade,entering);
                 }
             },unscaled:true,smooth:false);
-            _visuals.SetFocused(next?.Name);
+            _visuals.SetFocused(next?.Name, immediate: transitionSeconds == 0f);
         }
 
         public void Dispose()

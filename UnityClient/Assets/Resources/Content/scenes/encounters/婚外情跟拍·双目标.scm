@@ -1,24 +1,25 @@
-;; 婚外情取证：寻找 → 照片/身份并行 → 一次怀疑危机。
+;; 婚外情取证：寻找 → 照片/身份并行。前期暂不启用怀疑危机。
 ;; 回传成果档位与实际进度；城市负责胶卷、身份消息及报酬。无额外时间期限。
 (define finished? #f)
 (define meeting? #f)
+;; 暂时移除额外危机；保留对象警觉及满格暴露，恢复时只改此内容开关。
+(define attention-crisis-enabled? #f)
 (define crisis-called? #f)
 (define crisis? #f)
-(define finding (make-clock "找到丈夫" 6 'gauge "满6发现会面；敏锐辨认或见识判断去向。"))
-(define photos (make-clock "可靠照片" 8 'gauge "满8取得照片成果；可以收手，也可继续查身份。"))
+(define finding (make-clock "找到丈夫" 8 'gauge "满8发现会面；敏锐辨认或见识判断去向。"))
+(define photos (make-clock "可靠照片" 8 'gauge "满8取得照片并领基础报酬；查清身份可提高报酬。"))
 (define identity (make-clock "女子身份" 12 'gauge "4获姓氏、8获工作地点、12核实本人；两种办法用不同技能。"))
-(define alertness (make-clock "对象警觉" 8 'gauge "满8暴露；到4首次触发怀疑危机。"))
-(define disguise (make-clock "摆脱注意" 6 'gauge "好2中1；满6危机解除，警觉减2。未解除每回合警觉加1。"))
+(define alertness (make-clock "对象警觉" 8 'pressure "满8暴露；拍摄和打听的失手仍会增加警觉。"))
+(define disguise (make-clock "摆脱注意" 4 'gauge "好2中1；满4危机解除，警觉减2。未解除每回合警觉加1。"))
 (define (result-tier)
   (cond ((and (photos 'full?) (identity 'full?)) '照片与身份)
-        ((identity 'full?) '身份) ((photos 'full?) '照片) (else '无成果)))
+        ((photos 'full?) '照片) (else '无成果)))
 (define (finish! reason)
   (if finished? (error "双目标跟拍：重复结算") #t)
   (set! finished? #t)
   (spotlight! "委托取证结束"
     (string-append (if (equal? reason '暴露) "他发现了你。" "你收起相机离开。")
       (cond ((equal? (result-tier) '照片与身份) "照片和身份均已核实，可结算最高档报酬。")
-            ((equal? (result-tier) '身份) "身份已核实，可结算较高报酬。")
             ((equal? (result-tier) '照片) "可靠照片已取得，可结算基础报酬。")
             (else "没有完成取证，无法领取报酬。"))))
   (end-encounter (list reason (result-tier) (photos 'current) (identity 'current))))
@@ -50,7 +51,9 @@
              (play-bubble!
                (line "丈夫" "路上耽搁了一会儿。" :at "双目标跟拍-丈夫座位")
                (line "女子" "没关系，我也才刚到一会儿。" "" 2.8 :at "双目标跟拍-餐桌")
-               (line "尼尔" "看来就是他们了" :at "双目标跟拍-观察位"))) #f))
+               (line "尼尔" "看来就是他们了" :at "双目标跟拍-观察位"))
+             (spotlight! "会面开始"
+               "拍到可靠照片才能领取报酬；查清女子身份，还能拿到更多。")) #f))
         ((eq? goal '照片) (photos 'advance! n))
         ((eq? goal '身份) (identity-progress! n))
         ((eq? goal '掩饰)
@@ -92,7 +95,7 @@
   (lambda () (and (not finished?) crisis?))
   (lambda () (alertness 'advance! 1) (check!)))
 (define-opponent-rule "男人起疑"
-  (lambda () (and (not finished?) (not crisis-called?) (>= (alertness 'current) 4)))
+  (lambda () (and attention-crisis-enabled? (not finished?) (not crisis-called?) (>= (alertness 'current) 4)))
   (lambda ()
     (set! crisis-called? #t) (set! crisis? #t)
     (play-dialogue!
@@ -139,12 +142,15 @@
               (else "双目标跟拍-找人"))
         (note-node "标注：取证场面" "此刻的场面"
         (cond (crisis? "男人正在门口查看你；继续调查每次额外警觉1，回合末也加1。")
-              (meeting? "两人在窗边用餐。照片满8可收手；身份满12报酬更高。")
+              (meeting? "两人在窗边用餐。可靠照片可领基础报酬；再核实身份能提高报酬。")
               (else "丈夫还在人群中。先辨认面孔或推断去向。")))))
       (if meeting?
         (append
-          (map (lambda (n) (at-anchor "双目标跟拍-餐桌" n))
-            (clock-nodes (photos 'render-data) (identity 'render-data)))
+          (list
+            (at-anchor "双目标跟拍-观察位"
+              (clock-node "标注：可靠照片" (photos 'render-data)))
+            (at-anchor "双目标跟拍-侍者"
+              (clock-node "标注：女子身份" (identity 'render-data))))
           (if (photos 'full?) '() (list (photo-container)))
           (if (identity 'full?) '() (list (identity-container)))
           (if (or (photos 'full?) (identity 'full?))

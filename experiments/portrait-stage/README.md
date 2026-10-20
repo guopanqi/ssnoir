@@ -11,5 +11,6 @@
 | [portrait-theatre-lab/](portrait-theatre-lab/) | 各模型单文件剧场合集（Claude / kimi / musespark 原型与归档），`portrait-theatre-story-claude-sonnet-5-5.html` 为基准剧本对照源 |
 | [portrait-theatre-mimo-v2.6-flash-free/](portrait-theatre-mimo-v2.6-flash-free/) | MiMo 模型编排的六幕纯色舞台版本，对白与基准剧本逐字一致 |
 | [portrait-theatre-claude/](portrait-theatre-claude/) | Claude Sonnet 5.5 噪点黑色线绘世界：19 章故事剧场（地图选点 → 线绘舞台），src 模块化 + `node build.mjs` 构建单文件，接手见其 AGENTS.md |
+| [sc02-tavern-debut/](sc02-tavern-debut/) | **SC-A02 固定开场**（酒保与夜莺初次亮相）：线绘场景逐笔成形 + 灯光逐点亮起，人偶姿势**定格切换**（立绘式，无慢速关节补间），节奏收紧的单场实验 |
 | [neon-rig-three/](neon-rig-three/) | **本次独立 Three.js 实验**：正式 Neon 描线路径的自动关节变形；醉酒出门与街角追逐，对比关键立绘切换与加权骨骼驱动 |
 | [neon-cutout-puppet/](neon-cutout-puppet/) | **独立分层人物实验**：13 块硬质 Cutout 描线部件、醉步/扶墙/奔跑与生成关键姿势对比、静态及运动截帧验证 |

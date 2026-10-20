@@ -35,8 +35,8 @@
     ;; ── 工作状态 ───────────────────────────
     (define opening-talk-heard? #f)
     ;; 仅在勒索信筹备中开放；每次搬运附加推进一格，完成后停止。
-    (define worker-familiarity (make-clock "工友之间的消息" 6 'gauge
-      "搬运时听工友聊天；满六格后可以歇下来聊聊。"))
+    (define worker-familiarity (make-clock "工友之间的消息" 4 'gauge
+      "搬运时听工友聊天；满四格后可以歇下来聊聊。"))
     (define worker-asked? #f)
     (define exploration (make-clock "熟悉码头" 4 'gauge "2格发现搬运，4格找到信上的邮箱。"))
     (define mailbox-viewed? #f)

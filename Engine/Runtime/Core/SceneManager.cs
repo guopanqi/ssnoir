@@ -39,8 +39,8 @@ namespace SSNoir.Core
 
         private sealed class PendingAutoAction
         {
+            public string Id { get; init; } = string.Empty;
             public string Name { get; init; } = string.Empty;
-            public string Title { get; init; } = string.Empty;
             public string Text { get; init; } = string.Empty;
             public string? AnchorName { get; init; }
             public List<(string ActorId, int Count)> Demands { get; init; } = new();
@@ -492,19 +492,19 @@ namespace SSNoir.Core
                 new NativeProcedure(args =>
                 {
                     if (args.Count != 7)
-                        throw new ArgumentException("auto-action!: expected name, subtitle, anchor, demands, prelude, effect, and display title");
+                        throw new ArgumentException("auto-action!: expected id, subtitle, anchor, demands, prelude, effect, and display name");
                     if (CurrentSceneName.Equals("world", StringComparison.OrdinalIgnoreCase))
                         throw new InvalidOperationException("auto-action!: 只能在交锋中使用。");
                     if (!_isResolvingTurnEnd)
                         throw new InvalidOperationException("auto-action!: 只能由交锋的回合结算规则调用。");
                     _ = _gameState.CurrentActionReport
                         ?? throw new InvalidOperationException("auto-action!: 必须在回合结算中调用。");
-                    string name = args[0] as string
-                        ?? throw new ArgumentException("auto-action!: name must be a string");
-                    string title = args[6] as string
-                        ?? throw new ArgumentException("auto-action!: display title must be a string");
-                    if (string.IsNullOrWhiteSpace(title))
-                        throw new ArgumentException("auto-action!: display title cannot be empty");
+                    string id = args[0] as string
+                        ?? throw new ArgumentException("auto-action!: id must be a string");
+                    string name = args[6] as string
+                        ?? throw new ArgumentException("auto-action!: display name must be a string");
+                    if (string.IsNullOrWhiteSpace(name))
+                        throw new ArgumentException("auto-action!: display name cannot be empty");
                     string text = args[1] as string
                         ?? throw new ArgumentException("auto-action!: progress text must be a string");
                     string? anchorName = args[2] is bool noAnchor && !noAnchor
@@ -535,8 +535,8 @@ namespace SSNoir.Core
                     }
                     _pendingAutoActions.Add(new PendingAutoAction
                     {
+                        Id = id,
                         Name = name,
-                        Title = title,
                         Text = text,
                         AnchorName = anchorName,
                         Demands = parsed,
@@ -561,7 +561,7 @@ namespace SSNoir.Core
                 if (demand.Count > actor.ActionSlotCount)
                     throw new InvalidOperationException(
                         $"auto-action!: actor '{demand.ActorId}' has {actor.ActionSlotCount} action slots, " +
-                        $"but action '{pending.Name}' demands {demand.Count}");
+                        $"but action '{pending.Id}' demands {demand.Count}");
                 int available = actor.Status == "active" ? actor.ActionDice.Count : 0;
                 int acquired = Math.Min(demand.Count, available);
                 if (acquired > 0)
@@ -573,7 +573,7 @@ namespace SSNoir.Core
                         ? $"status is '{actor.Status}'"
                         : $"only {available} action dice are available";
                     OnWarning?.Invoke(
-                        $"[SSNoir] auto-action degraded: scene '{CurrentSceneName}', action '{pending.Name}', " +
+                        $"[SSNoir] auto-action degraded: scene '{CurrentSceneName}', action '{pending.Id}', " +
                         $"actor '{demand.ActorId}' requested {demand.Count} dice but acquired {acquired}; {reason}.");
                 }
             }
@@ -703,7 +703,7 @@ namespace SSNoir.Core
                 throw new InvalidOperationException(
                     "根容器不能挂 :clocks：根节点不会被渲染为卡。请改用 clock-node 作为第一个子节点。");
 
-            AssertUniqueNodeNames(rootNode);
+            AssertUniqueNodeIds(rootNode);
             AssertPlacesWellFormed(rootNode, IsWorldScene(CurrentSceneName));
             TrackNewWorldPlaces(rootNode);
             CurrentRootNode = rootNode;
@@ -743,28 +743,28 @@ namespace SSNoir.Core
             {
                 if (!string.IsNullOrEmpty(node.SupportId) && node.Requires.Count > 0)
                     throw new InvalidOperationException(
-                        $"支援动作 '{node.Name}' 不能有需求槽：这项人物能力本身不消耗资源。");
+                        $"支援动作 '{node.Id}' 不能有需求槽：这项人物能力本身不消耗资源。");
             }
-            var treeNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            CollectNodeNames(rootNode, treeNames);
+            var treeIds = new HashSet<string>(StringComparer.Ordinal);
+            CollectNodeIds(rootNode, treeIds);
             foreach (var node in carried)
             {
                 if (string.IsNullOrEmpty(node.CarryItemId) && string.IsNullOrEmpty(node.SupportId))
                     throw new InvalidOperationException(
-                        $"非场景交锋动作 '{node.Name}' 必须声明 :carry-item 或 :support。");
-                // 槽位状态按节点名索引，重名会让随身卡和场上某张卡共用同一份槽位。
-                if (treeNames.Contains(node.Name))
+                        $"非场景交锋动作 '{node.Id}' 必须声明 :carry-item 或 :support。");
+                // 槽位状态按节点 ID 索引，重复 ID 会让随身卡和场上某张卡共用同一份槽位。
+                if (treeIds.Contains(node.Id))
                     throw new InvalidOperationException(
-                        $"非场景交锋动作 '{node.Name}' 和交锋 '{CurrentSceneName}' 里的一张卡重名。");
+                        $"非场景交锋动作 '{node.Id}' 和交锋 '{CurrentSceneName}' 里的一张卡 ID 重复。");
             }
             return carried;
         }
 
-        private static void CollectNodeNames(GameNode node, HashSet<string> into)
+        private static void CollectNodeIds(GameNode node, HashSet<string> into)
         {
-            into.Add(node.Name);
+            into.Add(node.Id);
             foreach (var child in node.Children)
-                CollectNodeNames(child, into);
+                CollectNodeIds(child, into);
         }
 
         private void ResetWorldPlaceBaseline()
@@ -788,7 +788,7 @@ namespace SSNoir.Core
                 foreach (var child in rootNode.Children)
                 {
                     if (child.IsPlace)
-                        _seenWorldPlaces.Add(child.Name);
+                        _seenWorldPlaces.Add(child.Id);
                 }
                 _hasWorldPlaceBaseline = true;
                 return;
@@ -796,10 +796,10 @@ namespace SSNoir.Core
 
             foreach (var child in rootNode.Children)
             {
-                if (child.IsPlace && _seenWorldPlaces.Add(child.Name))
+                if (child.IsPlace && _seenWorldPlaces.Add(child.Id))
                 {
                     _gameState.NotificationCenter.Push(
-                        $"新地点开放：{child.Name}", NotificationKind.Info);
+                        $"新地点开放：{child.Id}", NotificationKind.Info);
                 }
             }
         }
@@ -838,6 +838,7 @@ namespace SSNoir.Core
                     IssuedInjuryDieLoss = actor.IssuedInjuryDieLoss,
                     ActionDice = actor.ActionDice.ToArray(),
                     ActionDiceSlotIds = actor.ActionDiceSlotIds.ToArray(),
+                    ActionDiceRevision = actor.ActionDiceRevision,
                     IsDrunk = actor.IsDrunk,
                     ActiveActionSlotStatuses = _gameState.Team.GetActiveActionSlotStatuses(actor),
                     PendingActionSlotStatuses = _gameState.Team.GetPendingActionSlotStatuses(actor),
@@ -880,31 +881,31 @@ namespace SSNoir.Core
                 CollectClocksRecursive(child, result);
         }
 
-        private static void AssertUniqueNodeNames(GameNode rootNode)
+        private static void AssertUniqueNodeIds(GameNode rootNode)
         {
             var firstPaths = new Dictionary<string, string>(StringComparer.Ordinal);
-            AssertUniqueNodeNamesRecursive(rootNode, "", firstPaths);
+            AssertUniqueNodeIdsRecursive(rootNode, "", firstPaths);
         }
 
-        private static void AssertUniqueNodeNamesRecursive(
+        private static void AssertUniqueNodeIdsRecursive(
             GameNode node,
             string parentPath,
             Dictionary<string, string> firstPaths)
         {
             string path = string.IsNullOrEmpty(parentPath)
-                ? node.Name
-                : $"{parentPath} > {node.Name}";
-            if (firstPaths.TryGetValue(node.Name, out string? firstPath))
+                ? node.Id
+                : $"{parentPath} > {node.Id}";
+            if (firstPaths.TryGetValue(node.Id, out string? firstPath))
             {
                 throw new InvalidOperationException(
-                    $"重复节点名称: \"{node.Name}\"。节点名称在整棵渲染树中必须唯一。"
+                    $"重复节点 ID: \"{node.Id}\"。节点 ID 在整棵渲染树中必须唯一。"
                     + $"\n首次出现: {firstPath}"
                     + $"\n再次出现: {path}");
             }
-            firstPaths[node.Name] = path;
+            firstPaths[node.Id] = path;
             foreach (var child in node.Children)
             {
-                AssertUniqueNodeNamesRecursive(child, path, firstPaths);
+                AssertUniqueNodeIdsRecursive(child, path, firstPaths);
             }
         }
 
@@ -917,7 +918,7 @@ namespace SSNoir.Core
         {
             foreach (var child in rootNode.Children)
             {
-                AssertNoPlaceBelow(child, child.IsPlace ? child.Name : rootNode.Name);
+                AssertNoPlaceBelow(child, child.IsPlace ? child.Id : rootNode.Id);
             }
 
             if (isWorldScene)
@@ -927,7 +928,7 @@ namespace SSNoir.Core
             {
                 if (child.IsPlace)
                     throw new InvalidOperationException(
-                        $"交锋树里不能出现地点：\"{child.Name}\"。地点只属于世界。");
+                        $"交锋树里不能出现地点：\"{child.Id}\"。地点只属于世界。");
             }
         }
 
@@ -937,7 +938,7 @@ namespace SSNoir.Core
             {
                 if (child.IsPlace)
                     throw new InvalidOperationException(
-                        $"\"{child.Name}\" 是地点，却嵌在 \"{containerName}\" 里。"
+                        $"\"{child.Id}\" 是地点，却嵌在 \"{containerName}\" 里。"
                         + "地点只能是世界根的直接子节点；里面的分区请用普通 container。");
                 AssertNoPlaceBelow(child, containerName);
             }
@@ -1231,10 +1232,10 @@ namespace SSNoir.Core
                         var autoReport = ResolveWithReport(() => pending.Effect.Call(new List<object>()));
                         if (autoReport.BlockingStorySteps.Count > 0)
                             throw new InvalidOperationException(
-                                $"auto-action!: '{pending.Name}' 的效果里不能排阻塞剧情步骤；要说话用 play-bubble!。");
+                                $"auto-action!: '{pending.Id}' 的效果里不能排阻塞剧情步骤；要说话用 play-bubble!。");
                         var frameReport = new ActionReport { Type = ActionType.Instant };
                         frameReport.BlockingStorySteps.Add(BlockingStoryStep.ForResolvedAutoAction(
-                            pending.Name, pending.Title, pending.Text, pending.AnchorName,
+                            pending.Id, pending.Name, pending.Text, pending.AnchorName,
                             pending.Prelude, slots, autoReport));
                         RebuildRenderTree();
                         return CommitRoundFrame(RoundTransitionPhase.ForcedAction, frameReport);
@@ -1310,7 +1311,7 @@ namespace SSNoir.Core
         /// 睡醒仍在家里也不算——那些路径不要调这个方法。
         ///
         /// 按名字取节点而不是收客户端手里的对象：客户端持有的是它自己那份快照里的
-        /// 节点，未必是引擎当前树里的那一个。节点名全局唯一（AssertUniqueNodeNames），
+        /// 节点，未必是引擎当前树里的那一个。节点 ID 全局唯一（AssertUniqueNodeIds），
         /// 按名字查是准的。
         ///
         /// 没有入场节拍时返回 null，客户端照常进入即可。
@@ -1332,14 +1333,14 @@ namespace SSNoir.Core
 
             // 退回世界层也算一次到达：世界根自己不是子地点，但「你离开过这里」
             // 这类规则（家里的睡觉锁）要听见它。根没有入场节拍，只跑钩子并重建。
-            if (root.Name == placeName)
+            if (root.Id == placeName)
             {
                 ActiveInterpreter.Eval($"(on-enter-place \"{placeName}\")");
                 RebuildRenderTree();
                 return null;
             }
 
-            var place = root.Children.Find(child => child.IsPlace && child.Name == placeName);
+            var place = root.Children.Find(child => child.IsPlace && child.Id == placeName);
             if (place == null)
                 return null;
 
@@ -1393,7 +1394,7 @@ namespace SSNoir.Core
 
             RebuildRenderTree();
 
-            var stillThere = CurrentRootNode?.Children.Find(child => child.IsPlace && child.Name == placeName);
+            var stillThere = CurrentRootNode?.Children.Find(child => child.IsPlace && child.Id == placeName);
             if (stillThere == null)
                 throw new InvalidOperationException(
                     $"地点 \"{placeName}\" 的入场节拍把玩家刚走进来的地点从世界里移掉了。");
@@ -1406,7 +1407,7 @@ namespace SSNoir.Core
         public ActionReport ExecuteAction(GameNode node, List<SlottedResource?> slots)
         {
             if (node.Disabled)
-                throw new InvalidOperationException($"Node '{node.Name}' is disabled and cannot be executed.");
+                throw new InvalidOperationException($"Node '{node.Id}' is disabled and cannot be executed.");
             Debug.Assert(node.Resolve != null, "Cannot execute action on a node that has no resolve");
             if (node.Resolve.Type == ResolveType.Observe)
             {
@@ -1417,12 +1418,12 @@ namespace SSNoir.Core
             if (!string.IsNullOrEmpty(node.SupportId))
             {
                 if (IsWorldScene(CurrentSceneName))
-                    throw new InvalidOperationException($"支援卡 '{node.Name}' 只能在交锋里用。");
+                    throw new InvalidOperationException($"支援卡 '{node.Id}' 只能在交锋里用。");
                 if (!string.Equals(node.SupportId, _gameState.Team.CarriedSupport, StringComparison.Ordinal))
                     throw new InvalidOperationException(
-                        $"支援卡 '{node.Name}' 属于 '{node.SupportId}'，但这一场带的是 '{_gameState.Team.CarriedSupport}'。");
+                        $"支援卡 '{node.Id}' 属于 '{node.SupportId}'，但这一场带的是 '{_gameState.Team.CarriedSupport}'。");
                 if (SupportUsedThisEncounter)
-                    throw new InvalidOperationException($"支援卡 '{node.Name}'：这一场的支援已经用过了。");
+                    throw new InvalidOperationException($"支援卡 '{node.Id}'：这一场的支援已经用过了。");
                 SupportUsedThisEncounter = true;
             }
 

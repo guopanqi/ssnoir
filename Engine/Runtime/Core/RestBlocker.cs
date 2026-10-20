@@ -11,14 +11,14 @@ namespace SSNoir.Core
         public string Id { get; }
         public string Reason { get; }
         public string LocationName { get; }
-        public string TargetNodeName { get; }
+        public string TargetNodeId { get; }
 
-        public RestBlocker(string id, string reason, string locationName, string targetNodeName)
+        public RestBlocker(string id, string reason, string locationName, string targetNodeId)
         {
             Id = id;
             Reason = reason;
             LocationName = locationName;
-            TargetNodeName = targetNodeName;
+            TargetNodeId = targetNodeId;
         }
     }
 
@@ -28,7 +28,7 @@ namespace SSNoir.Core
         {
             foreach (var blocker in blockers)
             {
-                if (string.Equals(node.Name, blocker.TargetNodeName, StringComparison.Ordinal))
+                if (string.Equals(node.Id, blocker.TargetNodeId, StringComparison.Ordinal))
                     return true;
             }
             return false;
@@ -43,19 +43,19 @@ namespace SSNoir.Core
         {
             foreach (var blocker in blockers)
             {
-                if (ContainsTarget(node, blocker.TargetNodeName))
+                if (ContainsTarget(node, blocker.TargetNodeId))
                     return blocker;
             }
             return null;
         }
 
-        private static bool ContainsTarget(GameNode node, string targetNodeName)
+        private static bool ContainsTarget(GameNode node, string targetNodeId)
         {
-            if (string.Equals(node.Name, targetNodeName, StringComparison.Ordinal))
+            if (string.Equals(node.Id, targetNodeId, StringComparison.Ordinal))
                 return true;
             foreach (var child in node.Children)
             {
-                if (ContainsTarget(child, targetNodeName))
+                if (ContainsTarget(child, targetNodeId))
                     return true;
             }
             return false;

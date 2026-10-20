@@ -104,14 +104,14 @@ public sealed class PlaySession
             switch (choice.Kind)
             {
                 case "navigate":
-                    _navigation.Add(choice.Node!.Name);
+                    _navigation.Add(choice.Node!.Id);
                     break;
                 case "back":
                     _navigation.RemoveAt(_navigation.Count - 1);
                     break;
                 case "enter-place":
-                    _navigation.Add(choice.Node!.Name);
-                    AddReport(events, "入场", _scenes.EnterPlace(choice.Node.Name));
+                    _navigation.Add(choice.Node!.Id);
+                    AddReport(events, "入场", _scenes.EnterPlace(choice.Node.Id));
                     break;
                 case "action":
                     AddReport(events, "行动", _scenes.ExecuteAction(choice.Node!, choice.Slots!));
@@ -159,7 +159,7 @@ public sealed class PlaySession
         int validDepth = 0;
         foreach (string name in _navigation)
         {
-            var next = focus.Children.FirstOrDefault(n => n.Name == name);
+            var next = focus.Children.FirstOrDefault(n => n.Id == name);
             if (next == null) break;
             focus = next;
             validDepth++;
@@ -189,7 +189,7 @@ public sealed class PlaySession
                 prepared = FateStrip.PreparedValue(die.Value, actor.Stats[skill], modifier);
                 odds = FateStrip.Describe(FateStrip.StripForPrepared(prepared.Value));
             }
-            operations.Add(new SessionOperation(id, kind, label, node?.Name,
+            operations.Add(new SessionOperation(id, kind, label, node?.Id,
                 die?.Value, prepared, odds));
             _choices.Add(id, new Choice(kind, node, slots));
         }
@@ -212,7 +212,7 @@ public sealed class PlaySession
         Add("end-turn", "结束回合");
 
         _observation = new SessionObservation(_version, _scenes.CurrentSceneName,
-            snapshot.IsInEncounter, snapshot.WorldDay, focus.Name,
+            snapshot.IsInEncounter, snapshot.WorldDay, focus.Id,
             $"{snapshot.InjuryPart} {snapshot.InjuryBandName} {snapshot.InjurySeverity}/{snapshot.InjuryMaxSeverity}",
             snapshot.ScarSummary,
             focus.Children.Select(Card).ToArray(), snapshot.CarryNodes.Select(Card).ToArray(),
@@ -240,11 +240,11 @@ public sealed class PlaySession
         var focus = root;
         foreach (string name in _navigation)
         {
-            var next = focus.Children.FirstOrDefault(n => n.Name == name);
+            var next = focus.Children.FirstOrDefault(n => n.Id == name);
             if (next == null) break;
             focus = next;
         }
-        return new SessionFrameState(_scenes.CurrentSceneName, snapshot.WorldDay, focus.Name,
+        return new SessionFrameState(_scenes.CurrentSceneName, snapshot.WorldDay, focus.Id,
             focus.Children.Select(Card).ToArray(),
             snapshot.Actors.Where(a => a.OnStage).Select(a => new SessionActor(a.Id, a.Name,
                 a.Composure, a.MaxComposure, a.Stats,
@@ -328,7 +328,7 @@ public sealed class PlaySession
                 }
             }
             else
-                throw new InvalidOperationException($"会话不支持资源要求：{req.Type}（{node.Name}）。");
+                throw new InvalidOperationException($"会话不支持资源要求：{req.Type}（{node.Id}）。");
         }
         Expand(0, "");
     }

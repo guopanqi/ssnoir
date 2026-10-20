@@ -34,16 +34,16 @@ namespace SSNoir.IMGUI
                 safe.y + (safe.height - h) / 2f, w, h));
         }
 
-        public bool DrawToggle(SSNoirGameManager manager, IMGUIInteractionContext ui, TopHudLayout hud)
+        public bool DrawToggle(SSNoirGameManager manager, IMGUIInteractionContext ui, Rect toggleRect)
         {
             if (_clearFocus) { GUI.FocusControl(null); _clearFocus = false; }
-            if (!IMGUIButton.DrawTopTextToggle(hud.FeedbackToggle, UiText.Get("反馈"), IsOpen, ui)) return false;
+            if (!IMGUIButton.DrawTopTextToggle(toggleRect, UiText.Get("反馈"), IsOpen, ui)) return false;
             if (IsOpen) { Close(); return false; }
             if (_draft.Length == 0 && !_client.IsSubmitting)
             {
-                _location = manager.DisplayedSnapshot.RootNode?.DisplayTitle ?? UiText.Get("未加载");
+                _location = manager.DisplayedSnapshot.RootNode?.Name ?? UiText.Get("未加载");
                 if (manager.NavigationStack.Count > 0)
-                    _location += " > " + string.Join(" > ", manager.NavigationStack.ConvertAll(n => n.DisplayTitle));
+                    _location += " > " + string.Join(" > ", manager.NavigationStack.ConvertAll(n => n.Name));
                 _inEncounter = manager.DisplayedSnapshot.IsInEncounter;
                 _worldDay = manager.DisplayedSnapshot.WorldDay;
             }

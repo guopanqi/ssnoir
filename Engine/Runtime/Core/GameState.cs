@@ -89,12 +89,12 @@ namespace SSNoir.Core
             PendingHospitalization = null;
         }
 
-        public void RegisterRestBlocker(string id, string reason, string locationName, string targetNodeName)
+        public void RegisterRestBlocker(string id, string reason, string locationName, string targetNodeId)
         {
             if (string.IsNullOrWhiteSpace(id) || string.IsNullOrWhiteSpace(reason)
-                || string.IsNullOrWhiteSpace(locationName) || string.IsNullOrWhiteSpace(targetNodeName))
+                || string.IsNullOrWhiteSpace(locationName) || string.IsNullOrWhiteSpace(targetNodeId))
                 throw new ArgumentException("rest blocker requires non-empty id, reason, location, and target node");
-            _restBlockers[id] = new RestBlocker(id, reason, locationName, targetNodeName);
+            _restBlockers[id] = new RestBlocker(id, reason, locationName, targetNodeId);
         }
 
         public void ReleaseRestBlocker(string id) => _restBlockers.Remove(id);

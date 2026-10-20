@@ -40,9 +40,81 @@ public static class TheatreChecks
             Check(System.IO.File.Exists("UnityClient/Assets/Resources/" + asset + ".png") || System.IO.File.Exists("UnityClient/Assets/Resources/" + asset + ".wav"), "rainy visit asset exists: " + asset);
         System.IO.File.WriteAllText(".cache/theatre-check/rain-scene.json", Newtonsoft.Json.JsonConvert.SerializeObject(rainy));
         Console.WriteLine($"[theatre] rainy visit: {rainy.Nodes.Count} objects, {rainCaptions.Count} captions, score completed in {rainSession.Time:F2}s.");
+        // 每个实际调试入口分别覆盖无输入与连续点击。
+        foreach (string entry in new[] {
+            "(begin (load-file \"scripts/theatre/第一节开场新版.scm\") (开场新版-序幕))",
+            "(begin (load-file \"scripts/theatre/第一节开场新版.scm\") (开场新版-清晨))",
+            "(begin (load-file \"scripts/theatre/第一节开场新版.scm\") (开场新版-酒馆初访))",
+            "(begin (load-file \"scripts/theatre/第一节开场新版.scm\") (开场新版-酒馆再访))",
+            "(begin (load-file \"scripts/theatre/第一节生活.scm\") (第一节-醉归))",
+            "(begin (load-file \"scripts/theatre/第一节生活.scm\") (第一节-清晨敲门))",
+            "(begin (load-file \"scripts/theatre/第一节生活.scm\") (第一节-酒馆初访))",
+            "(begin (load-file \"scripts/theatre/第一节生活.scm\") (第一节-酒馆接案后))",
+            "(begin (load-file \"scripts/theatre/第一节生活.scm\") (第一节-艾迪相识))",
+            "(begin (load-file \"scripts/theatre/雨夜来访.scm\") (雨夜来访-演出))",
+            "(begin (load-file \"scripts/theatre/路灯下.scm\") (路灯下-试演!))",
+            "(begin (load-file \"scripts/theatre/室内求助.scm\") (室内求助-演出))",
+            "(begin (load-file \"scripts/theatre/第二天.scm\") (第二天-演出))",
+            "(begin (load-file \"scripts/theatre/邮箱相见.scm\") (邮箱相见-演出 '足额))",
+            "(begin (load-file \"scripts/theatre/邮箱相见.scm\") (邮箱相见-演出 '她补))",
+            "(begin (load-file \"scripts/theatre/邮箱相见.scm\") (邮箱相见-演出 '塞报纸))",
+            "(begin (load-file \"scripts/theatre/勒索追逐.scm\") (勒索追逐-演出))",
+            "(begin (load-file \"scripts/theatre/平静.scm\") (平静-演出))",
+            "(begin (load-file \"scripts/theatre/烟盒.scm\") (烟盒-演出))",
+            "(begin (load-file \"scripts/theatre/弗兰克的桌子.scm\") (弗兰克的桌子-演出))",
+            "(begin (load-file \"scripts/theatre/独闯老街.scm\") (独闯老街-演出))",
+            "(begin (load-file \"scripts/theatre/巷口.scm\") (巷口-演出))",
+            "(begin (load-file \"scripts/theatre/贝恩斯.scm\") (贝恩斯-演出))",
+            "(begin (load-file \"scripts/theatre/老街被介入.scm\") (老街被介入-演出))",
+            "(begin (load-file \"scripts/theatre/经理电话.scm\") (经理电话-演出))",
+            "(begin (load-file \"scripts/theatre/解雇.scm\") (解雇-演出))",
+            "(begin (load-file \"scripts/theatre/剧院来信.scm\") (剧院来信-演出))",
+            "(begin (load-file \"scripts/theatre/莱恩的家.scm\") (莱恩的家-演出))",
+            "(begin (load-file \"scripts/theatre/剧院安全.scm\") (剧院安全-演出))",
+            "(begin (load-file \"scripts/theatre/彩排.scm\") (彩排-演出))",
+            "(begin (load-file \"scripts/theatre/照相馆.scm\") (照相馆冲印-演出 #t))",
+            "(begin (load-file \"scripts/theatre/照相馆.scm\") (照相馆冲印-演出 #f))",
+            "(begin (load-file \"scripts/theatre/照相馆.scm\") (照相馆查来源-演出))",
+        })
+        {
+            foreach (bool click in new[] { false, true })
+            {
+                captured = null; interpreter.Eval(entry);
+                var scene = captured ?? throw new Exception("missing theatre: " + entry);
+                Check(scene.Commands.Where(c => c.Kind == TheatreCommandKind.Say).All(c => c.CanAdvance), "all captions support automatic input: " + entry);
+                var playback = new TheatreSession(scene); playback.Start();
+                for (int frame = 0; frame < 20000 && !playback.IsComplete; frame++) { playback.Tick(.1f); if (click) playback.Advance(); }
+                Check(playback.IsComplete && playback.Playbacks.Count == 0, "full theatre completes, clicks=" + click + ": " + entry);
+            }
+        }
+        Console.WriteLine("[theatre] 33 real entries passed without input and with continuous clicks.");
         const string sceneExpression = "(theatre-scene 1600 900 \"#08090F\" (list (theatre-group \"g\" \"\" 0 0)))";
         TheatreScene Build(string program) => TheatreParser.Parse(interpreter.Eval(sceneExpression), interpreter.Eval(program));
         TheatreSession Start(string program, float enter = 0, float exit = 0) { var s = new TheatreSession(Build(program), enter, exit); s.Start(); return s; }
+        var automatic = Start("(theatre-sequence (theatre-caption-auto \"尼尔\" \"四个字啊\" 1 \"#FFFFFF\") (theatre-wait-advance 1))");
+        automatic.Tick(3); Check(automatic.IsComplete, "interactive automatic score finishes without input");
+        var reveal = Start("(theatre-caption-auto \"尼尔\" \"这句字幕需要给玩家足够时间读完所有文字\" 1 \"#FFFFFF\")");
+        reveal.Tick(.8f); reveal.Advance(); Check(reveal.CaptionIsRevealed && !reveal.IsComplete, "first click reveals without advancing");
+        reveal.Tick(.3f); Check(!reveal.IsComplete, "reveal extends nearly expired reading time"); reveal.Tick(2); Check(reveal.IsComplete, "extended reading still ends automatically");
+        var parallelInput = Start("(theatre-sequence (theatre-parallel (theatre-caption-auto \"尼尔\" \"四个字啊\" 2 \"#FFFFFF\") (theatre-tween \"g\" 'x 10 1)) (theatre-tween \"g\" 'y 10 1))");
+        parallelInput.Advance(); parallelInput.Advance(); parallelInput.Tick(.5f);
+        Near(parallelInput.Objects["g"][TheatreProperty.X], 5, "click never fast forwards concurrent action");
+        Near(parallelInput.Objects["g"][TheatreProperty.Y], 0, "next beat waits for concurrent action");
+        parallelInput.Tick(.5f); parallelInput.Tick(.5f); Near(parallelInput.Objects["g"][TheatreProperty.Y], 5, "next beat proceeds after action completes");
+        var skippable = Start("(theatre-sequence (theatre-tween \"g\" 'x 10 1) (theatre-wait-advance 2) (theatre-wait 1))");
+        skippable.Advance(); skippable.Tick(1); Check(skippable.Line != null, "early click does not acknowledge future pause");
+        skippable.Pause(true); skippable.Advance(); Check(skippable.Line != null, "pause blocks advance"); skippable.Pause(false); skippable.Advance();
+        skippable.Tick(1); Check(skippable.IsComplete, "click ends permitted pause");
+        Reject(() => Build("(theatre-parallel (theatre-wait-advance 1) (theatre-say \"尼尔\" \"等着\"))"), "concurrent automatic input");
+        Reject(() => Build("(theatre-during (theatre-wait 1) (theatre-wait-advance 1))"), "background automatic input");
+        interpreter.LoadFile("scripts/theatre/第一节开场新版.scm");
+        foreach (bool click in new[] { false, true })
+        {
+            captured = null; interpreter.Eval("(开场新版-序幕)");
+            var prologue = new TheatreSession(captured ?? throw new Exception("missing prologue")); prologue.Start();
+            for (int i = 0; i < 4000 && !prologue.IsComplete; i++) { prologue.Tick(.1f); if (click) prologue.Advance(); }
+            Check(prologue.IsComplete && prologue.Playbacks.Count == 0, "prologue completes and releases audio, clicks=" + click);
+        }
         var coarse = Start("(theatre-sequence (theatre-tween \"g\" 'x 10 1) (theatre-tween \"g\" 'x 20 1))"); coarse.Tick(1.5f);
         var fine = Start("(theatre-sequence (theatre-tween \"g\" 'x 10 1) (theatre-tween \"g\" 'x 20 1))"); for (int i=0;i<150;i++) fine.Tick(.01f);
         Near(coarse.Objects["g"][TheatreProperty.X], 15, "sequence carries frame overshoot"); Near(fine.Objects["g"][TheatreProperty.X], 15, "small frames produce same state");

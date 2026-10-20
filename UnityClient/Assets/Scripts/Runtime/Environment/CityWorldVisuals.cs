@@ -168,7 +168,9 @@ namespace SSNoir
                 ?? throw new InvalidOperationException("缺少地点静态光照："+name);
             baked.Apply(instance,spec.placeHashes.Single(p => p.name == name).hash);
         }
-        public void SetFocused(string? name)
+        public void FreezePresentation() => _transition.Cancel();
+
+        public void SetFocused(string? name, bool immediate = false)
         {
             _focusedName = name;
             bool world = name == null || name == CityPlaces.WorldBaseName;
@@ -198,7 +200,7 @@ namespace SSNoir
             if (fromFog.x == 0) { fromFog.y = targetFog.y; fromFog.z = targetFog.z; }
             if (targetFog.x == 0) { targetFog.y = fromFog.y; targetFog.z = fromFog.z; }
             float fromWeight = CityWorldOverview.WorldWeight;
-            bool immediate = !_hasFocused;
+            immediate |= !_hasFocused;
             _hasFocused = true;
             _transition.Begin(immediate ? 0 : _palette.Focus.TransitionSeconds, t => {
                 RenderSettings.ambientMode = AmbientMode.Flat;

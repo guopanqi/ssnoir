@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SC-A04 · 今天又在哪里上工？</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="frame">
+  <div id="stage" aria-live="polite">
+    <svg id="world" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <g id="camera"></g>
+    </svg>
+
+    <div id="grain"></div>
+    <div id="vignette"></div>
+    <div id="haze"></div>
+
+    <div id="slate">
+      <div class="slate-no">SC-A04</div>
+      <h1>今天又在哪里上工？</h1>
+      <p>咖啡馆 · 收银台与桌边</p>
+    </div>
+
+    <div id="caption">
+      <div id="speaker"></div>
+      <div id="line"></div>
+    </div>
+
+    <div id="hint">点击推进对白</div>
+
+    <div id="pose-hud" hidden>
+      <div class="hud-head"><span>姿势检查</span><span id="hud-camera"></span></div>
+      <div class="hud-row"><b>露西</b><span id="hud-lu"></span></div>
+      <div class="hud-row"><b>尼尔</b><span id="hud-nl"></span></div>
+    </div>
+
+    <div id="start">
+      <div class="start-kicker">固定短戏 / 咖啡馆初识</div>
+      <h1>今天又在哪里上工？</h1>
+      <p>线绘舞台 · 关节人偶定格姿势实验</p>
+      <div class="start-branch">玩家此前做过码头搬运吗？</div>
+      <div class="start-btns">
+        <button id="start-btn" type="button" data-docks="0">没做过码头</button>
+        <button id="start-btn-docks" type="button" data-docks="1">做过码头</button>
+      </div>
+      <small>两段只有一句观察台词不同。建议开启声音。演出约 45 秒。</small>
+    </div>
+
+    <div id="end-card" hidden>
+      <div class="slate-no">SC-A04</div>
+      <h2>完</h2>
+      <button id="again-btn" type="button">重播</button>
+    </div>
+  </div>
+
+  <div id="controls">
+    <div class="left">
+      <span class="tag">SC-A04</span>
+      <span class="note">线绘舞台 / 定格姿势</span>
+    </div>
+    <div class="right">
+      <button id="branch" type="button">分支：未做码头</button>
+      <button id="pause" type="button">暂停</button>
+      <button id="replay" type="button">重播</button>
+      <button id="sound" type="button" class="on" aria-pressed="true">声音 开</button>
+      <button id="poses" type="button" aria-pressed="false">姿势检查</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/art.js"></script>
+<script src="js/cast.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/show.js"></script>
+<script src="js/script.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

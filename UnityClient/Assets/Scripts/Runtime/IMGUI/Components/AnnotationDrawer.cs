@@ -96,7 +96,7 @@ namespace SSNoir.IMGUI
         private static float Layout(Rect rect, GameNode node, bool draw, float pulse, bool topRule = true)
         {
             // 标注上的钟按宿主记脉冲（见 ClockPulse.BeginHost）。
-            ClockPulse.BeginHost(node.Name);
+            ClockPulse.BeginHost(node.Id);
             try { return LayoutInner(rect, node, draw, pulse, topRule); }
             finally { ClockPulse.EndHost(); }
         }
@@ -110,6 +110,12 @@ namespace SSNoir.IMGUI
             string body = resolve.NoteText ?? string.Empty;
             var clock = resolve.Clock;
 
+            if(clock!=null && clock.Priority==ClockPriority.Secondary)
+            {
+                float badgeWidth=Mathf.Min(rect.width,CardDrawer.MeasureClockBadge(clock));
+                if(draw) CardDrawer.DrawClockBadge(new Rect(rect.x,rect.y,badgeWidth,28f),clock);
+                return 28f;
+            }
             if(clock!=null && clock.Style!=ClockStyle.Readout)
                 return LayoutProminentClock(rect,title,body,clock,draw,pulse);
 
@@ -203,6 +209,7 @@ namespace SSNoir.IMGUI
                 LabelWithHalo(new Rect(rect.xMax-66f,y,66f,TitleRowH),$"{clock.Current}/{clock.Max}",valueStyle);
                 textWidth=Mathf.Max(48f,rect.width-72f);
             }
+            if(clock.Style==ClockStyle.Pressure) titleStyle.normal.textColor=IMGUIStyles.OddsFail;
             if(titleH>0f) LabelWithHalo(new Rect(rect.x,y,textWidth,titleH),title,titleStyle);
             if(bodyH>0f) LabelWithHalo(new Rect(rect.x,y+titleH+TitleToBody,ring?textWidth:rect.width,bodyH),body,BodyStyle(pulse));
             return h;
@@ -308,7 +315,7 @@ namespace SSNoir.IMGUI
             string fraction = $"{clock.Current}/{clock.Max}";
             return clock.Style switch
             {
-                ClockStyle.Gauge => Mathf.Max(0f,
+                ClockStyle.Gauge or ClockStyle.Pressure => Mathf.Max(0f,
                     clock.Max * SegmentSize + Mathf.Max(0, clock.Max - 1) * SegmentGap),
                 ClockStyle.Countdown => DialDiameter,
                 _ => TextWidth(fraction),
@@ -327,10 +334,10 @@ namespace SSNoir.IMGUI
             // 整条标注的提亮（pulse）说「这里变了」，格子自己再一格一格换（ClockPulse），
             // 和卡上的徽章走同一串时间表。
             ClockPulse.Note(clock);
-            Color active = ReadoutColor(pulse);
+            Color active = Color.Lerp(CardDrawer.ClockColor(clock),Color.white,pulse*.6f);
             string fraction = $"{clock.Current}/{clock.Max}";
 
-            if (clock.Style == ClockStyle.Gauge)
+            if ((clock.Style == ClockStyle.Gauge || clock.Style == ClockStyle.Pressure))
             {
                 float dy = rect.y + (rect.height - SegmentSize) * 0.5f;
                 // 空格也得垫一层暗底：没有卡面托着，只画一圈线的话，压到亮窗户上就什么都看不见了。
@@ -514,6 +521,8 @@ namespace SSNoir.IMGUI
             var resolve = node.Resolve;
             if (resolve == null) return SceneNoteMinWidth;
 
+            if(resolve.Clock!=null && resolve.Clock.Priority==ClockPriority.Secondary)
+                return CardDrawer.MeasureClockBadge(resolve.Clock);
             float titleRow = 0f;
             if (!string.IsNullOrWhiteSpace(resolve.NoteTitle))
                 titleRow = TitleStyle().CalcSize(new GUIContent(resolve.NoteTitle)).x;
@@ -555,11 +564,11 @@ namespace SSNoir.IMGUI
                 : $"{resolve.NoteTitle}|{resolve.NoteText}|{resolve.Clock.Current}/{resolve.Clock.Max}";
             float now = Time.time;
 
-            if (!_pulses.TryGetValue(node.Name, out var state))
+            if (!_pulses.TryGetValue(node.Id, out var state))
             {
                 // 第一次见到不算「变了」：否则每次进场所有标注会一起闪一下，
                 // 那正好把真正的变化淹掉。
-                _pulses[node.Name] = new PulseState { Signature = signature, StartedAt = -1f, SeenAt = now };
+                _pulses[node.Id] = new PulseState { Signature = signature, StartedAt = -1f, SeenAt = now };
                 PruneStalePulses(now);
                 return 0f;
             }
@@ -570,7 +579,7 @@ namespace SSNoir.IMGUI
                 state.StartedAt = now;
             }
             state.SeenAt = now;
-            _pulses[node.Name] = state;
+            _pulses[node.Id] = state;
 
             if (state.StartedAt < 0f) return 0f;
             float elapsed = now - state.StartedAt;

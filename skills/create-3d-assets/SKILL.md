@@ -13,7 +13,7 @@ description: 为 SSNoir 设计、生成、加工、接入或修复游戏可用�
 - **非城市独立资产**：按运行时职责放入 `UnityClient/Assets/Resources/Models/`。只读取 [references/delivery/unity-standalone.md](references/delivery/unity-standalone.md)。
 - **候选与中间结果**：保留在制作目录或 `city-box/prefabs/review/`，不进入正式构建。
 
-正式地点名以 Scheme `GameNode.Name` 为唯一主键。只有涉及命名、Anchor、Camera、层级、orbit pivot 或运行时描线契约时，才读取 [references/runtime-contract.md](references/runtime-contract.md)。
+正式地点身份以 Scheme `GameNode.Id` 为唯一主键；`GameNode.Name` 是显示名称。只有涉及命名、Anchor、Camera、层级、orbit pivot 或运行时描线契约时，才读取 [references/runtime-contract.md](references/runtime-contract.md)。
 
 ## 四个阶段
 

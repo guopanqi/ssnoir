@@ -1,7 +1,5 @@
 ;; scenes/world/诊所.scm - 诊所
-;; 服务点：买药品（带回家用）/ 正经治疗（占一颗骰，按伤势档位收费）。用药动作在家里。
-;; 治疗是把伤势往下压的最快一条路，也是钱在这个游戏里最硬的去处：重伤那几天，
-;; 每天固定一颗骰加一笔诊金，就是"欠账留到明天"的具体形状。
+;; 看医生直接支付 20 金，治疗 2 点伤势，不消耗行动骰。
 
 (define clinic
   (let ()
@@ -23,18 +21,6 @@
     ;; 诊所对谁都是一个价。治病是唯一手段、没有替代路径，价格再挂上任何一条声誉，
     ;; 都等于把已经删掉的那条全城关系换个名字装回来。
 
-    (define (node-buy-medicine)
-      (node "买药品"
-        :anchor "诊所-服务"
-        :requires (list (req-item "金钱" 25))
-        :resolve (instant
-          (outcome (lambda () (add-item! "药品" 1))))))
-
-    ;; 正经治疗：一颗骰 + 20 金，压 2 点伤势。重伤不加价。压 2 而不是 3，
-    ;; 避免一次治疗永远清空轻伤。
-    ;; 药品 25 金、零骰、只压 1、每天一份：纯花钱的那条故意最弱，
-    ;; 伤势要真正下去必须交骰子（医生或养伤），钱只是让那颗骰更值钱。
-    ;; 第三条路在住所：养伤 1 骰、0 金、−1（见 home.scm）。三条各自贵在不同的东西上。
     (define treatment-fee 20)
 
     (define (node-treatment)
@@ -42,9 +28,9 @@
         :anchor "诊所-服务"
         :subtitle (if (equal? (injury-band) '完好)
                       "身上没有需要处理的伤"
-                      "恢复 2 点伤势")
+                      "支付 20 金，治疗 2 点伤势")
         :disabled (equal? (injury-band) '完好)
-        :requires (list (req-die) (req-item "金钱" treatment-fee))
+        :requires (list (req-item "金钱" treatment-fee))
         :resolve (instant
           (outcome (lambda () (heal-injury! 2))))))
 
@@ -53,7 +39,7 @@
         (cond
           ((equal? msg 'render-data)
            (list (place "诊所"
-                   :children (list (node-buy-medicine) (node-treatment)))))
+                   :children (list (node-treatment)))))
           ((equal? msg 'visible?) (visible?))
           ((equal? msg 'save) (list (list "discovered" (if discovered? 1 0))))
           ((equal? msg 'load!)

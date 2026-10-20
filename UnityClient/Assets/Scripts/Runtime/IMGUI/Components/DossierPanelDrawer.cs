@@ -584,15 +584,15 @@ namespace SSNoir.IMGUI
             Matrix4x4 savedMatrix = GUI.matrix;
             if (pop > 0f)
                 GUIUtility.ScaleAroundPivot(Vector2.one * (1f + pop * 0.16f), rect.center);
-            Color activeColor = Color.Lerp(IMGUIStyles.Gold, Color.white, glow * 0.35f);
+            Color activeColor = Color.Lerp(CardDrawer.ClockColor(clock), Color.white, glow * 0.35f);
             Color inactiveColor = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.25f);
             Color outline = Color.Lerp(
                 new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.55f),
-                IMGUIStyles.Gold, glow);
+                CardDrawer.ClockColor(clock), glow);
 
             if (glow > 0f)
             {
-                var halo = new Color(IMGUIStyles.Gold.r, IMGUIStyles.Gold.g, IMGUIStyles.Gold.b, 0.45f * glow);
+                var halo = new Color(CardDrawer.ClockColor(clock).r, CardDrawer.ClockColor(clock).g, CardDrawer.ClockColor(clock).b, 0.45f * glow);
                 IMGUIStyles.DrawOutline(new Rect(rect.x - 2f, rect.y - 2f, rect.width + 4f, rect.height + 4f), 2f, halo);
             }
             IMGUIStyles.SetColor(new Color(IMGUIStyles.Ink.r, IMGUIStyles.Ink.g, IMGUIStyles.Ink.b, 0.96f));
@@ -616,7 +616,7 @@ namespace SSNoir.IMGUI
             float innerW = Mathf.Max(0f, rect.width - padX * 2f);
             float desiredValueW = MeasureNodeClockValueWidth(clock, compact);
             // 进度格（Gauge）可以压缩到最小格距仍画全每一格；数字和表盘不可压，缺一位就读错。
-            float minValueW = clock.Style == ClockStyle.Gauge
+            float minValueW = (clock.Style == ClockStyle.Gauge || clock.Style == ClockStyle.Pressure)
                 ? MinGaugeWidth(clock.Max)
                 : desiredValueW;
             float gap = desiredValueW > 0f && !string.IsNullOrEmpty(clock.ShownLabel) ? labelValueGap : 0f;
@@ -652,12 +652,12 @@ namespace SSNoir.IMGUI
                         : (compact ? 11 : 13)),
                     alignment = TextAnchor.MiddleCenter,
                     clipping = TextClipping.Clip,
-                    normal = { textColor = IMGUIStyles.Gold }
+                    normal = { textColor = CardDrawer.ClockColor(clock) }
                 };
                 IMGUIStyles.ApplyStrongFont(centerStyle);
                 IMGUIStyles.DrawInkCenteredText(dialRect, clock.Current.ToString(), centerStyle);
             }
-            else if (clock.Style == ClockStyle.Gauge)
+            else if ((clock.Style == ClockStyle.Gauge || clock.Style == ClockStyle.Pressure))
             {
                 float dot = compact ? CompactSegmentSize : 10f;
                 float spacing = compact ? CompactSegmentSpacing : 5f;
@@ -687,7 +687,7 @@ namespace SSNoir.IMGUI
                     fontSize = IMGUIStyles.FontSize(compact ? 13 : 15),
                     alignment = TextAnchor.MiddleRight,
                     clipping = TextClipping.Clip,
-                    normal = { textColor = IMGUIStyles.Gold }
+                    normal = { textColor = CardDrawer.ClockColor(clock) }
                 };
                 IMGUIStyles.DrawLabel(valueRect, $"{clock.Current}/{clock.Max}", valueStyle);
             }
@@ -704,7 +704,7 @@ namespace SSNoir.IMGUI
             return clock.Style switch
             {
                 ClockStyle.Countdown => compact ? CompactDialDiameter : DialDiameter,
-                ClockStyle.Gauge => compact
+                ClockStyle.Gauge or ClockStyle.Pressure => compact
                     ? Mathf.Max(0f, clock.Max * CompactSegmentSize + Mathf.Max(0, clock.Max - 1) * CompactSegmentSpacing)
                     : Mathf.Max(0f, clock.Max * 10f + Mathf.Max(0, clock.Max - 1) * 5f),
                 _ => MeasureClockValueTextWidth(fraction, compact ? 13 : 15)

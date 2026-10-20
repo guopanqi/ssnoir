@@ -154,7 +154,7 @@ namespace SSNoir
 
         private void UpdateRain(Camera camera)
         {
-            var anchor = _manager.ResolveAnchor(_manager.FocusedNodeName);
+            var anchor = _manager.ResolveAnchor(_manager.FocusedNodeId);
             var ray = camera.ViewportPointToRay(new Vector3(.5f, .5f, 0));
             float ground = anchor != null ? anchor.transform.position.y : 0;
             var plane = new Plane(Vector3.up, new Vector3(0, ground, 0));

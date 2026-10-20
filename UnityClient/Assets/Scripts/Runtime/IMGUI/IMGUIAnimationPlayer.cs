@@ -19,17 +19,18 @@ namespace SSNoir.IMGUI
         private float _localRollDuration = LocalRollSeconds;
         public float LocalRollProgress => _phase >= 2 ? 1f
             : Mathf.Clamp01((Time.unscaledTime - _phaseStartTime) / _localRollDuration);
+        public string ActionNodeId { get; private set; } = "";
         public string ActionName { get; private set; } = "";
         public ActionReport? CurrentReport { get; private set; }
         public bool UsesModal =>
             CurrentReport != null
-            && OutcomePresentationPolicy.ShouldUseRollModal(CurrentReport, ActionName);
+            && OutcomePresentationPolicy.ShouldUseRollModal(CurrentReport, ActionNodeId);
         public Action? OnAcknowledged;
 
         private float _phaseStartTime;
         private int _phase; // 0: 概率判定中, 1: 结果档位浮现, 2: 结果, 3: 已确认
 
-        public void StartRoll(ActionReport report, string actionName, float localRollDuration = LocalRollSeconds)
+        public void StartRoll(ActionReport report, string actionNodeId, string actionName, float localRollDuration = LocalRollSeconds)
         {
             if (localRollDuration <= 0f)
                 throw new ArgumentOutOfRangeException(nameof(localRollDuration));
@@ -40,6 +41,7 @@ namespace SSNoir.IMGUI
             FinalOutcome = report.Outcome;
             CurrentReport = report;
             ChosenDie = report.ChosenDieValue;
+            ActionNodeId = actionNodeId;
             ActionName = actionName;
             DisplayScale = 1f;
             DisplayOutcomeText = "";

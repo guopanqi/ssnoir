@@ -1,7 +1,7 @@
 ;; 第一节照片委托：城市负责物品、费用、存档及结算，交锋只回传成果。
 (define photo-case
   (let ()
-    (define rumours (make-clock "小道消息" 4 'gauge "咖啡馆帮工：可靠+2、其他+1。听听客人在谈什么。"))
+    (define rumours (make-clock "小道消息" 4 'gauge "一些客人的谈话中，也许会有一些麻烦，而你是一个解决麻烦的人"))
     (define stage 0) ; 0未接 1约会待处理 2待冲印 3可交付 4已交付 5咖啡馆邀约待回应
     (define evidence "无成果")
     (define source-stage 0) ; 0未开放 1可调查 2失败 3有线索 4已商量

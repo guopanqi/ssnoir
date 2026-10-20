@@ -6,9 +6,9 @@ namespace SSNoir.Core
     // 才让判定退到居中弹窗。
     public static class OutcomePresentationPolicy
     {
-        public static bool ShouldUseRollModal(ActionReport report, string anchorNodeName)
+        public static bool ShouldUseRollModal(ActionReport report, string anchorNodeId)
         {
-            return report.Type == ActionType.Roll && string.IsNullOrEmpty(anchorNodeName);
+            return report.Type == ActionType.Roll && string.IsNullOrEmpty(anchorNodeId);
         }
     }
 }

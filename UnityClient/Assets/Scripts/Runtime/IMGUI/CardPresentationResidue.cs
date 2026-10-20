@@ -13,7 +13,7 @@ namespace SSNoir.IMGUI
     /// </summary>
     public sealed class CardPresentationResidue
     {
-        public string HostNodeName { get; set; } = string.Empty;
+        public string HostNodeId { get; set; } = string.Empty;
         public RollOutcome? RollOutcome { get; set; }
         public int PreparedValue { get; set; }
         public List<ActionEffectRecord> Effects { get; set; } = new List<ActionEffectRecord>();

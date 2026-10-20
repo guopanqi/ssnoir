@@ -9,6 +9,7 @@ namespace SSNoir.IMGUI
         private readonly IMGUIAnimationPlayer _animator;
         private Action? _onDone;
         private ActionReport? _pendingReport;
+        private string _actionNodeId = string.Empty;
         private string _actionName = string.Empty;
         private int _stepIndex;
         private float _timer;
@@ -18,16 +19,17 @@ namespace SSNoir.IMGUI
         public bool IsPlaying => _isPlaying;
         public string ProgressText { get; private set; } = string.Empty;
         public float Progress01 { get; private set; }
-        public string ActionName => _actionName;
+        public string ActionNodeId => _actionNodeId;
 
         public PresentationPlayer(IMGUIAnimationPlayer animator)
         {
             _animator = animator;
         }
 
-        public void Play(ActionReport report, string actionName, Action onDone)
+        public void Play(ActionReport report, string actionNodeId, string actionName, Action onDone)
         {
             _pendingReport = report;
+            _actionNodeId = actionNodeId;
             _actionName = actionName;
             _onDone = onDone;
             _stepIndex = 0;
@@ -38,7 +40,7 @@ namespace SSNoir.IMGUI
 
             // 卡下判定从按钮原位直接开始。将执行前奏并入同一根进度，避免消费骰子后
             // 先画一块没有概率区的执行面板，再切回完整判定抽屉，进度也不重复从零开始。
-            if (report.Type == ActionType.Roll && !OutcomePresentationPolicy.ShouldUseRollModal(report, actionName))
+            if (report.Type == ActionType.Roll && !OutcomePresentationPolicy.ShouldUseRollModal(report, actionNodeId))
             {
                 float duration = IMGUIAnimationPlayer.LocalRollSeconds;
                 var hints = report.PresentationHints;
@@ -49,7 +51,7 @@ namespace SSNoir.IMGUI
                 }
                 if (_stepIndex >= hints.Count || hints[_stepIndex].Kind != PresentationHintKind.RollDice)
                     throw new InvalidOperationException("A local roll must follow execute progress with a roll hint.");
-                _animator.StartRoll(report, actionName, duration);
+                _animator.StartRoll(report, actionNodeId, actionName, duration);
             }
         }
 
@@ -83,7 +85,7 @@ namespace SSNoir.IMGUI
             {
                 ProgressText = string.Empty;
                 Progress01 = 0f;
-                _animator.StartRoll(_pendingReport, _actionName);
+                _animator.StartRoll(_pendingReport, _actionNodeId, _actionName);
                 return;
             }
 
@@ -136,6 +138,7 @@ namespace SSNoir.IMGUI
         {
             _isPlaying = false;
             _pendingReport = null;
+            _actionNodeId = string.Empty;
             _actionName = string.Empty;
             ProgressText = string.Empty;
             Progress01 = 0f;

@@ -17,8 +17,8 @@
       (list (list x y) (list (+ x w) y) (list (+ x w) (+ y h))
         (list x (+ y h)) (list x y)) delay))
   (define (说 who x text seconds)
-    (theatre-during
-      (theatre-caption-for who text seconds
+    (theatre-parallel
+      (theatre-caption-auto who text seconds
         (if (equal? who "尼尔") "#F0CF8A"
           (if (equal? who "弗兰克") "#E39A88" "#C9CFE2")))
       (theatre-parallel
@@ -182,6 +182,6 @@
     (theatre-wait 1.6)
     (说 "弗兰克" 800 "看来你说的有些道理，我们来谈谈这件事" 2.340)
     (theatre-clear-caption)
-    (theatre-wait 1.6)
+    (theatre-wait-advance 1.6)
     (说 "旁白" 800 "（此后进入和莱恩的交锋：和弗兰克谈判 → 教训莱恩 · 见游戏）" 3.810)
     (theatre-clear-caption)))

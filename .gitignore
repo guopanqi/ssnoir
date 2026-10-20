@@ -71,6 +71,10 @@ __pycache__/
 /experiments/noir-engraving-lab/captures/
 /experiments/noir-engraving-lab/dist/
 
+# bgm-lab：无损母带可由 generate-bgm.mjs 重新生成，只保留压缩 m4a
+/experiments/bgm-lab/noir-loop-scores/audio/*.wav
+/experiments/bgm-lab/noir-loop-scores/variants/*.wav
+
 /experiments/noir-engraving-lab/dist-bridge/
 
 /experiments/noir-engraving-lab/dist-residence/

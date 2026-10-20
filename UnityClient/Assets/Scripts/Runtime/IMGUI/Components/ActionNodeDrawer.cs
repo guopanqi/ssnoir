@@ -42,9 +42,9 @@ namespace SSNoir.IMGUI
             var titleStyle = new GUIStyle(IMGUIStyles.CardTitle) { alignment=TextAnchor.MiddleLeft,
                 wordWrap=false,clipping=TextClipping.Clip };
             float titleWidth=rect.width-24f-skillWidth;
-            while(titleStyle.fontSize>IMGUIStyles.FontSize(14) && titleStyle.CalcSize(new GUIContent(node.DisplayTitle)).x>titleWidth) titleStyle.fontSize--;
+            while(titleStyle.fontSize>IMGUIStyles.FontSize(14) && titleStyle.CalcSize(new GUIContent(node.Name)).x>titleWidth) titleStyle.fontSize--;
             if(disabled) titleStyle.normal.textColor=IMGUIStyles.TextSecondary;
-            IMGUIStyles.DrawLabel(new Rect(rect.x+12f,titleY,titleWidth,TitleH),node.DisplayTitle,titleStyle);
+            IMGUIStyles.DrawLabel(new Rect(rect.x+12f,titleY,titleWidth,TitleH),node.Name,titleStyle);
             if(judged) DrawHeaderSkill(new Rect(rect.xMax-100f,titleY,88f,TitleH),node,slotted,gameManager.DisplayedSnapshot,disabled);
             IMGUIStyles.DrawLine(new Vector2(rect.x,titleY+TitleH+4f),new Vector2(rect.xMax,titleY+TitleH+4f),IMGUIStyles.CityPlateLine,1f);
             float bodyY=titleY+TitleH+GapTitleToBody+8f;
@@ -473,11 +473,25 @@ namespace SSNoir.IMGUI
                 if(snapshot.InjurySkillKey==skill) level+=snapshot.InjurySkillPenalty;
                 if(snapshot.ScarModifiers.TryGetValue(skill,out var scar) && scar!=null) level+=scar.Value;
             }
-            var label=new GUIStyle(IMGUIStyles.CardSubtitle){fontSize=IMGUIStyles.FontSize(12),alignment=TextAnchor.MiddleLeft};
-            IMGUIStyles.DrawLabel(new Rect(rect.x,rect.y,rect.width-26f,rect.height),UiText.SkillName(skill),label);
-            label.alignment=TextAnchor.MiddleRight;
-            label.normal.textColor=disabled?IMGUIStyles.TextDisabled:level<0?IMGUIStyles.OddsFail:level>0?IMGUIStyles.OddsSuccess:IMGUIStyles.TextSecondary;
-            IMGUIStyles.DrawLabel(new Rect(rect.xMax-28f,rect.y,28f,rect.height),level>0?$"+{level}":level.ToString(),label);
+            // 名称与数值共享底板；数值独立成格，让投骰前的能力一眼可读。
+            Color ink=disabled?IMGUIStyles.TextDisabled:IMGUIStyles.Paper;
+            Color valueColor=disabled?IMGUIStyles.TextDisabled:IMGUIStyles.Paper;
+            Color valueFill=disabled?IMGUIStyles.HudBg:level<0?IMGUIStyles.SealRed:level>0
+                ?new Color(.25f,.32f,.18f,1f):IMGUIStyles.HudBg;
+            IMGUIStyles.SetColor(new Color(ink.r,ink.g,ink.b,disabled?.06f:.14f));
+            GUI.DrawTexture(rect,Texture2D.whiteTexture);
+            IMGUIStyles.ResetColor();
+            IMGUIStyles.DrawOutline(rect,1f,new Color(ink.r,ink.g,ink.b,disabled?.25f:.65f));
+            float valueWidth=38f;
+            var valueRect=new Rect(rect.xMax-valueWidth,rect.y,valueWidth,rect.height);
+            IMGUIStyles.SetColor(valueFill);
+            GUI.DrawTexture(valueRect,Texture2D.whiteTexture);
+            IMGUIStyles.ResetColor();
+            var label=new GUIStyle(IMGUIStyles.CardSubtitle){fontSize=IMGUIStyles.FontSize(14),alignment=TextAnchor.MiddleCenter,
+                normal={textColor=ink},wordWrap=false,clipping=TextClipping.Clip};
+            IMGUIStyles.DrawLabel(new Rect(rect.x+4f,rect.y,rect.width-valueWidth-8f,rect.height),UiText.SkillName(skill),label);
+            var value=new GUIStyle(label){fontSize=IMGUIStyles.FontSize(20),fontStyle=FontStyle.Bold,normal={textColor=valueColor}};
+            IMGUIStyles.DrawLabel(valueRect,level>0?$"+{level}":level.ToString(),value);
         }
 
         private static float TitleTop(float topWidgetsBottom, float cardTop)

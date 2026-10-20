@@ -24,6 +24,8 @@ namespace SSNoir.Core
         public IReadOnlyList<int> ActionDice { get; init; } = new List<int>();
         // 与 ActionDice 平行，是固定骰池位置编号，供客户端保持空间身份。
         public IReadOnlyList<int> ActionDiceSlotIds { get; init; } = new List<int>();
+        /// <summary>真实发骰事件的序号；即使点数相同，新一手也必须重新表现。</summary>
+        public long ActionDiceRevision { get; init; }
         public IReadOnlyList<ActionSlotStatus> ActiveActionSlotStatuses { get; init; } = new List<ActionSlotStatus>();
         public IReadOnlyList<ActionSlotStatus> PendingActionSlotStatuses { get; init; } = new List<ActionSlotStatus>();
     }

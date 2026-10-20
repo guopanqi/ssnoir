@@ -124,7 +124,7 @@ namespace SSNoir.IMGUI
         public static float PreferredLocationWidth(GameNode node)
         {
             float iconW = NodeIcon(node) != null ? LocationIconSize + GapIconToName : 0f;
-            float need = PlateTextWidth(node.DisplayTitle) + iconW;
+            float need = PlateTextWidth(node.Name) + iconW;
 
             // +24 是 LayoutClockBadges 给徽章行留的左右余量，两边必须用同一个数。
             foreach (var clock in node.Clocks)
@@ -180,30 +180,30 @@ namespace SSNoir.IMGUI
 
             Color line = PlateLineColor(disabled, hover);
 
-            DrawPlateRow(rect, node.DisplayTitle, NodeIcon(node), line, clocksBottomY);
+            DrawPlateRow(rect, node.Name, NodeIcon(node), line, clocksBottomY);
         }
 
         private static Texture2D? NodeIcon(GameNode node)
         {
-            return NodeIcons.TryGetValue(node.Name, out var icon) ? icon : null;
+            return NodeIcons.TryGetValue(node.Id, out var icon) ? icon : null;
         }
 
         private static IReadOnlyDictionary<string, Texture2D> LoadNodeIcons()
         {
-            var iconsByNodeName = new Dictionary<string, Texture2D>(StringComparer.Ordinal);
+            var iconsByNodeId = new Dictionary<string, Texture2D>(StringComparer.Ordinal);
             foreach (var icon in Resources.LoadAll<Texture2D>(NodeIconResourceDirectory))
             {
-                if (iconsByNodeName.ContainsKey(icon.name))
+                if (iconsByNodeId.ContainsKey(icon.name))
                 {
                     throw new InvalidOperationException(
                         $"[SSNoir] Duplicate node icon '{icon.name}' under " +
                         $"Resources/{NodeIconResourceDirectory}. Node icon names must be unique.");
                 }
 
-                iconsByNodeName.Add(icon.name, icon);
+                iconsByNodeId.Add(icon.name, icon);
             }
 
-            return iconsByNodeName;
+            return iconsByNodeId;
         }
 
         // ── 人物相册页（走共享卡框架）──────────────────────────────────
@@ -228,7 +228,7 @@ namespace SSNoir.IMGUI
                     clipping = TextClipping.Clip,
                     normal = { textColor = disabled ? IMGUIStyles.TextSecondary : IMGUIStyles.Paper }
                 };
-                IMGUIStyles.DrawLabel(plateRect, node.DisplayTitle, plateStyle);
+                IMGUIStyles.DrawLabel(plateRect, node.Name, plateStyle);
                 return;
             }
 
@@ -254,7 +254,7 @@ namespace SSNoir.IMGUI
             float textY = photoRect.yMax + GapPhotoToTitle;
             var titleStyle = new GUIStyle(IMGUIStyles.CardTitle) { alignment = TextAnchor.MiddleCenter, clipping = TextClipping.Clip };
             if (disabled) titleStyle.normal.textColor = IMGUIStyles.TextSecondary;
-            IMGUIStyles.DrawLabel(new Rect(rect.x + 10f, textY, rect.width - 20f, TitleH), node.DisplayTitle, titleStyle);
+            IMGUIStyles.DrawLabel(new Rect(rect.x + 10f, textY, rect.width - 20f, TitleH), node.Name, titleStyle);
 
             if (!string.IsNullOrEmpty(node.Subtitle))
             {

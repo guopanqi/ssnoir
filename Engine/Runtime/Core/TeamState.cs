@@ -620,6 +620,8 @@ namespace SSNoir.Core
             actor.IssuedInjuryDieLoss = actor.Role == "protagonist" ? Injury.ActionDieLoss : 0;
             if (!IsOnStage(actor, isInEncounter))
                 return;
+            // 新一手覆盖所有可用行动位；是否重置不能由新旧点数或剩余数量推断。
+            actor.ActionDiceRevision++;
             int diceCount = actor.ActionSlotCount;
             if (actor.Role == "protagonist")
                 diceCount -= actor.IssuedInjuryDieLoss;

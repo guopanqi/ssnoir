@@ -12,9 +12,12 @@ namespace SSNoir.Core
     public enum ClockStyle
     {
         Gauge,      // 一格一格的量：满或空会触发事情，方向由脚本自己决定
+        Pressure,   // 压力逐格累积；使用警示色，与目标进度区分
         Countdown,  // 时间在逼近，归零触发。这一条是有方向的：它只会往下走
         Readout     // 当前是多少，满/空都不触发任何事
     }
+
+    public enum ClockPriority { Primary, Secondary }
 
     public class GameClock
     {
@@ -24,6 +27,7 @@ namespace SSNoir.Core
         public string Note { get; set; } = string.Empty;
         public int Current { get; set; }
         public int Max { get; set; }
+        public ClockPriority Priority { get; set; } = ClockPriority.Primary;
         public ClockStyle Style { get; set; } = ClockStyle.Gauge;
     }
 }

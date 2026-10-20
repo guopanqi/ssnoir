@@ -35,8 +35,8 @@
       (theatre-sound (string-append "脚步/" tag) "StageSounds/老街酒馆/脚步" #f .4 pan)
       (theatre-wait (+ (/ ms 1000.0) .2))))
   (define (说 who x text seconds)
-    (theatre-during
-      (theatre-caption-for who text seconds
+    (theatre-parallel
+      (theatre-caption-auto who text seconds
         (cond ((equal? who "尼尔") "#F0CF8A")
               ((equal? who "夜莺") "#8FD9D0")
               ((equal? who "贝恩斯") "#93B4EA")
@@ -47,7 +47,7 @@
         (theatre-tween "说话柔光" 'x x 1.2 'smooth)
         (theatre-tween "说话柔光" 'opacity .13 1.2 'smooth))))
   (define (旁白 text seconds)
-    (theatre-caption-for "旁白" text seconds "#C9CFE2"))
+    (theatre-caption-auto "旁白" text seconds "#C9CFE2"))
 
   ;; 布景：HTML ALLEY（地面 790 为基准）。
   (加入 (theatre-with (theatre-group "布景" "" 0 0) 'opacity 0))

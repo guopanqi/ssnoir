@@ -9,7 +9,7 @@
 (define :tags ':tags)
 (define :button-text ':button-text)
 (define :subtitle ':subtitle)
-(define :title ':title)
+(define :name ':name)
 (define :disabled ':disabled)
 (define :anchor ':anchor)
 (define :place ':place)
@@ -46,9 +46,9 @@
               (cadr kwargs)
               (get-kwarg (cdr (cdr kwargs)) key default)))))
 
-;; node constructor
-;; Returns a node expression consumed by NodeConverter.
-(define (node name . kwargs)
+;; id 是全树唯一身份；:name 是允许重复的显示名称，默认等于 id。
+;; 未指定 :anchor 时使用 id 查找空间锚点。
+(define (node id . kwargs)
   (let ((anchor-name (get-kwarg kwargs ':anchor #f))
         (button-text (get-kwarg kwargs ':button-text #f))
         (is-place    (get-kwarg kwargs ':place #f))
@@ -57,8 +57,8 @@
         (arrivals    (get-kwarg kwargs ':arrivals '())))
     (append
       (list 'node
-            name
-            :title (get-kwarg kwargs ':title name)
+            id
+            :name (get-kwarg kwargs ':name id)
             :subtitle (get-kwarg kwargs ':subtitle "")
             :clocks (get-kwarg kwargs ':clocks '())
             :children (get-kwarg kwargs ':children '())
@@ -150,13 +150,13 @@
 ;; 它不产生新的玩家骰槽；只在内容内部指定谁的时间被占用，并排入一张锁输入的自动行动卡。
 ;; 落点必须显式声明：自动行动卡是空间里的一张卡，没有"先放网格以后再说"——
 ;; 漏写锚点会静默掉进网格，而构建与校验都不会拦，只能在这里挡。
-(define (auto-action! name subtitle demands prelude effect anchor . titles)
+(define (auto-action! id subtitle demands prelude effect anchor . names)
   (if (not (string? anchor))
       (error "auto-action!: 必须显式声明落点锚点；自动行动卡不许掉进网格")
-      (if (> (length titles) 1)
-          (error "auto-action!: display title takes at most one argument")
-          (__auto-action! name subtitle anchor demands prelude effect
-            (if (null? titles) name (car titles))))))
+      (if (> (length names) 1)
+          (error "auto-action!: display name takes at most one argument")
+          (__auto-action! id subtitle anchor demands prelude effect
+            (if (null? names) id (car names))))))
 
 ;; 倒下协议。交锋不写新的送医路线，只声明这场在主角倒下时如何使用已有结算：
 ;;   (collapse-result 原有结果)  调用原有回调，按失败/既有收场推进
@@ -245,13 +245,13 @@
       (list 'note title text)
       (list 'note title text (car clock-data))))
 
-;; 标注节点。name 只是渲染树里的身份，不会显示出来。
+;; 标注节点。id 只是渲染树里的身份，不会显示出来。
 ;;
 ;; 挂在哪儿由锚点决定，和动作卡同一套规则：能解析到场景锚点就浮在那一处旁边、
 ;; 一根线指过去；解析不到就升到画面上方的场景标注带里，说这一整场在发生什么。
 ;; 要显式指定锚点，直接用 node：(node "标注：值班表" :anchor "看医生" :resolve (note ...))。
-(define (note-node name title text . clock-data)
-  (node name :resolve (if (null? clock-data)
+(define (note-node id title text . clock-data)
+  (node id :resolve (if (null? clock-data)
                           (note title text)
                           (note title text (car clock-data)))))
 
@@ -260,9 +260,21 @@
 (define (clock clock-data)
   (list 'clock clock-data))
 
-;; Clock node: a display-only annotation. name is an internal tree identity and is not rendered.
-(define (clock-node name clock-data)
-  (node name :resolve (clock clock-data)))
+;; 主次属于这次展示，不改变钟的状态、语义或存档。默认 primary。
+(define (clock-priority data priority)
+  (if (member? priority '(primary secondary)) #t
+      (error "clock-priority: 应为 'primary / 'secondary"))
+  (if (and (list? data) (>= (length data) 5) (<= (length data) 8)
+           (equal? (car data) 'clock)) #t
+      (error "clock-priority: 需要 clock render-data"))
+  (list 'clock (list-ref data 1) (list-ref data 2) (list-ref data 3) (list-ref data 4)
+        (if (>= (length data) 6) (list-ref data 5) "")
+        (if (>= (length data) 7) (list-ref data 6) (list-ref data 1))
+        priority))
+
+;; Clock node: id is an internal tree identity; the clock label is displayed.
+(define (clock-node id clock-data)
+  (node id :resolve (clock clock-data)))
 
 ;; 将一组钟各自立为一条标注。clock-node 本身始终只接受一根钟。
 (define (clock-nodes . clock-datas)
@@ -279,18 +291,18 @@
   (list 'item name qty))
 
 ;; Container & Action helpers
-(define (container name children)
-  (node name :children children))
+(define (container id children)
+  (node id :children children))
 
-(define (container-with-clocks name children clocks)
-  (node name :children children :clocks clocks))
+(define (container-with-clocks id children clocks)
+  (node id :children children :clocks clocks))
 
 ;; ── 地点 ─────────────────────────────────────────
 ;; 世界地点。和 container 的区别只有一条：玩家走进去这件事引擎认得，于是可以挂
 ;; :arrivals。只有世界根的直接子节点能是 place，交锋树里不许出现。
 ;; 接受 node 的全部 kwargs（家要用 :subtitle 显示住所等级）。
-(define (place name . kwargs)
-  (apply node (cons name (append kwargs (list :place #t)))))
+(define (place id . kwargs)
+  (apply node (cons id (append kwargs (list :place #t)))))
 
 ;; 一拍入场叙事。没有 condition——「这一拍在不在」由拼树时决定，和 children 一样：
 ;;   :arrivals (if (and (= stage 4) (not told?)) (list beat) '())
@@ -394,18 +406,18 @@
            (set! entries (if (list? data) data '()))))
         (else (error "make-journal：未知消息（'add! / 'render-data / 'empty? / 'save / 'load!）"))))))
 
-(define (action name requires resolve)
-  (node name :requires requires :resolve resolve))
+(define (action id requires resolve)
+  (node id :requires requires :resolve resolve))
 
-(define (action-with-tags name tags requires resolve)
-  (node name :tags tags :requires requires :resolve resolve))
+(define (action-with-tags id tags requires resolve)
+  (node id :tags tags :requires requires :resolve resolve))
 
-(define (action-with-clocks name requires resolve clocks)
-  (node name :requires requires :resolve resolve :clocks clocks))
+(define (action-with-clocks id requires resolve clocks)
+  (node id :requires requires :resolve resolve :clocks clocks))
 
 ;; Shorthands for simple actions
-(define (instant-action name effect)
-  (action name #f (instant effect)))
+(define (instant-action id effect)
+  (action id #f (instant effect)))
 
 (define (anchored-instant-action name anchor effect)
   (node name :anchor anchor :requires #f :resolve (instant effect)))
@@ -418,17 +430,17 @@
       (error (string-append "at-anchor: 节点已经有落点了：" (cadr node-data)))
       (append node-data (list :anchor anchor))))
 
-(define (instant-action-with-tags name tags effect)
-  (action-with-tags name tags #f (instant effect)))
+(define (instant-action-with-tags id tags effect)
+  (action-with-tags id tags #f (instant effect)))
 
-(define (encounter-action name effect)
-  (instant-action-with-tags name (list "交锋") effect))
+(define (encounter-action id effect)
+  (instant-action-with-tags id (list "交锋") effect))
 
-(define (observe-action name text)
-  (action name #f (observe text)))
+(define (observe-action id text)
+  (action id #f (observe text)))
 
-(define (roll-action name requires skill fail-outcome neutral-outcome success-outcome)
-  (action name requires
+(define (roll-action id requires skill fail-outcome neutral-outcome success-outcome)
+  (action id requires
     (roll skill
       (require-outcome fail-outcome "roll-action fail")
       (require-outcome neutral-outcome "roll-action neutral")
@@ -451,8 +463,8 @@
           (error "recovery-roll-action: expected 6 args (name requires skill fail neutral success) or 7 args (name requires skill mod-fn fail neutral success)"))))
 
 ;; ── 工作（work）DSL ───────────────────────────────────
-;; (工作 name risk skill 好-outcome 中-outcome 坏-outcome [subtitle] [:anchor name] [:clocks clocks])
-;; (非法工作 name risk skill 好-outcome 中-outcome 坏-outcome [subtitle] [:anchor name] [:clocks clocks])
+;; (工作 id risk skill 好-outcome 中-outcome 坏-outcome [subtitle] [:anchor name] [:clocks clocks])
+;; (非法工作 id risk skill 好-outcome 中-outcome 坏-outcome [subtitle] [:anchor name] [:clocks clocks])
 ;;   工作只换钱，不攒任何圈子的声誉——「势力关系」这层已经拆掉：你和谁的关系，
 ;;   就是你和那一片的关系，写在人物模块里（艾迪＝码头，弗兰克＝老街，沃尔特＝上城）。
 ;;   risk:    只有 '低/'高，决定风险标签与结果代价。
@@ -471,8 +483,8 @@
     (begin (工作-风险标签 risk) '())
     (if illegal? (list (modifier -2 "非法")) '())))
 
-(define (构造工作 name illegal? risk skill 好-outcome 中-outcome 坏-outcome subtitle anchor clocks)
-  (node name
+(define (构造工作 id illegal? risk skill 好-outcome 中-outcome 坏-outcome subtitle anchor clocks)
+  (node id
         :subtitle subtitle
         :anchor anchor
         :clocks clocks
@@ -507,14 +519,14 @@
               (get-kwarg kwargs :clocks '()))
         (error "工作: 附加参数应为 [subtitle] [:anchor 锚点名] [:clocks 时钟列表]"))))
 
-(define (工作 name risk skill 好-outcome 中-outcome 坏-outcome . extra)
+(define (工作 id risk skill 好-outcome 中-outcome 坏-outcome . extra)
   (let ((args (工作-附加参数 extra)))
-    (构造工作 name #f risk skill 好-outcome 中-outcome 坏-outcome
+    (构造工作 id #f risk skill 好-outcome 中-outcome 坏-outcome
               (car args) (cadr args) (caddr args))))
 
-(define (非法工作 name risk skill 好-outcome 中-outcome 坏-outcome . extra)
+(define (非法工作 id risk skill 好-outcome 中-outcome 坏-outcome . extra)
   (let ((args (工作-附加参数 extra)))
-    (构造工作 name #t risk skill 好-outcome 中-outcome 坏-outcome
+    (构造工作 id #t risk skill 好-outcome 中-outcome 坏-outcome
               (car args) (cadr args) (caddr args))))
 
 ;; ── 随身动作 ─────────────────────────────────────────
@@ -528,8 +540,8 @@
 ;; 要投骰，但不掷骰：骰面完全不参与结算。所以这是全场唯一一处**烂骰子和好骰子等价**
 ;; 的地方，一颗 1 点骰投在这儿换回来的和 6 点一样多。手气差的那一轮，抽根烟不是浪费，
 ;; 是分诊。
-(define (随身动作 name item amount subtitle title effect)
-  (node name
+(define (随身动作 id item amount subtitle title effect)
+  (node id
     :subtitle subtitle
     ;; 它属于哪件物品。客户端据此把卡留在随身区，而不是排进场上的卡片区。
     :carry-item item
@@ -792,7 +804,7 @@
 ;;   (clk 'save)           存档值          (clk 'load! n) 读档，越界报错
 ;;
 ;; 进退一律 clamp 到 0..上限，并自动写进结算效果条（动作外调用不产生结果行）。
-(define clock-styles '(gauge countdown readout))
+(define clock-styles '(gauge pressure countdown readout))
 
 (define clock-messages
   "'tick! 'advance! 'set! 'reset! 'current 'max 'full? 'empty? 'remaining 'render-data 'save 'load!")
@@ -802,7 +814,7 @@
   (if (and (number? max) (> max 0)) #t (error "make-clock: 上限必须是正整数"))
   (if (member? style clock-styles)
       #t
-      (error "make-clock: 未知样式（应为 'gauge / 'countdown / 'readout）"))
+      (error "make-clock: 未知样式（应为 'gauge / 'pressure / 'countdown / 'readout）"))
   (if (> (length options) 2)
       (error "make-clock: 最多接受备注和显示名两个选项")
       #t)
@@ -1021,9 +1033,14 @@
 
 ;; 装不下的部分直接丢掉，但一定要说一声：静默吞掉会让玩家以为钱白花了却不知道为什么。
 ;; 买东西的卡自己该在满了的时候就灰掉（见 item-full?），走到这儿来才发现满，已经晚了一步。
+;; 临时 debug：所有金钱入账倍率；恢复正常经济时改回 1。不影响支出与存档加载。
+(define debug-money-income-multiplier 2)
+
 (define (add-item! item-id n)
-  (let* ((cap (item-capacity item-id))
-         (target (+ (__item-count item-id) n))
+  (let* ((amount (if (and (equal? item-id "金钱") (> n 0))
+                     (* n debug-money-income-multiplier) n))
+         (cap (item-capacity item-id))
+         (target (+ (__item-count item-id) amount))
          (final (if cap (min target cap) target)))
     (__set-item-count! item-id final)
     (if (< final target)

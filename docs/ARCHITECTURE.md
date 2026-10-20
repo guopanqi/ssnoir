@@ -52,7 +52,7 @@ Unity 和校验工具读取。`Resources/Content` 中的 `.scm` 由项目 import
    → SceneManager.LatestSnapshot (PresentationSnapshot:节点树 + 队伍/库存/声誉快照)
    → 前端 Adopt 快照后绘制卡片
 ```
-节点都是**每次重新求值**的(Scheme 里 `define` 成 lambda),所以渲染树永远反映最新状态。
+节点都是**每次重新求值**的(Scheme 里 `define` 成 lambda),所以渲染树永远反映最新状态。Scheme `node` 的第一个参数是节点 `Id`，在整棵渲染树内唯一；`:name` 是可重复的显示名称。`AnchorName` 默认取 `Id`，可由 `:anchor` 覆盖。`clock-node` 第一个参数同样是 `Id`，显示钟标签，钟对象自身保存进度状态。
 
 ### 动作:执行 → 结算 → 表现
 ```

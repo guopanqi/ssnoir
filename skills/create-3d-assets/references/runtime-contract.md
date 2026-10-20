@@ -8,9 +8,9 @@
 
 来源：`city-box/pipeline/build.py`、`city-box/pipeline/export.py`、`SSNoirModelImporter.cs`、`SceneDirectory.cs`
 
-- Scheme 运行时 `GameNode.Name` 是地点的唯一主键。带 Anchor 的 Prefab 必须使用同一个精确名称派生正式文件与语义节点：`prefabs/<名>.blend`、整城中的子树根 `<名>`、`Anchor_<名>`、`Camera_<名>`。Prefab 可以嵌套（酒馆里放后巷），嵌套关系不需要镜像 Scheme 的树，锚点按名全局查找。
+- Scheme 运行时 `GameNode.Id` 是地点的唯一主键，`GameNode.Name` 是可重复的显示名称。带 Anchor 的 Prefab 必须使用同一个精确名称派生正式文件与语义节点：`prefabs/<名>.blend`、整城中的子树根 `<名>`、`Anchor_<名>`、`Camera_<名>`。Prefab 可以嵌套（酒馆里放后巷），嵌套关系不需要镜像 Scheme 的树，锚点按名全局查找。
 - 不为历史命名维护 alias 表。`剧院2`、`bar`、`老街酒吧` 之类的制作过程名必须在源资产处迁移成正式地点名。
-- 行动 Anchor 默认使用它的 `GameNode.Name`；节点也可用 Scheme `:anchor` 显式声明不同的空间锚点名。
+- 行动 Anchor 默认使用它的 `GameNode.Id`（`AnchorName` 默认等于 `Id`）；节点也可用 Scheme `:anchor` 显式声明不同的空间锚点名。
   Anchor 可以不建专属 Camera；导入器会在该建筑子树内回退到主相机。
 - 纯视觉的 Prefab 不放 Anchor、Camera；不能用一个没有对应 Scheme 节点的假名字占位。
 - CityBox 构建会拒绝缺少主 Anchor/Camera、重复锚点名或不符合上述规则的 Prefab，而不是悄悄退回灰盒或猜测名称。
@@ -98,10 +98,10 @@ Orbit 相机必须满足：
 - 名字以 `anchor` 开头（忽略大小写）的 Transform 会自动获得 `NodeAnchor`。
 - `NodeName` 字段实际保存的是**空间锚点名**：它是对象名第一个下划线之后的全部文字；规范形式为
   `Anchor_<锚点名>`。
-- 节点不写 `:anchor` 时，运行时按 `GameNode.Name` 查找同名 Anchor；找不到就进入网格布局。普通情况
+- 节点不写 `:anchor` 时，运行时按 `GameNode.Id` 查找同名 Anchor；找不到就进入网格布局。普通情况
   因此仍可直接使用 `Anchor_公园`。
 - 节点显式写 `:anchor` 时，运行时改查该值；找不到会 assert/throw，不能静默退回网格。移动人物可用
-  `Anchor_夜莺@酒馆`、`Anchor_夜莺@剧院`，两个节点实例仍共享唯一身份名 `夜莺`。
+  `Anchor_夜莺@酒馆`、`Anchor_夜莺@剧院`，两个节点实例可用不同 `Id`（如 `夜莺@酒馆`、`夜莺@剧院`），同时显示相同的 `Name`。
 - `@` 只用于同一角色或实体在不同地点的身份消歧，格式为 `<实体>@<地点>`。场所内的功能分区用
   `<地点>-<功能>`，例如 `Anchor_老街酒馆-购买`、`Anchor_老街酒馆-工作`；同一分区内的多个行动
   共用一个 Anchor，不能为每个动作各建一个 Anchor。
@@ -109,8 +109,8 @@ Orbit 相机必须满足：
 - 语义对象的作用域就是它的父节点（所属 Prefab 的根），不向上爬：Anchor 在同根内优先绑定精确名称 `Camera_<锚点名>_VCam`，找不到时回退到同根的主相机 `Camera_<根名>_VCam`；相机只在同根直接子级里找 orbit pivot。嵌套 Prefab（酒馆里的后巷）因此各用各的相机与 pivot。
 - `SceneDirectory` 以空间锚点名为字典键。重复锚点名会记录错误并 assert/throw，禁止在场景中创建重复 Anchor。
 - 没有下划线或下划线后为空会得到空 NodeName，不会进入有效目录。
-- **Stage 的身份是节点名，不是 `:anchor`**（`SSNoirGameManager.ResolveStageAnchor`）：导航路径里某个节点的
-  `Anchor_<节点名>` 挂着 `StagePortalConfig`（由同名 `PortalIn_<名>` 导入时挂上），站在它里面就是在那个 Stage
+- **Stage 的身份是节点 `Id`，不是 `:anchor`**（`SSNoirGameManager.ResolveStageAnchor`）：导航路径里某个节点的
+  `Anchor_<节点Id>` 挂着 `StagePortalConfig`（由同名 `PortalIn_<名>` 导入时挂上），站在它里面就是在那个 Stage
   里，镜头取 `Anchor_<节点名>` 的根机位。`:anchor` 只决定这张门卡挂在城市里的哪儿：家的「租屋」卡挂 `门口`，
   门后的空间在郊野的 Stage 里，两者不可能同一个锚点。交锋根容器名就是场景名，对交锋这条规则没有新东西。
 
@@ -123,7 +123,7 @@ Orbit 相机必须满足：
 
 - Blender 里给对象标 `presence = "<锚点名>"`。构建把同一锚点的件收进 `内部_<Prefab>/随卡_<锚点名>`
   节点，并单独出一份线 `描线_随卡_<Prefab>_<锚点名>` 挂在同一节点下；这些件不并进 `描线_focus_<名>`。
-- 运行时规则只有一条：**当前渲染树里有任何节点的有效锚点（`:anchor`，缺省为节点名）等于
+- 运行时规则只有一条：**当前渲染树里有任何节点的有效锚点（`:anchor`，缺省为节点 `Id`）等于
   `<锚点名>`，节点显示；否则隐藏。** 脚本"买了就多渲染一张挂在那个锚点上的卡"，模型就随之出现；
   读档天然对齐，存档不多一个字段。
 - `随卡_` 必须直接挂在 `内部_<名>` 下（没聚焦时随内部一起隐藏），锚点必须是同一 Prefab 自己的

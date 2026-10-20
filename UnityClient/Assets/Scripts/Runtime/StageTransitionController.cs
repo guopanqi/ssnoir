@@ -324,11 +324,11 @@ namespace SSNoir
             Debug.Assert(targetCamera != null, "[StageTransition] Dissolve target focus camera was not resolved.");
             if (targetCamera == null) yield break;
 
-            _gameManager.PresentCamera(targetCamera);
             bool rode = false;
             yield return RideFocusTravelTo(targetCamera, null, null, v => rode = v, respectReduceMotion: true);
             if (!rode)
             {
+                _gameManager.CommitReducedCameraPresentation(targetCamera);
                 ResetFocusCameras();
                 yield return CutToVirtualCamera(targetCamera, 20);
             }

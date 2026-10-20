@@ -74,7 +74,7 @@
             (theatre-sound "脚步" "StageSounds/老街酒馆/脚步" #f .4 -.2)
             (theatre-wait 2.8)))))
     ;; （调查剧院的安全。封堵漏洞，筹备。）
-    (theatre-caption-for "旁白" "（调查剧院的安全。封堵漏洞，筹备。）" 2.340 "#C9CFE2")
+    (theatre-caption-auto "旁白" "（调查剧院的安全。封堵漏洞，筹备。）" 2.340 "#C9CFE2")
     ;; 尼尔走到安全门前，钉上木板：三线条分段显现。
     (theatre-tween "尼尔位置" 'scale-x -1 .1)
     (theatre-parallel
@@ -98,7 +98,7 @@
       (theatre-wait .45))
     (theatre-image-to "尼尔" "Portraits/Neon/尼尔_抱臂")
     (theatre-wait .9)
-    (theatre-caption-for "尼尔（独白）" "莱恩这种头脑的人，根本就不会在这里下功夫。" 2.655 "#F0CF8A")
+    (theatre-caption-auto "尼尔（独白）" "莱恩这种头脑的人，根本就不会在这里下功夫。" 2.655 "#F0CF8A")
     ;; 尼尔离场；后来却发现还是出了问题：木板被挪开、门锁变红、门缝透光。
     (theatre-clear-caption)
     (theatre-parallel
@@ -116,5 +116,5 @@
     (theatre-tween "吊灯" 'brightness .7 .2)
     (theatre-wait .9)
     ;; （但是后来你发现，还是出了问题。）
-    (theatre-caption-for "旁白" "（但是后来你发现，还是出了问题。）" 2.235 "#C9CFE2")
+    (theatre-caption-auto "旁白" "（但是后来你发现，还是出了问题。）" 2.235 "#C9CFE2")
     (theatre-wait .8)))

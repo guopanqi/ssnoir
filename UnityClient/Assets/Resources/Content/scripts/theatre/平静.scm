@@ -16,8 +16,8 @@
         (theatre-wait (+ .001 delay))
         (theatre-tween id 'reveal 1 2.2 'smooth))))))
   (define (说 who x text seconds . color)
-    (theatre-during
-      (theatre-caption-for who text seconds
+    (theatre-parallel
+      (theatre-caption-auto who text seconds
         (if (null? color)
           (if (equal? who "夜莺") "#8FD9D0" "#F0CF8A")
           (car color)))
@@ -80,7 +80,7 @@
         (theatre-wait .4)
         (闪)
         (theatre-tween "吊灯光" 'brightness .8 .2)))
-    (theatre-caption-for "旁白" "（一切都很平静，尼尔又回到日常的生活中，第二天晚上。）" 3.285 "#C9CFE2")
+    (theatre-caption-auto "旁白" "（一切都很平静，尼尔又回到日常的生活中，第二天晚上。）" 3.285 "#C9CFE2")
     ;; 夜莺进场（HTML go 560/2600 + w2900）。
     (theatre-parallel
       (theatre-tween "夜莺位置" 'opacity 1 .05)
@@ -90,10 +90,10 @@
     (说 "夜莺" 560 "我想请你吃顿饭。" 1.290)
     (说 "尼尔" 1040 "今晚……可能不行，搬了一下午的箱子。" 2.340)
     (theatre-clear-caption)
-    (theatre-wait 2.2)
+    (theatre-wait-advance 2.2)
     (说 "夜莺" 560 "那你家里有什么？" 1.290)
     ;; 尼尔无言（HTML 直接设“……”字幕等 2800ms；字幕按公式 0.66 秒，余下补等）。
-    (theatre-caption-for "尼尔" "……" 0.660 "#F0CF8A")
+    (theatre-caption-auto "尼尔" "……" 0.660 "#F0CF8A")
     (theatre-wait 2.14)
     (说 "夜莺" 560 "你对这顿饭最好期待低一点。" 1.815)
     ;; 夜莺离场（HTML f:1/go-160/2200/w2400/show:0/w1600）。
@@ -125,7 +125,7 @@
         (说 "尼尔" 1040 "小时候书看多了。" 1.290)
         (说 "夜莺" 560 "我是认真的。" 1.080)
         (theatre-clear-caption)
-        (theatre-wait 4.2)
+        (theatre-wait-advance 4.2)
         (theatre-tween "吊灯光" 'brightness .7 .2)
         (theatre-wait 1.2))
       (theatre-loop

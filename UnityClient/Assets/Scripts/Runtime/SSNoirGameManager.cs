@@ -33,7 +33,7 @@ namespace SSNoir
         private const string MusicVolumeSettingKey = "musicVolume";
         private const string SfxVolumeSettingKey = "sfxVolume";
         private const string DialogueVolumeSettingKey = "dialogueVolume";
-        private const string WorldRootNodeName = "世界";
+        private const string WorldRootNodeId = "世界";
         // Font files follow: <family>-Regular.ttf / <family>-SemiBold.ttf.
         private const string FontFamily = "SourceHanSerifCN";
         private const string RegularFontResourcePath = "Fonts/" + FontFamily + "-Regular";
@@ -78,7 +78,7 @@ namespace SSNoir
         private Font? _semiboldFont;
 
         // Core Gameplay / Interaction State
-        private string _focusedNodeName = string.Empty;
+        private string _focusedNodeId = string.Empty;
         private readonly List<GameNode> _navigationStack = new List<GameNode>();
         private List<GameNode> _visibleNodes = new List<GameNode>();
         private SelectedResource? _selectedResource;
@@ -91,7 +91,7 @@ namespace SSNoir
 
         private bool _resourceDragActive;
         private ResourceDragOriginKind _resourceDragOrigin = ResourceDragOriginKind.None;
-        private string _resourceOriginNodeName = string.Empty;
+        private string _resourceOriginNodeId = string.Empty;
         private int _resourceOriginSlotIndex = -1;
         private SlottedResource? _resourceOriginSlotResource;
 
@@ -294,7 +294,7 @@ namespace SSNoir
         public SceneManager SceneManager => _sceneManager;
         public SceneDirectory? SceneDirectory => _sceneDirectory;
         public PresentationSnapshot DisplayedSnapshot => _displayedSnapshot;
-        public string FocusedNodeName => _focusedNodeName;
+        public string FocusedNodeId => _focusedNodeId;
         public List<GameNode> NavigationStack => _navigationStack;
         public List<GameNode> VisibleNodes => _visibleNodes;
         public SelectedResource? SelectedResource => _selectedResource;
@@ -345,8 +345,8 @@ namespace SSNoir
         }
 
         /// <summary>某个动作此刻的「执行中」进度，供没有执行钮的控件自己画时间流逝。</summary>
-        public (bool IsExecuting, float Progress, string Text) GetExecutionState(string actionName)
-            => _renderer != null ? _renderer.GetExecutionState(actionName) : (false, 0f, string.Empty);
+        public (bool IsExecuting, float Progress, string Text) GetExecutionState(string actionNodeId)
+            => _renderer != null ? _renderer.GetExecutionState(actionNodeId) : (false, 0f, string.Empty);
 
         public NodeAnchor? ResolveAnchor(GameNode node)
         {
@@ -357,7 +357,7 @@ namespace SSNoir
             if (node.HasExplicitAnchor && anchor == null)
             {
                 string message =
-                    $"[SSNoir] Node '{node.Name}' explicitly requires anchor " +
+                    $"[SSNoir] Node '{node.Id}' explicitly requires anchor " +
                     $"'{node.AnchorName}', but no such scene anchor exists.";
                 Debug.LogError(message);
                 UnityEngine.Assertions.Assert.IsTrue(false, message);
@@ -367,12 +367,12 @@ namespace SSNoir
             return anchor;
         }
 
-        public NodeAnchor? ResolveAnchor(string nodeName)
+        public NodeAnchor? ResolveAnchor(string nodeId)
         {
-            var node = FindNodeByName(nodeName);
+            var node = FindNodeById(nodeId);
             return node != null
                 ? ResolveAnchor(node)
-                : _sceneDirectory?.GetAnchor(nodeName);
+                : _sceneDirectory?.GetAnchor(nodeId);
         }
 
         private void OnDestroy()
@@ -537,15 +537,15 @@ namespace SSNoir
             }
         }
 
-        public bool IsNodeFlipped(string nodeName) => _flippedNodes.Contains(nodeName);
+        public bool IsNodeFlipped(string nodeId) => _flippedNodes.Contains(nodeId);
 
-        public void ToggleNodeFlipped(string nodeName)
+        public void ToggleNodeFlipped(string nodeId)
         {
             ClearTransientNodeUiState(clearSlots: false);
-            if (_flippedNodes.Contains(nodeName))
-                _flippedNodes.Remove(nodeName);
+            if (_flippedNodes.Contains(nodeId))
+                _flippedNodes.Remove(nodeId);
             else
-                _flippedNodes.Add(nodeName);
+                _flippedNodes.Add(nodeId);
         }
 
         public void OnNodeCardClicked(GameNode node)
@@ -560,7 +560,7 @@ namespace SSNoir
                 _selectedResource = null;
                 SetFocusedNode(null, updateCamera: true);
                 if (node.IsPlace)
-                    PlayArrival(node.Name);
+                    PlayArrival(node.Id);
             }
             else if (node.Resolve?.Type == ResolveType.Note)
             {
@@ -570,13 +570,13 @@ namespace SSNoir
             }
             else if (node.Resolve != null && node.Resolve.Type == ResolveType.Observe && (node.Requires == null || node.Requires.Count == 0))
             {
-                ToggleNodeFlipped(node.Name);
+                ToggleNodeFlipped(node.Id);
             }
             else if (node.Requires == null || node.Requires.Count == 0)
             {
                 if (node.Resolve != null && node.Resolve.Type == ResolveType.Instant)
                 {
-                    SetFocusedNode(node.Name);
+                    SetFocusedNode(node.Id);
                 }
                 else
                 {
@@ -585,7 +585,7 @@ namespace SSNoir
             }
             else
             {
-                SetFocusedNode(node.Name);
+                SetFocusedNode(node.Id);
             }
         }
 
@@ -593,14 +593,14 @@ namespace SSNoir
         /// 设置卡片交互焦点。焦点用于槽位与高亮，不等同于镜头目标；只有导航路径变化时
         /// 才显式要求更新镜头，避免对白、Spotlight 等 UI 表现打断正在进行的运镜。
         /// </summary>
-        public void SetFocusedNode(string? nodeName, bool updateCamera = false)
+        public void SetFocusedNode(string? nodeId, bool updateCamera = false)
         {
             ReleaseRestCooldown();
             ClearTransientNodeUiState(clearSlots: false);
-            _focusedNodeName = nodeName ?? string.Empty;
+            _focusedNodeId = nodeId ?? string.Empty;
 
-            if (!string.IsNullOrEmpty(_focusedNodeName))
-                ClearOtherNodeSlots(_focusedNodeName);
+            if (!string.IsNullOrEmpty(_focusedNodeId))
+                ClearOtherNodeSlots(_focusedNodeId);
 
             if (updateCamera)
                 UpdateCameraFocus();
@@ -643,11 +643,11 @@ namespace SSNoir
                 || (_stageController != null && _stageController.IsTransitioning))
                 return;
 
-            var focusPath = GetCurrentFocusPathNames();
+            var focusPath = GetCurrentFocusPathIds();
             var focusCamera = ResolveCurrentFocusCamera(focusPath, out var usedWorldFallback);
             if (usedWorldFallback)
             {
-                Debug.LogWarning($"[SSNoir] No focus camera resolved for world node path '{string.Join(" > ", focusPath)}'. Falling back to '{WorldRootNodeName}' focus camera for testing.");
+                Debug.LogWarning($"[SSNoir] No focus camera resolved for world node path '{string.Join(" > ", focusPath)}'. Falling back to '{WorldRootNodeId}' focus camera for testing.");
             }
             else if (focusCamera == null)
             {
@@ -665,6 +665,15 @@ namespace SSNoir
                 bool travelStarted = _cameraManager.BeginFocusTravel(
                     focusCamera, out float travelDuration, respectReduceMotion: !storyDriven,
                     path: SSNoirCameraManager.NavigationTravelPath(storyDriven));
+
+                // 旧世界须保持到抓帧完成；目标描线、内部、灯光与雾由放行新机位统一提交。
+                if (_cameraManager.IsReducedViewSwapping)
+                {
+                    _cityOutlineClearRequest++;
+                    ResetFocusCameraPriorities();
+                    focusCamera.Priority = 20;
+                    return;
+                }
 
                 bool worldCamera=focusCamera.name=="Camera_世界_VCam";
                 if (ownsCityOutline || worldCamera)
@@ -687,6 +696,18 @@ namespace SSNoir
                     }
                 }
             }
+        }
+
+        internal void FreezeCameraPresentation()
+        {
+            _cityOutlineClearRequest++;
+            _cityOutlines?.FreezePresentation();
+        }
+
+        internal void CommitReducedCameraPresentation(Cinemachine.CinemachineVirtualCamera camera)
+        {
+            _cityOutlineClearRequest++;
+            _cityOutlines?.SetFocusedCamera(camera, 0f);
         }
 
         private void DeferCityOutlineClearUntilFocusTravelSettles()
@@ -744,35 +765,35 @@ namespace SSNoir
             if (_incomingFocusContextActive)
                 return _incomingFocusContextCamera;
 
-            return ResolveCurrentFocusCamera(GetCurrentFocusPathNames(), out _);
+            return ResolveCurrentFocusCamera(GetCurrentFocusPathIds(), out _);
         }
 
         private Cinemachine.CinemachineVirtualCamera? ResolveCurrentFocusCamera(List<string> focusPath, out bool usedWorldFallback)
         {
             usedWorldFallback = false;
-            foreach (var nodeName in focusPath.AsEnumerable().Reverse())
+            foreach (var nodeId in focusPath.AsEnumerable().Reverse())
             {
                 // Stage 身份是节点名（Portal 挂在 Anchor_<名>）。门卡也叫这个名，但
                 // :anchor 指门外挂点（家的「门口」）——那种情况必须用 Stage 根机位，
                 // 不能跟到门外。交锋根若额外声明了区内 :anchor（巷子 → 勒索信-巷口），
                 // 且该锚点就在 Stage 空间里，则用分区机位，换段才能切走廊镜头。
-                var stage = ResolveStageAnchor(nodeName);
+                var stage = ResolveStageAnchor(nodeId);
                 if (stage != null)
                 {
-                    var zoneCam = TryResolveInStageZoneCamera(nodeName, stage);
+                    var zoneCam = TryResolveInStageZoneCamera(nodeId, stage);
                     if (zoneCam != null)
                         return zoneCam;
                     if (stage.FocusVirtualCamera != null)
                         return stage.FocusVirtualCamera;
                 }
-                var anchor = ResolveAnchor(nodeName);
+                var anchor = ResolveAnchor(nodeId);
                 if (anchor != null && anchor.FocusVirtualCamera != null)
                     return anchor.FocusVirtualCamera;
             }
 
             if (string.Equals(_sceneManager.CurrentSceneName, "world", StringComparison.OrdinalIgnoreCase))
             {
-                var worldAnchor = ResolveAnchor(WorldRootNodeName);
+                var worldAnchor = ResolveAnchor(WorldRootNodeId);
                 if (worldAnchor != null && worldAnchor.FocusVirtualCamera != null)
                 {
                     usedWorldFallback = true;
@@ -783,11 +804,11 @@ namespace SSNoir
             return null;
         }
 
-        private List<string> GetCurrentFocusPathNames()
+        private List<string> GetCurrentFocusPathIds()
         {
-            if (!string.IsNullOrEmpty(_focusedNodeName))
+            if (!string.IsNullOrEmpty(_focusedNodeId))
             {
-                var focusedPath = FindPathToNode(_focusedNodeName);
+                var focusedPath = FindPathToNode(_focusedNodeId);
                 if (focusedPath.Count > 0)
                     return focusedPath;
             }
@@ -802,18 +823,18 @@ namespace SSNoir
             if (root == null)
                 return path;
 
-            path.Add(root.Name);
+            path.Add(root.Id);
             foreach (var node in _navigationStack)
-                path.Add(node.Name);
+                path.Add(node.Id);
             return path;
         }
 
         private string? ResolveCurrentStageContextId()
         {
-            foreach (var nodeName in GetCurrentNavigationPathNames().AsEnumerable().Reverse())
+            foreach (var nodeId in GetCurrentNavigationPathNames().AsEnumerable().Reverse())
             {
-                if (ResolveStageAnchor(nodeName) != null)
-                    return nodeName;
+                if (ResolveStageAnchor(nodeId) != null)
+                    return nodeId;
             }
 
             return null;
@@ -823,14 +844,14 @@ namespace SSNoir
         /// 交锋根在 Stage 名上另声明了区内 :anchor 时，取该分区机位。
         /// 门卡那种 :anchor 在城市场地（与 Stage 锚点相距甚远）的，返回 null，继续用 Stage 根机位。
         /// </summary>
-        private Cinemachine.CinemachineVirtualCamera? TryResolveInStageZoneCamera(string nodeName, NodeAnchor stage)
-            => TryResolveInStageZoneCamera(FindNodeByName(nodeName), stage);
+        private Cinemachine.CinemachineVirtualCamera? TryResolveInStageZoneCamera(string nodeId, NodeAnchor stage)
+            => TryResolveInStageZoneCamera(FindNodeById(nodeId), stage);
 
         private Cinemachine.CinemachineVirtualCamera? TryResolveInStageZoneCamera(GameNode? node, NodeAnchor stage)
         {
             if (node == null || !node.HasExplicitAnchor)
                 return null;
-            if (string.Equals(node.AnchorName, node.Name, StringComparison.Ordinal))
+            if (string.Equals(node.AnchorName, node.Id, StringComparison.Ordinal))
                 return null;
             var zone = _sceneDirectory?.GetAnchor(node.AnchorName!);
             if (zone == null || zone == stage || zone.FocusVirtualCamera == null)
@@ -848,9 +869,9 @@ namespace SSNoir
         /// 门卡在门外看得见，门后的空间却在郊野的 Stage 里，两者不可能是同一个锚点。
         /// 交锋根容器名就是场景名，所以这条规则对交锋不是新东西。
         /// </summary>
-        public NodeAnchor? ResolveStageAnchor(string nodeName)
+        public NodeAnchor? ResolveStageAnchor(string nodeId)
         {
-            var anchor = _sceneDirectory?.GetAnchor(nodeName);
+            var anchor = _sceneDirectory?.GetAnchor(nodeId);
             return anchor != null && anchor.GetComponent<StagePortalConfig>() != null ? anchor : null;
         }
 
@@ -866,24 +887,24 @@ namespace SSNoir
             return _displayedSnapshot.RootNode;
         }
 
-        private List<string> FindPathToNode(string nodeName)
+        private List<string> FindPathToNode(string nodeId)
         {
             var result = new List<string>();
             var root = GetRootNode();
-            if (root != null && FindPathToNodeRecursive(root, nodeName, result))
+            if (root != null && FindPathToNodeRecursive(root, nodeId, result))
                 return result;
             return new List<string>();
         }
 
-        private bool FindPathToNodeRecursive(GameNode node, string nodeName, List<string> path)
+        private bool FindPathToNodeRecursive(GameNode node, string nodeId, List<string> path)
         {
-            path.Add(node.Name);
-            if (node.Name == nodeName)
+            path.Add(node.Id);
+            if (node.Id == nodeId)
                 return true;
 
             foreach (var child in node.Children)
             {
-                if (FindPathToNodeRecursive(child, nodeName, path))
+                if (FindPathToNodeRecursive(child, nodeId, path))
                     return true;
             }
 
@@ -891,17 +912,17 @@ namespace SSNoir
             return false;
         }
 
-        public List<SlottedResource?>? GetSlotsForNode(string nodeName)
+        public List<SlottedResource?>? GetSlotsForNode(string nodeId)
         {
-            if (!_nodeSlots.TryGetValue(nodeName, out var list))
+            if (!_nodeSlots.TryGetValue(nodeId, out var list))
             {
-                var node = FindNodeByName(nodeName);
+                var node = FindNodeById(nodeId);
                 if (node != null && node.Requires != null)
                 {
                     list = new List<SlottedResource?>();
                     for (int i = 0; i < node.Requires.Count; i++)
                         list.Add(null);
-                    _nodeSlots[nodeName] = list;
+                    _nodeSlots[nodeId] = list;
                 }
             }
             return list;
@@ -958,7 +979,7 @@ namespace SSNoir
 
         public bool CanPlaceSelectedResource(GameNode node, int slotIndex)
         {
-            var slots = GetSlotsForNode(node.Name);
+            var slots = GetSlotsForNode(node.Id);
             // A filled slot is a valid target too — placing replaces it, and the displaced
             // die returns to hand automatically (slot state is derived, not consumed).
             if (_selectedResource == null
@@ -989,7 +1010,7 @@ namespace SSNoir
 
         public bool TryPlaceSelectedResource(GameNode node, int slotIndex)
         {
-            var slots = GetSlotsForNode(node.Name);
+            var slots = GetSlotsForNode(node.Id);
             if (_selectedResource == null || slots == null || node.Requires == null)
             {
                 return false;
@@ -1004,7 +1025,7 @@ namespace SSNoir
                 return false;
             }
 
-            ClearOtherNodeSlots(node.Name);
+            ClearOtherNodeSlots(node.Id);
             if (req.Type == "die" && _selectedResource.Type == "die")
             {
                 ClearTransientNodeUiState(clearSlots: false);
@@ -1038,11 +1059,11 @@ namespace SSNoir
             return false;
         }
 
-        private void ClearOtherNodeSlots(string activeNodeName)
+        private void ClearOtherNodeSlots(string activeNodeId)
         {
             foreach (var pair in _nodeSlots)
             {
-                if (pair.Key != activeNodeName)
+                if (pair.Key != activeNodeId)
                 {
                     var slots = pair.Value;
                     for (int i = 0; i < slots.Count; i++)
@@ -1146,7 +1167,7 @@ namespace SSNoir
             // 这里不再对骰子做第二道有效性检查。失效引用只在一个地方清：
             // 采纳新快照的那一刻（AdoptLatestSnapshot → ClearUnavailableDiceReferences）。
             // 玩家看见的卡槽和这里送出去的卡槽因此永远是同一份。
-            var slots = GetSlotsForNode(node.Name) ?? new List<SlottedResource?>();
+            var slots = GetSlotsForNode(node.Id) ?? new List<SlottedResource?>();
 
             _renderer.ClearCardResidues();
             _renderer.SetInputLocked(true);
@@ -1155,16 +1176,16 @@ namespace SSNoir
             try
             {
                 string sceneBefore = _sceneManager.CurrentSceneName;
-                string rootBefore = _sceneManager.CurrentRootNode?.Name ?? string.Empty;
+                string rootBefore = _sceneManager.CurrentRootNode?.Id ?? string.Empty;
                 var outgoingFocusCamera = CurrentFocusCamera;
                 ActionReport report = _sceneManager.ExecuteAction(node, slots);
                 var postTurnSteps = DetachPostTurnBlockingSteps(report);
                 var postSceneSteps = report.PostSceneBlockingSteps;
                 var turnStartReport = report.TurnStartReport;
-                _nodeSlots.Remove(node.Name);
+                _nodeSlots.Remove(node.Id);
                 _selectedResource = null;
                 bool sceneChanged = !string.Equals(sceneBefore, _sceneManager.CurrentSceneName, System.StringComparison.OrdinalIgnoreCase);
-                bool rootChanged = !string.Equals(rootBefore, _sceneManager.CurrentRootNode?.Name ?? string.Empty, System.StringComparison.Ordinal);
+                bool rootChanged = !string.Equals(rootBefore, _sceneManager.CurrentRootNode?.Id ?? string.Empty, System.StringComparison.Ordinal);
                 bool focusContextChanged = sceneChanged || rootChanged;
                 if (focusContextChanged)
                     BeginIncomingFocusContext(outgoingFocusCamera);
@@ -1177,7 +1198,7 @@ namespace SSNoir
 
                 // 换了场景也照传动作名：结果停留在采纳快照之前就结束，不会漏到新场景的同名卡上；
                 // 宿主卡这时多半已经出镜，结果条会挂在屏幕中央的浮牌下。
-                _renderer.PlayPresentation(report, node.Name, () =>
+                _renderer.PlayPresentation(report, node.Id, node.Name, () =>
                 {
                     // 对白、Spotlight、banter 等 UI 表现不会改相机；需要重新聚焦的只有两种：
                     // 场景／阶段根节点变了，或者你所在的那个容器执行完就从树上消失了。
@@ -1200,7 +1221,7 @@ namespace SSNoir
                             };
                             // 睡醒后的消息排在新场景内容之后，均使用已采纳的快照。
                             if (turnStartReport != null)
-                                _renderer.PlayPresentation(turnStartReport, string.Empty, finish);
+                                _renderer.PlayPresentation(turnStartReport, string.Empty, string.Empty, finish);
                             else
                                 finish();
                         };
@@ -1244,7 +1265,7 @@ namespace SSNoir
             _nodeSlots.Clear();
             _flippedNodes.Clear();
             _selectedResource = null;
-            _focusedNodeName = string.Empty;
+            _focusedNodeId = string.Empty;
             _renderer?.ResetUiState();
         }
 
@@ -1271,16 +1292,16 @@ namespace SSNoir
             if (incomingRoot == null)
                 return;
 
-            var stage = ResolveStageAnchor(incomingRoot.Name);
+            var stage = ResolveStageAnchor(incomingRoot.Id);
             var anchor = stage ?? ResolveAnchor(incomingRoot);
             if (anchor != null)
             {
-                // 用 incomingRoot 本身：此时 _displayedSnapshot 还是旧树，FindNodeByName 找不到新根。
+                // 用 incomingRoot 本身：此时 _displayedSnapshot 还是旧树，FindNodeById 找不到新根。
                 _incomingFocusContextCamera = stage != null
                     ? (TryResolveInStageZoneCamera(incomingRoot, stage) ?? stage.FocusVirtualCamera)
                     : anchor.FocusVirtualCamera;
                 if (stage != null)
-                    incomingStage = incomingRoot.Name;
+                    incomingStage = incomingRoot.Id;
             }
             _incomingFocusCrossesStagePortal = !string.Equals(outgoingStage, incomingStage, System.StringComparison.Ordinal);
         }
@@ -1360,9 +1381,9 @@ namespace SSNoir
 
             UpdateVitalPulses(_sceneManager.LatestSnapshot);
 
-            string? previousRoot = _displayedSnapshot.RootNode?.Name;
+            string? previousRoot = _displayedSnapshot.RootNode?.Id;
             _displayedSnapshot = _sceneManager.LatestSnapshot;
-            LastSnapshotChangedRoot = !string.Equals(previousRoot, _displayedSnapshot.RootNode?.Name, StringComparison.Ordinal);
+            LastSnapshotChangedRoot = !string.Equals(previousRoot, _displayedSnapshot.RootNode?.Id, StringComparison.Ordinal);
             ClearUnavailableDiceReferences(_displayedSnapshot);
             if (_displayedSnapshot.RootNode != null)
                 ValidateExplicitAnchors(_displayedSnapshot.RootNode);
@@ -1377,7 +1398,7 @@ namespace SSNoir
             PropMotion.SyncAll(_gameState);
             var pathBefore = new List<string>();
             foreach (var node in _navigationStack)
-                pathBefore.Add(node.Name);
+                pathBefore.Add(node.Id);
             ResolveNavigationStack();
             CleanupNodeSlots();
 
@@ -1389,7 +1410,7 @@ namespace SSNoir
                 return true;
             for (int i = 0; i < pathBefore.Count; i++)
             {
-                if (!string.Equals(pathBefore[i], _navigationStack[i].Name, StringComparison.Ordinal))
+                if (!string.Equals(pathBefore[i], _navigationStack[i].Id, StringComparison.Ordinal))
                     return true;
             }
             return false;
@@ -1511,7 +1532,7 @@ namespace SSNoir
         {
             ClearTransientNodeUiState(clearSlots: false);
 
-            if (!string.IsNullOrEmpty(_focusedNodeName))
+            if (!string.IsNullOrEmpty(_focusedNodeId))
             {
                 // 从聚焦状态返回：取消聚焦
                 SetFocusedNode(null, updateCamera: true);
@@ -1529,7 +1550,7 @@ namespace SSNoir
                 {
                     var root = GetRootNode();
                     if (root != null)
-                        PlayArrival(root.Name);
+                        PlayArrival(root.Id);
                 }
 
                 // The world root is a normal exploration destination: the same
@@ -1556,14 +1577,14 @@ namespace SSNoir
 
             var path = new List<string>();
             foreach (var node in _navigationStack)
-                path.Add(node.Name);
+                path.Add(node.Id);
 
             _navigationStack.Clear();
             var currentLevel = root.Children.ToList();
 
             foreach (var name in path)
             {
-                var match = currentLevel.Find(n => n.Name == name);
+                var match = currentLevel.Find(n => n.Id == name);
                 if (match != null && match.IsContainer)
                 {
                     _navigationStack.Add(match);
@@ -1585,7 +1606,7 @@ namespace SSNoir
             var currentNames = new HashSet<string>();
             var root = GetRootNode();
             if (root != null)
-                CollectAllNodeNamesRecursive(root, currentNames);
+                CollectAllNodeIdsRecursive(root, currentNames);
 
             var keysToRemove = new List<string>();
             foreach (var name in _nodeSlots.Keys)
@@ -1649,36 +1670,36 @@ namespace SSNoir
             }
         }
 
-        private void CollectAllNodeNamesRecursive(GameNode node, HashSet<string> result)
+        private void CollectAllNodeIdsRecursive(GameNode node, HashSet<string> result)
         {
-            result.Add(node.Name);
+            result.Add(node.Id);
             foreach (var child in node.Children)
-                CollectAllNodeNamesRecursive(child, result);
+                CollectAllNodeIdsRecursive(child, result);
         }
 
-        private GameNode? FindNodeByName(string name)
+        private GameNode? FindNodeById(string id)
         {
             var root = GetRootNode();
-            var found = root == null ? null : FindNodeRecursive(root, name);
+            var found = root == null ? null : FindNodeRecursive(root, id);
             if (found != null) return found;
 
             // 随身动作（烟、酒）不在渲染树上——它们不属于任何一场交锋。但它们是货真价实的
-            // 动作节点，一样要有骰位、一样能放骰子，所以按名字找节点时必须也找得到它们，
+            // 动作节点，一样要有骰位、一样能放骰子，所以按 ID 找节点时必须也找得到它们，
             // 否则 GetSlotsForNode 拿不到槽，槽就一直是"放不进去"的红。
             foreach (var carry in _displayedSnapshot.CarryNodes)
-                if (string.Equals(carry.Name, name, StringComparison.Ordinal))
+                if (string.Equals(carry.Id, id, StringComparison.Ordinal))
                     return carry;
             return null;
         }
 
-        private GameNode? FindNodeRecursive(GameNode node, string name)
+        private GameNode? FindNodeRecursive(GameNode node, string id)
         {
-            if (node.Name == name)
+            if (node.Id == id)
                 return node;
 
             foreach (var childNode in node.Children)
             {
-                var child = FindNodeRecursive(childNode, name);
+                var child = FindNodeRecursive(childNode, id);
                 if (child != null) return child;
             }
             return null;
@@ -1748,7 +1769,7 @@ namespace SSNoir
                 }
                 else
                 {
-                    MotionSettings.ReduceMotion = false;
+                    MotionSettings.ReduceMotion = MotionSettings.DefaultReduceMotion;
                 }
                 if (_sceneManager.Settings.TryGetValue(DicePipsOnlySettingKey, out object savedDicePipsOnly))
                 {
@@ -1783,7 +1804,7 @@ namespace SSNoir
         {
             ResetInventoryGainPulseBaseline();
             _sceneManager.ResetForNewGame();
-            MotionSettings.ReduceMotion = false;
+            MotionSettings.ReduceMotion = MotionSettings.DefaultReduceMotion;
             HandPanelDrawer.ColorDicePipsOnly = true;
             AudioVolumes.ResetToDefaults();
             _stateTainted = false;
@@ -1831,16 +1852,16 @@ namespace SSNoir
         /// </summary>
         public void RunOpeningAction()
         {
-            string actionName = _gameState.Get<string>("开场动作", string.Empty);
-            if (string.IsNullOrWhiteSpace(actionName))
+            string actionNodeId = _gameState.Get<string>("开场动作", string.Empty);
+            if (string.IsNullOrWhiteSpace(actionNodeId))
                 return;
 
-            var node = FindNodeByName(actionName);
+            var node = FindNodeById(actionNodeId);
             if (node == null)
             {
                 // 不抛：开场缺一节戏也还是能玩，硬停在标题界面才是真的没救。
                 Debug.LogWarning(
-                    $"[SSNoir] 开场动作 '{actionName}' 在当前世界里找不到同名节点，直接进游戏。");
+                    $"[SSNoir] 开场动作 '{actionNodeId}' 在当前世界里找不到对应 ID 的节点，直接进游戏。");
                 return;
             }
 
@@ -1875,7 +1896,7 @@ namespace SSNoir
 
         public void BeginSlotResourceDrag(GameNode node, int slotIndex)
         {
-            var slots = GetSlotsForNode(node.Name);
+            var slots = GetSlotsForNode(node.Id);
             if (slots == null || slotIndex < 0 || slotIndex >= slots.Count) return;
 
             var existing = slots[slotIndex];
@@ -1883,7 +1904,7 @@ namespace SSNoir
 
             ClearTransientNodeUiState(clearSlots: false);
             slots[slotIndex] = null;
-            _resourceOriginNodeName = node.Name;
+            _resourceOriginNodeId = node.Id;
             _resourceOriginSlotIndex = slotIndex;
             _resourceOriginSlotResource = CloneSlottedResource(existing);
             BeginResourceDrag(CreateSelectedResourceFromSlot(existing), ResourceDragOriginKind.Slot);
@@ -1908,7 +1929,7 @@ namespace SSNoir
             _resourceDragOrigin = origin;
             if (origin != ResourceDragOriginKind.Slot)
             {
-                _resourceOriginNodeName = string.Empty;
+                _resourceOriginNodeId = string.Empty;
                 _resourceOriginSlotIndex = -1;
                 _resourceOriginSlotResource = null;
             }
@@ -1926,7 +1947,7 @@ namespace SSNoir
 
         private void RestoreDraggedSlotResource()
         {
-            if (string.IsNullOrEmpty(_resourceOriginNodeName)
+            if (string.IsNullOrEmpty(_resourceOriginNodeId)
                 || _resourceOriginSlotIndex < 0
                 || _resourceOriginSlotResource == null)
             {
@@ -1934,16 +1955,16 @@ namespace SSNoir
                 return;
             }
 
-            var slots = GetSlotsForNode(_resourceOriginNodeName);
+            var slots = GetSlotsForNode(_resourceOriginNodeId);
             if (slots == null || _resourceOriginSlotIndex >= slots.Count)
             {
-                Debug.LogError($"[SSNoir] Resource drag origin slot is invalid: {_resourceOriginNodeName}[{_resourceOriginSlotIndex}].");
+                Debug.LogError($"[SSNoir] Resource drag origin slot is invalid: {_resourceOriginNodeId}[{_resourceOriginSlotIndex}].");
                 return;
             }
 
             if (slots[_resourceOriginSlotIndex] != null)
             {
-                Debug.LogError($"[SSNoir] Resource drag origin slot was unexpectedly occupied: {_resourceOriginNodeName}[{_resourceOriginSlotIndex}].");
+                Debug.LogError($"[SSNoir] Resource drag origin slot was unexpectedly occupied: {_resourceOriginNodeId}[{_resourceOriginSlotIndex}].");
                 return;
             }
 
@@ -1954,7 +1975,7 @@ namespace SSNoir
         {
             _selectedResource = null;
             _resourceDragOrigin = ResourceDragOriginKind.None;
-            _resourceOriginNodeName = string.Empty;
+            _resourceOriginNodeId = string.Empty;
             _resourceOriginSlotIndex = -1;
             _resourceOriginSlotResource = null;
         }
@@ -2090,8 +2111,8 @@ namespace SSNoir
                         {
                             // 换场批先播完旧场景的步骤，再采纳新场景；同场景仍在拍的中段落地。
                             bool changesContext = _displayedSnapshot.IsInEncounter != frame.Snapshot.IsInEncounter
-                                || !string.Equals(_displayedSnapshot.RootNode?.Name,
-                                    frame.Snapshot.RootNode?.Name, StringComparison.Ordinal);
+                                || !string.Equals(_displayedSnapshot.RootNode?.Id,
+                                    frame.Snapshot.RootNode?.Id, StringComparison.Ordinal);
                             _renderer.PlayRoundBatch(frame.Report, frame.Snapshot,
                                 land: () =>
                                 {
@@ -2178,8 +2199,8 @@ namespace SSNoir
                 return false;
             }
 
-            string oldRoot = _displayedSnapshot.RootNode?.Name ?? string.Empty;
-            string newRoot = _sceneManager.LatestSnapshot.RootNode?.Name ?? string.Empty;
+            string oldRoot = _displayedSnapshot.RootNode?.Id ?? string.Empty;
+            string newRoot = _sceneManager.LatestSnapshot.RootNode?.Id ?? string.Empty;
             bool contextChanged = _displayedSnapshot.IsInEncounter != _sceneManager.LatestSnapshot.IsInEncounter
                 || !string.Equals(oldRoot, newRoot, StringComparison.Ordinal);
 
@@ -2191,10 +2212,10 @@ namespace SSNoir
 
             // 采纳前记下当前焦点机位：同根换区内 :anchor（Act2 巷口→货栈）不算
             // contextChanged，但分区机位必须跟着切，否则卡钉在新锚点上而镜头留在上一段。
-            var focusCamBefore = ResolveCurrentFocusCamera(GetCurrentFocusPathNames(), out _);
+            var focusCamBefore = ResolveCurrentFocusCamera(GetCurrentFocusPathIds(), out _);
             bool navigationCollapsed = AdoptLatestSnapshot();
             EndIncomingFocusContext();
-            var focusCamAfter = ResolveCurrentFocusCamera(GetCurrentFocusPathNames(), out _);
+            var focusCamAfter = ResolveCurrentFocusCamera(GetCurrentFocusPathIds(), out _);
             bool zoneCamChanged = focusCamAfter != null && focusCamAfter != focusCamBefore;
             if (contextChanged || navigationCollapsed || zoneCamChanged)
                 UpdateCameraFocus(storyDriven: true);
@@ -2295,7 +2316,7 @@ namespace SSNoir
             }
 
             bool alreadyAtHome = _navigationStack.Count > 0
-                && _navigationStack[_navigationStack.Count - 1].Name == "家";
+                && _navigationStack[_navigationStack.Count - 1].Id == "家";
 
             ClearTransientNodeUiState(clearSlots: true);
             _selectedResource = null;
@@ -2306,10 +2327,10 @@ namespace SSNoir
             }
 
             _navigationStack.Clear();
-            foreach (var nodeName in homePath.GetRange(1, homePath.Count - 1))
+            foreach (var nodeId in homePath.GetRange(1, homePath.Count - 1))
             {
-                var node = FindNodeByName(nodeName);
-                Debug.Assert(node != null, $"[SSNoir] Failed to resolve path node '{nodeName}' while navigating home.");
+                var node = FindNodeById(nodeId);
+                Debug.Assert(node != null, $"[SSNoir] Failed to resolve path node '{nodeId}' while navigating home.");
                 if (node != null)
                     _navigationStack.Add(node);
             }
@@ -2332,12 +2353,12 @@ namespace SSNoir
             _nodeSlots.Clear();
             _flippedNodes.Clear();
             _selectedResource = null;
-            _focusedNodeName = string.Empty;
+            _focusedNodeId = string.Empty;
             _navigationStack.Clear();
-            foreach (var nodeName in path.GetRange(1, path.Count - 1))
+            foreach (var nodeId in path.GetRange(1, path.Count - 1))
             {
-                var node = FindNodeByName(nodeName)
-                    ?? throw new InvalidOperationException($"强制进入地点失败：路径节点“{nodeName}”不存在。");
+                var node = FindNodeById(nodeId)
+                    ?? throw new InvalidOperationException($"强制进入地点失败：路径节点“{nodeId}”不存在。");
                 _navigationStack.Add(node);
             }
             ResolveNavigationStack();
@@ -2382,7 +2403,7 @@ namespace SSNoir
 
             bool done = false;
             // 动作名留空：这不是一次动作，没有卡片可以锚定进度与投骰演出。
-            _renderer.PlayPresentation(report, string.Empty, () =>
+            _renderer.PlayPresentation(report, string.Empty, string.Empty, () =>
             {
                 bool navigationCollapsed = AdoptLatestSnapshot();
                 if (navigationCollapsed)

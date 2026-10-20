@@ -146,9 +146,9 @@ namespace SSNoir.Scripting
             interpreter.DefineGlobal(Symbol.FromString("__register-rest-block!"), new NativeProcedure(args =>
             {
                 if (args.Count != 4 || args[0] is not string id || args[1] is not string reason
-                    || args[2] is not string locationName || args[3] is not string targetNodeName)
+                    || args[2] is not string locationName || args[3] is not string targetNodeId)
                     throw new ArgumentException("__register-rest-block! requires id, reason, location, and target node strings");
-                gameState.RegisterRestBlocker(id, reason, locationName, targetNodeName);
+                gameState.RegisterRestBlocker(id, reason, locationName, targetNodeId);
                 return new None();
             }, "__register-rest-block!"));
 

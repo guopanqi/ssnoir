@@ -20,8 +20,8 @@
       (list (list x y) (list (+ x w) y) (list (+ x w) (+ y h)) (list x (+ y h))))
       'opacity (if (null? opacity) 1 (car opacity)))))
   (define (说 who x text seconds)
-    (theatre-during
-      (theatre-caption-for who text seconds
+    (theatre-parallel
+      (theatre-caption-auto who text seconds
         (if (equal? who "尼尔") "#F0CF8A" "#F4907C"))
       (theatre-parallel
         (theatre-tween "焦点" 'x (+ 800 (* (- x 800) .5)) 1 'smooth)
@@ -84,21 +84,21 @@
       (theatre-tween "经理" 'x 620 .9 'smooth)
       (说 "经理" 620 "尼尔，我们必须得好好谈谈了。" 1.920))
     (theatre-clear-caption)
-    (theatre-wait 1.8)
+    (theatre-wait-advance 1.8)
     (说 "经理" 620 "到目前为止已经有几天了，事情有什么重要的进展吗？" 2.970)
     (theatre-wait 2.3)
     (说 "经理" 620 "我只针对事情，不针对人。这是一份工作，我们每个人都在自己的岗位上，为这件事出一份力。" 4.860)
     (说 "经理" 620 "就拿我来说，我每天都在为赞助和演出奔走，如果我没能做得很好，我自己就不配呆在这个岗位上，我就要开除我自己。" 6.015)
     (theatre-clear-caption)
-    (theatre-wait 1.5)
+    (theatre-wait-advance 1.5)
     (theatre-parallel
       (theatre-tween "经理" 'x 670 .7 'smooth)
       (说 "经理" 670 "如果我们不能为这件事情的解决作出贡献，那我们在这儿不是浪费时间吗？" 3.915))
     (theatre-clear-caption)
-    (theatre-wait 2)
+    (theatre-wait-advance 2)
     (说 "经理" 670 "尼尔，我其实很不情愿，但是这件事情你可以先放一放了，我可能会找一个更老练的侦探。但也别那么绝情，别断了联系。" 6.120)
     (theatre-clear-caption)
-    (theatre-wait 2.4)
+    (theatre-wait-advance 2.4)
     ;; 垫板传递（HTML 的 mvp）：尼尔上前接过，经理接回，垫板收走。
     (theatre-parallel
       (theatre-tween "尼尔" 'x 900 .9 'smooth)

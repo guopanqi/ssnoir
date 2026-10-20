@@ -6,9 +6,10 @@ namespace SSNoir.Core
 {
     public class GameNode
     {
+        /// <summary>整棵渲染树内唯一、稳定的节点身份；不用于显示。</summary>
+        public string Id { get; set; } = string.Empty;
+        /// <summary>玩家可见名称，可重复；内容构造时默认使用 Id。</summary>
         public string Name { get; set; } = string.Empty;
-        public string Title { get; set; } = string.Empty;
-        public string DisplayTitle => string.IsNullOrEmpty(Title) ? Name : Title;
         public string? AnchorName { get; set; }
         public string Subtitle { get; set; } = string.Empty;
         /// <summary>可选操作按钮文字；未指定时由 UI 使用默认动词。</summary>
@@ -51,6 +52,6 @@ namespace SSNoir.Core
         public bool IsContainer => Resolve == null;
         public bool HasResolve => Resolve != null;
         public bool HasExplicitAnchor => AnchorName != null;
-        public string EffectiveAnchorName => AnchorName ?? Name;
+        public string EffectiveAnchorName => AnchorName ?? Id;
     }
 }

@@ -1081,12 +1081,12 @@ namespace SSNoir
                 $"此刻正在写它的运动：{motion}。");
         }
 
-        public void NavigateToNode(string nodeName)
+        public void NavigateToNode(string nodeId)
         {
-            var anchor = _gameManager.ResolveAnchor(nodeName);
+            var anchor = _gameManager.ResolveAnchor(nodeId);
             if (anchor == null)
             {
-                string errorMsg = $"[SSNoir] Cannot navigate camera to node '{nodeName}': no scene anchor was found.";
+                string errorMsg = $"[SSNoir] Cannot navigate camera to node '{nodeId}': no scene anchor was found.";
                 Debug.LogError(errorMsg);
                 UnityEngine.Assertions.Assert.IsTrue(false, errorMsg);
                 throw new System.InvalidOperationException(errorMsg);
@@ -1397,6 +1397,8 @@ namespace SSNoir
             // back where it belongs first; otherwise it stays stranded on a stale view.
             ReleaseReducedPark();
 
+            _gameManager.FreezeCameraPresentation();
+
             var config = focusCamera.GetComponent<SSNoirVirtualCameraConfig>();
             bool destinationUsesAuthoredPose = config != null && config.dragMode != CameraDragMode.Pan;
             if (config != null && config.dragMode == CameraDragMode.Static)
@@ -1444,6 +1446,8 @@ namespace SSNoir
                 _reducedParkedCamera, _reducedTargetFieldOfView,
                 _reducedTargetNearClip, _reducedTargetFarClip);
             SynchronizePanBoundsState(_reducedParkedCamera);
+            // 冻帧已包含旧描线和旧配光；新画面直接使用完整终态，不再叠第二段动画。
+            _gameManager.CommitReducedCameraPresentation(_reducedParkedCamera);
             _reducedParkedCamera = null;
         }
 
@@ -1920,6 +1924,7 @@ namespace SSNoir
                 if (renderedCamera != null)
                 {
                     // Freeze first: the camera is still standing where the player left it.
+                    _gameManager.FreezeCameraPresentation();
                     _crossfade.Begin(MotionSettings.CrossfadeDuration, renderedCamera);
 
                     // Then park it back there for as long as the freeze needs. Landing on

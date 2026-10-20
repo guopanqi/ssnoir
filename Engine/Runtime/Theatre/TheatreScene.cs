@@ -43,6 +43,7 @@ namespace SSNoir.Theatre
         public string Target { get; init; } = "";
         public TheatreProperty Property { get; init; }
         public TheatreKey[] Keys { get; init; } = Array.Empty<TheatreKey>();
+        public bool CanAdvance { get; init; }
         public bool FromCurrent { get; init; }
         public bool Smooth { get; init; }
         public IReadOnlyList<TheatreCommand> Children { get; init; } = Array.Empty<TheatreCommand>();

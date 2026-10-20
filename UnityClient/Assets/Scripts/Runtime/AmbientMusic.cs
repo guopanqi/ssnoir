@@ -34,6 +34,8 @@ namespace SSNoir
         private const float GapMinSeconds = 25f;
         private const float GapMaxSeconds = 55f;
 
+        // 空曲库是当前明确的内容配置；不建音轨，也不读取旧存档选曲。
+        private bool _hasMusic;
         private AudioSource _a = null!;
         private AudioSource _b = null!;
         private AudioSource _current = null!;
@@ -50,6 +52,8 @@ namespace SSNoir
 
         private void Awake()
         {
+            _hasMusic = Resources.LoadAll<AudioClip>(ResourcesFolder).Length > 0;
+            if (!_hasMusic) return;
             _a = gameObject.AddComponent<AudioSource>();
             _b = gameObject.AddComponent<AudioSource>();
             foreach (var s in new[] { _a, _b })
@@ -65,6 +69,7 @@ namespace SSNoir
         /// <summary>把当前应当响着的曲子告诉它；同一个值重复喂什么都不发生。</summary>
         public void Apply(string? clipId)
         {
+            if (!_hasMusic) return;
             if (string.IsNullOrEmpty(clipId))
                 clipId = null;
             if (clipId == null)
@@ -183,6 +188,7 @@ namespace SSNoir
 
         private void Update()
         {
+            if (!_hasMusic) return;
             // 音量每帧都写：淡入淡出只管 _fade，面板改 AudioVolumes.Music 要当场生效，
             // 不能只在淡入那 1.6 秒里写一次。
             _fade = Mathf.Min(1f, _fade + Time.unscaledDeltaTime / FadeSeconds);

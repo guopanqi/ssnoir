@@ -1,8 +1,8 @@
 ;; 第一节的五组日常演出。只负责表现；日期、开放、报酬与招募归城市模块。
 ;; 人物画布统一308，地面790。黑幕转场在同一场舞台内完成，不闪回城市。
 (define (第一节-对白 who x text seconds)
-  (theatre-during
-    (theatre-caption-for who text seconds (if (equal? who "尼尔") "#F0CF8A" "#D3DCE9"))
+  (theatre-parallel
+    (theatre-caption-auto who text seconds (if (equal? who "尼尔") "#F0CF8A" "#D3DCE9"))
     (theatre-parallel
       (theatre-tween "说话光" 'x x .6 'smooth)
       (theatre-tween "焦点" 'x (+ 800 (* (- x 800) .35)) .6 'smooth))))
@@ -93,7 +93,7 @@
          (说 "调酒师" "你如果真的缺钱的话，还是得找份正经的工作，这些零工是攒不到什么钱的。" 5.6)
          (theatre-image-to "尼尔" "Portraits/Neon/尼尔_抱臂")
          (theatre-clear-caption)
-         (theatre-wait 1.1)
+         (theatre-wait-advance 1.1)
          (说 "尼尔" "我再试试，再等等吧。" 2)
          (theatre-image-to "尼尔" "Portraits/Neon/尼尔_伸手")
          (说 "尼尔" "说不定今天晚上就有什么重要的侦探委托，福尔摩斯那种。" 4.5)
@@ -107,7 +107,7 @@
       ((eq? mode '接案)
        (theatre-sequence
          (theatre-sound "擦杯" "StageSounds/老街酒馆/拿布" #f .20 .35)
-         (theatre-during
+         (theatre-parallel
            (说 "调酒师" "来了，今天还是——" 1.3)
            (theatre-animate "杯位置" 'rotation '((0 0) (.3 -8) (.6 6) (.9 0))))
          (theatre-image-to "尼尔" "Portraits/Neon/尼尔_伸手")
@@ -149,7 +149,7 @@
          (说 "尼尔" "成交。" 1.1)))
       (else (error "第一节会面：未知模式")))
     (theatre-clear-caption)
-    (theatre-wait .5)
+    (theatre-wait-advance .5)
     (theatre-tween "画面" 'opacity 0 .5)))
 
 ;; 清晨故意只有黑幕、敲门与字幕，不让人物突然站到城市对白舞台。
@@ -159,19 +159,19 @@
     (theatre-repeat 3 (theatre-sequence
       (theatre-sound "敲门" "StageSounds/老街酒馆/闷踢" #f .22 -.25)
       (theatre-wait .28)))
-    (theatre-caption-for "旅馆老板" "尼尔？" 1.4 "#D3DCE9")
-    (theatre-caption-for "尼尔" "谁？" 1.2 "#F0CF8A")
-    (theatre-caption-for "旅馆老板" "是我，我看你昨晚喝多了就没来打扰你。" 3.4 "#D3DCE9")
-    (theatre-caption-for "尼尔" "是老板啊，你有事儿吗？" 2 "#F0CF8A")
-    (theatre-caption-for "旅馆老板" "我是跟你说旅馆房钱的事情，你这间房该交钱了。" 3.8 "#D3DCE9")
-    (theatre-caption-for "尼尔" "能等我两天吗？" 1.7 "#F0CF8A")
-    (theatre-caption-for "旅馆老板" "不要紧，尼尔，主要不是钱的事儿。" 2.8 "#D3DCE9")
-    (theatre-caption-for "旅馆老板" "你最近侦探的活儿怎么样了？" 2.4 "#D3DCE9")
-    (theatre-caption-for "旅馆老板" "干不下去的话也可以和我说，我给你介绍点别的活儿。" 4 "#D3DCE9")
-    (theatre-caption-for "尼尔" "谢谢了……" 1.6 "#F0CF8A")
+    (theatre-caption-auto "旅馆老板" "尼尔？" 1.4 "#D3DCE9")
+    (theatre-caption-auto "尼尔" "谁？" 1.2 "#F0CF8A")
+    (theatre-caption-auto "旅馆老板" "是我，我看你昨晚喝多了就没来打扰你。" 3.4 "#D3DCE9")
+    (theatre-caption-auto "尼尔" "是老板啊，你有事儿吗？" 2 "#F0CF8A")
+    (theatre-caption-auto "旅馆老板" "我是跟你说旅馆房钱的事情，你这间房该交钱了。" 3.8 "#D3DCE9")
+    (theatre-caption-auto "尼尔" "能等我两天吗？" 1.7 "#F0CF8A")
+    (theatre-caption-auto "旅馆老板" "不要紧，尼尔，主要不是钱的事儿。" 2.8 "#D3DCE9")
+    (theatre-caption-auto "旅馆老板" "你最近侦探的活儿怎么样了？" 2.4 "#D3DCE9")
+    (theatre-caption-auto "旅馆老板" "干不下去的话也可以和我说，我给你介绍点别的活儿。" 4 "#D3DCE9")
+    (theatre-caption-auto "尼尔" "谢谢了……" 1.6 "#F0CF8A")
     (theatre-clear-caption)
-    (theatre-wait .6)
-    (theatre-caption-for "尼尔" "房钱我两天后给你。" 1.9 "#F0CF8A")
+    (theatre-wait-advance .6)
+    (theatre-caption-auto "尼尔" "房钱我两天后给你。" 1.9 "#F0CF8A")
     (theatre-wait .5)
     (theatre-clear-caption)))
 
@@ -253,7 +253,7 @@
     (theatre-parallel (theatre-tween "幕" 'opacity 1 1)
       (apply theatre-parallel 描线))
     (theatre-sound "酒馆喧哗" "StageSounds/老街酒馆/人群哗" #t .14 0)
-    (theatre-sound "酒馆钢琴" "StageSounds/剧院/钢琴" #t .08 -.4)
+
     (theatre-tween "酒杯" 'y 625 .4)
     (第一节-对白 "尼尔" 650 "来，再来一杯！" 1.8)
     (theatre-animate "醉客" 'rotation '((0 0) (.3 -4) (.7 3) (1.1 0)))
@@ -266,7 +266,7 @@
     (theatre-wait .4)
     (换幕 "吧台" "街外")
     (theatre-volume "酒馆喧哗" .015 .5)
-    (theatre-volume "酒馆钢琴" .025 .5)
+
     (theatre-parallel
       (theatre-tween "街外尼尔" 'x 700 1.6 'smooth)
       (theatre-animate "街外尼尔" 'rotation '((0 0) (.5 4) (1 -3) (1.6 0))))
@@ -282,7 +282,7 @@
     (theatre-wait .8)
     (换幕 "街外" "门厅")
     (theatre-stop-sound "酒馆喧哗")
-    (theatre-stop-sound "酒馆钢琴")
+
     (theatre-sound "门厅脚步" "StageSounds/老街酒馆/脚步" #f .3 -.15)
     ;; 老板喊话时尼尔继续走，不停下来等对白。
     (theatre-parallel

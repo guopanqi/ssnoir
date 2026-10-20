@@ -24,8 +24,8 @@
   (define (组 id parent x y opacity)
     (加入 (theatre-with (theatre-group id parent x y) 'opacity opacity)))
   (define (说 who x text seconds)
-    (theatre-during
-      (theatre-caption-for who text seconds
+    (theatre-parallel
+      (theatre-caption-auto who text seconds
         (cond ((equal? who "尼尔") "#F0CF8A")
               ((equal? who "店主") "#F4907C") (else "#C9CFE2")))
       (theatre-parallel
@@ -168,7 +168,7 @@
       (theatre-image-to "尼尔" "Portraits/Neon/尼尔_伸手")
       (theatre-tween "胶卷一" 'opacity 1 .1)
       (提示声 "放胶卷一" "放胶卷")
-      (theatre-during
+      (theatre-parallel
         (说 "尼尔" 650 (if 两卷? "这卷替我洗出来。还有这一卷。" "这卷替我洗出来。") (if 两卷? 2.025 1.290))
         (if 两卷? (theatre-sequence (theatre-wait 1.7)
                    (theatre-tween "胶卷二" 'opacity 1 .1) (提示声 "放胶卷二" "放胶卷"))
@@ -225,7 +225,7 @@
       (气氛 .7 .062 0 1.2)
       (theatre-sound "钟声" "StageSounds/室内求助/钟表" #f .22 0)
       ;; 半透明的旧照片背面只作为记忆，不额外产生物品或结论。
-      (theatre-during
+      (theatre-parallel
         (说 "旁白" 650 "夜莺给我看的那张照片背面，好像也有这个。" 2.550)
         (theatre-sequence (近景 "回忆背面" 700 330 1 .5 .9)
           (theatre-wait .5) (近景 "回忆背面" 700 330 1 .2 .8)))

@@ -104,7 +104,7 @@ namespace SSNoir.IMGUI
             if (kind == CardKind.Location || kind == CardKind.Common)
             {
                 ContainerNodeDrawer.DrawFloating(rect, node, kind == CardKind.Location, isHovered && !disabled, disabled, clocksBottomY, isFocused);
-                ClockPulse.BeginHost(node.Name);
+                ClockPulse.BeginHost(node.Id);
                 DrawClockBadges(rect, clocks);
                 ClockPulse.EndHost();
                 ActionNodeDrawer.DrawTopTabs(rect, node, disabled, containsRestBlockerTarget);
@@ -123,13 +123,13 @@ namespace SSNoir.IMGUI
             Matrix4x4 oldMatrix = GUI.matrix;
             if (isCharacter && isFocused)
             {
-                float rotationDeg = (node.Name.GetHashCode() % 2 == 0) ? -2f : 2f;
+                float rotationDeg = (node.Id.GetHashCode() % 2 == 0) ? -2f : 2f;
                 GUIUtility.RotateAroundPivot(rotationDeg, rect.center);
             }
 
             // 「正在发生」的金光：执行中，或判定动画正挂在这张卡下面（附件由渲染器另画）。
             DrawCardFrame(rect, isHovered, isFocused, disabled, isExecuting || isHappening);
-            ClockPulse.BeginHost(node.Name);
+            ClockPulse.BeginHost(node.Id);
             DrawClockBadges(rect, clocks);
             ClockPulse.EndHost();
 
@@ -205,8 +205,9 @@ namespace SSNoir.IMGUI
             => LayoutClockBadges(rect,clocks,true);
 
         private static float ClockHeight(GameClock clock,bool compact)
-            => clock.Style==ClockStyle.Countdown ? (compact?64f:92f)
-                : clock.Style==ClockStyle.Gauge ? (compact?64f:70f) : 32f;
+            => clock.Priority==ClockPriority.Secondary ? 28f
+                : clock.Style==ClockStyle.Countdown ? (compact?64f:92f)
+                : (clock.Style==ClockStyle.Gauge || clock.Style==ClockStyle.Pressure) ? (compact?64f:70f) : 32f;
 
         private static float LayoutClockBadges(Rect rect,List<GameClock>? clocks,bool draw)
         {
@@ -228,7 +229,7 @@ namespace SSNoir.IMGUI
                 for(int j=0;j<count;j++)
                 {
                     var clock=clocks[i+j];float w=Mathf.Min(width,MeasureClockBadge(clock,false));
-                    if(draw) DrawClockBadge(new Rect(x,y,w,height),clock,false);
+                    if(draw) DrawClockBadge(new Rect(x,y,w,ClockHeight(clock,false)),clock,false);
                     x+=w+ClockGap;
                 }
                 y+=height+ClockGap;i+=count;
@@ -240,6 +241,8 @@ namespace SSNoir.IMGUI
         {
             var style=new GUIStyle(IMGUIStyles.ClockLabel){fontSize=IMGUIStyles.FontSize(compact?12:14)};
             float text=style.CalcSize(new GUIContent(clock.ShownLabel)).x;
+            if(clock.Priority==ClockPriority.Secondary)
+                return style.CalcSize(new GUIContent($"{clock.ShownLabel} {clock.Current}/{clock.Max}")).x+20f;
             return clock.Style==ClockStyle.Countdown ? Mathf.Max(compact?174f:218f,text+(compact?76f:104f))
                 : Mathf.Max(compact?166f:210f,text+74f);
         }
@@ -247,20 +250,26 @@ namespace SSNoir.IMGUI
         public static void DrawClockBadge(Rect rect,GameClock clock,bool compact=true,Color? accent=null)
         {
             ClockPulse.Note(clock);
-            Color color=accent??IMGUIStyles.Gold;
+            Color color=accent??ClockColor(clock);
             float glow=ClockPulse.Glow(clock);
             IMGUIStyles.SetColor(IMGUIStyles.CityPlateBg);GUI.DrawTexture(rect,Texture2D.whiteTexture);IMGUIStyles.ResetColor();
             IMGUIStyles.DrawOutline(rect,1f,Color.Lerp(IMGUIStyles.CityPlateLine,color,glow));
             var label=new GUIStyle(IMGUIStyles.ClockLabel){fontSize=IMGUIStyles.FontSize(compact?12:14),
                 alignment=TextAnchor.MiddleLeft,clipping=TextClipping.Clip,normal={textColor=IMGUIStyles.Paper}};
-            if(clock.Style==ClockStyle.Countdown)
+            if(clock.Priority==ClockPriority.Secondary)
+            {
+                label.normal.textColor=clock.Style==ClockStyle.Pressure?color:IMGUIStyles.TextSecondary;
+                IMGUIStyles.DrawLabel(new Rect(rect.x+8f,rect.y,rect.width-16f,rect.height),
+                    $"{clock.ShownLabel} {clock.Current}/{clock.Max}",label);
+            }
+            else if(clock.Style==ClockStyle.Countdown)
             {
                 float d=Mathf.Min(compact?56f:80f,Mathf.Min(rect.height-8f,rect.width*.45f));
                 var graphic=new Rect(rect.xMax-d-6f,rect.center.y-d*.5f,d,d);
                 IMGUIStyles.DrawLabel(new Rect(rect.x+10f,rect.y+8f,graphic.x-rect.x-18f,rect.height-16f),clock.ShownLabel,label);
                 DrawClockGraphic(graphic,clock,color);
             }
-            else if(clock.Style==ClockStyle.Gauge)
+            else if((clock.Style==ClockStyle.Gauge || clock.Style==ClockStyle.Pressure))
             {
                 var graphic=new Rect(rect.x+9f,rect.y+8f,rect.width-18f,compact?19f:24f);
                 DrawClockGraphic(graphic,clock,color);
@@ -277,11 +286,15 @@ namespace SSNoir.IMGUI
             }
         }
 
-        /// <summary>共享进度图形。accent 可传红色用于压力；空轨道保持低对比，实际进度才着色。</summary>
+        // 压力统一采用警示红，目标进度采用金色。
+        public static Color ClockColor(GameClock clock)
+            => clock.Style==ClockStyle.Pressure?IMGUIStyles.OddsFail:IMGUIStyles.Gold;
+
+        /// <summary>共享进度图形；空轨道保持低对比，实际进度按钟的语义着色。</summary>
         public static void DrawClockGraphic(Rect rect,GameClock clock,Color? accent=null)
         {
             ClockPulse.Note(clock);
-            Color color=accent??IMGUIStyles.Gold;
+            Color color=accent??ClockColor(clock);
             Color active=Color.Lerp(color,Color.white,ClockPulse.Glow(clock)*.2f);
             Color track=new Color(IMGUIStyles.Paper.r,IMGUIStyles.Paper.g,IMGUIStyles.Paper.b,.13f);
             if(clock.Style==ClockStyle.Countdown)
@@ -319,7 +332,7 @@ namespace SSNoir.IMGUI
             IMGUIStyles.ResetColor();
             IMGUIStyles.DrawOutline(rect, thickness, outline);
 
-            IMGUIStyles.DrawLabel(new Rect(rect.x + 8, rect.y + 8, rect.width - 16, 20), node.DisplayTitle, IMGUIStyles.FlippedTitle);
+            IMGUIStyles.DrawLabel(new Rect(rect.x + 8, rect.y + 8, rect.width - 16, 20), node.Name, IMGUIStyles.FlippedTitle);
             IMGUIStyles.DrawLabel(new Rect(rect.x + 8, rect.y + 28, rect.width - 16, 16), "— 已解读线索 —", IMGUIStyles.FlippedTip);
 
             var contentRect = new Rect(rect.x + 8, rect.y + 48, rect.width - 16, rect.height - 68);

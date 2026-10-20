@@ -29,6 +29,8 @@ namespace SSNoir.Core
         // 固定骰池位置。不能再把列表下标当作位置身份：骰子被花掉后下标会移动。
         public List<int> ActionDice { get; } = new List<int>();
         public List<int> ActionDiceSlotIds { get; } = new List<int>();
+        /// <summary>本次运行中实际发放新一手的序号；仅供表现识别重置，不随存档保存。</summary>
+        public long ActionDiceRevision { get; internal set; }
 
         // 此刻这手骰子发放时封锁了多少位置。当前伤势变化只影响下一手，不追回已发的骰子。
         public int IssuedInjuryDieLoss { get; set; } = 0;

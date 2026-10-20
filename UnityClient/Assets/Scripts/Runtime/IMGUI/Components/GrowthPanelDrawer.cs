@@ -46,6 +46,7 @@ namespace SSNoir.IMGUI
         private const float CompanionRowH = 30f;
 
         private static Vector2 _scroll;
+        private static Vector2 _conditionScroll;
 
         public static Rect GetPanelRect()
         {
@@ -77,6 +78,8 @@ namespace SSNoir.IMGUI
                 new Color(IMGUIStyles.PaperInk.r, IMGUIStyles.PaperInk.g, IMGUIStyles.PaperInk.b, 0.25f), 1f);
 
             DrawPerson(left, snapshot, gameManager, ui);
+            float conditionHeight = DrawCondition(right, snapshot);
+            right.yMin += conditionHeight + 18f;
             DrawPeople(right, snapshot, gameManager, ui);
             return interaction;
         }
@@ -165,14 +168,51 @@ namespace SSNoir.IMGUI
                     away: lead.Status == "away", gameManager, ui);
             y += DieSize + 6f + DieLabelH + 4f + DieBtnH;
 
-            // 同伴：一人一行小字，只展示四个数值。加点只负责尼尔一个人，
-            // 这里没有加点钮。不给他们相纸。
+            // 同伴只展示能力，不负责加点。
             for (int a = 1; a < snapshot.Actors.Count; a++)
             {
                 y += 12f;
                 DrawCompanionRow(new Rect(col.x, y, col.width, CompanionRowH), snapshot.Actors[a]);
                 y += CompanionRowH;
             }
+        }
+
+        private static float DrawCondition(Rect col, PresentationSnapshot snapshot)
+        {
+            var lines = new List<string>();
+            lines.Add(snapshot.InjurySeverity == 0
+                ? $"伤势  0/{snapshot.InjuryMaxSeverity} · 完好"
+                : $"伤势  {snapshot.InjurySeverity}/{snapshot.InjuryMaxSeverity} · {snapshot.InjuryPart}伤 · {snapshot.InjuryBandName}");
+            lines.Add($"下一手封锁 {snapshot.InjuryActionDieLoss} 个行动位");
+            if (snapshot.ScarModifiers.Count == 0)
+                lines.Add("旧伤  无");
+            else
+            {
+                foreach (string skill in StatKeys)
+                    if (snapshot.ScarModifiers.TryGetValue(skill, out var scar))
+                        lines.Add($"{scar.Reason} · {UiText.SkillName(skill)} {scar.Value:+0;-0;0}（永久）");
+            }
+
+            var style = DescStyle();
+            style.normal.textColor = IMGUIStyles.PaperTextPrimary;
+            // 留出滚动条宽度，测量与绘制使用相同的换行宽度。
+            float width = col.width - 16f;
+            float height = 0f;
+            foreach (string line in lines)
+                height += style.CalcHeight(new GUIContent(line), width) + 5f;
+            float visibleHeight = Mathf.Min(height, col.height * 0.55f);
+            var viewport = new Rect(col.x, col.y, col.width, visibleHeight);
+
+            _conditionScroll = GUI.BeginScrollView(viewport, _conditionScroll, new Rect(0f, 0f, width, height));
+            float y = 0f;
+            foreach (string line in lines)
+            {
+                float h = style.CalcHeight(new GUIContent(line), width);
+                IMGUIStyles.DrawLabel(new Rect(0f, y, width, h), line, style);
+                y += h + 5f;
+            }
+            GUI.EndScrollView();
+            return visibleHeight;
         }
 
         // 一个骰面：墨方块里一个大数，底下能力名，再底下加点钮。

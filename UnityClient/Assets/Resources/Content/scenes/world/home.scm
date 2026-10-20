@@ -95,11 +95,11 @@
                 (list
                   (line "尼尔" "这是这几天的房费。最近还行。")
                   (line "世界" (string-append "他点了两遍，钱进了外套内袋。下一次收租在 "
-                                              (number->string rent-cycle) " 天后。"))
-                  ;; 准时交回来的那一天信用才涨。不说，玩家不会知道旅馆老板为什么忽然肯多等。
-                  (if credit-up?
-                      (list (line "旅馆老板" "这回痛快。往后你要是晚一天，我不至于当天就锁门。"))
-                      '()))))
+                                              (number->string rent-cycle) " 天后。")))
+                ;; 准时交回来的那一天信用才涨。不说，玩家不会知道旅馆老板为什么忽然肯多等。
+                (if credit-up?
+                    (list (line "旅馆老板" "这回痛快。往后你要是晚一天，我不至于当天就锁门。"))
+                    '())))
             (set! 老板来过? #t)
             (remove-item! "金钱" rent-amount)
             (set! grace (min grace-max (+ grace 1)))
@@ -411,7 +411,8 @@
     (define (node-buy-gramophone)
       (node "买台唱片机"
         :anchor "租屋-书桌"
-        :subtitle "带五张唱片。屋里总得有点声音"
+        :subtitle "暂时没有可播放的唱片"
+        :disabled #t
         :requires (list (req-item "金钱" gramophone-price))
         :resolve (instant
           (outcome (lambda () (set! has-gramophone? #t))))))
@@ -430,8 +431,8 @@
       (let ((id (car rec)) (title (cadr rec)) (desc (caddr rec)))
         (node (string-append "放" title)
           :anchor "租屋-唱片机"
-          :subtitle (if (equal? (record-playing) id) "正在转" desc)
-          :disabled (equal? (record-playing) id)
+          :subtitle "暂时没有可播放的唱片"
+          :disabled #t
           :resolve (instant
             (outcome (lambda () (set-global! '音乐 id)))))))
 
@@ -444,8 +445,8 @@
     (define (node-shuffle)
       (node "随机播放"
         :anchor "租屋-唱片机"
-        :subtitle (if (equal? (record-playing) shuffle-id) "正在转" "交给架子，五张里随机来")
-        :disabled (equal? (record-playing) shuffle-id)
+        :subtitle "暂时没有可播放的唱片"
+        :disabled #t
         :resolve (instant
           (outcome (lambda () (set-global! '音乐 shuffle-id))))))
 
@@ -461,7 +462,7 @@
     (define (node-gramophone)
       (node "唱片机"
         :anchor "租屋-唱片机"
-        :subtitle (if (record-playing) "正在转" "唱针抬着。架子上五张唱片。")
+        :subtitle "暂时没有可播放的唱片"
         :children
           (append (record-nodes)
                   (list (node-shuffle))
@@ -521,7 +522,7 @@
         (order-nodes)))
 
     (define (node-room)
-      (node "租屋" :title (tr "房间" "Room") :anchor "床边" :children (room-nodes)))
+      (node "租屋" :name (tr "房间" "Room") :anchor "床边" :children (room-nodes)))
 
     ;; 被锁在门外时剩下的公共空间：楼下门厅。库存里的药是随身的，门锁住不该把它一起锁掉。
     (define (node-entry-hall)
@@ -542,7 +543,7 @@
     ;; 容器名固定为"家"（导航按名字定位，不能随住所变），住所等级放 subtitle 显示。
     (define (residence-container)
       (place "家"
-        :title (if (renting?) (tr "旅馆" "Hotel") (tr "家" "Home"))
+        :name (if (renting?) (tr "旅馆" "Hotel") (tr "家" "Home"))
         :subtitle (if (equal? residence "公寓") (tr "公寓" "Apartment") (tr "旅馆客房" "Hotel Room"))
         :children (home-body)))
 
