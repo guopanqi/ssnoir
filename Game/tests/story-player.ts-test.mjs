@@ -30,12 +30,21 @@ test("authoritative intertitle splits its pages and preserves camera transitions
  q.push([{kind:"intertitle",args:[true,[
   ["大雨下个不停。","序章/01"],["那天我还不知道会遇见她。","序章/02"]
  ]],immediate:false,blocking:true},
- {kind:"camera",args:["老街酒馆",0.8,"家"],blocking:true,immediate:false}]);
+ {kind:"camera",args:["老街酒馆",0.8,"家",false],blocking:true,immediate:false}]);
  assert.equal(q.pendingCount(),3);
  assert.equal(q.current?.text,"大雨下个不停。");
  assert.deepEqual(q.current?.commands,[true,["大雨下个不停。","序章/01"]]);
  q.advance();assert.equal(q.current?.text,"那天我还不知道会遇见她。");
  q.advance();assert.equal(q.current?.kind,"camera");
- assert.deepEqual(q.current?.commands,["老街酒馆",0.8,"家"]);
+ assert.deepEqual(q.current?.commands,["老街酒馆",0.8,"家",false]);
  q.advance();assert.equal(q.blocked,false);
+});
+
+test("four-argument camera cut flag remains intact; old three-argument payload is rejected",()=>{
+ const q=new StoryPlaybackQueue();
+ q.push([{kind:"camera",args:["老街酒馆-工作",0,"剧院",true],blocking:true,immediate:false}]);
+ assert.deepEqual(q.current?.commands,["老街酒馆-工作",0,"剧院",true]);
+ assert.match(q.current?.text??"",/切镜/);
+ const bad=new StoryPlaybackQueue();
+ assert.throws(()=>bad.push([{kind:"camera",args:["老街酒馆",0.8,"家"],blocking:true,immediate:false}]),/invalid camera/);
 });

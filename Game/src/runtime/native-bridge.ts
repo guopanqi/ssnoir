@@ -235,13 +235,15 @@ export function createNativeBridge(state: GameRuntimeState, random:()=>number=Ma
       return undefined;
     },
     "__play-camera!": (...args) => {
-      arity("__play-camera!",args,3);
+      // Matches current Engine/Runtime/Scripting/NativeFunctions.cs:
+      // anchor, seconds, destination and a mandatory cut/glide boolean.
+      arity("__play-camera!",args,4);
       if(!state.isActionReporting())throw new Error("camera transition requires an action");
       const anchor=string(args[0]),destination=string(args[2]);
-      const duration=Number(String(args[1]));
-      if(!anchor.trim()||!Number.isFinite(duration)||duration<0)
+      const duration=Number(String(args[1])),cut=args[3];
+      if(!anchor.trim()||!Number.isFinite(duration)||duration<0||typeof cut!=="boolean")
         throw new Error("invalid camera transition");
-      state.queueStory({kind:"camera",blocking:true,args:[anchor,duration,destination]});
+      state.queueStory({kind:"camera",blocking:true,args:[anchor,duration,destination,cut]});
       return undefined;
     },
     "__play-narration!":story("narration",true,1),

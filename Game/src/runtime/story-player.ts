@@ -47,11 +47,11 @@ export class StoryPlaybackQueue {
       });
     }
     if(kind==="camera"){
-      if(args.length!==3||typeof args[0]!=="string"||typeof args[1]!=="number"||
-         !Number.isFinite(args[1])||typeof args[2]!=="string")
+      if(args.length!==4||typeof args[0]!=="string"||typeof args[1]!=="number"||
+         !Number.isFinite(args[1])||typeof args[2]!=="string"||typeof args[3]!=="boolean")
         throw new Error("invalid camera story event");
       return [{kind,blocking,commands:args,speaker:"镜头",
-        text:args[2]?"镜头经过 "+args[0]+"，来到 "+args[2]:"镜头移向 "+args[0]}];
+        text:(args[3]?"切镜至 ":"镜头经过 ")+args[0]+(args[2]?"，来到 "+args[2]:"")}];
     }
     if(kind==="spotlight")return [{
       kind,blocking,commands:args,speaker:StoryPlaybackQueue.text(args[0]),

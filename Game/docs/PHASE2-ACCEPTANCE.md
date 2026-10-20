@@ -109,3 +109,11 @@ The phase-one eight bare WebGL cuboids are now architecturally legible through h
 The C# `SceneManager.CurrentCarryNodes` path was absent from the TypeScript encounter host. The same authored `(encounter-action-nodes)` now produces a separate typed list of carry/support cards, outside `get-render-data`. Cards retain Scheme effect closures in the encounter VM; UI shows them beside encounter cards rather than adding them to the authored scenario tree. The engine enforces exactly one carried relationship support per encounter and disables it on use. On exit/re-entry the limit resets. The original C# item slot consumer clips remaining stock at zero. The new regression runs the original Frank support card and cigarette action in `勒索信`; platform builds must pass before acceptance.
 
 This closes only **the encounter carry-card subgate**, not the full multi-actor or visual parity gates. The game still needs a full C# vs TS trace through several authored encounters.
+
+## Content drift and save/camera compatibility (2026-10-20)
+
+- Native `__play-camera!` now accepts the exact current C# four-field payload (anchor, hold seconds, destination, cut boolean). The story playback retains the cut flag rather than silently discarding it.
+- Original tavern trouble now presents two clocks (`解决麻烦` progress and `麻烦期限` countdown) and direct bartender dialogue; runtime tests follow the current authored state while retaining exact collapsed/expanded clock equality.
+- Portable restore checks the typed saved world day **against** the original Scheme datum *before* invoking `world-load!`. That original callback overwrites the global calendar, so checking afterward cannot detect tampering. The check shares the same `read` invocation and adds no extra full-datum parsing.
+
+These changes repair CI-detected discrepancies without modifying the authoritative original story scripts. Verify all Phase 2 and four-platform CI results before marking this increment accepted.
