@@ -4,6 +4,7 @@
 (define 修理进展 (make-clock "抢修进展" 3 'gauge "修好伴奏装置或组织临时伴奏。" :beneficial-direction 'increase))
 (define 试演时间 (make-clock "试演剩余时间" 4 'countdown "导演与赞助人不会一直等。" :beneficial-direction 'increase))
 (define 试演结束? #f)
+(define 当前办法 "未定")
 (define (试演收场! outcome)
   (if 试演结束? (error "赞助人试演：交锋重复结算") #t)
   (set! 试演结束? #t)
@@ -30,6 +31,11 @@
         (line "世界" "没有伴奏。她依然唱完那段，才走下舞台。"))))
   (end-encounter outcome))
 (define (试演尝试! progress cost route)
+  (if (not (equal? 当前办法 (symbol->string route)))
+    (begin
+      (set! 当前办法 (symbol->string route))
+      (修理进展 'reset!))
+    #f)
   (修理进展 'advance! progress)
   (试演时间 'advance! (- cost))
   (cond
@@ -48,6 +54,7 @@
   (修理进展 'load! 0)
   (试演时间 'load! 4)
   (set! 试演结束? #f)
+  (set! 当前办法 "未定")
   (play-dialogue!
     (line "世界" "大剧院。赞助人的试演即将开始，伴奏装置却忽然停了。")
     (line "工作人员" "重新开机至少还得等一会儿。")
