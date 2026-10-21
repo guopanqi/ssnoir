@@ -36,6 +36,7 @@ jobs:
             tests/stage-contract.ts-test.mjs \
             tests/game-world.ts-test.mjs \
             tests/first-act.ts-test.mjs \
+            tests/second-act-relations.ts-test.mjs \
             tests/world-save.ts-test.mjs \
             tests/tavern-watch.ts-test.mjs \
             tests/encounter-director.ts-test.mjs \
