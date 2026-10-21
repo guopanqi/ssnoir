@@ -89,3 +89,21 @@ test("first act: day-six farewell really prevents ending the day until watched",
  assert.equal(state.hasRestBlockers(),false);
  assert.equal(await vm.evaluateNumber("(if (第一幕 'farewell-seen?) 1 0)"),1);
 });
+
+test("Eddie gives a real rescue: -2 then +1 composure, once each working day",async()=>{
+ const {vm,state}=await session();
+ await vm.evaluate("(第一幕 'meet-eddie!)");
+ assert.equal(await vm.evaluateNumber("(第一幕 'eddie-stage)"),1);
+ const badHaul=`
+   (let* ((place (car (dock 'render-data)))
+          (haul (car (get-kwarg (cddr place) :children '())))
+          (resolve (get-kwarg (cddr haul) :resolve #f))
+          (bad-outcome (list-ref resolve 3)))
+      ((cadr bad-outcome)))`;
+ assert.equal(state.team.composure("player"),5);
+ await vm.evaluate(badHaul);
+ assert.equal(state.team.composure("player"),4);
+ assert.equal(await vm.evaluateNumber('(assoc-get (dock \'save) "help-day" 0)'),1);
+ await vm.evaluate(badHaul);
+ assert.equal(state.team.composure("player"),2);
+});
