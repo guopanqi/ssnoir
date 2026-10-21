@@ -27,6 +27,7 @@
     (list "act-two" 第二幕 '(存档 卷宗 节点 入场))
     (list "act-two-theater" 第二幕剧院 '(存档 节点 入场))
     (list "act-two-aftermath" 第二幕余波 '(存档 入场))
+    (list "act-two-announcement" 第二幕公告 '(存档 节点 入场))
     (list "cafe-work" cafe-work '(存档 节点))
     ;; 人物支线暂不投射节点、入场与卷宗；状态保留供主线及后续排布。
     (list "eddie"                eddie                '(存档))
