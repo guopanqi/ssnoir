@@ -12,8 +12,11 @@
     (define (lucy-help! kind)
       (set! lucy-state kind)
       (play-dialogue!
-        (line "露西" "真的？你帮我顶班，我就能去报名了。")
-        (line "尼尔" "快去吧。")))
+        (line "露西" (if (equal? kind "代班")
+          "你还帮我找了代班的人？这钱我会还你的。"
+          "真的？你肯替我顶班，我就能去报名了。"))
+        (line "尼尔" "快去吧。")
+        (line "露西" "那我今晚就去。谢谢你，尼尔。")))
     (define (nodes-at loc)
       (append
         (if (and (equal? loc "码头") (available?) (equal? wage-state "未做")
