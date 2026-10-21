@@ -17,14 +17,14 @@
     (define (nodes-at loc)
       (append
         (if (and (equal? loc "码头") (available?) (equal? wage-state "未做")
-                 (第一幕 'eddie-met?))
+                 (第一幕 'eddie-met?) wage-introduced?)
           (list (node "少了十块钱" :anchor "码头-货堆"
             :subtitle "艾迪替工友争工钱，你可以参与"
             :resolve (instant (outcome
               (lambda () (start-encounter "少了十块钱" wage-end))))))
           '())
         (if (and (equal? loc "街角咖啡馆") (available?)
-                 (第一幕 'lucy-met?) (equal? lucy-state "未做"))
+                 (第一幕 'lucy-met?) (equal? lucy-state "未做") lucy-introduced?)
           (list
             (node "替露西顶班" :subtitle "用一枚骰帮她争取报名时间"
               :requires (list (req-die))
