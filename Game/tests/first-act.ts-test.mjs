@@ -63,20 +63,14 @@ test("first act: singing costs one die, once per day; it can advance a Nightinga
  assert.equal(before,0);
  await vm.evaluate(`
    (let* ((cards (第一幕 'nodes-at "老街酒馆"))
-          (song (let find ((rows cards))
-                  (if (null? rows) #f
-                    (if (equal? (cadr (car rows)) "听夜莺唱歌")
-                      (car rows) (find (cdr rows))))))
+          (song (car (reverse cards)))
           (resolve (get-kwarg (cddr song) :resolve #f)))
      ((cadr (cadr resolve))))`);
  assert.equal(await vm.evaluateNumber("(第一幕 'singer-stage)"),1);
  assert.equal(await vm.evaluateNumber("(if (= (第一幕 'listened-day) world-day) 1 0)"),1);
  const disabled=await vm.evaluateNumber(`
    (let* ((cards (第一幕 'nodes-at "老街酒馆"))
-          (song (let find ((rows cards))
-                  (if (null? rows) #f
-                    (if (equal? (cadr (car rows)) "听夜莺唱歌")
-                      (car rows) (find (cdr rows))))))
+          (song (car (reverse cards)))
           (disabled (get-kwarg (cddr song) :disabled #f)))
      (if disabled 1 0))`);
  assert.equal(disabled,1);
@@ -89,10 +83,7 @@ test("first act: day-six farewell really prevents ending the day until watched",
  assert.ok(state.hasRestBlockers());
  await vm.evaluate(`
    (let* ((cards (第一幕 'nodes-at "老街酒馆"))
-          (farewell (let find ((rows cards))
-                    (if (null? rows) #f
-                      (if (equal? (cadr (car rows)) "夜莺最后一场演出")
-                        (car rows) (find (cdr rows))))))
+          (farewell (car (reverse cards)))
           (resolve (get-kwarg (cddr farewell) :resolve #f)))
      ((cadr (cadr resolve))))`);
  assert.equal(state.hasRestBlockers(),false);
