@@ -2,17 +2,10 @@
 ;;
 ;; 这里只有一种常驻工作：搬运。每次消耗一颗骰子，没有每日次数上限。
 ;;
-;; 码头上的人不靠「熟悉度」显形，靠**搭档**：每班活结算时才抽今天跟谁一组——
-;; 陌生人、乔、艾迪。抽在骰子落地之后，玩家扔骰前不知道是谁，所以搭档不是
-;; 一个可以拿来分配骰子的修正值，而是那一晚发生的事的一部分。
-;;
-;; 每个搭档的签名永远一样：只改结果的后果，不碰判定；数字不随剧情变，
-;; 变的只有台词。玩家是在一次次结果里认出这个人的，不是被告知的。
-;;   陌生人  什么也不改；偶尔听见一句码头上的话
-;;   乔      坏日子不伤人：他接了重的那头
-;;   艾迪    好日子更好：他非要加第三车
-;; 搭档不给阶段、不给关系：艾迪跟你搭一百次也不会因此变熟，他的线走自己的日历。
-;; 乔唯一「动」的一次是第一次抽到他——那是介绍，之后每次都是签名本身。
+;; 搭档按天安排，玩家在投入骰子前就知道和谁一班。
+;; 首次搬运必定遇见艾迪，不用失败才能认识。他当日首次坏结果帮你分担
+;; 1点冷静（原本 -2 变为 -1）；乔继续负责老手式的失手保护。
+;; 旧《三封信》的剧情与艾迪拳赛不在本次重排范围。
 
 (define dock
   (let ()
@@ -60,12 +53,27 @@
     ;; 权重是一张带重复的表。乔从第一天起就在池里，第一次抽到他就算认识；
     ;; 艾迪在码头重逢之后进池，另一只手也压坏了就出池。
     (define joe-met? #f)
+    (define eddie-haul-met? #f)
+    (define eddie-help-day 0)
+    (define dock-partner "艾迪")
+    (define (today-partner)
+      (if (and (= (three-letters 'story-stage) 1)
+               (not eddie-haul-met?))
+          "艾迪" dock-partner))
+    (define-turn-start-rule "码头搭班日程"
+      (lambda () #t)
+      (lambda ()
+        (set! dock-partner
+          (if (and (= (three-letters 'story-stage) 1)
+                   (not eddie-haul-met?))
+              "艾迪" (random-choice (partner-pool))))))
 
     (define (partner-pool)
       (append
         (list "陌生人" "陌生人" "陌生人")
         (list "乔" "乔" "乔")
-        (if (and (= (eddie 'stage) 3) (not (eddie 'crushed?)))
+        (if (or (= (three-letters 'story-stage) 1)
+                (and (= (eddie 'stage) 3) (not (eddie 'crushed?))))
             (list "艾迪" "艾迪")
             '())))
 
@@ -148,7 +156,17 @@
            (not (worker-familiarity 'full?))))
 
     (define (finish-haul! grade)
-      (let ((partner (random-choice (partner-pool))))
+      (let ((partner (today-partner)))
+        (if (and (equal? partner "艾迪") (not eddie-haul-met?))
+            (begin
+              (set! eddie-haul-met? #t)
+              (set! dock-partner "艾迪")
+              (play-dialogue!
+                (line "世界" "尼尔搬起箱子，眼看它往一边歪。")
+                (line "艾迪" "手先松开！我来接这一头。")
+                (line "世界" "两人一起把箱子放稳。")
+                (line "艾迪" "我叫艾迪。下回来，站我这边。")))
+            #f)
         (if (worker-messages-active?)
           (begin
             (worker-familiarity 'tick!)
@@ -165,6 +183,10 @@
            (spend-composure! 1))
           ;; 高风险由更高报酬与力量检定表达；日常失手仍只扣 2 点冷静。
           ((equal? partner "乔") #f)
+          ((and (equal? partner "艾迪")
+                (not (= eddie-help-day world-day)))
+           (set! eddie-help-day world-day)
+           (spend-composure! 1))
           (else (spend-composure! 2)))
         (cond
           ((< (three-letters 'story-stage) 2) #f)
@@ -179,12 +201,20 @@
           (else (stranger-after! grade)))))
 
     ;; ── 常驻日结 ──────────────────────
+    (define (haul-subtitle)
+      (cond
+        ((equal? (today-partner) "艾迪")
+         (if (= eddie-help-day world-day)
+             "艾迪搭班；今天救场已用"
+             "艾迪搭班；首次失手少损失1冷静"))
+        ((equal? (today-partner) "乔") "乔搭班；失手时他会搭手")
+        (else "独自搬运；正常结算失手损失")))
     (define (node-haul)
       (工作 "搬运" '高 'violence
         (outcome (lambda () (finish-haul! '好)))
         (outcome (lambda () (finish-haul! '中)))
         (outcome (lambda () (finish-haul! '坏)))
-        "扛一班货，挣一晚的钱"
+        (haul-subtitle)
         :anchor "码头-货堆"))
 
     ;; 探索与搬运消息分别持有各自进度；解锁只发生一次。
@@ -290,6 +320,9 @@
              (list "worker-joined?" worker-joined?)
              (list "worker-shift" (worker-shift 'save))
              (list "joe-met?" joe-met?)
+              (list "eddie-haul-met?" eddie-haul-met?)
+              (list "eddie-help-day" eddie-help-day)
+              (list "dock-partner" dock-partner)
              (list "echoes" (dock-echoes 'save))))
           ((equal? msg 'load!)
            (let ((data (cadr args)))
@@ -303,5 +336,8 @@
              ;; 旧档：乔叫得出名字（joe-stage ≥ 1）就算认识。
              (set! joe-met? (assoc-get data "joe-met?"
                               (>= (assoc-get data "joe-stage" 0) 1)))
-             (dock-echoes 'load! (assoc-get data "echoes" '()))))
+             (set! eddie-haul-met? (assoc-get data "eddie-haul-met?" #f))
+              (set! eddie-help-day (assoc-get data "eddie-help-day" 0))
+              (set! dock-partner (assoc-get data "dock-partner" "艾迪"))
+              (dock-echoes 'load! (assoc-get data "echoes" '()))))
           (else #f))))))
