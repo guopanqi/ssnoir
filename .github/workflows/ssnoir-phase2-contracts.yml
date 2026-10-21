@@ -27,7 +27,7 @@ jobs:
         run: npm install --no-audit --no-fund
       - name: Typecheck shared runtime
         run: npm run typecheck
-      - name: Test original authoring and gameplay traces, without browser setup
+      - name: Test current chapter and runtime contracts, without browser setup
         run: |
           node --experimental-strip-types --test \
             tests/presentation-parity.ts-test.mjs \
@@ -35,7 +35,7 @@ jobs:
             tests/theatre-playback.ts-test.mjs \
             tests/stage-contract.ts-test.mjs \
             tests/game-world.ts-test.mjs \
-            tests/authored-opening.ts-test.mjs \
+            tests/first-act.ts-test.mjs \
             tests/world-save.ts-test.mjs \
             tests/tavern-watch.ts-test.mjs \
             tests/encounter-director.ts-test.mjs \
