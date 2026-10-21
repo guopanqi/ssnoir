@@ -11,6 +11,7 @@
     (define lucy-day 0)
     (define eddie-day 0)
     (define singer-day 0)
+    (define listened-day 0)
     (define eddie-work-count 0)
     (define lucy-work-count 0)
     (define drink-day 0)
@@ -64,6 +65,7 @@
                (else #f))) #f))
         (else (error "第一幕：未知工作地点"))))
 
+    ;; 任一酒馆日常行动都可开启当天的一段夜莺生活，不限看场工作。
     (define (on-tavern-work!)
       ;; 酒保介绍过工作以后，夜莺在酒馆连续驻唱到第六天。
       ;; 每个游戏日只推进一次，不允许一天刷三次工作刷完所有关系。
@@ -77,6 +79,17 @@
             ((= singer-stage 2) (set! singer-stage 3) (第一幕-夜莺解围))
             (else #f)))
         #f))
+
+    (define (listen!)
+      (if (and (= act 1) (<= world-day 5) tavern-seen?
+               (not (= listened-day world-day))) #t
+          (error "听夜莺唱歌：不在驻唱时间或今天已经听过"))
+      (set! listened-day world-day)
+      (play-bubble!
+        (line "世界" "夜莺的歌声盖过杯盘碰撞的声音。尼尔坐下，终于不用去照看别人的麻烦。" :at "夜莺@酒馆")
+        (line "尼尔" "今晚唱得真好。" :at "夜莺@酒馆"))
+      (restore-actor-composure! 'player 1)
+      (on-tavern-work!))
 
     (define (farewell!)
       (if (or (not (= world-day 6)) farewell-seen?)
@@ -162,9 +175,21 @@
           (list (at-anchor "夜莺@酒馆"
              (note-node "夜莺驻唱" "夜莺"
                "今晚还在这里唱歌；再过几天，她就要去大剧院了。"))) '())
+        (if (and (equal? location "老街酒馆") tavern-seen?
+                 (= act 1) (<= world-day 5))
+          (list (node "听夜莺唱歌" :anchor "夜莺@酒馆"
+            :subtitle (if (= listened-day world-day)
+              "今天已经听过；明天还可以再来"
+              "花一枚行动骰，稳定恢复1点冷静；每天一次")
+            :disabled (= listened-day world-day)
+            :requires (list (req-die))
+            :resolve (instant (outcome listen!)))) '())
         (if (and (equal? location "老街酒馆") (= world-day 6)
                  (not farewell-seen?))
-          (list (instant-action "听最后一场" farewell!)) '())
+          (list (node "夜莺最后一场演出" :anchor "夜莺@酒馆"
+            :subtitle "今晚必须听完她的告别演出，然后才能结束这一日"
+            :required-before-rest "先到酒馆参加夜莺的告别演出"
+            :resolve (instant (outcome farewell!)))) '())
         (if (and (equal? location "剧院") (= world-day 8)
                  (not rehearsal-seen?))
           (list (instant-action "观看正式彩排" rehearsal!)) '())
@@ -215,6 +240,11 @@
           ((eq? msg 'rehearsal-seen?) rehearsal-seen?)
           ((eq? msg 'act) act)
           ((eq? msg 'eddie-met?) (> eddie-stage 0))
+          ((eq? msg 'eddie-stage) eddie-stage)
+          ((eq? msg 'meet-eddie!)
+            (if (= eddie-stage 0)
+              (begin (set! eddie-stage 1)
+                (第一幕-艾迪教搬运)) #f))
           ((eq? msg 'lucy-met?) (> lucy-stage 0))
           ((eq? msg 'singer-stage) singer-stage)
           ((eq? msg 'on-work!) (on-work! (cadr args) (caddr args)))
@@ -241,6 +271,7 @@
              (list "lucy" lucy-stage) (list "eddie" eddie-stage)
              (list "singer" singer-stage) (list "lucy-day" lucy-day)
              (list "eddie-day" eddie-day) (list "singer-day" singer-day)
+             (list "listened-day" listened-day)
              (list "eddie-count" eddie-work-count) (list "lucy-count" lucy-work-count)
              (list "drink-day" drink-day) (list "drink-state" drink-state)
              (list "drank" drank?) (list "drink-talk" drink-talk?)
@@ -260,6 +291,7 @@
              (set! lucy-day (assoc-get data "lucy-day" 0))
              (set! eddie-day (assoc-get data "eddie-day" 0))
              (set! singer-day (assoc-get data "singer-day" 0))
+             (set! listened-day (assoc-get data "listened-day" 0))
              (set! eddie-work-count (assoc-get data "eddie-count" 0))
              (set! lucy-work-count (assoc-get data "lucy-count" 0))
              (set! drink-day (assoc-get data "drink-day" 0))
