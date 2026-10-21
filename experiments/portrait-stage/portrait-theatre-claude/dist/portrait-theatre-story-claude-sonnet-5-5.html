@@ -202,8 +202,12 @@ CH.ed={w:66,coat:'#6a5a3a',cf:'#cfc6ae',pants:'#2a2f3a',hair:'#3a2c22',skin:'#d2
 dc:'<path d="M-28 -396 L0 -322 L28 -396Z" fill="#cfc6ae"/><path d="M-30 -396 L-4 -312 L-62 -296 L-72 -376Z" fill="#54482e"/><path d="M30 -396 L4 -312 L62 -296 L72 -376Z" fill="#54482e"/><path d="M-20 -396V-250M20 -396V-250" stroke="#2a2218" stroke-width="5"/>',hb:'',
 hf:'<path d="M-38 -488 Q-36 -520 0 -522 Q36 -520 38 -488Z" fill="#4a4036"/><path d="M-38 -488 H46 L58 -480 H-46Z" fill="#2c261f"/><path d="M-20 -440 Q0 -432 20 -440" stroke="#4a3a2c" stroke-width="4" fill="none" opacity=".6"/>',ex:''};
 CH.ho={...CH.ld,coat:'#3d4a3a',hair:'#6a6a68',cf:'#d9d2bf'};
+CH.lc={...CH.ny,w:42,coat:'#6a4a3a',cf:'#6a4a3a',pants:'#2a2420',hair:'#4a2c1c',skin:'#e0bd9f',lip:'#b0463a',
+dc:'<path d="M-22 -396 L0 -330 L22 -396" fill="#e8e4d8"/><path d="M-30 -380 L30 -380 L34 -130 L-34 -130Z" fill="#e8e4d8" opacity=".92"/><path d="M-30 -380L-22 -396M30 -380L22 -396" stroke="#6a4a3a" stroke-width="5"/><rect x="-18" y="-300" width="36" height="26" fill="#d8d2c4" stroke="#b8b2a4"/>',
+hb:'<path d="M-36 -470 Q-48 -440 -42 -410 Q-30 -396 -14 -404 L14 -404 Q30 -396 42 -410 Q48 -440 36 -470 Q30 -514 0 -514 Q-30 -514 -36 -470Z" fill="#4a2c1c"/>',
+hf:'<path d="M-33 -462 Q-38 -510 0 -512 Q40 -510 34 -468 Q20 -498 -6 -492 Q-24 -488 -33 -462Z" fill="#4a2c1c"/><path d="M30 -500 Q60 -496 58 -440 Q56 -418 44 -408 Q50 -450 36 -480Z" fill="#4a2c1c"/>',ex:''};
 const VC='<path d="M-34 -480 Q-30 -518 8 -518 Q40 -516 36 -482Z" fill="#4a4a50"/><path d="M10 -484 L60 -484 Q50 -473 10 -476Z" fill="#4a4a50"/>';
-for(const[id,c]of[['fr',CH.fr],['bn',CH.bn],['bn2',{...CH.bn,coat:'#323f55'}],['ld',CH.ld],['sk',CH.sk],['bm',CH.bt],['ed',CH.ed],['ho',CH.ho],['v1',{...CH.wk,coat:'#3a3730',pants:'#25231f',hf:VC}],['v2',{...CH.wk,coat:'#6a5a3a',pants:'#2a221b',hf:VC}]]){$('#chs').insertAdjacentHTML('beforeend',mk(id,c));const g=$(`#${id}`);g.st={x:-400,y:790,s:1};G[id]=g}
+for(const[id,c]of[['fr',CH.fr],['bn',CH.bn],['bn2',{...CH.bn,coat:'#323f55'}],['ld',CH.ld],['sk',CH.sk],['bm',CH.bt],['ed',CH.ed],['ho',CH.ho],['lc',CH.lc],['v1',{...CH.wk,coat:'#3a3730',pants:'#25231f',hf:VC}],['v2',{...CH.wk,coat:'#6a5a3a',pants:'#2a221b',hf:VC}]]){$('#chs').insertAdjacentHTML('beforeend',mk(id,c));const g=$(`#${id}`);g.st={x:-400,y:790,s:1};G[id]=g}
 $('#chs').insertBefore(G.ho,G.nl);/* 旅馆老板画在尼尔身后，尼尔走过他面前时才不被遮 */
 /* timing */
 try{CSS.registerProperty({name:'--ix',syntax:'<percentage>',inherits:true,initialValue:'50%'})}catch(e){}
@@ -224,7 +228,7 @@ const camTr=e=>{e.style.transition=`transform ${e.dataset.dms||0}ms ease-in-out,
 const fxf=(f,ms)=>{for(const s of['#bg','#fg']){const e=$(s);e.dataset.fms=ms;camTr(e);e.style.filter=f}};
 const whisp=(t,x,y,dl=0)=>$('#props').insertAdjacentHTML('beforeend',`<text class="wsp" text-anchor="middle" x="${x}" y="${y}" style="animation-delay:${dl}s">${t}</text>`);
 const piano=()=>[262,330,392,523,392,330,294,392].forEach((f,i)=>tn(f,1.1,'triangle',.08,i*.4));
-const NM={mg:['经 理','#f4907c'],ny:['夜 莺','#8fd9d0'],nl:['尼 尔','#f0cf8a'],fr:['弗 兰 克','#e39a88'],bn:['贝 恩 斯','#93b4ea'],ld:['房 东','#c9b27a'],sk:['店 主','#b8c9a0'],bm:['调 酒 师','#c9a8e0'],ed:['艾 迪','#e0b070'],ho:['旅 馆 老 板','#c9b27a']},setIx=x=>$('#stage').style.setProperty('--ix',(50+(x-800)/16*.5)+'%');
+const NM={mg:['经 理','#f4907c'],ny:['夜 莺','#8fd9d0'],nl:['尼 尔','#f0cf8a'],fr:['弗 兰 克','#e39a88'],bn:['贝 恩 斯','#93b4ea'],ld:['房 东','#c9b27a'],sk:['店 主','#b8c9a0'],bm:['调 酒 师','#c9a8e0'],ed:['艾 迪','#e0b070'],ho:['旅 馆 老 板','#c9b27a'],lc:['露 西','#f0a8a0']},setIx=x=>$('#stage').style.setProperty('--ix',(50+(x-800)/16*.5)+'%');
 /* 立绘姿势助手：姿势 = 一整张立绘（肢体+前倾+头），整张切换；位移 mv 是连续补间 */
 const POSES={};
 const pose=(id,p,o={})=>{G[id].classList.add('snap');P(id,{ll:0,lr:0,al:0,ar:0,b:0,h:0,look:0,d:0,...(typeof p=='string'?POSES[p]:p),...o})};
@@ -255,7 +259,7 @@ else{const g=G[who];sp(1,g.st.x,.55,.13,'#9db0e0');setIx(g.st.x);g.classList.add
 const go=(id,x,ms,o={})=>{P(id,{x,d:ms,cl:{wk:1},...o});steps(ms);setTimeout(()=>{if(k===gen)P(id,{cl:{wk:0}})},ms)};
 const fl=async()=>{for(const v of[.15,1,.3,.9,.5,1]){lamp(v);zap();await w(110)}};
 const nar=async(t,ms)=>{cap.innerHTML='<em>'+t+'</em>';await w(ms??700+t.length*85)};
-return{pace,jazz:JZ(k),vocal:VOCAL(k),w,say,go,fl,nar,at,sigh,ticks,cut,scene,murmur,clink,faceCam,n:t=>say('nl',t),y:t=>say('ny',t),f:t=>say('fr',t),m:t=>say('mg',t),b:t=>say('bn',t),l:t=>say('ld',t),s:t=>say('sk',t),bm:t=>say('bm',t),ed:t=>say('ed',t),ho:t=>say('ho',t),mono:t=>say('nl',t,2)}}
+return{pace,jazz:JZ(k),vocal:VOCAL(k),w,say,go,fl,nar,at,sigh,ticks,cut,scene,murmur,clink,faceCam,n:t=>say('nl',t),y:t=>say('ny',t),f:t=>say('fr',t),m:t=>say('mg',t),b:t=>say('bn',t),l:t=>say('ld',t),s:t=>say('sk',t),bm:t=>say('bm',t),ed:t=>say('ed',t),ho:t=>say('ho',t),lc:t=>say('lc',t),mono:t=>say('nl',t,2)}}
 /* 共用立绘姿势表（章节内可用 Object.assign(POSES,…) 追加私有姿势） */
 Object.assign(POSES,{
  dHang:{ll:0,lr:4,ar:10,al:12,b:-6,h:22},
@@ -278,6 +282,9 @@ const cheer=(els,ms=2400)=>{els.forEach((e,i)=>e.animate([{transform:e.style.tra
 const wipeGlass=async(w,n=3)=>{pose('bm','wipe',{show:1,f:1,face:'n',back:0});gl('gl',923,592,1,0);for(let i=0;i<n;i++){gl('gl',929,590,1,320,8);await w(380);gl('gl',917,594,1,320,-8);await w(380)}};
 const shelveGlass=async w=>{pose('bm','turnUp',{f:1,back:1});gl('gl',998,476,1,650);await w(800);pose('bm','idleDown',{f:1,back:0,face:'n'});await w(300)};
 const CRATE=id=>`<g id="${id}" style="opacity:0"><rect x="-42" y="-34" width="84" height="68" fill="#07080c" stroke="#cdbf9e" stroke-width="2.5"/><path d="M-42 -34L42 34M42 -34L-42 34" stroke="#8a7a5c" stroke-width="2"/></g>`;
+/* 空间跟着节奏跳：用独立的 scale 属性做一次很小的放缩（不影响运镜用的 transform）；spark 往上飘的金色光点 */
+const pulse=amt=>{for(const q of['#bg','#fg'])$(q).animate([{scale:1},{scale:1+amt},{scale:1}],{duration:260,easing:'ease-out'})};
+const spark=(n,x0=700,x1=1600)=>{const g=$('#props');for(let i=0;i<n;i++){g.insertAdjacentHTML('beforeend',`<circle cx="${x0+Math.random()*(x1-x0)}" cy="${430+Math.random()*340}" r="${2+Math.random()*3}" fill="#ffd98a" opacity="0"/>`);const e=g.lastElementChild;e.animate([{opacity:0,transform:'translateY(0)'},{opacity:.9,transform:'translateY(-70px)'},{opacity:0,transform:'translateY(-220px)'}],{duration:2400+Math.random()*1800,easing:'ease-out'}).onfinish=()=>e.remove()}};
 /* rain */
 const cv=$('#rain'),cx=cv.getContext('2d'),dr=Array.from({length:260},()=>({x:Math.random()*960,y:Math.random()*540,v:14+Math.random()*10,l:10+Math.random()*14}));cx.strokeStyle='rgba(150,185,235,.4)';
 (function lp(){requestAnimationFrame(lp);cx.clearRect(0,0,960,540);if(!rainI)return;const n=Math.floor(dr.length*rainI);cx.beginPath();for(let i=0;i<n;i++){const d=dr[i];if(!paused){d.y+=d.v;d.x-=2;if(d.y>540){d.y=-20;d.x=Math.random()*980}}cx.moveTo(d.x,d.y);cx.lineTo(d.x-2,d.y+d.l)}cx.stroke()})();
@@ -287,17 +294,70 @@ const cv=$('#rain'),cx=cv.getContext('2d'),dr=Array.from({length:260},()=>({x:Ma
 
 /* 现场音乐（Web Audio 合成）：JZ = 爵士伴奏（走动贝斯 + 踩镲 + 稀疏钢琴和弦），VOCAL = 带颤音的人声旋律。
    都是 H(k) 里的工厂：章节被打断（k!==gen）时伴奏自动停。 */
-const JZ=k=>(bpm=112,lv0=.6)=>{let lv=lv0,b=0;const ms=60000/bpm/2,BASS=[55,61.7,65.4,73.4,82.4,73.4,65.4,61.7],CH=[[220,261.6,329.6,392],[196,246.9,293.7,392],[174.6,220,261.6,329.6],[196,246.9,293.7,370]];
+const JZ=k=>(bpm=112,lv0=.6,o={})=>{let lv=lv0,en=0,b=0;const ms=60000/bpm/2,BASS=o.bass||[55,61.7,65.4,73.4,82.4,73.4,65.4,61.7],CH=o.chords||[[220,261.6,329.6,392],[196,246.9,293.7,392],[174.6,220,261.6,329.6],[196,246.9,293.7,370]],ce=o.chordEvery||16;
+/* energy(0..1)：0 只有贝斯/踩镲/和弦；越高越加底鼓、2&4 拍的拍手、八分音符琶音。o.beat(拍序, 当前能量) 每个四分音符回调一次，供画面跟着跳 */
 const iv=setInterval(()=>{if(k!==gen){clearInterval(iv);return}if(paused||lv<=0)return;
-if(b%2==0){tn(BASS[(b/2)%8|0],.38,'triangle',.13*lv);bs(.04,.07*lv,7000)}else if(b%4==3)bs(.03,.04*lv,7000);
-if(b%16==0)CH[(b/16)%4|0].forEach((f,i)=>tn(f,1.6,'triangle',.045*lv,i*.03));
-if(b%8==4)tn(130+Math.random()*10,.12,'sine',.05*lv);b++},ms);
-return{set:v=>{lv=v},stop:()=>{lv=0;clearInterval(iv)}}};
+const ch=CH[((b/ce)|0)%CH.length];
+if(b%2==0){tn(BASS[(b/2)%BASS.length|0],.38,'triangle',.13*lv);bs(.04,.07*lv,7000);if(en>0)tn(60,.14,'sine',.28*en*lv);if(o.beat)o.beat(b/2,en)}else if(b%4==3)bs(.03,.04*lv,7000);
+if(en>0){if(b%4==2)bs(.09,.18*en*lv,3200);tn(ch[b%4]*2,.14,'triangle',.05*en*lv)}
+if(b%ce==0)ch.forEach((f,i)=>tn(f,1.6,'triangle',.045*lv,i*.03));
+if(b%8==4&&!o.bass)tn(130+Math.random()*10,.12,'sine',.05*lv);b++},ms);
+return{set:v=>{lv=v},energy:v=>{en=v},stop:()=>{lv=0;en=0;clearInterval(iv)}}};
 /* 人声：notes=[[Hz,拍数],…]，每拍 beatMs 毫秒，返回总时长(ms)。基音 + 八度泛音 + 5.5Hz 颤音。 */
 const VOCAL=k=>(notes,beatMs=536,lv=1)=>{if(!AC)return notes.reduce((a,n)=>a+n[1]*beatMs,0);let t=AC.currentTime+.05;
 for(const[f,bt]of notes){const d=bt*beatMs/1000;if(f>0){const o=AC.createOscillator(),o2=AC.createOscillator(),g=AC.createGain(),lf=AC.createOscillator(),lg=AC.createGain();o.type='sine';o2.type='triangle';o.frequency.value=f;o2.frequency.value=f*2;lf.frequency.value=5.5;lg.gain.value=f*.012;lf.connect(lg);lg.connect(o.frequency);lg.connect(o2.frequency);
 g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.09*lv,t+.08);g.gain.setValueAtTime(.09*lv,t+d*.75);g.gain.linearRampToValueAtTime(0,t+d);const g2=AC.createGain();g2.gain.value=.25;o.connect(g);o2.connect(g2);g2.connect(g);g.connect(MG);for(const x of[o,o2,lf]){x.start(t);x.stop(t+d+.05)}}t+=d}
 return notes.reduce((a,n)=>a+n[1]*beatMs,0)};
+/* SC-A04 露西初识：两个分支（玩家做过/没做过码头搬运）共用同一段演出，只有露西观察外套的那句不同。
+   章节文件各写一个对象：ini:CAFE_INI, run:(k,h)=>CAFE_RUN(k,h,是否做过码头) */
+const CAFE_INI=()=>{$('#front').innerHTML=CAFF;$('#front').style.opacity=0;P('lc',{d:0,show:0,x:1240,y:790,s:.6,f:1,face:'n'});P('nl',{d:0,show:0,x:-160,y:790,s:.6,f:0,face:'n'})};
+async function CAFE_RUN(k,{w,n,lc,at,murmur,pace,go},dock){
+Object.assign(POSES,{carry2:{ar:-80,al:-76,b:-4,h:4},count:{ar:-40,al:10,b:6,h:12},catch:{ar:-75,al:8,b:10,h:6}});
+$('#front').style.opacity=1;mp(.12);sp(2,900,1.3,.08,'#f3d08a');
+hum([[390,790,.95,1],[650,790,.9,-1]]);
+const mu=murmur(.18);pace(.85);
+const clat=()=>{tn(2400+Math.random()*600,.07,'sine',.05);bs(.04,.12,3500)};
+/* 背景的小动静：咖啡机嘶一声、杯碟轻碰 */
+at(1500,()=>bs(.7,.09,4200));at(4200,clat);at(6800,clat);
+/* 露西在收银台后数零钱（硬币叮当）；尼尔端着托盘从左边走进来，托盘跟着他走 */
+pose('lc','count',{show:1,f:1,face:'n'});
+let counting=true;(async()=>{try{while(counting&&k===gen){tn(3100,.05,'sine',.04);await w(330);tn(2700,.05,'sine',.04);await w(520)}}catch(e){}})();
+P('nl',{show:1,d:0});pose('nl','carry2',{face:'n'});G.nl.style.transitionTimingFunction='linear';
+gl('tr',-48,590,1,0);gl('c1',-70,584,1,0);gl('cp',-30,584,1,0);
+const walk=4600;go('nl',880,walk);
+/* 手里端着托盘，圆杯 */
+gl('tr',992,590,1,walk,0,'linear');gl('c1',970,584,1,walk,0,'linear');gl('cp',1010,584,1,walk,0,'linear');
+for(let t=0;t<walk;t+=460){stp();await w(460)}
+/* 她看了看他的外套 */
+counting=false;pose('lc','idleDown',{f:1,face:'n',h:8});await w(600);
+await lc('你是新来的？');
+pose('lc','idleDown',{f:1,face:'n',h:0});
+await n('嗯。');
+await lc('只干今天？');
+pose('nl','carry2',{face:'wry'});
+await n('看老板明天还要不要我。');
+/* 杯子在托盘上越晃越厉害；她说完这句，伸手把它接住 */
+const wob=async()=>{try{for(let i=0;i<14&&k===gen;i++){gl('cp',1010,584,1,110,i%2?9:-9);await w(120)}}catch(e){}};
+wob();pose('lc','idleDown',{f:1,face:'smile',h:-2});
+await lc('只要你没摔盘子就行。');
+mv('lc',1110,790,350,'ease-out');pose('lc','catch',{f:1,face:'n'});await w(380);
+gl('cp',1040,650,1,260,0);tn(2600,.1,'sine',.09);await w(300);
+pose('lc','idleDown',{f:1,face:'n',h:4});
+await lc('先学会把杯子摆平。');
+/* 她笑了；尼尔有点窘 */
+pose('lc','idleDown',{f:1,face:'smile',h:-4});tn(520,.12,'triangle',.05);tn(620,.12,'triangle',.04,.14);pose('nl','carry2',{face:'wry',h:8});await w(1200);
+pose('lc','idleDown',{f:1,face:'n',h:6});
+if(dock)await lc('你之前在码头干过活？袖子上还有煤灰。');
+else await lc('你以前干什么的？看起来不像常端盘子的人。');
+pose('nl','carry2',{face:'n',h:2});
+await n('哪儿有活儿就去哪儿。');
+pose('lc','idleDown',{f:1,face:'smile',h:2});
+await lc('那你挺忙的。明天要是还来，记得从后面拿托盘，别挡住客人。');
+/* 她拿起一只杯子继续擦，没有停下来等他回答；尼尔把托盘放上柜台 */
+let wiping=true;gl('cp',1040,650,0,200);gl('gl',1000,592,0,0);
+pose('lc','wipe',{f:1,face:'n',h:14});(async()=>{try{while(wiping&&k===gen){gl('c1',1090,590,1,170,10);await w(200);gl('c1',1078,596,1,170,-10);await w(200)}}catch(e){}})();
+await w(700);gl('tr',1010,648,1,600);pose('nl','stand',{face:'n',h:4});await w(900);
+await w(2600);wiping=false;mu.stop()}
 /* sets */
 const LL=(d,c='',dl=0,sw=2,col)=>`<path class="${c}" d="${d}" pathLength="1" style="--d:${dl}s;stroke-width:${sw};${col?'stroke:'+col:''}"/>`,RR=(x,y,w,h,c,dl,sw,col)=>LL(`M${x} ${y}h${w}v${h}h${-w}z`,c,dl,sw,col);
 const masked=s=>`<g mask="url(#fade)">${s}</g>`,GROUND=masked(LL('M0 790H1600','',0,1.5,'#5a6f9c')+LL('M0 806H1600','',.4,1,'#33466e'));
@@ -414,6 +474,20 @@ return GROUND+RR(430,140,360,140,'s',.7,3,'#9fb4e0')+LL('M470 250L520 170M560 25
 const BNF=DK(340,860,650,860)+DK(880,1130,694,860)+'<path d="M910 694l-4 -22h12zM1060 694l-4 -30h16z" fill="#07080c" stroke="#e6eeff" stroke-width="2"/><circle cx="1000" cy="684" r="46" fill="#f3d08a" opacity=".1"/><circle cx="1000" cy="690" r="5" fill="#ffd98a"/>'
 +'<g stroke="#e6eeff" stroke-width="3" fill="none"><path d="M1210 700V500"/><path d="M1190 700h40"/><path d="M1210 500q0 -26 22 -26" stroke-linecap="round"/></g><ellipse cx="1236" cy="474" rx="10" ry="14" fill="#07080c" stroke="#e6eeff" stroke-width="2.5"/>'
 +'<path d="M1380 650H1590V700H1380Z" fill="#07080c" stroke="#e0c890" stroke-width="2.5"/><path d="M1380 650H1590" stroke="#f0f4ff" stroke-width="4"/><path d="M1380 650l16 -54H1590" fill="none" stroke="#e0c890" stroke-width="2.5"/>'+GL('gl')+GL('gw');
+
+/* ===== SC-A04：咖啡馆（白天）===== 左：窗户+菜单板（只画线，不画字）；中：两张小桌（前景层，遮住坐着的客人）；右：带收银台的柜台（前景层）+ 后墙架子上的咖啡机 */
+SETS.cafe=()=>{let m='';for(let i=0;i<5;i++)m+=LL(`M${590+i*0} ${215+i*24}h${180-i*20}`,'',1.2+i*.05,1.5,'#7f95c4');
+let cups='';for(let i=0;i<6;i++)cups+=RR(1010+i*34,452,20,18,'s',1.4+i*.05,1.5,'#cfe0ff');
+return GROUND+RR(150,200,300,300,'s',.7,3,'#cfe0ff')+LL('M300 200V500M150 350H450','',1,1.5,'#7f95c4')+'<polygon class="mp" points="150,500 450,500 760,790 330,790" fill="#e8dcb0" opacity="0" style="transition:opacity 1.6s"/>'
++RR(560,180,260,150,'s',.9,2.5,'#9fb4e0')+m+LL('M980 470H1560','',1.1,3,'#cfe0ff')+cups+RR(1260,380,130,90,'s',1.4,2.5,'#9fb4e0')+LL('M1290 380V350H1360V380','',1.5,2,'#9fb4e0')+'<g class="st"><path d="M1325 340q-8 -14 0 -28t0 -28"/></g>'};
+const CAFF=DK(980,1600,650,860)+'<rect x="1020" y="590" width="70" height="60" fill="#07080c" stroke="#cfe0ff" stroke-width="2.5"/><rect x="1030" y="568" width="50" height="22" fill="#07080c" stroke="#cfe0ff" stroke-width="2"/>'+'<g id="cn" style="opacity:1"><rect x="1150" y="636" width="22" height="6" fill="#d8b252"/><rect x="1152" y="630" width="22" height="6" fill="#e0c060"/><circle cx="1200" cy="640" r="5" fill="#d8b252"/></g>'
++'<path d="M330 700H460V712H330Z M385 712V790" fill="#07080c" stroke="#9fb4e0" stroke-width="2.5"/><path d="M590 700H720V712H590Z M645 712V790" fill="#07080c" stroke="#9fb4e0" stroke-width="2.5"/><path d="M356 700l-2 -14h14z M620 700l-2 -14h14z" fill="#07080c" stroke="#e6eeff" stroke-width="2"/>'
++'<g id="tr" style="opacity:0"><rect x="-46" y="-4" width="92" height="8" rx="3" fill="#07080c" stroke="#cfe0ff" stroke-width="2.5"/><path d="M-30 -4v-22h20v22z" fill="#07080c" stroke="#e6eeff" stroke-width="2"/></g>'+GL('cp')+GL('c1');
+/* 酒馆最后一夜的前景：左边尼尔和酒保并排坐的小桌；中间吧台；右边卡座隔断、话筒、钢琴、吉他 */
+const BNF2=DK(150,480,690,860)+DK(560,860,650,860)+DK(880,1130,694,860)+'<path d="M200 690l-4 -22h12zM420 690l-4 -26h14zM700 650l-4 -34h14z" fill="#07080c" stroke="#e6eeff" stroke-width="2"/><circle cx="1000" cy="684" r="46" fill="#f3d08a" opacity=".1"/><circle cx="1000" cy="690" r="5" fill="#ffd98a"/>'
++'<g stroke="#e6eeff" stroke-width="3" fill="none"><path d="M1210 700V500"/><path d="M1190 700h40"/><path d="M1210 500q0 -26 22 -26" stroke-linecap="round"/></g><ellipse cx="1236" cy="474" rx="10" ry="14" fill="#07080c" stroke="#e6eeff" stroke-width="2.5"/>'
++'<path d="M1440 650H1590V700H1440Z" fill="#07080c" stroke="#e0c890" stroke-width="2.5"/><path d="M1440 650H1590" stroke="#f0f4ff" stroke-width="4"/><path d="M1440 650l16 -54H1590" fill="none" stroke="#e0c890" stroke-width="2.5"/>'
++'<g stroke="#e0c890" stroke-width="3" fill="#07080c"><ellipse cx="1385" cy="668" rx="26" ry="22"/><path d="M1400 650L1340 586" fill="none"/></g>'+GL('gl');
 /* chapters */
 const C1=Object.assign({t:'<h1>片段一 · 雨夜求助</h1><p>格兰德酒店门前</p>',o:'920px 610px',bg:'#070a12',set:'#hotel',i:['20%','52%'],
 ini(){P('ny',{d:0,x:-200,s:.54,hat:1,umo:1})},
@@ -1240,6 +1314,62 @@ vocal([[440,1],[523.3,1],[587.3,2],[523.3,1],[493.9,1],[440,2],[392,1],[440,1],[
 pose('bm','push',{f:1,face:'n'});gl('gw',470,640,1,420,0,'ease-out');await w(480);gl('gw',470,640,0,200);pose('bm','idleDown',{f:1,face:'n'});
 pose('nl','stand',{f:0,face:'smile',h:2});
 await w(4200);jz.set(.15);await w(1200);jz.stop();mu.stop()}},
+{g:'SC-A 系列',n:'SC-A04 露西初识（做过码头）',sub:'咖啡馆 · 第一次完成咖啡馆工作 · 此前做过码头搬运',sh:'露西·码头',pos:[560,700],bg:'#0b0a0c',set:'#set3',lx:900,i:['40%','60%'],mk:()=>SETS.cafe(),ini:CAFE_INI,run:(k,h)=>CAFE_RUN(k,h,true)},
+{g:'SC-A 系列',n:'SC-A04 露西初识（没做过码头）',sub:'咖啡馆 · 第一次完成咖啡馆工作 · 尚未做过码头搬运',sh:'露西·新人',pos:[760,740],bg:'#0b0a0c',set:'#set3',lx:900,i:['40%','60%'],mk:()=>SETS.cafe(),ini:CAFE_INI,run:(k,h)=>CAFE_RUN(k,h,false)},
+{g:'SC-A 系列',n:'SC-A09 酒馆最后一夜',sub:'酒馆 · 夜莺唱歌的夜晚 · 一段即将过去的时光',sh:'最后一夜',pos:[1000,560],bg:'#0a0709',set:'#set3',lx:900,i:['40%','60%'],mk:()=>SETS.barNight(),
+ini(){$('#front').innerHTML=BNF2;$('#front').style.opacity=0;P('ny',{d:0,show:0,x:1285,y:700,s:.54,f:1,face:'n',hat:0,bag:0,umo:0,umc:0});P('nl',{d:0,show:0,x:-160,y:790,s:.6,f:0,face:'n'});P('bm',{d:0,show:0,x:700,y:790,s:.6,f:0,face:'n'});P('lc',{d:0,show:0,x:1780,y:790,s:.6,f:1,face:'n'});P('ed',{d:0,show:0,x:1820,y:790,s:.6,f:1,face:'n'})},
+/* 无台词。熟人一个个走过来坐下、靠着看；镜头慢慢聚到舞台；歌从轻到满，空间跟着拍子跳，唱到最高点后落回安静。
+   运镜只有两次：开唱前缓缓推向舞台、结尾缓缓拉开。 */
+async run(k,{w,at,go,murmur,jazz,vocal,sigh}){
+Object.assign(POSES,{sitT:{ar:4,al:6,b:4,h:6},lean:{ar:10,al:10,b:5,h:2},singHi:{ar:-34,al:-4,b:-4,h:-10},singUp:{ar:-150,al:-20,b:-6,h:-14}});
+$('#front').style.opacity=1;
+const crowd=hum([[930,790,.95,1],[1010,790,1.05,-1],[1100,790,.9,1]]),band=hum([[1415,700,.7,-1],[1510,700,.72,-1]]);
+$('#props').insertAdjacentHTML('beforeend','<g class="st"><path d="M1000 650q-8 -14 0 -28t0 -28"/></g>');
+sp(2,900,1.3,.08,'#f3d08a');const mu=murmur(.3);
+let sc=1;
+const onBeat=(i,e)=>{if(e<=0)return;pulse(.004+e*.016);band.forEach(x=>x.animate([{transform:'none'},{transform:`translateY(${-3-e*5}px)`},{transform:'none'}],{duration:220}));op('#spg',.35+e*.35*(i%2?1:.6));if(e>.6&&i%2==0)spark(2);if(sc)P('ny',{b:i%2?-3:1,d:230});if(e>.5){P('ed',{h:i%2?5:-1,d:200});P('lc',{h:i%2?3:-3,d:200})}};
+const jz=jazz(126,.35,{bass:[65.4,73.4,82.4,98,82.4,73.4,65.4,55],chords:[[261.6,329.6,392,493.9],[220,261.6,329.6,392],[293.7,349.2,440,523.3],[196,246.9,293.7,349.2]],chordEvery:8,beat:onBeat});
+/* 舞台：夜莺已在话筒前，追光柔柔地亮着；乐手轻轻摇摆 */
+op('#spt',.55);op('#spg',.3);sp(1,1290,1.2,.1,'#f3d08a');
+pose('ny','singP',{show:1,d:700,f:1,face:'n'});
+/* 尼尔从左边走进来，在小桌后坐下；酒保放下擦着的杯子，从吧台后绕过来坐在他旁边 */
+let wiping=true;pose('bm','wipe',{show:1,f:0,face:'n'});(async()=>{try{while(wiping&&k===gen){gl('gl',827,586,1,170,10);await w(200);gl('gl',815,594,1,170,-10);await w(200)}}catch(e){}})();
+await w(1800);
+P('nl',{show:1,d:0});pose('nl','stand',{face:'n'});go('nl',230,3000);await w(3200);
+mv('nl',230,818,600,'ease-out');pose('nl','sitT',{face:'smile'});await w(1200);
+wiping=false;gl('gl',790,650,1,300);pose('bm','idleDown',{f:0,face:'n'});await w(400);
+go('bm',330,2800);await w(3000);mv('bm',330,818,600,'ease-out');pose('bm','sitT',{f:0,face:'smile'});await w(900);
+/* 露西、艾迪各自从右边进来，不挨着他们：露西靠在吧台后，艾迪靠在卡座隔断边 */
+pose('lc','lean',{show:1,f:1,face:'smile'});go('lc',780,4200);
+at(1800,()=>{pose('ed','lean',{show:1,f:1,face:'n'});go('ed',1010,4200)});
+await w(4600);
+pose('lc','lean',{f:0,face:'smile'});pose('ed','lean',{f:1,face:'smile'});await w(1000);
+/* 镜头缓缓推向舞台；伴奏渐渐满起来 */
+dolly(1.2,58,58,6000);jz.set(.55);jz.energy(.25);await w(2600);
+/* 第一段：轻快里带点怀念 */
+const V=[[392,1],[440,1],[523.3,1.5],[440,.5],[392,1],[329.6,1],[392,2],[349.2,1],[392,1],[440,1.5],[392,.5],[349.2,1],[293.7,1],[329.6,2]];
+const C=[[523.3,1],[587.3,1],[659.3,2],[587.3,1],[523.3,1],[440,2],[523.3,1],[587.3,1],[659.3,1.5],[784,.5],[659.3,2],[523.3,2]];
+let d=vocal(V,476,1);
+at(d-1800,()=>{jz.energy(.55);pose('ny','singHi',{f:1,face:'smile'})});
+await w(d);
+/* 副歌：空间开始跟着拍子跳，光点往上飘 */
+jz.set(.75);jz.energy(.8);pose('ny','singHi',{f:1,face:'smile'});pose('nl','sitT',{face:'smile',h:2});pose('bm','sitT',{f:0,face:'smile',h:2});
+d=vocal(C,476,1.1);await w(d);
+/* 最高点：再来一遍副歌，唱到最高音时全场炸开 */
+jz.energy(1);jz.set(.9);op('#spt',1);sp(1,1290,1.4,.22,'#ffd98a');pose('ny','singUp',{f:1,face:'smile'});
+d=vocal(C,476,1.2);at(d-2200,()=>{vocal([[784,4]],476,1.3);pose('ny','singUp',{f:1,face:'smile'})});
+await w(d);
+cheer(crowd,2800);cheer(band,2800);spark(30);pulse(.03);at(260,()=>pulse(.03));at(520,()=>pulse(.02));
+for(const c of['nl','bm','lc','ed'])P(c,{h:-4,d:300});
+await w(2400);
+/* 回落：能量归零，灯暗下来，只剩轻轻的哼唱；尼尔安静下来，轻轻叹一口气 */
+jz.energy(0);jz.set(.2);mu.set(.1);sc=0;op('#spt',.5);op('#spg',.25);sp(1,1290,1.1,.08,'#f3d08a');
+pose('ny','singP',{f:1,face:'smile',h:2});pose('nl','sitT',{face:'n',h:6});pose('bm','sitT',{f:0,face:'n',h:6});pose('lc','lean',{f:0,face:'n'});pose('ed','lean',{f:1,face:'n'});
+vocal([[440,1.5],[392,1.5],[329.6,3]],700,.8);
+await w(1800);sigh('nl',1600);await w(1500);
+dolly(1,50,60,4000);await w(3800);
+tn(261.6,2.6,'triangle',.06);tn(329.6,2.6,'triangle',.05,.03);tn(392,2.6,'triangle',.05,.06);await w(2600);
+op('#spt',.15);jz.stop();mu.stop();await w(1800)}},
 ];
 const ZH=n=>{const d='零一二三四五六七八九';return n<10?d[n]:n<20?'十'+(n%10?d[n%10]:''):d[(n/10)|0]+'十'+(n%10?d[n%10]:'')};
 /* 分组：章节对象的 g 是系列名（缺省“早期片段”）；序号按组内计数；地图只显示当前组的地点 */

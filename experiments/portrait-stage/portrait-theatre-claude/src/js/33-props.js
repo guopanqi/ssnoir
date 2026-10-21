@@ -8,3 +8,6 @@ const cheer=(els,ms=2400)=>{els.forEach((e,i)=>e.animate([{transform:e.style.tra
 const wipeGlass=async(w,n=3)=>{pose('bm','wipe',{show:1,f:1,face:'n',back:0});gl('gl',923,592,1,0);for(let i=0;i<n;i++){gl('gl',929,590,1,320,8);await w(380);gl('gl',917,594,1,320,-8);await w(380)}};
 const shelveGlass=async w=>{pose('bm','turnUp',{f:1,back:1});gl('gl',998,476,1,650);await w(800);pose('bm','idleDown',{f:1,back:0,face:'n'});await w(300)};
 const CRATE=id=>`<g id="${id}" style="opacity:0"><rect x="-42" y="-34" width="84" height="68" fill="#07080c" stroke="#cdbf9e" stroke-width="2.5"/><path d="M-42 -34L42 34M42 -34L-42 34" stroke="#8a7a5c" stroke-width="2"/></g>`;
+/* 空间跟着节奏跳：用独立的 scale 属性做一次很小的放缩（不影响运镜用的 transform）；spark 往上飘的金色光点 */
+const pulse=amt=>{for(const q of['#bg','#fg'])$(q).animate([{scale:1},{scale:1+amt},{scale:1}],{duration:260,easing:'ease-out'})};
+const spark=(n,x0=700,x1=1600)=>{const g=$('#props');for(let i=0;i<n;i++){g.insertAdjacentHTML('beforeend',`<circle cx="${x0+Math.random()*(x1-x0)}" cy="${430+Math.random()*340}" r="${2+Math.random()*3}" fill="#ffd98a" opacity="0"/>`);const e=g.lastElementChild;e.animate([{opacity:0,transform:'translateY(0)'},{opacity:.9,transform:'translateY(-70px)'},{opacity:0,transform:'translateY(-220px)'}],{duration:2400+Math.random()*1800,easing:'ease-out'}).onfinish=()=>e.remove()}};

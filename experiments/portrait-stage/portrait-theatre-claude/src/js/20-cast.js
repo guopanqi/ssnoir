@@ -68,6 +68,10 @@ CH.ed={w:66,coat:'#6a5a3a',cf:'#cfc6ae',pants:'#2a2f3a',hair:'#3a2c22',skin:'#d2
 dc:'<path d="M-28 -396 L0 -322 L28 -396Z" fill="#cfc6ae"/><path d="M-30 -396 L-4 -312 L-62 -296 L-72 -376Z" fill="#54482e"/><path d="M30 -396 L4 -312 L62 -296 L72 -376Z" fill="#54482e"/><path d="M-20 -396V-250M20 -396V-250" stroke="#2a2218" stroke-width="5"/>',hb:'',
 hf:'<path d="M-38 -488 Q-36 -520 0 -522 Q36 -520 38 -488Z" fill="#4a4036"/><path d="M-38 -488 H46 L58 -480 H-46Z" fill="#2c261f"/><path d="M-20 -440 Q0 -432 20 -440" stroke="#4a3a2c" stroke-width="4" fill="none" opacity=".6"/>',ex:''};
 CH.ho={...CH.ld,coat:'#3d4a3a',hair:'#6a6a68',cf:'#d9d2bf'};
+CH.lc={...CH.ny,w:42,coat:'#6a4a3a',cf:'#6a4a3a',pants:'#2a2420',hair:'#4a2c1c',skin:'#e0bd9f',lip:'#b0463a',
+dc:'<path d="M-22 -396 L0 -330 L22 -396" fill="#e8e4d8"/><path d="M-30 -380 L30 -380 L34 -130 L-34 -130Z" fill="#e8e4d8" opacity=".92"/><path d="M-30 -380L-22 -396M30 -380L22 -396" stroke="#6a4a3a" stroke-width="5"/><rect x="-18" y="-300" width="36" height="26" fill="#d8d2c4" stroke="#b8b2a4"/>',
+hb:'<path d="M-36 -470 Q-48 -440 -42 -410 Q-30 -396 -14 -404 L14 -404 Q30 -396 42 -410 Q48 -440 36 -470 Q30 -514 0 -514 Q-30 -514 -36 -470Z" fill="#4a2c1c"/>',
+hf:'<path d="M-33 -462 Q-38 -510 0 -512 Q40 -510 34 -468 Q20 -498 -6 -492 Q-24 -488 -33 -462Z" fill="#4a2c1c"/><path d="M30 -500 Q60 -496 58 -440 Q56 -418 44 -408 Q50 -450 36 -480Z" fill="#4a2c1c"/>',ex:''};
 const VC='<path d="M-34 -480 Q-30 -518 8 -518 Q40 -516 36 -482Z" fill="#4a4a50"/><path d="M10 -484 L60 -484 Q50 -473 10 -476Z" fill="#4a4a50"/>';
-for(const[id,c]of[['fr',CH.fr],['bn',CH.bn],['bn2',{...CH.bn,coat:'#323f55'}],['ld',CH.ld],['sk',CH.sk],['bm',CH.bt],['ed',CH.ed],['ho',CH.ho],['v1',{...CH.wk,coat:'#3a3730',pants:'#25231f',hf:VC}],['v2',{...CH.wk,coat:'#6a5a3a',pants:'#2a221b',hf:VC}]]){$('#chs').insertAdjacentHTML('beforeend',mk(id,c));const g=$(`#${id}`);g.st={x:-400,y:790,s:1};G[id]=g}
+for(const[id,c]of[['fr',CH.fr],['bn',CH.bn],['bn2',{...CH.bn,coat:'#323f55'}],['ld',CH.ld],['sk',CH.sk],['bm',CH.bt],['ed',CH.ed],['ho',CH.ho],['lc',CH.lc],['v1',{...CH.wk,coat:'#3a3730',pants:'#25231f',hf:VC}],['v2',{...CH.wk,coat:'#6a5a3a',pants:'#2a221b',hf:VC}]]){$('#chs').insertAdjacentHTML('beforeend',mk(id,c));const g=$(`#${id}`);g.st={x:-400,y:790,s:1};G[id]=g}
 $('#chs').insertBefore(G.ho,G.nl);/* 旅馆老板画在尼尔身后，尼尔走过他面前时才不被遮 */

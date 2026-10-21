@@ -1,0 +1,1 @@
+{g:'SC-A 系列',n:'SC-A04 露西初识（做过码头）',sub:'咖啡馆 · 第一次完成咖啡馆工作 · 此前做过码头搬运',sh:'露西·码头',pos:[560,700],bg:'#0b0a0c',set:'#set3',lx:900,i:['40%','60%'],mk:()=>SETS.cafe(),ini:CAFE_INI,run:(k,h)=>CAFE_RUN(k,h,true)},
