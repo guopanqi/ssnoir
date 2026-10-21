@@ -217,7 +217,10 @@ export function createNativeBridge(state: GameRuntimeState, random:()=>number=Ma
       return undefined;
     },
     "__record-clock-effect!": (...args) => {
-      arity("__record-clock-effect!",args,3);
+      arity("__record-clock-effect!",args,4);
+      // Scheme clock contract includes direction; the current report stores signed deltas.
+      const direction=string(args[3]);
+      if(!["increase","decrease","neutral"].includes(direction))throw new Error("invalid clock direction");
       state.recordClockEffect(string(args[0]),string(args[1]),integer(args[2]));
       return undefined;
     },
