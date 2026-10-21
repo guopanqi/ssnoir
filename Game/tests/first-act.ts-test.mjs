@@ -55,3 +55,46 @@ test("rainy aftermath follows Nightingale to the theatre after the tavern farewe
  assert.equal(await vm.evaluateNumber('(length (first-act-walk \'arrivals-at "老街酒馆"))'),0);
  assert.equal(await vm.evaluateNumber('(length (first-act-walk \'arrivals-at "剧院"))'),1);
 });
+
+test("first act: singing costs one die, once per day; it can advance a Nightingale scene",async()=>{
+ const {vm}=await session();
+ await vm.evaluate('(第一幕 \'load! (list (list "opened" #t) (list "tavern" #t)))');
+ const before=await vm.evaluateNumber("(第一幕 'singer-stage)");
+ assert.equal(before,0);
+ await vm.evaluate(`
+   (let* ((cards (第一幕 'nodes-at "老街酒馆"))
+          (song (let find ((rows cards))
+                  (if (null? rows) #f
+                    (if (equal? (cadr (car rows)) "听夜莺唱歌")
+                      (car rows) (find (cdr rows))))))
+          (resolve (get-kwarg (cddr song) :resolve #f)))
+     ((cadr (cadr resolve))))`);
+ assert.equal(await vm.evaluateNumber("(第一幕 'singer-stage)"),1);
+ assert.equal(await vm.evaluateNumber("(if (= (第一幕 'listened-day) world-day) 1 0)"),1);
+ const disabled=await vm.evaluateNumber(`
+   (let* ((cards (第一幕 'nodes-at "老街酒馆"))
+          (song (let find ((rows cards))
+                  (if (null? rows) #f
+                    (if (equal? (cadr (car rows)) "听夜莺唱歌")
+                      (car rows) (find (cdr rows))))))
+          (disabled (get-kwarg (cddr song) :disabled #f)))
+     (if disabled 1 0))`);
+ assert.equal(disabled,1);
+});
+test("first act: day-six farewell really prevents ending the day until watched",async()=>{
+ const {vm,state}=await session();
+ await vm.evaluate('(第一幕 \'load! (list (list "opened" #t) (list "tavern" #t)))');
+ await vm.evaluate("(set! world-day 6)");
+ await vm.evaluate("(on-turn-start)");
+ assert.ok(state.hasRestBlockers());
+ await vm.evaluate(`
+   (let* ((cards (第一幕 'nodes-at "老街酒馆"))
+          (farewell (let find ((rows cards))
+                    (if (null? rows) #f
+                      (if (equal? (cadr (car rows)) "夜莺最后一场演出")
+                        (car rows) (find (cdr rows))))))
+          (resolve (get-kwarg (cddr farewell) :resolve #f)))
+     ((cadr (cadr resolve))))`);
+ assert.equal(state.hasRestBlockers(),false);
+ assert.equal(await vm.evaluateNumber("(if (第一幕 'farewell-seen?) 1 0)"),1);
+});
