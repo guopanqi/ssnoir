@@ -23,7 +23,7 @@
           "我不想再走了。谢谢你陪我，我在这里等车。")))))
   (end-encounter (结果 reason)))
 (define (检查!)
-  (cond ((and (前进 'full?) (not 人影在?)) (结束! '抵达))
+  (cond ((前进 'full?) (结束! '抵达))
         ((恐惧 'full?) (结束! '叫车离开)) (else #f)))
 (define (恐惧增加! n)
   (let ((old (恐惧 'current)))
@@ -83,6 +83,12 @@
           (node "人影：店铺" :name "绕进亮灯的店铺" :subtitle "失败恐惧+1、冷静-1；带她避开路口"
             :anchor "雨夜同行-亮灯的店铺"
             :tags (list "高风险")
+            :requires (list (req-die)) :resolve (roll 'sharpness
+              (outcome (lambda () (spend-composure! 1) (应对! #f #t)))
+              (outcome (lambda () (应对! #t #t)))
+              (outcome (lambda () (应对! #t #t)))))
+          (node "人影：带路" :name "听夜莺指路" :subtitle "相信她熟悉的街道，一起避开路口"
+            :anchor "雨夜同行-街灯下的人影"
             :requires (list (req-die)) :resolve (roll 'sharpness
               (outcome (lambda () (spend-composure! 1) (应对! #f #t)))
               (outcome (lambda () (应对! #t #t)))
