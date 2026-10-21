@@ -101,9 +101,26 @@ test("Eddie gives a real rescue: -2 then +1 composure, once each working day",as
           (bad-outcome (list-ref resolve 3)))
       ((cadr bad-outcome)))`;
  assert.equal(state.team.composure("player"),5);
- await vm.evaluate(badHaul);
+ // The authored dock failure calls (current-actor). C# only exposes it
+ // during SceneManager.ExecuteAction, never from an arbitrary Scheme REPL.
+ // Execute the outcome under that same native action context.
+ const runBadHaul=async()=>{
+   state.beginActionContext("player","world");
+   state.beginActionReport();
+   try {
+     await vm.evaluate(badHaul);
+     state.takeActionReport();
+   }catch(error){
+     state.cancelActionReport();
+     throw error;
+   }finally{
+     state.clearActionContext();
+   }
+ };
+ await runBadHaul();
  assert.equal(state.team.composure("player"),4);
  assert.equal(await vm.evaluateNumber('(assoc-get (dock \'save) "help-day" 0)'),1);
- await vm.evaluate(badHaul);
+ await runBadHaul();
  assert.equal(state.team.composure("player"),2);
+ assert.throws(()=>state.currentActor(),/only valid inside action/);
 });
