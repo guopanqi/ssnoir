@@ -17,7 +17,7 @@ const create = () => GameScriptSession.create("node-parse", new GameRuntimeState
 
 test("convert original node DSL with nested places, action costs and instant effect closure", async () => {
   const vm = await create();
-  const expression = await vm.evaluate(`(node "码头" :place #t :title "旧码头" :children
+  const expression = await vm.evaluate(`(node "码头" :place #t :name "旧码头" :children
     (list (node "工作" :subtitle "报酬" :requires (list (req-die) (req-item "金钱" 2))
       :resolve (instant (outcome (lambda () (add-item! "金钱" 4)))))
       (node "说明" :resolve (note "说明" "清晨还很安静"))))`);
