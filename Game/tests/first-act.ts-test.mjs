@@ -43,3 +43,14 @@ test("Eddie can be met through work and optional rainy invitation is a date wind
  await vm.evaluate("(set! world-day 7)");
  assert.equal(await vm.evaluateNumber("(length (first-act-walk 'nodes-at \"老街酒馆\"))"),0);
 });
+
+test("rainy aftermath follows Nightingale to the theatre after the tavern farewell",async()=>{
+ const {vm}=await session();
+ await vm.evaluate(`(first-act-walk 'load!
+  (list (list "status" "已结束") (list "result" "抵达")
+    (list "ignored?" #f) (list "cared?" #t)
+    (list "aftermath?" #f) (list "final-fear" 1)))`);
+ await vm.evaluate("(set! world-day 7)");
+ assert.equal(await vm.evaluateNumber('(length (first-act-walk \'arrivals-at "老街酒馆"))'),0);
+ assert.equal(await vm.evaluateNumber('(length (first-act-walk \'arrivals-at "剧院"))'),1);
+});
