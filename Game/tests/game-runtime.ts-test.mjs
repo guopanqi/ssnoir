@@ -66,10 +66,10 @@ test("world/encounter VMs keep Scheme bindings isolated while sharing typed nati
 test("round/rest blocking helpers preserve ordering and save without Scheme closures", async () => {
   const state = new GameRuntimeState();
   const vm = await create("phase2-blockers", state);
-  await vm.evaluate('(rest-block! "first" "先处理来信" "码头" "投信")');
+  await vm.evaluate('(__register-rest-block! "first" "先处理事情" "码头" "搬运")');
   assert.equal(state.hasRestBlockers(), true);
   assert.equal(state.snapshot().restBlockers[0].location, "码头");
-  await vm.evaluate('(rest-release! "first")');
+  await vm.evaluate('(__release-rest-block! "first")');
   assert.equal(state.hasRestBlockers(), false);
   const snapshot = state.snapshot();
   const restored = new GameRuntimeState();
