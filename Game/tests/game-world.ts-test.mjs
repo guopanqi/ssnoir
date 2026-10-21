@@ -18,7 +18,7 @@ function scan(dir, dst) {
 const sourceMap={};scan("scripts",sourceMap);scan("scenes",sourceMap);
 const std=readFileSync("node_modules/lips/dist/std.xcb");
 
-test("original chapter-one world.scm loads on the new LIPS runtime and materializes root",async()=>{
+test("new first-act world.scm loads on LIPS runtime and materializes root",async()=>{
   const state=new GameRuntimeState();
   const vm=await GameScriptSession.create("phase2-real-world",state,sourceMap,std);
   const loadResult=await vm.loadFile("scenes/world/world.scm");
@@ -35,10 +35,8 @@ test("original chapter-one world.scm loads on the new LIPS runtime and materiali
   assert.ok(root.children.length>0,"world should expose places or story nodes");
   const dossier=convertDossier(await vm.evaluate("(get-dossier)"));
   assert.ok(Array.isArray(dossier),"original authored dossier must be convertible");
-  // The optional city dossier may appear before the three-letters commission;
-  // this isn't evidence that the commission was already accepted. Main-quest
-  // dossier ownership remains with story-stage >= 1 in the original Scheme.
-  assert.equal(await vm.evaluateNumber("(three-letters 'story-stage)"),0);
-  assert.ok(dossier.every(entry=>entry.id!=="勒索信"),"unaccepted ransom story is not yet a dossier");
+  // New opening belongs to the city livelihood arc, not the retired ransom story.
+  assert.equal(await vm.evaluateNumber("(第一幕 'act)"),1);
+  assert.ok(dossier.every(entry=>entry.id!=="勒索信"),"retired ransom case must not appear");
   assert.ok(dossier.every(entry=>entry.id&&Array.isArray(entry.steps)&&Array.isArray(entry.clocks)));
 });
