@@ -90,7 +90,7 @@
         (line "世界" "夜莺的歌声盖过杯盘碰撞的声音。尼尔坐下，终于不用去照看别人的麻烦。" :at "夜莺@酒馆")
         (line "尼尔" "今晚唱得真好。" :at "夜莺@酒馆"))
       (restore-actor-composure! 'player 1)
-      (on-tavern-work!))
+      (on-tavern-work! "听歌"))
 
     (define (farewell!)
       (if (or (not (= world-day 6)) farewell-seen?)
