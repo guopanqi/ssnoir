@@ -196,7 +196,7 @@
           #f)
         (if (and (>= world-day 9) (not rehearsal-done?))
           (set! rehearsal-done? #t) #f)
-        (if (and (>= world-day 10) (not notice-seen?))
+        (if (and (>= world-day 13) (not notice-seen?))
           (begin
             (set! notice-seen? #t)
             (play-dialogue!
