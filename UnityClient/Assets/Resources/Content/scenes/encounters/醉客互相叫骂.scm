@@ -45,7 +45,7 @@
     (begin (play-dialogue! (line "世界" "同桌的人拉他坐下。他终于不再隔桌骂人。"))
       (set! 骂人位置 "")) #f))
 (define (麻烦节点)
-  (let ((anchor (if (equal? 骂人位置 "东边") "老街酒馆-工作" "老街酒馆")))
+  (let ((anchor (if (equal? 骂人位置 "东边") "醉客互相叫骂-东桌" "醉客互相叫骂-西桌")))
   (node "破口大骂的人" :anchor anchor
     :subtitle (string-append 骂人位置 "桌：醉得脸红，攥着酒杯指向对桌")
     :clocks (list (骂人者 'render-data))
@@ -77,7 +77,7 @@
     (play-bubble!
       (line "破口大骂的人"
         (random-choice (list "你再说一遍试试！" "别装没听见，我说的就是你！" "有胆子就站起来说！"))
-        :at (if (equal? 骂人位置 "东边") "老街酒馆-工作" "老街酒馆")))))
+        :at (if (equal? 骂人位置 "东边") "醉客互相叫骂-东桌" "醉客互相叫骂-西桌")))))
 ;; 先处理旧麻烦，再生成新麻烦，保证新出现者有完整一回合的处理窗口。
 ;; 第一位在第二回合必定起身；压住后，第二位每个空档回合有 1/3 概率起身。
 (define-opponent-rule "醉客起身"
@@ -95,14 +95,15 @@
             (focus-node! "醉客互相叫骂")
             (let ((speaker (if (equal? 骂人位置 "东边") "东桌醉客" "西桌醉客"))
                   (other (if (equal? 骂人位置 "东边") "西桌醉客" "东桌醉客"))
-                  (anchor (if (equal? 骂人位置 "东边") "老街酒馆-工作" "老街酒馆"))
-                  (other-anchor (if (equal? 骂人位置 "东边") "老街酒馆" "老街酒馆-工作")))
+                  (anchor (if (equal? 骂人位置 "东边") "醉客互相叫骂-东桌" "醉客互相叫骂-西桌"))
+                  (other-anchor (if (equal? 骂人位置 "东边") "醉客互相叫骂-西桌" "醉客互相叫骂-东桌")))
               (play-bubble!
                 (line speaker "你刚才骂谁呢？" :at anchor)
                 (line other "说的就是你，怎么着？" :at other-anchor))))) #f))))
 (define (get-render-data)
-  (container "醉客互相叫骂"
-    (append (list (note-node "对骂：交锋目标" "目标" "让两桌人都冷静下来")
-                  (桌子 "东边这桌" 东边 "老街酒馆-工作")
-                  (桌子 "西边这桌" 西边 "老街酒馆"))
+  ;; 根名 = Camera_醉客互相叫骂 / Anchor_醉客互相叫骂：独立 Stage 经 老街酒馆 的门进来。
+  (node "醉客互相叫骂" :anchor "醉客互相叫骂"
+    :children (append (list (note-node "对骂：交锋目标" "目标" "让两桌人都冷静下来")
+                  (桌子 "东边这桌" 东边 "醉客互相叫骂-东桌")
+                  (桌子 "西边这桌" 西边 "醉客互相叫骂-西桌"))
       (if (equal? 骂人位置 "") '() (list (麻烦节点))))))
