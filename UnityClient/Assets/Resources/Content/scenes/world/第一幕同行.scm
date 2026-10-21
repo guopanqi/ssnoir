@@ -11,6 +11,8 @@
 
     (define (available?)
       (and (= (第一幕 'act) 1) (>= world-day 3) (<= world-day 5)
+           ;; 仅听过歌还不是交情。至少一次在酒馆真正说过话。
+           (>= (第一幕 'singer-stage) 1)
            (not (第二章 'started?))))
     (define (invite!)
       (if (not (equal? status "未邀请")) (error "雨夜：邀请已处理") #t)
