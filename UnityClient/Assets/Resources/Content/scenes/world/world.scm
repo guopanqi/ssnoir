@@ -16,6 +16,7 @@
 (load-file "world/咖啡馆.scm")
 (load-file "world/第一幕.scm")
 (load-file "world/第一幕同行.scm")
+(load-file "world/第二幕.scm")
 (load-file "world/艾迪.scm")
 (load-file "world/诊所.scm")
 (load-file "world/警察局.scm")
