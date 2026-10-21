@@ -50,8 +50,8 @@
           (echo (line "世界" "三号货栈那头传来机器空转的声音，没人往那边看。")))))
 
     ;; ── 搭档 ──────────────────────────────
-    ;; 权重是一张带重复的表。乔从第一天起就在池里，第一次抽到他就算认识；
-    ;; 艾迪在码头重逢之后进池，另一只手也压坏了就出池。
+    ;; 陌生人/乔从第一天起有排班机会；第一节可以遇见艾迪，
+    ;; 旧拳场剧情发展至码头重逢后，他再次进入排班池。
     (define joe-met? #f)
     (define eddie-haul-met? #f)
     (define eddie-help-day 0)
@@ -59,7 +59,11 @@
     (define (today-partner)
       (if (and (= (three-letters 'story-stage) 1)
                (not eddie-haul-met?))
-          "艾迪" dock-partner))
+          "艾迪"
+          (if (and (equal? dock-partner "艾迪")
+                   (not (= (three-letters 'story-stage) 1))
+                   (not (= (eddie 'stage) 3)))
+              "陌生人" dock-partner)))
     (define-turn-start-rule "码头搭班日程"
       (lambda () #t)
       (lambda ()
@@ -86,7 +90,7 @@
         (line "尼尔" "你什么时候记住我名字的？")
         (line "乔" "点工的喊得够响。" :at "码头-岸口")))
 
-    ;; 一班活的结算走这里：先抽搭档，再按搭档算钱和冷静。钱和冷静的变动
+    ;; 一班活的结算：读取今日搭档，而不是结算后随机抽人。钱和冷静的变动
     ;; 引擎自己会列出来，台词只说是谁、干了什么。
     ;; 序章与第一节：好 20 / 中 10；之后恢复搭档工价。
     ;; 基线：好 15 / 中 8、−1 冷静 / 坏 0、−2 冷静。
@@ -156,8 +160,10 @@
            (not (worker-familiarity 'full?))))
 
     (define (finish-haul! grade)
-      (let ((partner (today-partner)))
-        (if (and (equal? partner "艾迪") (not eddie-haul-met?))
+      (let* ((partner (today-partner))
+             (first-eddie? (and (equal? partner "艾迪")
+                                (not eddie-haul-met?))))
+        (if first-eddie?
             (begin
               (set! eddie-haul-met? #t)
               (set! dock-partner "艾迪")
@@ -189,7 +195,10 @@
            (spend-composure! 1))
           (else (spend-composure! 2)))
         (cond
-          ((< (three-letters 'story-stage) 2) #f)
+          ((< (three-letters 'story-stage) 2)
+           (if (and (equal? partner "艾迪") (not first-eddie?))
+               (eddie-after! grade)
+               #f))
           ((not opening-talk-heard?)
            (set! opening-talk-heard? #t)
            (play-bubble!
@@ -338,6 +347,6 @@
                               (>= (assoc-get data "joe-stage" 0) 1)))
              (set! eddie-haul-met? (assoc-get data "eddie-haul-met?" #f))
               (set! eddie-help-day (assoc-get data "eddie-help-day" 0))
-              (set! dock-partner (assoc-get data "dock-partner" "艾迪"))
+              (set! dock-partner (assoc-get data "dock-partner" "陌生人"))
               (dock-echoes 'load! (assoc-get data "echoes" '()))))
           (else #f))))))
