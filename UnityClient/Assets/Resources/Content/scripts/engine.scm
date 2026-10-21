@@ -1001,8 +1001,8 @@
 
 ;; 装不下的部分直接丢掉，但一定要说一声：静默吞掉会让玩家以为钱白花了却不知道为什么。
 ;; 买东西的卡自己该在满了的时候就灰掉（见 item-full?），走到这儿来才发现满，已经晚了一步。
-;; 临时 debug：所有金钱入账倍率；恢复正常经济时改回 1。不影响支出与存档加载。
-(define debug-money-income-multiplier 2)
+;; 正式第一章使用原始工作报酬。历史调试双倍收入取消，不改变开销与旧存档金额。
+(define debug-money-income-multiplier 1)
 
 (define (add-item! item-id n)
   (let* ((amount (if (and (equal? item-id "金钱") (> n 0))
