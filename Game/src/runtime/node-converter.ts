@@ -15,7 +15,7 @@ function isEmptyList(value: unknown): boolean {
 export interface ActionCost { type: "die" | "item"; itemId?: string; qty?: number }
 export interface RuntimeClock {
   label:string; displayLabel:string; note:string; current:number; max:number;
-  style:"gauge"|"countdown"|"readout";
+  style:"gauge"|"pressure"|"countdown"|"readout";
 }
 export type ResolveKind = "instant" | "roll" | "observe" | "note";
 export interface NodeResolve {
@@ -94,7 +94,7 @@ export function convertClock(raw:unknown):RuntimeClock {
   if(!Number.isSafeInteger(current)||!Number.isSafeInteger(max))
     throw new Error("clock: current and max must be integers");
   const style=symbol(parts[4]);
-  if(style!=="gauge"&&style!=="countdown"&&style!=="readout")
+  if(style!=="gauge"&&style!=="pressure"&&style!=="countdown"&&style!=="readout")
     throw new Error("clock "+label+": unknown style "+style);
   const note=parts.length>=6?requiredText(parts[5],"clock note"):"";
   const displayLabel=parts.length===7?name(parts[6],"clock display label"):label;
@@ -179,6 +179,9 @@ export function convertNode(value: unknown): RuntimeNode {
     const val = expr[i + 1];
     switch (kw) {
       case ":title": node.title = name(val, id + " title"); break;
+      case ":name": node.title = name(val, id + " display name"); break;
+      case ":required-before-rest": requiredText(val, id + " rest requirement"); break;
+      case ":button-text": requiredText(val, id + " button"); break;
       case ":subtitle": node.subtitle = String(scalar(val)); break;
       case ":anchor": node.anchor = name(val, id + " anchor"); break;
       case ":place": node.isPlace = val === true; break;
