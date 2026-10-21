@@ -27,7 +27,9 @@
 
           (play-dialogue!
             (line "世界" "两桌醉客隔桌骂起来，旁边的客人端着杯子让开。")
-            (line "调酒师" "尼尔，让他们都冷静下来。办妥了另给你工钱。"))) #f))
+            (line "调酒师" "尼尔，让他们都冷静下来。办妥了另给你工钱。"))) #f)
+      ;; 她每天都在酒馆唱歌。打工后的相遇，不额外收一枚骰子。
+      (第一幕 'on-tavern-work!))
     (define (on-watch-result result)
       (if (member? result '(success fail)) #t (error "看场：未知交锋结果"))
       (set! watch-trouble "")
