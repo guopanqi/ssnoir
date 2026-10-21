@@ -28,7 +28,10 @@ test("new chapter world-save/world-load! roundtrip retains day and native resour
  await original.session.evaluate("(set! world-day 6)");
  original.state.setGlobal("世界日",6);
  // No retired case rest blocker remains; the date and resources must still round-trip.
+ // Test exact inventory delta independently of the temporary 2× debug income setting.
+ await original.session.evaluate("(set! debug-money-income-multiplier 1)");
  await original.session.evaluate('(add-item! "金钱" 22)');
+ assert.equal(original.state.getItemCount("金钱"),37);
  original.state.team.grantSupport("林");
  const protagonist=original.state.team.require("player");
  protagonist.actionDice=[6,2];
