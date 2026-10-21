@@ -66,7 +66,7 @@
         (else (error "第一幕：未知工作地点"))))
 
     ;; 任一酒馆日常行动都可开启当天的一段夜莺生活，不限看场工作。
-    (define (on-tavern-work!)
+    (define (on-tavern-work! . sources)
       ;; 酒保介绍过工作以后，夜莺在酒馆连续驻唱到第六天。
       ;; 每个游戏日只推进一次，不允许一天刷三次工作刷完所有关系。
       (if (and opened? tavern-seen? (= act 1) (<= world-day 6)
@@ -76,7 +76,8 @@
           (cond
             ((= singer-stage 0) (set! singer-stage 1) (第一幕-夜莺台边))
             ((= singer-stage 1) (set! singer-stage 2) (第一幕-夜莺收工))
-            ((= singer-stage 2) (set! singer-stage 3) (第一幕-夜莺解围))
+            ((= singer-stage 2) (set! singer-stage 3)
+              (第一幕-夜莺解围 (if (null? sources) "看场" (car sources))))
             (else #f)))
         #f))
 
@@ -160,7 +161,8 @@
           (list (action "与艾迪喝酒" (list (req-die))
             (instant (outcome (lambda ()
               (set! drink-state "赴约") (set! drank? #t)
-              (第一幕-艾迪喝酒)))))) '())
+              (第一幕-艾迪喝酒)
+              (on-tavern-work! "酒馆闲聊")))))) '())
         (if (and (equal? location "老街酒馆") drank? (not drink-talk?))
           (list (container "艾迪问你的打算" (map (lambda (a)
             (instant-action (car a) (lambda ()
@@ -248,7 +250,8 @@
           ((eq? msg 'lucy-met?) (> lucy-stage 0))
           ((eq? msg 'singer-stage) singer-stage)
           ((eq? msg 'on-work!) (on-work! (cadr args) (caddr args)))
-          ((eq? msg 'on-tavern-work!) (on-tavern-work!))
+          ((eq? msg 'on-tavern-work!)
+            (on-tavern-work! (if (null? (cdr args)) "看场" (cadr args))))
           ((eq? msg 'debug-finish!)
            (set! opened? #t) (set! tavern-seen? #t)
            (set! farewell-done? #t) (set! rehearsal-done? #t)
