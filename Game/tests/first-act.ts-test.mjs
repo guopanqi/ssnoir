@@ -5,6 +5,8 @@ import {join} from "node:path";
 import {GameScriptSession} from "../src/runtime/script-session.ts";
 import {GameRuntimeState} from "../src/runtime/game-state.ts";
 import {convertNode,schemeList} from "../src/runtime/node-converter.ts";
+import {GameActionRunner} from "../src/runtime/action-runner.ts";
+import {ActionTurnState} from "../src/runtime/turn-state.ts";
 
 const root="../UnityClient/Assets/Resources/Content",sources={};
 function scan(path){
@@ -123,4 +125,30 @@ test("Eddie gives a real rescue: -2 then +1 composure, once each working day",as
  await runBadHaul();
  assert.equal(state.team.composure("player"),2);
  assert.throws(()=>state.currentActor(),/only valid inside action/);
+});
+
+// Full authored card integration: a dock failure must be resolved via the
+// action runner, not by invoking the Scheme effect closure as an REPL command.
+// This tests the same action-context + dice-spending path as the real UI.
+test("real dock card: action runner binds current actor and Eddie saves one composure",async()=>{
+ const {vm,state}=await session();
+ await vm.evaluate("(第一幕 'meet-eddie!)");
+ state.team.rollDice(()=>0,false,true,state.injury.actionSlotLoss);
+ const runner=await GameActionRunner.create(vm,state,new ActionTurnState(()=>0));
+ const root=await runner.prepare('(node "世界" :children (dock \'render-data))');
+ const dock=root.children.find(x=>x.name==="码头");
+ assert.ok(dock?.children.some(x=>x.name==="搬运"));
+ const dice=state.team.dice("player");
+ assert.equal(dice.length,4);
+ const first=await runner.performSlots("搬运",[{type:"die",actorId:"player",slotId:dice[0].slotId}]);
+ assert.equal(first.outcome,"fail");
+ assert.equal(state.team.composure("player"),4);
+ assert.equal(state.team.dice("player").length,3);
+ assert.equal(await vm.evaluateNumber('(assoc-get (dock \'save) "help-day" 0)'),1);
+ assert.throws(()=>state.currentActor(),/only valid inside action/);
+ await runner.prepare('(node "世界" :children (dock \'render-data))');
+ const second=await runner.performSlots("搬运",[{type:"die",actorId:"player",slotId:dice[1].slotId}]);
+ assert.equal(second.outcome,"fail");
+ assert.equal(state.team.composure("player"),2);
+ assert.equal(state.team.dice("player").length,2);
 });
