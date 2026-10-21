@@ -113,3 +113,18 @@ test("wage dispute and school application require an actual introduction",async(
   await vm.evaluate("(set! world-day 10)");
   assert.equal(await count(vm,`(第二幕 'nodes-at "码头")`),0);
 });
+
+test("a strong wage roll does not skip the worker's job-at-risk decision",async()=>{
+  const {vm,state}=await setup();
+  await vm.loadFile("scenes/encounters/少了十块钱.scm");
+  await vm.evaluate("(on-encounter-enter)");
+  state.beginActionReport();
+  await vm.evaluate("(推进! 3 0)");
+  state.takeActionReport();
+  assert.equal(await vm.evaluateNumber("(if 危机? 1 0)"),1);
+  const node=convertNode(await vm.evaluate("(get-render-data)"));
+  const names=node.children.map(x=>x.name);
+  assert.ok(names.includes("先让艾迪退开"));
+  assert.ok(names.includes("请弗兰克出面"));
+  assert.ok(names.includes("继续坚持补钱"));
+});
