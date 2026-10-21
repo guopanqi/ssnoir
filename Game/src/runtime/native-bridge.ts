@@ -216,6 +216,22 @@ export function createNativeBridge(state: GameRuntimeState, random:()=>number=Ma
       state.clearRestBlockers();
       return undefined;
     },
+    "__rest-blocked?": (...args) => {
+      arity("__rest-blocked?",args,0);
+      return state.hasRestBlockers();
+    },
+    "__rest-block-reasons": (...args) => {
+      arity("__rest-block-reasons",args,0);
+      return state.snapshot().restBlockers.map(x=>x.reason);
+    },
+    "__focus-node!": (...args) => {
+      arity("__focus-node!",args,1);
+      if(!state.isActionReporting())throw new Error("focus-node! requires an action");
+      const nodeId=string(args[0]);
+      if(!nodeId.trim())throw new Error("focus-node! requires a node id");
+      state.queueStory({kind:"focus",blocking:true,args:[nodeId]});
+      return undefined;
+    },
     "__record-clock-effect!": (...args) => {
       arity("__record-clock-effect!",args,4);
       // Scheme clock contract includes direction; the current report stores signed deltas.
