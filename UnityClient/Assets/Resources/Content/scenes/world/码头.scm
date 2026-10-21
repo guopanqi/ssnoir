@@ -1,82 +1,96 @@
-;; 码头：普通工作、按天确定的搭档与艾迪的人情。
-;; 不再承担旧勒索信的邮箱或埋伏任务。人物演出由第一幕管理。
+;; 码头——第一章新版城市生计。旧《三封信》的邮箱与诱捕内容已经退役。
+;; 玩家每天投骰前知道搭档；救场改实际结算，但不修改判定的概率。
 (define dock
   (let ()
-    (define partner "艾迪")
-    (define first-haul? #t)
-    (define eddie-help-day 0)
+    (define dock-partner "艾迪")
+    (define help-day 0)
     (define joe-met? #f)
-    (define echoes (make-echo-pool
-      (lambda () (if (= (第一幕 'act) 1) 1 2))
-      (list 1 (lambda () (play-bubble! (line "工友" "下一艘货船今晚靠岸。" :at "码头-货堆"))))
-      (list 2 (lambda () (play-bubble! (line "工友" "工棚那头又有人来问改造的事情。" :at "码头-货堆"))))))
-    (define (today-partner) (if first-haul? "艾迪" partner))
+    (define buddy-talk-day 0)
+    (define (today-partner)
+      ;; 不能让玩家第一次来码头时恰好错过艾迪，直到初识后才排其他班。
+      (if (not (第一幕 'eddie-met?)) "艾迪" dock-partner))
     (define (choose-partner!)
-      (set! partner
-        (if first-haul? "艾迪"
-          (random-choice (list "艾迪" "艾迪" "乔" "乔" "陌生人" "陌生人")))))
-    (define-turn-start-rule "码头今日搭班"
-      (lambda () #t) (lambda () (choose-partner!)))
-    (define (resolve-haul! grade)
-      (let ((mate (today-partner)))
-        ;; 动作首先保持正常结果层级；伙伴只改变后果，不改变骰子判定。
+      (set! dock-partner
+        (if (not (第一幕 'eddie-met?)) "艾迪"
+          (random-choice (list "艾迪" "艾迪" "乔" "乔" "陌生人")))))
+    (define-turn-start-rule "码头每日搭班"
+      (lambda () #t)
+      (lambda () (choose-partner!)))
+
+    (define (haul-subtitle)
+      (cond
+        ((equal? (today-partner) "艾迪")
+          (if (= help-day world-day)
+            "艾迪搭班，今日已替你挡过一次麻烦"
+            "艾迪搭班，首次失手少损失1冷静"))
+        ((equal? (today-partner) "乔") "乔搭班，失手时可帮你避免损失")
+        (else "独自搬运，失手损失2冷静")))
+
+    (define (on-haul! grade)
+      (let* ((partner (today-partner))
+             (eddie-first? (and (equal? partner "艾迪")
+                                (not (第一幕 'eddie-met?))))
+             (rescued? (and (eq? grade '坏) (equal? partner "艾迪")
+                            (not (= help-day world-day)))))
+        ;; 一次坏判定的工资仍为零。冷静损失必须通过引擎效果条真实出现。
         (cond
           ((eq? grade '好) (add-item! "金钱" 20))
           ((eq? grade '中) (add-item! "金钱" 10) (spend-composure! 1))
-          ((equal? mate "乔") #f)
-          ((and (equal? mate "艾迪") (not (= eddie-help-day world-day)))
-            (set! eddie-help-day world-day)
-            (spend-composure! 1)
-            (play-bubble!
-              (line "世界" "箱子滑下去，艾迪赶过来接住重的那头。" :at "码头-货堆")
-              (line "艾迪" "松手！手坏了可没人替你挣钱。" :at "码头-货堆")))
+          ((equal? partner "乔") #f)
+          (rescued?
+            (set! help-day world-day)
+            (spend-composure! 1))
           (else (spend-composure! 2)))
-        (if (and (equal? mate "乔") (not joe-met?))
+        (if (and (equal? partner "乔") (not joe-met?))
           (begin (set! joe-met? #t)
-            (play-bubble! (line "乔" "绳子打在这边，下次就不用拼蛮力。" :at "码头-岸口"))) #f)
-        (if (equal? mate "艾迪")
-          (if (and (not first-haul?) (eq? grade '好))
-            (play-bubble! (line "艾迪" "今天干得不错。收工早点回去。" :at "码头-货堆")) #f)
-          (if (not (eq? grade '好)) (echoes 'try!) #f))
-        (if first-haul? (set! first-haul? #f) #f)
-        (第一幕 'on-work! "码头" grade)))
-    (define (haul-description)
-      (cond
-        ((equal? (today-partner) "艾迪")
-          (if (= eddie-help-day world-day)
-            "艾迪搭班；今天已帮你接过一次货"
-            "艾迪搭班；失手可少损失1点冷静"))
-        ((equal? (today-partner) "乔") "乔搭班；失手时有人接住重货")
-        (else "今天和陌生工友搭班；照常结算")))
-    (define (nodes)
-      (list (node "搬运" :anchor "码头-货堆"
-        :subtitle (haul-description) :tags (list "工作" "高风险")
-        :requires (list (req-die))
-        :resolve (roll 'violence
-          (outcome (lambda () (resolve-haul! '坏)))
-          (outcome (lambda () (resolve-haul! '中)))
-          (outcome (lambda () (resolve-haul! '好)))))))
+            (play-bubble!
+              (line "乔" "我叫乔。绳子别系在湿的地方。" :at "码头-岸口")
+              (line "尼尔" "记住了。"))) #f)
+        (if (and rescued? (not eddie-first?))
+          (play-bubble!
+            (line "世界" "木箱滑下来，艾迪先接住重的那头。" :at "码头-货堆")
+            (line "艾迪" "先松手。你的胳膊比这箱子值钱。" :at "码头-货堆")) #f)
+        ;; 艾迪的初识/后续邀请，属于第一幕人物生活，不由工资模块另造一套阶段。
+        (第一幕 'on-work! "码头" grade)
+        (if (and (equal? partner "艾迪") (not eddie-first?)
+                 (not rescued?) (not (= buddy-talk-day world-day)))
+          (begin
+            (set! buddy-talk-day world-day)
+            (play-bubble!
+              (line "艾迪" "收工别忘了喝口水。明天还得干呢。" :at "码头-货堆"))) #f)))
+
+    (define (haul-node)
+      (工作 "搬运" '高 'violence
+        (outcome (lambda () (on-haul! '好)))
+        (outcome (lambda () (on-haul! '中)))
+        (outcome (lambda () (on-haul! '坏)))
+        (haul-subtitle)
+        :anchor "码头-货堆"))
+
     (lambda args
-      (let ((m (car args)))
+      (let ((msg (car args)))
         (cond
-          ((eq? m 'render-data)
-            (list (place "码头" :children (append (nodes) (地点节点 "码头"))
-                          :arrivals (地点入场 "码头"))))
-          ((eq? m 'eddie-met?) (not first-haul?))
-          ((eq? m 'ambush-eddie?) #f)
-          ((eq? m 'mailbox-known?) #f)
-          ((eq? m 'save)
-            (list (list "partner" partner) (list "first-haul" first-haul?)
-                  (list "eddie-help-day" eddie-help-day)
-                  (list "joe-met" joe-met?)
-                  (list "echoes" (echoes 'save))))
-          ((eq? m 'load!)
-            (let ((data (cadr args)))
-              (set! partner (assoc-get data "partner" "艾迪"))
-              (set! first-haul? (assoc-get data "first-haul" #t))
-              (set! eddie-help-day (assoc-get data "eddie-help-day" 0))
-              (set! joe-met? (assoc-get data "joe-met" #f))
-              (echoes 'load! (assoc-get data "echoes" '()))
-              (if (member? partner '("艾迪" "乔" "陌生人")) #t
-                (error "码头搭班存档：未知搭档"))))
+          ((eq? msg 'render-data)
+           (list (place "码头"
+             :children (append
+               (list (haul-node))
+               (map (lambda (n)
+                      (if (member? :anchor n) n
+                        (append n (list :anchor "码头"))))
+                 (地点节点 "码头")))
+             :arrivals (地点入场 "码头"))))
+          ((eq? msg 'eddie-met?) (第一幕 'eddie-met?))
+          ((eq? msg 'save)
+           (list (list "partner" dock-partner)
+                 (list "help-day" help-day)
+                 (list "joe-met" joe-met?)
+                 (list "buddy-talk-day" buddy-talk-day)))
+          ((eq? msg 'load!)
+           (let ((data (cadr args)))
+             (set! dock-partner (assoc-get data "partner" "艾迪"))
+             (set! help-day (assoc-get data "help-day" 0))
+             (set! joe-met? (assoc-get data "joe-met" #f))
+             (set! buddy-talk-day (assoc-get data "buddy-talk-day" 0))
+             (if (member? dock-partner '("艾迪" "乔" "陌生人"))
+               #t (error "码头存档：无效搭档"))))
           (else (error "码头：未知消息")))))))
