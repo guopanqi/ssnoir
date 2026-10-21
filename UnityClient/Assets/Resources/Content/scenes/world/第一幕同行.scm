@@ -65,7 +65,10 @@
             (line "尼尔" "对不起，我临时走不开。")))
         (else #f)))
     (define (arrivals-at location)
-      (if (and (equal? location "老街酒馆") (not aftermath?)
+      ;; 第七天夜莺已经去剧院了。雨夜余波在她实际所在之处相遇，不让她
+      ;; 为了补播旧对白突然回到已经离开的酒馆。
+      (if (and (equal? location (if (>= world-day 7) "剧院" "老街酒馆"))
+               (not aftermath?)
                (or (equal? status "已结束") (equal? status "失约")))
         (list (arrival "雨夜同行的余波" after-scene!))
         '()))
