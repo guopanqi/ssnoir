@@ -69,6 +69,15 @@
           #f)))
     (lambda args
       (cond
+        ((eq? (car args) 'wage-state) wage-state)
+        ((eq? (car args) 'lucy-state) lucy-state)
+        ((eq? (car args) 'dossier)
+          (if (and (= (第一幕 'act) 2) (< world-day 13))
+            (list (dossier "这里有我的朋友" :kind '主线 :primary #t
+              :status '进行中
+              :now "继续谋生，认识熟人的生活；夜莺的复排也在临近。"
+              :where ""))
+            '()))
         ((eq? (car args) 'nodes-at) (nodes-at (cadr args)))
         ((eq? (car args) 'arrivals-at) (arrivals-at (cadr args)))
         ((eq? (car args) 'save)
