@@ -49,10 +49,19 @@
             (outcome (lambda () (watch-work! 5 #f)))
             (outcome (lambda () (watch-work! 14 #f))))))
         (if (equal? watch-trouble "") '()
-          (list (node "醉客互相叫骂" :required-before-rest "先平息两桌争吵" :anchor "老街酒馆"
+          (list (node "醉客互相叫骂" :anchor "老街酒馆"
             :subtitle "让两桌人都冷静下来，另付工钱"
             :resolve (instant (outcome (lambda ()
               (start-encounter "醉客互相叫骂" on-watch-result)))))))))
+    ;; 看场额外报酬允许错过；不能为了这笔钱强制玩家完成交锋。
+    (define-turn-start-rule "酒馆闹事自然散场"
+      (lambda () (not (equal? watch-trouble "")))
+      (lambda ()
+        (if (>= (- world-day watch-trouble-day) 2)
+          (begin
+            (set! watch-trouble "")
+            (notify! "那两桌醉客已经散了，额外报酬没有了。"))
+          #f)))
     (define closed-days 0)
     (define closed-days-max 2)
 
