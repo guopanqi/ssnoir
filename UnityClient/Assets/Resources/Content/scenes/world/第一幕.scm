@@ -257,6 +257,8 @@
                 (第一幕-艾迪教搬运)) #f))
           ((eq? msg 'lucy-met?) (> lucy-stage 0))
           ((eq? msg 'singer-stage) singer-stage)
+          ((eq? msg 'listened-day) listened-day)
+          ((eq? msg 'farewell-seen?) farewell-seen?)
           ((eq? msg 'on-work!) (on-work! (cadr args) (caddr args)))
           ((eq? msg 'on-tavern-work!)
             (on-tavern-work! (if (null? (cdr args)) "看场" (cadr args))))
