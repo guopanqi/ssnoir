@@ -79,3 +79,37 @@ test("sponsor encounter has one deadline, progress and three distinct helping me
   assert.ok(clocks.includes("试演剩余时间"));
   assert.ok(clocks.includes("抢修进展"));
 });
+
+test("city announcement is public, but intimate reactions follow separately known characters",async()=>{
+  const {vm}=await setup();
+  await vm.evaluate("(set! world-day 13)");
+  assert.equal(await count(vm,`(第二幕公告 'arrivals-at "剧院")`),0);
+  assert.equal(await count(vm,`(第二幕公告 'arrivals-at "码头")`),0);
+  assert.equal(await count(vm,`(第二幕公告 'arrivals-at "街角咖啡馆")`),0);
+  await singer(vm,13);
+  await vm.evaluate('(第一幕 \'on-work! "码头" \'好)');
+  await vm.evaluate('(第一幕 \'on-work! "街角咖啡馆" \'好)');
+  assert.equal(await count(vm,`(第二幕公告 'arrivals-at "剧院")`),1);
+  assert.equal(await count(vm,`(第二幕公告 'arrivals-at "码头")`),1);
+  assert.equal(await count(vm,`(第二幕公告 'arrivals-at "街角咖啡馆")`),1);
+  await vm.evaluate('(第二幕公告 \'load! (list (list "eddie" #t) (list "lucy" #t) (list "singer" #t) (list "answer" "质疑")))');
+  assert.equal(await count(vm,`(第二幕公告 'arrivals-at "剧院")`),0);
+  assert.equal(await count(vm,`(第二幕公告 'arrivals-at "码头")`),0);
+  assert.equal(await count(vm,`(第二幕公告 'nodes-at "剧院")`),0);
+  assert.equal(await vm.evaluateNumber('(if (equal? (第二幕公告 \'singer-answer) "质疑") 1 0)'),1);
+});
+test("wage dispute and school application require an actual introduction",async()=>{
+  const {vm}=await setup();
+  await singer(vm,8);
+  assert.equal(await count(vm,`(第二幕 'nodes-at "码头")`),0);
+  assert.equal(await count(vm,`(第二幕 'nodes-at "街角咖啡馆")`),0);
+  await vm.evaluate('(第一幕 \'on-work! "码头" \'好)');
+  await vm.evaluate('(第一幕 \'on-work! "街角咖啡馆" \'好)');
+  assert.equal(await count(vm,`(第二幕 'arrivals-at "码头")`),1);
+  assert.equal(await count(vm,`(第二幕 'arrivals-at "街角咖啡馆")`),1);
+  await vm.evaluate('(第二幕 \'load! (list (list "wage-introduced" #t) (list "lucy-introduced" #t)))');
+  assert.equal(await count(vm,`(第二幕 'nodes-at "码头")`),1);
+  assert.equal(await count(vm,`(第二幕 'nodes-at "街角咖啡馆")`),2);
+  await vm.evaluate("(set! world-day 10)");
+  assert.equal(await count(vm,`(第二幕 'nodes-at "码头")`),0);
+});
