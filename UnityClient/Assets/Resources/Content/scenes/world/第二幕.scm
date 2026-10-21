@@ -2,6 +2,8 @@
   (let ()
     (define wage-state "未做")
     (define lucy-state "未做")
+    (define wage-introduced? #f)
+    (define lucy-introduced? #f)
     (define (available?) (and (= (第一幕 'act) 2) (>= world-day 7) (<= world-day 9)))
     (define (wage-end result)
       (if (member? result '(拿回工钱 保住工作 弗兰克调停 撤出)) #t
@@ -14,7 +16,8 @@
         (line "尼尔" "快去吧。")))
     (define (nodes-at loc)
       (append
-        (if (and (equal? loc "码头") (available?) (equal? wage-state "未做"))
+        (if (and (equal? loc "码头") (available?) (equal? wage-state "未做")
+                 (第一幕 'eddie-met?))
           (list (node "少了十块钱" :anchor "码头-货堆"
             :subtitle "艾迪替工友争工钱，你可以参与"
             :resolve (instant (outcome
@@ -32,6 +35,27 @@
                 (remove-item! "金钱" 10)
                 (lucy-help! "代班"))))))
           '())))
+    (define (arrivals-at location)
+      (append
+        (if (and (equal? location "码头") (available?)
+                 (第一幕 'eddie-met?) (equal? wage-state "未做")
+                 (not wage-introduced?))
+          (list (arrival "工钱纠纷" (lambda ()
+            (set! wage-introduced? #t)
+            (play-dialogue!
+              (line "世界" "一名工友说自己的工钱少了十块，工头却不肯打开账本。")
+              (line "艾迪" "他干了整天活，你得把钱给足。")
+              (line "工头" "账上就写这么多。")))))
+          '())
+        (if (and (equal? location "街角咖啡馆") (available?)
+                 (第一幕 'lucy-met?) (equal? lucy-state "未做")
+                 (not lucy-introduced?))
+          (list (arrival "露西的报名" (lambda ()
+            (set! lucy-introduced? #t)
+            (play-dialogue!
+              (line "露西" "学校有空位了，可我还要上工。")
+              (line "露西" "我想请假去报名，老板却还没答应。")))))
+          '())))
     (define-turn-start-rule "第二幕事件期限"
       (lambda () #t)
       (lambda ()
@@ -43,10 +67,15 @@
     (lambda args
       (cond
         ((eq? (car args) 'nodes-at) (nodes-at (cadr args)))
+        ((eq? (car args) 'arrivals-at) (arrivals-at (cadr args)))
         ((eq? (car args) 'save)
-          (list (list "wage" wage-state) (list "lucy" lucy-state)))
+          (list (list "wage" wage-state) (list "lucy" lucy-state)
+                (list "wage-introduced" wage-introduced?)
+                (list "lucy-introduced" lucy-introduced?)))
         ((eq? (car args) 'load!)
           (let ((data (cadr args)))
             (set! wage-state (assoc-get data "wage" "未做"))
-            (set! lucy-state (assoc-get data "lucy" "未做"))))
+            (set! lucy-state (assoc-get data "lucy" "未做"))
+            (set! wage-introduced? (assoc-get data "wage-introduced" #f))
+            (set! lucy-introduced? (assoc-get data "lucy-introduced" #f))))
         (else (error "第二幕：未知消息"))))))
