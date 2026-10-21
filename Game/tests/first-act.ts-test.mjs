@@ -36,6 +36,7 @@ test("new first-act world starts from livelihood, not the retired blackmail stor
 test("Eddie can be met through work and optional rainy invitation is a date window",async()=>{
  const {vm}=await session();
  assert.equal(await vm.evaluateNumber("(if (第一幕 'eddie-met?) 1 0)"),0);
+ await vm.evaluate('(第一幕 \'load! (list (list "opened" #t) (list "tavern" #t) (list "singer" 1)))');
  await vm.evaluate("(第一幕 'on-work! \"码头\" '好)");
  assert.equal(await vm.evaluateNumber("(if (第一幕 'eddie-met?) 1 0)"),1);
  await vm.evaluate("(set! world-day 4)");
