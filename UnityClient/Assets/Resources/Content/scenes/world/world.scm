@@ -18,6 +18,7 @@
 (load-file "world/第一幕同行.scm")
 (load-file "world/第二幕.scm")
 (load-file "world/第二幕剧院.scm")
+(load-file "world/第二幕余波.scm")
 (load-file "world/艾迪.scm")
 (load-file "world/诊所.scm")
 (load-file "world/警察局.scm")
