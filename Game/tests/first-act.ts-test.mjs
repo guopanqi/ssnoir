@@ -1,0 +1,45 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {readFileSync,readdirSync} from "node:fs";
+import {join} from "node:path";
+import {GameScriptSession} from "../src/runtime/script-session.ts";
+import {GameRuntimeState} from "../src/runtime/game-state.ts";
+import {convertNode,schemeList} from "../src/runtime/node-converter.ts";
+
+const root="../UnityClient/Assets/Resources/Content",sources={};
+function scan(path){
+  for(const item of readdirSync(join(root,path),{withFileTypes:true})){
+    const key=join(path,item.name).replaceAll("\\","/");
+    if(item.isDirectory())scan(key);
+    else if(item.isFile()&&key.endsWith(".scm"))sources[key]=readFileSync(join(root,key),"utf8");
+  }
+}
+scan("scripts");scan("scenes");
+const standard=readFileSync("node_modules/lips/dist/std.xcb");
+async function session(){
+ const state=new GameRuntimeState();
+ const vm=await GameScriptSession.create("first-act-smoke",state,sources,standard);
+ await vm.loadFile("scenes/world/world.scm");
+ return {state,vm};
+}
+test("new first-act world starts from livelihood, not the retired blackmail story",async()=>{
+ const {vm}=await session();
+ assert.equal(await vm.evaluateNumber("world-day"),1);
+ assert.equal(await vm.evaluateNumber("(第一幕 'act)"),1);
+ const rootNode=convertNode(await vm.evaluate("(get-render-data)"));
+ assert.equal(rootNode.name,"世界");
+ assert.ok(rootNode.children.length>0);
+ const dossier=await vm.evaluate("(get-dossier)");
+ assert.ok(Array.isArray(schemeList(dossier)));
+ assert.equal(await vm.evaluateNumber("(if (bound? 'three-letters) 1 0)"),0);
+});
+test("Eddie can be met through work and optional rainy invitation is a date window",async()=>{
+ const {vm}=await session();
+ assert.equal(await vm.evaluateNumber("(if (第一幕 'eddie-met?) 1 0)"),0);
+ await vm.evaluate("(第一幕 'on-work! \"码头\" '好)");
+ assert.equal(await vm.evaluateNumber("(if (第一幕 'eddie-met?) 1 0)"),1);
+ await vm.evaluate("(set! world-day 4)");
+ assert.equal(await vm.evaluateNumber("(length (first-act-walk 'nodes-at \"老街酒馆\"))"),1);
+ await vm.evaluate("(set! world-day 7)");
+ assert.equal(await vm.evaluateNumber("(length (first-act-walk 'nodes-at \"老街酒馆\"))"),0);
+});
