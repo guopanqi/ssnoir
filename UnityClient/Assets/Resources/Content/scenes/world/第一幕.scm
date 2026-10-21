@@ -97,6 +97,7 @@
         (error "第一幕：告别演出不在观看窗口") #t)
       (set! farewell-seen? #t)
       (set! farewell-done? #t)
+      (__release-rest-block! "act1-nightingale-farewell")
       (第一幕-告别
         (cond
           ((and (>= singer-stage 2) (first-act-walk 'close?)) '亲近)
@@ -213,6 +214,13 @@
         (if (and (> drink-day 0) (> world-day drink-day)
                  (member? drink-state '("待答复" "已答应")))
           (set! drink-state "错过") #f)
+        ;; 强制剧场：由世界休息阻塞器执行，而不只靠节点元数据。
+        (if (and (= world-day 6) (= act 1) (not farewell-seen?))
+          (__register-rest-block!
+            "act1-nightingale-farewell"
+            "先去酒馆参加夜莺的告别演出"
+            "老街酒馆" "夜莺最后一场演出")
+          #f)
         (if (and (= world-day 5) (= act 1))
           (spotlight! "最后一场演出" "酒馆贴出了夜莺的告别演出告示。明晚她将在这里最后一次唱歌。")
           #f)
