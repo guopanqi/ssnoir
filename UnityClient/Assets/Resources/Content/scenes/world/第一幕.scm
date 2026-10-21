@@ -215,6 +215,7 @@
           ((eq? msg 'rehearsal-seen?) rehearsal-seen?)
           ((eq? msg 'act) act)
           ((eq? msg 'eddie-met?) (> eddie-stage 0))
+          ((eq? msg 'lucy-met?) (> lucy-stage 0))
           ((eq? msg 'singer-stage) singer-stage)
           ((eq? msg 'on-work!) (on-work! (cadr args) (caddr args)))
           ((eq? msg 'on-tavern-work!) (on-tavern-work!))
