@@ -24,6 +24,7 @@
     ;;    存档键                  模块                  角色
     (list "first-act" 第一幕 '(存档 卷宗 节点 入场))
     (list "first-act-walk" first-act-walk '(存档 节点 入场))
+    (list "act-two" 第二幕 '(存档 节点))
     (list "cafe-work" cafe-work '(存档 节点))
     ;; 人物支线暂不投射节点、入场与卷宗；状态保留供主线及后续排布。
     (list "eddie"                eddie                '(存档))
