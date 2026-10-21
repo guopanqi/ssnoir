@@ -29,7 +29,7 @@
             (line "世界" "两桌醉客隔桌骂起来，旁边的客人端着杯子让开。")
             (line "调酒师" "尼尔，让他们都冷静下来。办妥了另给你工钱。"))) #f)
       ;; 她每天都在酒馆唱歌。打工后的相遇，不额外收一枚骰子。
-      (第一幕 'on-tavern-work!))
+      (第一幕 'on-tavern-work! "看场"))
     (define (on-watch-result result)
       (if (member? result '(success fail)) #t (error "看场：未知交锋结果"))
       (set! watch-trouble "")
@@ -37,7 +37,8 @@
       (if (eq? result 'success)
         (begin (add-item! "金钱" watch-reward)
           (play-dialogue! (line "调酒师" "行，省了一场麻烦。这是你的。")))
-        (play-dialogue! (line "调酒师" "歇会儿吧，我来收拾。"))))
+        (play-dialogue! (line "调酒师" "歇会儿吧，我来收拾。")))
+      (第一幕 'on-tavern-work! "看场"))
     (define (watch-nodes)
       (append
         (list (node "看场子" :anchor "老街酒馆-工作"
@@ -532,7 +533,9 @@
         :disabled (item-full? "香烟")
         :requires (list (req-item "金钱" 20))
         :resolve (instant
-          (outcome (lambda () (add-item! "香烟" 1))))))
+          (outcome (lambda ()
+            (add-item! "香烟" 1)
+            (第一幕 'on-tavern-work! "买烟"))))))
 
     ;; 当场点酒不限次数；drank-today? 只记录当天首次喝酒，供招待和特殊表现使用。
     ;; :resolve 用 outcome 包一层，结果才会像判定一样以锚定卡片弹出，而不是只飘过一条 notify!。
@@ -547,6 +550,7 @@
           (outcome (lambda ()
               (let ((ruth-offers-now? (and character-stories-open? (= ruth-stage 0))))
                 (home 'drink!)
+                (第一幕 'on-tavern-work! "喝酒")
                 (if ruth-offers-now? (offer-special-drink!) #f)
                 ;; 露丝第一次推酒已经占了这杯的表现，别再叠一段闲话。
                 (if (and character-stories-open? (not ruth-offers-now?)) (meet-or-echo!) #f)))))))
