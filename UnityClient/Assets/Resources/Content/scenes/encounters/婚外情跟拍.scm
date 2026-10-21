@@ -12,9 +12,9 @@
 (define waiter-called? #f)
 (define waiter-active? #f)
 (define waiter-position '车里)
-(define photos (make-clock "有效照片" 12 'gauge "满12完成；树上好2中1坏警觉2，车里好1中0坏警觉1。"))
-(define alertness (make-clock "对象警觉" 6 'gauge "满6暴露；到3后首次回合回应派服务员查看当时的位置。"))
-(define cover (make-clock "打消怀疑" 4 'gauge "每骰掩饰1；满4服务员离开。留在被查位置每回合警觉加1。"))
+(define photos (make-clock "有效照片" 12 'gauge "满12完成；树上好2中1坏警觉2，车里好1中0坏警觉1。" :beneficial-direction 'increase))
+(define alertness (make-clock "对象警觉" 6 'gauge "满6暴露；到3后首次回合回应派服务员查看当时的位置。" :beneficial-direction 'decrease))
+(define cover (make-clock "打消怀疑" 4 'gauge "每骰掩饰1；满4服务员离开。留在被查位置每回合警觉加1。" :beneficial-direction 'increase))
 
 (define (tree?) (equal? position '树上))
 (define (blocked?) (equal? situation '送货车))

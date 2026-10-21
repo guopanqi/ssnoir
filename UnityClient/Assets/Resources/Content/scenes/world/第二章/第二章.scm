@@ -110,9 +110,6 @@
     ;; 世界日终先推进日期；新骰与每日额度发放后，由 on-turn-start 调到这里。
     ;; 因此“今早 / 今天 / 今晚”的事件都在睡眠黑幕亮起后出现。
     (define (on-day-start!)
-      (if (and (not (开始了?)) (three-letters 'has-flag? '结案))
-          (进入阶段-A!)
-          #f)
       ;; 城市主轴上的世界变化：到日子就发生，不看玩家做过什么。
       (if (and (equal? 阶段 "A")
                (>= world-day (第几天的日子 新港计划-第几天)))
@@ -178,11 +175,7 @@
                #f))
           ((equal? msg 'phase) 阶段)
           ((equal? msg '进入阶段-B!) (进入阶段-B!))
-          ((equal? msg 'sync-blockers!)
-           (晚宴 'sync-blockers!)
-           (封面上的夜莺 'sync-blockers!)
-           (机器进入老街 'sync-blockers!)
-           (baines 'sync-blockers!))
+
           ((equal? msg 'day) (第几天))
           ((equal? msg 'day-of) (第几天的日子 (cadr args)))
           ((equal? msg 'phase-start-day) 阶段起始日)

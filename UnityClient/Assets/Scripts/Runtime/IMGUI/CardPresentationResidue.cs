@@ -6,7 +6,7 @@ using UnityEngine;
 namespace SSNoir.IMGUI
 {
     /// <summary>
-    /// 一次结算的结果条。挂在宿主卡下面，停几秒自己走，点一下也走；它只是个附件，不锁任何输入。
+    /// 一次结算的结果条。挂在宿主卡下面，按计时自行消失，不接受点击或占用鼠标命中；阅读停留与剧情衔接由客户端播放流程统一控制。
     /// 宿主在新快照里已经没了（钟归零、次数用完、父节点消失）就画一张它结算后模样的
     /// 残卡替它站着——钟是归零后的钟——残卡随结果条一起走。宿主此刻不在屏幕上（换了场景、
     /// 镜头已经走了）就画成屏幕中央的浮条。
@@ -32,10 +32,11 @@ namespace SSNoir.IMGUI
         public Vector2 GhostOffset { get; set; }
 
         // 结果首次可见（动画落定、切到 residue）的时刻；用于「结果从命运条下方揭开」的过渡。首帧惰性写入。
+        public const float RevealSeconds = 0.28f;
         public float RevealStartTime { get; set; } = 0f;
 
         // 烧绳子：停留进入倒计时后从 1 烧到 0，烧完后抽屉收回，再连同旧快照一起收掉。
-        // 没进倒计时（对白还在放）时不烧。
+        // 尚未实际展示并展开时不烧。
         public float FuseStartedAt { get; set; } = -1f;
         public float FuseSeconds { get; set; }
         public float FuseRemaining01 => FuseStartedAt < 0f || FuseSeconds <= 0f

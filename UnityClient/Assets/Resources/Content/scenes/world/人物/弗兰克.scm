@@ -307,7 +307,7 @@
            "他在跳板边上写班表，一整天没离开这个泊位。现在跟他说话，他会让你等。")
           ((equal? hold-state "待安排")
            "工会房间的门虚掩着。里面在说船上的事，说到你能听见的时候都压低了。")
-          ((>= (three-letters 'story-stage) 5)
+          ((第二章 'started?)
            "他坐在工会房间那张长桌尽头，面前摊着报纸，没在看。")
           (#t
            "工会房间的门开着。他在对这个月的账，抬头看了你一眼，又低下去。"))))
@@ -338,7 +338,7 @@
             '())
         ;; 船边发生的两件事直接留在泊位；弗兰克本人常驻居民区的工会房间。
         (if (and hold-open? (equal? hold-state "待处理")) (list (node-hold-entry)) '())
-        (if (and (not paper-seen?) (>= (three-letters 'story-stage) 5))
+        (if (and (not paper-seen?) (第二章 'started?))
             (list (node-newspaper))
             '())))
 
@@ -474,7 +474,7 @@
       (lambda () (settle-repair! #f)))
 
     (define-turn-start-rule "旧货船改泊"
-      (lambda () (and side-story-open? (>= (three-letters 'story-stage) 2) (equal? repair-state "未开放")))
+      (lambda () (and side-story-open? (第二章 'started?) (equal? repair-state "未开放")))
       (lambda ()
         (set! repair-state "进行中")
         (set! repair-deadline-day (+ world-day repair-days))

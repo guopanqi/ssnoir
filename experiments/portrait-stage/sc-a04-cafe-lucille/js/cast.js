@@ -110,9 +110,9 @@
     luReach: { body: -7, head: 6, laTarget: [-18, -206], raTarget: [108, -238], face: 'side' },
     luSteady: { body: -4, head: 5, laTarget: [-16, -206], raTarget: [56, -226], face: 'flat' },
     luPlace: { body: -2, head: 10, laTarget: [-14, -206], raTarget: [26, -210], face: 'flat' },
-    luWipeA: { body: 3, head: 15, laTarget: [-28, -206], raTarget: [2, -212], face: 'down' },
-    luWipeB: { body: 2, head: 13, laTarget: [-28, -206], raTarget: [18, -214], face: 'down' },
-    luTurn: { body: 9, head: 17, laTarget: [-20, -206], raTarget: [8, -212], face: 'flat' },
+    luWipeA: { body: 3, head: 15, laTarget: [-28, -206], raTarget: [30, -212], face: 'down' },
+    luWipeB: { body: 2, head: 13, laTarget: [-28, -206], raTarget: [44, -214], face: 'down' },
+    luTurn: { body: 9, head: 17, laTarget: [-20, -206], raTarget: [38, -212], face: 'flat' },
 
     /* ——— 尼尔 ——— */
     nlTray: { body: 2, head: 0, laTarget: [-42, -252], raTarget: [42, -252], face: 'tired' },
@@ -206,8 +206,8 @@
       s += `<path d="M29 -376Q38 -356 29 -338Q20 -346 23 -366Z" fill="${hair}"/>`;
       s += `<path d="M-20 -410Q-2 -420 18 -406" fill="none" stroke="#4d3028" stroke-width="1.1" opacity=".75"/>`;
       // 鬓角铅笔
-      s += `<path d="M25 -382L38 -398" stroke="${def.accent}" stroke-width="2" stroke-linecap="round"/>`;
-      s += `<path d="M38 -398L43 -403" stroke="#2a2118" stroke-width="2.4" stroke-linecap="round"/>`;
+      s += `<path d="M29 -368L36 -383" stroke="${def.accent}" stroke-width="2" stroke-linecap="round"/>`;
+      s += `<path d="M36 -383L40 -388" stroke="#2a2118" stroke-width="2.2" stroke-linecap="round"/>`;
       // 耳钉
       s += `<circle cx="30" cy="-354" r="2" fill="${def.accent}"/>`;
     }
@@ -256,8 +256,8 @@
     if (def.role === 'bar' && side < 0) {
       // 码头留下的煤灰，只在对应分支显示
       s += `<g class="coal" opacity="0">
-        <path d="M${x - 9} -300Q${x - 3} -292 ${x - 8} -282" fill="none" stroke="#1d1a16" stroke-width="4" opacity=".75" stroke-linecap="round"/>
-        <path d="M${x + 3} -304Q${x + 8} -294 ${x + 2} -286" fill="none" stroke="#24211c" stroke-width="2.6" opacity=".6" stroke-linecap="round"/>
+        <path d="M${x - 9} -300Q${x - 3} -292 ${x - 8} -282" fill="none" stroke="#7f786c" stroke-width="4" opacity=".7" stroke-linecap="round"/>
+        <path d="M${x + 3} -304Q${x + 8} -294 ${x + 2} -286" fill="none" stroke="#6a6358" stroke-width="2.6" opacity=".6" stroke-linecap="round"/>
       </g>`;
     }
 

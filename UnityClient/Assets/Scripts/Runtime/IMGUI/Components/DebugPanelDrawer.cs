@@ -100,21 +100,6 @@ namespace SSNoir.IMGUI
                 Label = "Phase B（林：核心）",
                 Code = "(debug-enter-chapter2-phase-b-lin-core!)"
             },
-            // 不是跳章：只把一段带舞台指示的对白演一遍，不改任何故事状态。
-            new ChapterJump
-            {
-                Label = "舞台试演：桥廊之后",
-                Code = "(three-letters 'debug-stage-bridge!)"
-            },
-            new ChapterJump
-            {
-                Label = "对白试演：初到码头居民区",
-                Code = "(three-letters 'debug-stage-resident-arrival!)"
-            },
-            // 保留正式对白的独立试演入口。
-            new ChapterJump { Label = "舞台试演：开场委托", Code = "(three-letters 'debug-stage-commission!)" },
-            new ChapterJump { Label = "舞台试演：她不取消", Code = "(three-letters 'debug-stage-refusal!)" },
-            new ChapterJump { Label = "舞台试演：尾声", Code = "(three-letters 'debug-stage-closing!)" },
             new ChapterJump { Label = "准备：酒馆门前（再进酒馆）", Code = "(baines 'debug-arm-street!)" },
             new ChapterJump { Label = "舞台试演：酒馆门前", Code = "(baines 'debug-play-street!)" },
         };

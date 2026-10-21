@@ -66,3 +66,35 @@ test("--out 推出 session/name，扩展名交给实际结果", async () => {
 test("没有 --out 也没有 --session 时报错", async () => {
   await assert.rejects(validateOptions({ command: "generate", prompt: "x", reference: [] }), /--session/);
 });
+
+test('上传入口首次点击未生效时重新等待，并保留全部参考图', async () => {
+  const { chromium } = await import('playwright');
+  const { uploadReferences } = await import('./gemini-image-web.mjs');
+  const root = await mkdtemp(join(tmpdir(), 'gemini-upload-test-'));
+  const files = [join(root, 'a.png'), join(root, 'b.png')];
+  await Promise.all(files.map(file => writeFile(file, 'fixture')));
+  const browser = await chromium.launch({ channel: 'chrome', headless: true });
+  try {
+    const page = await browser.newPage();
+    await page.setContent('<button aria-label="Add files">Add</button><div class="file-preview-container"></div>');
+    await page.evaluate(() => {
+      window.clicks = 0;
+      document.querySelector('button').onclick = () => {
+        if (++window.clicks === 1) return;
+        const input = document.createElement('input');
+        input.type = 'file'; input.accept = 'image/*'; input.multiple = true;
+        input.onchange = () => {
+          for (const file of input.files) {
+            const img = document.createElement('img'); img.alt = 'attachment';
+            img.dataset.filename = file.name;
+            document.querySelector('.file-preview-container').append(img);
+          }
+        };
+        document.body.append(input);
+      };
+    });
+    await uploadReferences(page, files);
+    assert.equal(await page.evaluate(() => window.clicks), 2);
+    assert.deepEqual(await page.locator('img').evaluateAll(es => es.map(e => e.dataset.filename)), ['a.png', 'b.png']);
+  } finally { await browser.close(); }
+});

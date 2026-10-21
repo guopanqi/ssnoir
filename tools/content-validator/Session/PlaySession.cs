@@ -208,8 +208,9 @@ public sealed class PlaySession
             if (!node.Disabled && node.Resolve?.Type is ResolveType.Instant or ResolveType.Roll)
                 AddActionChoices(node, snapshot, Add);
         if (_navigation.Count > 0) Add("back", "返回上层");
-        // 玩家随时可主动结束回合。RestBlockers 在 UI 中提示原因，而非隐藏按钮。
-        Add("end-turn", "结束回合");
+        // 交锋可以结束回合；世界有必须处理的节点时不能换日。
+        if (snapshot.IsInEncounter || snapshot.RestBlockers.Count == 0)
+            Add("end-turn", "结束回合");
 
         _observation = new SessionObservation(_version, _scenes.CurrentSceneName,
             snapshot.IsInEncounter, snapshot.WorldDay, focus.Id,

@@ -237,6 +237,31 @@ namespace SSNoir.Testing
             AssertEq("pressure clock style", ClockStyle.Pressure, pressure.Style);
             AssertEq("pressure clock maximum", 8, pressure.Max);
             AssertEq("pressure clock starts empty", 0, pressure.Current);
+            var anger = Convert("(clock-node \"愤怒\" (clock-priority ((make-clock \"愤怒\" 6 'countdown \"\" :beneficial-direction 'decrease) 'render-data) 'secondary))").Resolve!.Clock!;
+            AssertEq("clock direction survives priority", BeneficialDirection.Decrease, anger.BeneficialDirection);
+            AssertEq("unspecified direction is neutral", BeneficialDirection.Neutral, primary.BeneficialDirection);
+            AssertThrowsAny(() => Convert("(clock-node \"错误方向\" ((make-clock \"错\" 6 'gauge :beneficial-direction 'typo) 'render-data))"), "invalid beneficial direction");
+            AssertThrowsAny(() => Convert("(clock-node \"错误属性\" ((make-clock \"错\" 6 'gauge :typo 'increase) 'render-data))"), "invalid clock property");
+            foreach (var direction in new[] { "increase", "decrease", "neutral" })
+            {
+                var report = new ActionReport();
+                scenes.GameState.CurrentActionReport = report;
+                try
+                {
+                    scenes.ActiveInterpreter.Eval($"(let ((c (make-clock \"方向检查\" 6 'countdown :beneficial-direction '{direction}))) (c 'load! 4) (c 'advance! -2))");
+                }
+                finally { scenes.GameState.CurrentActionReport = null; }
+                AssertEq("clock real negative delta", -2, report.Effects.Single().Delta);
+                var expected = direction == "decrease" ? ActionEffectTone.Positive
+                    : direction == "increase" ? ActionEffectTone.Negative : ActionEffectTone.Neutral;
+                AssertEq($"clock decrease tone ({direction})", expected, report.Effects.Single().Tone);
+                var forward = new ActionReport();
+                forward.AddClockEffect("进度", "进度", 2, ClockSemantics.ParseDirection(direction));
+                AssertEq($"clock increase tone ({direction})",
+                    direction == "decrease" ? ActionEffectTone.Negative
+                        : direction == "increase" ? ActionEffectTone.Positive : ActionEffectTone.Neutral,
+                    forward.Effects.Single().Tone);
+            }
             Console.WriteLine("[validate] clock priority / pressure DSL contract passed.");
         }
 
@@ -666,8 +691,8 @@ namespace SSNoir.Testing
                     2 => (50, 50, 0),
                     3 => (40, 50, 10),
                     4 => (25, 50, 25),
-                    5 => (0, 70, 30),
-                    _ => (0, 50, 50),
+                    5 => (0, 50, 50),
+                    _ => (0, 0, 100),
                 };
             }
 
@@ -713,30 +738,7 @@ namespace SSNoir.Testing
             AssertEq("scripted composure floor", 0, scriptedOverflowState.Team.FindActor("player")!.Composure);
             AssertEq("scripted composure overflow injury", 1, scriptedOverflowState.Team.Injury.Severity);
 
-            // 冷静只影响新抽到的骰子，不影响已持有的骰子。
-            AssertEq("full composure quality", 0, TeamState.ComposureDicePenalty(5));
-            AssertEq("calm tier quality", 0, TeamState.ComposureDicePenalty(4));
-            AssertEq("low composure quality", -1, TeamState.ComposureDicePenalty(3));
-            AssertEq("very low composure quality", -1, TeamState.ComposureDicePenalty(2));
-            AssertEq("critical composure quality", -2, TeamState.ComposureDicePenalty(1));
-            AssertEq("empty composure quality", -2, TeamState.ComposureDicePenalty(0));
-            var calmState = new GameState();
-            calmState.Team.RollActionDice(isInEncounter: false);
-            var initialDice = calmState.Team.FindActor("player")!.ActionDice.ToArray();
-            calmState.Team.SpendComposure("player", 2);
-            AssertEq("already rolled dice stay unchanged", true,
-                initialDice.SequenceEqual(calmState.Team.FindActor("player")!.ActionDice));
-            calmState.Team.RollActionDice(isInEncounter: false);
-            AssertEq("low composure next roll has four dice", 4,
-                calmState.Team.FindActor("player")!.ActionDice.Count);
-            AssertEq("low composure next roll values", true,
-                calmState.Team.FindActor("player")!.ActionDice.All(d => d <= 5));
-            calmState.Team.SpendComposure("player", 3);
-            calmState.Team.RollActionDice(isInEncounter: false);
-            AssertEq("zero composure next roll values", true,
-                calmState.Team.FindActor("player")!.ActionDice.All(d => d <= 4));
-
-            // 身体完好四颗、轻伤三颗、重伤两颗；状态变化不追回当前手中任何骰子。
+            // 伤势到 2 点封锁一位、到 5 点封锁第二位；状态变化不追回当前手中任何骰子。
             var injuryBandState = new GameState();
             injuryBandState.Team.RollActionDice(isInEncounter: false);
             AssertEq("healthy dice count", 4, injuryBandState.Team.FindActor("player")!.ActionDice.Count);
@@ -745,15 +747,25 @@ namespace SSNoir.Testing
             AssertEq("light injury preserves held dice", 4, injuryBandState.Team.FindActor("player")!.ActionDice.Count);
             AssertEq("new light injury awaits next roll", 0, injuryBandState.Team.FindActor("player")!.IssuedInjuryDieLoss);
             injuryBandState.Team.RollActionDice(isInEncounter: false);
-            AssertEq("light injury daily dice count", 3, injuryBandState.Team.FindActor("player")!.ActionDice.Count);
-            AssertEq("light injury locks one issued slot", 1, injuryBandState.Team.FindActor("player")!.IssuedInjuryDieLoss);
-            injuryBandState.Team.Injure(Injury.SevereThreshold - 1);
-            AssertEq("severe injury preserves previously issued dice", 3, injuryBandState.Team.FindActor("player")!.ActionDice.Count);
-            AssertEq("new severe injury still shows one locked slot", 1, injuryBandState.Team.FindActor("player")!.IssuedInjuryDieLoss);
+            AssertEq("severity one preserves four dice", 4, injuryBandState.Team.FindActor("player")!.ActionDice.Count);
+            AssertEq("severity one locks no slots", 0, injuryBandState.Team.FindActor("player")!.IssuedInjuryDieLoss);
+            injuryBandState.Team.Injure(Injury.FirstActionSlotLossThreshold - 1);
+            AssertEq("severity two preserves previously issued dice", 4, injuryBandState.Team.FindActor("player")!.ActionDice.Count);
             injuryBandState.Team.RollActionDice(isInEncounter: false);
-            AssertEq("severe injury daily dice count", 2, injuryBandState.Team.FindActor("player")!.ActionDice.Count);
-            AssertEq("severe injury locks two issued slots", 2, injuryBandState.Team.FindActor("player")!.IssuedInjuryDieLoss);
-            injuryBandState.Team.HealInjury(Injury.SevereThreshold);
+            AssertEq("severity two locks one issued slot", 1, injuryBandState.Team.FindActor("player")!.IssuedInjuryDieLoss);
+            AssertEq("severity two daily dice count", 3, injuryBandState.Team.FindActor("player")!.ActionDice.Count);
+            injuryBandState.Team.Injure(Injury.SevereThreshold - Injury.FirstActionSlotLossThreshold);
+            AssertEq("severity four preserves previously issued dice", 3, injuryBandState.Team.FindActor("player")!.ActionDice.Count);
+            AssertEq("severity four still locks one issued slot", 1, injuryBandState.Team.FindActor("player")!.IssuedInjuryDieLoss);
+            injuryBandState.Team.RollActionDice(isInEncounter: false);
+            AssertEq("severity four daily dice count", 3, injuryBandState.Team.FindActor("player")!.ActionDice.Count);
+            injuryBandState.Team.Injure(Injury.SecondActionSlotLossThreshold - Injury.SevereThreshold);
+            AssertEq("severity five preserves previously issued dice", 3, injuryBandState.Team.FindActor("player")!.ActionDice.Count);
+            AssertEq("new second lock waits for next hand", 1, injuryBandState.Team.FindActor("player")!.IssuedInjuryDieLoss);
+            injuryBandState.Team.RollActionDice(isInEncounter: false);
+            AssertEq("severity five daily dice count", 2, injuryBandState.Team.FindActor("player")!.ActionDice.Count);
+            AssertEq("severity five locks two issued slots", 2, injuryBandState.Team.FindActor("player")!.IssuedInjuryDieLoss);
+            injuryBandState.Team.HealInjury(Injury.SecondActionSlotLossThreshold);
             AssertEq("healing does not immediately redraw dice", 2,
                 injuryBandState.Team.FindActor("player")!.ActionDice.Count);
             AssertEq("healing leaves already issued locks", 2,
@@ -763,14 +775,14 @@ namespace SSNoir.Testing
             AssertEq("healed next roll unlocks slots", 0,
                 injuryBandState.Team.FindActor("player")!.IssuedInjuryDieLoss);
 
-            // 最低谷仍有两枚骰子，低冷静只能影响骰面，不进一步减少骰子数量。
+            // 最低谷仍有两枚骰子；低冷静不改变骰面，也不进一步减少骰子数量。
             var bottomState = new GameState();
-            bottomState.Team.Injure(Injury.SevereThreshold);
+            bottomState.Team.Injure(Injury.SecondActionSlotLossThreshold);
             bottomState.Team.SpendComposure("player", TeamState.MaxComposure);
             bottomState.Team.RollActionDice(isInEncounter: false);
             AssertEq("bottom-state dice", 2, bottomState.Team.FindActor("player")!.ActionDice.Count);
-            AssertEq("bottom-state dice values", true,
-                bottomState.Team.FindActor("player")!.ActionDice.All(d => d <= 4));
+            AssertEq("bottom-state dice remain standard d6", true,
+                bottomState.Team.FindActor("player")!.ActionDice.All(d => d >= 1 && d <= 6));
 
             // 伤势刻度的终点是立即结算线，不是“再挨一次才倒下”的预告线。
             var collapseState = new GameState();
@@ -936,6 +948,10 @@ namespace SSNoir.Testing
             var cityState = new GameState();
             var city = new SceneManager(cityState, new LocalScriptLoader());
             city.LoadScene("world");
+            // 本测试只验证换日表现边界，先正常完成必经开场。
+            var opening = city.CurrentRootNode!.Children.Single(n => n.Id == "家").Children.Single(n => n.Id == "旅馆清晨");
+            city.ExecuteAction(opening, new List<SlottedResource?>());
+            city.EnterPlace("老街酒馆");
             city.ActiveInterpreter.Eval(
                 "(define-turn-start-rule \"测试：新日通知\" (lambda () #t) " +
                 "(lambda () (spotlight! \"新日通知\" \"这张卡只能在睡醒以后出现。\")))");

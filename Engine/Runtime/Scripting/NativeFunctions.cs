@@ -143,30 +143,18 @@ namespace SSNoir.Scripting
                 return new None();
             }, "__fail-game!"));
 
-            interpreter.DefineGlobal(Symbol.FromString("__register-rest-block!"), new NativeProcedure(args =>
+            interpreter.DefineGlobal(Symbol.FromString("__rest-blocked?"), new NativeProcedure(args =>
             {
-                if (args.Count != 4 || args[0] is not string id || args[1] is not string reason
-                    || args[2] is not string locationName || args[3] is not string targetNodeId)
-                    throw new ArgumentException("__register-rest-block! requires id, reason, location, and target node strings");
-                gameState.RegisterRestBlocker(id, reason, locationName, targetNodeId);
-                return new None();
-            }, "__register-rest-block!"));
-
-            interpreter.DefineGlobal(Symbol.FromString("__release-rest-block!"), new NativeProcedure(args =>
+                if (args.Count != 0) throw new ArgumentException("__rest-blocked? takes no arguments");
+                return gameState.RestBlockers.Count > 0;
+            }, "__rest-blocked?"));
+            interpreter.DefineGlobal(Symbol.FromString("__rest-block-reasons"), new NativeProcedure(args =>
             {
-                if (args.Count != 1 || args[0] is not string id)
-                    throw new ArgumentException("__release-rest-block! requires one id string");
-                gameState.ReleaseRestBlocker(id);
-                return new None();
-            }, "__release-rest-block!"));
-
-            interpreter.DefineGlobal(Symbol.FromString("__clear-rest-blockers!"), new NativeProcedure(args =>
-            {
-                if (args.Count != 0)
-                    throw new ArgumentException("__clear-rest-blockers! takes no arguments");
-                gameState.ClearRestBlockers();
-                return new None();
-            }, "__clear-rest-blockers!"));
+                if (args.Count != 0) throw new ArgumentException("__rest-block-reasons takes no arguments");
+                var reasons = new List<object>();
+                foreach (var blocker in gameState.RestBlockers) reasons.Add(blocker.Reason);
+                return reasons;
+            }, "__rest-block-reasons"));
 
             interpreter.DefineGlobal(Symbol.FromString("__growth-level"), new NativeProcedure(args =>
             {
@@ -206,6 +194,7 @@ namespace SSNoir.Scripting
                 if (actor == null) throw new ArgumentException($"actor '{actorId}' not found");
                 int composureBefore = actor.Composure;
                 int injuryBefore = gameState.Team.Injury.Severity;
+                bool hospitalizationBefore = gameState.HasPendingHospitalization;
                 gameState.Team.SetActorComposureSafe(actorId, n);
                 int composureDelta = actor.Composure - composureBefore;
                 string composureLabel = gameState.CurrentContext?.ActorId == actorId ? "冷静" : actor.Name + "冷静";
@@ -213,9 +202,12 @@ namespace SSNoir.Scripting
                     ActionEffectKind.Composure, composureLabel, composureDelta,
                     composureDelta > 0 ? ActionEffectTone.Positive : ActionEffectTone.Negative);
                 int injuryDelta = gameState.Team.Injury.Severity - injuryBefore;
-                ReportInjuryChange(gameState, injuryDelta < 0 && injuryBefore > 0
+                bool collapsed = !hospitalizationBefore && gameState.HasPendingHospitalization;
+                ReportInjuryChange(gameState, collapsed || (injuryDelta < 0 && injuryBefore > 0)
                     ? Injury.MaxSeverity - injuryBefore
                     : injuryDelta);
+                if (injuryDelta > 0 || collapsed)
+                    gameState.CurrentActionReport?.AddSupplement("冷静击穿：你的手在抖，身体先一步承受了代价。");
                 return new None();
             }, "__set-actor-composure!"));
 
@@ -230,6 +222,7 @@ namespace SSNoir.Scripting
 
                 int composureBefore = actor.Composure;
                 int injuryBefore = gameState.Team.Injury.Severity;
+                bool hospitalizationBefore = gameState.HasPendingHospitalization;
                 gameState.Team.SpendComposure(actorId, amount);
                 int composureDelta = actor.Composure - composureBefore;
                 string composureLabel = gameState.CurrentContext?.ActorId == actorId ? "冷静" : actor.Name + "冷静";
@@ -238,8 +231,8 @@ namespace SSNoir.Scripting
                     composureDelta > 0 ? ActionEffectTone.Positive : ActionEffectTone.Negative);
 
                 int injuryDelta = gameState.Team.Injury.Severity - injuryBefore;
-                bool collapsed = injuryDelta < 0 && injuryBefore > 0;
-                ReportInjuryChange(gameState, collapsed
+                bool collapsed = !hospitalizationBefore && gameState.HasPendingHospitalization;
+                ReportInjuryChange(gameState, collapsed || (injuryDelta < 0 && injuryBefore > 0)
                     ? Injury.MaxSeverity - injuryBefore
                     : injuryDelta);
                 if (injuryDelta > 0 || collapsed)
@@ -437,10 +430,11 @@ namespace SSNoir.Scripting
 
             interpreter.DefineGlobal(Symbol.FromString("__record-clock-effect!"), new NativeProcedure(args =>
             {
-                if (args.Count != 3 || args[0] is not string label || args[1] is not string displayLabel)
-                    throw new ArgumentException("__record-clock-effect! requires id, display label, and delta");
+                if (args.Count != 4 || args[0] is not string label || args[1] is not string displayLabel)
+                    throw new ArgumentException("__record-clock-effect! requires id, display label, delta, and beneficial direction");
                 int delta = Convert.ToInt32(args[2]);
-                gameState.CurrentActionReport?.AddClockEffect(label, displayLabel, delta);
+                var direction = ClockSemantics.ParseDirection(args[3] is Symbol symbol ? symbol.AsString : "");
+                gameState.CurrentActionReport?.AddClockEffect(label, displayLabel, delta, direction);
                 return new None();
             }, "__record-clock-effect!"));
 
@@ -459,6 +453,16 @@ namespace SSNoir.Scripting
                 report.BlockingStorySteps.Add(BlockingStoryStep.ForIntertitle(pages, hold));
                 return new None();
             }, "__play-intertitle!"));
+
+            interpreter.DefineGlobal(Symbol.FromString("__focus-node!"), new NativeProcedure(args =>
+            {
+                if (args.Count != 1 || args[0] is not string nodeId)
+                    throw new ArgumentException("__focus-node! requires one node id");
+                var report = gameState.CurrentActionReport
+                    ?? throw new InvalidOperationException("focus-node! requires an action or round report");
+                report.BlockingStorySteps.Add(BlockingStoryStep.ForFocusNode(nodeId));
+                return new None();
+            }, "__focus-node!"));
 
             interpreter.DefineGlobal(Symbol.FromString("__play-camera!"), new NativeProcedure(args =>
             {

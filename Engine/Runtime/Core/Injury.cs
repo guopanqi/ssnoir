@@ -6,14 +6,15 @@ namespace SSNoir.Core
     public enum InjuryBand { None, Light, Severe }
 
     /// <summary>
-    /// 伤势：每到 2/4/6 点各封锁一个行动位；7 点倒下送医。
+    /// 伤势：到 2 点封锁一个行动位，到 5 点再封锁一个；7 点倒下送医。
     /// 伤势不再扣技能，刻度仍用于治疗与恢复；不会随时间自行恶化。
     /// </summary>
     public sealed class Injury
     {
         public const int LightThreshold = 1;
         public const int SevereThreshold = 4;
-        public const int ActionSlotLossStep = 2;
+        public const int FirstActionSlotLossThreshold = 2;
+        public const int SecondActionSlotLossThreshold = 5;
         /// <summary>刻度上限，也是触发倒下结算的阈值。</summary>
         public const int MaxSeverity = 7;
         /// <summary>倒下结算后的伤势：送医后伤势归零，永久代价由疤痕承担。</summary>
@@ -59,8 +60,9 @@ namespace SSNoir.Core
             _ => throw new ArgumentOutOfRangeException(nameof(band), band, "Unknown injury band.")
         };
 
-        /// <summary>伤势每满两点封锁一个行动位；7 点会立刻进入倒下结算。</summary>
-        public int ActionDieLoss => Severity / ActionSlotLossStep;
+        /// <summary>伤势到 2 点封锁一个行动位，到 5 点封锁第二个；7 点会立刻进入倒下结算。</summary>
+        public int ActionDieLoss => Severity >= SecondActionSlotLossThreshold ? 2
+            : Severity >= FirstActionSlotLossThreshold ? 1 : 0;
         public int SkillPenalty => 0;
         public bool CostsActionDie => ActionDieLoss > 0;
         public DifficultyModifierInfo? ModifierFor(string actorRole, string skillName) => null;

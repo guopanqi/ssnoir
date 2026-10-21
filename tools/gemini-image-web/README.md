@@ -38,7 +38,7 @@ node tools/gemini-image-web/gemini-image-web.mjs generate \
 
 生成图、`prompt.txt` 和 `manifest.json` 始终保留在 `tmp/gemini-image-web/<session>/<name>/`（`--out` 只是多存一份）。同一浏览器 profile 不能由两个进程同时打开。上传参考图首次触发 Google 的内容确认时，用 `--headed` 运行并手动同意一次。
 
-普通 `generate` 首次调用会在后台启动 Chrome，后续调用复用同一个 profile 和页面；任务顺序执行，后台进程空闲 10 分钟后自动退出。首次仍需支付浏览器启动时间，连续出图可省掉每张图的冷启动。运行 `node tools/gemini-image-web/gemini-image-web.mjs stop` 可立即关闭后台浏览器。`--headed` 和 `doctor` 仍单次启动浏览器；运行它们之前先 `stop`，避免争用同一 profile。
+普通 `generate` 首次调用会在后台启动 Chrome，后续调用复用同一个 profile 和页面；任务顺序执行，后台进程空闲 10 分钟后自动退出。首次仍需支付浏览器启动时间，连续出图可省掉每张图的冷启动。运行 `node tools/gemini-image-web/gemini-image-web.mjs stop` 可立即关闭后台浏览器。`doctor` 自动复用后台浏览器并在独立页面诊断；没有后台时单次启动。`--headed` 生成和 `login` 前仍需先 `stop`，避免争用同一 profile。
 
 生成已经在 Gemini 历史中持久化、但下载或本地保存阶段中断时，可以恢复对应对话：
 

@@ -10,7 +10,7 @@
   const VIEW = {
     wide: { x: 800, y: 450, s: 1 },
     counter: { x: 965, y: 540, s: 1.55 },
-    cup: { x: 955, y: 570, s: 2.25 },
+    cup: { x: 955, y: 545, s: 2.0 },
     end: { x: 820, y: 470, s: 1.08 },
   };
   const CAMERA_LABEL = {

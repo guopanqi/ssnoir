@@ -14,6 +14,7 @@ namespace SSNoir.Core
         public string Subtitle { get; set; } = string.Empty;
         /// <summary>可选操作按钮文字；未指定时由 UI 使用默认动词。</summary>
         public string? ButtonText { get; set; }
+        public string? RequiredBeforeRest { get; set; }
         public bool Disabled { get; set; }
         public List<GameClock> Clocks { get; } = new List<GameClock>();
         public List<string> Tags { get; set; } = new List<string>();

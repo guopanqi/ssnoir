@@ -47,11 +47,11 @@ namespace SSNoir.IMGUI
             var snapshot = gameManager.DisplayedSnapshot;
             if (snapshot.IsInEncounter) return;
 
-            // 冷静与伤势按实际状态触发教程；失败未扣冷静时不误触发。
+            // 冷静与伤势按实际状态触发教程。
             foreach (var actor in snapshot.Actors)
                 if (actor.Role == "protagonist")
                 {
-                    if (TeamState.ComposureDicePenalty(actor.Composure) < 0)
+                    if (actor.Composure < actor.MaxComposure)
                         Request(TutorialLibrary.Composure);
                     break;
                 }
@@ -68,9 +68,6 @@ namespace SSNoir.IMGUI
                     Request(TutorialLibrary.ActionDice);
             }
         }
-
-        /// <summary>保留旧调用入口；实际教程触发以快照里的冷静状态为准。</summary>
-        public static void RequestOnFailedRoll() => Request(TutorialLibrary.Composure);
 
         /// <summary>以目标卡为边界分配剩余空间，优先选能容下大教程的左右区域。</summary>
         public static Rect GetPanelRect(TutorialEntry entry, IReadOnlyList<Rect> highlights)

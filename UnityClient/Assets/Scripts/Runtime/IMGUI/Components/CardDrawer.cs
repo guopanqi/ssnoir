@@ -258,7 +258,7 @@ namespace SSNoir.IMGUI
                 alignment=TextAnchor.MiddleLeft,clipping=TextClipping.Clip,normal={textColor=IMGUIStyles.Paper}};
             if(clock.Priority==ClockPriority.Secondary)
             {
-                label.normal.textColor=clock.Style==ClockStyle.Pressure?color:IMGUIStyles.TextSecondary;
+                label.normal.textColor=color;
                 IMGUIStyles.DrawLabel(new Rect(rect.x+8f,rect.y,rect.width-16f,rect.height),
                     $"{clock.ShownLabel} {clock.Current}/{clock.Max}",label);
             }
@@ -286,9 +286,14 @@ namespace SSNoir.IMGUI
             }
         }
 
-        // 压力统一采用警示红，目标进度采用金色。
+        // 填充值的好坏由作者声明；样式不决定颜色。
         public static Color ClockColor(GameClock clock)
-            => clock.Style==ClockStyle.Pressure?IMGUIStyles.OddsFail:IMGUIStyles.Gold;
+            => clock.BeneficialDirection switch
+            {
+                BeneficialDirection.Increase => IMGUIStyles.OddsSuccess,
+                BeneficialDirection.Decrease => IMGUIStyles.OddsFail,
+                _ => IMGUIStyles.Gold,
+            };
 
         /// <summary>共享进度图形；空轨道保持低对比，实际进度按钟的语义着色。</summary>
         public static void DrawClockGraphic(Rect rect,GameClock clock,Color? accent=null)

@@ -12,9 +12,27 @@ namespace SSNoir.Core
     public enum ClockStyle
     {
         Gauge,      // 一格一格的量：满或空会触发事情，方向由脚本自己决定
-        Pressure,   // 压力逐格累积；使用警示色，与目标进度区分
+        Pressure,   // 压力逐格累积；颜色由 BeneficialDirection 决定
         Countdown,  // 时间在逼近，归零触发。这一条是有方向的：它只会往下走
         Readout     // 当前是多少，满/空都不触发任何事
+    }
+
+    public enum BeneficialDirection { Neutral, Increase, Decrease }
+
+    public static class ClockSemantics
+    {
+        public static BeneficialDirection ParseDirection(string value) => value switch
+        {
+            "increase" => BeneficialDirection.Increase,
+            "decrease" => BeneficialDirection.Decrease,
+            "neutral" => BeneficialDirection.Neutral,
+            _ => throw new InvalidOperationException($"Unknown beneficial direction '{value}' (expected increase / decrease / neutral).")
+        };
+
+        public static ActionEffectTone ChangeTone(BeneficialDirection direction, int delta)
+            => delta == 0 || direction == BeneficialDirection.Neutral ? ActionEffectTone.Neutral
+                : (delta > 0) == (direction == BeneficialDirection.Increase)
+                    ? ActionEffectTone.Positive : ActionEffectTone.Negative;
     }
 
     public enum ClockPriority { Primary, Secondary }
@@ -28,6 +46,7 @@ namespace SSNoir.Core
         public int Current { get; set; }
         public int Max { get; set; }
         public ClockPriority Priority { get; set; } = ClockPriority.Primary;
+        public BeneficialDirection BeneficialDirection { get; set; } = BeneficialDirection.Neutral;
         public ClockStyle Style { get; set; } = ClockStyle.Gauge;
     }
 }

@@ -162,7 +162,7 @@
     (define (registered?) (equal? registration "有效"))
 
     (define (node-registration)
-      (node "手续已经好了"
+      (node "手续已经好了" :required-before-rest "贝恩斯有张纸要给你"
         :anchor "警察局-值班台"
         :subtitle "贝恩斯说手续已经办好了"
         :resolve (instant
@@ -176,7 +176,7 @@
                 (line "贝恩斯" "以前没人知道你是谁，我拿什么替你说话。")
                 (line "贝恩斯" "现在全城都知道你是谁。用不着再找一个人说第二遍。"))
               (set! registration "有效")
-              (sync-blockers!)
+
               (home 'connect-phone!)
               (board 'open-line!)
               (spotlight! "侦探委托"
@@ -403,7 +403,7 @@
                    (append
                      (if (等口信?) (list (node-registration-countdown)) '())
                      (if (equal? registration "请来") (list (node-registration)) '())
-                     (if (or receipt? (three-letters 'has-flag? '第三封信))
+                     (if (or receipt? (第二章 'started?))
                          '()
                          (list (node-report-case)))
                      (if (= quiet-stage 1) (list (node-address)) '()))))
@@ -431,18 +431,12 @@
                            (equal? (晚宴 'result) "已结束")))
     (define (口信日) (+ (第二章 'banquet-day) 口信间隔))
 
-    (define (sync-blockers!)
-      (rest-release! "贝恩斯/登记")
-      (if (and side-story-open? (equal? registration "请来"))
-          (rest-block! "贝恩斯/登记" "贝恩斯有张纸要给你" "警察局" "手续已经好了")
-          #f))
-
     (define-turn-rule "贝恩斯叫你去警局"
       (lambda ()
         (and (等口信?) (>= world-day (口信日))))
       (lambda ()
         (set! registration "请来")
-        (sync-blockers!)
+
         (play-remote-dialogue!
           (line "世界" "一个巡警在楼下等你。")
           (line "巡警" "贝恩斯让你去警局一趟。不是问话。他只是有张纸要给你。"))))
@@ -470,7 +464,7 @@
           ((equal? msg 'owed?) owed?)
           ((equal? msg 'registered?) (registered?))
           ((equal? msg 'registration) registration)
-          ((equal? msg 'sync-blockers!) (sync-blockers!))
+
           ;; 首演那晚用掉他那一次：一次就没了，别让它变成常驻特权。
           ((equal? msg 'spend-favor!) (set! owed? #f))
           ((equal? msg 'route) route)

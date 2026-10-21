@@ -229,33 +229,39 @@ async function firstVisible(locator) {
   return null;
 }
 
-async function uploadReferences(page, references) {
+export async function uploadReferences(page, references) {
   if (!references.length) return;
 
   const attachments = page.locator("img[alt='attachment'], img.gem-attachment-style-img");
   // setInputFiles 会立刻修改 DOM，因此新增附件的基线必须在触发上传前采集。
   const attachmentsBeforeUpload = await attachments.count();
 
-  // 当前 Gemini Images 把入口改成了“Upload & tools”。点击后会动态挂载
-  // 一个 accept=image/* 的 input；直接设置它比依赖 Material menu 的 DOM 时序稳定，
-  // 也能一次性保留多张参考图。
-  const add = await firstVisible(page.locator(
-    "button[aria-label='Upload & tools'], button[aria-label*='Add files'], button[aria-label*='Upload']",
-  ));
-  if (!add) fail("未找到可见的图片上传入口；当前页面可能已改版。请运行 doctor --headed 检查。");
-  await add.click();
-
+  // 页面壳先显示 Add files，随后才挂载 Upload & tools 的事件和文件输入。
+  // 点击成功不代表菜单已展开；只在输入框或上传菜单出现后继续。
   const imageInput = page.locator("input[type='file'][accept='image/*']").last();
-  const directInputReady = await imageInput.waitFor({ state: "attached", timeout: 10_000 })
-    .then(() => true).catch(() => false);
+  const menuItem = page.locator(
+    "[data-test-id='local-images-files-uploader-button'], [role='menuitem'][aria-label^='Upload files']",
+  ).last();
+  let ready = false;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const add = await firstVisible(page.locator(
+      "button[aria-label='Upload & tools'], button[aria-label*='Add files'], button[aria-label*='Upload']",
+    ));
+    if (!add) fail("未找到可见的图片上传入口；请运行 doctor --headed 检查。");
+    await add.click();
+    ready = await Promise.any([
+      imageInput.waitFor({ state: "attached", timeout: 5_000 }),
+      menuItem.waitFor({ state: "visible", timeout: 5_000 }),
+    ]).then(() => true).catch(() => false);
+    if (ready) break;
+  }
+  if (!ready) fail(`图片上传入口点击三次后仍未就绪（当前 URL：${page.url()}）。请运行 doctor --headed 检查。`);
+  const directInputReady = await imageInput.count() > 0;
   if (directInputReady) {
     await imageInput.setInputFiles(references);
   } else {
     // 兼容仍使用菜单文件选择器的旧版页面。不要用 [role=menu].last()：新版同时
     // 渲染外层工具菜单和内层上传菜单，last() 会受动画/实验分支时序影响。
-    const menuItem = page.locator(
-      "[data-test-id='local-images-files-uploader-button'], [role='menuitem'][aria-label^='Upload files']",
-    ).last();
     await menuItem.waitFor({ state: "visible", timeout: 10_000 }).catch(async () => {
       const menus = await page.locator("[role='menu']:visible").count().catch(() => 0);
       fail(`点击图片上传入口后未找到 Upload files（当前可见菜单 ${menus} 个；网页可能已改版）。`);
@@ -639,17 +645,18 @@ async function resume(options, sharedContext = null) {
   }
 }
 
-async function doctor(options) {
-  const context = await launch(options);
+async function doctor(options, sharedContext = null) {
+  const context = sharedContext || await launch(options);
+  const page = sharedContext ? await context.newPage() : context.pages()[0] || await context.newPage();
   try {
-    const page = context.pages()[0] || await context.newPage();
     await page.goto(IMAGES_URL, { waitUntil: "domcontentloaded" });
     await assertImagesPage(page);
     const imageMode = await page.locator("button[aria-label='Deselect Images']").count();
     const add = await page.locator("button[aria-label*='Add files'], button[aria-label*='Upload']").count();
     console.log(`images: ok (Images 工具: ${imageMode ? "已选择" : "未找到"}; 上传按钮: ${add ? "有" : "无"})`);
   } finally {
-    await context.close();
+    if (sharedContext) await page.close();
+    else await context.close();
   }
 }
 
@@ -738,10 +745,11 @@ async function serve(options) {
             server.close();
             return;
           }
-          if (job.command !== "generate" && job.command !== "resume") fail("后台请求无效。");
+          if (!["generate", "resume", "doctor"].includes(job.command)) fail("后台请求无效。");
           console.log = (...parts) => stdout.push(parts.join(" "));
           console.error = (...parts) => stderr.push(parts.join(" "));
-          if (job.command === "resume") await resume(job, context);
+          if (job.command === "doctor") await doctor(job, context);
+          else if (job.command === "resume") await resume(job, context);
           else await generate(job, context);
           socket.end(JSON.stringify({ ok: true, stdout, stderr }));
         } catch (error) {
@@ -788,7 +796,16 @@ export async function main(argv = process.argv.slice(2)) {
     return;
   }
   if (options.command === "login") return login(options);
-  if (options.command === "doctor") return doctor(options);
+  if (options.command === "doctor") {
+    const result = await connectDaemon(options).catch(error => {
+      if (error.code === "ENOENT" || error.code === "ECONNREFUSED") return null;
+      throw error;
+    });
+    if (!result) return doctor(options);
+    for (const line of result.stdout || []) console.log(line);
+    if (!result.ok) fail(result.error);
+    return;
+  }
   if (options.command === "generate") return options.headed ? generate(options) : generateWithDaemon(options);
   if (options.command === "resume") {
     if (options.headed) return resume(options);

@@ -3,8 +3,8 @@
 ;;
 ;; 起点为长期住宿的廉价旅馆；保留住所存档身份与后续搬家系统。
 ;; 日常添置的是可搬走的个人物品；公寓仍是后续另一处住所。
-;; 冷静不自动恢复：花行动骰静坐 +1；酒馆花 15 美元喝酒 +4。
-;; 健康按伤势 0–7 表示：伤势到 2、4、6 点时各封锁一个行动位；睡两夜在屋里缓和 1 点伤势。
+;; 冷静不自动恢复：静坐判定：坏0、中+1、好+2；酒馆花 15 美元喝酒 +4。
+;; 健康按伤势 0–7 表示：伤势到 2、5 点时各封锁一个行动位；睡两夜在屋里缓和 1 点伤势。
 ;; 诊所、药品、弹簧床垫的主动养伤仍是更快的恢复方式。
 
 (define home
@@ -31,9 +31,9 @@
     (define rent-cycle 4)
     (define rent-amount 40)
     (define rent-clk
-      (make-clock "旅馆房费到期" rent-cycle 'countdown "每四天收取一次房费，40美元。"))
-    ;; 开场当夜正常换日，次晨显示还剩两天。
-    (rent-clk 'set! 3)
+      (make-clock "旅馆房费到期" rent-cycle 'countdown "每四天收取一次房费，40美元。" :beneficial-direction 'increase))
+    ;; 新开场直接从第一天清晨开始，两天后首次收租。
+    (rent-clk 'set! 2)
     (define grace-max 2)
     (define grace grace-max)        ; 旅馆老板还愿意等你几天（信用）
     (define overdue? #f)            ; 已经到期没交，正在用宽限
@@ -41,7 +41,7 @@
       (make-clock "宽限到期" grace-max 'countdown
         (lambda (current max)
           (string-append (if (<= current 1) "最后一天。" (string-append "还剩 " (number->string current) " 天。"))
-                         "宽限期内可以补交；归零仍未交上，旅馆老板会来锁门。"))))
+                         "宽限期内可以补交；归零仍未交上，旅馆老板会来锁门。")) :beneficial-direction 'increase))
     (define flower-price 40)
     (define mattress-price 60)
     (define apartment-price 200)
@@ -169,39 +169,40 @@
     ;; 老街酒馆.scm），「酒」这件物品没有来路了，这张卡只会一直灰在客厅里。
     ;; 效果本身没丢：酒馆那杯走的就是下面这个 apply-drink-effect!。
 
-    ;; 在家平复情绪：用今天的一颗骰换回一点冷静，和酒馆花钱构成真实替代。
+    ;; 静坐消耗一颗骰子，以见识判定；失败无效果，中性恢复1，成功恢复2。
     (define (node-calm)
       (node "静坐"
         :anchor "租屋-床边"
         :subtitle (if (= (actor-composure 'player) 5)
                       "冷静已满"
-                      "花一枚骰子恢复 1 点冷静")
+                      "静坐平复心绪；中恢复1，好恢复2")
         :disabled (= (actor-composure 'player) 5)
         :requires (list (req-die))
-        :resolve (instant
-          (outcome (lambda () (restore-actor-composure! 'player 1))))))
+        :resolve (recovery-roll 'knowledge
+          (outcome (lambda () #f))
+          (outcome (lambda () (restore-actor-composure! 'player 1)))
+          (outcome (lambda () (restore-actor-composure! 'player 2))))))
 
-    ;; 用药：在住所中上药休养，不占用行动骰，压 1 点伤势。
+    ;; 用药：在住所中上药休养，不占用行动骰，压 2 点伤势。
     ;; 它是"花钱买时间"的那条路——不占骰子，但药得先花 25 金从诊所买回来。
-    ;; 曾经压 2：那样一份药就抵得上一次看医生，钱一多伤势就不再吃日子，
-    ;; 交锋的代价随之消失。急救只止一格，剩下的还得躺。
+    ;; 一天只能用一份，避免连续用药快速抹掉交锋造成的伤势。
     (define (node-use-medicine anchor)
       (node "用药"
         :anchor anchor
         :subtitle (cond
                     ((equal? (injury-band) '完好) "身上没有需要处理的伤")
                     (medicated-today? "一天上一次药就够了，伤口需要时间")
-                    (#t "不占行动骰，压 1 点伤势；一天只能用一份"))
+                    (#t "不占行动骰，压 2 点伤势；一天只能用一份"))
         :disabled (or medicated-today? (equal? (injury-band) '完好))
         :requires (list (req-item "药品" 1))
         :resolve (instant
           (outcome (lambda ()
               (set! medicated-today? #t)
-              (heal-injury! 1))))))
+              (heal-injury! 2))))))
 
     ;; 养伤：弹簧床垫解锁的长期恢复通道。
     ;;   养伤   1 骰、0 金、−1
-    ;;   用药   0 骰、25 金、−1（每天一份）
+    ;;   用药   0 骰、25 金、−2（每天一份）
     ;;   看医生 1 骰、20 金、−2
     ;; 床垫不被动治伤：它只让玩家可以把今天的一颗骰换成一点康复。
     ;; 不设每日上限——骰子本身就是上限，多躺一颗骰就是少做一份工。
@@ -295,10 +296,7 @@
         :resolve (instant
           (outcome (lambda ()
               ;; 睡眠只有日历推进与缓慢养伤，不再自动恢复冷静。
-              (if (and (= world-day 2) (= (three-letters 'story-stage) 0))
-                  (three-letters 'night-visit!) #f)
               (sleep-mend!)
-              (three-letters 'opening-sleep!)
               (set! 刚睡过? #t)
               (end-turn!))))))
 
@@ -311,7 +309,6 @@
         :resolve (instant
           (outcome (lambda ()
               ;; 露宿不回复冷静，但也不再伤身，免得把玩家推向击穿受伤的死亡循环。
-              (three-letters 'opening-sleep!)
               (set! 刚睡过? #t)
               (end-turn!))))))
 
@@ -532,13 +529,12 @@
     (define (upgrade-nodes) '())
 
     (define (home-body)
-      (if (= world-day 1) (append (地点节点 "家") (if (three-letters 'opening-heard?) (list (node-sleep)) '()))
       (append
         (地点节点 "家")
         (if evicted? (list (node-entry-hall)) (list (node-room)))
         (if (renting?) (rent-nodes) '())
         (upgrade-nodes)
-        (list (if evicted? (node-sleep-at-door) (node-sleep))))))
+        (list (if evicted? (node-sleep-at-door) (node-sleep)))))
 
     ;; 容器名固定为"家"（导航按名字定位，不能随住所变），住所等级放 subtitle 显示。
     (define (residence-container)
@@ -552,7 +548,7 @@
       (let ((msg (car args)))
         (cond
           ((equal? msg 'dossier)
-           (if (and (> world-day 1) (renting?) (not (get-global '首次房租已交)))
+           (if (and (renting?) (not (get-global '首次房租已交)))
                (list (dossier "旅馆房费"
                  :kind '城市 :primary #t
                  :status '进行中

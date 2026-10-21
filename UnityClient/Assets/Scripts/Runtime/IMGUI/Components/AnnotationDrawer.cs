@@ -42,6 +42,9 @@ namespace SSNoir.IMGUI
         // 而标注只是贴在这个地方的一小条字，该多大就多大。
         private const float SceneNoteMinWidth = 120f;
         private const float SceneNoteMaxWidth = 360f;
+        // CalcSize 与实际绘制在动态中文字体的字形回退上可能相差一两个像素。
+        // 短句若刚好卡在测量宽度，末字会孤零零换到下一行，光晕还可能露在正文框外。
+        private const float BodyWidthSafety = 16f;
         private const float SceneNoteGap = 24f;
         private const float SceneRowGap = 14f;
         private const float SceneBandTopPad = 6f;
@@ -209,7 +212,7 @@ namespace SSNoir.IMGUI
                 LabelWithHalo(new Rect(rect.xMax-66f,y,66f,TitleRowH),$"{clock.Current}/{clock.Max}",valueStyle);
                 textWidth=Mathf.Max(48f,rect.width-72f);
             }
-            if(clock.Style==ClockStyle.Pressure) titleStyle.normal.textColor=IMGUIStyles.OddsFail;
+            titleStyle.normal.textColor=CardDrawer.ClockColor(clock);
             if(titleH>0f) LabelWithHalo(new Rect(rect.x,y,textWidth,titleH),title,titleStyle);
             if(bodyH>0f) LabelWithHalo(new Rect(rect.x,y+titleH+TitleToBody,ring?textWidth:rect.width,bodyH),body,BodyStyle(pulse));
             return h;
@@ -533,7 +536,7 @@ namespace SSNoir.IMGUI
             if (!string.IsNullOrWhiteSpace(resolve.NoteText))
             {
                 var probe = new GUIStyle(BodyStyle(0f)) { wordWrap = false };
-                bodyRow = probe.CalcSize(new GUIContent(resolve.NoteText)).x;
+                bodyRow = probe.CalcSize(new GUIContent(resolve.NoteText)).x + BodyWidthSafety;
             }
 
             return Mathf.Clamp(Mathf.Max(titleRow, bodyRow), SceneNoteMinWidth, SceneNoteMaxWidth);

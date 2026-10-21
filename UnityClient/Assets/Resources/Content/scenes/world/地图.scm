@@ -28,39 +28,20 @@
 
 (define (地图)
   (list
-    ;; 顺序＝地图上的先后，别随手调。
     (地点 home)
-    (地点 dock (lambda () (or (opening-life 'routes-open?) (three-letters 'delivery-pending?))))
-    (地点 cafe (lambda () (opening-life 'routes-open?)))
-    ;; 工棚在第二章「工棚正在搬空」那一拍的次日才空：入场节拍里就把脚下的地点撤掉，
-    ;; 引擎会当场中断。设备和图纸搬去港务技术区后，由技术区接替它的位置
-    ;; （暂时也落在它的锚点上）。
-    (地点 test-workshop     (lambda () (and (lin 'workshop-open?) (not (林的机器 'workshop-vacated?)))))
-    ;; 酒馆清晨开放；接下委托后的第二次酒馆会面同时开放咖啡馆与码头。
-    (地点 old-street-tavern (lambda () (opening-life 'tavern-open?)))
-    ;; 诊所自己决定何时出现在地图上：第一次受伤那一刻（见 world/诊所.scm）。
-    (地点 clinic            (lambda () (clinic 'visible?)))
-    ;; 警察局在经理拿出第二封信后的次日开放。
-    (地点 police-station    (lambda () (three-letters 'police-open?)))
-    ;; 货运公司有两个合理入口：首演威胁明确，或第二章替沃尔特办完核赔、由他引荐代理。
-    ;; **这一条现在是名不副实的，留着是为了不改第一章的行为。**
-    ;; freight-open? 读的是第一章第三节那个活动窗口（story-stage=4 且首演未结算），
-    ;; 首演一过它就变回假——一个会反悔的条件不该叫「你知道有这么个地方」。
-    ;; 两条路本来是「或」的关系，拆不进三问里（三问是「与」）。
-    ;; 第二章要用商业圈的话必须在这里重新决定：现在的行为是首演之后它会关上，
-    ;; 除非沃尔特引荐过你。那时候再拆成 沃尔特引荐＝发现、第一章窗口＝临时开着。
-    (地点 freight-company   (lambda () (or (three-letters 'freight-open?)
-                                           (walter 'can-arrange-berth?))))
-    (地点 residential-district (lambda () (three-letters 'old-street-open?)))
-    (地点 theater           (lambda () (three-letters 'theater-open?)))
-    ;; 布告栏暂时收起来：第一章的钱和活已经够多，它只是又一处要玩家自己去翻的地方。
-    ;; 模块仍然加载、仍然存档；第二章它会换个身份回来——家里装了电话之后，
-    ;; 委托自己打上门，而不是又一块要玩家去翻的板子。
+    (地点 old-street-tavern (lambda () (第一幕 'opened?)))
+    (地点 dock (lambda () (第一幕 'work-open?)))
+    (地点 cafe (lambda () (第一幕 'work-open?)))
+    (地点 test-workshop (lambda () (and (lin 'workshop-open?) (not (林的机器 'workshop-vacated?)))))
+    (地点 clinic (lambda () (clinic 'visible?)))
+    (地点 police-station (lambda () (第二章 'started?)))
+    (地点 freight-company (lambda () (walter 'can-arrange-berth?)))
+    (地点 residential-district (lambda () (第二章 'started?)))
+    (地点 theater (lambda () (or (第一幕 'theater-open?) (第二章 'started?))))
     (地点 board             (lambda () #f))
     ;; ── 第二章开出来的地方 ─────────────────────────
-    ;; 接下婚外情委托后，格兰德酒店保持可见；若没接过，则随第二章开放成为上城公共客厅。
-    (地点 grand-hotel     (lambda () (or (第二章 'started?) (photo-case 'hotel-open?))))
-    (地点 photo-shop (lambda () (photo-case 'shop-open?)))
+    ;; 旧照片委托已退役；酒店保留旧第二章的独立调试入口。
+    (地点 grand-hotel     (lambda () (第二章 'started?)))
     ;; 林进入项目核心后才能替尼尔担保。外围线在码头看得见门禁，但不能进。
     (地点 port-technical-zone (lambda () (林的机器 'has-access?)))
     ;; 报社从那篇文章见报那天起开：在那之前你没有理由去翻别人的排字房。

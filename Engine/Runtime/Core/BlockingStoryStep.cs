@@ -18,6 +18,7 @@ namespace SSNoir.Core
         Theatre,     // 独立线绘舞台：布景、属性动画、灯光和声音
         Stage,       // 立绘、音效与对白共同编排的舞台演出
         Spotlight,   // 聚光弹窗:点击 dismiss
+        FocusNode,   // 采纳新快照，导航到指定节点，等待镜头到位。
         EnterPlace,  // 采纳动作后的世界快照，并把导航落到指定地点
         AutoAction,  // 新回合开始时的强制行动；引擎已结算，客户端只播放
     }
@@ -53,6 +54,7 @@ namespace SSNoir.Core
         public SSNoir.Theatre.TheatreScene? Theatre { get; init; }
         public StoryStageSequence? Stage { get; init; }              // Kind == Stage
         public SpotlightCard? Spotlight { get; init; }              // Kind == Spotlight
+        public string TargetNodeId { get; init; } = string.Empty; // Kind == FocusNode
         public string PlaceName { get; init; } = string.Empty;      // Kind == EnterPlace
         public GameNode? AutoActionNode { get; init; }               // Kind == AutoAction
         public DialogueSequence? AutoActionPrelude { get; init; }    // AutoAction：卡出现后、抓骰前的对白
@@ -93,6 +95,11 @@ namespace SSNoir.Core
 
         public static BlockingStoryStep ForSpotlight(SpotlightCard card)
             => new BlockingStoryStep { Kind = BlockingStoryStepKind.Spotlight, Spotlight = card };
+
+        public static BlockingStoryStep ForFocusNode(string nodeId)
+            => string.IsNullOrWhiteSpace(nodeId)
+                ? throw new ArgumentException("focus node id cannot be empty", nameof(nodeId))
+                : new BlockingStoryStep { Kind = BlockingStoryStepKind.FocusNode, TargetNodeId = nodeId };
 
         public static BlockingStoryStep ForEnterPlace(string placeName)
             => string.IsNullOrWhiteSpace(placeName)

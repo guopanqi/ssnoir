@@ -696,15 +696,27 @@ namespace SSNoir.Core
         public void RebuildRenderTree()
         {
             var active = ActiveInterpreter;
-            var rawData = active.Eval("(get-render-data)");
-            var rootNode = NodeConverter.ConvertSingle(rawData, active.RawInterpreter);
-
-            if (rootNode.Clocks.Count > 0)
-                throw new InvalidOperationException(
-                    "根容器不能挂 :clocks：根节点不会被渲染为卡。请改用 clock-node 作为第一个子节点。");
-
-            AssertUniqueNodeIds(rootNode);
-            AssertPlacesWellFormed(rootNode, IsWorldScene(CurrentSceneName));
+            GameNode BuildRoot()
+            {
+                var root = NodeConverter.ConvertSingle(active.Eval("(get-render-data)"), active.RawInterpreter);
+                if (root.Clocks.Count > 0)
+                    throw new InvalidOperationException("根容器不能挂 :clocks：请改用 clock-node。");
+                AssertUniqueNodeIds(root);
+                AssertPlacesWellFormed(root, IsWorldScene(CurrentSceneName));
+                return root;
+            }
+            var rootNode = BuildRoot();
+            var required = RequiredBeforeRest.Collect(rootNode, IsWorldScene(CurrentSceneName));
+            bool changed = !RequiredBeforeRest.Same(required, _gameState.RestBlockers);
+            _gameState.SetRestBlockers(required);
+            if (changed)
+            {
+                // 必须事件先由剧情状态生成；睡觉卡的 disabled/提示随后读取同一份投影。
+                // 只补一次纯渲染，拒绝“必须节点的存在反过来依赖是否被阻塞”的循环声明。
+                rootNode = BuildRoot();
+                if (!RequiredBeforeRest.Same(required, RequiredBeforeRest.Collect(rootNode, IsWorldScene(CurrentSceneName))))
+                    throw new InvalidOperationException(":required-before-rest must depend on story state, not rest-blocked?.");
+            }
             TrackNewWorldPlaces(rootNode);
             CurrentRootNode = rootNode;
 
@@ -964,6 +976,10 @@ namespace SSNoir.Core
                 }
             }
 
+            // 直接 C# 调用和 Scheme end-turn! 共用入口，在任何换日副作用前检查。
+            RebuildRenderTree();
+            if (_gameState.RestBlockers.Count > 0)
+                throw new InvalidOperationException("休息前必须处理：" + string.Join("；", _gameState.RestBlockers.Select(b => b.Reason)));
             if (_isExecutingAction)
                 _turnEndedDuringAction = true;
             bool ownsReport = _gameState.CurrentActionReport == null;

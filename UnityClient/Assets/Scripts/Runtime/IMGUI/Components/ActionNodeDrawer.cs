@@ -1208,13 +1208,12 @@ namespace SSNoir.IMGUI
             // residue 只有动画落定后才被绘制——首帧即结果该「揭开」的时刻，惰性记录起点。
             if (residue.RevealStartTime <= 0f)
                 residue.RevealStartTime = Time.unscaledTime;
-            float reveal = Mathf.Clamp01((Time.unscaledTime - residue.RevealStartTime) / 0.28f);
+            float reveal = Mathf.Clamp01((Time.unscaledTime - residue.RevealStartTime) / CardPresentationResidue.RevealSeconds);
             float ease = 1f - Mathf.Pow(1f - reveal, 3f);
 
             var fullPanel = FullResidueAttachmentRect(rect, residue, above);
             var panel = ResidueAttachmentRect(rect, residue, above);
             if (panel.height <= 0f) return;
-            ui.CanHover(panel);
             // 结果只保留判定条和独立的影响行。
 
             // 内容随抽屉朝宿主移动，裁剪与命中都跟随可见高度，收回时不压缩文字。

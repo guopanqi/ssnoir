@@ -155,7 +155,7 @@
             (else '()))))
 
     ;; ── 判定 ────────────────────────────────────────
-    (define (zone-open?) (>= (three-letters 'story-stage) 2))
+    (define (zone-open?) (第二章 'started?))
     (define (workshop-open?) (>= stage 1))
     (define (known?) (>= stage 1))
     (define (prep-open?) (and (<= 1 stage) (<= stage 2)))

@@ -28,7 +28,7 @@
 (define eddie-rounds 5)
 (define eddie-clk
   (make-clock "艾迪还撑得住" eddie-rounds 'countdown
-    "每回合末走一格。归零时你还没清场，他就撑不住了。"))
+    "每回合末走一格。归零时你还没清场，他就撑不住了。" :beneficial-direction 'increase))
 
 ;; 每个人两条钟：一条生命值，一条出手。
 ;;
@@ -39,19 +39,19 @@
 ;; 出手是 countdown，因为它真的是时间：你碰不到它，它每回合自己走一格，
 ;; 归零那一下你挨打——「2」就是「他还有两回合出手」。
 (define coat-life
-  (make-clock "生命" coat-life-max 'gauge "他的生命值。个子最大，撑得最久。"))
+  (make-clock "生命" coat-life-max 'gauge "他的生命值。个子最大，撑得最久。" :beneficial-direction 'decrease))
 (define coat-attack
-  (make-clock "皮夹克·出手" 3 'countdown "归零就出手：这一下最重。"))
+  (make-clock "皮夹克·出手" 3 'countdown "归零就出手：这一下最重。" :beneficial-direction 'increase))
 
 (define hat-life
-  (make-clock "生命" hat-life-max 'gauge "他的生命值。归零他就站不住。"))
+  (make-clock "生命" hat-life-max 'gauge "他的生命值。归零他就站不住。" :beneficial-direction 'decrease))
 (define hat-attack
-  (make-clock "毡帽·出手" 2 'countdown "归零就出手：快，但不重。"))
+  (make-clock "毡帽·出手" 2 'countdown "归零就出手：快，但不重。" :beneficial-direction 'increase))
 
 (define sleeves-life
-  (make-clock "生命" sleeves-life-max 'gauge "他的生命值。最不经打的一个。"))
+  (make-clock "生命" sleeves-life-max 'gauge "他的生命值。最不经打的一个。" :beneficial-direction 'decrease))
 (define sleeves-attack
-  (make-clock "卷袖子·出手" 3 'countdown "归零就出手：快，但不重。"))
+  (make-clock "卷袖子·出手" 3 'countdown "归零就出手：快，但不重。" :beneficial-direction 'increase))
 
 (define finished? #f)
 (define round-count 0)

@@ -88,7 +88,7 @@ const bs=(d,v,f,dl)=>{if(!AC)return;const t=AC.currentTime+(dl||0),s=AC.createBu
 s.buffer=NB;l.type='lowpass';l.frequency.value=f||800;g.gain.setValueAtTime(v||.25,t);g.gain.exponentialRampToValueAtTime(.0001,t+(d||.1));s.connect(l);l.connect(g);g.connect(MG);s.start(t,Math.random(),(d||.1)+.05)};
 const clink=()=>{tn(2350,.16,.05);tn(3150,.1,.03,'sine',.02)};
 const stp=()=>bs(.05,.15,700);
-const buzz=()=>{tn(130,.35,.06,'sawtooth');tn(137,.3,.03,'square');bs(.12,.3,2200,.02);tn(2600,.06,'square',.035,.28)};
+const buzz=()=>{tn(130,.35,.06,'sawtooth');tn(137,.3,.03,'square');bs(.12,.3,2200,.02);tn(2600,.06,.035,'square',.28)};
 const doorS=()=>{bs(.28,.26,320);tn(150,.4,.05,'sine',.05)};
 const drawTick=i=>tn(760+i*46,.26,.035);
 const piano=()=>{tn(73.4,2.6,.05);[294,349,440,349,294,349,440,523].forEach((f,i)=>tn(f,.5,.05,'triangle',.25+i*.4))};
@@ -186,7 +186,8 @@ const whisp=(t,x,y,dl)=>$('#props').insertAdjacentHTML('beforeend',`<text class=
 /* 观众剪影：常时轻晃（CSS），鼓掌时起伏 */
 const SIL=(x,y,s,f)=>`<g class="sil" transform="translate(${x} ${y}) scale(${s*(f||1)} ${s})"><g class="bd2"><circle cx="0" cy="-190" r="20" fill="#05070d" stroke="#4a5f8c" stroke-width="2"/><polygon points="-24,-166 24,-166 36,-76 24,-70 20,0 5,0 0,-56 -5,0 -20,0 -24,-70 -36,-76" fill="#05070d" stroke="#4a5f8c" stroke-width="2"/></g></g>`;
 /* ---------- 道具动作 ---------- */
-const wipeGlass=async(w,n)=>{pose('bm','bmWipe',{face:'n'});gl('gl',948,600,1,0);for(let i=0;i<(n||2);i++){gl('gl',955,598,1,320,9);await w(380);gl('gl',941,602,1,320,-9);await w(380)}};
+/* 擦杯与递杯发生在酒保镜像（f=1 面向尼尔）窗口：左手（屏幕左侧 x≈745）持杯；收杯/上架在 f=0 窗口（右手 x≈1010） */
+const wipeGlass=async(w,n)=>{pose('bm','bmWipe',{face:'n'});gl('gl',748,600,1,0);for(let i=0;i<(n||2);i++){gl('gl',755,598,1,320,9);await w(380);gl('gl',741,602,1,320,-9);await w(380)}};
 const shelveGlass=async w=>{pose('bm','bmBack');await w(140);gl('gw',984,474,1,750);await w(880);clink();pose('bm','bmIdle',{back:0});await w(320)};
 /* ---------- 台词 ---------- */
 const NM={nl:['尼 尔','#f0cf8a'],bm:['酒 保','#c9a8e0'],ny:['夜 莺','#8fd9d0']};
@@ -254,14 +255,14 @@ SET.querySelectorAll('.cfl').forEach((c,i)=>at(2100+i*200,()=>{c.style.opacity=.
 await w(3400);SET.classList.add('f');os('.bh',.55);os('.bl2',.8);
 await w(500);$('#title').classList.remove('on');await w(700);
 /* （酒馆还没坐满。酒保擦着玻璃杯。） */
-$('#props').innerHTML=SIL(210,792,.5,1)+SIL(1010,792,.6,-1)+SIL(1245,794,.68,1);
+$('#props').innerHTML=SIL(210,792,.5,1)+SIL(390,792,.6,-1)+SIL(1245,794,.68,1);
 P('bm',{show:1,d:0,x:880,y:790,s:.6,f:1,face:'n'});
 await w(850);await wipeGlass(w,2);
 /* 尼尔推门进来 */
 doorS();os('#dl',.5);at(500,()=>os('#dl',.22),k);
 P('nl',{show:1,d:0,x:-180,y:790,s:.6,f:0,face:'n'});go('nl',470,790,2300);await w(2450);os('#dl',0);
 /* 酒保递来他习惯放在那里的空杯 */
-pose('bm','bmReach');gl('gw',958,640,1,0);await w(420);gl('gw',640,652,1,650,0,'ease-out');await w(720);clink();pose('bm','bmIdle');await w(200);
+pose('bm','bmReach');gl('gw',747,628,1,0);await w(420);gl('gw',640,652,1,650,0,'ease-out');await w(720);clink();pose('bm','bmIdle');await w(200);
 /* —— 吧台问答（对白一字不改；姿势定格切换，位置不动） —— */
 pose('bm','bmTalk');await say('bm','又没活儿了？');await w(110);
 pose('nl','nlWry');await say('nl','有就不来问你了。');await w(160);
@@ -317,7 +318,7 @@ await w(phrase([[294,.9],[262,.55],[233,.7],[196,1.15]]));
 mu.set(.1);
 /* 酒保收杯：拿起 → 转身放回架子 */
 pose('nl','nlLean',{look:0,h:6});
-pose('bm','bmReach');gl('gw',948,598,1,650);await w(740);
+pose('bm','bmReach');gl('gw',990,600,1,650);await w(740);
 await shelveGlass(w);
 P('bm',{f:1,d:500});await w(1100);
 /* 收场 */

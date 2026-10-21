@@ -43,7 +43,7 @@ namespace SSNoir.Testing
                 && actor.ActionDiceSlotIds.SequenceEqual(new[] { 0, 1, 2, 3 }),
                 "A new hand must replace remaining dice and restore every available slot.");
 
-            team.Injury.Restore(4, "手");
+            team.Injury.Restore(5, "手");
             long beforeInjuredRoll = actor.ActionDiceRevision;
             team.RollActionDice(isInEncounter: false);
             Require(actor.ActionDiceRevision == beforeInjuredRoll + 1,

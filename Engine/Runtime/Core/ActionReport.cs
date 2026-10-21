@@ -58,7 +58,7 @@ namespace SSNoir.Core
             });
         }
 
-        public void AddClockEffect(string label, string displayLabel, int delta)
+        public void AddClockEffect(string label, string displayLabel, int delta, BeneficialDirection direction)
         {
             if (string.IsNullOrWhiteSpace(label) || string.IsNullOrWhiteSpace(displayLabel))
                 throw new System.ArgumentException("clock effect id and display label cannot be empty");
@@ -70,8 +70,8 @@ namespace SSNoir.Core
             int totalDelta = delta;
             if (existingIndex >= 0)
             {
-                if (Effects[existingIndex].DisplayLabel != displayLabel)
-                    throw new System.InvalidOperationException($"Clock {label} changed display label during one action");
+                if (Effects[existingIndex].DisplayLabel != displayLabel || Effects[existingIndex].BeneficialDirection != direction)
+                    throw new System.InvalidOperationException($"Clock {label} changed display label or beneficial direction during one action");
                 totalDelta += Effects[existingIndex].Delta ?? 0;
                 Effects.RemoveAt(existingIndex);
             }
@@ -83,7 +83,8 @@ namespace SSNoir.Core
                 DisplayLabel = displayLabel,
                 Delta = totalDelta,
                 Text = label,
-                Tone = totalDelta > 0 ? ActionEffectTone.Positive : ActionEffectTone.Negative
+                BeneficialDirection = direction,
+                Tone = ClockSemantics.ChangeTone(direction, totalDelta)
             });
         }
 

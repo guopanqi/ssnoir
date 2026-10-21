@@ -9,12 +9,8 @@ namespace SSNoir.Core
         public const int MinStatLevel = -1;
         public const int MaxStatLevel = 4;
 
-        // 冷静只在下一手发骰时降低点数，不改变当前已持有的骰子。
-        // 4–5 点不降质，2–3 点减 1，0–1 点减 2；见底额外消耗仍转成伤势。
+        // 冷静是跨日资源；骰面质量由行动骰自身状态决定，不受冷静影响。
         public const int MaxComposure = 5;
-
-        public static int ComposureDicePenalty(int composure)
-            => composure >= 4 ? 0 : composure >= 2 ? -1 : -2;
 
         /// <summary>队伍唯一的身体轴，取代旧的健康血条。规则与档位见 <see cref="Core.Injury"/>。</summary>
         public Injury Injury { get; } = new Injury();
@@ -629,13 +625,12 @@ namespace SSNoir.Core
             {
                 if (actor.FixedDieValue != null)
                 {
-                    // 恒定骰点不受任何降质影响：机器不会宿醉，也不会手抖。
+                    // 恒定骰点不受临时骰面状态影响：机器不会宿醉，也不会手抖。
                     actor.ActionDice.Add(actor.FixedDieValue.Value);
                     actor.ActionDiceSlotIds.Add(slotId);
                     continue;
                 }
-                int penalty = GetCurrentSlotPenalty(actor, slotId)
-                    + (actor.Role == "protagonist" ? ComposureDicePenalty(actor.Composure) : 0);
+                int penalty = GetCurrentSlotPenalty(actor, slotId);
                 if (applyHangover && actor.HangoverSlotId == slotId)
                     penalty--;
                 actor.ActionDice.Add(Math.Max(1, rand.Next(1, 7) + penalty));

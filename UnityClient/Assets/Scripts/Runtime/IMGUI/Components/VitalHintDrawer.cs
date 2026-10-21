@@ -71,13 +71,12 @@ namespace SSNoir.IMGUI
             Rect source = _pinnedActor != null ? _pinnedSource : _source;
             Rect safe = UIScale.SafeArea;
             float w = Mathf.Min(420f, safe.width-24f), inner = w-32f;
-            int maximum = actor.Role == "protagonist" ? 6+TeamState.ComposureDicePenalty(actor.Composure) : 6;
             int count = player.ActionSlotCount;
             int available = count-snapshot.InjuryActionDieLoss;
             string cadence = snapshot.IsInEncounter ? "每回合" : "每天";
-            string injuryText = $"伤势到 2、4、6 点时会封锁行动位，当前{cadence}可用 {available} 个。";
+            string injuryText = $"伤势到 2、5 点时各封锁一个行动位，当前{cadence}可用 {available} 个。";
             string composureText = actor.Role == "protagonist"
-                ? $"冷静会影响骰子质量，当前从 1–{maximum} 中投掷。"
+                ? "冷静归零后，继续承受压力会转成身体伤势。"
                 : "同伴的冷静耗尽后会离开。";
             float headingH = TextStyle(17,IMGUIStyles.Paper).lineHeight+4f;
             float injuryTextH = TextStyle(13,IMGUIStyles.Paper).CalcHeight(new GUIContent(injuryText),inner);
@@ -117,17 +116,8 @@ namespace SSNoir.IMGUI
             for(int value=1;value<=6;value++)
             {
                 var r=new Rect(x+(value-1)*(faceSize+8f),y,faceSize,faceSize);
-                bool blocked=value>maximum;
-                Color ink=blocked ? IMGUIStyles.OddsFail : IMGUIStyles.Paper;
+                Color ink=IMGUIStyles.Paper;
                 IMGUIStyles.DrawOutline(r,1f,ink);
-                if(blocked)
-                {
-                    // 禁用面使用斜纹，而非实心色块。
-                    GUI.BeginClip(r);
-                    for(float d=-r.height;d<r.width;d+=9f)
-                        IMGUIStyles.DrawLine(new Vector2(d,r.height),new Vector2(d+r.height,0),new Color(ink.r,ink.g,ink.b,.15f),3f);
-                    GUI.EndClip();
-                }
                 Label(r,value.ToString(),18,ink,TextAnchor.MiddleCenter);
             }
             y+=faceSize+12f;

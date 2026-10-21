@@ -49,7 +49,7 @@
       (cond
         ((and (已公布?) (>= world-day (进场日)))
          (set! 状态 "今天")
-         (sync-blockers!)
+
          (spotlight! "今天"
            "设备今天上岸。老街的人一早就站到了跳板两侧，警察也来了。"))
         (else #f)))
@@ -59,24 +59,16 @@
     ;;
     ;; 所以这一天的出口不是日终，是玩家自己按下的「看着这一天过完」。
     ;; 日终不再替他收场——否则阻塞和日终互相等，谁也走不动。
-    (define (sync-blockers!)
-      (rest-release! "第二章/机器进入老街")
-      (cond
-        ((and (今天?) (not 到场?))
-         (rest-block! "第二章/机器进入老街" "机器今天上岸" "码头" "到跳板去"))
-        ((今天?)
-         (rest-block! "第二章/机器进入老街" "跳板上的事还没完" "码头" "看着这一天过完"))
-        (#t #f)))
 
     ;; ── 到场 ────────────────────────────────────────
     ;; 不要骰：这是主轴上的必经拍，玩家没有「不去」这个选项，
     ;; 就不该再跟今天的城市生活抢那四颗骰——真花光了骰又睡不了觉，就是软锁。
     ;; 花骰的是跳板上那几张**可做可不做**的卡。
     (define (node-arrive)
-      (instant-action "到跳板去"
+      (node "到跳板去" :required-before-rest "机器今天上岸" :resolve (instant
         (lambda ()
           (set! 到场? #t)
-          (sync-blockers!)
+
           (play-dialogue!
             (line "世界" "吊臂把第一台机器放到跳板上。它比想象中安静。")
             (line "世界" "两侧站满了人。警察在人群外围，手背在身后。")
@@ -87,7 +79,7 @@
               (if (人群稳?)
                   "弗兰克的人站在前排，没有动。"
                   "人群往前挤，有人手里拎着东西。")
-              (if (艾迪在场?) "你在人堆里看见了艾迪。" ""))))))
+              (if (艾迪在场?) "你在人堆里看见了艾迪。" "")))))))
 
     ;; ── 艾迪那一整块：他有别的活路，这一段就根本不存在 ──
     (define (node-stop-eddie)
@@ -146,8 +138,8 @@
     ;; 一次可以插手的机会；按下这张，就是选择站着看完。
     ;; 收场之后阻塞撤掉，今晚才睡得着。
     (define (node-watch-it-out)
-      (instant-action "看着这一天过完"
-        (lambda () (收场!))))
+      (node "看着这一天过完" :required-before-rest "跳板上的事还没完" :resolve (instant
+        (lambda () (收场!)))))
 
     (define (nodes-at location)
       (if (and (equal? location "码头") (今天?))
@@ -168,7 +160,7 @@
       (set! 状态 "收场了")
       (追查 'close!)
       (林的机器 'close!)
-      (sync-blockers!)
+
       (if (and (艾迪在场?) (not 拦下艾迪?))
           (eddie 'on-crushed!)
           #f)
@@ -197,7 +189,7 @@
           ((equal? msg 'dossier) '())
           ((equal? msg 'on-day-start!) (on-day-start!))
           ((equal? msg 'announce!) (公布!))
-          ((equal? msg 'sync-blockers!) (sync-blockers!))
+
           ((equal? msg 'state) 状态)
           ((equal? msg 'announced?) (not (equal? 状态 "未开始")))
           ((equal? msg 'done?) (equal? 状态 "收场了"))

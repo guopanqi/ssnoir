@@ -453,7 +453,7 @@ namespace SSNoir.IMGUI
                 const float rangeSize = 40f;
                 var rangeRect = new Rect(composureRect.xMax + 8f,
                     composureRect.yMax - rangeSize, rangeSize, rangeSize);
-                DiceCubeDrawer.DrawRange(rangeRect, 6 + TeamState.ComposureDicePenalty(actor.Composure));
+                DiceCubeDrawer.DrawRange(rangeRect, 6);
                 VitalHintDrawer.Offer(rangeRect, actor, ui);
             }
             if (showInjury)
@@ -598,8 +598,6 @@ namespace SSNoir.IMGUI
                 : $"{status.Label}{status.DiePenalty:+#;-#}";
         }
 
-        // 冷静的下降只改变下一次发骰的品质；当前骰子不变。
-        // 0 时新一手骰面 −2，额外冷静消耗会继续溢出为伤势。
         // 两簇之间的竖直分隔线。只覆盖所有行动者共享的那几行（冷静 → 名字 → 骰池），
         // 不往上蹭主角独有的伤势行，否则线会长得没有道理。按「有半身像、不画名字」的
         // 常规布局取顶端；没有立绘的人多出一行名字，线短一点点，不值得为此把布局传进来。
@@ -614,7 +612,6 @@ namespace SSNoir.IMGUI
         private static void DrawComposureBar(
             float x,float y,float w,ActorSnapshot actor,SSNoirGameManager gameManager)
         {
-            bool player=actor.Role=="protagonist";
             Color fill = IMGUIStyles.Paper;
             DrawVitalTitle(x,y,"冷静");
             float barX=x+VitalLabelW+8f,barW=w-(VitalLabelW+8f);
@@ -625,13 +622,6 @@ namespace SSNoir.IMGUI
             {
                 var cell=new Rect(barX+i*(cellW+gap),y+4f,cellW,12f);
                 DrawVitalCell(cell,i<actor.Composure,fill,gameManager.GetComposureCellPulse(actor.Id,i));
-                if(!player) continue;
-                // 标记的是跨过这里后失去的骰面，不是当前还能掷出的最大值。
-                int maximum=6+TeamState.ComposureDicePenalty(i+1);
-                int previous=6+TeamState.ComposureDicePenalty(i+2);
-                if(maximum<previous)
-                    DrawVitalFaceMark(new Rect(cell.center.x-9f,y+17f,18f,18f),previous,
-                        actor.Composure <= i+1);
             }
         }
 
@@ -654,13 +644,6 @@ namespace SSNoir.IMGUI
             var style=new GUIStyle(IMGUIStyles.CardSubtitle) {fontSize=IMGUIStyles.FontSize(15),
                 alignment=TextAnchor.MiddleLeft,normal={textColor=IMGUIStyles.TextSecondary}};
             IMGUIStyles.DrawLabel(new Rect(x,y,VitalLabelW,22f),title,style);
-        }
-
-        private static void DrawVitalFaceMark(Rect rect,int value,bool active)
-        {
-            Color ink = active ? IMGUIStyles.OddsFail : Paper35;
-            IMGUIStyles.DrawOutline(rect,1f,ink);
-            DrawDieFace(rect,value,disabled:true,showBackground:false,pipOverride:ink);
         }
 
         // 冷静 / 伤势条上的一格。两条轴共用这一个画法——它们的方向相反，但"变好变坏"
@@ -1076,7 +1059,7 @@ namespace SSNoir.IMGUI
             }
         }
 
-        // 伤势细条：格数即刻度，越满越糟——和冷静条方向相反。每两格标出一个封位阈值；
+        // 伤势细条：格数即刻度，越满越糟——和冷静条方向相反。在封位阈值下标出受损行动位；
         // 完好时整条不画，由调用方决定。
         private static void DrawInjuryBar(
             float x,float y,float w,PresentationSnapshot snapshot,SSNoirGameManager gameManager)
@@ -1092,7 +1075,8 @@ namespace SSNoir.IMGUI
             {
                 var cell=new Rect(barX+i*(cellW+gap),y+4f,cellW,12f);
                 DrawVitalCell(cell,i<severity,fill,gameManager.GetInjuryCellPulse(i));
-                if((i+1)%Injury.ActionSlotLossStep==0)
+                if((i+1)==Injury.FirstActionSlotLossThreshold
+                    || (i+1)==Injury.SecondActionSlotLossThreshold)
                     DrawDisabledDie(new Rect(cell.center.x-8f,y+18f,16f,16f),muted:severity < i+1);
             }
         }

@@ -78,19 +78,13 @@ namespace SSNoir.IMGUI
         // 教程要圈的那张卡：本帧画出来的第一张「能投骰子的动作卡」，屏幕坐标。
         // 网格与空间投射两条路都往这里报，教程那边不必知道当前是哪一种版面。
         private Rect? _firstActionCardRect;
-        // 结果条的去留只有一条规则：**采纳新快照会不会把结果从屏幕上抹掉**。
-        //  · 不会（常规动作，哪怕这一手把卡打没了）：剧情步骤放完立刻采纳，玩家马上能做别的；
-        //    结果条挂在活卡（或替消失的卡站着的残卡）下面烧几秒自己走，点一下也走。
-        //  · 会（这一手翻页要黑幕，或者换了场景/阶段根）：先停住不采纳，让结果条烧完（或点一下）
-        //    再采纳。这时玩家在旧场景里本来也没有事可做，停住不算拦人。
-        // 两条路用的是同一根结果条、同一根绳子，只差 done() 什么时候调。
+        // 普通动作统一先展示结果，再播放阻塞剧情，最后采纳新快照。
         private CardPresentationResidue? _holdingResidue;
         private ActionReport? _holdingReport;
         private Action? _holdingDone;
-        private bool _holdBeforeBlocking;
         private bool _holdingBeforeBlocking;
         // 这次表现事务是否允许在阻塞步骤全部播完后再次进入结果停留。
-        // 送医/换场的结果停留已经在阻塞步骤之前完成，后面可能还有多张 Spotlight 或对白，
+        // 普通动作的结果停留已在阻塞步骤之前完成，后面可能还有多张 Spotlight 或对白，
         // 所以这个策略必须贯穿整串步骤，不能用“一次性跳过”标志。
         private bool _allowOutcomeHoldAfterBlocking = true;
         // 结果条挂多久。
@@ -109,32 +103,19 @@ namespace SSNoir.IMGUI
         private bool _activeAutoActionResolved;
         private bool _activeBeat;
         private float _activeBeatUntil;
-        // 对方回合的一拍 = 引擎的一批。节奏固定：
-        //   t=0        在动的卡亮起；这拍里开口的人，气泡从他卡上冒出
-        //   t=落地     快照落地＝事情发生：钟脉冲、"−1" 飘起、冷静条脉冲，同一帧
-        //   t=收尾     金边褪去，下一拍
-        // 谁在动不靠脚本声明：把落地前后的两份快照按卡逐根钟比一遍，钟变了的卡就是在动的人；
-        // 再加上这拍里开口的人。
+        // 每一批先播前置剧情，再提交状态，最后在新状态上播放气泡与变化提示。
         private const float SilentBeatSeconds = 0.9f;
-        private const float SilentBeatLandAt = 0.3f;
         private const float SpokenBeatSeconds = 1.6f;
-        private const float SpokenBeatLandAt = 0.45f;
         private const float ActingFadeSeconds = 0.6f;
         private readonly List<string> _actingNodeNames = new List<string>();
         private float _actingSince;
         private float _actingUntil;
-        private float _beatLandAt;
-        private Action? _beatLand;
-        private readonly List<DialogueSequence> _beatNarrations = new List<DialogueSequence>();
-        private readonly List<string> _beatNarrationIds = new List<string>();
         private const float AutoActionAppearSeconds = 0.5f;
         private const float AutoActionFlightSeconds = 0.6f;
         private const float AutoActionLandHoldSeconds = 0.35f;
         private const float AutoActionExecuteSeconds = 0.5f;
-        private const float AutoActionResultHoldSeconds = 2.2f;
         private const float AutoActionExecuteStart = AutoActionFlightSeconds + AutoActionLandHoldSeconds;
         private const float AutoActionResolveAt = AutoActionExecuteStart + AutoActionExecuteSeconds;
-        private const float AutoActionDuration = AutoActionResolveAt + AutoActionResultHoldSeconds;
         private readonly Dictionary<string, Rect> _drawnCardRects = new(StringComparer.Ordinal);
         private readonly List<GameNode> _sceneBandNotes = new List<GameNode>();
         private readonly Queue<DialogueSequence> _pendingImmediateDialogues = new Queue<DialogueSequence>();
@@ -243,8 +224,7 @@ namespace SSNoir.IMGUI
             || _activeActionSpotlight != null
             || _conversationPlayer.IsActive || _storyStagePlayer.IsActive || _theatrePlayer.IsActive || _activeVideoTag != null;
 
-        public void PlayPresentation(ActionReport report, string actionNodeId, string actionName, Action onDone,
-            bool holdBeforeBlocking = false)
+        public void PlayPresentation(ActionReport report, string actionNodeId, string actionName, Action onDone)
         {
             _pendingBlockingSteps.Clear();
             _pendingImmediateDialogues.Clear();
@@ -253,22 +233,24 @@ namespace SSNoir.IMGUI
             _completionReport = report;
             _completionActionNodeId = actionNodeId;
             _completionDone = onDone;
-            _holdBeforeBlocking = holdBeforeBlocking;
             _allowOutcomeHoldAfterBlocking = true;
 
             _presentationPlayer.Play(report, actionNodeId, actionName, () =>
             {
-                // 换场时先让玩家读完结果，再放结局剧情；同场景动作沿用剧情期间挂结果的节奏。
-                AddLightResidueIfNeeded(report, actionNodeId);
-                if (_holdBeforeBlocking && _cardResidues.TryGetValue(actionNodeId, out var residue))
+                // 结果本身不锁操作；只有后续剧情、换日或换场需要等待阅读阶段。
+                var residue = AddLightResidueIfNeeded(report, actionNodeId);
+                _allowOutcomeHoldAfterBlocking = false;
+                if (residue != null)
                 {
-                    residue.FuseStartedAt = Time.unscaledTime;
-                    residue.FuseSeconds = OutcomeHoldSeconds(report);
-                    _holdingResidue = residue;
-                    _holdingReport = report;
-                    _holdingDone = null;
-                    _holdingBeforeBlocking = true;
-                    return;
+                    if (_pendingBlockingSteps.Count > 0 || report.PostSceneBlockingSteps.Count > 0
+                        || AdoptWouldEraseOutcome(report))
+                    {
+                        _holdingResidue = residue;
+                        _holdingReport = report;
+                        _holdingDone = null;
+                        _holdingBeforeBlocking = true;
+                        return;
+                    }
                 }
                 AdvanceToBlockingPresentationOrFinish();
             });
@@ -277,53 +259,48 @@ namespace SSNoir.IMGUI
         /// <summary>
         /// 回合转换里的一批（对方回应、回合末收尾）。它不是玩家按下的一手，所以不走
         /// <see cref="PlayPresentation"/> 开头那段"执行中…"进度。
-        /// <paramref name="land"/> 在拍的中段被调（采纳这一批的快照）；批里排在后面的阻塞步骤
-        /// （散场告示、倒下）在落地之后播；全部播完调 <paramref name="done"/>。
+        /// 前置阻塞剧情 → 采纳快照 → 已落地状态上的气泡与脉冲 → 完成。
         /// </summary>
         public void PlayRoundBatch(ActionReport report, PresentationSnapshot landed, Action land, Action done)
         {
-            _pendingBlockingSteps.Clear();
+            // 在前置步骤可能提交快照之前记录差异；表现只读旧快照。
+            var changedHosts = HostsOfChangedClocks(_gameManager.DisplayedSnapshot, landed).ToList();
             _pendingImmediateDialogues.Clear();
-            foreach (var step in report.BlockingStorySteps)
-                _pendingBlockingSteps.Enqueue(step);
-            _completionReport = null;
-            _completionActionNodeId = string.Empty;
-            _completionDone = done;
-
-            _actingNodeNames.Clear();
-            foreach (var host in HostsOfChangedClocks(_gameManager.DisplayedSnapshot, landed))
-                _actingNodeNames.Add(host);
-
-            var speech = new List<DialogueLine>();
-            _beatNarrations.Clear();
-            _beatNarrationIds.Clear();
-            _beatNarrationIds.AddRange(report.NarrationIds);
-            foreach (var sequence in report.Banter)
+            PlayBlockingPresentation(report.BlockingStorySteps, () =>
             {
-                // 旁白（"毡帽从侧面撞进来"）是拳头落下那一刻的字幕，等落地再放；
-                // 人说的话是这一拍的开场，立刻从他卡上冒出来。
-                if (sequence.Lines.Count > 0 && sequence.Lines[0].Speaker == DialogueBubbleDrawer.NarratorSpeaker)
+                land(); // focus-node! 可能已提交；提交入口必须保持幂等。
+                _completionReport = null;
+                _completionActionNodeId = string.Empty;
+                _completionDone = done;
+                _actingNodeNames.Clear();
+                _actingNodeNames.AddRange(changedHosts);
+
+                var speech = new List<DialogueLine>();
+                ReleaseNarrations(report.NarrationIds);
+                foreach (var sequence in report.Banter)
                 {
-                    _beatNarrations.Add(sequence);
-                    continue;
+                    if (sequence.AllowsRemoteParticipants || (sequence.Lines.Count > 0
+                        && sequence.Lines[0].Speaker == DialogueBubbleDrawer.NarratorSpeaker))
+                    {
+                        _banterPlayer.Enqueue(sequence);
+                        continue;
+                    }
+                    foreach (var line in sequence.Lines)
+                    {
+                        speech.Add(line);
+                        if (!_actingNodeNames.Contains(line.Speaker))
+                            _actingNodeNames.Add(line.Speaker);
+                    }
                 }
-                foreach (var line in sequence.Lines)
-                {
-                    speech.Add(line);
-                    if (!_actingNodeNames.Contains(line.Speaker))
-                        _actingNodeNames.Add(line.Speaker);
-                }
-            }
-            bool spoken = speech.Count > 0
-                || report.Effects.Any(effect => effect.Kind == ActionEffectKind.Composure || effect.Kind == ActionEffectKind.Injury);
-            float now = Time.unscaledTime;
-            float dwell = speech.Count > 0 ? _banterPlayer.ShowBeatLines(speech) : 0f;
-            _activeBeat = true;
-            _activeBeatUntil = now + Mathf.Max(spoken ? SpokenBeatSeconds : SilentBeatSeconds, dwell);
-            _beatLandAt = now + (spoken ? SpokenBeatLandAt : SilentBeatLandAt);
-            _beatLand = land;
-            _actingSince = now;
-            _actingUntil = _activeBeatUntil + ActingFadeSeconds;
+                bool spoken = speech.Count > 0
+                    || report.Effects.Any(effect => effect.Kind == ActionEffectKind.Composure || effect.Kind == ActionEffectKind.Injury);
+                float now = Time.unscaledTime;
+                float dwell = speech.Count > 0 ? _banterPlayer.ShowBeatLines(speech) : 0f;
+                _activeBeat = true;
+                _activeBeatUntil = now + Mathf.Max(spoken ? SpokenBeatSeconds : SilentBeatSeconds, dwell);
+                _actingSince = now;
+                _actingUntil = _activeBeatUntil + ActingFadeSeconds;
+            });
         }
 
         // 两份快照按卡名对齐，同名卡上同标签的钟值不同 → 这张卡在动。
@@ -357,27 +334,11 @@ namespace SSNoir.IMGUI
                     yield return n;
         }
 
-        // 拍的中段：快照落地。钟和冷静条的脉冲、飘字都从这一帧起；旁白字幕也在这时出来。
-        private void LandActiveBeat()
-        {
-            var land = _beatLand;
-            _beatLand = null;
-            land?.Invoke();
-            ReleaseNarrations(_beatNarrationIds);
-            foreach (var sequence in _beatNarrations)
-                _banterPlayer.Enqueue(sequence);
-            _beatNarrations.Clear();
-            _beatNarrationIds.Clear();
-        }
-
         /// <summary>回合转换整段结束：金边收掉，别拖进玩家自己的回合。</summary>
         public void EndRoundTransitionPresentation()
         {
             _actingNodeNames.Clear();
             _actingUntil = 0f;
-            _beatLand = null;
-            _beatNarrations.Clear();
-            _beatNarrationIds.Clear();
         }
 
         private bool _storyCameraActive;
@@ -385,6 +346,14 @@ namespace SSNoir.IMGUI
         private float _filmBlackAlpha;
         private float _filmTextAlpha;
         private string _filmText = string.Empty;
+
+        private IEnumerator PlayFocusNodeStep(string nodeId)
+        {
+            _storyCameraActive = true;
+            try { yield return _gameManager.FocusStoryNode(nodeId); }
+            finally { _storyCameraActive = false; }
+            AdvanceToBlockingPresentationOrFinish();
+        }
 
         private IEnumerator PlayCameraStep(BlockingStoryStep step)
         {
@@ -532,6 +501,9 @@ namespace SSNoir.IMGUI
                     case BlockingStoryStepKind.Motion:
                         PlayMotionStep(step);
                         return;
+                    case BlockingStoryStepKind.FocusNode:
+                        StartCoroutine(PlayFocusNodeStep(step.TargetNodeId));
+                        return;
                     case BlockingStoryStepKind.EnterPlace:
                         _gameManager.EnterForcedPlace(step.PlaceName);
                         // 位置切换本身没有确认按钮；下一张倒下卡立刻在诊所画面上接管输入。
@@ -565,7 +537,7 @@ namespace SSNoir.IMGUI
                 else
                 {
                     residue.FuseStartedAt = Time.unscaledTime;
-                    residue.FuseSeconds = OutcomeHoldSeconds(report);
+                    residue.FuseSeconds = OutcomeHoldSeconds;
                     if (AdoptWouldEraseOutcome(report))
                     {
                         _holdingResidue = residue;
@@ -589,9 +561,10 @@ namespace SSNoir.IMGUI
             return !string.Equals(shownRoot, nextRoot, StringComparison.Ordinal);
         }
 
-        // 停住的那条路走到头（烧完或点了一下）：结果条不跨过黑幕/换场，采纳快照。
+        // 阅读计时结束：结果条不跨过黑幕/换场，采纳快照。
         private void FinishHold()
         {
+            var heldNodeId = _holdingResidue?.HostNodeId;
             var report = _holdingReport;
             var done = _holdingDone;
             bool beforeBlocking = _holdingBeforeBlocking;
@@ -599,7 +572,8 @@ namespace SSNoir.IMGUI
             _holdingReport = null;
             _holdingDone = null;
             _holdingBeforeBlocking = false;
-            _cardResidues.Clear();
+            if (heldNodeId != null)
+                _cardResidues.Remove(heldNodeId);
             if (beforeBlocking)
             {
                 _allowOutcomeHoldAfterBlocking = false;
@@ -609,24 +583,7 @@ namespace SSNoir.IMGUI
                 FinishCompletion(report, done);
         }
 
-        private static float OutcomeHoldSeconds(ActionReport report)
-        {
-            return 5f;
-        }
-
-        // ESC：停住的先放行；没停住就把挂着的结果条都收了。
-        public bool TrySkipOutcomeHold()
-        {
-            if (_holdingResidue != null)
-            {
-                FinishHold();
-                return true;
-            }
-            if (_cardResidues.Count == 0)
-                return false;
-            _cardResidues.Clear();
-            return true;
-        }
+        private const float OutcomeHoldSeconds = 1f;
 
         private void FinishCompletion(ActionReport? report, Action? done)
         {
@@ -955,7 +912,6 @@ namespace SSNoir.IMGUI
             _holdingResidue = null;
             _holdingReport = null;
             _holdingDone = null;
-            _holdBeforeBlocking = false;
             _holdingBeforeBlocking = false;
             _allowOutcomeHoldAfterBlocking = true;
             _pendingBlockingSteps.Clear();
@@ -994,7 +950,7 @@ namespace SSNoir.IMGUI
             TutorialDirector.Reset();
         }
 
-        // 一手开始时的保险：结果条本该在采纳快照时就清光了。
+        // 场景重置或回合转换时清理结果；普通拖骰与点击不调用。
         public void ClearCardResidues()
         {
             _cardResidues.Clear();
@@ -1007,6 +963,10 @@ namespace SSNoir.IMGUI
             _gameManager.GameState.NotificationCenter.Update(Time.deltaTime);
             _presentationPlayer.Update(Time.deltaTime);
             _banterPlayer.Update(Time.deltaTime);
+            // 结果实际首次绘制并展开后才开始阅读计时，避免布局动画吃掉这一秒。
+            foreach (var residue in _cardResidues.Values)
+                if (residue.FuseSeconds > 0f && residue.FuseStartedAt < 0f && residue.RevealStartTime > 0f)
+                    residue.FuseStartedAt = residue.RevealStartTime + CardPresentationResidue.RevealSeconds;
             if (_holdingResidue != null && _holdingResidue.RetractionComplete)
                 FinishHold();
             // 时间条烧完后先收回抽屉，收完才移除结果和残卡。
@@ -1042,14 +1002,14 @@ namespace SSNoir.IMGUI
                     {
                         HostNodeId = node.Id,
                         Effects = new List<ActionEffectRecord>(report.Effects),
-                        FuseStartedAt = Time.unscaledTime,
-                        FuseSeconds = AutoActionResultHoldSeconds,
+                        FuseStartedAt = -1f,
+                        FuseSeconds = OutcomeHoldSeconds,
                     };
                     ReleaseNarrations(report.NarrationIds);
                     foreach (var sequence in report.Banter)
                         _banterPlayer.Enqueue(sequence);
                 }
-                else if (_activeAutoActionResolved && elapsed >= AutoActionDuration)
+                else if (_activeAutoActionResolved && !_cardResidues.ContainsKey(_activeAutoAction.AutoActionNode!.Id))
                 {
                     _cardResidues.Remove(_activeAutoAction.AutoActionNode!.Id);
                     _activeAutoAction = null;
@@ -1057,13 +1017,9 @@ namespace SSNoir.IMGUI
                 }
             }
 
-            if (_activeBeat && _beatLand != null && Time.unscaledTime >= _beatLandAt)
-                LandActiveBeat();
             if (_activeBeat && Time.unscaledTime >= _activeBeatUntil)
             {
                 _activeBeat = false;
-                if (_beatLand != null)
-                    LandActiveBeat();
                 AdvanceToBlockingPresentationOrFinish();
             }
 
@@ -1385,13 +1341,6 @@ namespace SSNoir.IMGUI
                 new Vector2(sepX, functionPlate.yMax - 8f),
                 IMGUIStyles.FunctionSlotLine, 1f);
             NavigationDrawer.Draw(_gameManager, worldUi, topHud);
-            // 停住的那条路：输入是锁着的，结果条接不到 WasTapped，任意一次抬手都算「看完了」。
-            if (_holdingResidue != null && Event.current.type == EventType.MouseUp && Event.current.button == 0)
-            {
-                Event.current.Use();
-                FinishHold();
-            }
-
             // ── Growth / Team Toggle Button ──
             DrawGrowthToggleButton(worldUi, topHud.GrowthToggle);
 
@@ -2127,7 +2076,7 @@ namespace SSNoir.IMGUI
         /// 四个状态首尾相接（执行的同一帧就开始演出，演出落定的同一帧就留下结果），
         /// 所以从放进骰子到收起结果，答案一直是 true——它不是存下来的层级，是每帧按状态算的，
         /// 也就没有「掉回去」这回事。活动卡在同一层里最后画（压在邻卡之上），它的附件在附件层。
-        /// 装填与结果都是互斥的（放骰子会清掉别的卡的槽和残影），一层里至多一张活动卡。
+        /// 旧结果可与下一次装填并存；执行面板优先显示，结果计时不因装填重置。
         /// </summary>
         private bool IsActiveCard(GameNode node)
             => ActionNodeDrawer.IsConsoleArmed(node, SlotsForNode(node), GetExecutionState(node.Id).IsExecuting)
@@ -2144,10 +2093,6 @@ namespace SSNoir.IMGUI
                 _cardAttachmentOverlays.Add(CardAttachmentOverlay.ForLocalRoll(
                     cardRect, node.Id, _animator.CurrentReport!, _animator.LocalRollProgress));
             }
-            else if (_cardResidues.TryGetValue(node.Id, out var residue))
-            {
-                _cardAttachmentOverlays.Add(CardAttachmentOverlay.ForResidue(cardRect, residue));
-            }
             else
             {
                 var slots = SlotsForNode(node);
@@ -2160,6 +2105,8 @@ namespace SSNoir.IMGUI
                     }
                     _cardAttachmentOverlays.Add(CardAttachmentOverlay.ForConsole(cardRect, node, slots!));
                 }
+                else if (_cardResidues.TryGetValue(node.Id, out var residue))
+                    _cardAttachmentOverlays.Add(CardAttachmentOverlay.ForResidue(cardRect, residue));
             }
         }
 
@@ -2193,20 +2140,7 @@ namespace SSNoir.IMGUI
                     HandleConsoleTap(attachment, ui);
                     continue;
                 }
-                if (attachment.Residue != null)
-                    TryDismissResidueByTap(attachment.Residue,
-                        ActionNodeDrawer.ResidueAttachmentRect(attachment.CardRect, attachment.Residue, attachment.Above), ui);
             }
-        }
-
-        // 结果条点一下就走。它不是按钮，只是「看完了」的一个手势。
-        private void TryDismissResidueByTap(CardPresentationResidue residue, Rect rect, IMGUIInteractionContext ui)
-        {
-            ui.CanHover(rect);
-            if (!ui.WasTapped(rect))
-                return;
-            Event.current.Use();
-            _cardResidues.Remove(residue.HostNodeId);
         }
 
         // 随身卡（抽烟）和休息键画在底部手牌区，不走卡片层；它们的判定条和结果条在这里补挂，
@@ -2231,14 +2165,13 @@ namespace SSNoir.IMGUI
         // 宿主这一帧没画出来的附件：
         //  · 宿主从快照里消失了、但结算那一帧它在屏幕上——画一张它结算后模样的残卡（钟已归零、
         //    次数已用完）替它站着，结果条挂在残卡下面。玩家看见的是「这一拳把它打没了」，
-        //    而不是卡凭空不见。残卡不可操作，点一下连同结果条一起走。
+        //    而不是卡凭空不见。残卡不可操作，随结果计时消失。
         //  · 连位置都没有（换了场景镜头已经走了、宿主出镜）——挂在屏幕中央一张只写动作名的浮牌下。
         private void DrawGhostsAndFloatingAttachments(IMGUIInteractionContext ui)
         {
             var attached = new HashSet<string>(StringComparer.Ordinal);
             foreach (var attachment in _cardAttachmentOverlays)
-                if (attachment.ConsoleNode == null)
-                    attached.Add(attachment.HostNodeId);
+                attached.Add(attachment.HostNodeId);
 
             if (_animator.IsPlaying && !_animator.UsesModal
                 && !string.IsNullOrEmpty(_animator.ActionNodeId) && !attached.Contains(_animator.ActionNodeId))
@@ -2264,7 +2197,6 @@ namespace SSNoir.IMGUI
                         slotted: null, clocks: residue.SettledClocks ?? residue.SourceNode.Clocks, backText: string.Empty,
                         ui: ui.Occluded(), gameManager: _gameManager);
                     IMGUIStyles.EndLayer(restore);
-                    TryDismissResidueByTap(residue, ghostRect, ui);
                     host = ghostRect;
                 }
                 else
@@ -2274,7 +2206,6 @@ namespace SSNoir.IMGUI
                         ?? throw new InvalidOperationException("结果残卡缺少源节点，无法显示动作名称。"));
                 }
                 ActionNodeDrawer.DrawAttachmentOverlay(host, null, 0f, residue, ui, residue.AttachAbove);
-                TryDismissResidueByTap(residue, ActionNodeDrawer.ResidueAttachmentRect(host, residue, residue.AttachAbove), ui);
             }
         }
 
@@ -2305,7 +2236,7 @@ namespace SSNoir.IMGUI
                 : node.Clocks;
 
         // 操作台的执行钮：视觉在附件层（物品栏之后），点击在这里（物品栏之前）接，
-        // 理由同结果残影——不能视觉盖着骰子、点下去却是骰子在响。
+        // 执行钮是交互控件，需要优先命中；只读结果条不参与命中。
         private void HandleConsoleTap(in CardAttachmentOverlay attachment, IMGUIInteractionContext ui)
         {
             var node = attachment.ConsoleNode!;
@@ -2339,9 +2270,6 @@ namespace SSNoir.IMGUI
             {
                 if (attachment.ConsoleNode != null && (ConsoleRect(attachment).Contains(pointer)
                     || ActionNodeDrawer.OddsPreviewRect(attachment.CardRect).Contains(pointer)))
-                    return true;
-                if (attachment.Residue != null
-                    && ActionNodeDrawer.ResidueAttachmentRect(attachment.CardRect, attachment.Residue, attachment.Above).Contains(pointer))
                     return true;
             }
             return false;
@@ -2994,25 +2922,31 @@ namespace SSNoir.IMGUI
                 ? -1f
                 : now - _activeAutoActionCaptureStartedAt;
 
-        private void AddLightResidueIfNeeded(ActionReport report, string actionNodeId)
+        private CardPresentationResidue? AddLightResidueIfNeeded(ActionReport report, string actionNodeId)
         {
+            // 睡眠已进入黑幕：没有可阅读结果的阶段，也不把旧日动作残卡带到新一天。
+            if (SSNoirGameManager.ShouldDipEarly(report))
+                return null;
+
             // 没有锚定动作名的演出（到达一个地点）没有宿主，也没有「这一手」可言，不挂。
             if (string.IsNullOrWhiteSpace(actionNodeId))
-                return;
+                return null;
 
             // 判定总要留下命运条；即时动作什么都没改就没有可看的，不挂空条。
             if (report.Type != ActionType.Roll && report.Effects.Count == 0)
-                return;
+                return null;
 
             var sourceNode = _gameManager.VisibleNodes.FirstOrDefault(node =>
                 string.Equals(node.Id, actionNodeId, StringComparison.Ordinal));
             // 功能键（交锋里的休息）从来不是一张卡：没有宿主就没有残影可挂。
             // 否则它的回合账会顶着浮空牌子压在转场演出上，和散场对白叠在一起。
             if (sourceNode == null)
-                return;
+                return null;
             var residue = new CardPresentationResidue
             {
                 HostNodeId = actionNodeId,
+                // 每条结果在创建时就有时限；首帧完整展开后统一启动计时。
+                FuseSeconds = OutcomeHoldSeconds,
                 RollOutcome = report.Type == ActionType.Roll ? report.Outcome : null,
                 PreparedValue = report.Type == ActionType.Roll ? report.PreparedValue : 0,
                 Effects = new List<ActionEffectRecord>(report.Effects),
@@ -3033,6 +2967,7 @@ namespace SSNoir.IMGUI
                 }
             }
             _cardResidues[actionNodeId] = residue;
+            return residue;
         }
 
         // 结算后的钟。宿主还在引擎树里就直接读它；已经被删了（钟归零把它带走了）就拿旧钟
@@ -3057,6 +2992,7 @@ namespace SSNoir.IMGUI
                 {
                     Label = clock.Label, DisplayLabel = clock.DisplayLabel, Note = clock.Note,
                     Current = current, Max = clock.Max, Style = clock.Style,
+                    Priority = clock.Priority, BeneficialDirection = clock.BeneficialDirection,
                 });
             }
             return clocks;

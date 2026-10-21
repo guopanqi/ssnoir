@@ -25,18 +25,13 @@
     (define (开门日) (第二章 'day-of 开门-第几天))
 
     ;; ── 必经拍：到日子就堵着 ─────────────────────────
-    (define (sync-blockers!)
-      (rest-release! "第二章/报纸")
-      (if (待去?)
-          (rest-block! "第二章/报纸" "夜莺让人来叫你" "剧院" "见夜莺")
-          #f))
 
     (define (on-day-start!)
       (if (and (equal? 状态 "未开始") (第二章 'started?)
                (>= world-day (开门日)))
           (begin
             (set! 状态 "待去")
-            (sync-blockers!)
+
             (第二章 'log! "封面上的夜莺" "报纸登了一篇《逃出老街的夜莺》。里面的东西她一样也没说过。")
             (spotlight! "《逃出老街的夜莺》"
               "今早的报纸抢在专访前登了她的故事。写得很漂亮，也写了太多不该有人知道的事。"))
@@ -44,7 +39,7 @@
 
     ;; ── 那一场 ──────────────────────────────────────
     (define (node-meet)
-      (anchored-instant-action "见夜莺" "夜莺@剧院"
+      (node "见夜莺" :anchor "夜莺@剧院" :required-before-rest "夜莺让人来叫你" :resolve (instant
         (lambda ()
           (play-dialogue!
             (line "世界" "化妆间的镜子前摊着那张报纸，边角被捏皱了。")
@@ -55,11 +50,11 @@
             (line "世界" "她把报纸推到你面前，手指压在那张老照片上。")
             (line "夜莺" "谁给他们的？"))
           (set! 状态 "已发生")
-          (sync-blockers!)
+
           (追查 'open!)
           (complete-task! "封面上的夜莺")
           (spotlight! "谁给他们的"
-            "旧照片来自老街，后台细节来自剧院。有人把两边的东西送进了同一篇文章。"))))
+            "旧照片来自老街，后台细节来自剧院。有人把两边的东西送进了同一篇文章。")))))
 
     (define (nodes-at location)
       (if (equal? location "剧院")
@@ -73,7 +68,7 @@
           ((equal? msg 'arrivals-at) '())
           ((equal? msg 'dossier) '())
           ((equal? msg 'on-day-start!) (on-day-start!))
-          ((equal? msg 'sync-blockers!) (sync-blockers!))
+
           ((equal? msg 'state) 状态)
           ;; 文章已经出街——追查那条线从这一刻起才有东西可查。
           ((equal? msg 'published?) (not (equal? 状态 "未开始")))
@@ -92,6 +87,6 @@
           ;; 调试用：当作那一场已经过去，疑点已经进入卷宗。
           ((equal? msg 'debug-settle!)
            (set! 状态 "已发生")
-           (sync-blockers!)
+
            (追查 'open!))
           (else (error "封面上的夜莺：收到未知消息")))))))

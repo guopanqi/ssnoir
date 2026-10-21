@@ -58,6 +58,7 @@ namespace SSNoir.Scripting
             string subtitle = string.Empty;
             string name = id;
             string? buttonText = null;
+            string? requiredBeforeRest = null;
             bool disabled = false;
             bool isPlace = false;
             string carryItemId = string.Empty;
@@ -143,6 +144,12 @@ namespace SSNoir.Scripting
                 {
                     arrivals = ParseArrivals(val, id);
                 }
+                else if (kwStr == ":required-before-rest")
+                {
+                    if (val is not string reason || string.IsNullOrWhiteSpace(reason))
+                        throw new InvalidOperationException($"Node '{id}' :required-before-rest must be a non-empty string.");
+                    requiredBeforeRest = reason;
+                }
                 else if (kwStr == ":disabled")
                 {
                     if (!(val is bool parsedDisabled))
@@ -196,6 +203,7 @@ namespace SSNoir.Scripting
                 AnchorName = anchorName,
                 Subtitle = subtitle,
                 ButtonText = buttonText,
+                RequiredBeforeRest = requiredBeforeRest,
                 Disabled = disabled,
                 Tags = tags,
                 Children = children,
@@ -696,7 +704,7 @@ namespace SSNoir.Scripting
                 note = parsedNote;
             }
 
-            if (expr.Count > 8)
+            if (expr.Count > 9)
                 throw new InvalidOperationException($"Clock '{label}' has too many fields.");
             string displayLabel = label;
             if (expr.Count >= 7)
@@ -706,7 +714,7 @@ namespace SSNoir.Scripting
                     throw new InvalidOperationException($"Clock '{label}' display label cannot be empty.");
             }
             var priority = ClockPriority.Primary;
-            if (expr.Count == 8)
+            if (expr.Count >= 8)
             {
                 string value = expr[7] is Symbol prioritySymbol ? prioritySymbol.AsString : "";
                 priority = value switch
@@ -717,7 +725,10 @@ namespace SSNoir.Scripting
                 };
             }
             return new GameClock { Label = label, DisplayLabel = displayLabel, Note = note, Priority = priority,
-                Current = current, Max = max, Style = style };
+                Current = current, Max = max, Style = style,
+                BeneficialDirection = expr.Count == 9
+                    ? ClockSemantics.ParseDirection(expr[8] is Symbol direction ? direction.AsString : "")
+                    : BeneficialDirection.Neutral };
         }
     }
 }

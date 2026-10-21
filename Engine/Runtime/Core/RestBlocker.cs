@@ -4,8 +4,7 @@ using System.Collections.Generic;
 
 namespace SSNoir.Core
 {
-    // 休息阻塞的唯一事实来源仍是 engine.scm 的注册表。
-    // 这份镜像只把注册表交给快照和客户端，绝不反过来决定能否休息。
+    // 从世界节点树派生的只读投影；节点 ID 同时就是事件身份和导航目标。
     public sealed class RestBlocker
     {
         public string Id { get; }
@@ -19,6 +18,47 @@ namespace SSNoir.Core
             Reason = reason;
             LocationName = locationName;
             TargetNodeId = targetNodeId;
+        }
+    }
+
+    public static class RequiredBeforeRest
+    {
+        public static IReadOnlyList<RestBlocker> Collect(GameNode root, bool world)
+        {
+            var result = new List<RestBlocker>();
+            void Visit(GameNode node, GameNode? place, bool ancestorsEnabled)
+            {
+                if (node.IsPlace) place = node;
+                bool enabled = ancestorsEnabled && !node.Disabled;
+                if (node.RequiredBeforeRest != null)
+                {
+                    if (!world || place == null)
+                        throw new InvalidOperationException($"Required node '{node.Id}' must belong to a world place.");
+                    if (!enabled || !HasAction(node))
+                        throw new InvalidOperationException($"Required node '{node.Id}' has no enabled processing path.");
+                    result.Add(new RestBlocker(node.Id, node.RequiredBeforeRest, place.Id, node.Id));
+                }
+                foreach (var child in node.Children) Visit(child, place, enabled);
+            }
+            Visit(root, null, true);
+            return result.AsReadOnly();
+        }
+        private static bool HasAction(GameNode node)
+        {
+            if (node.Disabled) return false;
+            if (node.IsPlace && node.Arrivals.Count > 0) return true;
+            if (node.Resolve != null && node.Resolve.Type != ResolveType.Note && node.Resolve.Type != ResolveType.Observe)
+                return true;
+            foreach (var child in node.Children) if (HasAction(child)) return true;
+            return false;
+        }
+        public static bool Same(IReadOnlyList<RestBlocker> a, IReadOnlyList<RestBlocker> b)
+        {
+            if (a.Count != b.Count) return false;
+            for (int i = 0; i < a.Count; i++)
+                if (a[i].Id != b[i].Id || a[i].Reason != b[i].Reason || a[i].LocationName != b[i].LocationName)
+                    return false;
+            return true;
         }
     }
 

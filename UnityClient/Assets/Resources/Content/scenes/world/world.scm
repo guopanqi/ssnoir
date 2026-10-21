@@ -14,10 +14,8 @@
 (load-file "world/试验工棚.scm")
 (load-file "world/老街酒馆.scm")
 (load-file "world/咖啡馆.scm")
-(load-file "world/三封信.scm")
-(load-file "world/开场生活.scm")
-(load-file "world/失物委托.scm")
-(load-file "world/照片委托.scm")
+(load-file "world/第一幕.scm")
+(load-file "world/第一幕同行.scm")
 (load-file "world/艾迪.scm")
 (load-file "world/诊所.scm")
 (load-file "world/警察局.scm")
@@ -47,8 +45,8 @@
 ;; 没有「圈子声誉」这一层：你和一个人的关系就是你和那一片的关系
 ;; （艾迪＝码头，弗兰克＝老街，沃尔特＝上城），各写在人物模块里。
 
-;; 第一章的节拍、到期日与必看事件全部由 three-letters 自己拥有
-;; （见 world/三封信.scm）。世界只负责日历、地点可见性与存档转发，不解释故事。
+;; 第一幕拥有五天生活与彩排日程，同行模块拥有彩排后的邀请及交锋余波。
+;; 世界只负责日历、地点可见性与存档转发。
 ;; demo 短篇的三次逼近（夜莺 / 萨姆 / 陌生人藏身处）已经搬进 docs/归档/Content/，
 ;; 见那里的 README：留作写法参考，不进游戏，也不再被 --validate 解析。
 
@@ -91,23 +89,23 @@
 (define (debug-enter-chapter2-with-lin! core?)
   ;; Debug 跳章是全量预设，不继承当前测试局的阻塞。
   ;; 随后由第一、二章的合法结束态重建它们真正需要的阻塞。
-  (clear-rest-blockers!)
-  (three-letters 'debug-finish!)
+
+  (第一幕 'debug-finish!)
   (debug-skip-days! 第一章天数)
   (if core? (第二章 'debug-cast-core-lin!) (第二章 'debug-cast!))
   (第二章 'debug-start!)
-  (第二章 'sync-blockers!))
+  )
 
 (define (debug-enter-chapter2!) (debug-enter-chapter2-with-lin! #f))
 (define (debug-enter-chapter2-lin-core!) (debug-enter-chapter2-with-lin! #t))
 
 (define (debug-enter-chapter2-phase-b-with-lin! core?)
-  (clear-rest-blockers!)
-  (three-letters 'debug-finish!)
+
+  (第一幕 'debug-finish!)
   (debug-skip-days! 第一章天数)
   (if core? (第二章 'debug-cast-core-lin!) (第二章 'debug-cast!))
   (第二章 'debug-phase-b!)
-  (第二章 'sync-blockers!))
+  )
 
 (define (debug-enter-chapter2-phase-b!) (debug-enter-chapter2-phase-b-with-lin! #f))
 (define (debug-enter-chapter2-phase-b-lin-core!) (debug-enter-chapter2-phase-b-with-lin! #t))
@@ -124,11 +122,7 @@
 (define (get-render-data)
   (node "世界"
     :children
-      (append
-        (three-letters 'world-nodes)
-        (three-letters 'render-data)
-        (apply append (map (lambda (loc) (loc 'render-data)) (current-locations))))
-    :clocks (three-letters 'world-clocks)))
+      (apply append (map (lambda (loc) (loc 'render-data)) (current-locations)))))
 
 ;; ── 卷宗 ─────────────────────────────────────────
 ;; 谁有一条线要摆进卷宗，写在 world/模块清单.scm；世界只收集与排序，不解释故事。
@@ -140,22 +134,12 @@
   (cons (list "day" world-day) (模块存档)))
 
 (define (world-load! data)
-  ;; 顺序是有意的，三步不能换：
-  ;;   一 清掉派生的运行时状态（休息阻塞会由各模块自己重新竖起来）
-  ;;   二 恢复全部模块的状态
-  ;;   三 才校验跨模块的不变量、重建派生状态
-  ;; 读档只恢复「世界现在是什么样」，**不重放任何一天发生过的事**——
-  ;; 进入阶段的通知、结算、发钱都写在各自的转场里，那里读档走不到。
-  (clear-rest-blockers!)
+  (if (assoc-get data "three-letters" #f)
+      (error "旧版第一章存档请使用归档版本读取；新第一幕请开始新游戏。") #t)
+  ;; 只恢复剧情状态；必须处理事件由随后构建的世界树派生，不重放对白。
   (set! world-day (assoc-get data "day" 1))
   (set-global! '世界日 world-day)
   (模块读档! data)
   ;; 涉及多个 owner 的不变量必须等各自状态都恢复后再校验。
   (frank 'validate!)
-  (three-letters 'sync-globals!)
-  ;; 休息阻塞是派生状态：上面清空过，这里由拥有必经拍的模块按恢复后的状态重新竖起来。
-  (第二章 'sync-blockers!)
-  (photo-case 'sync-blockers!))
-
-;; 初始同步：新游戏没有存档数据时，也要阻塞第一晚的睡眠。
-(three-letters 'sync-blockers!)
+)

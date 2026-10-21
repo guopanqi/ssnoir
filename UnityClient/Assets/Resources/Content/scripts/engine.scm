@@ -10,11 +10,13 @@
 (define :button-text ':button-text)
 (define :subtitle ':subtitle)
 (define :name ':name)
+(define :required-before-rest ':required-before-rest)
 (define :disabled ':disabled)
 (define :anchor ':anchor)
 (define :place ':place)
 (define :carry-item ':carry-item)
 (define :support ':support)
+(define :beneficial-direction ':beneficial-direction)
 (define :arrivals ':arrivals)
 (define :kind ':kind)
 (define :primary ':primary)
@@ -50,6 +52,7 @@
 ;; 未指定 :anchor 时使用 id 查找空间锚点。
 (define (node id . kwargs)
   (let ((anchor-name (get-kwarg kwargs ':anchor #f))
+        (required-before-rest (get-kwarg kwargs ':required-before-rest #f))
         (button-text (get-kwarg kwargs ':button-text #f))
         (is-place    (get-kwarg kwargs ':place #f))
         (carry-item  (get-kwarg kwargs ':carry-item #f))
@@ -69,6 +72,8 @@
       (if (equal? anchor-name #f)
           '()
           (list :anchor anchor-name))
+      (if (equal? required-before-rest #f) '()
+          (list :required-before-rest required-before-rest))
       (if (equal? button-text #f)
           '()
           (list :button-text button-text))
@@ -85,56 +90,11 @@
           '()
           (list :arrivals arrivals)))))
 
-;; ── 休息阻塞 ─────────────────────────────────────
-;; 注册表只存在于当前解释器。world-load! 会先清空，再由各地点按存档状态同步。
-(define rest-blockers '())
-
-(define (remove-rest-blocker entries id)
-  (if (null? entries)
-      '()
-      (if (equal? (car (car entries)) id)
-          (remove-rest-blocker (cdr entries) id)
-          (cons (car entries) (remove-rest-blocker (cdr entries) id)))))
-
-(define (rest-block! id reason . target)
-  (if (not (string? id)) (error "rest-block!: id must be a string") #t)
-  (if (not (string? reason)) (error "rest-block!: reason must be a string") #t)
-  (if (equal? id "") (error "rest-block!: id cannot be empty") #t)
-  (if (equal? reason "") (error "rest-block!: reason cannot be empty") #t)
-  (if (and (not (null? target)) (not (= (length target) 2)))
-      (error "rest-block!: expected no target, or location and target-node")
-      #t)
-  (if (null? target)
-      (set! rest-blockers
-            (cons (list id reason) (remove-rest-blocker rest-blockers id)))
-      (let ((location (car target)) (target-node (cadr target)))
-        (if (not (string? location)) (error "rest-block!: location must be a string") #t)
-        (if (not (string? target-node)) (error "rest-block!: target-node must be a string") #t)
-        (if (equal? location "") (error "rest-block!: location cannot be empty") #t)
-        (if (equal? target-node "") (error "rest-block!: target-node cannot be empty") #t)
-        (set! rest-blockers
-              (cons (list id reason location target-node) (remove-rest-blocker rest-blockers id)))
-        (__register-rest-block! id reason location target-node))))
-
-(define (rest-release! id)
-  (if (not (string? id)) (error "rest-release!: id must be a string") #t)
-  (set! rest-blockers (remove-rest-blocker rest-blockers id))
-  (__release-rest-block! id))
-
-(define (rest-blocked?)
-  (not (null? rest-blockers)))
-
-(define (rest-block-reasons)
-  (map cadr (reverse rest-blockers)))
-
-(define (clear-rest-blockers!)
-  (set! rest-blockers '())
-  (__clear-rest-blockers!))
-
-(define (end-turn!)
-  (if (rest-blocked?)
-      (error "end-turn!: required events remain unresolved")
-      (__end-turn!)))
+ ;; ── 休息条件来自世界节点树；这里不维护注册表 ─────────────────
+(define (rest-blocked?) (__rest-blocked?))
+(define (rest-block-reasons) (__rest-block-reasons))
+;; 所有换日入口统一由 SceneManager 检查当前世界树。
+(define (end-turn!) (__end-turn!))
 
 ;; 交锋内部的阶段切换可以换一手骰，但不把它算作一次休息：不推进回合规则，
 ;; 也不收取时间代价。仅交锋解释器注册了这条桥接。
@@ -264,13 +224,13 @@
 (define (clock-priority data priority)
   (if (member? priority '(primary secondary)) #t
       (error "clock-priority: 应为 'primary / 'secondary"))
-  (if (and (list? data) (>= (length data) 5) (<= (length data) 8)
+  (if (and (list? data) (>= (length data) 5) (<= (length data) 9)
            (equal? (car data) 'clock)) #t
       (error "clock-priority: 需要 clock render-data"))
   (list 'clock (list-ref data 1) (list-ref data 2) (list-ref data 3) (list-ref data 4)
         (if (>= (length data) 6) (list-ref data 5) "")
         (if (>= (length data) 7) (list-ref data 6) (list-ref data 1))
-        priority))
+        priority (if (= (length data) 9) (list-ref data 8) 'neutral)))
 
 ;; Clock node: id is an internal tree identity; the clock label is displayed.
 (define (clock-node id clock-data)
@@ -787,6 +747,7 @@
 ;; 判据是一句话：**满或空会触发事情的，才是钟**。不触发的写 'readout。
 ;; gauge 与 countdown 之间只问一件事：这条线是**你手里的量**，还是**在逼近你的时间**。
 ;;
+;;   (make-clock 标签 上限 样式 [备注 [显示名]] :beneficial-direction 'increase/'decrease/'neutral)
 ;;   (make-clock 标签 上限 样式)
 ;;   (make-clock 标签 上限 样式 备注)       备注是字符串
 ;;   (make-clock 标签 上限 样式 (lambda (current max) → 字符串))
@@ -815,12 +776,19 @@
   (if (member? style clock-styles)
       #t
       (error "make-clock: 未知样式（应为 'gauge / 'pressure / 'countdown / 'readout）"))
-  (if (> (length options) 2)
-      (error "make-clock: 最多接受备注和显示名两个选项")
-      #t)
-  (let ((current 0)
-        (note (if (null? options) "" (car options)))
-        (display-label (if (< (length options) 2) label (cadr options))))
+  ;; 保留可选备注与显示名位置参数；语义通过具名属性声明，不从样式猜测。
+  (let* ((has-note? (and (not (null? options)) (not (symbol? (car options)))))
+         (note (if has-note? (car options) ""))
+         (tail (if has-note? (cdr options) options))
+         (has-name? (and (not (null? tail)) (string? (car tail))))
+         (display-label (if has-name? (car tail) label))
+         (properties (if has-name? (cdr tail) tail))
+         (direction (if (null? properties) 'neutral
+           (if (and (= (length properties) 2) (eq? (car properties) :beneficial-direction))
+             (cadr properties) (error "make-clock: 只接受 :beneficial-direction 属性"))))
+         (current 0))
+    (if (member? direction '(increase decrease neutral)) #t
+      (error "make-clock: beneficial-direction 应为 'increase / 'decrease / 'neutral"))
     (if (or (string? note) (procedure? note))
         #t
         (error "make-clock: 备注必须是字符串或 (lambda (current max) → 字符串)"))
@@ -831,7 +799,7 @@
     (define (move-to! n)
       (let ((before current))
         (set! current (clamp n))
-        (__record-clock-effect! label display-label (- current before))))
+        (__record-clock-effect! label display-label (- current before) direction)))
     ;; 参数取一个；没传就用默认值。传多了直接报错，别让手滑悄悄溜过去。
     (define (one-arg args default who)
       (cond
@@ -854,7 +822,7 @@
         ((equal? msg 'remaining)   (- max current))
         ((equal? msg 'render-data)
          (list 'clock label current max style
-               (if (procedure? note) (note current max) note) display-label))
+               (if (procedure? note) (note current max) note) display-label 'primary direction))
         ((equal? msg 'save) current)
         ((equal? msg 'load!)
          (let ((n (one-arg args #f "'load!")))
@@ -1084,7 +1052,7 @@
   (notify! (string-append "〈" id "〉了结。成长 +1。")))
 
 ;; ── 伤势 ──────────────────────────────────────────────────────────
-;; 队伍只有一条身体轴：0 完好 / 1–3 轻伤 / 4–6 重伤；伤势到 2、4、6 点各封锁一个行动位。
+;; 队伍只有一条身体轴：0 完好 / 1–3 轻伤 / 4–6 重伤；伤势到 2、5 点各封锁一个行动位。
 ;; 到达 7/7 当场倒下并送医，结算后伤势与冷静归零，并在受伤部位留下永久疤痕。
 ;; 内容层不选部位——第一次受伤由引擎随机命中一项能力，之后的伤害都加深同一处。
 ;; 规则与档位见 Injury.cs（唯一来源；docs/城市生活设计.md 已不存在）。
@@ -1194,14 +1162,16 @@
 
 ;; 剧情局部整数时钟在动作结果中的统一记录入口。
 ;; 动作外（读档、日终规则）调用时不产生结果行。
-(define (record-clock-progress! label delta)
-  (__record-clock-effect! label label delta))
+(define (record-clock-progress! label delta direction)
+  (__record-clock-effect! label label delta direction))
 
 (define (spotlight! title subtitle)
   (__spotlight! title subtitle))
 
 (define (play-intertitle! hold-black . pages) (__play-intertitle! hold-black pages))
 ;; place 为空只运镜；非空在运镜结束后进入地点。
+;; 剧情落点：在该步骤采用新快照，进入节点（允许交锋根），等镜头到位后继续。
+(define (focus-node! id) (__focus-node! id))
 (define (play-camera! anchor hold-seconds place) (__play-camera! anchor hold-seconds place #f))
 ;; 明确的剪辑切镜，不把停留0秒误当成瞬切，也不受玩家的减少动画设置影响。
 (define (cut-camera! anchor place) (__play-camera! anchor 0 place #t))

@@ -208,32 +208,22 @@
     return s;
   }
 
-  function counter() {
+  function counterTop() {
     let s = '';
     const x0 = 900, x1 = 1600, top = 586;
 
-    // 柜台立面
-    const front = `M${x0} ${top}H${x1}V790H${x0 + 14}Z`;
-    s += solid(front, '#100e0c', { opacity: .99 });
-    s += ink(front, { delay: .72, dur: .95, width: 1.7 });
     // 台面
     s += solid(`M${x0 - 16} ${top - 22}H${x1}V${top + 6}H${x0}Z`, '#191410', { opacity: 1 });
     s += ink(`M${x0 - 16} ${top - 22}H${x1}V${top + 6}H${x0}Z`, { delay: .66, dur: .85, width: 1.6 });
     s += line(x0 - 4, top - 18, x1 - 6, top - 18, { delay: .78, dur: .8, width: 1.2, stroke: WARM });
 
-    // 立面竖纹与黄铜脚踏
-    for (let x = x0 + 34; x < x1; x += 42) {
-      s += line(x, top + 18, x - 3, 780, { delay: .84 + (x - x0) / 3800, dur: .65, width: .75, stroke: LINE_DEEP });
-    }
-    s += line(x0 + 8, 744, x1, 744, { delay: .96, dur: .8, width: 2, stroke: '#a8844d' });
-    s += line(x0 + 14, 790, x1, 790, { delay: .98, dur: .8, width: 1.6 });
-
-    // 派柜
-    s += solidRect(x0 + 230, top - 88, 122, 88, '#0b1018', { opacity: .9 });
+    // 玻璃派柜：只描玻璃，不堵成黑箱
+    s += `<path class="solid" d="M${x0 + 230} ${top - 88}H${x0 + 352}V${top}H${x0 + 230}Z" fill="#16202e" opacity=".45"/>`;
     s += ink(`M${x0 + 230} ${top - 88}H${x0 + 352}V${top}H${x0 + 230}Z`, { delay: .88, dur: .8, width: 1.4 });
-    s += `<path class="solid" d="M${x0 + 242} ${top - 96}Q${x0 + 290} ${top - 140} ${x0 + 338} ${top - 96}Z" fill="#16202e" opacity=".85"/>`;
-    s += ink(`M${x0 + 242} ${top - 96}Q${x0 + 290} ${top - 140} ${x0 + 338} ${top - 96}`, { delay: .94, dur: .7, width: 1.2, stroke: LINE_DIM });
-    s += line(x0 + 250, top - 78, x0 + 330, top - 78, { delay: .96, dur: .5, width: .8, stroke: LINE_DIM });
+    s += `<path class="solid" d="M${x0 + 242} ${top - 88}Q${x0 + 290} ${top - 132} ${x0 + 338} ${top - 88}Z" fill="#1a2536" opacity=".5"/>`;
+    s += ink(`M${x0 + 242} ${top - 88}Q${x0 + 290} ${top - 132} ${x0 + 338} ${top - 88}`, { delay: .94, dur: .7, width: 1.2, stroke: LINE_DIM });
+    s += line(x0 + 250, top - 80, x0 + 330, top - 80, { delay: .96, dur: .5, width: .8, stroke: LINE_DIM });
+    s += line(x0 + 254, top - 86, x0 + 254, top - 10, { delay: .98, dur: .5, width: .7, stroke: '#4d6688' });
     // 派
     s += `<ellipse cx="${x0 + 290}" cy="${top - 26}" rx="46" ry="11" fill="#3a2416" stroke="#c9a45c" stroke-width="1.1" class="soft"/>`;
     for (let i = -2; i <= 2; i++) {
@@ -269,6 +259,23 @@
       <ellipse cx="${x0 + 180}" cy="${top - 4}" rx="9" ry="3" fill="#c9a45c" opacity=".8"/>
       <ellipse cx="${x0 + 148}" cy="${top - 3}" rx="8" ry="2.6" fill="#c9a45c" opacity=".7"/>
     </g>`;
+
+    return s;
+  }
+
+  function counterFront() {
+    let s = '';
+    const x0 = 900, x1 = 1600, top = 592;
+
+    const front = `M${x0} ${top}H${x1}V790H${x0 + 14}Z`;
+    s += solid(front, '#100e0c', { opacity: .99 });
+    s += ink(front, { delay: .72, dur: .95, width: 1.7 });
+
+    for (let x = x0 + 34; x < x1; x += 42) {
+      s += line(x, top + 14, x - 3, 780, { delay: .84 + (x - x0) / 3800, dur: .65, width: .75, stroke: LINE_DEEP });
+    }
+    s += line(x0 + 8, 744, x1, 744, { delay: .96, dur: .8, width: 2, stroke: '#a8844d' });
+    s += line(x0 + 14, 790, x1, 790, { delay: .98, dur: .8, width: 1.6 });
 
     return s;
   }
@@ -397,8 +404,9 @@
         ${coatRack()}
         ${backBar()}
       </g>
+      <g id="counterTop">${counterTop()}</g>
       <g id="castLu"></g>
-      <g id="setCounter">${counter()}</g>
+      <g id="counterFront">${counterFront()}</g>
       <g id="setFront">
         ${tableSet()}
         ${lamps()}

@@ -57,7 +57,7 @@
 ;; ── 两幕共用 ────────────────────────────────────
 (define crowd-clk
   (make-clock "老街的耐心" patience-max 'countdown
-    "保证会缩短它；第二幕里的冒进继续消耗同一份耐心。归零：这件事当街收场。"))
+    "保证会缩短它；第二幕里的冒进继续消耗同一份耐心。归零：这件事当街收场。" :beneficial-direction 'increase))
 (crowd-clk 'set! patience-max)
 
 (define lyon-clk

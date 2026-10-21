@@ -8,7 +8,7 @@ namespace SSNoir.Core
     public class GameState
     {
         private readonly Dictionary<string, object> _states = new Dictionary<string, object>();
-        private readonly Dictionary<string, RestBlocker> _restBlockers = new Dictionary<string, RestBlocker>();
+        private IReadOnlyList<RestBlocker> _restBlockers = Array.Empty<RestBlocker>();
 
         public TeamState Team { get; } = new TeamState();
         public InventoryState Inventory { get; } = new InventoryState();
@@ -25,7 +25,7 @@ namespace SSNoir.Core
         public Hospitalization? PendingHospitalization { get; private set; }
         public bool HasPendingHospitalization => PendingHospitalization != null;
         public GameFailure Failure { get; private set; } = GameFailure.None;
-        public IReadOnlyList<RestBlocker> RestBlockers => new List<RestBlocker>(_restBlockers.Values);
+        public IReadOnlyList<RestBlocker> RestBlockers => _restBlockers;
 
         public GameState()
         {
@@ -38,7 +38,7 @@ namespace SSNoir.Core
         public void ResetForNewGame()
         {
             Failure = GameFailure.None;
-            _restBlockers.Clear();
+            _restBlockers = Array.Empty<RestBlocker>();
             _states.Clear();
             Team.ResetForNewGame();
             Inventory.ApplySaveData(new Dictionary<string, int>());
@@ -85,21 +85,12 @@ namespace SSNoir.Core
         public void PrepareForLoad()
         {
             Failure = GameFailure.None;
-            _restBlockers.Clear();
+            _restBlockers = Array.Empty<RestBlocker>();
             PendingHospitalization = null;
         }
 
-        public void RegisterRestBlocker(string id, string reason, string locationName, string targetNodeId)
-        {
-            if (string.IsNullOrWhiteSpace(id) || string.IsNullOrWhiteSpace(reason)
-                || string.IsNullOrWhiteSpace(locationName) || string.IsNullOrWhiteSpace(targetNodeId))
-                throw new ArgumentException("rest blocker requires non-empty id, reason, location, and target node");
-            _restBlockers[id] = new RestBlocker(id, reason, locationName, targetNodeId);
-        }
-
-        public void ReleaseRestBlocker(string id) => _restBlockers.Remove(id);
-
-        public void ClearRestBlockers() => _restBlockers.Clear();
+        // 仅由世界树投射，不保存、不手工注册/释放事件。
+        internal void SetRestBlockers(IReadOnlyList<RestBlocker> blockers) => _restBlockers = blockers;
 
         public void FailGame(string title, string description)
         {

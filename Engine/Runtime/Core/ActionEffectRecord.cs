@@ -27,6 +27,7 @@ namespace SSNoir.Core
         public string DisplayLabel { get; init; } = string.Empty;
         public int? Delta { get; init; }
         public string Text { get; init; } = string.Empty;
+        public BeneficialDirection BeneficialDirection { get; init; } = BeneficialDirection.Neutral;
         public ActionEffectTone Tone { get; init; } = ActionEffectTone.Neutral;
     }
 }

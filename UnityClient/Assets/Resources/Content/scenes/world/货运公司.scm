@@ -188,7 +188,7 @@
           (if (equal? project-state "已谈判")
               (list (node-invest))
               '())
-          (three-letters 'nodes-at "货运公司"))))
+          (地点节点 "货运公司"))))
 
     (lambda args
       (let ((msg (car args)))

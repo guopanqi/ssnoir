@@ -200,7 +200,7 @@
     ;; 事发生在老街侧墙，在家里被告知是错的位置。
     (define-turn-rule "巷子里在打人"
       (lambda () (and side-story-open? (= stage 0)
-                      (>= (three-letters 'story-stage) 2)))
+                      (第二章 'started?)))
       (lambda ()
         (set! stage 4)
         (set! alley-day 0)))
@@ -244,7 +244,7 @@
     ;; 提的是他压根不知道的东西。
     (define-turn-rule "老街那边的事过去了"
       (lambda () (and (alley-armed?)
-                      (>= (three-letters 'story-stage) 3)))
+                      (第二章 'started?)))
       (lambda () (set! stage 5)))
 
     ;; ── 情报 ────────────────────────────────────────
@@ -375,13 +375,8 @@
               (set! bet-amount amount)
               ;; 赔率写死在票上，从此不再看当天的表。
               (set! bet-odds (today-odds side))
-              ;; 押完就不许回去睡，只在比赛当天成立：开票日押的票，那一晚
-              ;; 根本没有比赛可看，拦着人睡觉是拦一场不存在的戏。
-              ;; 比赛当天早上会替这张票重新上锁（见「地下拳场排期」）。
-              (if (fight-night?)
-                  (rest-block! "拳赛" "你押了今晚的票，总得看完再回去睡"
-                               "老街酒馆" "看比赛")
-                  #f)
+              ;; 看比赛节点在比赛当天按这张票声明 :required-before-rest。
+
               (result-supplement! (string-append "你押了 " (side-name side (card-night))
                                            " " (number->string amount) " 美元。")))))))
 
@@ -415,7 +410,7 @@
     (define (finish-night!)
       (set! watched? #t)
       (set! awaiting-signal? #f)
-      (rest-release! "拳赛"))
+      )
 
     (define (fight-1!)
       (play-dialogue!
@@ -470,10 +465,8 @@
         (line "世界" "第三回合。看台在喊：结束他。")
         (line "世界" "艾迪站在他面前，不出手。他抬头，往你这边看了一眼。"))
       (set! awaiting-signal? #t)
-      ;; 「看比赛」这张卡已经不在了，把「今晚不能睡」重新指到场子本身。
-      ;; 押没押都要挡：他还站在台上等你那一下，这一晚不能就这么散了。
-      (rest-block! "拳赛" "第三回合还没打完，你走不了"
-                   "老街酒馆" "地下拳场"))
+      ;; 地下拳场节点在 awaiting-signal? 时声明必须处理，等玩家给出信号。
+      )
 
     (define (fight-4-dive!)
       (play-dialogue!
@@ -528,7 +521,7 @@
         (node-signal "摇头" "让他赢；你押他倒下的票作废" fight-4-win!)))
 
     (define (node-watch-fight)
-      (node "看比赛"
+      (node "看比赛" :required-before-rest (if (> bet-side 0) "你押了今晚的票，总得看完再回去睡" #f)
         :subtitle "不花行动骰，也不花钱"
         :resolve (instant
           (outcome (lambda ()
@@ -628,7 +621,7 @@
         (else (list (quiet-note-node))))))
 
     (define (ring-node)
-      (node "地下拳场"
+      (node "地下拳场" :required-before-rest (if awaiting-signal? "第三回合还没打完，你走不了" #f)
         :anchor "老街酒馆"
         :subtitle (cond
                     ((fight-night?) "酒馆后面那间货栈。今晚有场子")
@@ -651,7 +644,7 @@
       ;; 你点头，他按计划倒下，对家赔了钱，他们回头去找漏消息的人；
       ;; 你摇头，他违约挨一顿，手还是他自己的。
       (set! hand-bad? (equal? signal "点头"))
-      (rest-release! "拳赛")
+
       (journal 'add! (if hand-bad?
                          "拳场贴了封条。那一场是卖的，赔钱的人回头去找了漏消息的人。"
                          "拳场贴了封条。有人举报了。"))
@@ -752,13 +745,7 @@
                   (set! next-fight-day (+ next-fight-day fight-interval))))
             #f)
         (if (and (= stage 1) (= world-day next-fight-day))
-            (begin
-              (set! night (+ night 1))
-              ;; 前一天写的票，到了比赛当天才开始拦你回去睡。
-              (if (> bet-side 0)
-                  (rest-block! "拳赛" "你押了今晚的票，总得看完再回去睡"
-                               "老街酒馆" "看比赛")
-                  #f))
+            (set! night (+ night 1))
             #f)))
 
     ;; ── 卷宗 ────────────────────────────────────────
@@ -823,6 +810,9 @@
          (cond
            ((reunion-open?) (list (node-reunion)))
            ((= stage 3) (list (node-eddie-at-dock)))
+           ((member? stage '(1 2))
+            (list (at-anchor "码头-货堆"
+                   (note-node "艾迪·码头·人物" "艾迪" ""))))
            (else '())))
         (else '())))
 
@@ -905,10 +895,5 @@
              (set! result-line (assoc-get data "result-line" ""))
              (set! tip? (= (assoc-get data "tip" 0) 1))
              (set! hand-bad? (= (assoc-get data "hand-bad" 0) 1))
-             (heat-clk 'load! (assoc-get data "heat" 0))
-             ;; 押了票还没看比赛就存的档，读回来要把「今晚不能睡」也一起装回去。
-             (if (and (= stage 1) (> bet-side 0) (not watched?))
-                 (rest-block! "拳赛" "你押了今晚的票，总得看完再回去睡"
-                              "老街酒馆" "看比赛")
-                 #f)))
+             (heat-clk 'load! (assoc-get data "heat" 0))))
           (else #f))))))

@@ -10,17 +10,6 @@
     (define (还没结?) (not (equal? 结果 "已结束")))
     (define (剩几天) (max 0 (- (第二章 'banquet-day) world-day)))
 
-    (define (sync-blockers!)
-      (rest-release! "第二章/晚宴")
-      (cond
-        ((and (今天?) (equal? 结果 "未开始"))
-         (rest-block! "第二章/晚宴"
-           (tr "今晚的晚宴，她在酒店等你" "The banquet is tonight. She is waiting at the hotel")
-           "格兰德酒店" "赴晚宴"))
-        ((equal? 结果 "进行中")
-         (rest-block! "第二章/晚宴" (tr "你还站在那间厅里" "You are still in the ballroom")))
-        (else #f)))
-
     (define (记结果! results)
       (if (not (list? results)) (error "晚宴：交锋结果必须是列表") #t)
       (set-global! '晚宴-薇拉 (member? '薇拉 results))
@@ -33,7 +22,7 @@
       (lin 'on-banquet-talk!)
       (nightingale 'on-drifted-apart!)
       (set! 结果 "已结束")
-      (sync-blockers!)
+
       (第二章 'log! "格兰德酒店晚宴"
         (cond
           ((null? results) (tr "晚宴散场时，你记住了许多名字，没有一个真正属于你。"
@@ -81,14 +70,14 @@
         :resolve (instant (lambda () (入场演出! (lambda (results) #t))))))
 
     (define (node-go)
-      (node "赴晚宴"
+      (node "赴晚宴" :required-before-rest (tr "今晚她在酒店等你" "She is waiting at the hotel tonight")
         :name (tr "赴晚宴" "Go to the Banquet")
         :anchor "格兰德酒店"
         :tags (list "交锋")
         :resolve (instant (lambda ()
           (if (equal? 结果 "未开始") #t (error "晚宴：只能进场一次"))
           (set! 结果 "进行中")
-          (sync-blockers!)
+
           (入场演出! 记结果!)))))
 
     (define (nodes-at location)
@@ -99,7 +88,7 @@
     (define (on-day-start!)
       (if (开始了?)
           (begin
-            (sync-blockers!)
+
             (if (今天?)
                 (spotlight! (tr "今晚" "Tonight")
                   (tr "晚宴在格兰德酒店。她说过只等你一次。"
@@ -116,9 +105,9 @@
           ((equal? msg 'done?) (not (还没结?)))
           ((equal? msg 'steps) (list (step (tr "去格兰德酒店陪夜莺赴宴" "Accompany Nightingale to the Grand Hotel banquet") (not (还没结?)))))
           ((equal? msg 'on-day-start!) (on-day-start!))
-          ((equal? msg 'sync-blockers!) (sync-blockers!))
+
           ((equal? msg 'demo-entry) (演示入场节点))
-          ((equal? msg 'debug-settle!) (set! 结果 "已结束") (sync-blockers!))
+          ((equal? msg 'debug-settle!) (set! 结果 "已结束") )
           ((equal? msg 'now) (now))
           ((equal? msg 'where) (where))
           ((equal? msg 'clocks) (clocks))

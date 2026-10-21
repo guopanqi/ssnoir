@@ -488,10 +488,6 @@ namespace SSNoir
                 {
                     // Spotlight 已消费 ESC；动作内继续后续表现，全局 Spotlight 直接关闭。
                 }
-                else if (_renderer != null && _renderer.TrySkipOutcomeHold())
-                {
-                    // 结果停留已消费 ESC：看完了，采纳快照。
-                }
                 else if (_renderer != null && _renderer.IsAnimationPlaying)
                 {
                     if (_renderer.IsAnimationReadyToAcknowledge)
@@ -541,7 +537,6 @@ namespace SSNoir
 
         public void ToggleNodeFlipped(string nodeId)
         {
-            ClearTransientNodeUiState(clearSlots: false);
             if (_flippedNodes.Contains(nodeId))
                 _flippedNodes.Remove(nodeId);
             else
@@ -550,7 +545,6 @@ namespace SSNoir
 
         public void OnNodeCardClicked(GameNode node)
         {
-            ClearTransientNodeUiState(clearSlots: false);
 
             if (node.IsContainer)
             {
@@ -596,7 +590,6 @@ namespace SSNoir
         public void SetFocusedNode(string? nodeId, bool updateCamera = false)
         {
             ReleaseRestCooldown();
-            ClearTransientNodeUiState(clearSlots: false);
             _focusedNodeId = nodeId ?? string.Empty;
 
             if (!string.IsNullOrEmpty(_focusedNodeId))
@@ -930,7 +923,6 @@ namespace SSNoir
 
         public void OnSlotClicked(GameNode node, int slotIndex)
         {
-            ClearTransientNodeUiState(clearSlots: false);
             BeginSlotResourceDrag(node, slotIndex);
         }
 
@@ -1028,7 +1020,6 @@ namespace SSNoir
             ClearOtherNodeSlots(node.Id);
             if (req.Type == "die" && _selectedResource.Type == "die")
             {
-                ClearTransientNodeUiState(clearSlots: false);
                 ClearDieFromAllSlots(_selectedResource.SourceIndex);
                 slots[slotIndex] = new SlottedResource
                 {
@@ -1044,7 +1035,6 @@ namespace SSNoir
 
             if (req.Type == "item" && _selectedResource.Type == "item")
             {
-                ClearTransientNodeUiState(clearSlots: false);
                 slots[slotIndex] = new SlottedResource
                 {
                     Type = "item",
@@ -1169,7 +1159,6 @@ namespace SSNoir
             // 玩家看见的卡槽和这里送出去的卡槽因此永远是同一份。
             var slots = GetSlotsForNode(node.Id) ?? new List<SlottedResource?>();
 
-            _renderer.ClearCardResidues();
             _renderer.SetInputLocked(true);
 
             bool done = false;
@@ -1230,7 +1219,7 @@ namespace SSNoir
                         else
                             finishAfterScene();
                     }));
-                }, holdBeforeBlocking: focusContextChanged && !dippedEarly);
+                });
             }
             catch (System.Exception ex)
             {
@@ -1530,7 +1519,6 @@ namespace SSNoir
 
         public void GoBackNavigation()
         {
-            ClearTransientNodeUiState(clearSlots: false);
 
             if (!string.IsNullOrEmpty(_focusedNodeId))
             {
@@ -1902,7 +1890,6 @@ namespace SSNoir
             var existing = slots[slotIndex];
             if (existing == null) return;
 
-            ClearTransientNodeUiState(clearSlots: false);
             slots[slotIndex] = null;
             _resourceOriginNodeId = node.Id;
             _resourceOriginSlotIndex = slotIndex;
@@ -2109,18 +2096,12 @@ namespace SSNoir
                         }
                         else
                         {
-                            // 换场批先播完旧场景的步骤，再采纳新场景；同场景仍在拍的中段落地。
-                            bool changesContext = _displayedSnapshot.IsInEncounter != frame.Snapshot.IsInEncounter
-                                || !string.Equals(_displayedSnapshot.RootNode?.Id,
-                                    frame.Snapshot.RootNode?.Id, StringComparison.Ordinal);
+                            // 前置剧情结束后统一落地；同场景与换场使用相同边界。
                             _renderer.PlayRoundBatch(frame.Report, frame.Snapshot,
                                 land: () =>
                                 {
-                                    if (!changesContext)
-                                    {
-                                        AdoptRoundTransitionFrame();
-                                        landed = true;
-                                    }
+                                    AdoptRoundTransitionFrame();
+                                    landed = true;
                                 },
                                 done: () => batchDone = true);
                         }
@@ -2318,7 +2299,7 @@ namespace SSNoir
             bool alreadyAtHome = _navigationStack.Count > 0
                 && _navigationStack[_navigationStack.Count - 1].Id == "家";
 
-            ClearTransientNodeUiState(clearSlots: true);
+            _nodeSlots.Clear();
             _selectedResource = null;
 
             if (alreadyAtHome)
@@ -2340,15 +2321,15 @@ namespace SSNoir
         }
 
         /// <summary>
-        /// 动作演出中的强制落点（送医、序章回家）。采纳引擎已经准备好的世界快照，
-        /// 直接把导航栈落到地点；不触发普通 arrival，也不重置正在播放的阻塞演出队列。
+        /// 演出中的明确导航落点（送医、回家、交锋总览）。采纳已经准备好的快照，
+        /// 不触发普通 arrival，也不重置正在播放的阻塞演出队列。
         /// </summary>
         public void EnterForcedPlace(string placeName, bool updateCamera = true)
         {
             AdoptLatestSnapshot();
             var path = FindPathToNode(placeName);
-            if (path.Count < 2)
-                throw new InvalidOperationException($"强制进入地点失败：世界中找不到“{placeName}”。");
+            if (path.Count == 0)
+                throw new InvalidOperationException($"剧情导航失败：找不到节点“{placeName}”。");
 
             _nodeSlots.Clear();
             _flippedNodes.Clear();
@@ -2363,6 +2344,18 @@ namespace SSNoir
             }
             ResolveNavigationStack();
             if (updateCamera) UpdateCameraFocus(storyDriven: true);
+        }
+
+        /// <summary>内容明确要求的落点；只改变显示与导航，不重新执行入场规则。</summary>
+        public IEnumerator FocusStoryNode(string nodeId)
+        {
+            // 此时仍在同一串剧情中，保留尚未播放的步骤；外层完成时再清理上下文。
+            CommitLatestSnapshotAtPresentationBoundary(resetUiOnContextChange: false);
+            EnterForcedPlace(nodeId);
+            yield return null;
+            var brain = Camera.main != null ? Camera.main.GetComponent<Cinemachine.CinemachineBrain>() : null;
+            while (_cameraManager.IsFocusTravelInFlight || (brain != null && brain.IsBlending))
+                yield return null;
         }
 
         /// <summary>
@@ -2419,11 +2412,6 @@ namespace SSNoir
             _renderer.SetInputLocked(false);
         }
 
-        private void ClearTransientNodeUiState(bool clearSlots)
-        {
-            _renderer?.ClearCardResidues();
-            if (clearSlots)
-                _nodeSlots.Clear();
-        }
+
     }
 }
