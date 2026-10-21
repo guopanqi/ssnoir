@@ -1,9 +1,9 @@
-;; 前进8格，途中2或3次人影；所有恐惧变化由同一出口同步人物表现。
-(define 前进 (make-clock "前进" 8 'gauge "抵达住处。" :beneficial-direction 'increase))
+;; 走完四格路程，并应对一次短人影障碍；恐惧满格时她选择叫车。
+(define 前进 (make-clock "回到住处" 4 'gauge "抵达住处。" :beneficial-direction 'increase))
 (define 恐惧 (make-clock "夜莺的恐惧" 3 'pressure "满格后她去亮处叫车，结束同行。" :beneficial-direction 'decrease))
 (define 人影在? #f)
 (define 人影次数 0)
-(define 人影上限 2)
+(define 人影上限 1)
 (define 忽略请求? #f)
 (define 照顾她? #f)
 (define 已结束? #f)
@@ -46,7 +46,7 @@
   ;; 先兑现抵达与恐惧，最后一格不会再凭空拦下已到家的人。
   (if (or (前进 'full?) (恐惧 'full?)) (检查!)
     (if (and (< 人影次数 人影上限)
-             (>= (前进 'current) (+ 2 (* 人影次数 2))))
+             (>= (前进 'current) 2))
       (出现人影!) #f)))
 (define (应对! success? shelter?)
   (if shelter? (set! 照顾她? #t) #f)
@@ -60,10 +60,10 @@
 (define (on-encounter-collapse) (collapse-result (结果 '倒下)))
 (define (on-encounter-enter)
   (前进 'load! 0) (恐惧 'load! 0) (set! 人影在? #f) (set! 人影次数 0)
-  (set! 人影上限 (random-choice (list 2 3)))
+  (set! 人影上限 1)
   (set! 忽略请求? #f) (set! 照顾她? #f) (set! 已结束? #f)
   (play-dialogue! (line "世界" "夜莺撑开旧伞，往尼尔那边挪了一点。")
-    (line "夜莺" "前面那家店还开着。沿这条街就能回去。")))
+    (line "夜莺" "走有灯的那边，好吗？我们慢慢来。")))
 (define (get-render-data)
   (container "雨夜同行"
     (append (clock-nodes (前进 'render-data) (恐惧 'render-data))
@@ -94,7 +94,7 @@
               (outcome (lambda () (spend-composure! 1) (走! 0 0 #f)))
               (outcome (lambda () (走! 1 0 #f)))
               (outcome (lambda () (走! 1 0 #f)))))
-          (node "冒险前进" :subtitle "失败恐惧+1、冷静-1；抄暗巷近路"
+          (node "穿过暗巷" :subtitle "失败恐惧+1、冷静-1；抄暗巷近路"
             :anchor "雨夜同行-暗巷"
             :tags (list "高风险")
             :requires (list (req-die)) :resolve (roll 'sharpness
