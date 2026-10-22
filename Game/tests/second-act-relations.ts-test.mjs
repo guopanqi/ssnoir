@@ -54,7 +54,7 @@ test("sponsor replay has its own date window; if skipped, Nightingale still perf
 });
 test("wage and school paths do not show intimate aftermath without having met people",async()=>{
   const {vm}=await setup();
-  await vm.evaluate("(set! world-day 10)");
+  await vm.evaluate("(set! world-day 13)");
   assert.equal(await count(vm,`(第二幕余波 'arrivals-at "码头")`),0);
   assert.equal(await count(vm,`(第二幕余波 'arrivals-at "街角咖啡馆")`),0);
   await vm.evaluate('(第一幕 \'on-work! "码头" \'好)');
@@ -100,7 +100,7 @@ test("city announcement is public, but intimate reactions follow separately know
 });
 test("wage dispute and school application require an actual introduction",async()=>{
   const {vm}=await setup();
-  await singer(vm,8);
+  await singer(vm,9);
   assert.equal(await count(vm,`(第二幕 'nodes-at "码头")`),0);
   assert.equal(await count(vm,`(第二幕 'nodes-at "街角咖啡馆")`),0);
   await vm.evaluate('(第一幕 \'on-work! "码头" \'好)');
@@ -110,7 +110,7 @@ test("wage dispute and school application require an actual introduction",async(
   await vm.evaluate('(第二幕 \'load! (list (list "wage-introduced" #t) (list "lucy-introduced" #t)))');
   assert.equal(await count(vm,`(第二幕 'nodes-at "码头")`),1);
   assert.equal(await count(vm,`(第二幕 'nodes-at "街角咖啡馆")`),2);
-  await vm.evaluate("(set! world-day 10)");
+  await vm.evaluate("(set! world-day 12)");
   assert.equal(await count(vm,`(第二幕 'nodes-at "码头")`),0);
 });
 
@@ -127,4 +127,19 @@ test("a strong wage roll does not skip the worker's job-at-risk decision",async(
   assert.ok(names.includes("先让艾迪退开"));
   assert.ok(names.includes("请弗兰克出面"));
   assert.ok(names.includes("继续坚持补钱"));
+});
+
+
+test("act two adds accessible street and theater routines without friendship gate",async()=>{
+  const {vm}=await setup();
+  assert.equal(await count(vm,`(第二幕生活 'nodes-at "码头居民区")`),0);
+  await singer(vm,7);
+  assert.equal(await count(vm,`(第二幕生活 'nodes-at "码头居民区")`),4);
+  assert.equal(await count(vm,`(第二幕生活 'nodes-at "剧院")`),1);
+  assert.equal(await count(vm,`(第二幕生活 'arrivals-at "码头居民区")`),1);
+  await vm.evaluate("(set! world-day 8)");
+  assert.equal(await count(vm,`(第二幕生活 'arrivals-at "码头居民区")`),2);
+  await vm.evaluate(`(第二幕生活 'load! (list (list "street" #t) (list "frank" #t) (list "theater" #t) (list "soup-day" 8)))`);
+  assert.equal(await count(vm,`(第二幕生活 'arrivals-at "码头居民区")`),0);
+  assert.equal(await count(vm,`(第二幕生活 'arrivals-at "剧院")`),0);
 });
