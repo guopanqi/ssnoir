@@ -112,7 +112,7 @@ test("wage dispute and school application require an actual introduction",async(
   assert.equal(await count(vm,`(第二幕 'nodes-at "码头")`),1);
   assert.equal(await count(vm,`(第二幕 'nodes-at "街角咖啡馆")`),2);
   await vm.evaluate("(set! world-day 12)");
-  assert.equal(await count(vm,`(第二幕 'nodes-at "码头")`),1);
+  assert.equal(await count(vm,`(第二幕 'nodes-at "码头")`),0);
 });
 
 test("a strong wage roll does not skip the worker's job-at-risk decision",async()=>{
