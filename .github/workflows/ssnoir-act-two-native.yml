@@ -1,0 +1,27 @@
+name: SSNoir Act Two Native Content
+on:
+  push:
+    paths:
+      - 'UnityClient/Assets/Resources/Content/scenes/world/第二幕*.scm'
+      - 'UnityClient/Assets/Resources/Content/scenes/world/码头.scm'
+      - 'UnityClient/Assets/Resources/Content/scenes/world/咖啡馆.scm'
+      - 'UnityClient/Assets/Resources/Content/scenes/encounters/少了十块钱.scm'
+      - 'UnityClient/Assets/Resources/Content/scenes/encounters/赞助人试演.scm'
+      - 'tools/content-validator/FirstActChecks.cs'
+      - '.github/workflows/ssnoir-act-two-native.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  native-content:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+      - name: Build the original C# content interpreter
+        run: dotnet build tools/content-validator/SSNoir.ContentValidator.csproj --nologo -v q
+      - name: Execute native second-act content regression
+        run: dotnet run --no-build --project tools/content-validator/SSNoir.ContentValidator.csproj -- --test-second-act-matters
