@@ -91,6 +91,9 @@ public static class FirstActChecks
         Assert(Entry("露西：夜校报名").Status == "进行中"
             && Entry("露西：夜校报名").Now.Contains("还需顶1班"),
             "替班一回不会自动解决报名，还需腾出第二班或支付15美元");
+        Assert(!Has(scenes, "替露西顶班"), "已守一班当天不应能重复顶班");
+        Eval("(set! world-day 10)");
+        Assert(Has(scenes, "替露西顶班"), "隔天再次允许顶班，构成跨日机会成本");
         Act(scenes, "替露西顶班");
         Assert(Entry("露西：夜校报名").Status == "等着别人"
             && Entry("露西：夜校报名").Now.Contains("还没听到报名结果"),
@@ -156,6 +159,16 @@ public static class FirstActChecks
         WageEval("""(第二幕 'load! (list (list "wage-introduced" #t) (list "wage-checked" #t) (list "wage-evidence" #t)))""");
         Act(wage, "少了十块钱");
         Assert(Has(wage, "出示工时记录"), "取得的实际记录在原生工钱交锋中兑现");
+        WageEval("(set! 危机? #t)");
+        Assert(!Has(wage, "请弗兰克出面"), "还未认识弗兰克时，不凭空获得他的人脉支援");
+        
+        var withFrank = new SceneManager(new GameState(), new LocalScriptLoader());
+        withFrank.LoadScene("world");
+        void FrankEval(string source) { withFrank.ActiveInterpreter.Eval(source); withFrank.Refresh(); }
+        FrankEval("""(第一幕 'load! (list (list "opened" #t) (list "tavern" #t) (list "act" 2) (list "eddie" 1))) (set! world-day 9) (第二幕 'load! (list (list "wage-introduced" #t))) (第二幕生活 'load! (list (list "frank" #t)))""");
+        Act(withFrank, "少了十块钱");
+        FrankEval("(set! 危机? #t)");
+        Assert(Has(withFrank, "请弗兰克出面"), "交锋能从城市相识状态获得弗兰克调停路线");
     }
     public static void Run()
     {
