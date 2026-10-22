@@ -134,13 +134,13 @@ public static class FirstActChecks
         Act(prep, "看看剧院招工告示");
         Assert(Has(prep, "检查伴奏线路"),
             "D9 已知日程后应看得到设备检查");
-        Assert(Has(prep, "预订旧乐手"),
+        Assert(Has(prep, "约老乐手"),
             "D9 已知日程后在旧街应看得到预订乐手");
         Act(prep, "检查伴奏线路");
         Assert(!Has(prep, "检查伴奏线路"),
             "线路检查只可尝试一次，不许重复试出好结果");
         PrepEval("""(第二幕剧院 'load! (list (list "equipment-checked" #t) (list "equipment-ready" #t) (list "musician-booked" #t))) (set! world-day 10)""");
-        Assert(!Has(prep, "预订旧乐手"), "已预约后不能再次付定金");
+        Assert(!Has(prep, "约老乐手"), "已预约后不能再次付定金");
         Act(prep, "看看赞助人试演");
         Act(prep, "帮她想办法");
         Assert(Has(prep, "请已预约的乐手"),
