@@ -25,11 +25,13 @@
           (list
             (at-anchor "街角咖啡馆"
               (note-node "露西·咖啡馆" "露西" ""))
-            (工作 "咖啡馆帮工" '低 'social
+            (工作 "咖啡馆帮工" '稳妥 'social
               (outcome (lambda () (work-result! 10 '好 1)))
               (outcome (lambda () (work-result! 4 '中 0)))
               (outcome (lambda () (work-result! 0 '坏 -1)))
-              "安稳的工作，工资微薄，但偶尔能够令人感觉到平静。"))
+              "安稳的工作，工资微薄，但偶尔能够令人感觉到平静。"
+              :risk-target (list 'composure "player")
+              :progress-target (list 'item "金钱")))
           '()))
 
     (lambda args

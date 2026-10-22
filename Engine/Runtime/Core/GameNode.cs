@@ -12,6 +12,8 @@ namespace SSNoir.Core
         public string Name { get; set; } = string.Empty;
         public string? AnchorName { get; set; }
         public string Subtitle { get; set; } = string.Empty;
+        /// <summary>Design-time risk preview; actual effects are authored in roll outcomes.</summary>
+        public ActionRisk? Risk { get; set; }
         /// <summary>可选操作按钮文字；未指定时由 UI 使用默认动词。</summary>
         public string? ButtonText { get; set; }
         public string? RequiredBeforeRest { get; set; }

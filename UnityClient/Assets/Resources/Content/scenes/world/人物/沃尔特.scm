@@ -117,7 +117,7 @@
               "那批货的舱单在你手里了。回格兰德酒店找沃尔特，陪他去核这次赔。"))))
 
     (define (node-search-records)
-      (工作 "翻账房的记录" '低 'knowledge
+      (工作 "翻账房的记录" '稳妥 'knowledge
         (outcome (lambda ()
             (manifest-clk 'advance! 2)
             (if (manifest-clk 'full?) (manifest-done!) #f)))
@@ -157,13 +157,13 @@
     ;; 三档 outcome 里只有这份活本身；裙带的那一段在 (裙带-之后! 档) 里另起。
     (define (node-fieldwork)
       (if (equal? claim-result "坐实")
-          (工作 "替沃尔特跑外勤" '低 'sharpness
+          (工作 "替沃尔特跑外勤" '稳妥 'sharpness
             (outcome (lambda () (add-item! "金钱" 30) (裙带-之后! '好)))
             (outcome (lambda () (add-item! "金钱" 20) (裙带-之后! '中)))
             (outcome (lambda () (spend-composure! 1) (裙带-之后! '坏)))
             "他派给你的都是表格太干净的那种"
             :anchor "格兰德酒店-大厅")
-          (工作 "替沃尔特跑外勤" '低 'sharpness
+          (工作 "替沃尔特跑外勤" '稳妥 'sharpness
             (outcome (lambda () (add-item! "金钱" 22) (裙带-之后! '好)))
             (outcome (lambda () (add-item! "金钱" 15) (裙带-之后! '中)))
             (outcome (lambda () (裙带-之后! '坏)))

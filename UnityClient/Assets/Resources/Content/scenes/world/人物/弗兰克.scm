@@ -194,7 +194,7 @@
       (clock-node "钟：货船抢修" (repair-clk 'render-data)))
 
     (define (node-repair)
-      (工作 "参加货船抢修" '高 'violence
+      (工作 "参加货船抢修" '冒险 'violence
         (outcome (lambda ()
             (add-item! "金钱" 18)
             (join-repair! 2)))

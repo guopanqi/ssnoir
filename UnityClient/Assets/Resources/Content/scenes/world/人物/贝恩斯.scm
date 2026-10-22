@@ -40,7 +40,7 @@
     ;; ── 常驻:文书 ────────────────────────────────────
     ;; 文书仍是一份日结工作，但不再用重复打工次数解锁人物剧情。
     (define (node-paperwork)
-      (工作 "整理警察局文书" '低 'knowledge
+      (工作 "整理警察局文书" '稳妥 'knowledge
         (outcome (lambda () (add-item! "金钱" 10)))
         (outcome (lambda () (add-item! "金钱" 6)))
         (outcome (lambda () (spend-composure! 1)))

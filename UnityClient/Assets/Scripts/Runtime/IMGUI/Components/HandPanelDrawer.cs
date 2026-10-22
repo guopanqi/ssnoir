@@ -614,6 +614,8 @@ namespace SSNoir.IMGUI
         {
             Color fill = IMGUIStyles.Paper;
             DrawVitalTitle(x,y,"冷静");
+            if (actor.Id == "player" && ActionRiskFocus.IsComposureFocused())
+                IMGUIStyles.DrawOutline(new Rect(x, y, w, 24f), 1f, IMGUIStyles.Gold);
             float barX=x+VitalLabelW+8f,barW=w-(VitalLabelW+8f);
             const float gap=2f;
             DrawVitalTrack(new Rect(barX-2f,y+2f,barW+4f,16f), actor.Composure == 0);
@@ -1065,6 +1067,8 @@ namespace SSNoir.IMGUI
             float x,float y,float w,PresentationSnapshot snapshot,SSNoirGameManager gameManager)
         {
             DrawVitalTitle(x,y,"伤势");
+            if (ActionRiskFocus.IsInjuryFocused())
+                IMGUIStyles.DrawOutline(new Rect(x, y, w, 24f), 1f, IMGUIStyles.Gold);
             int max=snapshot.InjuryMaxSeverity,severity=snapshot.InjurySeverity;
             Color fill=IMGUIStyles.OddsFail;
             float barX=x+VitalLabelW+8f,barW=w-(VitalLabelW+8f);

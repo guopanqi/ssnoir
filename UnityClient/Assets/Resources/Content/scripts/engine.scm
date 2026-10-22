@@ -7,6 +7,9 @@
 (define :requires ':requires)
 (define :resolve ':resolve)
 (define :tags ':tags)
+(define :risk ':risk)
+(define :risk-target ':risk-target)
+(define :progress-target ':progress-target)
 (define :button-text ':button-text)
 (define :subtitle ':subtitle)
 (define :name ':name)
@@ -68,6 +71,9 @@
             :requires (get-kwarg kwargs ':requires #f)
             :resolve (get-kwarg kwargs ':resolve #f)
             :tags (get-kwarg kwargs ':tags '())
+            :risk (get-kwarg kwargs ':risk #f)
+            :risk-target (get-kwarg kwargs ':risk-target #f)
+            :progress-target (get-kwarg kwargs ':progress-target #f)
             :disabled (get-kwarg kwargs ':disabled #f))
       (if (equal? anchor-name #f)
           '()
@@ -423,34 +429,36 @@
           (error "recovery-roll-action: expected 6 args (name requires skill fail neutral success) or 7 args (name requires skill mod-fn fail neutral success)"))))
 
 ;; ── 工作（work）DSL ───────────────────────────────────
-;; (工作 id risk skill 好-outcome 中-outcome 坏-outcome [subtitle] [:anchor name] [:clocks clocks])
+;; (工作 id risk skill 好-outcome 中-outcome 坏-outcome [subtitle] [:anchor name] [:clocks clocks] [:risk-target target] [:progress-target target])
 ;; (非法工作 id risk skill 好-outcome 中-outcome 坏-outcome [subtitle] [:anchor name] [:clocks clocks])
 ;;   工作只换钱，不攒任何圈子的声誉——「势力关系」这层已经拆掉：你和谁的关系，
 ;;   就是你和那一片的关系，写在人物模块里（艾迪＝码头，弗兰克＝老街，沃尔特＝上城）。
-;;   risk:    只有 '低/'高，决定风险标签与结果代价。
+;;   risk:    '稳妥 / '冒险 / '危险；后果必须在 outcome 中明确实现。
 ;;   非法工作是独立维度：额外显示“非法”并固定难度 -2，不再冒充第三种风险档。
 ;;   好/中/坏: 每项工作显式传入三个 outcome（各只是一个效果）
 ;;   subtitle: 可选，只写“特别”的一句说明；一般风险由标签表达，不写 subtitle
-;; 表现约定：每个工作都打“工作”标签（＝能赚钱）+ 一个风险标签，前端给风险标签配色，
+;; 表现约定：每个工作都打“工作”类别标签并声明 :risk；两者独立，
 ;; 玩家一眼就能判断类型和大致风险。惩罚（钱/冷静/伤势）写在各 outcome effect 里。
-(define (工作-风险标签 risk)
-  (cond ((equal? risk '低)   "低风险")
-        ((equal? risk '高)   "高风险")
-        (else (error "工作: 未知风险等级（应为 低/高）"))))
+(define (工作-风险等级 risk)
+  (cond ((equal? risk '低) '稳妥)    ;; 已归档的旧内容兼容；运行时统一为新等级
+        ((equal? risk '高) '冒险)
+        ((or (equal? risk '稳妥) (equal? risk '冒险) (equal? risk '危险)) risk)
+        (else (error "工作: 未知风险等级（应为 稳妥/冒险/危险）"))))
 
 (define (工作-难度修正 risk illegal?)
   (append
-    (begin (工作-风险标签 risk) '())
+    (begin (工作-风险等级 risk) '())
     (if illegal? (list (modifier -2 "非法")) '())))
 
-(define (构造工作 id illegal? risk skill 好-outcome 中-outcome 坏-outcome subtitle anchor clocks)
+(define (构造工作 id illegal? risk skill 好-outcome 中-outcome 坏-outcome subtitle anchor clocks risk-target progress-target)
   (node id
         :subtitle subtitle
         :anchor anchor
         :clocks clocks
-        :tags (if illegal?
-                  (list "工作" (工作-风险标签 risk) "非法")
-                  (list "工作" (工作-风险标签 risk)))
+        :tags (if illegal? (list "工作" "非法") (list "工作"))
+        :risk (工作-风险等级 risk)
+        :risk-target risk-target
+        :progress-target progress-target
         :requires (list (req-die))
         :resolve (roll skill
                        (lambda () (工作-难度修正 risk illegal?))
@@ -468,6 +476,10 @@
      (and (string? (cadr args)) (工作-关键字参数合法? (cddr args))))
     ((equal? (car args) :clocks)
      (and (list? (cadr args)) (工作-关键字参数合法? (cddr args))))
+    ((equal? (car args) :risk-target)
+     (and (list? (cadr args)) (工作-关键字参数合法? (cddr args))))
+    ((equal? (car args) :progress-target)
+     (and (list? (cadr args)) (工作-关键字参数合法? (cddr args))))
     (else #f)))
 
 (define (工作-附加参数 extra)
@@ -476,18 +488,20 @@
     (if (工作-关键字参数合法? kwargs)
         (list subtitle
               (get-kwarg kwargs :anchor #f)
-              (get-kwarg kwargs :clocks '()))
+              (get-kwarg kwargs :clocks '())
+              (get-kwarg kwargs :risk-target #f)
+              (get-kwarg kwargs :progress-target #f))
         (error "工作: 附加参数应为 [subtitle] [:anchor 锚点名] [:clocks 时钟列表]"))))
 
 (define (工作 id risk skill 好-outcome 中-outcome 坏-outcome . extra)
   (let ((args (工作-附加参数 extra)))
     (构造工作 id #f risk skill 好-outcome 中-outcome 坏-outcome
-              (car args) (cadr args) (caddr args))))
+              (car args) (cadr args) (caddr args) (list-ref args 3) (list-ref args 4))))
 
 (define (非法工作 id risk skill 好-outcome 中-outcome 坏-outcome . extra)
   (let ((args (工作-附加参数 extra)))
     (构造工作 id #t risk skill 好-outcome 中-outcome 坏-outcome
-              (car args) (cadr args) (caddr args))))
+              (car args) (cadr args) (caddr args) (list-ref args 3) (list-ref args 4))))
 
 ;; ── 随身动作 ─────────────────────────────────────────
 ;; 烟、酒这类你自己带进交锋的东西。它们不属于任何一场——没有哪个交锋脚本声明它们，

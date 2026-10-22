@@ -66,12 +66,14 @@
               (line "艾迪" "工头可不管你明天还能不能抬箱子。" :at "码头-货堆"))) #f)))
 
     (define (haul-node)
-      (工作 "搬运" '高 'violence
+      (工作 "搬运" '冒险 'violence
         (outcome (lambda () (on-haul! '好)))
         (outcome (lambda () (on-haul! '中)))
         (outcome (lambda () (on-haul! '坏)))
         (haul-subtitle)
-        :anchor "码头-货堆"))
+        :anchor "码头-货堆"
+        :risk-target (list 'composure "player")
+        :progress-target (list 'item "金钱")))
 
     (lambda args
       (let ((msg (car args)))

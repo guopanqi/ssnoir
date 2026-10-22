@@ -288,7 +288,7 @@
     ;; 报酬不是玩家来的理由，报酬是消掉"我还得挣房租"这个不来的理由。
     ;; 顺带一层这一章不点破的讽刺：你帮这个理想主义者干活，涨的是公司的脸熟。
     (define (node-rail)
-      (工作 "校正旧轨道" '低 'sharpness
+      (工作 "校正旧轨道" '稳妥 'sharpness
         (outcome (lambda () (add-item! "金钱" 8) (mark-participated!) (rail-clk 'tick!)))
         (outcome (lambda () (add-item! "金钱" 6) (mark-participated!) (rail-clk 'tick!)))
         (outcome (lambda () (add-item! "金钱" 4) (spend-composure! 1)))

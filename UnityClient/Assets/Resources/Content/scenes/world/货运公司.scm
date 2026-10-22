@@ -27,7 +27,7 @@
           investment-principal))
 
     (define (node-contract-work)
-      (工作 "联络货主" '低 'social
+      (工作 "联络货主" '稳妥 'social
         (outcome (lambda () (add-item! "金钱" 10)))
         (outcome (lambda () (add-item! "金钱" 6)))
         (outcome (lambda () (spend-composure! 1)))))

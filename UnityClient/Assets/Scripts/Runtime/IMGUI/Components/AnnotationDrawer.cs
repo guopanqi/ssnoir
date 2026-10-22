@@ -200,6 +200,7 @@ namespace SSNoir.IMGUI
             float textH=titleH+(bodyH>0f?TitleToBody+bodyH:0f);
             float h=ring?Mathf.Max(graphicSize,textH):40f+Mathf.Max(TitleRowH,titleH)+(bodyH>0f?TitleToBody+bodyH:0f);
             if(!draw) return h;
+            if (ActionRiskFocus.IsClockFocused(clock)) pulse = Mathf.Max(pulse, 0.85f);
             var cam=Camera.main;
             IMGUIStyles.DrawFogPatch(new Rect(rect.x,rect.y,rect.width,h),cam!=null?cam.backgroundColor:IMGUIStyles.Ink,FogAlpha,FogFeather);
             float y=rect.y;
@@ -337,6 +338,7 @@ namespace SSNoir.IMGUI
             // 整条标注的提亮（pulse）说「这里变了」，格子自己再一格一格换（ClockPulse），
             // 和卡上的徽章走同一串时间表。
             ClockPulse.Note(clock);
+            if (ActionRiskFocus.IsClockFocused(clock)) pulse = Mathf.Max(pulse, 0.85f);
             Color active = Color.Lerp(CardDrawer.ClockColor(clock),Color.white,pulse*.6f);
             string fraction = $"{clock.Current}/{clock.Max}";
 

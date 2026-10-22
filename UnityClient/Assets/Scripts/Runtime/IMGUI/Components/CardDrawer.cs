@@ -252,6 +252,7 @@ namespace SSNoir.IMGUI
             ClockPulse.Note(clock);
             Color color=accent??ClockColor(clock);
             float glow=ClockPulse.Glow(clock);
+            if (ActionRiskFocus.IsClockFocused(clock)) glow = Mathf.Max(glow, 0.85f);
             IMGUIStyles.SetColor(IMGUIStyles.CityPlateBg);GUI.DrawTexture(rect,Texture2D.whiteTexture);IMGUIStyles.ResetColor();
             IMGUIStyles.DrawOutline(rect,1f,Color.Lerp(IMGUIStyles.CityPlateLine,color,glow));
             var label=new GUIStyle(IMGUIStyles.ClockLabel){fontSize=IMGUIStyles.FontSize(compact?12:14),
@@ -300,7 +301,8 @@ namespace SSNoir.IMGUI
         {
             ClockPulse.Note(clock);
             Color color=accent??ClockColor(clock);
-            Color active=Color.Lerp(color,Color.white,ClockPulse.Glow(clock)*.2f);
+            Color active=Color.Lerp(color,Color.white,Mathf.Max(ClockPulse.Glow(clock),
+                ActionRiskFocus.IsClockFocused(clock) ? 0.85f : 0f)*.2f);
             Color track=new Color(IMGUIStyles.Paper.r,IMGUIStyles.Paper.g,IMGUIStyles.Paper.b,.13f);
             if(clock.Style==ClockStyle.Countdown)
             {

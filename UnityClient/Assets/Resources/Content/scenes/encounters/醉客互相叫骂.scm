@@ -26,19 +26,22 @@
     :children (list
       (clock-node (string-append id "：愤怒") (clock 'render-data))
       (node (string-append id "：劝") :name "劝他们" :anchor anchor :requires (list (req-die))
+        :risk '稳妥 :progress-target (list 'clock (if (equal? id "东边这桌") "东桌愤怒值" "西桌愤怒值"))
         :disabled (clock 'empty?)
-        :subtitle (if (clock 'empty?) "已经冷静下来" "好降2，中降1；坏冷静-1")
+        :subtitle (if (clock 'empty?) "已经冷静下来" "好降2，中降1；坏无进展")
         :resolve (roll 'social
-          (outcome (lambda () (spend-composure! 1)))
+          (outcome (lambda () #f))
           (outcome (lambda () (劝! clock 1)))
           (outcome (lambda () (劝! clock 2)))))
-      (node (string-append id "：威胁") :name "威胁他们" :anchor anchor :requires (list (req-die))
+      (node (string-append id "：威胁") :name "喝令散开" :anchor anchor :requires (list (req-die))
+        :risk '冒险 :risk-target (list 'composure "player")
+        :progress-target (list 'clock (if (equal? id "东边这桌") "东桌愤怒值" "西桌愤怒值"))
         :disabled (clock 'empty?)
-        :subtitle (if (clock 'empty?) "已经冷静下来" "好降2，中降1；坏冷静-1")
+        :subtitle (if (clock 'empty?) "已经冷静下来" "好降3，中降1；坏冷静-2"
         :resolve (roll 'violence
-          (outcome (lambda () (spend-composure! 1)))
+          (outcome (lambda () (spend-composure! 2)))
           (outcome (lambda () (劝! clock 1)))
-          (outcome (lambda () (劝! clock 2))))))))
+          (outcome (lambda () (劝! clock 3))))))))
 (define (压住! n)
   (骂人者 'advance! (- 0 n))
   (if (骂人者 'empty?)
@@ -54,14 +57,21 @@
       (at-anchor anchor
         (note-node "骂人者：回合规则" "回合结束"
           (string-append "骂向" (if (equal? 骂人位置 "东边") "西边" "东边") "这桌，令其愤怒+1")))
-      (node "羞辱他" :anchor anchor :requires (list (req-die)) :subtitle "好降2，中降1；坏冷静-1"
+      (node "羞辱他" :anchor anchor :requires (list (req-die))
+        :risk '冒险 :risk-target (list 'composure "player")
+        :progress-target (list 'clock "叫骂者愤怒值")
+        :subtitle "好降2，中降1；坏冷静-1"
         :resolve (roll 'social
           (outcome (lambda () (spend-composure! 1)))
           (outcome (lambda () (压住! 1))) (outcome (lambda () (压住! 2)))))
-      (node "拦住他" :anchor anchor :requires (list (req-die)) :subtitle "好降2，中降1；坏冷静-1"
+      (node "拦住他" :anchor anchor :requires (list (req-die))
+        :risk '危险 :risk-target (list 'composure "player")
+        :progress-target (list 'clock "叫骂者愤怒值")
+        :subtitle "好降2，中降1且冷静-1；坏冷静-2"
         :resolve (roll 'violence
-          (outcome (lambda () (spend-composure! 1)))
-          (outcome (lambda () (压住! 1))) (outcome (lambda () (压住! 2)))))))))
+          (outcome (lambda () (spend-composure! 2)))
+          (outcome (lambda () (spend-composure! 1) (压住! 1)))
+          (outcome (lambda () (压住! 2)))))))))
 (define (选择起身位置)
   (cond
     ((and (not (东边 'empty?)) (not (西边 'empty?)))

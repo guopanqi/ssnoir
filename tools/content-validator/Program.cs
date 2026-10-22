@@ -31,6 +31,12 @@ namespace SSNoir
                     return;
                 }
 
+                if (args.Length == 1 && args[0] == "--test-action-risk")
+                {
+                    ActionRiskChecks.Run();
+                    return;
+                }
+
                 if (args.Length == 1 && args[0] == "--test-node-identity")
                 {
                     NodeIdentityChecks.Run();
@@ -111,7 +117,7 @@ namespace SSNoir
                 }
 
                 Console.Error.WriteLine(
-                    "用法：./run --validate | --test-required-before-rest | --test-first-act | --test-node-identity | --test-dice-reset | --test-saveload | --test-odds | --test-round-transition | --test-theatre | " +
+                    "用法：./run --validate | --test-required-before-rest | --test-first-act | --test-node-identity | --test-action-risk | --test-dice-reset | --test-saveload | --test-odds | --test-round-transition | --test-theatre | " +
                     "--playtest <入场表达式或场景名> [选项] | --session <world|场景名|入场表达式> [选项] " +
                     "| --session-baseline <交锋入口> --output <记录.json> | --session-report <记录.json> [...] | --replay <记录.json> " +
                     "| --theatre-export <Scheme 表达式> <输出.json> | --stage-export <Scheme 表达式> <输出.json>");

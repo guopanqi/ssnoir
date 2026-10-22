@@ -13,7 +13,7 @@
     ;; 好结果比码头夜班高一点、不伤身；坏结果是全城唯一会倒扣钱的工。
     (define 赔付 15)
     (define (node-fix-problem)
-      (工作 "替客人解围" '低 'social
+      (工作 "替客人解围" '稳妥 'social
         (outcome (lambda () (add-item! "金钱" 30)))
         (outcome (lambda () (add-item! "金钱" 18)))
         (outcome (lambda ()

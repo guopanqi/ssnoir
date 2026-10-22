@@ -447,7 +447,7 @@
           #f))
 
     (define (node-waiter)
-      (工作 "服务员" '低 'social
+      (工作 "服务员" '稳妥 'social
         (outcome (lambda ()
             (add-item! "金钱" 8)
             (if character-stories-open? (change-tavern-rank! 1) #f)
@@ -477,7 +477,7 @@
     ;;       只有满骰面(6)那一格仍旧输给搬运和夜班：酒馆是稳的那一头，
     ;;       它买的是地板，不是天花板。
     (define (node-foreman)
-      (工作 "领班" '低 'social
+      (工作 "领班" '冒险 'social
         (outcome (lambda ()
             (add-item! "金钱" 13)
             (change-tavern-rank! 1)
@@ -586,7 +586,7 @@
     ;; 后屋的活是关系给的，它给的不该只是又一份工钱：守仓库是一整夜没人来找你的
     ;; 安静，顺的那一晚连冷静都回来一点——老街上唯一一份**边挣钱边歇着**的工。
     (define (node-watch-warehouse)
-      (工作 "看仓库" '低 'sharpness
+      (工作 "看仓库" '稳妥 'sharpness
         (outcome (lambda ()
             (add-item! "金钱" 10)
             (restore-actor-composure! 'player 1)))
@@ -597,7 +597,7 @@
         "替弗兰克的人守一夜仓库；太平的一夜也是歇着"))
 
     (define (node-run-errand)
-      (工作 "替人跑一趟" '低 'social
+      (工作 "替人跑一趟" '稳妥 'social
         (outcome (lambda () (add-item! "金钱" 9)))
         (outcome (lambda () (add-item! "金钱" 6)))
         (outcome (lambda ()

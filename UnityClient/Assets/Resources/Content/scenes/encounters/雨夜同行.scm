@@ -75,20 +75,21 @@
         (list (node "街灯下的人影" :anchor "雨夜同行-街灯下的人影" :children (list
           (node "人影：喝问" :name "出声喝问" :subtitle "失败恐惧+1、冷静-1；挡在她身前喝问"
             :anchor "雨夜同行-街灯下的人影"
-            :tags (list "高风险")
+            :risk '冒险 :risk-target (list 'clock "夜莺的恐惧")
             :requires (list (req-die)) :resolve (roll 'violence
               (outcome (lambda () (spend-composure! 1) (应对! #f #f)))
               (outcome (lambda () (应对! #t #f)))
               (outcome (lambda () (应对! #t #f)))))
           (node "人影：店铺" :name "绕进亮灯的店铺" :subtitle "失败恐惧+1、冷静-1；带她避开路口"
             :anchor "雨夜同行-亮灯的店铺"
-            :tags (list "高风险")
+            :risk '冒险 :risk-target (list 'clock "夜莺的恐惧")
             :requires (list (req-die)) :resolve (roll 'sharpness
               (outcome (lambda () (spend-composure! 1) (应对! #f #t)))
               (outcome (lambda () (应对! #t #t)))
               (outcome (lambda () (应对! #t #t)))))
           (node "人影：带路" :name "听夜莺指路" :subtitle "相信她熟悉的街道，一起避开路口"
             :anchor "雨夜同行-街灯下的人影"
+            :risk '冒险 :risk-target (list 'clock "夜莺的恐惧")
             :requires (list (req-die)) :resolve (roll 'sharpness
               (outcome (lambda () (spend-composure! 1) (应对! #f #t)))
               (outcome (lambda () (应对! #t #t)))
@@ -96,13 +97,16 @@
         (list
           (node "沿街灯走" :subtitle "失败冷静-1；沿亮处前进"
             :anchor "雨夜同行-街灯"
+            :risk '稳妥 :risk-target (list 'composure "player")
+            :progress-target (list 'clock "回到住处")
             :requires (list (req-die)) :resolve (roll 'sharpness
               (outcome (lambda () (spend-composure! 1) (走! 0 0 #f)))
               (outcome (lambda () (走! 1 0 #f)))
               (outcome (lambda () (走! 1 0 #f)))))
           (node "穿过暗巷" :subtitle "失败恐惧+1、冷静-1；抄暗巷近路"
             :anchor "雨夜同行-暗巷"
-            :tags (list "高风险")
+            :risk '冒险 :risk-target (list 'clock "夜莺的恐惧")
+            :progress-target (list 'clock "回到住处")
             :requires (list (req-die)) :resolve (roll 'sharpness
               (outcome (lambda () (spend-composure! 1) (走! 0 1 #t)))
               (outcome (lambda () (走! 1 0 #t)))

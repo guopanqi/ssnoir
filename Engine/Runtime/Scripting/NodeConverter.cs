@@ -54,6 +54,9 @@ namespace SSNoir.Scripting
             List<GameNode> children = new List<GameNode>();
             List<ActionCost> requires = new List<ActionCost>();
             GameResolve? resolve = null;
+            ActionRiskLevel? riskLevel = null;
+            ActionTarget? riskTarget = null;
+            ActionTarget? progressTarget = null;
             string? anchorName = null;
             string subtitle = string.Empty;
             string name = id;
@@ -87,6 +90,18 @@ namespace SSNoir.Scripting
                 else if (kwStr == ":tags")
                 {
                     tags = ParseTags(val);
+                }
+                else if (kwStr == ":risk")
+                {
+                    riskLevel = ParseRiskLevel(val, id);
+                }
+                else if (kwStr == ":risk-target")
+                {
+                    riskTarget = ParseActionTarget(val, id, kwStr);
+                }
+                else if (kwStr == ":progress-target")
+                {
+                    progressTarget = ParseActionTarget(val, id, kwStr);
                 }
                 else if (kwStr == ":children")
                 {
@@ -192,6 +207,13 @@ namespace SSNoir.Scripting
             if (buttonText != null && (resolve == null || resolve.Type == ResolveType.Note))
                 throw new InvalidOperationException($"Node '{id}' :button-text requires an actionable resolve.");
 
+            if (riskLevel.HasValue && (resolve == null || resolve.Type != ResolveType.Roll))
+                throw new InvalidOperationException($"Node '{id}' :risk requires a Roll action.");
+            if ((riskTarget != null || progressTarget != null) && !riskLevel.HasValue)
+                throw new InvalidOperationException($"Node '{id}' declares a target without :risk.");
+            if (riskLevel.HasValue && tags.Exists(t => t == "低风险" || t == "高风险" || t == "稳妥" || t == "冒险" || t == "危险"))
+                throw new InvalidOperationException($"Node '{id}' mixes :risk with a legacy risk tag.");
+
             var node = new GameNode
             {
                 Id = id,
@@ -202,6 +224,12 @@ namespace SSNoir.Scripting
                 Arrivals = arrivals,
                 AnchorName = anchorName,
                 Subtitle = subtitle,
+                Risk = riskLevel.HasValue ? new ActionRisk
+                {
+                    Level = riskLevel.Value,
+                    RiskTarget = riskTarget,
+                    ProgressTarget = progressTarget
+                } : null,
                 ButtonText = buttonText,
                 RequiredBeforeRest = requiredBeforeRest,
                 Disabled = disabled,
@@ -216,6 +244,40 @@ namespace SSNoir.Scripting
 
         // (arrival "id" effect) 的列表。ID 只在同一个地点内要求唯一——节点 ID 已经全局
         // 唯一（见 SceneManager.AssertUniqueNodeIds），(地点名, ID) 就足够定位一拍。
+        private static ActionRiskLevel? ParseRiskLevel(object value, string nodeId)
+        {
+            if (value is bool omitted && !omitted) return null;
+            if (value is not Symbol s)
+                throw new InvalidOperationException($"Node '{nodeId}': risk must be '稳妥, '冒险 or '危险.");
+            return s.AsString switch
+            {
+                "稳妥" => ActionRiskLevel.Safe,
+                "冒险" => ActionRiskLevel.Risky,
+                "危险" => ActionRiskLevel.Dangerous,
+                _ => throw new InvalidOperationException($"Node '{nodeId}': unknown risk '{s.AsString}'.")
+            };
+        }
+
+        private static ActionTarget? ParseActionTarget(object value, string nodeId, string keyword)
+        {
+            if (value is bool omitted && !omitted) return null;
+            if (value is not List<object> list || list.Count != 2
+                || list[0] is not Symbol kind || list[1] is not string id
+                || string.IsNullOrWhiteSpace(id))
+                throw new InvalidOperationException($"Node '{nodeId}' {keyword}: expected (list 'kind \"id\").");
+            ActionTargetKind type = kind.AsString switch
+            {
+                "clock" => ActionTargetKind.Clock,
+                "composure" => ActionTargetKind.Composure,
+                "injury" => ActionTargetKind.Injury,
+                "item" => ActionTargetKind.Item,
+                _ => throw new InvalidOperationException($"Node '{nodeId}' {keyword}: unknown target kind '{kind.AsString}'.")
+            };
+            if ((type == ActionTargetKind.Composure || type == ActionTargetKind.Injury) && id != "player")
+                throw new InvalidOperationException($"Node '{nodeId}' {keyword}: player is the only supported actor target.");
+            return new ActionTarget { Kind = type, Id = id };
+        }
+
         private static List<ArrivalBeat> ParseArrivals(object arrivalsExpr, string placeName)
         {
             var arrivals = new List<ArrivalBeat>();

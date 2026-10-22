@@ -725,6 +725,7 @@ namespace SSNoir.Core
             CurrentClocks = flatClocks;
 
             CurrentCarryNodes = BuildEncounterActionNodes(rootNode, active);
+            ActionRiskContract.Validate(rootNode, CurrentCarryNodes);
 
             CurrentDossier = IsWorldScene(CurrentSceneName)
                 ? NodeConverter.ConvertDossier(active.Eval("(get-dossier)"))

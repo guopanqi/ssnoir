@@ -1297,6 +1297,7 @@ namespace SSNoir.IMGUI
             HandPanelDrawer.DrawPortraits(_gameManager);
 
             // ── Node Cards (3D projected) ──
+            ActionRiskFocus.BeginFrame(SelectedRiskTarget(_gameManager.DisplayedSnapshot.RootNode, _consoleDrawerHost));
             DrawCards(worldUi);
             if (!_cardAttachmentOverlays.Any(attachment => attachment.ConsoleNode != null))
                 _consoleDrawerHost = null;
@@ -1644,6 +1645,19 @@ namespace SSNoir.IMGUI
                 _gameManager.RestartGame();
             else if (quitClicked)
                 Application.Quit();
+        }
+
+        private static ActionTarget? SelectedRiskTarget(GameNode? node, string? selectedId)
+        {
+            if (node == null || selectedId == null) return null;
+            if (node.Id == selectedId && node.Risk != null)
+                return node.Risk.RiskTarget ?? node.Risk.ProgressTarget;
+            foreach (var child in node.Children)
+            {
+                var found = SelectedRiskTarget(child, selectedId);
+                if (found != null) return found;
+            }
+            return null;
         }
 
         private void DrawCards(IMGUIInteractionContext ui)
