@@ -55,11 +55,13 @@
           (note-node "工头的威胁" "艾迪的工作" "他可能因为十块钱丢掉工作。")
           (node "先让艾迪退开" :subtitle "保住眼前的工作，放弃这次工钱"
             :resolve (instant (outcome (lambda () (结束! '保住工作)))))
-          (node "请弗兰克出面" :subtitle "请求老街长辈来核账"
-            :requires (list (req-die)) :resolve (roll 'social
-              (outcome (lambda () (spend-composure! 1) (结束! '撤出)))
-              (outcome (lambda () (结束! '弗兰克调停)))
-              (outcome (lambda () (结束! '弗兰克调停)))))
+          (if (第二幕生活 'met-frank?)
+            (node "请弗兰克出面" :subtitle "让认识的老街长辈出面核账"
+              :requires (list (req-die)) :resolve (roll 'social
+                (outcome (lambda () (spend-composure! 1) (结束! '撤出)))
+                (outcome (lambda () (结束! '弗兰克调停)))
+                (outcome (lambda () (结束! '弗兰克调停)))))
+            (note-node "弗兰克不在" "旧街的熟人" "尼尔还不认识这个能向工头说话的人。"))
           (node "继续坚持补钱" :subtitle "冒险与工头争执，可能损失冷静"
             :tags (list "高风险") :requires (list (req-die))
             :resolve (roll 'violence
