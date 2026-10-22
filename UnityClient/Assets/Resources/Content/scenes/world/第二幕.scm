@@ -71,6 +71,18 @@
         (line "老板" "店里只剩两个时段没人。你找到代班，我就让你去。")
         (line "尼尔" "两个班都得补？")
         (line "露西" "我也不愿意让你白帮忙。要不然我再自己想办法。")))
+    (define (lucy-plan)
+      (cond
+        ((and (= world-day 12) (= lucy-covered 0))
+          "今天才开始已赶不上顶两班，只能付30美元请人。")
+        ((= lucy-last-shift-day world-day)
+          (if (= world-day 12)
+            "今天已经守完一班，剩余一班只能付15美元请人。"
+            "今天已顶班；明天再来，或付15美元请人。"))
+        (else
+          (string-append "还需顶" (number->string (- 2 lucy-covered))
+            "班，或付" (number->string (if (= lucy-covered 1) 15 30))
+            "美元请人。"))))
     (define (lucy-cover!)
       (if (>= lucy-covered 2) (error "夜校报名：顶班次数越界") #t)
       (if (= lucy-last-shift-day world-day)
@@ -125,11 +137,7 @@
                 (string-append "报名" (第二幕-日期 12)
                   "截止。露西今天还想去与老板商量顶班的事。"))
               ((and (equal? lucy-state "未做") (<= world-day 12))
-                (string-append "报名" (第二幕-日期 12) "截止。"
-                  (if (= lucy-last-shift-day world-day)
-                      "今天已经顶班；明天还需顶" "还需顶")
-                  (number->string (- 2 lucy-covered)) "班，或付"
-                  (number->string (if (= lucy-covered 1) 15 30)) "美元请人。"))
+                (string-append "报名" (第二幕-日期 12) "截止。" (lucy-plan)))
               ((or (equal? lucy-state "错过") (equal? lucy-state "未做")) "报名期限已过，还没听到露西的消息。")
               (else "班已经安排好，露西说会趁空去报名。还没听到报名结果。"))
             :steps (append
@@ -185,8 +193,12 @@
                  (第一幕 'lucy-met?) (equal? lucy-state "未做") lucy-introduced?
                  lucy-boss-heard?)
           (list
-            (if (= lucy-last-shift-day world-day)
-              (note-node "今日已顶班" "下一班" "明天继续顶班，或今天付钱请人接班。")
+            (if (or (= lucy-last-shift-day world-day)
+                    (and (= world-day 12) (= lucy-covered 0)))
+              (note-node "暂不能顶班" "露西的班"
+                (if (= world-day 12)
+                  "报名今晚截止，剩余班次只能花钱安排。"
+                  "今天已顶班，明天才可以再替一班。"))
               (node "替露西顶班" :subtitle "两天各守一班，每次一骰；不拿工资"
                 :clocks (list (第二幕-期限钟 "报名截止" 12 9))
                 :requires (list (req-die))
@@ -213,7 +225,7 @@
           (play-dialogue!
             (line "露西" "学校有空位了，可我还要在咖啡馆上工。")
             (line "露西" (string-append "报名" (第二幕-日期 12) "截止。我想请假，老板还没答应。"))
-            (line "露西" "老板说必须有人守两班。我可以自己设法换班；你若帮忙，就得顶两班，或者花三十美元。")))))
+            (line "露西" "我还在找换班的人，等我明天跟老板说清楚再想办法。")))))
     (define (arrivals-at location) '())
     (define-turn-start-rule "第二幕事件期限"
       (lambda () #t)
