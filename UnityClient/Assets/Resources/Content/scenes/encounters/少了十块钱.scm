@@ -3,6 +3,7 @@
 (define 争执 (make-clock "争执升级" 3 'pressure "满格后工头威胁解雇艾迪。" :beneficial-direction 'decrease))
 (define 危机? #f)
 (define 已结束? #f)
+(define 有工时证据? #f)
 (define (结束! result)
   (if 已结束? (error "工钱纠纷：重复结算") #t)
   (set! 已结束? #t)
@@ -39,6 +40,7 @@
 (define (on-encounter-enter)
   (工钱 'load! 0) (争执 'load! 0)
   (set! 危机? #f) (set! 已结束? #f)
+  (set! 有工时证据? (第二幕 'wage-evidence?))
   (play-dialogue!
     (line "世界" "工头合上账本。年轻工人说自己的十块钱没了。")
     (line "艾迪" "他干了一整天，你就给这么点？")
@@ -64,7 +66,14 @@
               (outcome (lambda () (spend-composure! 2) (结束! '撤出)))
               (outcome (lambda () (结束! '保住工作)))
               (outcome (lambda () (结束! '拿回工钱))))))
-        (list
+        (append
+          (if 有工时证据?
+            (list (node "出示工时记录"
+              :subtitle "提前核到签名；一骰即可让工头承认差额"
+              :requires (list (req-die))
+              :resolve (instant (outcome (lambda () (结束! '拿回工钱))))))
+            '())
+          (list
           (node "核对账本" :subtitle "寻找被少算的装卸记录"
             :requires (list (req-die)) :resolve (roll 'sharpness
               (outcome (lambda () (spend-composure! 1) (推进! 0 1)))
@@ -74,4 +83,4 @@
             :requires (list (req-die)) :resolve (roll 'social
               (outcome (lambda () (spend-composure! 1) (推进! 0 1)))
               (outcome (lambda () (推进! 1 1)))
-              (outcome (lambda () (推进! 2 0))))))))))
+              (outcome (lambda () (推进! 2 0)))))))))))
