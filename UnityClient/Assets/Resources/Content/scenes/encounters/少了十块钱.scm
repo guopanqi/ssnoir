@@ -40,7 +40,7 @@
 (define (on-encounter-enter)
   (工钱 'load! 0) (争执 'load! 0)
   (set! 危机? #f) (set! 已结束? #f)
-  (set! 有工时证据? (第二幕 'wage-evidence?))
+  (set! 有工时证据? (get-global '第二幕工时证据))
   (play-dialogue!
     (line "世界" "工头合上账本。年轻工人说自己的十块钱没了。")
     (line "艾迪" "他干了一整天，你就给这么点？")
