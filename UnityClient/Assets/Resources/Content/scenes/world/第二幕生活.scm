@@ -29,14 +29,14 @@
 
     (define (active?) (and (= (第一幕 'act) 2) (not (第二章 'started?))))
     (define (on-dock-work!)
-      (if (and (active?) (>= world-day 8) (>= (第一幕 'eddie-stage) 2)
+      (if (and (>= world-day 5) (<= world-day 9) (>= (第一幕 'eddie-stage) 2)
                (not invited?))
         (begin
           (set! invited? #t)
           (play-dialogue!
-            (line "艾迪" "今晚去旧街食堂吃饭吧，便宜又管饱。")
+            (line "艾迪" "我收工以后常去旧街食堂，便宜又管饱。")
             (line "尼尔" "离这远吗？")
-            (line "艾迪" "工棚后面就是。你随时可以过去。")))
+            (line "艾迪" "工棚后面就是。哪天有空我带你去认认门。")))
         #f))
     (define (street-intro!)
       (set! visited-street? #t)
