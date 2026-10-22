@@ -17,6 +17,7 @@
     (define lucy-introduced? #f)
     (define lucy-boss-heard? #f) ; D9 起真正面对咖啡馆请假难题
     (define lucy-covered 0)     ; 0..2，每班一颗骰；也可付费请人
+    (define lucy-last-shift-day 0) ; 两班必须在不同的日子
     (define wage-checked? #f)   ; 核对机会只能尝试一次
     (define wage-evidence? #f)  ; 真实工时记录可在交锋时出示
     (define (wage-open?) (and (= (第一幕 'act) 2) (>= world-day 9) (<= world-day 11)))
@@ -72,6 +73,9 @@
         (line "露西" "我也不愿意让你白帮忙。要不然我再自己想办法。")))
     (define (lucy-cover!)
       (if (>= lucy-covered 2) (error "夜校报名：顶班次数越界") #t)
+      (if (= lucy-last-shift-day world-day)
+        (error "夜校报名：每天只能替露西守一班") #t)
+      (set! lucy-last-shift-day world-day)
       (set! lucy-covered (+ lucy-covered 1))
       (if (= lucy-covered 2)
         (lucy-help! "顶班")
@@ -121,7 +125,9 @@
                 (string-append "报名" (第二幕-日期 12)
                   "截止。露西今天还想去与老板商量顶班的事。"))
               ((and (equal? lucy-state "未做") (<= world-day 12))
-                (string-append "报名" (第二幕-日期 12) "截止。还需顶"
+                (string-append "报名" (第二幕-日期 12) "截止。"
+                  (if (= lucy-last-shift-day world-day)
+                      "今天已经顶班；明天还需顶" "还需顶")
                   (number->string (- 2 lucy-covered)) "班，或付"
                   (number->string (if (= lucy-covered 1) 15 30)) "美元请人。"))
               ((or (equal? lucy-state "错过") (equal? lucy-state "未做")) "报名期限已过，还没听到露西的消息。")
@@ -168,6 +174,7 @@
             :resolve (instant (outcome
               (lambda () (begin
                 (set-global! '第二幕工时证据 wage-evidence?)
+                (set-global! '第二幕认识弗兰克 (第二幕生活 'met-frank?))
                 (start-encounter "少了十块钱" wage-end)))))))
           '())
         (if (and (equal? loc "街角咖啡馆") (lucy-open?)
@@ -178,11 +185,14 @@
                  (第一幕 'lucy-met?) (equal? lucy-state "未做") lucy-introduced?
                  lucy-boss-heard?)
           (list
-            (node "替露西顶班" :subtitle "共需两班，每班消耗一枚骰；没有工资"
-              :clocks (list (第二幕-期限钟 "报名截止" 12 9))
-              :requires (list (req-die))
-              :resolve (instant (outcome lucy-cover!)))
-            (node "付代班费" :subtitle "支付剩余两班费用；已顶一班只需15美元"
+            (if (= lucy-last-shift-day world-day)
+              (note-node "今日已顶班" "下一班" "明天继续顶班，或今天付钱请人接班。")
+              (node "替露西顶班" :subtitle "两天各守一班，每次一骰；不拿工资"
+                :clocks (list (第二幕-期限钟 "报名截止" 12 9))
+                :requires (list (req-die))
+                :resolve (instant (outcome lucy-cover!))))
+            (node "付代班费" :subtitle (if (= lucy-covered 1)
+              "付15美元安排剩余一班" "付30美元安排两班")
               :clocks (list (第二幕-期限钟 "报名截止" 12 9))
               :requires (list (req-item "金钱" (if (= lucy-covered 1) 15 30)))
               :resolve (instant (outcome lucy-pay!))))
@@ -240,6 +250,7 @@
                 (list "wage-introduced" wage-introduced?)
                 (list "lucy-introduced" lucy-introduced?)
                 (list "lucy-covered" lucy-covered)
+                (list "lucy-last-shift-day" lucy-last-shift-day)
                 (list "lucy-boss-heard" lucy-boss-heard?)
                 (list "wage-checked" wage-checked?)
                 (list "wage-evidence" wage-evidence?)))
@@ -250,10 +261,12 @@
             (set! wage-introduced? (assoc-get data "wage-introduced" #f))
             (set! lucy-introduced? (assoc-get data "lucy-introduced" #f))
             (set! lucy-covered (assoc-get data "lucy-covered" 0))
+            (set! lucy-last-shift-day (assoc-get data "lucy-last-shift-day" 0))
             (set! lucy-boss-heard? (assoc-get data "lucy-boss-heard" #f))
             (set! wage-checked? (assoc-get data "wage-checked" #f))
             (set! wage-evidence? (assoc-get data "wage-evidence" #f))
             (if (and (>= lucy-covered 0) (<= lucy-covered 2)
+                 (>= lucy-last-shift-day 0)
                  (or (not wage-evidence?) wage-checked?)) #t
               (error "第二幕：非法准备进度"))))
         (else (error "第二幕：未知消息"))))))
