@@ -9,6 +9,11 @@
   (if 已结束? (error "工钱纠纷：重复结算") #t)
   (set! 已结束? #t)
   (cond
+    ((eq? result '凭证核清)
+      (play-dialogue!
+        (line "尼尔" "这是签过名的工时册。账房少算了整整半班。")
+        (line "工头" "……让账房补上。下回记得留底。")
+        (line "艾迪" "你用的是自己的本事。他还真没法再赖。")))
     ((eq? result '拿回工钱)
       (play-dialogue! (line "工头" "行，就差这十块。拿去。")
         (line "艾迪" "我就说账不对。谢了，尼尔。")))
@@ -75,7 +80,7 @@
             (list (node "出示工时记录"
               :subtitle "提前核到签名；一骰即可让工头承认差额"
               :requires (list (req-die))
-              :resolve (instant (outcome (lambda () (结束! '拿回工钱))))))
+              :resolve (instant (outcome (lambda () (结束! '凭证核清))))))
             '())
           (list
           (node "核对账本" :subtitle "寻找被少算的装卸记录"
