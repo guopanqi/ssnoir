@@ -84,6 +84,9 @@ public static class FirstActChecks
         Act(scenes, "看看剧院招工告示");
         Assert(Entry("夜莺：大剧院").Now.Contains("明天起"), "听到试演安排后归入夜莺同一条线");
         Assert(!Entry("夜莺：大剧院").Now.Contains("故障"), "尚未遇见后台事件时不透露故障");
+        Act(scenes, "听听老板怎么说");
+        Assert(Entry("露西：夜校报名").Now.Contains("还需顶2班"),
+            "听完老板的难处才开放两班或三十美元的真实选择");
         Act(scenes, "替露西顶班");
         Assert(Entry("露西：夜校报名").Status == "进行中"
             && Entry("露西：夜校报名").Now.Contains("还需顶1班"),
@@ -110,7 +113,8 @@ public static class FirstActChecks
         scenes.EnterPlace("街角咖啡馆");
         Act(scenes, "问露西报名结果");
         Assert(Entry("露西：夜校报名").Status == "了结"
-            && Entry("露西：夜校报名").Now.Contains("已经交上"), "听到报名成功后同一事项了结");
+            && Entry("露西：夜校报名").Now.Contains("交上报名表"), "听到报名成功后同一事项了结");
+        Eval("(set-global! '世界日 world-day)");
         string path = Path.Combine(Path.GetTempPath(), "ssnoir-second-act-matters.json");
         try
         {
