@@ -178,6 +178,19 @@ public static class FirstActChecks
         Act(withFrank, "少了十块钱");
         FrankEval("(set! 危机? #t)");
         Assert(Has(withFrank, "请弗兰克出面"), "交锋能从城市相识状态获得弗兰克调停路线");
+        
+        var proof = new SceneManager(new GameState(), new LocalScriptLoader());
+        proof.LoadScene("world");
+        void ProofEval(string source) { proof.ActiveInterpreter.Eval(source); proof.Refresh(); }
+        ProofEval("""(第一幕 'load! (list (list "opened" #t) (list "tavern" #t) (list "act" 2) (list "eddie" 1))) (set! world-day 9) (第二幕 'load! (list (list "wage-introduced" #t) (list "wage-checked" #t) (list "wage-evidence" #t)))""");
+        Act(proof, "少了十块钱");
+        Act(proof, "出示工时记录");
+        Assert(proof.CurrentDossier.Single(e => e.Id == "艾迪：少了十块钱").Now.Contains("没有停班"),
+            "有签名证据的核账可以和平解决，不会强制报复艾迪");
+        ProofEval("(set! world-day 12)");
+        Assert(!Has(proof, "艾迪没来"),
+            "事先查证的路线不会在次日人为取消艾迪的工作救场");
+
     }
     public static void Run()
     {
