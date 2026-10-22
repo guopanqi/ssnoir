@@ -34,7 +34,8 @@
   (if (not (equal? 当前办法 (symbol->string route)))
     (begin
       (set! 当前办法 (symbol->string route))
-      (修理进展 'reset!))
+      (修理进展 'load! (if (and (eq? route '修好设备)
+                                       (第二幕剧院 'equipment-ready?)) 1 0)))
     #f)
   (修理进展 'advance! progress)
   (试演时间 'advance! (- cost))
@@ -51,30 +52,44 @@
       (play-dialogue!
         (line "导演" "先去想办法修伴奏。我还没有答应你。")))))
 (define (on-encounter-enter)
-  (修理进展 'load! 0)
+  (修理进展 'load! (if (第二幕剧院 'equipment-ready?) 1 0))
   (试演时间 'load! 4)
   (set! 试演结束? #f)
-  (set! 当前办法 "未定")
+  (set! 当前办法 (if (第二幕剧院 'equipment-ready?) "修好设备" "未定"))
   (play-dialogue!
     (line "世界" "大剧院。赞助人的试演即将开始，伴奏装置却忽然停了。")
     (line "工作人员" "重新开机至少还得等一会儿。")
     (line "导演" "我们的客人马上就要走了。")
     (line "夜莺" "我可以先唱。")
-    (line "导演" "你先等着。")))
+    (line "导演" "你先等着。"))
+  (if (第二幕剧院 'equipment-ready?)
+    (play-dialogue!
+      (line "工作人员" "你前两天做过的线路标记还在。修的话能省去不少时间。"))
+    #f)
+  (if (第二幕剧院 'musician-booked?)
+    (play-dialogue!
+      (line "乐手" "你付过订金，今天我就在。要不要我上场？"))
+    #f))
 (define (on-encounter-collapse)
   (collapse-result '她自己唱完))
 (define (get-render-data)
   (container "赞助人试演"
     (append
       (clock-nodes (试演时间 'render-data) (修理进展 'render-data))
-      (list
+      (append
+        (if (第二幕剧院 'musician-booked?)
+          (list (node "请已预约的乐手"
+            :subtitle "订金已在旧街支付；让乐手直接上场"
+            :resolve (instant (outcome (lambda () (试演收场! '替代伴奏))))))
+          '())
+        (list
         (note-node "夜莺的决定" "她会继续唱" "设备能否恢复会改变演出，但她不需要你替她决定是否站上舞台。")
         (node "检修伴奏" :subtitle "抢修装置；较容易推进，但可能浪费时间"
           :requires (list (req-die)) :resolve (roll 'sharpness
             (outcome (lambda () (spend-composure! 1) (试演尝试! 0 2 '修好设备)))
             (outcome (lambda () (试演尝试! 1 1 '修好设备)))
             (outcome (lambda () (试演尝试! 2 1 '修好设备)))))
-        (node "找旧乐手救场" :subtitle "找能立刻给她伴奏的人；失败会耗掉时间"
+        (node "找旧乐手救场" :subtitle "临时求人来救场；失败会耗掉更多时间"
           :requires (list (req-die)) :resolve (roll 'social
             (outcome (lambda () (spend-composure! 1) (试演尝试! 0 2 '替代伴奏)))
             (outcome (lambda () (试演尝试! 1 1 '替代伴奏)))
@@ -85,4 +100,4 @@
             (outcome (lambda () (试演清唱! #t)))
             (outcome (lambda () (试演清唱! #t)))))
         (node "交还给夜莺" :subtitle "退出救场；她仍会以自己的办法完成这段演出"
-          :resolve (instant (outcome (lambda () (试演收场! '她自己唱完)))))))))
+          :resolve (instant (outcome (lambda () (试演收场! '她自己唱完))))))))))
