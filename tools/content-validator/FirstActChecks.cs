@@ -85,8 +85,13 @@ public static class FirstActChecks
         Assert(Entry("夜莺：大剧院").Now.Contains("明天起"), "听到试演安排后归入夜莺同一条线");
         Assert(!Entry("夜莺：大剧院").Now.Contains("故障"), "尚未遇见后台事件时不透露故障");
         Act(scenes, "替露西顶班");
+        Assert(Entry("露西：夜校报名").Status == "进行中"
+            && Entry("露西：夜校报名").Now.Contains("还需顶1班"),
+            "替班一回不会自动解决报名，还需腾出第二班或支付15美元");
+        Act(scenes, "替露西顶班");
         Assert(Entry("露西：夜校报名").Status == "等着别人"
-            && Entry("露西：夜校报名").Now.Contains("还没听到报名结果"), "真实顶班后保留事项等待结果");
+            && Entry("露西：夜校报名").Now.Contains("还没听到报名结果"),
+            "真正投入两颗骰子完成顶班后才等待报名结果");
         Eval("(set! world-day 10)");
         scenes.EnterPlace("剧院");
         Assert(!Entry("夜莺：大剧院").Now.Contains("故障"), "只进入剧院不会自动触发试演故障");
