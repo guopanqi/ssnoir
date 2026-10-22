@@ -18,7 +18,8 @@
                (restore-actor-composure! 'player calm))))
         ((< calm 0) (spend-composure! (- calm)))
         (else #f))
-      (第一幕 'on-work! "街角咖啡馆" grade))
+      (第一幕 'on-work! "街角咖啡馆" grade)
+      (第二幕 'on-cafe-work!))
 
     (define (nodes-at location)
       (if (equal? location "街角咖啡馆")
