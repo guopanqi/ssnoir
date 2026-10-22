@@ -217,7 +217,10 @@
               (node "帮她想办法"
                 :clocks (list (第二幕-期限钟 "试演结束" 11 10))
                 :resolve (instant (outcome (lambda ()
-                  (start-encounter "赞助人试演" on-sponsor-result!)))))
+                  (begin
+                    (set-global! '第二幕设备准备 equipment-ready?)
+                    (set-global! '第二幕乐手预订 musician-booked?)
+                    (start-encounter "赞助人试演" on-sponsor-result!))))))
               (node "让她自己处理"
                 :clocks (list (第二幕-期限钟 "试演结束" 11 10))
                 :resolve (instant (outcome stand-back!))))))
