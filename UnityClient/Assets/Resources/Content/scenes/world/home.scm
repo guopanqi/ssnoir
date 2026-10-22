@@ -5,7 +5,7 @@
 ;; 日常添置的是可搬走的个人物品；公寓仍是后续另一处住所。
 ;; 冷静不自动恢复：静坐判定：坏0、中+1、好+2；酒馆花 15 美元喝酒 +4。
 ;; 健康按伤势 0–7 表示：伤势到 2、5 点时各封锁一个行动位；睡两夜在屋里缓和 1 点伤势。
-;; 诊所、药品、弹簧床垫的主动养伤仍是更快的恢复方式。
+;; 诊所花钱和骰子；药品花较多钱省骰子；床垫仅改善夜间养伤。
 
 (define home
   (let ()
@@ -200,23 +200,12 @@
               (set! medicated-today? #t)
               (heal-injury! 2))))))
 
-    ;; 养伤：弹簧床垫解锁的长期恢复通道。
+    ;; 旧版主动养伤不再提供。床垫现在只改善跨夜康复。
     ;;   养伤   1 骰、0 金、−1
     ;;   用药   0 骰、25 金、−2（每天一份）
     ;;   看医生 1 骰、20 金、−2
     ;; 床垫不被动治伤：它只让玩家可以把今天的一颗骰换成一点康复。
     ;; 不设每日上限——骰子本身就是上限，多躺一颗骰就是少做一份工。
-    (define (node-mend)
-      (node "养伤"
-        :anchor "租屋-床边"
-        :subtitle (if (equal? (injury-band) '完好)
-                      "身上没有需要处理的伤"
-                      "投入一颗行动骰，压 1 点伤势；不花钱，只花今天")
-        :disabled (equal? (injury-band) '完好)
-        :requires (list (req-die))
-        :resolve (instant
-          (outcome (lambda () (heal-injury! 1))))))
-
     ;; 浇水投入一颗行动骰，每天一次，暂时没有数值收益。它是在家里花掉一点时间，
     ;; 换来的只有植物一天天长大；以后如果要加收益，也从这张卡扩展，不另开一条照料系统。
     ;;
@@ -251,7 +240,7 @@
 
     (define (note-mattress)
       (node "标注：弹簧床垫" :anchor "租屋-床边" :resolve
-        (note "弹簧床垫" "静养每两晚缓和一格伤势；躺下主动养伤还能多恢复一格。")))
+        (note "弹簧床垫" "受伤时在室内睡过一晚，缓和1点伤势；不额外消耗行动。")))
 
     (define (rest-tags)
       ;; 睡觉卡上只说锁的原因，不指去哪：具体去哪处理由边缘信标和卷宗主线指。
@@ -266,7 +255,7 @@
       (if (> (injury-severity) 0)
           (begin
             (set! 养伤夜数 (+ 养伤夜数 1))
-            (if (>= 养伤夜数 2)
+            (if (>= 养伤夜数 (if has-mattress? 1 2))
                 (begin
                   (heal-injury! 1)
                   (set! 养伤夜数 0))
@@ -367,7 +356,7 @@
     (define (node-buy-mattress)
       (node "买弹簧床垫"
         :anchor "租屋-书桌"
-        :subtitle "买回长期养伤的地方：投入一颗骰，压 1 点伤势"
+        :subtitle "受伤时睡一晚缓和1点伤势；不能白天反复养伤"
         :requires (list (req-item "金钱" mattress-price))
         :resolve (instant
           (outcome (lambda () (set! has-mattress? #t))))))
@@ -514,7 +503,7 @@
                     (note "旅馆客房" "床、桌子、一扇窗。住久了，也添了些自己的东西。")))
             (things-nodes))
         (list (node-use-medicine "租屋-床边") (node-calm))
-        (if has-mattress? (list (node-mend) (note-mattress)) '())
+        (if has-mattress? (list (note-mattress)) '())
         (if has-phone? (list (node-telephone)) '())
         (order-nodes)))
 

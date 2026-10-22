@@ -201,12 +201,12 @@
           (set! drink-state "错过") #f)
         (if (and (= world-day 5) (= act 1))
           (play-dialogue!
-            (line "世界" "酒馆门外贴了张告示：明晚，夜莺告别演出，最后一场。"))
+            (line "世界" "酒馆门外贴着告示：明晚，夜莺最后一次在这里演出；后天她去大剧院，隔天正式彩排。"))
           #f)
         (if (and (>= world-day 7) (= act 1))
           (begin
             (set! farewell-done? #t) (set! act 2)
-            (spotlight! "第二幕" "夜莺已经离开老街酒馆，大剧院里每天都响起伴奏与排练声。"))
+            (spotlight! "第二幕" "夜莺今天去大剧院。她明天正式彩排；码头工人常去的旧街，也在工棚后面。"))
           #f)
         (if (and (>= world-day 9) (not rehearsal-done?))
           (set! rehearsal-done? #t) #f)
