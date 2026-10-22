@@ -89,7 +89,7 @@ public static class FirstActChecks
             "听完老板的难处才开放两班或三十美元的真实选择");
         Act(scenes, "替露西顶班");
         Assert(Entry("露西：夜校报名").Status == "进行中"
-            && Entry("露西：夜校报名").Now.Contains("还需顶1班"),
+            && Entry("露西：夜校报名").Now.Contains("付15美元"),
             "替班一回不会自动解决报名，还需腾出第二班或支付15美元");
         Assert(!Has(scenes, "替露西顶班"), "已守一班当天不应能重复顶班");
         Eval("(set! world-day 10)");
