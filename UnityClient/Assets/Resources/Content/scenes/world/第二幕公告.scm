@@ -38,25 +38,25 @@
     (line "夜莺" (if (equal? answer "祝福")
       "我会唱好的。但事情好像比我想的复杂。"
       "我知道。可如果我现在说不，他们还会让我上台吗？"))))
-(define (公告-入场 loc)
-  (cond
-    ((and (>= world-day 13) (equal? loc "码头")
-          (第一幕 'eddie-met?) (not 公告-艾迪看过?))
-      (list (arrival "公告：码头" 公告-艾迪!)))
-    ((and (>= world-day 13) (equal? loc "街角咖啡馆")
-          (第一幕 'lucy-met?) (not 公告-露西看过?))
-      (list (arrival "公告：咖啡馆" 公告-露西!)))
-    ((and (>= world-day 13) (equal? loc "剧院")
-          (> (第一幕 'singer-stage) 0) (not 公告-夜莺看过?))
-      (list (arrival "公告：夜莺" 公告-夜莺!)))
-    (else '())))
+(define (公告-入场 loc) '())
 (define (公告-节点 loc)
-  (if (and (>= world-day 13) (equal? loc "剧院")
-           公告-夜莺看过? (equal? 公告-夜莺回答 "未答复"))
-    (list (container "你怎么看？" (list
-      (instant-action "祝她成功" (lambda () (公告-回应! "祝福")))
-      (instant-action "替旧港说话" (lambda () (公告-回应! "质疑"))))))
-    '()))
+  (if (< world-day 13) '()
+    (append
+      (if (and (equal? loc "码头") (第一幕 'eddie-met?)
+               (not 公告-艾迪看过?))
+        (list (instant-action "与艾迪谈改造" 公告-艾迪!)) '())
+      (if (and (equal? loc "街角咖啡馆") (第一幕 'lucy-met?)
+               (not 公告-露西看过?))
+        (list (instant-action "问露西海报的事" 公告-露西!)) '())
+      (if (and (equal? loc "剧院") (> (第一幕 'singer-stage) 0)
+               (not 公告-夜莺看过?))
+        (list (instant-action "与夜莺谈首演海报" 公告-夜莺!)) '())
+      (if (and (equal? loc "剧院") 公告-夜莺看过?
+               (equal? 公告-夜莺回答 "未答复"))
+        (list (container "你怎么看？" (list
+          (instant-action "祝她成功" (lambda () (公告-回应! "祝福")))
+          (instant-action "替旧港说话" (lambda () (公告-回应! "质疑"))))))
+        '()))))
 (define (第二幕公告 . args)
   (cond
     ((eq? (car args) 'arrivals-at) (公告-入场 (cadr args)))
