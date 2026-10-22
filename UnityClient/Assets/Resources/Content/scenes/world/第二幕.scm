@@ -17,6 +17,10 @@
     (define lucy-introduced? #f)
     (define (wage-open?) (and (= (第一幕 'act) 2) (>= world-day 9) (<= world-day 11)))
     (define (lucy-open?) (and (= (第一幕 'act) 2) (>= world-day 9) (<= world-day 12)))
+    (define (wage-intro-open?) (and (= (第一幕 'act) 2)
+      (>= world-day 8) (<= world-day 11) (equal? wage-state "未做")))
+    (define (lucy-intro-open?) (and (= (第一幕 'act) 2)
+      (>= world-day 8) (<= world-day 12) (equal? lucy-state "未做")))
     (define (wage-end result)
       (if (member? result '(拿回工钱 保住工作 弗兰克调停 撤出)) #t
         (error "工钱交锋：非法结算"))
@@ -77,6 +81,12 @@
           '())))
     (define (nodes-at loc)
       (append
+        (if (and (equal? loc "码头") (wage-intro-open?)
+                 (第一幕 'eddie-met?) (not wage-introduced?))
+          (list (instant-action "问艾迪工钱" tell-wage!)) '())
+        (if (and (equal? loc "街角咖啡馆") (lucy-intro-open?)
+                 (第一幕 'lucy-met?) (not lucy-introduced?))
+          (list (instant-action "问露西报名" tell-lucy!)) '())
         (if (and (equal? loc "码头") (wage-open?) (equal? wage-state "未做")
                  (第一幕 'eddie-met?) wage-introduced?)
           (list (node "少了十块钱" :anchor "码头-货堆"
@@ -99,29 +109,24 @@
                 (remove-item! "金钱" 10)
                 (lucy-help! "代班"))))))
           '())))
-    (define (arrivals-at location)
-      (append
-        (if (and (equal? location "码头") (wage-open?)
-                 (第一幕 'eddie-met?) (equal? wage-state "未做")
-                 (not wage-introduced?))
-          (list (arrival "工钱纠纷" (lambda ()
-            (set! wage-introduced? #t)
-            (play-dialogue!
-              (line "世界" "一名工友说自己的工钱少了十块，工头却不肯打开账本。")
-              (line "艾迪" "他干了整天活，你得把钱给足。")
-              (line "工头" "账上就写这么多。")
-              (line "艾迪" (string-append "账房" (第二幕-日期 11) "收工就封账。得赶在那之前让他把账本打开。"))))))
-          '())
-        (if (and (equal? location "街角咖啡馆") (lucy-open?)
-                 (第一幕 'lucy-met?) (equal? lucy-state "未做")
-                 (not lucy-introduced?))
-          (list (arrival "露西的报名" (lambda ()
-            (set! lucy-introduced? #t)
-            (play-dialogue!
-              (line "露西" "学校有空位了，可我还要上工。")
-              (line "露西" (string-append "报名" (第二幕-日期 12) "截止。我想请假，老板却还没答应。"))
-              (line "露西" "有人替我顶一班就行，请人代班要十块钱。腾出时间，我当晚就能去。")))))
-          '())))
+    ;; 熟人通过日常工作或主动交谈告诉尼尔，并不是每日进地点自动播放。
+    (define (tell-wage!)
+      (if wage-introduced? #f
+        (begin
+          (set! wage-introduced? #t)
+          (play-dialogue!
+            (line "艾迪" "一个工友说工钱少了十块。工头连账本都不肯给他看。")
+            (line "尼尔" "你要去找他？")
+            (line "艾迪" (string-append "账房" (第二幕-日期 11) "收工封账，得赶在那之前说清楚。"))))))
+    (define (tell-lucy!)
+      (if lucy-introduced? #f
+        (begin
+          (set! lucy-introduced? #t)
+          (play-dialogue!
+            (line "露西" "学校有空位了，可我还要在咖啡馆上工。")
+            (line "露西" (string-append "报名" (第二幕-日期 12) "截止。我想请假，老板还没答应。"))
+            (line "露西" "要是有人替我顶班，我就能赶过去。")))))
+    (define (arrivals-at location) '())
     (define-turn-start-rule "第二幕事件期限"
       (lambda () #t)
       (lambda ()
@@ -132,6 +137,14 @@
     (lambda args
       (cond
         ((eq? (car args) 'wage-state) wage-state)
+        ((eq? (car args) 'on-dock-work!)
+          (if (and (wage-intro-open?) (第一幕 'eddie-met?)
+                   (not wage-introduced?))
+            (tell-wage!) #f))
+        ((eq? (car args) 'on-cafe-work!)
+          (if (and (lucy-intro-open?) (第一幕 'lucy-met?)
+                   (not lucy-introduced?))
+            (tell-lucy!) #f))
         ((eq? (car args) 'lucy-state) lucy-state)
         ((eq? (car args) 'dossier)
           (if (and (= (第一幕 'act) 2) (>= world-day 7))
