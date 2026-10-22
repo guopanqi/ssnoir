@@ -36,7 +36,7 @@
     (地点 clinic (lambda () (clinic 'visible?)))
     (地点 police-station (lambda () (第二章 'started?)))
     (地点 freight-company (lambda () (walter 'can-arrange-berth?)))
-    (地点 residential-district (lambda () (第二章 'started?)))
+    (地点 residential-district (lambda () (or (>= (第一幕 'act) 2) (第二章 'started?))))
     (地点 theater (lambda () (or (第一幕 'theater-open?) (第二章 'started?))))
     (地点 board             (lambda () #f))
     ;; ── 第二章开出来的地方 ─────────────────────────

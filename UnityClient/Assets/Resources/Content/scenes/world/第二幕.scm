@@ -4,7 +4,8 @@
     (define lucy-state "未做")
     (define wage-introduced? #f)
     (define lucy-introduced? #f)
-    (define (available?) (and (= (第一幕 'act) 2) (>= world-day 7) (<= world-day 9)))
+    (define (wage-open?) (and (= (第一幕 'act) 2) (>= world-day 9) (<= world-day 11)))
+    (define (lucy-open?) (and (= (第一幕 'act) 2) (>= world-day 9) (<= world-day 12)))
     (define (wage-end result)
       (if (member? result '(拿回工钱 保住工作 弗兰克调停 撤出)) #t
         (error "工钱交锋：非法结算"))
@@ -19,14 +20,14 @@
         (line "露西" "那我今晚就去。谢谢你，尼尔。")))
     (define (nodes-at loc)
       (append
-        (if (and (equal? loc "码头") (available?) (equal? wage-state "未做")
+        (if (and (equal? loc "码头") (wage-open?) (equal? wage-state "未做")
                  (第一幕 'eddie-met?) wage-introduced?)
           (list (node "少了十块钱" :anchor "码头-货堆"
             :subtitle "艾迪替工友争工钱，你可以参与"
             :resolve (instant (outcome
               (lambda () (start-encounter "少了十块钱" wage-end))))))
           '())
-        (if (and (equal? loc "街角咖啡馆") (available?)
+        (if (and (equal? loc "街角咖啡馆") (lucy-open?)
                  (第一幕 'lucy-met?) (equal? lucy-state "未做") lucy-introduced?)
           (list
             (node "替露西顶班" :subtitle "用一枚骰帮她争取报名时间"
@@ -40,7 +41,7 @@
           '())))
     (define (arrivals-at location)
       (append
-        (if (and (equal? location "码头") (available?)
+        (if (and (equal? location "码头") (wage-open?)
                  (第一幕 'eddie-met?) (equal? wage-state "未做")
                  (not wage-introduced?))
           (list (arrival "工钱纠纷" (lambda ()
@@ -50,7 +51,7 @@
               (line "艾迪" "他干了整天活，你得把钱给足。")
               (line "工头" "账上就写这么多。")))))
           '())
-        (if (and (equal? location "街角咖啡馆") (available?)
+        (if (and (equal? location "街角咖啡馆") (lucy-open?)
                  (第一幕 'lucy-met?) (equal? lucy-state "未做")
                  (not lucy-introduced?))
           (list (arrival "露西的报名" (lambda ()
@@ -62,11 +63,10 @@
     (define-turn-start-rule "第二幕事件期限"
       (lambda () #t)
       (lambda ()
-        (if (>= world-day 10)
-          (begin
-            (if (equal? wage-state "未做") (set! wage-state "错过") #f)
-            (if (equal? lucy-state "未做") (set! lucy-state "错过") #f))
-          #f)))
+        (if (>= world-day 12)
+          (if (equal? wage-state "未做") (set! wage-state "错过") #f) #f)
+        (if (>= world-day 13)
+          (if (equal? lucy-state "未做") (set! lucy-state "错过") #f) #f)))
     (lambda args
       (cond
         ((eq? (car args) 'wage-state) wage-state)

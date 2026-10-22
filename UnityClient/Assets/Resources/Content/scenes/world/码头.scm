@@ -56,6 +56,7 @@
         ;; 救场和关心已作为坏结果的两段 Bubble 演出，不再重复。
         ;; 艾迪的初识/后续邀请，属于第一幕人物生活，不由工资模块另造一套阶段。
         (第一幕 'on-work! "码头" grade)
+        (第二幕生活 'on-dock-work!)
         (if (and (equal? partner "艾迪") (not eddie-first?)
                  (not rescued?) (not (= buddy-talk-day world-day)))
           (begin

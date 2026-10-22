@@ -38,10 +38,10 @@
     ((eq? (car args) 'arrivals-at)
       (let ((loc (cadr args)))
         (cond
-          ((and (equal? loc "码头") (>= world-day 10)
+          ((and (equal? loc "码头") (>= world-day 12)
                 (第一幕 'eddie-met?) (not 二幕余波-艾迪已演?))
             (list (arrival "艾迪：工钱之后" 二幕余波-艾迪!)))
-          ((and (equal? loc "街角咖啡馆") (>= world-day 10)
+          ((and (equal? loc "街角咖啡馆") (>= world-day 13)
                 (第一幕 'lucy-met?) (not 二幕余波-露西已演?))
             (list (arrival "露西：报名之后" 二幕余波-露西!)))
           (else '()))))
