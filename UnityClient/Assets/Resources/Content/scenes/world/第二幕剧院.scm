@@ -139,7 +139,7 @@
             (list (node "看看赞助人试演"
               :subtitle "试演进行中；可以去后台看看"
               :resolve (instant (outcome sponsor-intro!)))) '())
-          (if (and (>= world-day 12) (known?) (not sponsor-aftermath?)
+          (if (and (>= world-day 12) (<= world-day 13) (known?) (not sponsor-aftermath?)
                    (not (equal? sponsor-result "未参与")))
             (list (instant-action "问试演后来的事" replay-after!)) '())
           (if (and (= world-day 9) (known?)
