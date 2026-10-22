@@ -40,7 +40,7 @@
       (remove-item! "金钱" 25)
       (set! musician-booked? #t)
       (play-dialogue!
-        (line "世界" "酒馆的老乐手数着二十五美元的订金，把演出时间写进了小本子。")
+        (line "世界" "尼尔在旧街食堂门外找到从前在酒馆伴奏的乐手。乐手数着二十五美元订金，把时间写进小本子。")
         (line "乐手" "试演那两天我都能来，真出岔子就叫我。")
         (line "尼尔" "希望用不上你。")
         (line "乐手" "希望如此。订金可不退。")))
@@ -124,7 +124,7 @@
           (string-append (第二幕-日期 10) "起有赞助人试演。"
             (if musician-booked? "你已花25美元约好老乐手。"
               (if equipment-ready? "设备线路已经查过。"
-                "可以预先检查设备，或去酒馆花钱预约乐手。"))))
+                "可以预先检查设备，或去旧街找乐手。"))))
         (else (string-append "大剧院正在举行赞助人试演，" (第二幕-日期 11) "结束。"))))
     (define (story-now)
       (cond
@@ -175,7 +175,7 @@
           (list (step "回应夜莺对宣传海报的疑虑"
             (not (equal? 公告-夜莺回答 "未答复")))) '())))
     (define (nodes-at loc)
-      (if (and (equal? loc "老街酒馆") (prep-time?)
+      (if (and (equal? loc "码头居民区") (prep-time?)
                (not musician-booked?))
         (list (node "约老乐手" :name "预订旧乐手"
           :subtitle "25美元及一骰；试演当天可直接请他救场"
