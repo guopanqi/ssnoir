@@ -132,8 +132,10 @@ public static class FirstActChecks
         void PrepEval(string source) { prep.ActiveInterpreter.Eval(source); prep.Refresh(); }
         PrepEval("""(第一幕 'load! (list (list "opened" #t) (list "tavern" #t) (list "act" 2) (list "singer" 2) (list "eddie" 1))) (set! world-day 9)""");
         Act(prep, "看看剧院招工告示");
-        Assert(Has(prep, "检查伴奏线路") && Has(prep, "预订旧乐手"),
-            "D9 已知试演日程后，可选择用骰子查线路或花钱请乐手");
+        Assert(Has(prep, "检查伴奏线路"),
+            "D9 已知日程后应看得到设备检查");
+        Assert(Has(prep, "预订旧乐手"),
+            "D9 已知日程后在旧酒馆应看得到预订乐手");
         Act(prep, "检查伴奏线路");
         Assert(!Has(prep, "检查伴奏线路"),
             "线路检查只可尝试一次，不许重复试出好结果");
