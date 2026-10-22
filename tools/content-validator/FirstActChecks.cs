@@ -135,7 +135,7 @@ public static class FirstActChecks
         Assert(Has(prep, "检查伴奏线路"),
             "D9 已知日程后应看得到设备检查");
         Assert(Has(prep, "预订旧乐手"),
-            "D9 已知日程后在旧酒馆应看得到预订乐手");
+            "D9 已知日程后在旧街应看得到预订乐手");
         Act(prep, "检查伴奏线路");
         Assert(!Has(prep, "检查伴奏线路"),
             "线路检查只可尝试一次，不许重复试出好结果");
