@@ -132,6 +132,16 @@
     (define (nodes-at loc)
       (if (not (in-theater? loc)) '()
         (append
+          (if (and (= world-day 9) (known?) (not care-seen?))
+            (list (instant-action "与夜莺聊近况" show-care!)) '())
+          (if (and (replay-time?) (equal? sponsor-result "未参与")
+                   (not sponsor-intro?))
+            (list (node "看看赞助人试演"
+              :subtitle "试演进行中；可以去后台看看"
+              :resolve (instant (outcome sponsor-intro!)))) '())
+          (if (and (>= world-day 12) (known?) (not sponsor-aftermath?)
+                   (not (equal? sponsor-result "未参与")))
+            (list (instant-action "问试演后来的事" replay-after!)) '())
           (if (and (= world-day 9) (known?)
                    (第一幕 'rehearsal-seen?) (equal? listening "未听"))
             (list (node "再唱一遍" :subtitle "她想听听你的意见"
@@ -156,23 +166,13 @@
                    (known?) (not old-port-talk?))
             (list (node "她过去的歌" :subtitle "宣传人员想淡化她来自旧港的经历"
               :resolve (instant (outcome talk-about-past!)))) '()))))
-    (define (arrivals-at loc)
-      (if (not (in-theater? loc)) '()
-        (append
-          (if (and (= world-day 9) (known?) (not care-seen?))
-            (list (arrival "你看起来很累" show-care!)) '())
-          (if (and (replay-time?) (equal? sponsor-result "未参与")
-                   (not sponsor-intro?))
-            (list (arrival "赞助人来到剧院" (lambda ()
-              (set! sponsor-intro? #t)
-              (play-dialogue!
-                (line "世界" "赞助人要听夜莺试演。后台的伴奏机器却在反复报错。")
-                (line "工作人员" "今天要是坏了，导演不会愿意等。")
-                (line "夜莺" "我只想把这首歌唱完。")))))
-            '())
-          (if (and (>= world-day 12) (not sponsor-aftermath?)
-                   (not (equal? sponsor-result "未参与")))
-            (list (arrival "复排之后" replay-after!)) '()))))
+    (define (sponsor-intro!)
+      (set! sponsor-intro? #t)
+      (play-dialogue!
+        (line "世界" "赞助人要听夜莺试演。后台的伴奏机器却在反复报错。")
+        (line "工作人员" "今天要是坏了，导演不会愿意等。")
+        (line "夜莺" "我只想把这首歌唱完。")))
+    (define (arrivals-at loc) '())
     (define-turn-start-rule "复排窗口自然结束"
       (lambda () #t)
       (lambda ()
