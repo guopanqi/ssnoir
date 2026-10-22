@@ -92,6 +92,17 @@ public static class FirstActChecks
             && Entry("露西：夜校报名").Now.Contains("付15美元"),
             "替班一回不会自动解决报名，还需腾出第二班或支付15美元");
         Assert(!Has(scenes, "替露西顶班"), "已守一班当天不应能重复顶班");
+        string partialShift = Path.Combine(Path.GetTempPath(), "ssnoir-lucy-first-shift.json");
+        try
+        {
+            scenes.SaveGame(partialShift);
+            var shiftRestored = new SceneManager(new GameState(), new LocalScriptLoader());
+            shiftRestored.LoadGame(partialShift);
+            Assert(!Has(shiftRestored, "替露西顶班")
+                && shiftRestored.CurrentDossier.Single(e => e.Id == "露西：夜校报名").Now.Contains("付15美元"),
+                "第一班存档恢复后仍受当天一次的限制，可以通过代班费解决剩余班次");
+        }
+        finally { if (File.Exists(partialShift)) File.Delete(partialShift); }
         Eval("(set! world-day 10)");
         Assert(Has(scenes, "替露西顶班"), "隔天再次允许顶班，构成跨日机会成本");
         Act(scenes, "替露西顶班");
