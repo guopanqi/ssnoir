@@ -6,9 +6,12 @@
     (define help-day 0)
 
     (define (haul-subtitle)
-      (if (= help-day world-day)
-        "艾迪今天已安排帮忙；失手损失2冷静"
-        "失手损失2冷静，艾迪每天可帮忙一次"))
+      (cond
+        ((not (第二幕 'eddie-on-dock?))
+          "艾迪被停了班；失手会完整损失2点冷静")
+        ((= help-day world-day)
+          "艾迪今天已安排帮忙；失手损失2冷静")
+        (else "失手损失2冷静，艾迪每天可帮忙一次")))
 
     (define (on-haul! grade)
       (cond
@@ -20,7 +23,8 @@
         (第二幕生活 'on-dock-work!)
         (第二幕 'on-dock-work!)
         ;; 没有第一幕人物对白占用这次失败演出时，艾迪每天可救场一次。
-        (if (and (eq? grade '坏) (not story-played?) (not (= help-day world-day)))
+        (if (and (eq? grade '坏) (not story-played?) (not (= help-day world-day))
+                 (第二幕 'eddie-on-dock?))
           (begin
             (set! help-day world-day)
             (play-bubble!
@@ -47,6 +51,9 @@
           ((eq? msg 'render-data)
            (list (place "码头"
              :children (append
+               (if (not (第二幕 'eddie-on-dock?))
+                 (list (note-node "艾迪没来" "工棚" "工头暂停了艾迪的班，码头今天少了一个能帮你的人。"))
+                 '())
                (list (haul-node))
                (map (lambda (n)
                       (if (member? :anchor n) n
