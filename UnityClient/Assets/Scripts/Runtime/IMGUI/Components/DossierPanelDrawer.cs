@@ -281,12 +281,12 @@ namespace SSNoir.IMGUI
             var (toggleRect, panelRect) = GetRects(topHud);
             var dossier = gameManager.DisplayedSnapshot.Dossier;
 
-            if (IMGUIButton.DrawTopTextToggle(toggleRect, UiText.Get("卷宗"), _isOpen, ui))
+            if (IMGUIButton.DrawTopTextToggle(toggleRect, UiText.Get("手头的事"), _isOpen, ui))
                 _isOpen = !_isOpen;
 
             if (!_isOpen) return;
 
-            if (IMGUIStyles.DrawModalChrome(panelRect, "卷 宗", ui))
+            if (IMGUIStyles.DrawModalChrome(panelRect, UiText.Get("手头的事"), ui))
             {
                 _isOpen = false;
                 return;
@@ -474,9 +474,18 @@ namespace SSNoir.IMGUI
             IMGUIStyles.DrawLabel(new Rect(textX, y, textW - 140f, 20f), e.Id, NameStyle(e.IsClosed));
             // 「进行中」是常态，不值得写；只有等人和了结才是信息。
             // 内部状态叫「了结」，给玩家看就写「已完成」。
-            string tierStatus = e.Status == "进行中"
-                ? (e.IsPrimary ? "主要" : "次要")
-                : $"{(e.IsPrimary ? "主要" : "次要")} · {(e.IsClosed ? "已完成" : e.Status)}";
+            // 提示事项的性质，而非把所有生活都分成主要/次要任务。
+            string category = e.Kind switch
+            {
+                "主线" => "近期",
+                "人物" => "人物",
+                "城市" => "生活",
+                "打算" => "打算",
+                "委托" => "委托",
+                _ => e.Kind
+            };
+            string tierStatus = e.IsClosed ? $"{category} · 已结束"
+                : e.Status == "等着别人" ? $"{category} · 等消息" : category;
             IMGUIStyles.DrawLabel(new Rect(row.xMax - 138f, y, 138f, 20f), tierStatus,
                 new GUIStyle(MetaStyle()) { alignment = TextAnchor.MiddleRight });
             y += 20f;

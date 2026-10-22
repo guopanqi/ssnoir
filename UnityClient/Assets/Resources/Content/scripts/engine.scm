@@ -307,7 +307,7 @@
 ;; 房租等生活指引只跟踪目标，不调用 complete-task!，不提供成长或其他奖励。
 ;; 卡上不写「完成后得到什么」——奖励是做完之后自然到手的东西，不是挂在卡上的诱饵。
 ;; 小节也可能被世界推着了结（日子到了、失败了）：那时没划掉的子项就那么留着，照样了结。
-(define dossier-kinds  (list '主线 '委托 '人物 '城市))
+(define dossier-kinds  (list '主线 '委托 '人物 '城市 '打算))
 (define dossier-states (list '进行中 '等着别人 '了结))
 
 (define (step text done?)
@@ -324,7 +324,7 @@
         (primary (get-kwarg kwargs ':primary #f)))
     (if (member? kind dossier-kinds)
         #t
-        (error (string-append "dossier " id "：:kind 应为 主线 / 委托 / 人物 / 城市")))
+        (error (string-append "dossier " id "：:kind 应为 主线 / 委托 / 人物 / 城市 / 打算")))
     (if (member? status dossier-states)
         #t
         (error (string-append "dossier " id "：:status 应为 进行中 / 等着别人 / 了结")))

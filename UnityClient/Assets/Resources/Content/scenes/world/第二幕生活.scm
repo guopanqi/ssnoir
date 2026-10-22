@@ -7,6 +7,43 @@
     (define visited-theater? #f)
     (define met-manager? #f)
     (define soup-day 0)
+    (define remembered-card? #f)
+    (define remembered-manager? #f)
+    ;; 尼尔自己的愿望不是必须完成的任务，也没有新增经验值。
+    (define (read-old-card!)
+      (set! remembered-card? #t)
+      (play-dialogue!
+        (line "世界" "抽屉底下压着几张旧名片，边角已经卷了。")
+        (line "世界" "上面写着：尼尔，私人调查。")
+        (line "尼尔" "来城里都一年了。找到的倒都是搬货、跑腿和替人收拾麻烦的活儿。")
+        (line "尼尔" "总会有人真需要我查点什么吧。")))
+    (define (manager-thought!)
+      (set! remembered-manager? #t)
+      (play-dialogue!
+        (line "世界" "尼尔把从剧院领来的工钱和旧名片放到一处。")
+        (line "尼尔" "终于有人觉得我做事可靠。可光会搬景片，算哪门子侦探？")
+        (line "尼尔" "下次要是有人找我查事，可得认真接下来。")))
+    (define (dossier-at)
+      (if (not (active?)) '()
+        (append
+          (if (or (not visited-street?) (not visited-theater?))
+            (list (dossier "城里的新去处" :kind '城市 :primary #f
+              :now (cond
+                ((and (not visited-street?) (not visited-theater?))
+                  "码头后面有旧街，大剧院也在招临工。都可以直接去看看。")
+                ((not visited-street?)
+                  "剧院的工作已经见过了。码头后面的旧街还有食堂和零活。")
+                (else "旧街已经走过。大剧院前厅还在招募临时工。"))
+              :where (if (not visited-theater?) "剧院" "码头居民区")))
+            '())
+          (list (dossier "想做个真正的侦探" :kind '打算 :primary #f
+            :now (cond
+              ((not remembered-card?) "旅馆抽屉里还有从前印的调查名片。尼尔不想一辈子只做零工。")
+              (met-manager?
+                "经理愿意再雇尼尔。得到认可是一回事，真正接到调查委托又是另一回事。")
+              (else "找一份真正需要调查的委托。眼下先靠零工生活，也留心城里的机会。"))
+            :where (if remembered-card? "" "家"))))))
+
     (define (active?) (and (= (第一幕 'act) 2) (not (第二章 'started?))))
     (define (on-dock-work!)
       (if (and (active?) (>= world-day 8) (>= (第一幕 'eddie-stage) 2)
@@ -73,6 +110,19 @@
     (define (nodes-at location)
       (if (not (active?)) '()
         (cond
+          ((equal? location "家")
+            (append
+              (if (not remembered-card?)
+                (list (node "抽屉里的旧名片" :name "看看旧名片"
+                  :subtitle "尼尔过去想靠什么生活？"
+                  :resolve (instant (outcome read-old-card!))))
+                '())
+              (if (and met-manager? remembered-card? (not remembered-manager?))
+                (list (node "剧院的工资和名片" :name "想想今后的工作"
+                  :subtitle "经理记住了尼尔，他却还想做真正的调查"
+                  :resolve (instant (outcome manager-thought!))))
+                '())))
+
           ((equal? location "码头居民区")
             (list
               (node "旧街热饭" :name "吃顿热饭"
@@ -122,6 +172,7 @@
     (lambda args
       (let ((msg (car args)))
         (cond
+          ((eq? msg 'dossier) (dossier-at))
           ((eq? msg 'nodes-at) (nodes-at (cadr args)))
           ((eq? msg 'arrivals-at) (arrivals-at (cadr args)))
           ((eq? msg 'on-dock-work!) (on-dock-work!))
@@ -131,7 +182,9 @@
                   (list "frank" met-frank?)
                   (list "theater" visited-theater?)
                   (list "manager" met-manager?)
-                  (list "soup-day" soup-day)))
+                  (list "soup-day" soup-day)
+                  (list "remembered-card" remembered-card?)
+                  (list "remembered-manager" remembered-manager?)))
           ((eq? msg 'load!)
             (let ((data (cadr args)))
               (set! visited-street? (assoc-get data "street" #f))
@@ -139,5 +192,9 @@
               (set! met-frank? (assoc-get data "frank" #f))
               (set! visited-theater? (assoc-get data "theater" #f))
               (set! met-manager? (assoc-get data "manager" #f))
-              (set! soup-day (assoc-get data "soup-day" 0))))
+              (set! soup-day (assoc-get data "soup-day" 0))
+              (set! remembered-card? (assoc-get data "remembered-card" #f))
+              (set! remembered-manager? (assoc-get data "remembered-manager" #f))
+              (if (and remembered-manager? (not remembered-card?))
+                (error "第二幕生活：回想经理前必须看过名片") #t)))
           (else (error "第二幕生活：未知消息")))))))

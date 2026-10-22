@@ -126,6 +126,15 @@
           ((eq? msg 'nodes-at) (nodes-at (cadr args)))
           ((eq? msg 'arrivals-at) (arrivals-at (cadr args)))
           ((eq? msg 'sponsor-result) sponsor-result)
+          ((eq? msg 'dossier)
+            (if sponsor-intro?
+              (list (dossier "夜莺：赞助人试演" :kind '人物 :primary #f
+                :status (if (equal? sponsor-result "未参与") '进行中 '了结)
+                :now (if (equal? sponsor-result "未参与")
+                  "剧院的伴奏出了问题。第11天结束前可去后台看看是否要帮忙。"
+                  "那天的试演已经结束。夜莺仍有自己的打算。")
+                :where "剧院"))
+              '()))
           ((eq? msg 'save)
             (list (list "care" care-seen?)
                   (list "listening" listening)

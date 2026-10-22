@@ -78,6 +78,7 @@ namespace SSNoir.IMGUI
         // 暗条内部尺寸：二字开关 52×5、读数 76、开关间隔 6、读数与开关之间留 10 给分隔线。
         // 入口从右往左分配，面包屑吃剩余宽度。
         private const float EntryW = 52f;
+        private const float DossierEntryW = 90f; // 「手头的事」四字入口，不裁切
         private const float DayW = 76f;
         private const float EntryGap = 6f;
         private const float DayGap = 10f;
@@ -105,7 +106,7 @@ namespace SSNoir.IMGUI
             Rect settings = TakeFromRight(ref cursorRight, EntryW, rowH, top, EntryGap);
             Rect help     = TakeFromRight(ref cursorRight, EntryW, rowH, top, EntryGap);
             Rect growth   = TakeFromRight(ref cursorRight, EntryW, rowH, top, EntryGap);
-            Rect dossier  = TakeFromRight(ref cursorRight, EntryW, rowH, top, EntryGap);
+            Rect dossier  = TakeFromRight(ref cursorRight, DossierEntryW, rowH, top, EntryGap);
 
             // 天数是暗条左侧的读数，和开关共用同一块底。
             cursorRight -= DayGap;

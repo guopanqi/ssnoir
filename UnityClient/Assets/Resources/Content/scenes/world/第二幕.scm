@@ -18,6 +18,50 @@
           "真的？你肯替我顶班，我就能去报名了。"))
         (line "尼尔" "快去吧。")
         (line "露西" "那我今晚就去。谢谢你，尼尔。")))
+    ;; 日历决定公共演出和公告，玩家的参与与否不改变这些事实。
+    (define (public-now)
+      (cond
+        ((= world-day 7)
+          "夜莺去了大剧院；明天是她第一次正式彩排。新旧街区也有活可做。")
+        ((= world-day 8)
+          (if (第一幕 'rehearsal-seen?)
+            "今天的正式彩排已经结束。城里还有新地方和工作值得看看。"
+            "夜莺今天在大剧院正式彩排。错过的话，演出也会照常举行。"))
+        ((= world-day 9)
+          "剧院正在准备夜莺的首演。你也可以照常工作，看看熟人的近况。")
+        ((<= world-day 11)
+          "夜莺的首演筹备仍在继续。熟人和工友的麻烦也不会停下来等你。")
+        ((= world-day 12)
+          "首演将近。你可以继续谋生，看看熟人的事情后来怎么样了。")
+        (else
+          "晨报把夜莺的首演与旧港改造写在一起。去熟悉的地方看看人们的反应。")))
+    (define (public-where)
+      (if (>= world-day 13) "老街酒馆" "剧院"))
+    ;; 私人的事情只在尼尔听到之后才进入手头的事。
+    (define (known-matters)
+      (append
+        (if wage-introduced?
+          (list (dossier "艾迪：少了十块钱"
+            :kind '人物 :primary #f
+            :status (if (equal? wage-state "未做") '进行中 '了结)
+            :now (cond
+              ((equal? wage-state "未做")
+                "工友被少算十块钱；第11天结束前可以到码头帮艾迪。")
+              ((equal? wage-state "错过") "纠纷已经过去，艾迪仍有自己的生活。")
+              (else "那场工资纠纷已有结果。下次去码头，看看艾迪怎么样。"))
+            :where "码头"))
+          '())
+        (if lucy-introduced?
+          (list (dossier "露西：夜校报名"
+            :kind '人物 :primary #f
+            :status (if (equal? lucy-state "未做") '进行中 '了结)
+            :now (cond
+              ((equal? lucy-state "未做")
+                "露西想去夜校报名，第12天结束前可以帮她顶班或付代班费。")
+              ((equal? lucy-state "错过") "报名期限过去了，露西会自己考虑下一步。")
+              (else "露西已经有机会去报名了。再去咖啡馆听听她的消息。"))
+            :where "街角咖啡馆"))
+          '())))
     (define (nodes-at loc)
       (append
         (if (and (equal? loc "码头") (wage-open?) (equal? wage-state "未做")
@@ -72,11 +116,12 @@
         ((eq? (car args) 'wage-state) wage-state)
         ((eq? (car args) 'lucy-state) lucy-state)
         ((eq? (car args) 'dossier)
-          (if (and (= (第一幕 'act) 2) (< world-day 13))
-            (list (dossier "这里有我的朋友" :kind '主线 :primary #t
-              :status '进行中
-              :now "继续谋生，认识熟人的生活；夜莺的复排也在临近。"
-              :where ""))
+          (if (and (= (第一幕 'act) 2) (>= world-day 7))
+            (append
+              (list (dossier "这里有我的朋友" :kind '主线 :primary #t
+                :status (if (>= world-day 13) '等着别人 '进行中)
+                :now (public-now) :where (public-where)))
+              (known-matters))
             '()))
         ((eq? (car args) 'nodes-at) (nodes-at (cadr args)))
         ((eq? (car args) 'arrivals-at) (arrivals-at (cadr args)))

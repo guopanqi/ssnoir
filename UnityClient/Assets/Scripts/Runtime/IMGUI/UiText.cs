@@ -28,6 +28,7 @@ namespace SSNoir.IMGUI
             ["部分成功"] = "Partial Success",
             ["失败"] = "Failure",
             ["卷宗"] = "Dossier",
+            ["手头的事"] = "Things on My Mind",
             ["按概率判定..."] = "Resolving odds...",
             ["回 家"] = "Home",
             ["帮助"] = "Help",

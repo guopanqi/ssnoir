@@ -548,11 +548,13 @@
       (let ((msg (car args)))
         (cond
           ((equal? msg 'dossier)
-           (if (and (renting?) (not (get-global '首次房租已交)))
+           (if (renting?)
                (list (dossier "旅馆房费"
-                 :kind '城市 :primary #t
+                 :kind '城市 :primary (not (get-global '首次房租已交))
                  :status '进行中
-                 :now "每过一些天，你需要支付旅馆的房费才能继续住下去"
+                 :now (if (get-global '首次房租已交)
+                   "每四天收取40美元房费；钱不够，旅馆老板只能再宽限几天。"
+                   "每过一些天，你需要支付旅馆的房费才能继续住下去")
                  :where (if (or overdue? evicted?) "家" "")
                  :clocks (cond (evicted? '())
                                (overdue? (list (grace-clk 'render-data)))
