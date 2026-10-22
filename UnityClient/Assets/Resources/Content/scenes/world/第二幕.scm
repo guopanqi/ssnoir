@@ -15,6 +15,7 @@
     (define lucy-state "未做")
     (define wage-introduced? #f)
     (define lucy-introduced? #f)
+    (define lucy-boss-heard? #f) ; D9 起真正面对咖啡馆请假难题
     (define lucy-covered 0)     ; 0..2，每班一颗骰；也可付费请人
     (define wage-checked? #f)   ; 核对机会只能尝试一次
     (define wage-evidence? #f)  ; 真实工时记录可在交锋时出示
@@ -61,6 +62,14 @@
           (else "你帮我把两班都安排好了吗？这笔钱我记着。")))
         (line "尼尔" "你准备了这么久，赶快去。")
         (line "露西" "我还得去问学费的事。等我回来再和你说。")))
+    (define (lucy-boss!)
+      (if lucy-boss-heard? (error "露西已经与老板谈过请假") #t)
+      (set! lucy-boss-heard? #t)
+      (play-dialogue!
+        (line "露西" "夜校只在工作日收报名表。我已经试着换了几回班。")
+        (line "老板" "店里只剩两个时段没人。你找到代班，我就让你去。")
+        (line "尼尔" "两个班都得补？")
+        (line "露西" "我也不愿意让你白帮忙。要不然我再自己想办法。")))
     (define (lucy-cover!)
       (if (>= lucy-covered 2) (error "夜校报名：顶班次数越界") #t)
       (set! lucy-covered (+ lucy-covered 1))
@@ -107,6 +116,10 @@
               (else '等着别人))
             :now (cond
               ((二幕余波-露西已知?) (二幕余波-露西近况))
+              ((and (equal? lucy-state "未做") (<= world-day 12)
+                    (not lucy-boss-heard?))
+                (string-append "报名" (第二幕-日期 12)
+                  "截止。露西今天还想去与老板商量顶班的事。"))
               ((and (equal? lucy-state "未做") (<= world-day 12))
                 (string-append "报名" (第二幕-日期 12) "截止。还需顶"
                   (number->string (- 2 lucy-covered)) "班，或付"
@@ -116,6 +129,9 @@
             :steps (append
               (if lucy-introduced? (list (step "得知露西想报名夜校" #t)) '())
               (cond
+                ((and (equal? lucy-state "未做") (<= world-day 12)
+                      (not lucy-boss-heard?))
+                  (list (step "听听咖啡馆老板是否准假" #f)))
                 ((and (equal? lucy-state "未做") (<= world-day 12))
                   (list (step "去咖啡馆顶两班，或付30美元请人代班" #f)))
                 ((equal? lucy-state "顶班") (list (step "替露西守完两班" #t)))
@@ -153,7 +169,12 @@
               (lambda () (start-encounter "少了十块钱" wage-end))))))
           '())
         (if (and (equal? loc "街角咖啡馆") (lucy-open?)
-                 (第一幕 'lucy-met?) (equal? lucy-state "未做") lucy-introduced?)
+                 (第一幕 'lucy-met?) (equal? lucy-state "未做") lucy-introduced?
+                 (not lucy-boss-heard?))
+          (list (instant-action "听听老板怎么说" lucy-boss!)) '())
+        (if (and (equal? loc "街角咖啡馆") (lucy-open?)
+                 (第一幕 'lucy-met?) (equal? lucy-state "未做") lucy-introduced?
+                 lucy-boss-heard?)
           (list
             (node "替露西顶班" :subtitle "共需两班，每班消耗一枚骰；没有工资"
               :clocks (list (第二幕-期限钟 "报名截止" 12 9))
@@ -199,9 +220,12 @@
                    (not wage-introduced?))
             (tell-wage!) #f))
         ((eq? (car args) 'on-cafe-work!)
-          (if (and (lucy-intro-open?) (第一幕 'lucy-met?)
-                   (not lucy-introduced?))
-            (tell-lucy!) #f))
+          (cond
+            ((and (lucy-intro-open?) (第一幕 'lucy-met?)
+                   (not lucy-introduced?)) (tell-lucy!))
+            ((and (lucy-open?) lucy-introduced?
+                   (not lucy-boss-heard?)) (lucy-boss!))
+            (else #f)))
         ((eq? (car args) 'lucy-state) lucy-state)
         ((eq? (car args) 'dossier)
           (if (and (= (第一幕 'act) 2) (>= world-day 7))
@@ -214,6 +238,7 @@
                 (list "wage-introduced" wage-introduced?)
                 (list "lucy-introduced" lucy-introduced?)
                 (list "lucy-covered" lucy-covered)
+                (list "lucy-boss-heard" lucy-boss-heard?)
                 (list "wage-checked" wage-checked?)
                 (list "wage-evidence" wage-evidence?)))
         ((eq? (car args) 'load!)
@@ -223,6 +248,7 @@
             (set! wage-introduced? (assoc-get data "wage-introduced" #f))
             (set! lucy-introduced? (assoc-get data "lucy-introduced" #f))
             (set! lucy-covered (assoc-get data "lucy-covered" 0))
+            (set! lucy-boss-heard? (assoc-get data "lucy-boss-heard" #f))
             (set! wage-checked? (assoc-get data "wage-checked" #f))
             (set! wage-evidence? (assoc-get data "wage-evidence" #f))
             (if (and (>= lucy-covered 0) (<= lucy-covered 2)
