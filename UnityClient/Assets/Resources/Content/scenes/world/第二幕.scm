@@ -166,7 +166,9 @@
             :subtitle "封账前可参与核账，之后艾迪自行处理"
             :clocks (list (第二幕-期限钟 "封账" 11 9))
             :resolve (instant (outcome
-              (lambda () (start-encounter "少了十块钱" wage-end))))))
+              (lambda () (begin
+                (set-global! '第二幕工时证据 wage-evidence?)
+                (start-encounter "少了十块钱" wage-end)))))))
           '())
         (if (and (equal? loc "街角咖啡馆") (lucy-open?)
                  (第一幕 'lucy-met?) (equal? lucy-state "未做") lucy-introduced?
