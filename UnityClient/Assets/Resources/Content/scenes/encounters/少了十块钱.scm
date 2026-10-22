@@ -4,6 +4,7 @@
 (define 危机? #f)
 (define 已结束? #f)
 (define 有工时证据? #f)
+(define 认识弗兰克? #f)
 (define (结束! result)
   (if 已结束? (error "工钱纠纷：重复结算") #t)
   (set! 已结束? #t)
@@ -41,6 +42,7 @@
   (工钱 'load! 0) (争执 'load! 0)
   (set! 危机? #f) (set! 已结束? #f)
   (set! 有工时证据? (get-global '第二幕工时证据))
+  (set! 认识弗兰克? (get-global '第二幕认识弗兰克))
   (play-dialogue!
     (line "世界" "工头合上账本。年轻工人说自己的十块钱没了。")
     (line "艾迪" "他干了一整天，你就给这么点？")
@@ -55,7 +57,7 @@
           (note-node "工头的威胁" "艾迪的工作" "他可能因为十块钱丢掉工作。")
           (node "先让艾迪退开" :subtitle "保住眼前的工作，放弃这次工钱"
             :resolve (instant (outcome (lambda () (结束! '保住工作)))))
-          (if (第二幕生活 'met-frank?)
+          (if 认识弗兰克?
             (node "请弗兰克出面" :subtitle "让认识的老街长辈出面核账"
               :requires (list (req-die)) :resolve (roll 'social
                 (outcome (lambda () (spend-composure! 1) (结束! '撤出)))
