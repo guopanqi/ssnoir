@@ -19,6 +19,14 @@ export interface RuntimeClock {
   priority?:"primary"|"secondary"; beneficialDirection?:"increase"|"decrease"|"neutral";
 }
 export type ResolveKind = "instant" | "roll" | "observe" | "note";
+export type ActionRiskLevel = "稳妥" | "冒险" | "危险";
+export type ActionTargetKind = "clock" | "composure" | "injury" | "item";
+export interface RuntimeActionTarget { kind:ActionTargetKind; id:string }
+export interface RuntimeActionRisk {
+  level:ActionRiskLevel;
+  riskTarget:RuntimeActionTarget|null;
+  progressTarget:RuntimeActionTarget|null;
+}
 export interface NodeResolve {
   kind: ResolveKind;
   skill?: string;
@@ -47,6 +55,7 @@ export interface RuntimeNode {
   children: RuntimeNode[];
   arrivals: RuntimeArrival[];
   resolve: NodeResolve | null;
+  risk?: RuntimeActionRisk | null;
 }
 
 /** Bound the conversion to avoid infinite traversal of cyclic Scheme content. */
@@ -161,6 +170,25 @@ function parseResolve(raw: unknown): NodeResolve | null {
     default: throw new Error("unsupported resolve kind: " + kind);
   }
 }
+function parseRiskLevel(raw:unknown, nodeId:string):ActionRiskLevel|null {
+  if(raw===false)return null;
+  const value=symbol(raw);
+  if(value!=="稳妥"&&value!=="冒险"&&value!=="危险")
+    throw new Error(nodeId+": unknown risk "+value);
+  return value as ActionRiskLevel;
+}
+function parseActionTarget(raw:unknown, nodeId:string, keyword:string):RuntimeActionTarget|null {
+  if(raw===false)return null;
+  const fields=schemeList(raw,nodeId+" "+keyword);
+  if(fields.length!==2)throw new Error(nodeId+" "+keyword+": expected (list kind id)");
+  const kind=symbol(fields[0]);
+  if(!["clock","composure","injury","item"].includes(kind))
+    throw new Error(nodeId+" "+keyword+": unknown target kind "+kind);
+  const targetId=name(fields[1],nodeId+" "+keyword);
+  if((kind==="composure"||kind==="injury")&&targetId!=="player")
+    throw new Error(nodeId+" "+keyword+": actor target must be player");
+  return {kind:kind as ActionTargetKind,id:targetId};
+}
 function parseCosts(raw: unknown): ActionCost[] {
   return optionalList(raw, "requires").map(v => {
     const elements = schemeList(v, "requirement");
@@ -185,6 +213,9 @@ export function convertNode(value: unknown): RuntimeNode {
     tags: [], requires: [], clocks: [], children: [], arrivals: [], resolve: null,
     carryItemId:"", supportId:""
   };
+  let riskLevel:ActionRiskLevel|null=null;
+  let riskTarget:RuntimeActionTarget|null=null;
+  let progressTarget:RuntimeActionTarget|null=null;
   for (let i = 2; i < expr.length; i += 2) {
     const kw = symbol(expr[i]);
     const val = expr[i + 1];
@@ -198,6 +229,9 @@ export function convertNode(value: unknown): RuntimeNode {
       case ":place": node.isPlace = val === true; break;
       case ":disabled": node.disabled = val === true; break;
       case ":tags": node.tags = optionalList(val, "tags").map(x => String(scalar(x))); break;
+      case ":risk": riskLevel=parseRiskLevel(val,id); break;
+      case ":risk-target": riskTarget=parseActionTarget(val,id,kw); break;
+      case ":progress-target": progressTarget=parseActionTarget(val,id,kw); break;
       case ":requires": node.requires = parseCosts(val); break;
       case ":clocks": node.clocks = clocks(val,"clocks"); break;
       case ":children": node.children = optionalList(val, "children").map(convertNode); break;
@@ -223,10 +257,44 @@ export function convertNode(value: unknown): RuntimeNode {
       default: throw new Error(id + ": unknown node keyword " + kw);
     }
   }
+  if(riskLevel!==null&&node.resolve?.kind!=="roll")
+    throw new Error(id+": :risk requires roll action");
+  if((riskTarget||progressTarget)&&riskLevel===null)
+    throw new Error(id+": risk/progress target requires :risk");
+  if(riskLevel!==null&&node.tags.some(t=>["低风险","高风险","稳妥","冒险","危险"].includes(t)))
+    throw new Error(id+": :risk conflicts with old risk tag");
+  node.risk=riskLevel===null?null:{level:riskLevel,riskTarget,progressTarget};
   if (node.arrivals.length&&!node.isPlace)throw new Error(id+": arrivals require place");
   if (node.resolve && node.children.length) throw new Error(id + ": cannot have both children and resolve");
   if (node.isPlace && node.resolve) throw new Error(id + ": place cannot be an action");
   return node;
+}
+/** Validate authored risk references. The action outcomes remain the only effect source. */
+export function validateActionRiskContracts(root:RuntimeNode, carried:RuntimeNode[]=[]):void {
+  const clocks=new Map<string,RuntimeClock>(),ambiguous=new Set<string>();
+  const record=(c:RuntimeClock)=>{
+    const previous=clocks.get(c.label);
+    if(!previous){clocks.set(c.label,c);return;}
+    if(previous.current!==c.current||previous.max!==c.max||
+       previous.style!==c.style||previous.beneficialDirection!==c.beneficialDirection)
+      ambiguous.add(c.label);
+  };
+  const collect=(node:RuntimeNode)=>{
+    for(const c of node.clocks)record(c);
+    if(node.resolve?.noteClock)record(node.resolve.noteClock);
+    node.children.forEach(collect);
+  };
+  collect(root);
+  const check=(node:RuntimeNode)=>{
+    for(const target of [node.risk?.riskTarget,node.risk?.progressTarget]){
+      if(target?.kind!=="clock")continue;
+      if(!clocks.has(target.id))throw new Error(node.name+": missing Clock "+target.id);
+      if(ambiguous.has(target.id))throw new Error(node.name+": ambiguous Clock "+target.id);
+    }
+    node.children.forEach(check);
+  };
+  check(root);
+  carried.forEach(check);
 }
 export function convertNodes(value: unknown): RuntimeNode[] {
   const nodes = schemeList(value, "nodes").map(convertNode);

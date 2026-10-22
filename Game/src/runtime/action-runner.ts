@@ -1,7 +1,7 @@
 import { GameScriptSession } from "./script-session.ts";
 import { GameRuntimeState } from "./game-state.ts";
 import { ActionTurnState } from "./turn-state.ts";
-import { convertNode, schemeList, type RuntimeNode } from "./node-converter.ts";
+import { convertNode, schemeList, validateActionRiskContracts, type RuntimeNode } from "./node-converter.ts";
 import { SITES } from "./injury.ts";
 import { resolveFate, type RollOutcome } from "./fate-strip.ts";
 
@@ -119,6 +119,7 @@ export class GameActionRunner {
       }
       this.carry=carry;
     }else this.carry=[];
+    validateActionRiskContracts(this.root,this.carry);
     return this.root;
   }
 
