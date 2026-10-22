@@ -27,7 +27,7 @@
     (define (lucy-intro-open?) (and (= (第一幕 'act) 2)
       (>= world-day 8) (<= world-day 12) (equal? lucy-state "未做")))
     (define (wage-end result)
-      (if (member? result '(拿回工钱 保住工作 弗兰克调停 撤出)) #t
+      (if (member? result '(拿回工钱 凭证核清 保住工作 弗兰克调停 撤出)) #t
         (error "工钱交锋：非法结算"))
       (set! wage-state (symbol->string result)))
     (define (eddie-on-dock?)
@@ -110,7 +110,8 @@
               ((and (equal? wage-state "未做") (<= world-day 11))
                 (string-append (第二幕-日期 11) "收工封账。去码头帮艾迪争取复核少付的10美元。"))
               ((or (equal? wage-state "错过") (equal? wage-state "未做")) "核账窗口已过，还没听到后来的结果。")
-              ((equal? wage-state "拿回工钱") "工钱拿回了，但工头停了艾迪第12天的班。")
+              ((equal? wage-state "拿回工钱") "争执后拿回工钱，但工头停了艾迪第12天的班。")
+              ((equal? wage-state "凭证核清") "凭工时册核清差额，工钱已补发，艾迪没有停班。")
               ((equal? wage-state "保住工作") "这次让了步，工友保住了工作。")
               ((equal? wage-state "弗兰克调停") "弗兰克出面核清了账。")
               (else "工头暂时不让艾迪领班。第12至13天，码头不会有人替你救场。"))
