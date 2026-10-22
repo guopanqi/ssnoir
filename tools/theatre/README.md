@@ -27,7 +27,8 @@ python3 tools/theatre/preview.py scripts/theatre/路灯下.scm '(路灯下-试�
 不加载城市、游戏输入或字幕 UI；舞台纹理合成在剧本底色上，入退场仅显示舞台淡入淡出，不包含城市压暗/推近。
 完整字幕排版、固定四角暗角、城市透底、实际声音和玩家点击仍在 Play Mode 验收。
 
-等待点击的对白默认报错。需要检查后续画面时显式模拟等待：
+正式线绘剧场使用 `theatre-say` 自动推进，正常预览不需要模拟点击。
+如需验证玩家提前推进时的表现，可以显式模拟输入：
 
 ```bash
 python3 tools/theatre/preview.py scripts/theatre/我的戏.scm '(我的戏-演出)' --manual-wait 2

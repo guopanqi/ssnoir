@@ -23,7 +23,7 @@
     (theatre-tween "镜头" 'x (- 800 (* scale x)) seconds 'smooth)
     (theatre-tween "镜头" 'y (- 570 (* scale y)) seconds 'smooth)))
 (define (开场新版-说 who text seconds)
-  (theatre-caption-auto who text seconds
+  (theatre-say who text seconds
     (if (equal? who "尼尔") "#F0CF8A" "#D3DCE9")))
 (define (开场新版-杯 id parent x y)
   (list (theatre-group id parent x y)

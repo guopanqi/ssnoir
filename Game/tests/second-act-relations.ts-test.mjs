@@ -147,16 +147,16 @@ test("act two adds accessible street and theater routines without friendship gat
 test("second act things-to-do distinguishes public plans from private matters",async()=>{
   const {vm}=await setup();
   await singer(vm,7);
-  assert.equal(await count(vm,`(第二幕 'dossier)`),1);
+  assert.equal(await count(vm,`(第二幕 'dossier)`),0);
   assert.equal(await count(vm,`(第二幕生活 'dossier)`),2);
-  assert.equal(await count(vm,`(第二幕剧院 'dossier)`),0);
+  assert.equal(await count(vm,`(第二幕剧院 'dossier)`),1);
   assert.equal(await count(vm,`(第二幕生活 'nodes-at "家")`),1);
   await vm.evaluate('(第二幕生活 \'load! (list (list "remembered-card" #t)))');
   assert.equal(await count(vm,`(第二幕生活 'nodes-at "家")`),0);
   await vm.evaluate("(set! world-day 9)");
-  assert.equal(await count(vm,`(第二幕 'dossier)`),1);
+  assert.equal(await count(vm,`(第二幕 'dossier)`),0);
   await vm.evaluate('(第二幕 \'load! (list (list "wage-introduced" #t) (list "lucy-introduced" #t)))');
-  assert.equal(await count(vm,`(第二幕 'dossier)`),3);
+  assert.equal(await count(vm,`(第二幕 'dossier)`),2);
   await vm.evaluate('(第二幕剧院 \'load! (list (list "sponsor-intro" #t)))');
   assert.equal(await count(vm,`(第二幕剧院 'dossier)`),1);
 });

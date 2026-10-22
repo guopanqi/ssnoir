@@ -72,6 +72,8 @@ public static class TheatreChecks
             "(begin (load-file \"scripts/theatre/莱恩的家.scm\") (莱恩的家-演出))",
             "(begin (load-file \"scripts/theatre/剧院安全.scm\") (剧院安全-演出))",
             "(begin (load-file \"scripts/theatre/彩排.scm\") (彩排-演出))",
+            "(begin (load-file \"scripts/theatre/酒馆最后一夜.scm\") (酒馆最后一夜-演出 #t #t #t))",
+            "(begin (load-file \"scripts/theatre/酒馆最后一夜.scm\") (酒馆最后一夜-演出 #f #f #f))",
             "(begin (load-file \"scripts/theatre/照相馆.scm\") (照相馆冲印-演出 #t))",
             "(begin (load-file \"scripts/theatre/照相馆.scm\") (照相馆冲印-演出 #f))",
             "(begin (load-file \"scripts/theatre/照相馆.scm\") (照相馆查来源-演出))",
@@ -87,16 +89,22 @@ public static class TheatreChecks
                 Check(playback.IsComplete && playback.Playbacks.Count == 0, "full theatre completes, clicks=" + click + ": " + entry);
             }
         }
-        Console.WriteLine("[theatre] 33 real entries passed without input and with continuous clicks.");
+        Console.WriteLine("[theatre] 35 real entries passed without input and with continuous clicks.");
         const string sceneExpression = "(theatre-scene 1600 900 \"#08090F\" (list (theatre-group \"g\" \"\" 0 0)))";
         TheatreScene Build(string program) => TheatreParser.Parse(interpreter.Eval(sceneExpression), interpreter.Eval(program));
         TheatreSession Start(string program, float enter = 0, float exit = 0) { var s = new TheatreSession(Build(program), enter, exit); s.Start(); return s; }
-        var automatic = Start("(theatre-sequence (theatre-caption-auto \"尼尔\" \"四个字啊\" 1 \"#FFFFFF\") (theatre-wait-advance 1))");
+        var defaultSpeech = Start("(theatre-say \"尼尔\" \"谢谢。\")");
+        defaultSpeech.Tick(2.1f); Check(defaultSpeech.IsComplete, "default dialogue completes without input");
+        Reject(() => Build("'(say \"尼尔\" \"等着\")"), "legacy unbounded say rejected");
+        Reject(() => Build("'(say \"尼尔\" \"等着\" 0 \"#FFFFFF\")"), "zero dialogue duration rejected");
+        Reject(() => Build("'(caption-auto \"尼尔\" \"等着\" 1 \"#FFFFFF\")"), "removed auto opcode rejected");
+        Reject(() => Build("'(caption-for \"尼尔\" \"等着\" 1 \"#FFFFFF\")"), "removed timed opcode rejected");
+        var automatic = Start("(theatre-sequence (theatre-say \"尼尔\" \"四个字啊\" 1 \"#FFFFFF\") (theatre-wait-advance 1))");
         automatic.Tick(3); Check(automatic.IsComplete, "interactive automatic score finishes without input");
-        var reveal = Start("(theatre-caption-auto \"尼尔\" \"这句字幕需要给玩家足够时间读完所有文字\" 1 \"#FFFFFF\")");
+        var reveal = Start("(theatre-say \"尼尔\" \"这句字幕需要给玩家足够时间读完所有文字\" 1 \"#FFFFFF\")");
         reveal.Tick(.8f); reveal.Advance(); Check(reveal.CaptionIsRevealed && !reveal.IsComplete, "first click reveals without advancing");
         reveal.Tick(.3f); Check(!reveal.IsComplete, "reveal extends nearly expired reading time"); reveal.Tick(2); Check(reveal.IsComplete, "extended reading still ends automatically");
-        var parallelInput = Start("(theatre-sequence (theatre-parallel (theatre-caption-auto \"尼尔\" \"四个字啊\" 2 \"#FFFFFF\") (theatre-tween \"g\" 'x 10 1)) (theatre-tween \"g\" 'y 10 1))");
+        var parallelInput = Start("(theatre-sequence (theatre-parallel (theatre-say \"尼尔\" \"四个字啊\" 2 \"#FFFFFF\") (theatre-tween \"g\" 'x 10 1)) (theatre-tween \"g\" 'y 10 1))");
         parallelInput.Advance(); parallelInput.Advance(); parallelInput.Tick(.5f);
         Near(parallelInput.Objects["g"][TheatreProperty.X], 5, "click never fast forwards concurrent action");
         Near(parallelInput.Objects["g"][TheatreProperty.Y], 0, "next beat waits for concurrent action");
@@ -121,14 +129,14 @@ public static class TheatreChecks
         coarse.Pause(true); coarse.Tick(50); Near(coarse.Time, 1.5f, "pause freezes unified clock"); coarse.Pause(false); coarse.Tick(.5f); Check(coarse.IsComplete, "resumes to completion");
         var nested = Start("(theatre-parallel (theatre-sequence (theatre-wait .3) (theatre-tween \"g\" 'x 10 .7)) (theatre-tween \"g\" 'y 20 2))");
         nested.Tick(1); Near(nested.Objects["g"][TheatreProperty.X], 10, "nested delayed action completed"); Near(nested.Objects["g"][TheatreProperty.Y],10,"parallel still advances"); nested.Tick(1); Check(nested.IsComplete,"parallel waits for every branch");
-        var during = Start("(theatre-sequence (theatre-during (theatre-say \"尼尔\" \"四个字啊\") (theatre-loop (theatre-animate \"g\" 'brightness '((0 0) (.5 1) (1 0))))) (theatre-tween \"g\" 'x 10 1))");
+        var during = Start("(theatre-sequence (theatre-during (theatre-say \"尼尔\" \"四个字啊\" 4) (theatre-loop (theatre-animate \"g\" 'brightness '((0 0) (.5 1) (1 0))))) (theatre-tween \"g\" 'x 10 1))");
         during.Tick(2.25f); Near(during.Objects["g"][TheatreProperty.Brightness], .5f, "background loop advances during dialogue wait");
         during.Advance(); Check(during.Line == null, "completed text click ends dialogue scope"); during.Tick(.5f);
         Near(during.Objects["g"][TheatreProperty.Brightness], .5f,"scope cancellation stops background animation"); Near(during.Objects["g"][TheatreProperty.X],5,"foreground proceeds after scope");
         var dialogue = Start("(theatre-sequence (theatre-say \"尼尔\" \"四个字啊\") (theatre-wait 1))"); dialogue.Advance(); Check(dialogue.VisibleCharacters == 4,"first click reveals text"); dialogue.Advance(); Check(dialogue.Line == null,"second click advances");
-        var timed = Start("(theatre-sequence (theatre-parallel (theatre-caption-for \"尼尔\" \"四个字啊\" 1 \"#F0CF8A\") (theatre-tween \"g\" 'x 10 .5)) (theatre-wait 1) (theatre-clear-caption) (theatre-wait 1))");
+        var timed = Start("(theatre-sequence (theatre-parallel (theatre-say \"尼尔\" \"四个字啊\" 1 \"#F0CF8A\") (theatre-tween \"g\" 'x 10 .5)) (theatre-wait 1) (theatre-clear-caption) (theatre-wait 1))");
         timed.Tick(.25f); timed.Advance(); Near(timed.Objects["g"][TheatreProperty.X],5,"timed subtitle permits concurrent animation"); timed.Pause(true); timed.Tick(5); Near(timed.CaptionTime,.25f,"subtitle fades share pause clock"); timed.Pause(false); timed.Tick(1); Check(timed.Caption!=null,"subtitle persists between timed actions"); timed.Tick(1); Check(timed.Caption==null,"clear subtitle is explicit");
-        var audio = StartAudio(Build("(theatre-during (theatre-caption-for \"尼尔\" \"一句话\" 1 \"#FFFFFF\") (theatre-sequence (theatre-sound \"电流\" \"a\" #t .5 0) (theatre-volume \"电流\" .1 .5) (theatre-loop (theatre-wait 1))))"));
+        var audio = StartAudio(Build("(theatre-during (theatre-say \"尼尔\" \"一句话\" 1 \"#FFFFFF\") (theatre-sequence (theatre-sound \"电流\" \"a\" #t .5 0) (theatre-volume \"电流\" .1 .5) (theatre-loop (theatre-wait 1))))"));
         audio.Session.Tick(.25f); Near(audio.Session.Sounds["电流"].Volume,.3f,"volume animation executes in pure player"); audio.Session.Tick(2);
         Check(audio.Session.IsComplete && audio.Events.SequenceEqual(new[]{TheatreCommandKind.Sound,TheatreCommandKind.StopSound}),"scope completion releases audio exactly once");
         var cancelled = StartAudio(Build("(theatre-sequence (theatre-sound \"电流\" \"a\" #t 1 0) (theatre-say \"尼尔\" \"等着\"))")); cancelled.Session.Stop(); cancelled.Session.Stop(); cancelled.Session.Tick(10);

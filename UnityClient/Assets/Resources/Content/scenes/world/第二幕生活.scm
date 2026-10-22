@@ -96,7 +96,10 @@
       (play-dialogue!
         (line "世界" "大剧院前厅贴着临工招募纸。")
         (line "工作人员" "后台缺人搬景片，还要人递剧本。")
-        (line "工作人员" "第十天有赞助人来看试演，现场会更忙。")))
+        (line "工作人员" (cond
+          ((< world-day 10) (string-append (第二幕-日期 10) "起，赞助人连着两天来看试演，现场会更忙。"))
+          ((<= world-day 11) (string-append "赞助人正在看试演，" (第二幕-日期 11) "结束。后台忙得很。"))
+          (else "赞助人试演已经结束，接下来还要准备首演。")))))
     (define (theater-job! money failure?)
       (add-item! "金钱" money)
       (if failure? (spend-composure! 1) #f)

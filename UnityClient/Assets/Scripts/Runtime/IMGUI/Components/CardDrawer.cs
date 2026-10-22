@@ -107,7 +107,7 @@ namespace SSNoir.IMGUI
                 ClockPulse.BeginHost(node.Id);
                 DrawClockBadges(rect, clocks);
                 ClockPulse.EndHost();
-                ActionNodeDrawer.DrawTopTabs(rect, node, disabled, containsRestBlockerTarget);
+                CardTagDrawer.Draw(rect, node, disabled, containsRestBlockerTarget, clocks);
                 if (isRestBlockerTarget)
                     IMGUIStyles.DrawGoldPulse(rect, baseAlpha: 0.72f, rings: 3, ringStep: 2.5f, speed: 2.2f);
                 if (!disabled && ui.WasTapped(rect))
@@ -147,13 +147,13 @@ namespace SSNoir.IMGUI
                 ActionNodeDrawer.DrawContent(
                     rect, node, slotted, ui, gameManager,
                     isExecuting, executeProgress, executingText,
-                    clocksBottomY, containsRestBlockerTarget, ref interaction);
+                    clocksBottomY, containsRestBlockerTarget, ref interaction, clocks);
             }
 
             // 重要性是卡片最上层的状态标记，必须在动作内容与结果附件之后绘制。
-            // 动作卡的「必须处理」已并进顶部书签（ActionNodeDrawer.DrawTopTabs），这里只剩金光。
+            // 动作卡的「必须处理」已并进顶部书签（CardTagDrawer.Draw），这里只剩金光。
             if (isCharacter)
-                ActionNodeDrawer.DrawTopTabs(rect, node, disabled, containsRestBlockerTarget);
+                CardTagDrawer.Draw(rect, node, disabled, containsRestBlockerTarget, clocks);
             if (isRestBlockerTarget)
                 IMGUIStyles.DrawGoldPulse(rect, baseAlpha: 0.72f, rings: 3, ringStep: 2.5f, speed: 2.2f);
 
@@ -212,6 +212,9 @@ namespace SSNoir.IMGUI
         private static float LayoutClockBadges(Rect rect,List<GameClock>? clocks,bool draw)
         {
             if(clocks==null || clocks.Count==0) return rect.y;
+            // 次要钟进入顶部标签区，卡身只为主要进度钟分配空间。
+            clocks = clocks.FindAll(clock => clock.Priority != ClockPriority.Secondary);
+            if(clocks.Count==0) return rect.y;
             float width=Mathf.Max(1f,rect.width-24f),y=rect.y+8f;
             int i=0;
             while(i<clocks.Count)
@@ -251,6 +254,7 @@ namespace SSNoir.IMGUI
         {
             ClockPulse.Note(clock);
             Color color=accent??ClockColor(clock);
+            ActionRiskFocus.DrawClockFocus(rect, clock);
             float glow=ClockPulse.Glow(clock);
             if (ActionRiskFocus.IsClockFocused(clock)) glow = Mathf.Max(glow, 0.85f);
             IMGUIStyles.SetColor(IMGUIStyles.CityPlateBg);GUI.DrawTexture(rect,Texture2D.whiteTexture);IMGUIStyles.ResetColor();
@@ -297,7 +301,7 @@ namespace SSNoir.IMGUI
             };
 
         /// <summary>共享进度图形；空轨道保持低对比，实际进度按钟的语义着色。</summary>
-        public static void DrawClockGraphic(Rect rect,GameClock clock,Color? accent=null)
+        public static void DrawClockGraphic(Rect rect,GameClock clock,Color? accent=null,bool showValue=true)
         {
             ClockPulse.Note(clock);
             Color color=accent??ClockColor(clock);
@@ -312,7 +316,7 @@ namespace SSNoir.IMGUI
                 ShapeDrawer.DrawDial(rect,clock.Current,clock.Max,active,ghost>0f?Color.clear:track);
                 var style=new GUIStyle(IMGUIStyles.ClockValue){fontSize=IMGUIStyles.FontSize(rect.width>=70f?18:14),
                     alignment=TextAnchor.MiddleCenter,normal={textColor=IMGUIStyles.Paper}};
-                IMGUIStyles.DrawLabel(rect,$"{clock.Current}/{clock.Max}",style);
+                if (showValue) IMGUIStyles.DrawLabel(rect,$"{clock.Current}/{clock.Max}",style);
                 return;
             }
             IMGUIStyles.SetColor(IMGUIStyles.CityPlateBg);GUI.DrawTexture(rect,Texture2D.whiteTexture);IMGUIStyles.ResetColor();

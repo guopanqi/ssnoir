@@ -60,127 +60,61 @@ public static class FirstActChecks
         Assert(!Has(scenes, "探索码头") && !Has(scenes, "醉酒的尼尔"), "没有旧探索前置与旧开场");
         return scenes;
     }
-    private static void Sleep(SceneManager scenes)
+    public static void CheckSecondActMatters()
     {
-        scenes.EnterPlace("老街酒馆"); // 真正出门，解除防误触连睡锁。
-        scenes.EnterPlace("家");
-        Act(scenes, Has(scenes, "睡觉") ? "睡觉" : "蜷缩在门口");
-    }
-    private static void SchemeAssert(SceneManager scenes, string condition, string message)
-    {
-        object result = scenes.ActiveInterpreter.Eval(condition);
-        Assert(result is bool b && b, message);
+        var scenes = new SceneManager(new GameState(), new LocalScriptLoader());
+        scenes.LoadScene("world");
+        void Eval(string source) { scenes.ActiveInterpreter.Eval(source); scenes.Refresh(); }
+        DossierEntry Entry(string id) => scenes.CurrentDossier.Single(e => e.Id == id);
+        Eval("""(第一幕 'load! (list (list "opened" #t) (list "tavern" #t) (list "act" 2) (list "singer" 2) (list "lucy" 1) (list "eddie" 1))) (set! world-day 7)""");
+        Assert(Entry("夜莺：大剧院").Now.Contains("明天"), "第二幕明天彩排独立入事项");
+        Assert(!scenes.CurrentDossier.Any(e => e.Id.StartsWith("露西：") || e.Id.StartsWith("艾迪：")),
+            "认识人物但未听请求，不提前透露私人事项");
+        Eval("(set! world-day 8)");
+        Assert(Entry("夜莺：大剧院").Now.Contains("今天"), "彩排当天自动更新相对日期");
+        Eval("(set! world-day 9)");
+        scenes.EnterPlace("街角咖啡馆");
+        Assert(Entry("露西：夜校报名").Now.Contains("3天后"), "听到报名请求后显示真实截止日期");
+        scenes.EnterPlace("码头");
+        Assert(Entry("艾迪：少了十块钱").Now.Contains("后天"), "工钱纠纷显示封账期限");
+        scenes.EnterPlace("剧院");
+        Assert(Entry("夜莺：大剧院").Now.Contains("明天起"), "听到试演安排后归入夜莺同一条线");
+        Assert(!Entry("夜莺：大剧院").Now.Contains("故障"), "尚未遇见后台事件时不透露故障");
+        Act(scenes, "替露西顶班");
+        Assert(Entry("露西：夜校报名").Status == "等着别人"
+            && Entry("露西：夜校报名").Now.Contains("还没听到报名结果"), "真实顶班后保留事项等待结果");
+        Eval("(set! world-day 10)");
+        scenes.EnterPlace("剧院");
+        Assert(Entry("夜莺：大剧院").Now.Contains("故障"), "亲眼遇到故障才更新当前行动");
+        Assert(scenes.CurrentDossier.Count(e => e.Id.StartsWith("夜莺：")) == 1, "彩排和试演只占同一条故事线");
+        Eval("(set! world-day 11)");
+        Assert(Entry("艾迪：少了十块钱").Now.Contains("今天收工"), "封账当天提醒今天处理");
+        Assert(Find(scenes, "少了十块钱").Clocks.Single().Current == 1, "封账当天行动期限剩一日");
+        Eval("(set! world-day 12)");
+        Assert(!Has(scenes, "少了十块钱"), "封账之后争执行动消失");
+        scenes.EnterPlace("码头");
+        Assert(Entry("艾迪：少了十块钱").Now.Contains("自己去谈"), "错过争执也会用亲耳听到的余波更新结果");
+        Eval("(set! world-day 13)");
+        scenes.EnterPlace("街角咖啡馆");
+        Assert(Entry("露西：夜校报名").Status == "了结"
+            && Entry("露西：夜校报名").Now.Contains("已经交上"), "听到报名成功后同一事项了结");
+        string path = Path.Combine(Path.GetTempPath(), "ssnoir-second-act-matters.json");
+        try
+        {
+            scenes.SaveGame(path);
+            var restored = new SceneManager(new GameState(), new LocalScriptLoader());
+            restored.LoadGame(path);
+            Assert(restored.CurrentDossier.Single(e => e.Id == "露西：夜校报名").Now == Entry("露西：夜校报名").Now,
+                "冷读档恢复报名结果，无需另存事项状态");
+        }
+        finally { if (File.Exists(path)) File.Delete(path); }
     }
     public static void Run()
     {
-        var cafe = Start();
-        var firstCoffee = Act(cafe, "咖啡馆帮工");
-        Assert(Lines(firstCoffee).Any(t => t.Contains("不像常端盘子"))
-            && Lines(firstCoffee).All(t => !t.Contains("煤灰")), "未去码头的露西初识不伪造搬运经历");
-        cafe.EnterPlace("世界");
-        Assert(cafe.EnterPlace("街角咖啡馆") == null, "退出再进咖啡馆不会触发后续剧情");
-        for (int work = 0; work < 2; work++)
-        {
-            var ordinary = Act(cafe, "咖啡馆帮工");
-            Assert(!Lines(ordinary).Any(), "普通劳动不连续插入人物剧情");
-            Assert(!ordinary.Effects.Any(e => e.Label.Contains("日常间隔")), "隐藏 Clock 不泄露到效果条");
-        }
-        string lifeSave = Path.Combine(Path.GetTempPath(), "ssnoir-life-clock-save.json");
-        try
-        {
-            cafe.SaveGame(lifeSave);
-            var restored = new SceneManager(new GameState(), new LocalScriptLoader()); restored.LoadGame(lifeSave);
-            var story = Act(restored, "咖啡馆帮工");
-            Assert(Lines(story).Any(t => t.Contains("夜校")), "隐藏进度冷读档后保留，第三班触发打字片段");
-            Sleep(restored);
-            Assert(!Lines(Act(restored, "咖啡馆帮工")).Any(), "打字片段完成后不再重复");
-        }
-        finally { if (File.Exists(lifeSave)) File.Delete(lifeSave); }
-
-        var dock = Start();
-        Act(dock, "搬运");
-        for (int work = 0; work < 2; work++)
-            Assert(!Lines(Act(dock, "搬运")).Any(), "艾迪初识后先过普通劳动，不逐次演出");
-        Assert(Lines(Act(dock, "搬运")).Any(t => t.Contains("又来了")), "三班间隔后艾迪再次招呼");
-        Sleep(dock);
-        for (int work = 0; work < 2; work++)
-            Assert(!Lines(Act(dock, "搬运")).Any(), "招呼之后重新积累日常，不立刻邀约");
-        Act(dock, "搬运");
-        Assert(Has(dock, "去坐一会儿"), "又三班劳动后才出现艾迪邀约");
-        Act(dock, "去坐一会儿"); dock.EnterPlace("老街酒馆");
-        int before = dock.GameState.Team.FindActor("player")!.ActionDice.Count;
-        int composure = dock.GameState.Team.FindActor("player")!.Composure;
-        int money = dock.GameState.Inventory.GetCount("金钱");
-        Act(dock, "与艾迪喝酒"); Act(dock, "先交房租");
-        Assert(dock.GameState.Team.FindActor("player")!.ActionDice.Count == before - 1
-            && dock.GameState.Team.FindActor("player")!.Composure == composure
-            && dock.GameState.Inventory.GetCount("金钱") == money, "艾迪赴约只花一枚骰子，不冒充恢复服务");
-        SchemeAssert(dock, "(assoc-get (第一幕 'save) \"drank\" #f)", "记住真实赴约");
-
-        var absent = Start();
-        Sleep(absent); absent.EnterPlace("老街酒馆");
-        Assert(!Has(absent, "夜莺的请求") && !Has(absent, "陪夜莺回家"), "第二天尚未出现请求");
-        Sleep(absent);
-        Assert(Find(absent, "睡觉").Disabled && Has(absent, "夜莺的请求"), "第三天请求出现，未去酒馆也不能睡过事件");
-        var request = absent.EnterPlace("老街酒馆");
-        Assert(Lines(request).Contains("我陪你。") && Has(absent, "陪夜莺回家")
-            && !Has(absent, "我陪你") && !Has(absent, "今晚不方便"), "对白中直接答应，没有接受拒绝选项");
-        string requestSave = Path.Combine(Path.GetTempPath(), "ssnoir-mandatory-walk-save.json");
-        try
-        {
-            absent.SaveGame(requestSave);
-            var restored = new SceneManager(new GameState(), new LocalScriptLoader()); restored.LoadGame(requestSave);
-            Assert(Find(restored, "睡觉").Disabled && Has(restored, "陪夜莺回家"), "请求读档后仍必须处理");
-        }
-        finally { if (File.Exists(requestSave)) File.Delete(requestSave); }
-        Act(absent, "陪夜莺回家");
-        absent.ActiveInterpreter.Eval("(begin (恐惧 'load! 3) (检查!))"); absent.RebuildRenderTree();
-        Assert(!Find(absent, "睡觉").Disabled, "交锋结算后解除同行阻塞");
-        Sleep(absent);
-        Assert(Find(absent, "睡觉").Disabled && Has(absent, "观看正式彩排"), "第四天彩排节点声明必须处理");
-        Act(absent, "观看正式彩排");
-        Assert(!Has(absent, "她在舞台上"), "雨夜失利不自动获得亲近对白");
-        Sleep(absent);
-        SchemeAssert(absent, "(and (= world-day 5) (= (第一幕 'act) 2) (not (第二章 'started?)))",
-            "未认识艾迪露西、雨夜失利，处理彩排后仍正常进入第二幕");
-        SchemeAssert(absent, "(and (= (assoc-get (第一幕 'save) \"eddie\" -1) 0) (= (assoc-get (第一幕 'save) \"lucy\" -1) 0))",
-            "跳过地点不自动认识艾迪和露西");
-        Assert(!Has(absent, "观看正式彩排") && !Has(absent, "陪夜莺回家"), "过期内容从行动树消失");
-        SchemeAssert(absent, "(and (assoc-get (第一幕 'save) \"done\" #f) (assoc-get (第一幕 'save) \"seen\" #f))",
-            "观看彩排的真实经历保留");
-
-        var rain = Start(); Sleep(rain); Sleep(rain); rain.EnterPlace("老街酒馆");
-        Act(rain, "陪夜莺回家");
-        Assert(rain.CurrentSceneName == "雨夜同行" && !Has(rain, "陪她去叫车"), "正式入口进入雨夜，没有主动退出按钮");
-        rain.ActiveInterpreter.Eval("(begin (前进 'load! 7) (恐惧 'load! 2) (走! 1 1 #t))");
-        rain.RebuildRenderTree();
-        SchemeAssert(rain, "(and (equal? (assoc-get (first-act-walk 'save) \"result\" \"\") \"抵达\") (= (assoc-get (first-act-walk 'save) \"final-fear\" 0) 3))",
-            "同时满格回写为惊魂未定的抵达");
-        string path = Path.Combine(Path.GetTempPath(), "ssnoir-first-act-save.json");
-        try
-        {
-            rain.SaveGame(path);
-            var restored = new SceneManager(new GameState(), new LocalScriptLoader()); restored.LoadGame(path);
-            SchemeAssert(restored, "(and (第一幕 'work-open?) (first-act-walk 'walked?) (not (first-act-walk 'close?)))",
-                "冷读档保留经历与亲密程度，不重复开场");
-        }
-        finally { if (File.Exists(path)) File.Delete(path); }
-
-        var close = Start(); Sleep(close); Sleep(close); close.EnterPlace("老街酒馆");
-        Act(close, "陪夜莺回家");
-        close.ActiveInterpreter.Eval("(begin (前进 'load! 7) (走! 1 0 #f))"); close.RebuildRenderTree();
-        Sleep(close);
-        Act(close, "观看正式彩排");
-        Assert(Has(close, "她在舞台上"), "可靠同行后彩排有私人交流");
-        Act(close, "像是属于这里");
-        Assert(!Has(close, "她在舞台上"), "彩排回答只发生一次");
-
         var tavern = Start(); Act(tavern, "看场子");
         Assert(!Has(tavern, "醉客互相叫骂"), "第一次看场不提前触发两桌争吵");
         Act(tavern, "看场子");
-        Assert(!Has(tavern, "醉客互相叫骂"), "第二次看场仍不提前触发两桌争吵");
-        Act(tavern, "看场子");
-        Assert(Has(tavern, "醉客互相叫骂"), "第三次看场固定触发两桌争吵");
+        Assert(Has(tavern, "醉客互相叫骂"), "看场后进入两桌争吵的检查场景");
         Assert(Find(tavern, "看场子").Disabled && Find(tavern, "睡觉").Disabled,
             "争吵必须处理，不能继续看场或睡觉跳过");
         string troubleSave = Path.Combine(Path.GetTempPath(), "ssnoir-trouble-save.json");

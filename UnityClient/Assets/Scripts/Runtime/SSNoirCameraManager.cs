@@ -1269,7 +1269,7 @@ namespace SSNoir
                 }
                 float scale = config.modelRoot != null ? config.modelRoot.lossyScale.x : 1;
                 float distanceDuration = Mathf.Clamp(
-                    Vector3.Distance(startPosition, targetPosition) / scale * 0.0012f, 0.9f, 1.5f);
+                    Vector3.Distance(startPosition, targetPosition) / scale * 0.0012f, 0.3f, 1.5f);
                 // 大角度转向需要更长的时间，尤其是从码头返回城市远景。
                 // 五次缓动的峰值速度为平均值的 1.875 倍，按峰值 90 度/秒安排时长。
                 float rotationDuration = Quaternion.Angle(startRotation, targetRotation) * 1.875f / 90f;

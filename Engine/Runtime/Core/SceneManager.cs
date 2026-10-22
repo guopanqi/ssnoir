@@ -662,6 +662,25 @@ namespace SSNoir.Core
             OnSceneLoaded?.Invoke();
         }
 
+        // 由气泡播放器在实际展示该句时调用，不回写已经结束的动作结果。
+        public bool ApplyBanterLineEffect(DialogueLine line)
+        {
+            var recovery = line.RecoveryOnShow;
+            if (recovery == null || recovery.Consumed) return false;
+            if (_gameState.CurrentActionReport != null || _isExecutingAction || _isResolvingTurnEnd)
+                throw new InvalidOperationException("不能在动作或换日结算中兑现气泡恢复。");
+            recovery.Consumed = true;
+            if (_gameState.Get<int>("世界日", 1) != recovery.WorldDay) return false;
+            var actor = _gameState.Team.FindActor(recovery.ActorId)
+                ?? throw new InvalidOperationException("气泡恢复对象不存在。");
+            int before = actor.Composure;
+            _gameState.Team.SetActorComposureSafe(recovery.ActorId, before + recovery.Amount);
+            if (actor.Composure > before)
+                _gameState.NotificationCenter.Push(recovery.Notice, NotificationKind.Info);
+            RebuildRenderTree();
+            return true;
+        }
+
         public void Refresh() => RebuildRenderTree();
 
         // 支援的文案归内容：每条 id 去问一次 (support-info id)，回 (标题 说明)。

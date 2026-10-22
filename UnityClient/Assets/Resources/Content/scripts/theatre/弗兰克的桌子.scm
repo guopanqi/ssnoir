@@ -18,7 +18,7 @@
         (list x (+ y h)) (list x y)) delay))
   (define (说 who x text seconds)
     (theatre-parallel
-      (theatre-caption-auto who text seconds
+      (theatre-say who text seconds
         (if (equal? who "尼尔") "#F0CF8A"
           (if (equal? who "弗兰克") "#E39A88" "#C9CFE2")))
       (theatre-parallel

@@ -1808,6 +1808,17 @@ namespace SSNoir
             return UnityEngine.Mathf.Clamp01((float)volume);
         }
 
+        public void ApplyBanterLineEffect(DialogueLine line)
+        {
+            if (_stateTainted) return;
+            try
+            {
+                if (_sceneManager.ApplyBanterLineEffect(line))
+                    AdoptLatestSnapshot();
+            }
+            catch (Exception error) { MarkStateTainted("气泡效果结算失败", error); }
+        }
+
         private void MarkStateTainted(string operation, Exception exception)
         {
             _stateTainted = true;

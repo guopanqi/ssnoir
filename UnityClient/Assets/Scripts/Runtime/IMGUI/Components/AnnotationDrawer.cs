@@ -132,6 +132,7 @@ namespace SSNoir.IMGUI
                 var cam = Camera.main;
                 Color fog = cam != null ? cam.backgroundColor : IMGUIStyles.Ink;
                 IMGUIStyles.DrawFogPatch(new Rect(rect.x, rect.y, rect.width, height), fog, FogAlpha, FogFeather);
+                if (clock != null) ActionRiskFocus.DrawClockFocus(new Rect(rect.x, rect.y, rect.width, height), clock);
             }
 
             // 顶上那道横线只属于场景标注带（它是标题栏）。锚定标注的线是竖着的那根，
@@ -203,6 +204,7 @@ namespace SSNoir.IMGUI
             if (ActionRiskFocus.IsClockFocused(clock)) pulse = Mathf.Max(pulse, 0.85f);
             var cam=Camera.main;
             IMGUIStyles.DrawFogPatch(new Rect(rect.x,rect.y,rect.width,h),cam!=null?cam.backgroundColor:IMGUIStyles.Ink,FogAlpha,FogFeather);
+            ActionRiskFocus.DrawClockFocus(new Rect(rect.x, rect.y, rect.width, h), clock);
             float y=rect.y;
             if(ring)
                 CardDrawer.DrawClockGraphic(new Rect(rect.xMax-graphicSize,rect.y,graphicSize,graphicSize),clock);

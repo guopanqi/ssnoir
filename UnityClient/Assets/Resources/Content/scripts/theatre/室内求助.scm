@@ -14,7 +14,7 @@
         (theatre-tween id 'reveal 1 2.2 'smooth))))))
   (define (说 who x text seconds . color)
     (theatre-parallel
-      (theatre-caption-auto who text seconds
+      (theatre-say who text seconds
         (if (null? color)
           (if (equal? who "夜莺") "#8FD9D0" "#F0CF8A")
           (car color)))

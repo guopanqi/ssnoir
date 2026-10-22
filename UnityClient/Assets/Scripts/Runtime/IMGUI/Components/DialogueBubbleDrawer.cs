@@ -26,14 +26,15 @@ namespace SSNoir.IMGUI
             WorldLabelLayout.Space? space,
             WorldLabelLayout.PlacementState placements, bool suppressNarration)
         {
-            // BanterPlayer 故意让上一句多留 0.6 秒（OverlapSeconds），好让"你一句我一句"
+            // 不同人物保留短暂重叠；同一人物连续发言把上一句作为上文向上移。
+            // BanterPlayer 故意让上一句多留一段时间，好让"你一句我一句"
             // 看得到来回——那对人物气泡成立，因为它们各自挂在各自的锚点上。旁白不成立：
             // 它没有锚点，每一句都画在同一个落点，重叠期里两句字幕就会糊在一起。
             // 所以旁白只画最新的那一句，上一句到点就走。
             var living = new System.Collections.Generic.List<string>();
             foreach (var active in banter.Visible)
                 if (active.Line.Speaker != NarratorSpeaker)
-                    living.Add("banter:" + active.LayoutId);
+                    living.Add("banter:" + active.StackId);
             placements.KeepOnly(living);
 
             int newestNarration = -1;
@@ -47,6 +48,17 @@ namespace SSNoir.IMGUI
                 if (bubble.Line.Speaker == NarratorSpeaker && (suppressNarration || i != newestNarration))
                     continue;
 
+                // 每组只由最新一句负责绘制；旧句作为无尾巴的上文一起画。
+                BanterPlayer.Bubble? previous = null;
+                bool hasNewer = false;
+                for (int j = 0; j < banter.Visible.Count; j++)
+                {
+                    var other = banter.Visible[j];
+                    if (other == bubble || other.StackId != bubble.StackId) continue;
+                    if (other.LayoutId > bubble.LayoutId) hasNewer = true;
+                    else previous = other;
+                }
+                if (hasNewer) continue;
                 bool usedRemoteFallback;
                 // 行级锚点（line 的 :at）：身份和位置分开，气泡落在锚点上、署说话人的名。
                 // 锚点写错必须当场暴露：若再按说话人解析，气泡会悄悄落到错的地方。
@@ -72,7 +84,8 @@ namespace SSNoir.IMGUI
                         bubble.Line.Speaker,
                         bubble.Line.DisplaySpeaker,
                         bubble.Line.Text,
-                        anchorRect, space, placements, "banter:" + bubble.LayoutId);
+                        anchorRect, space, placements, "banter:" + bubble.StackId,
+                        previous: previous, age: bubble.Age);
                     bubble.RemoteFallbackWarningIssued = true;  // 已有明确落点，不再报降级警告
                 }
                 else
@@ -88,7 +101,7 @@ namespace SSNoir.IMGUI
                         preferCardAnchor: bubble.PreferCardAnchor,
                         space: space,
                         placements: placements,
-                        bubbleKey: "banter:" + bubble.LayoutId);
+                        bubbleKey: "banter:" + bubble.StackId, previous: previous, age: bubble.Age);
                 }
                 if (usedRemoteFallback && !bubble.RemoteFallbackWarningIssued)
                 {
@@ -109,7 +122,7 @@ namespace SSNoir.IMGUI
             bool preferCardAnchor = false,
             WorldLabelLayout.Space? space = null,
             WorldLabelLayout.PlacementState? placements = null,
-            string bubbleKey = "")
+            string bubbleKey = "", BanterPlayer.Bubble? previous = null, float age = 0f)
         {
             if (speaker == NarratorSpeaker)
             {
@@ -136,7 +149,7 @@ namespace SSNoir.IMGUI
 
             DrawBubbleAt(speaker, displaySpeaker, text, anchor, space, placements, bubbleKey,
                 showAvatar: !usedRemoteFallback && anchors.IsCardAnchor(speaker, preferCardAnchor) == false
-                    && !allowsRemoteParticipant);
+                    && !allowsRemoteParticipant, previous: previous, age: age);
             return usedRemoteFallback;
         }
 
@@ -150,7 +163,7 @@ namespace SSNoir.IMGUI
             WorldLabelLayout.Space? space,
             WorldLabelLayout.PlacementState? placements,
             string bubbleKey,
-            bool showAvatar = true)
+            bool showAvatar = true, BanterPlayer.Bubble? previous = null, float age = 0f)
         {
             // 对话气泡是"递到面前的一张纸"：Paper 底 + PaperInk 字 + 硬投影
             var bodyStyle = new GUIStyle(IMGUIStyles.ModalBody)
@@ -176,28 +189,61 @@ namespace SSNoir.IMGUI
             {
                 if (placements == null)
                     throw new System.InvalidOperationException("Banter layout state is required");
-                rect = placements.Place(space, new WorldLabelLayout.Request(
+                rect = placements.PlaceBanter(space, new WorldLabelLayout.Request(
                     bubbleKey, WorldLabelLayout.Kind.Bubble, anchor.center, rect.center,
                     new Vector2(BubbleWidth, h)));
             }
 
-            // 尾巴不钉在气泡正中，而是指向说话者矩形与气泡之间最近的一对边界点。
-            // 人物卡偏到气泡一侧、或气泡因顶边空间不足翻到人物下方时，它仍然准确地"说"自谁。
-            GetTail(anchor, rect, out var tailBaseA, out var tailBaseB, out var tailTip);
+            float progress = previous == null ? 1f : Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(age / .32f));
+            if (previous != null)
+            {
+                float oldTextH = bodyStyle.CalcHeight(new GUIContent(previous.Line.Text), textW);
+                float oldH = Mathf.Max(26f + oldTextH + 12f, avatar != null ? 8f + AvatarSize + 8f : 0f);
+                var oldRect = new Rect(rect.x, rect.yMax - oldH - (h + 8f) * progress, BubbleWidth, oldH);
+                // 顶部放不下上文就略去它，不挪动当前句和指向人物的尾巴。
+                if (oldRect.y >= 8f)
+                {
+                    space?.Reserve(oldRect, WorldLabelLayout.ZoneKind.Hard);
+                    DrawBubblePaper(oldRect, anchor, false, .85f);
+                    DrawBubbleText(oldRect, previous.Line.DisplaySpeaker, previous.Line.Text,
+                        bodyStyle, avatar, columnX, textW, oldTextH, .85f);
+                }
+            }
+            // 尾巴从当前框的固定底边指向人物；只有新句文字渐显，上文向上让位。
+            DrawBubblePaper(rect, anchor, true, previous == null ? 1f : progress);
+            DrawBubbleText(rect, displaySpeaker, text, bodyStyle, avatar, columnX, textW, textH,
+                previous == null ? 1f : progress);
+        }
 
+        private static void DrawBubblePaper(Rect rect, Rect anchor, bool tail, float alpha)
+        {
+            var savedColor = GUI.color;
+            GetTail(anchor, rect, out var tailBaseA, out var tailBaseB, out var tailTip);
             var shadowOffset = new Vector2(5f, 6f);
-            IMGUIStyles.DrawShadow(rect, shadowOffset, 0.50f);
-            DrawTriangle(tailBaseA + shadowOffset, tailBaseB + shadowOffset, tailTip + shadowOffset,
-                new Color(0f, 0f, 0f, 0.50f));
-            GUI.color = IMGUIStyles.Paper;
+            IMGUIStyles.DrawShadow(rect, shadowOffset, .5f * alpha);
+            if (tail) DrawTriangle(tailBaseA + shadowOffset, tailBaseB + shadowOffset,
+                tailTip + shadowOffset, new Color(0f, 0f, 0f, .5f));
+            GUI.color = new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, alpha);
             GUI.DrawTexture(rect, Texture2D.whiteTexture);
             GUI.color = Color.white;
-            DrawTriangle(tailBaseA, tailBaseB, tailTip, IMGUIStyles.Paper);
-            Color outline = new Color(IMGUIStyles.PaperInk.r, IMGUIStyles.PaperInk.g, IMGUIStyles.PaperInk.b, 0.68f);
+            if (tail) DrawTriangle(tailBaseA, tailBaseB, tailTip,
+                new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 1f));
+            Color outline = new Color(IMGUIStyles.PaperInk.r, IMGUIStyles.PaperInk.g, IMGUIStyles.PaperInk.b, .68f * alpha);
             IMGUIStyles.DrawOutline(rect, 1f, outline);
-            IMGUIStyles.DrawLine(tailBaseA, tailTip, outline);
-            IMGUIStyles.DrawLine(tailTip, tailBaseB, outline);
+            if (tail)
+            {
+                var tailOutline = new Color(outline.r, outline.g, outline.b, .68f);
+                IMGUIStyles.DrawLine(tailBaseA, tailTip, tailOutline);
+                IMGUIStyles.DrawLine(tailTip, tailBaseB, tailOutline);
+            }
+            GUI.color = savedColor;
+        }
 
+        private static void DrawBubbleText(Rect rect, string displaySpeaker, string text,
+            GUIStyle bodyStyle, Texture2D? avatar, float columnX, float textW, float textH, float alpha)
+        {
+            var savedColor = GUI.color;
+            GUI.color = new Color(savedColor.r, savedColor.g, savedColor.b, savedColor.a * alpha);
             var nameStyle = new GUIStyle(GUI.skin.label)
             {
                 font = IMGUIStyles.ChineseFont,
@@ -207,10 +253,14 @@ namespace SSNoir.IMGUI
             IMGUIStyles.ApplyStrongFont(nameStyle);
             nameStyle.normal.textColor = IMGUIStyles.PaperTextSecondary;
             if (avatar != null)
+            {
                 DrawAvatar(new Rect(rect.x + 12f, rect.y + 8f, AvatarSize, AvatarSize), avatar);
+                GUI.color = new Color(savedColor.r, savedColor.g, savedColor.b, savedColor.a * alpha);
+            }
             IMGUIStyles.DrawLabel(new Rect(rect.x + columnX, rect.y + 6f, textW, 20f),
                 displaySpeaker, nameStyle);
             IMGUIStyles.DrawLabel(new Rect(rect.x + columnX, rect.y + 26f, textW, textH), text, bodyStyle);
+            GUI.color = savedColor;
         }
 
         // 霓虹图黑等于透明，直接铺在纸上就只剩一团淡蓝；先垫一块照片黑，头才立得起来。

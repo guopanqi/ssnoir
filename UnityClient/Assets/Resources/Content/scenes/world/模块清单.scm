@@ -23,7 +23,7 @@
   (list
     ;;    存档键                  模块                  角色
     (list "first-act" 第一幕 '(存档 卷宗 节点 入场))
-    (list "first-act-walk" first-act-walk '(存档 节点 入场))
+    (list "first-act-walk" first-act-walk '(存档 节点))
     (list "act-two" 第二幕 '(存档 卷宗 节点 入场))
     (list "act-two-city" 第二幕生活 '(存档 卷宗 节点 入场))
     (list "act-two-theater" 第二幕剧院 '(存档 卷宗 节点 入场))

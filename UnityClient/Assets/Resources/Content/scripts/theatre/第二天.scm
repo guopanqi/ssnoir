@@ -14,7 +14,7 @@
         (theatre-tween id 'reveal 1 2.2 'smooth))))))
   (define (说 who x text seconds)
     (theatre-parallel
-      (theatre-caption-auto who text seconds
+      (theatre-say who text seconds
         (if (equal? who "夜莺") "#8FD9D0" "#F0CF8A"))
       (theatre-parallel
         (theatre-tween "焦点" 'x (+ 800 (* (- x 800) .5)) 1 'smooth)

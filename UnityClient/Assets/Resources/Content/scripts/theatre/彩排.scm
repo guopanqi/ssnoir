@@ -19,7 +19,7 @@
         (list x (+ y h)) (list x y)) delay))
   (define (说 who x text seconds color)
     (theatre-parallel
-      (theatre-caption-auto who text seconds color)
+      (theatre-say who text seconds color)
       (theatre-parallel
         (theatre-tween "焦点" 'x (+ 800 (* (- x 800) .5)) 1 'smooth)
         (theatre-tween "说话柔光" 'x x 1.2 'smooth)

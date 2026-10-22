@@ -37,7 +37,7 @@
         :risk '冒险 :risk-target (list 'composure "player")
         :progress-target (list 'clock (if (equal? id "东边这桌") "东桌愤怒值" "西桌愤怒值"))
         :disabled (clock 'empty?)
-        :subtitle (if (clock 'empty?) "已经冷静下来" "好降3，中降1；坏冷静-2"
+        :subtitle (if (clock 'empty?) "已经冷静下来" "好降3，中降1；坏冷静-2")
         :resolve (roll 'violence
           (outcome (lambda () (spend-composure! 2)))
           (outcome (lambda () (劝! clock 1)))

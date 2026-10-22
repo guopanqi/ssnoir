@@ -117,6 +117,25 @@ namespace SSNoir.IMGUI
                 return SolveNew(space, request);
             }
 
+            // 连续气泡只调整高度，底边与横向偏移沿用第一句，尾巴不随文字换行跳位。
+            public Rect PlaceBanter(Space space, in Request request)
+            {
+                Rect rect;
+                if (_entries.TryGetValue(request.Key, out var entry))
+                {
+                    Vector2 center = request.Anchor + entry.Offset;
+                    // 在人物上方时钉底边；被避让到下方时钉顶边，连接边不跳动。
+                    float y = entry.Offset.y > 0f
+                        ? center.y - entry.Size.y / 2f
+                        : center.y + entry.Size.y / 2f - request.Size.y;
+                    rect = new Rect(center.x - request.Size.x / 2f, y,
+                        request.Size.x, request.Size.y);
+                    space.Reserve(rect, ZoneKind.Hard);
+                    return rect;
+                }
+                return SolveNew(space, request);
+            }
+
             private bool TryRemember(in Request request, out Rect rect)
             {
                 if (_entries.TryGetValue(request.Key, out var entry)

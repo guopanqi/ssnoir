@@ -4,7 +4,7 @@
   (define (说 who text voice seconds)
     (define x (if (equal? who "尼尔") 840 560))
     (theatre-parallel
-      (theatre-caption-auto who text seconds
+      (theatre-say who text seconds
         (if (equal? who "尼尔") "#F0CF8A" "#8FD9D0"))
       (theatre-sound "对白" (string-append "Voices/" voice) #f 1 0)
       (theatre-tween "焦点" 'x (+ 800 (* (- x 800) .5)) .4 'smooth)))
@@ -12,7 +12,7 @@
   (define (说文字 who text seconds)
     (define x (if (equal? who "尼尔") 840 560))
     (theatre-parallel
-      (theatre-caption-auto who text seconds
+      (theatre-say who text seconds
         (if (equal? who "尼尔") "#F0CF8A" "#8FD9D0"))
       (theatre-tween "焦点" 'x (+ 800 (* (- x 800) .5)) .4 'smooth)))
   (define 对白

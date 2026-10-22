@@ -4,7 +4,7 @@
   (let ()
     (define character-stories-open? #f) ; 人物支线等待重新排布
     (define opening-talk-heard? #f)
-    ;; 第三次看场固定遇到两桌醉客；这场初次交锋后，领班班次才开始随机出城市闹事。
+    ;; 第二次看场固定遇到两桌醉客；之后的领班班次才开始随机出独立的城市闹事。
     (define watch-first? #t)
     (define watch-count 0)
     (define watch-trouble-day 0)
@@ -16,9 +16,7 @@
       (if bad? (spend-composure! 1) #f)
       (set! watch-count (min 3 (+ watch-count 1)))
       (if (and (equal? watch-trouble "")
-               (or (and watch-first? (= watch-count 3))
-                   (and (not watch-first?) bad? (not (= watch-trouble-day world-day))
-                    (random-choice (list #t #f #f)))))
+               watch-first? (>= watch-count 2))
         (begin
           (set! watch-trouble "醉客互相叫骂")
           (set! watch-trouble-day world-day)
@@ -52,9 +50,10 @@
         (if (equal? watch-trouble "") '()
           (list (node "醉客互相叫骂" :anchor "老街酒馆"
             :subtitle "让两桌人都冷静下来，另付工钱"
+            :required-before-rest "先平息两桌醉客的争吵"
             :resolve (instant (outcome (lambda ()
               (start-encounter "醉客互相叫骂" on-watch-result)))))))))
-    ;; 看场额外报酬允许错过；不能为了这笔钱强制玩家完成交锋。
+    ;; 交锋超时后两桌醉客自然散场，额外报酬随之失效。
     (define-turn-start-rule "酒馆闹事自然散场"
       (lambda () (not (equal? watch-trouble "")))
       (lambda ()

@@ -19,7 +19,7 @@
         (theatre-tween id 'reveal 1 2.2 'smooth))))))
   (define (说 who x text seconds)
     (theatre-parallel
-      (theatre-caption-auto who text seconds
+      (theatre-say who text seconds
         (if (equal? who "尼尔") "#F0CF8A" "#8FD9D0"))
       (theatre-parallel
         (theatre-tween "焦点" 'x (+ 800 (* (- x 800) .5)) 1 'smooth)
@@ -28,7 +28,7 @@
   ;; 新的抓捕/追踪分支尚无语音，用字幕演出；旧路线保留原配音文件。
   (define (说文字 who x text seconds)
     (theatre-parallel
-      (theatre-caption-auto who text seconds
+      (theatre-say who text seconds
         (if (equal? who "尼尔") "#F0CF8A" "#8FD9D0"))
       (theatre-parallel
         (theatre-tween "焦点" 'x (+ 800 (* (- x 800) .5)) 1 'smooth)

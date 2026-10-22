@@ -25,7 +25,7 @@
     (加入 (theatre-with (theatre-group id parent x y) 'opacity opacity)))
   (define (说 who x text seconds)
     (theatre-parallel
-      (theatre-caption-auto who text seconds
+      (theatre-say who text seconds
         (cond ((equal? who "尼尔") "#F0CF8A")
               ((equal? who "店主") "#F4907C") (else "#C9CFE2")))
       (theatre-parallel

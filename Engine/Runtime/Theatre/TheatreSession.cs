@@ -118,7 +118,7 @@ namespace SSNoir.Theatre
         internal void CaptionStart(Runner runner, float time)
         {
             Caption = runner.Cue; _captionStarted = time; _revealed = false;
-            if (runner.Cue.Seconds == 0 || runner.Cue.CanAdvance)
+            if (runner.Cue.CanAdvance)
             {
                 if (Waiting != null) throw new InvalidOperationException("concurrent dialogue waits");
                 Waiting = runner;
@@ -242,13 +242,6 @@ namespace SSNoir.Theatre
                         _children[0] = new Runner(_session, Cue.Children[0]); extra = left;
                         if (extra == 0) { _children[0].Step(0, now + seconds); return 0; }
                     }
-                case TheatreCommandKind.Say:
-                    if (Cue.Seconds == 0)
-                    {
-                        if (!Acknowledged) return 0;
-                        _session.Waiting = null; Done = true; return seconds;
-                    }
-                    break;
             }
             if (Cue.CanAdvance && Acknowledged) { _session.EndWait(this); Done = true; return seconds; }
             float duration = Math.Max(Cue.Seconds, _readingUntil);

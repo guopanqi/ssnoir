@@ -10,17 +10,17 @@
 (define (结果 reason) (list reason 忽略请求? 照顾她? (恐惧 'current)))
 (define (结束! reason)
   (set! 已结束? #t)
-  (cond
-    ((eq? reason '抵达)
-      (play-dialogue! (line "世界" "夜莺停在住处的台阶前，收起了伞。")
-        (line "夜莺" (cond ((恐惧 'full?) "到了……让我缓一会儿。")
-          (忽略请求? "到了。刚才我真的不想再走暗巷。")
-          (照顾她? "你一直陪着我。谢谢你，尼尔。")
-          (else "谢谢。今晚一个人走，我还真有点害怕。")))))
-    (else
-      (play-dialogue! (line "世界" "两人来到亮灯的店门口。夜莺请店主帮忙叫车。")
-        (line "夜莺" (if 忽略请求? "我说过不想走暗巷。今晚就到这里吧。"
-          "我不想再走了。谢谢你陪我，我在这里等车。")))))
+  (if (eq? reason '抵达)
+    (play-dialogue!
+      (line "世界" "夜莺迈上住处的台阶。尼尔收起伞，她长舒了一口气。")
+      (line "夜莺" (if 忽略请求?
+        "到了。刚才那条巷子，我真的不想走。你回去也当心点。"
+        "总算到家了。尼尔，今晚多亏有你，不然我都不敢走这条路。")))
+    (play-dialogue!
+      (line "世界" "夜莺走进路边亮灯的店，请店主借电话叫车。")
+      (line "夜莺" (if 忽略请求?
+        "我说了不想走暗巷。今晚就到这里吧，我在这儿等车。"
+        "我不想再走了。谢谢你陪我，我在这儿等车。"))))
   (end-encounter (结果 reason)))
 (define (检查!)
   (cond ((前进 'full?) (结束! '抵达))
@@ -28,18 +28,16 @@
 (define (恐惧增加! n)
   (let ((old (恐惧 'current)))
     (恐惧 'advance! n)
-    (if (> (恐惧 'current) old)
-      (cond ((恐惧 'full?) #f)
-        ((= (恐惧 'current) 2)
-          (play-dialogue! (line "世界" "夜莺抓住尼尔的袖子。")
-            (line "夜莺" "我们走有灯的那边，好吗？")))
-        (else (play-dialogue! (line "世界" "夜莺频频回头，话少了，脚步也快起来。")))) #f)))
+    (if (and (< old 2) (= (恐惧 'current) 2))
+      (play-dialogue!
+        (line "世界" "夜莺攥紧了尼尔的袖子，人几乎贴在他肩膀上。")
+        (line "夜莺" "尼尔……我们能不能换条路？"))
+      #f)))
 (define (出现人影!)
   (set! 人影在? #t) (set! 人影次数 (+ 人影次数 1))
   (play-dialogue!
-    (line "世界" "雨水顺着屋檐滴落。前面的街灯下，一个戴帽子的人影停在路口。")
-    (line "世界" "夜莺忽然抓住尼尔的袖子。")
-    (line "夜莺" "是他……我好像又看见他了。")))
+    (line "世界" "街角的水洼映着昏黄的灯光。墙根下站着一个穿雨衣的人，夜莺忽然抓住尼尔的袖子，停了下来。")
+    (line "夜莺" "……尼尔，看路灯下。就是他。")))
 (define (走! progress fear dark?)
   (if (and dark? (>= (恐惧 'current) 2)) (set! 忽略请求? #t) #f)
   (前进 'advance! progress) (恐惧增加! fear)
@@ -52,9 +50,8 @@
   (if shelter? (set! 照顾她? #t) #f)
   (if success?
     (begin (set! 人影在? #f)
-      (play-dialogue! (line "世界" (if shelter?
-        "两人在店里等了一阵。再出来时，路口已经没有人。"
-        "尼尔挡在她身前出声喝问。人影匆匆走开，没有回答。"))))
+      (play-dialogue!
+        (line "世界" "路口已经不见那个人了。夜莺悬着的一口气终于吐了出来。")))
     (恐惧增加! 1))
   (检查!))
 (define (on-encounter-collapse) (collapse-result (结果 '倒下)))
@@ -62,8 +59,8 @@
   (前进 'load! 0) (恐惧 'load! 0) (set! 人影在? #f) (set! 人影次数 0)
   (set! 人影上限 1)
   (set! 忽略请求? #f) (set! 照顾她? #f) (set! 已结束? #f)
-  (play-dialogue! (line "世界" "夜莺撑开旧伞，往尼尔那边挪了一点。")
-    (line "夜莺" "走有灯的那边，好吗？我们慢慢来。")))
+  (play-dialogue! (line "世界" "风裹着雨吹过来，尼尔把伞往夜莺那边偏了偏。")
+    (line "夜莺" "我们走那条主道吧，有灯，亮一点儿。")))
 (define (get-render-data)
   (container "雨夜同行"
     (append (clock-nodes (前进 'render-data) (恐惧 'render-data))

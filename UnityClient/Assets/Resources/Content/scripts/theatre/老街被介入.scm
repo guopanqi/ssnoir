@@ -37,7 +37,7 @@
       (theatre-wait (+ (/ ms 1000.0) .2))))
   (define (说 who x text seconds)
     (theatre-parallel
-      (theatre-caption-auto who text seconds
+      (theatre-say who text seconds
         (cond ((equal? who "尼尔") "#F0CF8A")
               ((equal? who "夜莺") "#8FD9D0")
               ((equal? who "贝恩斯") "#93B4EA")
@@ -48,7 +48,7 @@
         (theatre-tween "说话柔光" 'x x 1.2 'smooth)
         (theatre-tween "说话柔光" 'opacity .13 1.2 'smooth))))
   (define (旁白 text seconds)
-    (theatre-caption-auto "旁白" text seconds "#C9CFE2"))
+    (theatre-say "旁白" text seconds "#C9CFE2"))
 
   ;; 布景：HTML SIGN = ALLEY + 路牌杆与三块路牌（地面 790 为基准）。
   (加入 (theatre-with (theatre-group "布景" "" 0 0) 'opacity 0))

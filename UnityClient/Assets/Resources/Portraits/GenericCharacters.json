@@ -1,6 +1,10 @@
 {
   "characters": [
     {
+      "name": "客人",
+      "gender": "男"
+    },
+    {
       "name": "房东",
       "gender": "男"
     },

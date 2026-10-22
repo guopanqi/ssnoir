@@ -6,7 +6,6 @@
     (define result "")
     (define ignored? #f)
     (define cared? #f)
-    (define aftermath? #f)
     (define final-fear 0)
 
     (define (available?)
@@ -18,22 +17,24 @@
       (if (not (equal? status "未邀请")) (error "雨夜：邀请已处理") #t)
       (set! status "待答复")
       (play-dialogue!
-        (line "世界" "酒馆打烊。夜莺在后门试着撑开伞。")
-        (line "夜莺" "你今晚还要忙吗？")
-        (line "夜莺" "最近总有人在巷口站着。我有点害怕。")
-        (line "夜莺" "能不能陪我走回去？")))
+        (line "世界" "酒馆打烊了。夜莺站在后门檐下，迟迟没迈步。")
+        (line "尼尔" "还不走？")
+        (line "夜莺" "……尼尔，你顺路吗？这几天回去，街角总有个人跟着我。")
+        (line "尼尔" "报警了吗？")
+        (line "夜莺" "这片的巡警懒得管这些。我一个人心慌……能不能送我几步路？")))
     (define (accept!)
       (if (not (equal? status "待答复")) (error "雨夜：没有待答复的邀请") #t)
       (set! status "已答应")
       (play-dialogue!
-        (line "尼尔" "走吧。我陪你。")
-        (line "夜莺" "谢谢你。走有灯的街，好吗？")))
+        (line "尼尔" "走吧，我刚好顺路。")
+        (line "夜莺" "太谢谢了。"))
+      (start-encounter "雨夜同行" on-result))
     (define (decline!)
       (if (not (equal? status "待答复")) (error "雨夜：没有可拒绝的邀请") #t)
       (set! status "婉拒")
       (play-dialogue!
-        (line "尼尔" "今晚恐怕没办法。")
-        (line "夜莺" "没关系。我去找乐队的人一起走。")))
+        (line "尼尔" "今晚不行，我手头还有事。")
+        (line "夜莺" "没事，我等厨房的人收拾完，跟他们一起走。")))
     (define (on-result data)
       (if (and (list? data) (= (length data) 4)
                (member? (car data) '(抵达 叫车离开 倒下))
@@ -48,43 +49,19 @@
       (set! ignored? (cadr data))
       (set! cared? (caddr data))
       (set! final-fear (cadddr data)))
-    (define (after-scene!)
-      (set! aftermath? #t)
-      (cond
-        ((equal? status "已结束")
-          (play-dialogue!
-            (line "夜莺"
-              (cond
-                (ignored? "你下次想追谁，先跟我说一声，好吗？")
-                ((equal? result "倒下") "你的伤怎么样了？那天你吓了我一跳。")
-                ((equal? result "叫车离开") "那天我真的走不下去了。后来车把我送回了家。")
-                ((= final-fear 3) "好歹走到了。可那晚上我还是怕了好一阵。")
-                (cared? "那天谢谢你。你一直走在我旁边。")
-                (else "谢谢你陪我走那一程。")))))
-        ((equal? status "失约")
-          (play-dialogue!
-            (line "夜莺" "那晚我等了会儿，后来请乐手送了我一程。")
-            (line "尼尔" "对不起，我临时走不开。")))
-        (else #f)))
-    (define (arrivals-at location)
-      ;; 第七天夜莺已经去剧院了。雨夜余波在她实际所在之处相遇，不让她
-      ;; 为了补播旧对白突然回到已经离开的酒馆。
-      (if (and (equal? location (if (>= world-day 7) "剧院" "老街酒馆"))
-               (not aftermath?)
-               (or (equal? status "已结束") (equal? status "失约")))
-        (list (arrival "雨夜同行的余波" after-scene!))
-        '()))
+
     (define (nodes-at location)
       (if (not (equal? location "老街酒馆")) '()
         (cond
           ((and (available?) (equal? status "未邀请"))
-            (list (instant-action "听夜莺说话" invite!)))
+            (list (anchored-instant-action "夜莺在犹豫" "夜莺@酒馆" invite!)))
           ((and (available?) (equal? status "待答复"))
-            (list (container "夜莺的邀请" (list
+            (list (at-anchor "夜莺@酒馆" (container "夜莺的邀请" (map (lambda (n) (at-anchor "夜莺@酒馆" n)) (list
               (instant-action "陪她走回去" accept!)
-              (instant-action "今晚走不开" decline!)))))
+              (instant-action "今晚走不开" decline!)))))))
+          ;; 旧存档可能已经接受邀请、但还没点开交锋卡；保留这条续接入口。
           ((and (available?) (equal? status "已答应"))
-            (list (node "雨夜同行" :subtitle "陪她回家，别让恐惧失控"
+            (list (node "雨夜同行" :anchor "夜莺@酒馆" :subtitle "陪她回家，别让恐惧失控"
               :resolve (instant (outcome
                 (lambda () (start-encounter "雨夜同行" on-result)))))))
           (else '()))))
@@ -99,7 +76,6 @@
       (let ((msg (car args)))
         (cond
           ((eq? msg 'nodes-at) (nodes-at (cadr args)))
-          ((eq? msg 'arrivals-at) (arrivals-at (cadr args)))
           ((eq? msg 'walked?) (equal? status "已结束"))
           ((eq? msg 'met?) (not (member? status '("未邀请" "错过"))))
           ((eq? msg 'close?)
@@ -109,14 +85,13 @@
           ((eq? msg 'save)
            (list (list "status" status) (list "result" result)
              (list "ignored?" ignored?) (list "cared?" cared?)
-             (list "aftermath?" aftermath?) (list "final-fear" final-fear)))
+             (list "final-fear" final-fear)))
           ((eq? msg 'load!)
            (let ((data (cadr args)))
              (set! status (assoc-get data "status" "未邀请"))
              (set! result (assoc-get data "result" ""))
              (set! ignored? (assoc-get data "ignored?" #f))
              (set! cared? (assoc-get data "cared?" #f))
-             (set! aftermath? (assoc-get data "aftermath?" #f))
              (set! final-fear (assoc-get data "final-fear" 0))
              (if (and (member? status '("未邀请" "待答复" "已答应" "婉拒" "已结束" "失约" "错过"))
                       (member? result '("" "抵达" "叫车离开" "倒下"))

@@ -26,7 +26,7 @@ namespace SSNoir.IMGUI
             string executingText,
             float clockBadgesBottom,
             bool mustHandle,
-            ref CardDrawer.CardInteraction interaction)
+            ref CardDrawer.CardInteraction interaction, List<GameClock>? tabClocks = null)
         {
             bool disabled = node.Disabled;
             if (!disabled && IMGUIInteractionContext.HoverAvailable && ui.IsPointerInside(rect))
@@ -73,7 +73,7 @@ namespace SSNoir.IMGUI
                 bool attachMustHandle = mustHandle;
                 DrawOrDeferEdgeAttachments(() =>
                 {
-                    DrawTopTabs(attachRect, attachNode, attachDisabled, attachMustHandle);
+                    CardTagDrawer.Draw(attachRect, attachNode, attachDisabled, attachMustHandle, tabClocks);
                 });
             }
 
@@ -155,73 +155,6 @@ namespace SSNoir.IMGUI
                 draw();
         }
 
-        // 卡顶标签按实际宽度换行；测量和绘制使用同一布局。
-        private const float TabPadding = 8f;
-        private const float TabGap = 6f;
-        private const float TabInset = 10f;
-        private const float TabRowGap = 5f;
-        private const float TabCardGap = 6f;
-        private static int TabFontSize() => IMGUIStyles.FontSize(13);
-        private static float TabHeight() => TabFontSize() + 10f;
-
-        private static GUIStyle TabStyle() => new GUIStyle(GUI.skin.label)
-        {
-            font = IMGUIStyles.ChineseFont,
-            fontSize = TabFontSize(),
-            alignment = TextAnchor.MiddleCenter,
-            clipping = TextClipping.Clip,
-            wordWrap = false,
-            padding = new RectOffset(),
-            margin = new RectOffset()
-        };
-
-        private static List<string> TabItems(GameNode node, bool mustHandle)
-        {
-            var items = new List<string>();
-            if (node.Risk != null) items.Add(node.Risk.Label);
-            foreach (var tag in node.Tags)
-            {
-                if (string.IsNullOrWhiteSpace(tag) || tag == "人物" || tag == "地点") continue;
-                string shown = tag switch
-                {
-                    "工作" or "紧急" or "必须处理" or "高风险" or "低风险" or "交锋" => UiText.Get(tag),
-                    _ => tag,
-                };
-                if (!items.Contains(shown)) items.Add(shown);
-            }
-            if (node.Resolve != null)
-                foreach (var mod in node.Resolve.DifficultyModifiers)
-                    items.Add($"{mod.Reason} {(mod.Value > 0 ? "+" : "")}{mod.Value}");
-            if (mustHandle && !items.Contains(UiText.Get("必须处理")))
-                items.Add(UiText.Get("必须处理"));
-            return items;
-        }
-
-        private static List<Rect> LayoutTabs(float width, List<string> items, GUIStyle style)
-        {
-            var rects = new List<Rect>();
-            float available = Mathf.Max(1f, width - TabInset * 2f);
-            float x = 0f, y = 0f;
-            foreach (var item in items)
-            {
-                float w = Mathf.Min(available, Mathf.Ceil(style.CalcSize(new GUIContent(item)).x) + TabPadding * 2f);
-                if (x > 0f && x + w > available)
-                {
-                    x = 0f;
-                    y += TabHeight() + TabRowGap;
-                }
-                rects.Add(new Rect(TabInset + x, y, w, TabHeight()));
-                x += w + TabGap;
-            }
-            return rects;
-        }
-
-        public static float TopTabsRise(GameNode node, float width, bool mustHandle = false)
-        {
-            var tabs = LayoutTabs(width, TabItems(node, mustHandle), TabStyle());
-            return tabs.Count == 0 ? 0f : tabs[tabs.Count - 1].yMax + TabCardGap;
-        }
-
         private static List<DifficultyModifierInfo> EffectiveModifiers(
             GameNode node, PresentationSnapshot snapshot, string actorRole = "protagonist")
         {
@@ -246,35 +179,6 @@ namespace SSNoir.IMGUI
             }
             if (scarMod != null) merged.Add(scarMod);
             return merged;
-        }
-
-        public static void DrawTopTabs(Rect rect, GameNode node, bool disabled, bool mustHandle = false)
-        {
-            var style = TabStyle();
-            var items = TabItems(node, mustHandle);
-            var tabs = LayoutTabs(rect.width, items, style);
-            if (tabs.Count == 0) return;
-            float top = rect.y - tabs[tabs.Count - 1].yMax - TabCardGap;
-            for (int i = 0; i < tabs.Count; i++)
-            {
-                var tab = tabs[i];
-                tab.position += new Vector2(rect.x, top);
-                tab = UIScale.PixelSnap(tab);
-                bool urgent = items[i] == UiText.Get("紧急") || items[i] == UiText.Get("必须处理");
-                Color ink = disabled ? IMGUIStyles.TextSecondary
-                    : items[i] == "危险" ? IMGUIStyles.OddsFail
-                    : items[i] == "冒险" ? IMGUIStyles.Gold
-                    : items[i] == "稳妥" ? IMGUIStyles.OddsSuccess
-                    : urgent ? IMGUIStyles.Gold : IMGUIStyles.Paper;
-                IMGUIStyles.DrawShadow(tab, new Vector2(2f, 2f), .35f);
-                IMGUIStyles.SetColor(IMGUIStyles.CityPlateBg);
-                GUI.DrawTexture(tab, Texture2D.whiteTexture);
-                IMGUIStyles.ResetColor();
-                IMGUIStyles.DrawOutline(tab, 1f, (items[i] == "危险" || items[i] == "冒险" || items[i] == "稳妥")
-                    ? ink : urgent ? IMGUIStyles.Gold : IMGUIStyles.CityPlateLine);
-                style.normal.textColor = ink;
-                IMGUIStyles.DrawLabel(new Rect(tab.x + TabPadding, tab.y, tab.width - TabPadding * 2f, tab.height), items[i], style);
-            }
         }
 
         // ── 需求骰位：方块 Slot（与手牌骰子/物品同族）──────────────────
@@ -443,23 +347,6 @@ namespace SSNoir.IMGUI
             var line = ready ? IMGUIStyles.Paper : IMGUIStyles.TextSecondary;
             DrawDrawerBackground(cardRect, panel, line);
             if(showOdds && !isExecuting) TryDrawFatePreview(OddsPreviewRect(cardRect),node,gameManager.DisplayedSnapshot,slotted,actors!,OddsPreviewRect(cardRect).y);
-            if (node.Risk != null && !isExecuting)
-            {
-                var target = node.Risk.RiskTarget ?? node.Risk.ProgressTarget;
-                if (target != null)
-                {
-                    string subject = node.Risk.RiskTarget != null ? "风险" : "进展";
-                    var style = new GUIStyle(IMGUIStyles.CardSubtitle)
-                    {
-                        fontSize = IMGUIStyles.FontSize(12),
-                        alignment = TextAnchor.MiddleCenter,
-                        normal = { textColor = IMGUIStyles.Paper }
-                    };
-                    var hint = new Rect(panel.x + 8f, panel.y + 2f, panel.width - 16f, 20f);
-                    IMGUIStyles.DrawLabel(hint, $"{node.Risk.Label} · {subject}：{target.DisplayName}", style);
-                }
-            }
-
             // 内容从主卡下滑出，裁剪与点击使用同一个可见矩形；展开完才允许执行。
             GUI.BeginGroup(panel);
             var localUi = ui.Translated(panel.position);

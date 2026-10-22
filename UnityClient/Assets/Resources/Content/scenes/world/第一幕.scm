@@ -1,3 +1,4 @@
+(load-file "scripts/theatre/酒馆最后一夜.scm")
 (load-file "scripts/theatre/第一幕对白.scm")
 ;; 第一章五幕中的前两幕：城市谋生、人物相识、酒馆告别与大剧院首次彩排。
 ;; 旧「三封信」主线已退役；世界日期推进，人物生活不等待玩家清空支线。
@@ -12,19 +13,20 @@
     (define eddie-day 0)
     (define singer-day 0)
     (define listened-day 0)
+    (define listen-count 0)
+    (define singer-mistake-heard? #f)
+    (define singer-care-seen? #f)
+    (define singer-contact-day 0)
+    (define singer-contact-days 0)
     (define eddie-work-count 0)
     (define lucy-work-count 0)
     (define drink-day 0)
     (define drink-state "未邀请")
     (define drank? #f)
-    (define drink-talk? #f)
     (define farewell-seen? #f)
     (define farewell-done? #f)
-    (define farewell-news? #f)
     (define rehearsal-seen? #f)
     (define rehearsal-done? #f)
-    (define rehearsal-news? #f)
-    (define rehearsal-answer? #f)
     (define notice-seen? #f)
     (define act 1)
 
@@ -33,6 +35,7 @@
       (set! opened? #t)
       (第一幕-清晨))
 
+    ;; 码头分支返回本次是否播放人物剧情，供搬运决定是否省略救场 Bubble。
     (define (on-work! location grade)
       (cond
         ((equal? location "街角咖啡馆")
@@ -43,8 +46,8 @@
              (cond
                ((= lucy-stage 0)
                 (set! lucy-stage 1)
-                (第一幕-露西初识 (> eddie-stage 0)))
-               ((and (= lucy-stage 1) (>= lucy-work-count 2))
+                (第一幕-露西初识))
+               ((and (= lucy-stage 1) (>= lucy-work-count 3))
                 (set! lucy-stage 2) (第一幕-露西打字))
                (else #f))) #f))
         ((equal? location "码头")
@@ -54,31 +57,43 @@
              (set! eddie-day world-day)
              (cond
                ((= eddie-stage 0) (set! eddie-stage 1)
-                (第一幕-艾迪初识 grade))
-               ((and (= eddie-stage 1) (>= eddie-work-count 2))
-                (set! eddie-stage 2) (第一幕-艾迪再见))
+                (第一幕-艾迪教搬运) #t)
+               ((and (= eddie-stage 1) (>= eddie-work-count 3))
+                (set! eddie-stage 2) (第一幕-艾迪再见) #t)
                ((and (= eddie-stage 2) (>= eddie-work-count 3))
                 (set! eddie-stage 3)
                 (set! drink-day world-day)
                 (set! drink-state "待答复")
-                (第一幕-艾迪邀请))
+                (第一幕-艾迪邀请) #t)
                (else #f))) #f))
         (else (error "第一幕：未知工作地点"))))
 
-    ;; 任一酒馆日常行动都可开启当天的一段夜莺生活，不限看场工作。
-    (define (on-tavern-work! . sources)
-      ;; 酒保介绍过工作以后，夜莺在酒馆连续驻唱到第六天。
-      ;; 每个游戏日只推进一次，不允许一天刷三次工作刷完所有关系。
+    ;; 接触按实际交谈发生的日期去重；听歌次数本身不增加熟悉程度。
+    (define (record-singer-contact!)
+      (if (not (= singer-contact-day world-day))
+        (begin (set! singer-contact-day world-day)
+          (set! singer-contact-days (+ singer-contact-days 1))) #f))
+
+    ;; 返回本次是否已有夜莺互动；正式事件和听歌气泡不叠加、不补播。
+    (define (on-tavern-work! activity)
       (if (and opened? tavern-seen? (= act 1) (<= world-day 6)
                (not (= singer-day world-day)))
-        (begin
-          (set! singer-day world-day)
+        (let ((played?
           (cond
-            ((= singer-stage 0) (set! singer-stage 1) (第一幕-夜莺台边))
-            ((= singer-stage 1) (set! singer-stage 2) (第一幕-夜莺收工))
-            ((= singer-stage 2) (set! singer-stage 3)
-              (第一幕-夜莺解围 (if (null? sources) "看场" (car sources))))
-            (else #f)))
+            ((= singer-stage 0)
+             (set! singer-stage 1) (第一幕-夜莺台边) #t)
+            ((and (= singer-stage 1) (member? activity '("听歌" "看场")))
+             (set! singer-stage 2) (set! singer-mistake-heard? #t)
+             (第一幕-夜莺收工 (equal? activity "看场")) #t)
+            ((and (= singer-stage 2) (equal? activity "看场"))
+             (set! singer-stage 3) (第一幕-夜莺解围) #t)
+            ((and (>= singer-stage 2) (equal? activity "喝酒")
+                  (not singer-care-seen?))
+             (set! singer-care-seen? #t) (第一幕-夜莺关怀) #t)
+            (else #f))))
+          (if played?
+            (begin (set! singer-day world-day) (record-singer-contact!)) #f)
+          played?)
         #f))
 
     (define (listen!)
@@ -86,40 +101,33 @@
                (not (= listened-day world-day))) #t
           (error "听夜莺唱歌：不在驻唱时间或今天已经听过"))
       (set! listened-day world-day)
-      (play-bubble!
-        (line "世界" "夜莺的歌声盖过杯盘碰撞的声音。尼尔坐下，终于不用去照看别人的麻烦。" :at "夜莺@酒馆")
-        (line "尼尔" "今晚唱得真好。" :at "夜莺@酒馆"))
+      (set! listen-count (+ listen-count 1))
       (restore-actor-composure! 'player 1)
-      (on-tavern-work! "听歌"))
+      (if (on-tavern-work! "听歌") #f
+        (if (= singer-day world-day) #f
+          (let ((talk?
+            (cond
+              ((= listen-count 1) (第一幕-听歌初次) #t)
+              ((= listen-count 2) (第一幕-听歌再来) #t)
+              ((= listen-count 3) (第一幕-听歌回扣 singer-mistake-heard?) #t)
+              ((and (= listen-count 4) (>= singer-contact-days 3))
+               (第一幕-听歌熟客) #t)
+              (else #f))))
+            (if talk?
+              (begin (set! singer-day world-day) (record-singer-contact!)) #f)))))
 
     (define (farewell!)
       (if (or (not (= world-day 6)) farewell-seen?)
         (error "第一幕：告别演出不在观看窗口") #t)
       (set! farewell-seen? #t)
       (set! farewell-done? #t)
-      (__release-rest-block! "act1-nightingale-farewell")
-      (第一幕-告别
-        (cond
-          ((and (>= singer-stage 2) (first-act-walk 'close?)) '亲近)
-          ((>= singer-stage 1) '相识)
-          (else '观众))))
+      (酒馆最后一夜-演出 (>= singer-stage 1) (> eddie-stage 0) (> lucy-stage 0)))
     (define (rehearsal!)
       (if (or (not (= world-day 8)) rehearsal-seen?)
         (error "第二幕：第一次彩排不在观看窗口") #t)
       (set! rehearsal-seen? #t)
       (set! rehearsal-done? #t)
-      (第一幕-彩排
-        (cond ((and (>= singer-stage 2) (first-act-walk 'close?)) '同行)
-              ((>= singer-stage 1) '相识)
-              (else '观众))))
-    (define (answer! text)
-      (set! rehearsal-answer? #t)
-      (play-dialogue!
-        (line "尼尔" text)
-        (line "夜莺" (cond
-          ((equal? text "很漂亮。") "是吗？那就好。")
-          ((equal? text "你唱得很好。") "第二遍才好一点。我还得练。")
-          (else "……我希望是。")))))
+      (第一幕-彩排 (>= singer-stage 1)))
 
     (define (arrivals-at location)
       (cond
@@ -127,21 +135,14 @@
          (list (arrival "酒馆与夜莺" (lambda ()
            (set! tavern-seen? #t)
            (第一幕-酒馆)))))
-        ((and (= act 2) (not farewell-seen?) farewell-done?
-              (not farewell-news?) (member? location '("家" "老街酒馆")))
-         (list (arrival "酒馆告别夜的消息" (lambda ()
-           (set! farewell-news? #t)
-           (play-dialogue!
-             (line "世界" "夜莺已经结束了在酒馆的最后一场演出。")
-             (line "调酒师" "她去大剧院了。想听她唱，就要往那边走。"))))))
-        ((and (>= world-day 9) rehearsal-done? (not rehearsal-seen?)
-              (not rehearsal-news?) (member? location '("家" "老街酒馆")))
-         (list (arrival "正式彩排的消息" (lambda ()
-           (set! rehearsal-news? #t)
-           (play-dialogue!
-             (line "世界" "大剧院的第一场正式彩排已经举行。")
-             (line "世界" "夜莺正在为首演继续排练。"))))))
         (else '())))
+
+    ;; 日期是唯一事实来源；换日后节点消失，不另存一份倒计时状态。
+    (define (drink-deadline-clock)
+      (clock-priority
+        (list 'clock "今晚有效" (if (= drink-day world-day) 1 0) 1 'countdown
+          "换日后邀请与赴约机会失效。")
+        'secondary))
 
     (define (nodes-at location)
       (append
@@ -150,29 +151,21 @@
              :resolve (instant start!))) '())
         (if (and (equal? location "码头") (equal? drink-state "待答复")
                  (= drink-day world-day))
-          (list (container "艾迪的邀请" (list
-            (instant-action "去坐一会儿" (lambda ()
+          (list (at-anchor "码头-货堆" (container-with-clocks "艾迪的邀请" (map (lambda (n) (at-anchor "码头-货堆" (append n (list :clocks (list (drink-deadline-clock)))))) (list
+            (instant-action "去灌两杯" (lambda ()
               (set! drink-state "已答应")
-              (play-dialogue! (line "艾迪" "那就酒馆见。别跑了。"))))
-            (instant-action "改天吧" (lambda ()
+              (play-dialogue! (line "艾迪" "痛快，吧台见。"))))
+            (instant-action "今天算了" (lambda ()
               (set! drink-state "婉拒")
-              (play-dialogue! (line "艾迪" "行。改天请你。"))))))) '())
+              (play-dialogue! (line "艾迪" "得，那我先去了。改天再喝。")))))) (list (drink-deadline-clock))))) '())
         (if (and (equal? location "老街酒馆") (= drink-day world-day)
                  (equal? drink-state "已答应"))
-          (list (action "与艾迪喝酒" (list (req-die))
+          (list (at-anchor "老街酒馆" (action-with-clocks "与艾迪喝酒" (list (req-die))
             (instant (outcome (lambda ()
               (set! drink-state "赴约") (set! drank? #t)
               (第一幕-艾迪喝酒)
-              (on-tavern-work! "酒馆闲聊")))))) '())
-        (if (and (equal? location "老街酒馆") drank? (not drink-talk?))
-          (list (container "艾迪问你的打算" (map (lambda (a)
-            (instant-action (car a) (lambda ()
-              (set! drink-talk? #t)
-              (play-dialogue! (line "尼尔" (cadr a))
-                (line "艾迪" "那就先这么办。有麻烦来找我。")))))
-            (list (list "先交房租" "先把这个月的房租交了。")
-                  (list "有机会就做" "有什么活，就先做什么。")
-                  (list "找点像样的事" "总要找点自己想干的事。"))))) '())
+              (on-tavern-work! "喝酒")))) (list (drink-deadline-clock))))) '())
+
         (if (and (equal? location "老街酒馆") tavern-seen?
                  (= act 1) (<= world-day 6))
           (list (at-anchor "夜莺@酒馆"
@@ -198,15 +191,7 @@
           (list (instant-action "观看正式彩排" rehearsal!)) '())
         (if (and (equal? location "剧院") (>= world-day 7))
           (list (at-anchor "夜莺@剧院"
-            (note-node "夜莺排练" "夜莺" "她正在为首演练习。"))) '())
-        (if (and (equal? location "剧院") rehearsal-seen?
-                 (>= singer-stage 2) (first-act-walk 'close?)
-                 (not rehearsal-answer?) (= world-day 8))
-          (list (container "她在舞台上" (map (lambda (a)
-            (instant-action (car a) (lambda () (answer! (cadr a)))))
-            (list (list "很漂亮" "很漂亮。")
-                  (list "唱得很好" "你唱得很好。")
-                  (list "像是属于这里" "像真的属于这里一样。"))))) '())))
+            (note-node "夜莺排练" "夜莺" "她正在为首演练习。"))) '())))
 
     (define-turn-start-rule "第一章前两幕日程"
       (lambda () #t)
@@ -214,20 +199,14 @@
         (if (and (> drink-day 0) (> world-day drink-day)
                  (member? drink-state '("待答复" "已答应")))
           (set! drink-state "错过") #f)
-        ;; 强制剧场：由世界休息阻塞器执行，而不只靠节点元数据。
-        (if (and (= world-day 6) (= act 1) (not farewell-seen?))
-          (__register-rest-block!
-            "act1-nightingale-farewell"
-            "先去酒馆参加夜莺的告别演出"
-            "老街酒馆" "夜莺最后一场演出")
-          #f)
         (if (and (= world-day 5) (= act 1))
-          (spotlight! "最后一场演出" "酒馆贴出了夜莺的告别演出告示。明晚她将在这里最后一次唱歌。")
+          (play-dialogue!
+            (line "世界" "酒馆门外贴了张告示：明晚，夜莺告别演出，最后一场。"))
           #f)
         (if (and (>= world-day 7) (= act 1))
           (begin
             (set! farewell-done? #t) (set! act 2)
-            (spotlight! "第二幕" "这里有我的朋友。夜莺已经离开酒馆，开始在大剧院排练。"))
+            (spotlight! "第二幕" "夜莺已经离开老街酒馆，大剧院里每天都响起伴奏与排练声。"))
           #f)
         (if (and (>= world-day 9) (not rehearsal-done?))
           (set! rehearsal-done? #t) #f)
@@ -235,8 +214,8 @@
           (begin
             (set! notice-seen? #t)
             (play-dialogue!
-              (line "世界" "晨报宣布：夜莺的首演，将作为旧港改造计划的宣传活动。")
-              (line "世界" "酒馆里有人拍手叫好，也有人把报纸叠好，一言不发。")))
+              (line "世界" "早报头版写着：旧港改造计划启动，大剧院首演助阵。")
+              (line "世界" "酒馆角落里有人碰着酒杯。吧台边，一个装卸工把报纸翻回头版，又看了一遍。")))
           #f)))
 
     (lambda args
@@ -251,17 +230,13 @@
           ((eq? msg 'act) act)
           ((eq? msg 'eddie-met?) (> eddie-stage 0))
           ((eq? msg 'eddie-stage) eddie-stage)
-          ((eq? msg 'meet-eddie!)
-            (if (= eddie-stage 0)
-              (begin (set! eddie-stage 1)
-                (第一幕-艾迪教搬运)) #f))
           ((eq? msg 'lucy-met?) (> lucy-stage 0))
           ((eq? msg 'singer-stage) singer-stage)
           ((eq? msg 'listened-day) listened-day)
           ((eq? msg 'farewell-seen?) farewell-seen?)
           ((eq? msg 'on-work!) (on-work! (cadr args) (caddr args)))
           ((eq? msg 'on-tavern-work!)
-            (on-tavern-work! (if (null? (cdr args)) "看场" (cadr args))))
+            (on-tavern-work! (cadr args)))
           ((eq? msg 'debug-finish!)
            (set! opened? #t) (set! tavern-seen? #t)
            (set! farewell-done? #t) (set! rehearsal-done? #t)
@@ -284,15 +259,17 @@
              (list "lucy" lucy-stage) (list "eddie" eddie-stage)
              (list "singer" singer-stage) (list "lucy-day" lucy-day)
              (list "eddie-day" eddie-day) (list "singer-day" singer-day)
-             (list "listened-day" listened-day)
+             (list "listened-day" listened-day) (list "listen-count" listen-count)
+             (list "singer-mistake-heard" singer-mistake-heard?)
+             (list "singer-care-seen" singer-care-seen?)
+             (list "singer-contact-day" singer-contact-day)
+             (list "singer-contact-days" singer-contact-days)
              (list "eddie-count" eddie-work-count) (list "lucy-count" lucy-work-count)
              (list "drink-day" drink-day) (list "drink-state" drink-state)
-             (list "drank" drank?) (list "drink-talk" drink-talk?)
+             (list "drank" drank?)
              (list "farewell-seen" farewell-seen?) (list "farewell-done" farewell-done?)
-             (list "farewell-news" farewell-news?)
              (list "rehearsal-seen" rehearsal-seen?) (list "rehearsal-done" rehearsal-done?)
-             (list "rehearsal-news" rehearsal-news?)
-             (list "answer" rehearsal-answer?) (list "notice" notice-seen?)
+             (list "notice" notice-seen?)
              (list "act" act)))
           ((eq? msg 'load!)
            (let ((data (cadr args)))
@@ -305,25 +282,30 @@
              (set! eddie-day (assoc-get data "eddie-day" 0))
              (set! singer-day (assoc-get data "singer-day" 0))
              (set! listened-day (assoc-get data "listened-day" 0))
+             (set! listen-count (assoc-get data "listen-count" 0))
+             (set! singer-mistake-heard? (assoc-get data "singer-mistake-heard" #f))
+             (set! singer-care-seen? (assoc-get data "singer-care-seen" #f))
+             (set! singer-contact-day (assoc-get data "singer-contact-day" 0))
+             (set! singer-contact-days (assoc-get data "singer-contact-days" 0))
              (set! eddie-work-count (assoc-get data "eddie-count" 0))
              (set! lucy-work-count (assoc-get data "lucy-count" 0))
              (set! drink-day (assoc-get data "drink-day" 0))
              (set! drink-state (assoc-get data "drink-state" "未邀请"))
              (set! drank? (assoc-get data "drank" #f))
-             (set! drink-talk? (assoc-get data "drink-talk" #f))
              (set! farewell-seen? (assoc-get data "farewell-seen" #f))
              (set! farewell-done? (assoc-get data "farewell-done" #f))
-             (set! farewell-news? (assoc-get data "farewell-news" #f))
              (set! rehearsal-seen? (assoc-get data "rehearsal-seen" #f))
              (set! rehearsal-done? (assoc-get data "rehearsal-done" #f))
-             (set! rehearsal-news? (assoc-get data "rehearsal-news" #f))
-             (set! rehearsal-answer? (assoc-get data "answer" #f))
              (set! notice-seen? (assoc-get data "notice" #f))
              (set! act (assoc-get data "act" 1))
              (if (and (member? act '(1 2))
                       (member? lucy-stage '(0 1 2))
                       (member? eddie-stage '(0 1 2 3))
                       (member? singer-stage '(0 1 2 3))
+                      (member? listen-count '(0 1 2 3 4 5))
+                      (member? singer-contact-days '(0 1 2 3 4 5 6))
+                      (member? singer-contact-day '(0 1 2 3 4 5 6))
+                      (or (not singer-mistake-heard?) (>= singer-stage 2))
                       (member? drink-state '("未邀请" "待答复" "已答应"
                                              "赴约" "婉拒" "错过")))
                 #t (error "第一幕存档：阶段非法"))

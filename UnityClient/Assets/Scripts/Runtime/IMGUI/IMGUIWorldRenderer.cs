@@ -137,6 +137,7 @@ namespace SSNoir.IMGUI
             _narrationPlayer = gameObject.AddComponent<UnityNarrationPlayer>();
             _voicePlayer = gameObject.AddComponent<DialogueVoicePlayer>();
             _banterPlayer = new BanterPlayer(_voicePlayer);
+            _banterPlayer.OnLineShown += _gameManager.ApplyBanterLineEffect;
             _conversationPlayer = new ConversationPlayer(_voicePlayer);
             _storyStagePlayer = new StoryStagePlayer(_voicePlayer, gameObject.AddComponent<AudioSource>());
             _theatrePlayer = new SSNoir.UnityTheatre.TheatrePlayer(transform);
@@ -962,7 +963,9 @@ namespace SSNoir.IMGUI
             _theatrePlayer.Update(Time.unscaledDeltaTime);
             _gameManager.GameState.NotificationCenter.Update(Time.deltaTime);
             _presentationPlayer.Update(Time.deltaTime);
-            _banterPlayer.Update(Time.deltaTime);
+            // 动作/换日的快照尚未落地时不推进气泡，防止逐句效果被旧快照覆盖。
+            if (!IsAnimationPlaying && !IsInputLocked)
+                _banterPlayer.Update(Time.deltaTime);
             // 结果实际首次绘制并展开后才开始阅读计时，避免布局动画吃掉这一秒。
             foreach (var residue in _cardResidues.Values)
                 if (residue.FuseSeconds > 0f && residue.FuseStartedAt < 0f && residue.RevealStartTime > 0f)
@@ -1647,11 +1650,11 @@ namespace SSNoir.IMGUI
                 Application.Quit();
         }
 
-        private static ActionTarget? SelectedRiskTarget(GameNode? node, string? selectedId)
+        private static GameNode? SelectedRiskTarget(GameNode? node, string? selectedId)
         {
             if (node == null || selectedId == null) return null;
             if (node.Id == selectedId && node.Risk != null)
-                return node.Risk.RiskTarget ?? node.Risk.ProgressTarget;
+                return node;
             foreach (var child in node.Children)
             {
                 var found = SelectedRiskTarget(child, selectedId);
@@ -2410,7 +2413,7 @@ namespace SSNoir.IMGUI
             {
                 int column = i % columnCount;
                 bool mustHandle = RestBlockerPresentation.ContainsTarget(nodes[i], _gameManager.DisplayedSnapshot.RestBlockers);
-                float markerSpace = ActionNodeDrawer.TopTabsRise(nodes[i], GridCardWidth, mustHandle);
+                float markerSpace = CardTagDrawer.MeasureRise(nodes[i], GridCardWidth, mustHandle, ClocksForCard(nodes[i]));
                 // 每张网格卡按自身内容定高（瀑布流本来就允许列内高度不齐）。以前这里是固定
                 // 190：副标题长一点、时钟徽章多一个，内容就只能在同一个盒子里互相挤。
                 float cardHeight = CardDrawer.MeasureCardHeight(

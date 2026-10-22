@@ -166,6 +166,13 @@
       "relativeHeight": 0.94,
       "crownInset": 10,
       "footCenter": null
+    },
+    {
+      "name": "露西",
+      "source": "角色库/露西/形象/露西_形象提案_20261021.png",
+      "relativeHeight": 0.93,
+      "crownInset": 20,
+      "footCenter": null
     }
   ]
 }

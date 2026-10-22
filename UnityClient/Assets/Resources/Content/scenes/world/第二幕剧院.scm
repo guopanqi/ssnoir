@@ -73,6 +73,62 @@
             (line "世界" "上一场试演，伴奏中途停下了。")
             (line "夜莺" "他们想结束，我还是把最后一段唱完了。")
             (line "夜莺" "结果怎么样，我现在也不想猜。")))))
+    ;; 一条线收拢已公开的彩排日程和亲眼遇到的后台事件。
+    ;; 不把后台故障、试演结果或私人谈话提前透露给玩家。
+    (define (trial-known?) (or (第二幕生活 'theater-seen?) sponsor-intro?))
+    (define (trial-done?) (not (equal? sponsor-result "未参与")))
+    (define (trial-now)
+      (cond
+        (sponsor-aftermath? "夜莺已经说起试演的经过，她把歌唱完了。")
+        ((equal? sponsor-result "修好设备") "你修好了伴奏设备，试演已结束。")
+        ((equal? sponsor-result "替代伴奏") "你找到了替代伴奏，试演已结束。")
+        ((equal? sponsor-result "争取清唱") "你替夜莺争取到清唱，试演已结束。")
+        ((equal? sponsor-result "她自己唱完") "夜莺自己把歌唱完了。")
+        ((equal? sponsor-result "未介入") "你决定不介入，夜莺和工作人员自行处理。")
+        ((> world-day 11) "赞助人试演的日程已过，还没听到现场的消息。")
+        (sponsor-intro?
+          (string-append "伴奏设备出了故障。" (第二幕-日期 11) "试演窗口结束前，可到后台帮忙。"))
+        ((< world-day 10) (string-append (第二幕-日期 10) "起，夜莺在大剧院为赞助人试演，持续两天。"))
+        (else (string-append "大剧院正在举行赞助人试演，" (第二幕-日期 11) "结束。"))))
+    (define (story-now)
+      (cond
+        ((and (>= world-day 13) 公告-夜莺看过?)
+          (if (equal? 公告-夜莺回答 "未答复")
+            "夜莺问你怎样看首演海报对旧港的描述，可以去剧院答复她。"
+            "你已经回应了夜莺对首演宣传的疑虑。"))
+        ((>= world-day 13) "晨报把夜莺的首演与旧港改造连在了一起。")
+        ((and sponsor-intro? (not (trial-done?)) (<= world-day 11)) (trial-now))
+        ((equal? listening "待答复") "夜莺又唱了一遍，正在等你说更喜欢哪一遍。今天可到剧院答复。")
+        ((and (<= world-day 8) (not (第一幕 'rehearsal-seen?)))
+          (string-append (第二幕-日期 8) "，夜莺在大剧院首次正式彩排，可以去看。"))
+        ((trial-known?) (trial-now))
+        ((第一幕 'rehearsal-seen?) "你看过夜莺的首次彩排。还没听到下一场的安排。")
+        ((<= world-day 8) (string-append (第二幕-日期 8) "，夜莺在大剧院首次正式彩排，可以去看。"))
+        (else "首次正式彩排已经结束，你没有到场。还没听到下一场的安排。")))
+    (define (story-steps)
+      (append
+        (list (step
+          (cond ((第一幕 'rehearsal-seen?) "到大剧院看过首次彩排")
+            ((> world-day 8) "首次彩排已结束，未到场")
+            (else (string-append (第二幕-日期 8) "去大剧院看首次彩排")))
+          (or (第一幕 'rehearsal-seen?) (> world-day 8))))
+        (if (equal? listening "待答复")
+          (list (step "今天去剧院，告诉夜莺更喜欢哪一遍" #f)) '())
+        (if (trial-known?)
+          (list (step
+            (cond ((and sponsor-intro? (not (trial-done?)) (<= world-day 11))
+                "去大剧院后台，帮她解决伴奏故障")
+              ((> world-day 11) "赞助人试演日程已结束")
+              ((trial-done?) "赞助人试演已有结果")
+              ((< world-day 10) (string-append (第二幕-日期 10) "起去大剧院看赞助人试演"))
+              (else "今天可去大剧院看赞助人试演"))
+            (or (trial-done?) (> world-day 11)))) '())
+        (if sponsor-aftermath? (list (step "听夜莺说起试演经过" #t)) '())
+        (if (>= world-day 13)
+          (list (step "晨报刊出首演与旧港改造的联合宣传" #t)) '())
+        (if (and (>= world-day 13) 公告-夜莺看过?)
+          (list (step "回应夜莺对宣传海报的疑虑"
+            (not (equal? 公告-夜莺回答 "未答复")))) '())))
     (define (nodes-at loc)
       (if (not (in-theater? loc)) '()
         (append
@@ -88,9 +144,13 @@
           (if (and (replay-time?) sponsor-intro?
                    (equal? sponsor-result "未参与"))
             (list (container "赞助人试演" (list
-              (instant-action "帮她想办法" (lambda ()
-                (start-encounter "赞助人试演" on-sponsor-result!)))
-              (instant-action "让她自己处理" stand-back!))))
+              (node "帮她想办法"
+                :clocks (list (第二幕-期限钟 "试演结束" 11 10))
+                :resolve (instant (outcome (lambda ()
+                  (start-encounter "赞助人试演" on-sponsor-result!)))))
+              (node "让她自己处理"
+                :clocks (list (第二幕-期限钟 "试演结束" 11 10))
+                :resolve (instant (outcome stand-back!))))))
             '())
           (if (and (>= world-day 12) (<= world-day 13)
                    (known?) (not old-port-talk?))
@@ -127,13 +187,11 @@
           ((eq? msg 'arrivals-at) (arrivals-at (cadr args)))
           ((eq? msg 'sponsor-result) sponsor-result)
           ((eq? msg 'dossier)
-            (if sponsor-intro?
-              (list (dossier "夜莺：赞助人试演" :kind '人物 :primary #f
-                :status (if (equal? sponsor-result "未参与") '进行中 '了结)
-                :now (if (equal? sponsor-result "未参与")
-                  "剧院的伴奏出了问题。第11天结束前可去后台看看是否要帮忙。"
-                  "那天的试演已经结束。夜莺仍有自己的打算。")
-                :where "剧院"))
+            (if (and (= (第一幕 'act) 2) (>= world-day 7))
+              (list (dossier "夜莺：大剧院" :kind '人物 :primary #t
+                :status (if (and (>= world-day 13) 公告-夜莺看过?
+                                (not (equal? 公告-夜莺回答 "未答复"))) '了结 '进行中)
+                :now (story-now) :steps (story-steps) :where "剧院"))
               '()))
           ((eq? msg 'save)
             (list (list "care" care-seen?)

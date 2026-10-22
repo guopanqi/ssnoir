@@ -1321,6 +1321,11 @@
 (define (play-bubble! . lines)
   (__play-banter! lines))
 
+;; 包装一条气泡：实际显示到此句时恢复冷静，并显示通知；不进入原动作结果。
+;; 不播放就不兑现，跨游戏日丢弃；同一条只兑现一次。仅限 play-bubble!。
+(define (bubble-restore-composure line-data actor-id amount notice)
+  (__bubble-restore-composure line-data actor-id amount notice))
+
 ;; 显式场外插话:未在场的说话人以不可交互的侧边临时卡承接。
 ;; 普通 play-bubble! 默认说话人在场；若无法锚定，也会临时降级为场外卡，但客户端会报警。
 (define (play-remote-bubble! . lines)

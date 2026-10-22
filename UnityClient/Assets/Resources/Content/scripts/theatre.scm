@@ -33,7 +33,12 @@
   (list 'tween id property (list seconds value (if (null? easing) 'linear (car easing)))))
 (define (theatre-image-to id asset) (list 'image id asset))
 (define (theatre-wait seconds) (list 'wait seconds))
-(define (theatre-say speaker text) (list 'say speaker text))
+;; 唯一对白入口：默认按字数自动停留，可选 seconds、color；点击补全或提前推进。
+(define (theatre-say speaker text . options)
+  (if (> (length options) 2) (error "theatre-say: expected optional seconds and color"))
+  (list 'say speaker text
+    (if (null? options) #f (car options))
+    (if (< (length options) 2) "#F0CF8A" (cadr options))))
 (define (theatre-sound id asset loop volume pan) (list 'sound id asset loop volume pan))
 (define (theatre-stop-sound id) (list 'stop-sound id))
 (define (theatre-sequence . commands) (cons 'sequence commands))
@@ -72,9 +77,6 @@
 (define (theatre-focus id x y inner outer)
   (theatre-object id "" 'focus (list inner outer) "#020409" "" ""
     (list (list 'x x) (list 'y y))))
-;; 定时字幕用于忠实移植自动播放原型；普通 say 仍然等待玩家。
-(define (theatre-caption-for speaker text seconds color)
-  (list 'caption-for speaker text seconds color))
 (define (theatre-clear-caption) (list 'clear-caption))
 
 (define (theatre-sound-after id asset loop volume pan seconds)
@@ -82,5 +84,3 @@
 
 ;; 自动播放；点击只结束作者允许略过的停留，不快进并行动作。
 (define (theatre-wait-advance seconds) (list 'wait-advance seconds))
-(define (theatre-caption-auto speaker text seconds color)
-  (list 'caption-auto speaker text seconds color))

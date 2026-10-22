@@ -13,6 +13,8 @@ namespace SSNoir.IMGUI
         {
             // Stable identity for the layout lifetime of this particular utterance.
             public long LayoutId;
+            public long StackId; // 连续同一说话人共用一个落点；换人或新序列重新建组。
+            public float Age;
             public DialogueLine Line = null!;
             public bool AllowsRemoteParticipants;
             // 普通 play-bubble! 锚定失败时，画面会降级为场外卡并发一次内容警告。
@@ -22,7 +24,7 @@ namespace SSNoir.IMGUI
             public float Remaining;   // 剩余可见时间
         }
 
-        private const float OverlapSeconds = 0.6f;   // 上一句残留,让"你一句我一句"看得到来回
+        private const float OverlapSeconds = 1.2f;   // 上一句残留,让"你一句我一句"看得到来回
         private const float VoiceTailSeconds = 0.15f; // 留出音频播放结束的极短尾部,避免切字
         private const int MaxQueued = 4;              // 队列上限,溢出丢最旧,避免连续操作后积压
         private static readonly IReadOnlyList<Bubble> NoVisibleBubbles = System.Array.Empty<Bubble>();
@@ -31,12 +33,15 @@ namespace SSNoir.IMGUI
         private readonly Queue<DialogueSequence> _queue = new();
         private readonly List<Bubble> _visible = new();
         private DialogueSequence? _current;
+        private Bubble? _lastSequenceBubble;
         private int _index;
         private float _timer;
         private bool _suspended;
         private long _nextLayoutId;
 
         public BanterPlayer(DialogueVoicePlayer? voice) => _voice = voice;
+
+        public event System.Action<DialogueLine>? OnLineShown;
 
         public IReadOnlyList<Bubble> Visible => _suspended ? NoVisibleBubbles : _visible;
 
@@ -59,11 +64,14 @@ namespace SSNoir.IMGUI
             float longest = 0f;
             foreach (var line in lines)
             {
+                if (line.RecoveryOnShow != null)
+                    throw new System.InvalidOperationException("回合同时气泡不支持逐句恢复。");
                 float dwell = DefaultDwellSeconds(line);
                 longest = Mathf.Max(longest, dwell);
                 _visible.Add(new Bubble
                 {
                     LayoutId = ++_nextLayoutId,
+                    StackId = _nextLayoutId,
                     Line = line,
                     AllowsRemoteParticipants = false,
                     PreferCardAnchor = true,
@@ -89,6 +97,7 @@ namespace SSNoir.IMGUI
             _queue.Clear();
             _visible.Clear();
             _current = null;
+            _lastSequenceBubble = null;
             _index = 0;
             _timer = 0f;
         }
@@ -100,6 +109,7 @@ namespace SSNoir.IMGUI
 
             for (int i = _visible.Count - 1; i >= 0; i--)
             {
+                _visible[i].Age += dt;
                 _visible[i].Remaining -= dt;
                 if (_visible[i].Remaining <= 0f)
                     _visible.RemoveAt(i);
@@ -108,6 +118,7 @@ namespace SSNoir.IMGUI
             if (_current == null && _queue.Count > 0)
             {
                 _current = _queue.Dequeue();
+                _lastSequenceBubble = null;
                 _index = 0;
                 ShowCurrentLine();
                 return;
@@ -128,8 +139,8 @@ namespace SSNoir.IMGUI
         }
 
         private static float DefaultDwellSeconds(DialogueLine line)
-            => line.DwellSeconds > 0f ? line.DwellSeconds
-                : Mathf.Clamp(1.6f + line.Text.Length * .075f, 2f, 6f);
+            => 2f * (line.DwellSeconds > 0f ? line.DwellSeconds
+                : Mathf.Clamp(1.6f + line.Text.Length * .075f, 2f, 6f));
 
         private void ShowCurrentLine()
         {
@@ -139,13 +150,29 @@ namespace SSNoir.IMGUI
             // 配音是停留时间的下限。显式 dwell 仍可延长气泡，但不能把音频截断。
             float dwell = Mathf.Max(textDwell, voiceDuration + VoiceTailSeconds);
             _timer = dwell;
-            _visible.Add(new Bubble
+            var previous = _lastSequenceBubble;
+            bool continues = previous != null && line.Speaker != "世界"
+                && previous.Line.Speaker == line.Speaker && previous.Line.Anchor == line.Anchor;
+            long id = ++_nextLayoutId;
+            long stackId = continues ? previous!.StackId : id;
+            if (continues)
             {
-                LayoutId = ++_nextLayoutId,
+                // 至多保留上一句和当前句；上文留到当前句结束，不只重叠一瞬间。
+                _visible.RemoveAll(b => b.StackId == stackId && b != previous);
+                previous!.Remaining = dwell + OverlapSeconds;
+                if (!_visible.Contains(previous)) _visible.Add(previous);
+            }
+            var bubble = new Bubble
+            {
+                LayoutId = id,
+                StackId = stackId,
                 Line = line,
                 AllowsRemoteParticipants = _current.AllowsRemoteParticipants,
                 Remaining = dwell + OverlapSeconds,
-            });
+            };
+            _visible.Add(bubble);
+            _lastSequenceBubble = bubble;
+            OnLineShown?.Invoke(line);
         }
     }
 }

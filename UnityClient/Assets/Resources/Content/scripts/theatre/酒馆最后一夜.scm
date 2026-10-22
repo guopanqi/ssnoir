@@ -1,0 +1,186 @@
+;; 第6天酒馆告别。剧情事实由第一幕持有，本场只编排演出。
+;; 参考下载稿的中央舞台、暖灯和三段旋律；观众无逐人寒暄。
+(define (酒馆最后一夜-演出 known? eddie? lucy?)
+  (define 图形 '())
+  (define 入座 '())
+  (define 散场 '())
+  (define (加 object) (set! 图形 (append 图形 (list object))))
+  (define (线 id parent color width points)
+    (加 (theatre-line id parent color width points)))
+  (define (面 id parent color points)
+    (加 (theatre-polygon id parent color points)))
+  (define (框 id parent x y w h color)
+    (线 id parent color 1.5
+      (list (list x y) (list (+ x w) y) (list (+ x w) (+ y h))
+        (list x (+ y h)) (list x y))))
+  (define (椅 id x y s)
+    (框 (string-append id "/椅背") "座椅" (- x (* 28 s)) (- y (* 105 s)) (* 56 s) (* 65 s) "#6E5844")
+    (线 (string-append id "/椅脚") "座椅" "#493D33" 1.4
+      (list (list (- x (* 30 s)) y) (list (- x (* 26 s)) (- y (* 44 s)))
+        (list (+ x (* 26 s)) (- y (* 44 s))) (list (+ x (* 30 s)) y))))
+  ;; 统一身体画布；景深缩放只按座位层次。落座是整体下沉，桌面自然遮腿。
+  (define (观众 id asset x y size delay from keep?)
+    (define s (/ size 250.0))
+    (椅 id x (+ y 42) s)
+    (加 (theatre-with (theatre-group id "" from y) 'opacity 0))
+    (if (equal? asset "")
+      (begin
+        (加 (theatre-with (theatre-group (string-append id "/轮廓") id 0 0) 'scale-x s))
+        (加 (theatre-with (theatre-group (string-append id "/体型") (string-append id "/轮廓") 0 0) 'scale-y s))
+        (面 (string-append id "/头") (string-append id "/体型") "#17171B"
+          (theatre-prefix (theatre-ellipse-points 0 -170 18 23) 48))
+        (线 (string-append id "/头沿") (string-append id "/体型") "#8E7962" 1
+          (theatre-ellipse-points 0 -170 18 23))
+        (面 (string-append id "/身") (string-append id "/体型") "#141419"
+          '((-16 -148) (16 -148) (34 -118) (31 -52) (-31 -52) (-34 -118)))
+        (线 (string-append id "/肩") (string-append id "/体型") "#75634E" 1
+          '((-31 -54) (-34 -118) (-16 -148) (16 -148) (34 -118) (31 -54)))
+        (面 (string-append id "/腿") (string-append id "/体型") "#141419"
+          '((-29 -53) (29 -53) (24 0) (-24 0))))
+      (加 (theatre-image (string-append id "/像") id asset 0 0 size size "")))
+    (set! 入座 (append 入座 (list
+      (theatre-sequence
+        (theatre-wait (+ .01 delay))
+        (theatre-during
+          (theatre-parallel (theatre-tween id 'opacity 1 .65)
+            (theatre-tween id 'x x 2.8 'smooth))
+          (theatre-loop (theatre-animate id 'y
+            (list (list 0 y) (list .16 (- y 3)) (list .32 y)))))
+        (theatre-tween id 'y y .1)
+        (theatre-tween id 'y (+ y (* 36 s)) .65 'smooth)))))
+    (if keep? #f
+      (set! 散场 (append 散场 (list
+        (theatre-sequence (theatre-wait (+ .01 (* delay .35)))
+          (theatre-tween id 'opacity 0 1.9 'smooth)))))))
+  (define (桌 id x y w)
+    ;; 凸面遮挡到脚底，不靠拉扁人物伪造坐姿。
+    (面 (string-append id "/暗面") "桌子" "#0B0B10"
+      (list (list (- x w) y) (list (+ x w) y)
+        (list (+ x (* w .86)) (+ y 122)) (list (- x (* w .86)) (+ y 122))))
+    (线 (string-append id "/桌沿") "桌子" "#A08258" 1.8
+      (theatre-ellipse-points x y w (* w .16)))
+    (线 (string-append id "/脚") "桌子" "#534333" 1.5
+      (list (list x (+ y 8)) (list x (+ y 122))))
+    (框 (string-append id "/杯") "桌子" (- x 6) (- y 20) 12 17 "#B6AA93")
+    (加 (theatre-with (theatre-glow (string-append id "/灯") "桌子" "#DBA457" (+ x 29) (- y 13) 55 40) 'opacity .13)))
+
+  (加 (theatre-group "布景" "" 0 0))
+  (面 "后墙" "布景" "#0D0B11" '((0 150) (1600 150) (1600 610) (0 610)))
+  (线 "墙脚" "布景" "#473E39" 1 '((0 610) (1600 610)))
+  (线 "地板左" "布景" "#26232A" 1 '((440 610) (100 900)))
+  (线 "地板右" "布景" "#26232A" 1 '((1160 610) (1500 900)))
+  (框 "舞台台面" "布景" 490 565 620 52 "#C8AA77")
+  (线 "舞台沿" "布景" "#7B6248" 1.5 '((490 580) (1110 580)))
+  (线 "拱顶" "布景" "#D4B580" 2
+    (theatre-cubic '(440 250) '(620 165) '(980 165) '(1160 250) 32))
+  (map (lambda (x)
+    (线 (string-append "帘/" (number->string x)) "布景" "#645041" 1.5
+      (list (list x 250) (list x 565)))) '(440 461 482 1118 1139 1160))
+  (map (lambda (x)
+    (线 (string-append "灯线/" (number->string x)) "布景" "#544638" 1
+      (list (list x 0) (list x 197)))
+    (加 (theatre-with
+      (theatre-glow (string-append "暖灯/" (number->string x)) "布景" "#FFD18A" x 200 55 55) 'opacity .35)))
+    '(200 320 440 560 680 800 920 1040 1160 1280 1400))
+  (框 "吧台左" "布景" 80 490 290 50 "#6C5644")
+  (框 "吧台右" "布景" 1230 490 290 50 "#6C5644")
+  (map (lambda (x)
+    (框 (string-append "瓶/" (number->string x)) "布景" x 455 13 33 "#7A7564"))
+    '(110 140 180 220 270 310 1250 1290 1330 1380 1420 1470))
+  (框 "钢琴" "布景" 950 437 120 128 "#A68B65")
+  (框 "琴键" "布景" 950 492 120 15 "#D9CFB3")
+  (map (lambda (x)
+    (线 (string-append "琴键/" (number->string x)) "布景" "#7A6B56" 1
+      (list (list x 492) (list x 507)))) '(960 970 980 990 1000 1010 1020 1030 1040 1050 1060))
+  (线 "琴凳" "布景" "#8B7354" 2 '((978 565) (978 535) (1040 535) (1040 565)))
+  (加 (theatre-light "追光" "" "#F3D08A" 800 370 600 .6))
+  (加 (theatre-with (theatre-polygon "光束" "追光" "#F3D08A"
+    '((-35 -370) (35 -370) (230 195) (-230 195))) 'opacity .045))
+  (加 (theatre-with (theatre-glow "台上光池" "" "#F3D08A" 800 565 460 75) 'opacity .16))
+  (加 (theatre-group "座椅" "" 0 0))
+  (加 (theatre-with (theatre-group "夜莺位置" "" 805 565) 'opacity 0))
+  (加 (theatre-group "夜莺表演" "夜莺位置" 0 0))
+  (加 (theatre-image "夜莺" "夜莺表演" "Portraits/Neon/夜莺" 0 0 308 308 "追光"))
+  (线 "话筒架" "" "#CCC5B6" 2 '((765 565) (765 402) (784 391)))
+  (线 "话筒脚" "" "#CCC5B6" 2 '((748 565) (782 565)))
+  (加 (theatre-glow "话筒" "" "#DAD4C8" 785 389 15 7))
+  (加 (theatre-group "桌子" "" 0 0))
+  ;; 从远到近排座位，熟人穿插其中；中间留出走向舞台的过道。
+  (观众 "后排左一" "" 135 710 220 .1 -160 #f)
+  (观众 "后排左二" "" 330 710 220 1.1 -160 #f)
+  (观众 "后排右一" "" 1200 710 220 .5 1760 #f)
+  (观众 "后排右二" "" 1430 710 220 2.3 1760 #f)
+  (if eddie? (观众 "艾迪" "Portraits/Neon/艾迪" 1320 735 240 1.4 1760 #f)
+    (观众 "右侧观众" "" 1320 735 240 1.4 1760 #f))
+  (桌 "左后桌" 235 656 140)
+  (桌 "右后桌" 1330 676 155)
+  (观众 "中排左一" "" 225 770 250 2.7 -180 #f)
+  (if lucy? (观众 "露西" "Portraits/Neon/露西" 385 780 250 1.7 -180 #f)
+    (观众 "左侧观众" "" 385 780 250 1.7 -180 #f))
+  (观众 "中排右一" "" 1130 790 250 3.2 1780 #f)
+  (桌 "左中桌" 335 733 145)
+  (桌 "右中桌" 1125 747 112)
+  (观众 "尼尔位置" "Portraits/Neon/尼尔" 600 810 280 .8 -200 #t)
+  (桌 "尼尔桌" 590 764 106)
+  (观众 "前排左一" "" 120 860 290 3.5 -180 #f)
+  (观众 "前排右一" "" 1470 860 290 3.8 1780 #f)
+  (观众 "调酒师" "Portraits/Neon/调酒师" 1030 855 280 2.1 1780 #f)
+  (桌 "左前桌" 120 817 114)
+  (桌 "右前桌" 1460 817 114)
+  (桌 "酒保桌" 985 811 124)
+
+  (play-theatre! (theatre-scene 1600 900 "#09080D" 图形)
+    (theatre-sound "酒馆" "StageSounds/老街酒馆/杂声" #t .18 0)
+    (theatre-sound "脚步" "StageSounds/老街酒馆/脚步" #t .24 0)
+    (apply theatre-parallel 入座)
+    (theatre-stop-sound "脚步")
+    (theatre-parallel (theatre-volume "酒馆" .035 1.2)
+      (theatre-tween "夜莺位置" 'opacity 1 1.4))
+    (theatre-say "夜莺" "大家晚上好。这首歌送给今晚在场的每一个人。" 3.52 "#8FD9D0")
+    (theatre-clear-caption)
+    (theatre-sound "歌" "StageSounds/酒馆告别/最后一首" #f .8 0)
+    (theatre-during
+      (theatre-sequence
+        (theatre-tween "追光" 'brightness .85 3 'smooth)
+        (theatre-wait 6)
+        (theatre-image-to "夜莺" "Portraits/Neon/夜莺_仰头")
+        (theatre-tween "追光" 'brightness 1.15 9 'smooth)
+        (theatre-wait 5)
+        (theatre-image-to "夜莺" "Portraits/Neon/夜莺")
+        (theatre-tween "追光" 'brightness .6 5 'smooth)
+        (theatre-wait 2))
+      (theatre-loop (theatre-animate "夜莺表演" 'rotation '((0 0) (1.5 1.2) (3 0) (4.5 -1.2) (6 0)))))
+    (theatre-tween "夜莺表演" 'rotation 0 .5)
+    (theatre-image-to "夜莺" "Portraits/Neon/夜莺_低头")
+    (theatre-sound "掌声" "StageSounds/老街酒馆/人群哗" #f .4 0)
+    (theatre-wait 2)
+    (theatre-image-to "夜莺" "Portraits/Neon/夜莺")
+    (theatre-say "夜莺" "谢谢大家。" 2.00 "#8FD9D0")
+    (theatre-clear-caption)
+    (apply theatre-parallel (append 散场
+      (list (theatre-volume "酒馆" 0 3.5)
+        (theatre-tween "桌子" 'opacity .22 3.5)
+        (theatre-tween "座椅" 'opacity .22 3.5))))
+    (theatre-stop-sound "酒馆")
+    (if known?
+      (theatre-sequence
+        ;; 先起身，再沿过道靠近；不把坐着的人直接滑向台上。
+        (theatre-tween "尼尔位置" 'y 810 .6 'smooth)
+        (theatre-parallel (theatre-tween "尼尔位置" 'x 650 2 'smooth)
+          (theatre-tween "尼尔位置" 'y 670 2 'smooth))
+        (theatre-parallel (theatre-tween "夜莺位置" 'x 875 1.4 'smooth)
+          (theatre-tween "夜莺位置" 'y 670 1.4 'smooth)
+          (theatre-tween "尼尔位置" 'scale-x 1.1 1.4)
+          (theatre-tween "尼尔位置" 'scale-y 1.1 1.4)
+          (theatre-tween "布景" 'opacity .35 1.4)
+          (theatre-tween "话筒架" 'opacity 0 1)
+          (theatre-tween "话筒脚" 'opacity 0 1)
+          (theatre-tween "话筒" 'opacity 0 1))
+        (theatre-say "夜莺" "往后想听我唱歌，可就得买大剧院的票了。" 3.28 "#8FD9D0")
+        (theatre-say "尼尔" "那恐怕我买不起了。" 2.08 "#F0CF8A")
+        (theatre-say "夜莺" "等我混熟了，想办法把你从运道具的后门放进去。" 3.64 "#8FD9D0")
+        (theatre-say "尼尔" "祝你好运。" 2.00 "#F0CF8A")
+        (theatre-say "夜莺" "走了，尼尔。" 2.00 "#8FD9D0"))
+      (theatre-wait 1.5))
+    (theatre-clear-caption)
+    (theatre-wait 1)))

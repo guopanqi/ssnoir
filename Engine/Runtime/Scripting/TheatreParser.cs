@@ -147,12 +147,14 @@ namespace SSNoir.Scripting
                 }
                 else if (op == "wait" || op == "wait-advance") { Count(c, 2, op); command = new TheatreCommand { Kind = TheatreCommandKind.Wait, CanAdvance = op == "wait-advance", Seconds = Positive(c[1]) }; }
                 else if (op == "clear-caption") { Count(c, 1, op); command = new TheatreCommand { Kind = TheatreCommandKind.ClearCaption }; }
-                else if (op == "say" || op == "caption-for" || op == "caption-auto")
+                else if (op == "say")
                 {
-                    Count(c, op == "say" ? 3 : 5, op);
-                    command = new TheatreCommand { Kind = TheatreCommandKind.Say, CanAdvance = op == "caption-auto", Target = Id(c[1]), Text = Id(c[2]),
-                        Seconds = op == "say" ? 0f : Positive(c[3]),
-                        CaptionColor = op == "say" ? new TheatreColor(.94f, .81f, .54f) : Color(Text(c[4])) };
+                    Count(c, 5, op);
+                    string text = Id(c[2]);
+                    float seconds = c[3] is bool automatic && !automatic
+                        ? Math.Max(2f, 1f + text.Length * .12f) : Positive(c[3]);
+                    command = new TheatreCommand { Kind = TheatreCommandKind.Say, CanAdvance = true,
+                        Target = Id(c[1]), Text = text, Seconds = seconds, CaptionColor = Color(Text(c[4])) };
                 }
                 else if (op == "sound")
                 {
@@ -189,7 +191,6 @@ namespace SSNoir.Scripting
         }
         private static float MinimumDuration(TheatreCommand cue)
         {
-            if (cue.Kind == TheatreCommandKind.Say && cue.Seconds == 0) return float.NegativeInfinity;
             if (cue.Children.Count == 0) return cue.Seconds;
             float value = 0;
             foreach (var child in cue.Children)
