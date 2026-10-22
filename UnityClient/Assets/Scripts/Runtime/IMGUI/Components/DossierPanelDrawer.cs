@@ -243,7 +243,10 @@ namespace SSNoir.IMGUI
         // 玩家每天照着做决定的那几个数一开始就在眼前。取消过的记在存档里，不许自动弹回来；
         // 了结的线自己退下地图，不占取消名额。以前是「只钉一条、默认第一条」——
         // 于是地图上老挂着一条玩家没选过的线，和面板里的钉子对不上。
-        private static HashSet<string> Unpinned(SSNoirGameManager gameManager)
+        // 默认只把真正重要的事（:primary）留在地图上；人物约定与个人打算
+        // 先在「手头的事」面板中，玩家仍可主动钉住。复用旧存档键：
+        // ID = 曾取消钉住；+ID = 主动钉住默认不显示的事项。
+        private static HashSet<string> PinOverrides(SSNoirGameManager gameManager)
         {
             string raw = gameManager.GameState.Get<string>(SceneManager.DossierUnpinnedKey, string.Empty);
             var set = new HashSet<string>();
@@ -253,25 +256,40 @@ namespace SSNoir.IMGUI
         }
 
         public static bool IsPinned(SSNoirGameManager gameManager, DossierEntry e)
-            => !e.IsClosed && !Unpinned(gameManager).Contains(e.Id);
+        {
+            if (e.IsClosed) return false;
+            var preferences = PinOverrides(gameManager);
+            if (preferences.Contains("+" + e.Id)) return true;
+            if (preferences.Contains(e.Id)) return false;
+            return e.IsPrimary;
+        }
 
-        /// <summary>钉住的线，按卷宗顺序（主要在前，每组内主线 → 委托 → 人物/城市）。</summary>
         public static List<DossierEntry> PinnedEntries(SSNoirGameManager gameManager)
         {
             var result = new List<DossierEntry>();
-            var unpinned = Unpinned(gameManager);
             foreach (var e in Ordered(gameManager.DisplayedSnapshot.Dossier))
-                if (!e.IsClosed && !unpinned.Contains(e.Id))
-                    result.Add(e);
+                if (IsPinned(gameManager, e)) result.Add(e);
             return result;
         }
 
         private static void TogglePin(SSNoirGameManager gameManager, string id)
         {
-            var unpinned = Unpinned(gameManager);
-            if (!unpinned.Remove(id))
-                unpinned.Add(id);
-            gameManager.SceneManager.SetDossierUnpinned(unpinned);
+            var preferences = PinOverrides(gameManager);
+            DossierEntry? entry = null;
+            foreach (var e in gameManager.DisplayedSnapshot.Dossier)
+                if (e.Id == id) { entry = e; break; }
+            if (entry == null) throw new System.InvalidOperationException("Unknown item: " + id);
+            if (IsPinned(gameManager, entry))
+            {
+                preferences.Remove("+" + id);
+                preferences.Add(id);
+            }
+            else
+            {
+                preferences.Remove(id);
+                preferences.Add("+" + id);
+            }
+            gameManager.SceneManager.SetDossierUnpinned(preferences);
         }
 
         // ── 面板 ─────────────────────────────────────────────────────────

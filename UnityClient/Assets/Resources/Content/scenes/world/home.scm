@@ -550,7 +550,7 @@
           ((equal? msg 'dossier)
            (if (renting?)
                (list (dossier "旅馆房费"
-                 :kind '城市 :primary (not (get-global '首次房租已交))
+                 :kind '城市 :primary #t
                  :status '进行中
                  :now (if (get-global '首次房租已交)
                    "每四天收取40美元房费；钱不够，旅馆老板只能再宽限几天。"

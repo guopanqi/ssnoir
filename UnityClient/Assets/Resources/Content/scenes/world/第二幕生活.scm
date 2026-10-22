@@ -95,7 +95,8 @@
       (set! visited-theater? #t)
       (play-dialogue!
         (line "世界" "大剧院前厅贴着临工招募纸。")
-        (line "工作人员" "后台缺人搬景片，还要人递剧本。")))
+        (line "工作人员" "后台缺人搬景片，还要人递剧本。")
+        (line "工作人员" "第十天有赞助人来看试演，现场会更忙。")))
     (define (theater-job! money failure?)
       (add-item! "金钱" money)
       (if failure? (spend-composure! 1) #f)
@@ -176,6 +177,7 @@
           ((eq? msg 'nodes-at) (nodes-at (cadr args)))
           ((eq? msg 'arrivals-at) (arrivals-at (cadr args)))
           ((eq? msg 'on-dock-work!) (on-dock-work!))
+          ((eq? msg 'theater-seen?) visited-theater?)
           ((eq? msg 'save)
             (list (list "street" visited-street?)
                   (list "invited" invited?)
