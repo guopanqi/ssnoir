@@ -68,6 +68,7 @@
       (play-dialogue!
         (line "世界" "大剧院前厅贴着临工招募纸。")
         (line "工作人员" "后台缺人搬景片，还要人递剧本。")
+        (line "工作人员" "老伴奏线路总接触不良，就怕赞助人试演那天掉链子。")
         (line "工作人员" (cond
           ((< world-day 10) (string-append (第二幕-日期 10) "起，赞助人连着两天来看试演，现场会更忙。"))
           ((<= world-day 11) (string-append "赞助人正在看试演，" (第二幕-日期 11) "结束。后台忙得很。"))
@@ -132,6 +133,7 @@
           ((eq? msg 'arrivals-at) (arrivals-at (cadr args)))
           ((eq? msg 'on-dock-work!) (on-dock-work!))
           ((eq? msg 'theater-seen?) visited-theater?)
+          ((eq? msg 'met-frank?) met-frank?)
           ((eq? msg 'save)
             (list (list "street" visited-street?)
                   (list "invited" invited?)
