@@ -5,6 +5,8 @@
 (define 试演时间 (make-clock "试演剩余时间" 4 'countdown "导演与赞助人不会一直等。" :beneficial-direction 'increase))
 (define 试演结束? #f)
 (define 当前办法 "未定")
+(define 设备预检? #f)
+(define 旧乐手已约? #f)
 (define (试演收场! outcome)
   (if 试演结束? (error "赞助人试演：交锋重复结算") #t)
   (set! 试演结束? #t)
@@ -35,7 +37,7 @@
     (begin
       (set! 当前办法 (symbol->string route))
       (修理进展 'load! (if (and (eq? route '修好设备)
-                                       (第二幕剧院 'equipment-ready?)) 1 0)))
+                                       设备预检?) 1 0)))
     #f)
   (修理进展 'advance! progress)
   (试演时间 'advance! (- cost))
@@ -52,21 +54,23 @@
       (play-dialogue!
         (line "导演" "先去想办法修伴奏。我还没有答应你。")))))
 (define (on-encounter-enter)
-  (修理进展 'load! (if (第二幕剧院 'equipment-ready?) 1 0))
+  (set! 设备预检? (get-global '第二幕设备准备))
+  (set! 旧乐手已约? (get-global '第二幕乐手预订))
+  (修理进展 'load! (if 设备预检? 1 0))
   (试演时间 'load! 4)
   (set! 试演结束? #f)
-  (set! 当前办法 (if (第二幕剧院 'equipment-ready?) "修好设备" "未定"))
+  (set! 当前办法 (if 设备预检? "修好设备" "未定"))
   (play-dialogue!
     (line "世界" "大剧院。赞助人的试演即将开始，伴奏装置却忽然停了。")
     (line "工作人员" "重新开机至少还得等一会儿。")
     (line "导演" "我们的客人马上就要走了。")
     (line "夜莺" "我可以先唱。")
     (line "导演" "你先等着。"))
-  (if (第二幕剧院 'equipment-ready?)
+  (if 设备预检?
     (play-dialogue!
       (line "工作人员" "你前两天做过的线路标记还在。修的话能省去不少时间。"))
     #f)
-  (if (第二幕剧院 'musician-booked?)
+  (if 旧乐手已约?
     (play-dialogue!
       (line "乐手" "你付过订金，今天我就在。要不要我上场？"))
     #f))
@@ -77,7 +81,7 @@
     (append
       (clock-nodes (试演时间 'render-data) (修理进展 'render-data))
       (append
-        (if (第二幕剧院 'musician-booked?)
+        (if 旧乐手已约?
           (list (node "请已预约的乐手"
             :subtitle "订金已在旧街支付；让乐手直接上场"
             :resolve (instant (outcome (lambda () (试演收场! '替代伴奏))))))
