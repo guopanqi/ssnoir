@@ -34,36 +34,36 @@ test("theatre relation scenes are optional, only open with a real shared history
   await vm.evaluate("(set! world-day 9)");
   assert.equal(await count(vm,`(第二幕剧院 'nodes-at "剧院")`),0);
   await singer(vm,9);
-  assert.equal(await count(vm,`(第二幕剧院 'arrivals-at "剧院")`),1);
-  assert.equal(await count(vm,`(第二幕剧院 'nodes-at "剧院")`),1);
+  assert.equal(await count(vm,`(第二幕剧院 'arrivals-at "剧院")`),0);
+  assert.equal(await count(vm,`(第二幕剧院 'nodes-at "剧院")`),2);
   await vm.evaluate('(第二幕剧院 \'load! (list (list "listening" "酒馆") (list "care" #t)))');
   assert.equal(await count(vm,`(第二幕剧院 'nodes-at "剧院")`),0);
 });
 test("sponsor replay has its own date window; if skipped, Nightingale still performed",async()=>{
   const {vm}=await setup();
   await singer(vm,10);
-  assert.equal(await count(vm,`(第二幕剧院 'arrivals-at "剧院")`),1);
+  assert.equal(await count(vm,`(第二幕剧院 'arrivals-at "剧院")`),0);
   await vm.evaluate('(第二幕剧院 \'load! (list (list "sponsor-intro" #t)))');
   assert.equal(await count(vm,`(第二幕剧院 'nodes-at "剧院")`),1);
   await vm.evaluate("(set! world-day 12)");
   await vm.evaluate('(第二幕剧院 \'load! (list (list "sponsor-result" "错过")))');
-  assert.equal(await count(vm,`(第二幕剧院 'arrivals-at "剧院")`),1);
-  assert.equal(await count(vm,`(第二幕剧院 'nodes-at "剧院")`),1);
+  assert.equal(await count(vm,`(第二幕剧院 'arrivals-at "剧院")`),0);
+  assert.equal(await count(vm,`(第二幕剧院 'nodes-at "剧院")`),2);
   await vm.evaluate("(set! world-day 14)");
   assert.equal(await count(vm,`(第二幕剧院 'nodes-at "剧院")`),0);
 });
 test("wage and school paths do not show intimate aftermath without having met people",async()=>{
   const {vm}=await setup();
   await vm.evaluate("(set! world-day 13)");
-  assert.equal(await count(vm,`(第二幕余波 'arrivals-at "码头")`),0);
-  assert.equal(await count(vm,`(第二幕余波 'arrivals-at "街角咖啡馆")`),0);
+  assert.equal(await count(vm,`(第二幕余波 'nodes-at "码头")`),0);
+  assert.equal(await count(vm,`(第二幕余波 'nodes-at "街角咖啡馆")`),0);
   await vm.evaluate('(第一幕 \'on-work! "码头" \'好)');
   await vm.evaluate('(第一幕 \'on-work! "街角咖啡馆" \'好)');
-  assert.equal(await count(vm,`(第二幕余波 'arrivals-at "码头")`),1);
-  assert.equal(await count(vm,`(第二幕余波 'arrivals-at "街角咖啡馆")`),1);
+  assert.equal(await count(vm,`(第二幕余波 'nodes-at "码头")`),1);
+  assert.equal(await count(vm,`(第二幕余波 'nodes-at "街角咖啡馆")`),1);
   await vm.evaluate('(第二幕余波 \'load! (list (list "eddie-seen" #t) (list "lucy-seen" #t)))');
-  assert.equal(await count(vm,`(第二幕余波 'arrivals-at "码头")`),0);
-  assert.equal(await count(vm,`(第二幕余波 'arrivals-at "街角咖啡馆")`),0);
+  assert.equal(await count(vm,`(第二幕余波 'nodes-at "码头")`),0);
+  assert.equal(await count(vm,`(第二幕余波 'nodes-at "街角咖啡馆")`),0);
 });
 test("sponsor encounter has one deadline, progress and three distinct helping methods",async()=>{
   const {vm}=await setup();
@@ -83,18 +83,18 @@ test("sponsor encounter has one deadline, progress and three distinct helping me
 test("city announcement is public, but intimate reactions follow separately known characters",async()=>{
   const {vm}=await setup();
   await vm.evaluate("(set! world-day 13)");
-  assert.equal(await count(vm,`(第二幕公告 'arrivals-at "剧院")`),0);
-  assert.equal(await count(vm,`(第二幕公告 'arrivals-at "码头")`),0);
-  assert.equal(await count(vm,`(第二幕公告 'arrivals-at "街角咖啡馆")`),0);
+  assert.equal(await count(vm,`(第二幕公告 'nodes-at "剧院")`),0);
+  assert.equal(await count(vm,`(第二幕公告 'nodes-at "码头")`),0);
+  assert.equal(await count(vm,`(第二幕公告 'nodes-at "街角咖啡馆")`),0);
   await singer(vm,13);
   await vm.evaluate('(第一幕 \'on-work! "码头" \'好)');
   await vm.evaluate('(第一幕 \'on-work! "街角咖啡馆" \'好)');
-  assert.equal(await count(vm,`(第二幕公告 'arrivals-at "剧院")`),1);
-  assert.equal(await count(vm,`(第二幕公告 'arrivals-at "码头")`),1);
-  assert.equal(await count(vm,`(第二幕公告 'arrivals-at "街角咖啡馆")`),1);
+  assert.equal(await count(vm,`(第二幕公告 'nodes-at "剧院")`),1);
+  assert.equal(await count(vm,`(第二幕公告 'nodes-at "码头")`),1);
+  assert.equal(await count(vm,`(第二幕公告 'nodes-at "街角咖啡馆")`),1);
   await vm.evaluate('(第二幕公告 \'load! (list (list "eddie" #t) (list "lucy" #t) (list "singer" #t) (list "answer" "质疑")))');
-  assert.equal(await count(vm,`(第二幕公告 'arrivals-at "剧院")`),0);
-  assert.equal(await count(vm,`(第二幕公告 'arrivals-at "码头")`),0);
+  assert.equal(await count(vm,`(第二幕公告 'nodes-at "剧院")`),0);
+  assert.equal(await count(vm,`(第二幕公告 'nodes-at "码头")`),0);
   assert.equal(await count(vm,`(第二幕公告 'nodes-at "剧院")`),0);
   assert.equal(await vm.evaluateNumber('(if (equal? (第二幕公告 \'singer-answer) "质疑") 1 0)'),1);
 });
@@ -105,13 +105,14 @@ test("wage dispute and school application require an actual introduction",async(
   assert.equal(await count(vm,`(第二幕 'nodes-at "街角咖啡馆")`),0);
   await vm.evaluate('(第一幕 \'on-work! "码头" \'好)');
   await vm.evaluate('(第一幕 \'on-work! "街角咖啡馆" \'好)');
-  assert.equal(await count(vm,`(第二幕 'arrivals-at "码头")`),1);
-  assert.equal(await count(vm,`(第二幕 'arrivals-at "街角咖啡馆")`),1);
-  await vm.evaluate('(第二幕 \'load! (list (list "wage-introduced" #t) (list "lucy-introduced" #t)))');
+  assert.equal(await count(vm,`(第二幕 'arrivals-at "码头")`),0);
+  assert.equal(await count(vm,`(第二幕 'arrivals-at "街角咖啡馆")`),0);
+  await vm.evaluate("(第二幕 'on-dock-work!)");
+  await vm.evaluate("(第二幕 'on-cafe-work!)");
   assert.equal(await count(vm,`(第二幕 'nodes-at "码头")`),1);
   assert.equal(await count(vm,`(第二幕 'nodes-at "街角咖啡馆")`),2);
   await vm.evaluate("(set! world-day 12)");
-  assert.equal(await count(vm,`(第二幕 'nodes-at "码头")`),0);
+  assert.equal(await count(vm,`(第二幕 'nodes-at "码头")`),1);
 });
 
 test("a strong wage roll does not skip the worker's job-at-risk decision",async()=>{
@@ -134,14 +135,16 @@ test("act two adds accessible street and theater routines without friendship gat
   const {vm}=await setup();
   assert.equal(await count(vm,`(第二幕生活 'nodes-at "码头居民区")`),0);
   await singer(vm,7);
-  assert.equal(await count(vm,`(第二幕生活 'nodes-at "码头居民区")`),4);
-  assert.equal(await count(vm,`(第二幕生活 'nodes-at "剧院")`),1);
-  assert.equal(await count(vm,`(第二幕生活 'arrivals-at "码头居民区")`),1);
+  assert.equal(await count(vm,`(第二幕生活 'nodes-at "码头居民区")`),3);
+  assert.equal(await count(vm,`(第二幕生活 'nodes-at "剧院")`),2);
+  assert.equal(await count(vm,`(第二幕生活 'arrivals-at "码头居民区")`),0);
   await vm.evaluate("(set! world-day 8)");
-  assert.equal(await count(vm,`(第二幕生活 'arrivals-at "码头居民区")`),2);
-  await vm.evaluate(`(第二幕生活 'load! (list (list "street" #t) (list "frank" #t) (list "theater" #t) (list "soup-day" 8)))`);
+  assert.equal(await count(vm,`(第二幕生活 'arrivals-at "码头居民区")`),0);
+  await vm.evaluate(`(第二幕生活 'load! (list (list "street" #t) (list "frank" #t) (list "theater" #t) (list "stage-worked" #t)))`);
   assert.equal(await count(vm,`(第二幕生活 'arrivals-at "码头居民区")`),0);
   assert.equal(await count(vm,`(第二幕生活 'arrivals-at "剧院")`),0);
+  assert.equal(await count(vm,`(第二幕生活 'nodes-at "码头居民区")`),2);
+  assert.equal(await count(vm,`(第二幕生活 'nodes-at "剧院")`),0);
 });
 
 test("second act things-to-do distinguishes public plans from private matters",async()=>{
@@ -150,8 +153,8 @@ test("second act things-to-do distinguishes public plans from private matters",a
   assert.equal(await count(vm,`(第二幕 'dossier)`),0);
   assert.equal(await count(vm,`(第二幕生活 'dossier)`),2);
   assert.equal(await count(vm,`(第二幕剧院 'dossier)`),1);
-  assert.equal(await count(vm,`(第二幕生活 'nodes-at "家")`),1);
-  await vm.evaluate('(第二幕生活 \'load! (list (list "remembered-card" #t)))');
+  assert.equal(await count(vm,`(第二幕生活 'nodes-at "家")`),0);
+  await vm.evaluate('(第二幕生活 \'load! (list (list "stage-worked" #t)))');
   assert.equal(await count(vm,`(第二幕生活 'nodes-at "家")`),0);
   await vm.evaluate("(set! world-day 9)");
   assert.equal(await count(vm,`(第二幕 'dossier)`),0);
