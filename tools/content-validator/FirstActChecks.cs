@@ -74,10 +74,14 @@ public static class FirstActChecks
         Assert(Entry("夜莺：大剧院").Now.Contains("今天"), "彩排当天自动更新相对日期");
         Eval("(set! world-day 9)");
         scenes.EnterPlace("街角咖啡馆");
+        Assert(!scenes.CurrentDossier.Any(e => e.Id == "露西：夜校报名"), "仅进入咖啡馆不应揭示露西的私事");
+        Act(scenes, "问露西报名");
         Assert(Entry("露西：夜校报名").Now.Contains("3天后"), "听到报名请求后显示真实截止日期");
         scenes.EnterPlace("码头");
+        Act(scenes, "问艾迪工钱");
         Assert(Entry("艾迪：少了十块钱").Now.Contains("后天"), "工钱纠纷显示封账期限");
         scenes.EnterPlace("剧院");
+        Act(scenes, "看看剧院招工告示");
         Assert(Entry("夜莺：大剧院").Now.Contains("明天起"), "听到试演安排后归入夜莺同一条线");
         Assert(!Entry("夜莺：大剧院").Now.Contains("故障"), "尚未遇见后台事件时不透露故障");
         Act(scenes, "替露西顶班");
@@ -85,6 +89,8 @@ public static class FirstActChecks
             && Entry("露西：夜校报名").Now.Contains("还没听到报名结果"), "真实顶班后保留事项等待结果");
         Eval("(set! world-day 10)");
         scenes.EnterPlace("剧院");
+        Assert(!Entry("夜莺：大剧院").Now.Contains("故障"), "只进入剧院不会自动触发试演故障");
+        Act(scenes, "看看赞助人试演");
         Assert(Entry("夜莺：大剧院").Now.Contains("故障"), "亲眼遇到故障才更新当前行动");
         Assert(scenes.CurrentDossier.Count(e => e.Id.StartsWith("夜莺：")) == 1, "彩排和试演只占同一条故事线");
         Eval("(set! world-day 11)");
@@ -93,9 +99,11 @@ public static class FirstActChecks
         Eval("(set! world-day 12)");
         Assert(!Has(scenes, "少了十块钱"), "封账之后争执行动消失");
         scenes.EnterPlace("码头");
+        Act(scenes, "问艾迪后来的事");
         Assert(Entry("艾迪：少了十块钱").Now.Contains("自己去谈"), "错过争执也会用亲耳听到的余波更新结果");
         Eval("(set! world-day 13)");
         scenes.EnterPlace("街角咖啡馆");
+        Act(scenes, "问露西报名结果");
         Assert(Entry("露西：夜校报名").Status == "了结"
             && Entry("露西：夜校报名").Now.Contains("已经交上"), "听到报名成功后同一事项了结");
         string path = Path.Combine(Path.GetTempPath(), "ssnoir-second-act-matters.json");
