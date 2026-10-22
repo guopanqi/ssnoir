@@ -129,6 +129,15 @@ public static class FirstActChecks
         }
         finally { if (File.Exists(path)) File.Delete(path); }
 
+        // 报名窗口关闭当日：若此前没有顶过班，不应出现无法在期限内完成的重复劳动。
+        var late = new SceneManager(new GameState(), new LocalScriptLoader());
+        late.LoadScene("world");
+        late.ActiveInterpreter.Eval("""(第一幕 'load! (list (list "opened" #t) (list "tavern" #t) (list "act" 2) (list "lucy" 1))) (set! world-day 12) (第二幕 'load! (list (list "lucy-introduced" #t) (list "lucy-boss-heard" #t)))""");
+        late.Refresh();
+        Assert(!Has(late, "替露西顶班"), "报名最后一天才参与，不能用一班完成两日工作");
+        Assert(Has(late, "付代班费") && late.CurrentDossier.Single(e => e.Id == "露西：夜校报名").Now.Contains("只能付30美元"),
+            "报名截止当天只提供有意义的付费机会并清楚说明代价");
+
         // 计划性投入：与公开日程同一天看到准备机会，进入交锋后能兑现。
         var prep = new SceneManager(new GameState(), new LocalScriptLoader());
         prep.LoadScene("world");
