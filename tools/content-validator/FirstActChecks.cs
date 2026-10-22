@@ -125,6 +125,35 @@ public static class FirstActChecks
                 "冷读档恢复报名结果，无需另存事项状态");
         }
         finally { if (File.Exists(path)) File.Delete(path); }
+
+        // 计划性投入：与公开日程同一天看到准备机会，进入交锋后能兑现。
+        var prep = new SceneManager(new GameState(), new LocalScriptLoader());
+        prep.LoadScene("world");
+        void PrepEval(string source) { prep.ActiveInterpreter.Eval(source); prep.Refresh(); }
+        PrepEval("""(第一幕 'load! (list (list "opened" #t) (list "tavern" #t) (list "act" 2) (list "singer" 2) (list "eddie" 1))) (set! world-day 9)""");
+        Act(prep, "看看剧院招工告示");
+        Assert(Has(prep, "检查伴奏线路") && Has(prep, "预订旧乐手"),
+            "D9 已知试演日程后，可选择用骰子查线路或花钱请乐手");
+        Act(prep, "检查伴奏线路");
+        Assert(!Has(prep, "检查伴奏线路"),
+            "线路检查只可尝试一次，不许重复试出好结果");
+        PrepEval("""(第二幕剧院 'load! (list (list "equipment-checked" #t) (list "equipment-ready" #t) (list "musician-booked" #t))) (set! world-day 10)""");
+        Assert(!Has(prep, "预订旧乐手"), "已预约后不能再次付定金");
+        Act(prep, "看看赞助人试演");
+        Act(prep, "帮她想办法");
+        Assert(Has(prep, "请已预约的乐手"),
+            "已付订金的乐手在原生试演交锋中提供实际路线");
+
+        var wage = new SceneManager(new GameState(), new LocalScriptLoader());
+        wage.LoadScene("world");
+        void WageEval(string source) { wage.ActiveInterpreter.Eval(source); wage.Refresh(); }
+        WageEval("""(第一幕 'load! (list (list "opened" #t) (list "tavern" #t) (list "act" 2) (list "eddie" 1))) (set! world-day 9) (第二幕 'load! (list (list "wage-introduced" #t)))""");
+        Assert(Has(wage, "查工时记录"), "已知工钱争议可在交锋前调查工时");
+        Act(wage, "查工时记录");
+        Assert(!Has(wage, "查工时记录"), "调查机会不能靠重复刷骰子规避风险");
+        WageEval("""(第二幕 'load! (list (list "wage-introduced" #t) (list "wage-checked" #t) (list "wage-evidence" #t)))""");
+        Act(wage, "少了十块钱");
+        Assert(Has(wage, "出示工时记录"), "取得的实际记录在原生工钱交锋中兑现");
     }
     public static void Run()
     {
