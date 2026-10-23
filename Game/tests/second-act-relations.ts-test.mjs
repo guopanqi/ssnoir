@@ -100,7 +100,7 @@ test("city announcement is public, but intimate reactions follow separately know
 });
 test("wage dispute and school application require an actual introduction",async()=>{
   const {vm}=await setup();
-  await singer(vm,9);
+  await singer(vm,10);
   assert.equal(await count(vm,`(第二幕 'nodes-at "码头")`),0);
   assert.equal(await count(vm,`(第二幕 'nodes-at "街角咖啡馆")`),0);
   await vm.evaluate('(第一幕 \'on-work! "码头" \'好)');

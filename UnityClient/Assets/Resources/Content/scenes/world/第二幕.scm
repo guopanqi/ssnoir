@@ -28,11 +28,11 @@
     (define (active?) (and (= (第一幕 'act) 2) (not (第二章 'started?))))
     ;; 第九天以后是长遭遇窗口，不要求玩家恰好在某日到场。
     ;; 工作中的铺垫若刚发生，至少留到下一日；从未听说也可以撞见冲突。
-    (define (wage-open?) (and (active?) (>= world-day 9)
+    (define (wage-open?) (and (active?) (>= world-day 10)
       (or (not wage-introduced?) (> world-day wage-intro-day))
       (equal? wage-state "未做")))
     (define (lucy-open?) (and (active?) (<= world-day 12) (equal? lucy-state "未做")))
-    (define (wage-intro-open?) (and (active?) (equal? wage-state "未做")))
+    (define (wage-intro-open?) (and (active?) (>= world-day 10) (equal? wage-state "未做")))
     (define (wage-end result)
       (if (member? result '(拿回工钱 凭证核清 保住工作 弗兰克调停 撤出)) #t
         (error "工钱交锋：非法结算"))
@@ -58,11 +58,12 @@
       (set! wage-introduced? #t)
       (set! wage-state "争执中")
       (play-dialogue!
-        (line "世界" "刚走近货栈，尼尔就听见有人喊。搬运工围成一圈，艾迪揪着工头的衣领。")
-        (line "世界" "他身后的年轻工人捂着嘴，指缝里带着血。")
-        (line "工头" "松手！你还想不想在这儿干了？")
-        (line "艾迪" "尼尔，帮我看着那小子！他少给了工钱，还动手打人！")
-        (line "世界" "尼尔挤进人群。工头把账本往桌上一拍。"))
+        (line "世界" "昨夜大船的工钱正在结算。年轻工人拿着少了十美元的工资单，站在桌前。")
+        (line "年轻工人" "昨晚多干了半班，怎么反倒少了十块？")
+        (line "工头" "单上写多少就是多少，后头还等着人。")
+        (line "艾迪" "我看见他昨晚在东边干活。把底账拿来。")
+        (line "工头" "你又不是账房。")
+        (line "艾迪" "所以才让你拿账房的记录。该给他的，一分也不能少。"))
       (start-encounter "少了十块钱" wage-end))
     (define (visit-eddie!)
       (set! eddie-visited? #t)
@@ -189,7 +190,7 @@
           (play-dialogue!
             (line "艾迪" "一个工友说工钱少了十块。工头连账本都不肯给他看。")
             (line "尼尔" "你要去找他？")
-            (line "艾迪" "先等他拿账出来。可他要是敢动那小子，我不会看着。")))))
+            (line "艾迪" "那小子昨晚搬了半夜货。账错了，得有人替他说话。")))))
     (define (tell-lucy!)
       (set! lucy-introduced? #t)
       (play-dialogue!
