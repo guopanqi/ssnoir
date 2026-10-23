@@ -21,9 +21,12 @@
           (set! met-manager? #t)
           (play-dialogue!
             (line "夜莺" "这是尼尔。我在酒馆唱歌的时候就认识他。")
-            (line "经理" "难怪你一散场就往这边看。你好，尼尔。")
+            (line "经理" "尼尔！兄弟，早该来见我。夜莺总说你靠得住！")
             (line "尼尔" "刚才那一段，她在酒馆也唱过。这里听起来很不一样。")
-            (line "经理" "往后还有得忙。你们聊，我去找舞台监督。")))))
+            (line "世界" "工作人员递来一张演出服的收货单。经理笑容不变。")
+            (line "经理" "这箱衣服还没找到？昨天你不是已经去找过了？")
+            (line "世界" "工作人员退开。经理转回来，又亲热地拍拍尼尔的肩膀。")
+            (line "经理" "别见笑，兄弟！赞助人、服装、乐手，我哪件都少不了！")))))
     (define (talk-dream!)
       (set! dream-known? #t)
       (play-dialogue!
@@ -262,6 +265,7 @@
           ((eq? msg 'nodes-at) (nodes-at (cadr args)))
           ((eq? msg 'arrivals-at) (arrivals-at (cadr args)))
           ((eq? msg 'met-frank?) met-frank?)
+          ((eq? msg 'manager-met?) met-manager?)
           ((eq? msg 'save)
             (list (list "street" visited-street?)
                   (list "frank" met-frank?)
