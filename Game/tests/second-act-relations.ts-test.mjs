@@ -163,3 +163,24 @@ test("second act things-to-do distinguishes public plans from private matters",a
   await vm.evaluate('(第二幕剧院 \'load! (list (list "sponsor-intro" #t)))');
   assert.equal(await count(vm,`(第二幕剧院 'dossier)`),1);
 });
+
+
+test("second act emotional beats: new places, ship night shift, and two posters",async()=>{
+  const {vm}=await setup();
+  await singer(vm,7);
+  assert.equal(await count(vm,`(第二幕节奏 'arrivals-at "老街酒馆")`),1);
+  assert.equal(await count(vm,`(第二幕节奏 'nodes-at "码头")`),0);
+  await singer(vm,9);
+  assert.equal(await count(vm,`(第二幕节奏 'arrivals-at "码头")`),1);
+  assert.equal(await count(vm,`(第二幕节奏 'nodes-at "码头")`),1);
+  assert.equal(await count(vm,`(第二幕 'arrivals-at "码头")`),0);
+  await singer(vm,10);
+  assert.equal(await count(vm,`(第二幕节奏 'nodes-at "码头")`),0);
+  assert.equal(await count(vm,`(第二幕 'arrivals-at "码头")`),1);
+  await singer(vm,13);
+  assert.equal(await count(vm,`(第二幕节奏 'arrivals-at "码头")`),1);
+  assert.equal(await count(vm,`(第二幕节奏 'arrivals-at "剧院")`),1);
+  await vm.evaluate(`(第二幕节奏 'load! (list (list "dock-mark" #t) (list "poster" #t)))`);
+  assert.equal(await count(vm,`(第二幕节奏 'arrivals-at "码头")`),0);
+  assert.equal(await count(vm,`(第二幕节奏 'arrivals-at "剧院")`),0);
+});
