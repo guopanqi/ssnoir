@@ -35,7 +35,7 @@
       (set! opened? #t)
       (第一幕-清晨))
 
-    ;; 码头分支返回本次是否播放人物剧情，供搬运决定是否省略救场 Bubble。
+    ;; 返回本次是否播放人物剧情，避免工作结果继续连播另一阶段的人物片段。
     (define (on-work! location grade)
       (cond
         ((equal? location "街角咖啡馆")
@@ -46,9 +46,9 @@
              (cond
                ((= lucy-stage 0)
                 (set! lucy-stage 1)
-                (第一幕-露西初识))
-               ((and (= lucy-stage 1) (>= lucy-work-count 3))
-                (set! lucy-stage 2) (第一幕-露西打字))
+                (第一幕-露西初识) #t)
+               ((and (= act 1) (= lucy-stage 1) (>= lucy-work-count 3))
+                (set! lucy-stage 2) (第一幕-露西打字) #t)
                (else #f))) #f))
         ((equal? location "码头")
          (set! eddie-work-count (+ eddie-work-count 1))
@@ -124,6 +124,17 @@
       ;; 转幕由告别事件统一拥有；地图与事项都读取 act，不再等清晨另行推进。
       (set! act 2)
       (酒馆最后一夜-演出 (>= singer-stage 1) (> eddie-stage 0) (> lucy-stage 0))
+      (if (>= singer-stage 1)
+        (play-dialogue!
+          (line "夜莺" "后天第一次正式彩排。你来看看，好吗？")
+          (line "尼尔" "大剧院？")
+          (line "夜莺" "对。来侧门，跟他们说是找我的。")
+          (line "尼尔" "后天我一定到。"))
+        (play-dialogue!
+          (line "夜莺" "后天我在大剧院第一次正式彩排。有空的朋友，也来听听吧。")
+          (line "尼尔" "我叫尼尔。后天我会去听。")
+          (line "夜莺" "那就说好了，尼尔。")))
+      (if (= singer-stage 0) (set! singer-stage 1) #f)
       ;; 演出结束后先提交新地图与事项，再显示第二幕公告。
       (focus-node! "老街酒馆")
       (spotlight! "第二幕" "夜莺在酒馆的最后一场演出结束了。明天她去大剧院，后天正式彩排；码头工人常去的旧街，就在工棚后面。"))
@@ -132,7 +143,9 @@
         (error "第二幕：第一次彩排不在观看窗口") #t)
       (set! rehearsal-seen? #t)
       (set! rehearsal-done? #t)
-      (第一幕-彩排 (>= singer-stage 1)))
+      (第一幕-彩排 (>= singer-stage 1))
+      (第二幕生活 'meet-manager!)
+      (第二幕剧院 'promise-trial!))
 
     (define (arrivals-at location)
       (cond
@@ -165,11 +178,12 @@
               (play-dialogue! (line "艾迪" "得，那我先去了。改天再喝。")))))) (list (drink-deadline-clock))))) '())
         (if (and (equal? location "老街酒馆") (= drink-day world-day)
                  (equal? drink-state "已答应"))
-          (list (at-anchor "老街酒馆" (action-with-clocks "与艾迪喝酒" (list (req-die))
-            (instant (outcome (lambda ()
+          (list (node "与艾迪喝酒" :anchor "老街酒馆"
+            :button-text "赴约" :required-before-rest "先赴与艾迪喝酒的约"
+            :resolve (instant (outcome (lambda ()
               (set! drink-state "赴约") (set! drank? #t)
               (第一幕-艾迪喝酒)
-              (on-tavern-work! "喝酒")))) (list (drink-deadline-clock))))) '())
+              (on-tavern-work! "喝酒")))) :clocks (list (drink-deadline-clock)))) '())
 
         (if (and (equal? location "老街酒馆") tavern-seen?
                  (= act 1) (<= world-day 6))
@@ -193,10 +207,16 @@
             :resolve (instant (outcome farewell!)))) '())
         (if (and (equal? location "剧院") (= world-day 8)
                  (not rehearsal-seen?))
-          (list (instant-action "观看正式彩排" rehearsal!)) '())
+          (list (node "观看正式彩排" :name "赴彩排之约" :anchor "夜莺@剧院"
+            :button-text "赴约" :required-before-rest "先赴夜莺的彩排之约"
+            :resolve (instant (outcome rehearsal!)))) '())
         (if (and (equal? location "剧院") (>= world-day 7))
           (list (at-anchor "夜莺@剧院"
-            (note-node "夜莺排练" "夜莺" "她正在为首演练习。"))) '())))
+            (note-node "夜莺排练" "夜莺"
+              (cond ((and (= world-day 8) (not rehearsal-seen?)) "正式彩排就要开始。你答应了来听。")
+                ((第二幕剧院 'trial-pending?) "试唱要开始了。她在后台等你赴约。")
+                ((<= world-day 11) "她正和钢琴师练习试唱的曲子。")
+                (else "她在后台准备首演。"))))) '())))
 
     (define-turn-start-rule "第一章前两幕日程"
       (lambda () #t)

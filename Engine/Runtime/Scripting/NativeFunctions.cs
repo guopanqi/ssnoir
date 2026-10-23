@@ -531,7 +531,7 @@ namespace SSNoir.Scripting
 
             interpreter.DefineGlobal(Symbol.FromString("__bubble-restore-composure"), new NativeProcedure(args =>
             {
-                if (args.Count != 4 || args[0] is not List<object> line || line.Count != 7
+                if (args.Count != 4 || args[0] is not List<object> line || (line.Count != 7 && (line.Count != 8 || line[7] is not string))
                     || args[3] is not string notice || string.IsNullOrWhiteSpace(notice))
                     throw new ArgumentException("bubble-restore-composure requires a plain line, actor, amount and notice");
                 string actorId = SchemeValue.AsId(args[1]);
@@ -877,7 +877,7 @@ namespace SSNoir.Scripting
             var lines = new List<DialogueLine>(rawLines.Count);
             foreach (var entry in rawLines)
             {
-                if (!(entry is List<object> parts) || (parts.Count != 6 && parts.Count != 7 && parts.Count != 8))
+                if (!(entry is List<object> parts) || (parts.Count < 6 || parts.Count > 9))
                     throw new ArgumentException($"{who}: each line must come from the line constructor");
                 if (!(parts[0] is string speaker) || string.IsNullOrWhiteSpace(speaker))
                     throw new ArgumentException($"{who}: line speaker must be a non-empty string");
@@ -895,14 +895,19 @@ namespace SSNoir.Scripting
                     throw new ArgumentException($"{who}: line display speaker must be a non-empty string");
                 string anchor = parts.Count > 6 && parts[6] is string a ? a : string.Empty;
                 BanterComposureRecovery? recovery = null;
-                if (parts.Count == 8)
+                string? appearance = parts.Count >= 8 && parts[7] is string type ? type : null;
+                if (appearance != null && appearance != "" && appearance != "成年男性" && appearance != "成年女性")
+                    throw new ArgumentException($"{who}: unknown speaker appearance: {appearance}");
+                int recoveryIndex = appearance != null ? 8 : 7;
+                if (parts.Count > recoveryIndex)
                 {
-                    if ((who != "__play-banter!" && who != "__play-remote-banter!")
-                        || parts[7] is not BanterComposureRecovery cue)
+                    if (parts.Count != recoveryIndex + 1
+                        || (who != "__play-banter!" && who != "__play-remote-banter!")
+                        || parts[recoveryIndex] is not BanterComposureRecovery cue)
                         throw new ArgumentException("bubble recovery may only be used in play-bubble!");
                     recovery = cue;
                 }
-                lines.Add(new DialogueLine { Speaker = speaker, DisplaySpeaker = displaySpeaker, Text = text, VoiceId = voice, DwellSeconds = dwell, Stage = stage, Anchor = anchor, RecoveryOnShow = recovery });
+                lines.Add(new DialogueLine { Speaker = speaker, DisplaySpeaker = displaySpeaker, Appearance = appearance, Text = text, VoiceId = voice, DwellSeconds = dwell, Stage = stage, Anchor = anchor, RecoveryOnShow = recovery });
             }
             return new DialogueSequence(lines, allowsRemoteParticipants);
         }

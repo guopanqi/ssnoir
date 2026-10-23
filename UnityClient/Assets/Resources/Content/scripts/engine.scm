@@ -13,6 +13,7 @@
 (define :button-text ':button-text)
 (define :subtitle ':subtitle)
 (define :name ':name)
+(define :appearance ':appearance)
 (define :required-before-rest ':required-before-rest)
 (define :disabled ':disabled)
 (define :anchor ':anchor)
@@ -1278,11 +1279,29 @@
           (__i18n-missing-speaker! speaker)
           speaker))))
 
+;; 人物声明只携带内容数据，不维护全局人名册。
+(define (speaker id . kwargs)
+  (if (and (string? id) (not (equal? id "")) (not (equal? id "世界"))) #t
+    (error "speaker：身份必须是非空人物字符串"))
+  (let loop ((rest kwargs))
+    (if (null? rest) #t
+      (if (or (null? (cdr rest)) (not (member? (car rest) '(:name :appearance))))
+        (error "speaker：只接受 :name 与 :appearance 属性") (loop (cddr rest)))))
+  (let ((name (get-kwarg kwargs :name id))
+        (appearance (get-kwarg kwargs :appearance #f)))
+    (if (and (string? name) (not (equal? name ""))) #t (error "speaker：署名必须非空"))
+    (if (or (equal? appearance #f) (member? appearance '(成年男性 成年女性))) #t
+      (error "speaker：现有肖像类型仅有 成年男性 / 成年女性；不指定时用剪影"))
+    (list 'speaker id name (if appearance (symbol->string appearance) ""))))
+
 (define (line speaker text . rest)
   ;; 行级锚点：(line 人 话 [语音 [停留]] :at 锚点名)。只决定 bubble 气泡落在哪，
   ;; 署名仍是说话人；同一个锚点可以轮流几个人说话。锚点名须是场景中的 NodeAnchor
   ;; 名，解析不到由客户端直接报错（不降级，避免气泡落到错的地方）。
-  (let* ((at-split (line-anchor-args rest))
+  (let* ((declared? (and (list? speaker) (= (length speaker) 4) (eq? (car speaker) 'speaker)))
+         (identity (if declared? (cadr speaker) speaker))
+         (display (if declared? (caddr speaker) (speaker-display identity)))
+         (at-split (line-anchor-args rest))
          (anchor (car at-split))
          (split (split-line-args (cadr at-split)))
          (positional (car split))
@@ -1290,7 +1309,9 @@
          (voice (if (null? positional) "" (car positional)))
          (more  (if (null? positional) '() (cdr positional)))
          (dwell (if (null? more) 0 (car more))))
-    (list speaker text voice dwell stage (speaker-display speaker) anchor)))
+    (if (and (string? identity) (not (equal? identity ""))) #t (error "line：说话人应为字符串或speaker声明"))
+    (let ((data (list identity text voice dwell stage display anchor)))
+      (if declared? (append data (list (cadddr speaker))) data))))
 
 (define (line-anchor-args args)
   (let loop ((rest args) (before '()) (anchor ""))

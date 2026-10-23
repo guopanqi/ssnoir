@@ -36,43 +36,65 @@ namespace SSNoir.IMGUI
         private static Texture2D? _verticalFade;
 
         [System.Serializable]
-        private sealed class GenericCharacter { public string name = ""; public string gender = ""; }
+        private sealed class GenericType { public string name = ""; public string[] assets = System.Array.Empty<string>(); }
         [System.Serializable]
-        private sealed class GenericCharacters { public GenericCharacter[] characters = System.Array.Empty<GenericCharacter>(); }
-        private static Dictionary<string, string>? GenericAssets;
+        private sealed class GenericConfig { public string fallback = ""; public GenericType[] types = System.Array.Empty<GenericType>(); }
+        private static GenericConfig? _genericConfig;
+        private static readonly Dictionary<string, string> Appearances = new();
 
-        // 内容声明性别；名字决定变体，同一人物跨对白、读档和重启都保持一致。
-        private static string? GenericAsset(string name)
+        public static void DeclareAppearance(string identity, string? appearance)
         {
-            if (GenericAssets == null)
+            if (appearance == null) return;
+            if (Appearances.TryGetValue(identity, out var previous))
             {
-                GenericAssets = new Dictionary<string, string>();
-                var config = Resources.Load<TextAsset>("Portraits/GenericCharacters")
-                    ?? throw new System.InvalidOperationException("缺少通用人物立绘配置");
-                var data = JsonUtility.FromJson<GenericCharacters>(config.text);
-                foreach (var character in data.characters)
-                {
-                    if (string.IsNullOrWhiteSpace(character.name) ||
-                        (character.gender != "男" && character.gender != "女"))
-                        throw new System.InvalidOperationException("通用人物立绘名称或性别非法");
-                    uint hash = 2166136261;
-                    foreach (char c in character.name) hash = unchecked((hash ^ c) * 16777619);
-                    string asset = "路人" + character.gender + (hash % 2 == 0 ? "" : "2");
-                    GenericAssets.Add(character.name, asset);
-                }
+                if (previous != appearance)
+                    throw new System.InvalidOperationException($"人物 {identity} 的外貌声明不一致");
+                return;
             }
-            return GenericAssets.TryGetValue(name, out var result) ? result : null;
+            Appearances.Add(identity, appearance);
+            Cache.Remove(identity);
         }
+
+        private static string GenericAsset(string identity)
+        {
+            if (_genericConfig == null)
+            {
+                var config = Resources.Load<TextAsset>("Portraits/GenericCharacters")
+                    ?? throw new System.InvalidOperationException("缺少通用肖像类型配置");
+                _genericConfig = JsonUtility.FromJson<GenericConfig>(config.text);
+                if (string.IsNullOrWhiteSpace(_genericConfig.fallback))
+                    throw new System.InvalidOperationException("通用肖像必须指定默认剪影");
+                var names = new HashSet<string>();
+                foreach (var type in _genericConfig.types)
+                    if (string.IsNullOrWhiteSpace(type.name) || type.assets.Length == 0 || !names.Add(type.name)
+                        || System.Array.Exists(type.assets, string.IsNullOrWhiteSpace))
+                        throw new System.InvalidOperationException("通用肖像类型或资源列表非法");
+            }
+            if (!Appearances.TryGetValue(identity, out var appearance) || appearance.Length == 0)
+                return _genericConfig.fallback;
+            foreach (var type in _genericConfig.types)
+            {
+                if (type.name != appearance) continue;
+                uint hash = 2166136261;
+                foreach (char c in identity) hash = unchecked((hash ^ c) * 16777619);
+                return type.assets[hash % (uint)type.assets.Length];
+            }
+            throw new System.InvalidOperationException("没有对应的通用肖像类型：" + appearance);
+        }
+
+        // 显式舞台资产、姿势缺失仍报错，不能用普通人剪影掩盖配置问题。
+        public static Texture2D? LoadAsset(string asset) => Resources.Load<Texture2D>(ResourceRoot + asset);
 
         public static Texture2D? Load(string characterName)
         {
-            if (Cache.TryGetValue(characterName, out var cached))
-                return cached;
-
-            var texture = Resources.Load<Texture2D>(ResourceRoot + characterName);
-            if (texture == null && GenericAsset(characterName) is string generic)
-                texture = Resources.Load<Texture2D>(ResourceRoot + generic)
-                    ?? throw new System.InvalidOperationException($"通用人物立绘不存在：{generic}");
+            if (Cache.TryGetValue(characterName, out var cached)) return cached;
+            var texture = LoadAsset(characterName);
+            if (texture == null)
+            {
+                string generic = GenericAsset(characterName);
+                texture = LoadAsset(generic)
+                    ?? throw new System.InvalidOperationException("通用肖像不存在：" + generic);
+            }
             Cache[characterName] = texture;
             return texture;
         }
@@ -81,7 +103,7 @@ namespace SSNoir.IMGUI
         // 缺图返回 null，由调用方决定退回基础立绘并报警——内容里写了姿势就该有图。
         public static Texture2D? LoadPose(string characterName, string pose)
         {
-            return Load(characterName + "_" + pose);
+            return LoadAsset(characterName + "_" + pose);
         }
 
         // 离线加工出来的分层与骨架（tools/portrait-neon/process.py）：

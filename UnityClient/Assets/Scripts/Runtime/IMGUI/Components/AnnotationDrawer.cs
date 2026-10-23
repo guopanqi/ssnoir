@@ -33,8 +33,10 @@ namespace SSNoir.IMGUI
         // 线正好落在 anchor.x 上，字贴在线旁。
         public const float StemGap = 8f;
 
-        // 雾罩：多浓、往字外散多远。散得宽才看不出矩形；浓度只要够把线稿压成底纹。
-        private const float FogAlpha = 0.72f;
+        // 雾罩：多浓、往字外散多远。中心要压住亮线稿，使注释始终融进深色场景；
+        // 边缘仍由宽羽化散开，不显成一块发亮的对白气泡。
+        // 相机清屏色不是最终场景底色；直接取它会在暗场景里铺出浅灰块。统一使用 UI 深墨色。
+        private const float FogAlpha = 0.90f;
         private const float FogFeather = 28f;
 
         // 场景标注带。宽度<b>由内容定</b>：一条短句就只占一条短句那么宽，连它那根细线
@@ -129,9 +131,7 @@ namespace SSNoir.IMGUI
             if (draw)
             {
                 float height = Layout(rect, node, draw: false, pulse: 0f, topRule);
-                var cam = Camera.main;
-                Color fog = cam != null ? cam.backgroundColor : IMGUIStyles.Ink;
-                IMGUIStyles.DrawFogPatch(new Rect(rect.x, rect.y, rect.width, height), fog, FogAlpha, FogFeather);
+                IMGUIStyles.DrawFogPatch(new Rect(rect.x, rect.y, rect.width, height), IMGUIStyles.Ink, FogAlpha, FogFeather);
                 if (clock != null) ActionRiskFocus.DrawClockFocus(new Rect(rect.x, rect.y, rect.width, height), clock);
             }
 
@@ -202,8 +202,7 @@ namespace SSNoir.IMGUI
             float h=ring?Mathf.Max(graphicSize,textH):40f+Mathf.Max(TitleRowH,titleH)+(bodyH>0f?TitleToBody+bodyH:0f);
             if(!draw) return h;
             if (ActionRiskFocus.IsClockFocused(clock)) pulse = Mathf.Max(pulse, 0.85f);
-            var cam=Camera.main;
-            IMGUIStyles.DrawFogPatch(new Rect(rect.x,rect.y,rect.width,h),cam!=null?cam.backgroundColor:IMGUIStyles.Ink,FogAlpha,FogFeather);
+            IMGUIStyles.DrawFogPatch(new Rect(rect.x,rect.y,rect.width,h),IMGUIStyles.Ink,FogAlpha,FogFeather);
             ActionRiskFocus.DrawClockFocus(new Rect(rect.x, rect.y, rect.width, h), clock);
             float y=rect.y;
             if(ring)

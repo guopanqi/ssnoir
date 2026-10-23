@@ -18,19 +18,21 @@
                (restore-actor-composure! 'player calm))))
         ((< calm 0) (spend-composure! (- calm)))
         (else #f))
-      (第一幕 'on-work! "街角咖啡馆" grade)
-      (第二幕 'on-cafe-work!))
+      (let ((story-played? (if (第二幕 'lucy-at-cafe?)
+              (第一幕 'on-work! "街角咖啡馆" grade) #f)))
+        (if story-played? #f (第二幕 'on-cafe-work!))))
 
     (define (nodes-at location)
       (if (equal? location "街角咖啡馆")
           (list
-            (at-anchor "街角咖啡馆"
-              (note-node "露西·咖啡馆" "露西" ""))
+            (at-anchor "露西@咖啡馆"
+              (note-node "露西·咖啡馆" "露西"
+                (第二幕 'lucy-note)))
             (工作 "咖啡馆帮工" '稳妥 'social
               (outcome (lambda () (work-result! 10 '好 1)))
               (outcome (lambda () (work-result! 4 '中 0)))
               (outcome (lambda () (work-result! 0 '坏 -1)))
-              "安稳的工作，工资微薄，但偶尔能够令人感觉到平静。"
+              "一骰帮工；顺利恢复1冷静，每日一次；失手损失1冷静"
               :risk-target (list 'composure "player")
               :progress-target (list 'item "金钱")))
           '()))

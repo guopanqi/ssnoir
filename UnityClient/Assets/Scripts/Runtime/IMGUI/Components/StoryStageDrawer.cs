@@ -64,7 +64,7 @@ namespace SSNoir.IMGUI
         }
 
         public static void StageSpawn(string id, string asset, float x, float y, string layer)
-            => State.Spawn(id, asset, x, y, layer, Time.unscaledTime, NeonPortraitLibrary.Load);
+            => State.Spawn(id, asset, x, y, layer, Time.unscaledTime, NeonPortraitLibrary.LoadAsset);
 
         public static void StageProp(string id, string asset, float x, float y, string layer)
             => State.SpawnProp(id, asset, x, y, layer, Time.unscaledTime);
@@ -93,6 +93,7 @@ namespace SSNoir.IMGUI
         // Say 拍开始时就建立打字机状态；输入可能先于下一次 OnGUI 绘制到达。
         public static void BeginStageLine(DialogueLine line, int beatIndex)
         {
+            NeonPortraitLibrary.DeclareAppearance(line.Speaker, line.Appearance);
             _visibleLineKey = beatIndex + "\n" + line.Speaker + "\n" + line.Text;
             _lineStartedAt = Time.unscaledTime;
             _currentLineLength = line.Text.Length;
@@ -142,8 +143,9 @@ namespace SSNoir.IMGUI
             int lineIndex,
             DialogueAnchors anchors,
             bool allowsRemoteParticipant,
-            DialogueStageCue? stage = null)
+            DialogueStageCue? stage = null, string? appearance = null)
         {
+            NeonPortraitLibrary.DeclareAppearance(speaker, appearance);
             float now = Time.unscaledTime;
             bool isNarration = speaker == NarratorSpeaker;
             bool usedRemoteFallback = !isNarration

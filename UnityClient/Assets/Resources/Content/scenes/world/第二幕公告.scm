@@ -42,10 +42,10 @@
 (define (公告-节点 loc)
   (if (< world-day 13) '()
     (append
-      (if (and (equal? loc "码头") (第一幕 'eddie-met?)
+      (if (and (equal? loc "码头") (第二幕 'eddie-on-dock?) (第一幕 'eddie-met?)
                (not 公告-艾迪看过?))
         (list (instant-action "与艾迪谈改造" 公告-艾迪!)) '())
-      (if (and (equal? loc "街角咖啡馆") (第一幕 'lucy-met?)
+      (if (and (equal? loc "街角咖啡馆") (第二幕 'lucy-at-cafe?) (第一幕 'lucy-met?)
                (not 公告-露西看过?))
         (list (instant-action "问露西海报的事" 公告-露西!)) '())
       (if (and (equal? loc "剧院") (> (第一幕 'singer-stage) 0)

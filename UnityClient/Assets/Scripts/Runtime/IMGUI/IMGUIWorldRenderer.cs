@@ -3157,7 +3157,7 @@ namespace SSNoir.IMGUI
                 _conversationPlayer.CurrentLineIndex,
                 _dialogueAnchors,
                 _conversationPlayer.AllowsRemoteParticipants,
-                line.Stage);
+                line.Stage, line.Appearance);
 
             if (usedRemoteFallback && !_warnedAboutCurrentDialogueRemoteFallback)
             {

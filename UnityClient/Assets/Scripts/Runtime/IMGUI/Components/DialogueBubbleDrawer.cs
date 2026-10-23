@@ -45,6 +45,7 @@ namespace SSNoir.IMGUI
             for (int i = 0; i < banter.Visible.Count; i++)
             {
                 var bubble = banter.Visible[i];
+                NeonPortraitLibrary.DeclareAppearance(bubble.Line.Speaker, bubble.Line.Appearance);
                 if (bubble.Line.Speaker == NarratorSpeaker && (suppressNarration || i != newestNarration))
                     continue;
 

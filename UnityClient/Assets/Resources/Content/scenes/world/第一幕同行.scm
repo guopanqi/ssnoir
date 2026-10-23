@@ -61,7 +61,7 @@
               (instant-action "今晚走不开" decline!)))))))
           ;; 旧存档可能已经接受邀请、但还没点开交锋卡；保留这条续接入口。
           ((and (available?) (equal? status "已答应"))
-            (list (node "雨夜同行" :anchor "夜莺@酒馆" :subtitle "陪她回家，别让恐惧失控"
+            (list (node "雨夜同行" :anchor "夜莺@酒馆" :required-before-rest "先履行送夜莺回家的约定" :subtitle "陪她回家，别让恐惧失控"
               :resolve (instant (outcome
                 (lambda () (start-encounter "雨夜同行" on-result)))))))
           (else '()))))

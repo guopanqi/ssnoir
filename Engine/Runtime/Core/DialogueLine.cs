@@ -18,6 +18,8 @@ namespace SSNoir.Core
         public BanterComposureRecovery? RecoveryOnShow { get; init; }
         public string Speaker { get; init; } = string.Empty;   // 队员 Id/Name,或场景节点名(如"海伦")
         public string DisplaySpeaker { get; init; } = string.Empty; // 玩家可见署名；Speaker 保持锚点身份
+        // null：旧式字符串；空串：声明人物但未指定外貌，使用通用剪影。
+        public string? Appearance { get; init; }
         public string Text { get; init; } = string.Empty;
         public string? VoiceId { get; init; }                  // 预留语音;为 null 表示无语音
         public float DwellSeconds { get; init; }               // 仅 Banter 使用;<=0 表示由文本长度估算

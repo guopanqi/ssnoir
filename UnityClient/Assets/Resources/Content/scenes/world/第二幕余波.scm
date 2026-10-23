@@ -1,13 +1,6 @@
 ;; 第二幕人物余波：不帮忙也不会让人物停在那里等玩家。
 (define 二幕余波-艾迪已演? #f)
-(define 二幕余波-露西已演? #f)
 (define (二幕余波-艾迪已知?) 二幕余波-艾迪已演?)
-(define (二幕余波-露西已知?) 二幕余波-露西已演?)
-(define (二幕余波-露西近况)
-  (cond
-    ((member? (第二幕 'lucy-state) '("顶班" "代班" "合办"))
-      "露西交上报名表，下周开始夜校。晚上她会少来咖啡馆。")
-    (else "露西自己换了班，赶上报名，却被老板扣了两班工钱。")))
 (define (二幕余波-艾迪近况)
   (cond
     ((equal? (第二幕 'wage-state) "凭证核清") "凭工时册拿回工钱，没有闹到停班，艾迪照常上工。")
@@ -19,8 +12,7 @@
 (define (二幕余波-艾迪!)
   (set! 二幕余波-艾迪已演? #t)
   (play-dialogue!
-    (line "世界" "年轻工人离开工棚。弗兰克把一件旧外套递给他。")
-    (line "弗兰克" "明天要下雨。先把身体顾好，才有空继续讲理。")
+    (line "世界" "艾迪把工帽搁在膝头，往旁边挪了挪，让尼尔坐下。")
     (line "艾迪"
       (cond
         ((equal? (第二幕 'wage-state) "凭证核清")
@@ -39,40 +31,22 @@
     (line "艾迪" (if (第二幕 'eddie-on-dock?)
       "去啊。总不能为了十块钱连饭都不吃了。"
       "领班暂时不让我上工。可我总得再找点别的活儿。"))))
-(define (二幕余波-露西!)
-  (set! 二幕余波-露西已演? #t)
-  (play-dialogue!
-    (line "露西"
-      (cond
-        ((equal? (第二幕 'lucy-state) "顶班")
-          "他们收下报名表了！你替我顶的那班，以后请你吃东西。")
-        ((equal? (第二幕 'lucy-state) "代班")
-          "报名表交上了。你出的代班钱我记着。")
-        ((equal? (第二幕 'lucy-state) "合办")
-          "你帮我顶一班，又给另一班付钱。报名表交上去了。")
-        (else
-          "我跟老板换了班，跑过去时鞋带都松了。报名表交上了，但他扣了我两班工钱。")))
-    (line "尼尔" "第一堂课什么时候？")
-    (line "露西" "下星期。以后有几个晚上我不会在店里，老板看起来很不高兴。")
-    (line "露西" "但学校寄来了第一本书。我想先把开头读一遍。")))
 (define (第二幕余波 . args)
   (cond
     ((eq? (car args) 'arrivals-at) '())
     ((eq? (car args) 'nodes-at)
       (let ((loc (cadr args)))
         (cond
-          ((and (equal? loc "码头") (>= world-day 12)
-                (第一幕 'eddie-met?) (not 二幕余波-艾迪已演?))
+          ((and (or (and (equal? loc "码头") (第二幕 'eddie-on-dock?))
+                    (and (equal? loc "码头居民区") (not (第二幕 'eddie-on-dock?))))
+                (> (第二幕 'wage-end-day) 0)
+                (> world-day (第二幕 'wage-end-day))
+                (not 二幕余波-艾迪已演?))
             (list (instant-action "问艾迪后来的事" 二幕余波-艾迪!)))
-          ((and (equal? loc "街角咖啡馆") (>= world-day 13)
-                (第一幕 'lucy-met?) (not 二幕余波-露西已演?))
-            (list (instant-action "问露西报名结果" 二幕余波-露西!)))
           (else '()))))
     ((eq? (car args) 'save)
-      (list (list "eddie-seen" 二幕余波-艾迪已演?)
-            (list "lucy-seen" 二幕余波-露西已演?)))
+      (list (list "eddie-seen" 二幕余波-艾迪已演?)))
     ((eq? (car args) 'load!)
       (let ((data (cadr args)))
-        (set! 二幕余波-艾迪已演? (assoc-get data "eddie-seen" #f))
-        (set! 二幕余波-露西已演? (assoc-get data "lucy-seen" #f))))
+        (set! 二幕余波-艾迪已演? (assoc-get data "eddie-seen" #f))))
     (else (error "第二幕余波：未知消息"))))

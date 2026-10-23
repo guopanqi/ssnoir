@@ -3,8 +3,7 @@
 (define 争执 (make-clock "争执升级" 3 'pressure "满格后工头威胁解雇艾迪。" :beneficial-direction 'decrease))
 (define 危机? #f)
 (define 已结束? #f)
-(define 有工时证据? #f)
-(define 认识弗兰克? #f)
+(define 核过工时? #f)
 (define (结束! result)
   (if 已结束? (error "工钱纠纷：重复结算") #t)
   (set! 已结束? #t)
@@ -16,7 +15,8 @@
         (line "艾迪" "你用的是自己的本事。他还真没法再赖。")))
     ((eq? result '拿回工钱)
       (play-dialogue! (line "工头" "行，就差这十块。拿去。")
-        (line "艾迪" "我就说账不对。谢了，尼尔。")))
+        (line "工头" "艾迪，明天你不用来了。停一天，想清楚怎么跟我说话。")
+        (line "艾迪" "钱给那小子。我的事我自己担着。")))
     ((eq? result '保住工作)
       (play-dialogue! (line "艾迪" "他们不能这么欺负人。")
         (line "尼尔" "先别把饭碗赔进去。")
@@ -27,7 +27,8 @@
         (line "弗兰克" "都回去干活。下次先看账。")))
     (else
       (play-dialogue! (line "世界" "工头收了账本，工友们各自散开。")
-        (line "艾迪" "这事还没完。"))))
+        (line "工头" "艾迪，你停两天班。再闹就别来了。")
+        (line "艾迪" "我在旧街食堂。这事还没完。"))))
   (end-encounter result))
 (define (推进! amount heat)
   (工钱 'advance! amount)
@@ -41,55 +42,45 @@
         (line "工头" "艾迪，你再带头，下次就别来领班了。")
         (line "年轻工人" "艾迪，我还想在这里做工。")
         (line "艾迪" "……我只是想把你那十块钱要回来。")))
-    ((工钱 'full?) (结束! '拿回工钱))
+    ((工钱 'full?) (结束! (if 核过工时? '凭证核清 '拿回工钱)))
     (else #f)))
 (define (on-encounter-enter)
   (工钱 'load! 0) (争执 'load! 0)
-  (set! 危机? #f) (set! 已结束? #f)
-  (set! 有工时证据? (get-global '第二幕工时证据))
-  (set! 认识弗兰克? (get-global '第二幕认识弗兰克))
+  (set! 危机? #f) (set! 已结束? #f) (set! 核过工时? #f)
   (play-dialogue!
-    (line "世界" "工头合上账本。年轻工人说自己的十块钱没了。")
-    (line "艾迪" "他干了一整天，你就给这么点？")
-    (line "工头" "账上就写这么多。")))
+    (line "年轻工人" "我只想把那十块钱拿回来。")
+    (line "艾迪" "那就把账拿出来，让大伙看清楚。")))
 (define (on-encounter-collapse) (collapse-result '撤出))
 (define (get-render-data)
   (container "少了十块钱"
     (append
       (clock-nodes (工钱 'render-data) (争执 'render-data))
+      (list (node "退出这场争执" :subtitle "离开；艾迪自行应付，可能被停班"
+        :resolve (instant (outcome (lambda () (结束! '撤出))))))
       (if 危机?
         (list
           (note-node "工头的威胁" "艾迪的工作" "他可能因为十块钱丢掉工作。")
+          (if 核过工时?
+            (node "请工友核签名" :subtitle "把已找到的工时交给工友核实，避免停班"
+              :requires (list (req-die))
+              :resolve (instant (outcome (lambda () (结束! '凭证核清)))))
+            (note-node "尚无工时凭证" "没有核清账" "只有当面交涉，仍可能让艾迪受工头报复。"))
           (node "先让艾迪退开" :subtitle "保住眼前的工作，放弃这次工钱"
             :resolve (instant (outcome (lambda () (结束! '保住工作)))))
-          (if 认识弗兰克?
-            (node "请弗兰克出面" :subtitle "让认识的老街长辈出面核账"
-              :requires (list (req-die)) :resolve (roll 'social
-                (outcome (lambda () (spend-composure! 1) (结束! '撤出)))
-                (outcome (lambda () (结束! '弗兰克调停)))
-                (outcome (lambda () (结束! '弗兰克调停)))))
-            (note-node "弗兰克不在" "旧街的熟人" "尼尔还不认识这个能向工头说话的人。"))
           (node "继续坚持补钱" :subtitle "冒险与工头争执，可能损失冷静"
-            :tags (list "高风险") :requires (list (req-die))
+            :risk '危险 :risk-target (list 'composure "player") :requires (list (req-die))
             :resolve (roll 'violence
               (outcome (lambda () (spend-composure! 2) (结束! '撤出)))
               (outcome (lambda () (结束! '保住工作)))
               (outcome (lambda () (结束! '拿回工钱))))))
-        (append
-          (if 有工时证据?
-            (list (node "出示工时记录"
-              :subtitle "提前核到签名；一骰即可让工头承认差额"
-              :requires (list (req-die))
-              :resolve (instant (outcome (lambda () (结束! '凭证核清))))))
-            '())
-          (list
+        (list
           (node "核对账本" :subtitle "寻找被少算的装卸记录"
             :requires (list (req-die)) :resolve (roll 'sharpness
               (outcome (lambda () (spend-composure! 1) (推进! 0 1)))
-              (outcome (lambda () (推进! 1 0)))
-              (outcome (lambda () (推进! 2 0)))))
+              (outcome (lambda () (set! 核过工时? #t) (推进! 1 0)))
+              (outcome (lambda () (set! 核过工时? #t) (推进! 2 0)))))
           (node "向工头交涉" :subtitle "直接替工友争取应得工钱"
             :requires (list (req-die)) :resolve (roll 'social
               (outcome (lambda () (spend-composure! 1) (推进! 0 1)))
               (outcome (lambda () (推进! 1 1)))
-              (outcome (lambda () (推进! 2 0)))))))))))
+              (outcome (lambda () (推进! 2 0))))))))))
