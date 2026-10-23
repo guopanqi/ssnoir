@@ -253,7 +253,7 @@
             (else #f)))
         ((eq? (car args) 'lucy-state) lucy-state)
         ((eq? (car args) 'dossier)
-          (if (and (= (第一幕 'act) 2) (>= world-day 7))
+          (if (= (第一幕 'act) 2)
             (known-matters)
             '()))
         ((eq? (car args) 'nodes-at) (nodes-at (cadr args)))

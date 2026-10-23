@@ -252,7 +252,7 @@
           ((eq? msg 'equipment-ready?) equipment-ready?)
           ((eq? msg 'musician-booked?) musician-booked?)
           ((eq? msg 'dossier)
-            (if (and (= (第一幕 'act) 2) (>= world-day 7))
+            (if (= (第一幕 'act) 2)
               (list (dossier "夜莺：大剧院" :kind '人物 :primary #t
                 :status (if (and (>= world-day 13) 公告-夜莺看过?
                                 (not (equal? 公告-夜莺回答 "未答复"))) '了结 '进行中)

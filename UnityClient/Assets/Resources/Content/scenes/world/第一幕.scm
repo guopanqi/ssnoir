@@ -121,7 +121,12 @@
         (error "第一幕：告别演出不在观看窗口") #t)
       (set! farewell-seen? #t)
       (set! farewell-done? #t)
-      (酒馆最后一夜-演出 (>= singer-stage 1) (> eddie-stage 0) (> lucy-stage 0)))
+      ;; 转幕由告别事件统一拥有；地图与事项都读取 act，不再等清晨另行推进。
+      (set! act 2)
+      (酒馆最后一夜-演出 (>= singer-stage 1) (> eddie-stage 0) (> lucy-stage 0))
+      ;; 演出结束后先提交新地图与事项，再显示第二幕公告。
+      (focus-node! "老街酒馆")
+      (spotlight! "第二幕" "夜莺在酒馆的最后一场演出结束了。明天她去大剧院，后天正式彩排；码头工人常去的旧街，就在工棚后面。"))
     (define (rehearsal!)
       (if (or (not (= world-day 8)) rehearsal-seen?)
         (error "第二幕：第一次彩排不在观看窗口") #t)
@@ -203,11 +208,6 @@
           (play-dialogue!
             (line "世界" "酒馆门外贴着告示：明晚，夜莺最后一次在这里演出；后天她去大剧院，隔天正式彩排。"))
           #f)
-        (if (and (>= world-day 7) (= act 1))
-          (begin
-            (set! farewell-done? #t) (set! act 2)
-            (spotlight! "第二幕" "夜莺今天去大剧院。她明天正式彩排；码头工人常去的旧街，也在工棚后面。"))
-          #f)
         (if (and (>= world-day 9) (not rehearsal-done?))
           (set! rehearsal-done? #t) #f)
         (if (and (>= world-day 13) (not notice-seen?))
@@ -252,7 +252,7 @@
                (else "在城市工作，与认识的人相处。"))
              :where (cond ((not opened?) "家")
                ((not tavern-seen?) "老街酒馆")
-               ((= world-day 6) "老街酒馆") (else "")))))
+               ((and (= act 1) (= world-day 6)) "老街酒馆") (else "")))))
           ((eq? msg 'save)
            (list
              (list "opened" opened?) (list "tavern" tavern-seen?)
