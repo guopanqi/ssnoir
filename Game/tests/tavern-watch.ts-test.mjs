@@ -20,7 +20,7 @@ test("the new first-act tavern introduces a brief, optional trouble encounter",a
  const vm=await GameScriptSession.create("tavern-new",new GameRuntimeState(),sources,std);
  await vm.loadFile("scenes/world/world.scm");
  const script=sources["scenes/world/老街酒馆.scm"];
- assert.match(script,/第三次看场固定遇到两桌醉客/);
+ assert.match(script,/第二次看场固定遇到两桌醉客/);
  assert.match(script,/start-encounter "醉客互相叫骂"/);
  assert.match(script,/第一幕 'on-tavern-work!/);
  const tavern=convertNode(await vm.evaluate("(car (old-street-tavern 'render-data))"));
@@ -33,7 +33,7 @@ test("rainy escort depends on fear, not capturing a blackmail suspect",()=>{
  assert.match(escort,/make-clock "回到住处" 4 'gauge/);
  assert.match(escort,/make-clock "夜莺的恐惧" 3 'pressure/);
  assert.match(escort,/define 人影上限 1/);
- assert.match(entry,/听夜莺说话/);
+ assert.match(entry,/夜莺在犹豫/);
  assert.match(entry,/今晚走不开/);
- assert.doesNotMatch(entry,/required-before-rest/);
+ assert.match(entry,/required-before-rest/);
 });

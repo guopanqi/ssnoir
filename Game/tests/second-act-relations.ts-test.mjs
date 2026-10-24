@@ -101,7 +101,7 @@ test("costume contract mixes investigation dice with a decreasing-cost cash shor
   assert.ok(labels(n).includes("翻找旧库房"));
   assert.ok(labels(n).includes("请人代找"));
 
-  assert.equal(await count(vm,`(第二幕生活 'nodes-at "剧院")`),3);
+  assert.equal(await count(vm,`(第二幕生活 'nodes-at "剧院")`),4);
   await vm.evaluate(`(第二幕生活 'load! (list (list "manager" #t)
     (list "contract" "已接下") (list "progress" 2)))`);
 
