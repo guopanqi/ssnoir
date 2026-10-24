@@ -168,7 +168,7 @@
         '((1085 700) (1160 700)))))
   (play-theatre! (theatre-scene 1600 900 "#07080B" 景)
     (theatre-say "舞台监督" "第一遍，先试试声音。" 2.3 "#C5C3BB")
-    (theatre-sound "试音" "StageSounds/酒馆告别/最后一首" #f .24 0)
+    (theatre-sound "试音" "StageSounds/酒馆告别/最后一首" #t .24 0)
     (theatre-during
       (theatre-tween "彩排追光" 'brightness .42 4 'smooth)
       (theatre-loop (theatre-animate "歌者位置" 'rotation '((0 0) (1 .7) (2 0)))))
@@ -177,7 +177,7 @@
     (theatre-parallel
       (theatre-tween "彩排追光" 'brightness 1.4 2 'smooth)
       (theatre-tween "舞台光池" 'opacity .34 2 'smooth))
-    (theatre-sound "第二遍" "StageSounds/酒馆告别/最后一首" #f .8 0)
+    (theatre-sound "第二遍" "StageSounds/酒馆告别/最后一首" #t .8 0)
     (theatre-during
       (theatre-sequence
         (theatre-wait 6)

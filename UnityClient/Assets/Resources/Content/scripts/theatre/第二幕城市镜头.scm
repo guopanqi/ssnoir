@@ -58,9 +58,10 @@
           '((420 75) (1200 75) (1200 835) (420 835)))
         (theatre-line "海报金框" "剧院门口" "#C2A97B" 7
           '((420 75) (1200 75) (1200 835) (420 835) (420 75)))
+        (theatre-light "海报灯光" "" "#FFDDB2" 820 405 500 .24)
         (theatre-with (theatre-glow "海报追光" "" "#FFDDB2" 820 405 350 480) 'opacity .24)
-        (theatre-image "夜莺海报" "剧院门口" "Portraits/Neon/夜莺" 810 495 420 500 "海报追光")))
-    (theatre-tween "海报追光" 'opacity .48 2)
+        (theatre-image "夜莺海报" "剧院门口" "Portraits/Neon/夜莺" 810 495 420 500 "海报灯光")))
+    (theatre-tween "海报灯光" 'brightness .48 2)
     (theatre-say "世界" "剧院门口的新海报写着：从旧港走向新城——夜莺首演。" 4 "#F0DFBC")
     (theatre-clear-caption)
     (theatre-wait 1.5)))
