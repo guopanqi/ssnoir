@@ -144,12 +144,58 @@
     (line "尼尔" "先把房租凑齐，免得房东把我的箱子扔出去。")
     (line "艾迪" "都一样。码头有活儿我叫你。")))
 
+;; D8 大剧院首次彩排：已有舞台 DSL 与音乐，区别于需要玩家判定的交锋。
+;; 第一遍只是试音；第二遍真正给观众留一段听歌的时间，不用对白复述美感。
 (define (第一幕-彩排)
-  (play-dialogue!
-    (line "世界" "大剧院只亮着工作灯。夜莺唱完一段，钢琴声停下，舞台监督让她从头再来。")
-    (line "世界" "第二遍结束，工人们开始收拾工具。她站在工作灯下，望着台下一排排空座位。")
-    (line "夜莺" "站在底下看，我是不是很小一个？")
-    (line "尼尔" "连最后一排都能听见。")
-    (line "夜莺" "从这上头往下看，黑压压的一大片，像个能把人吸进去的大坑。")
-    (line "尼尔" "害怕了？")
-    (line "夜莺" "有点。可我还是想留在这儿。")))
+  (define 景
+    (list
+      (theatre-group "剧院布景" "" 0 0)
+      (theatre-polygon "舞台地面" "剧院布景" "#18171B"
+        '((120 535) (1480 535) (1580 795) (20 795)))
+      (theatre-polygon "天幕" "剧院布景" "#090A11"
+        '((100 90) (1500 90) (1490 535) (110 535)))
+      (theatre-line "台口" "剧院布景" "#B7A37C" 2
+        '((100 537) (1500 537)))
+      (theatre-line "前排座椅" "剧院布景" "#3D3740" 3
+        '((50 810) (260 775) (480 800) (730 776) (1010 800) (1300 775) (1550 810)))
+      (theatre-light "彩排追光" "" "#F2D3A5" 800 425 510 .16)
+      (theatre-with (theatre-glow "舞台光池" "" "#F4D5AB" 800 630 340 85) 'opacity .1)
+      (theatre-with (theatre-group "歌者位置" "" 800 650) 'opacity 1)
+      (theatre-image "夜莺" "歌者位置" "Portraits/Neon/夜莺" 0 0 310 310 "彩排追光")
+      (theatre-line "钢琴" "剧院布景" "#A1A4A7" 3
+        '((1060 610) (1200 610) (1200 680) (1080 680)))
+      (theatre-line "琴凳" "剧院布景" "#77777D" 2
+        '((1085 700) (1160 700)))))
+  (play-theatre! (theatre-scene 1600 900 "#07080B" 景)
+    (theatre-say "舞台监督" "第一遍，先试试声音。" 2.3 "#C5C3BB")
+    (theatre-sound "试音" "StageSounds/酒馆告别/最后一首" #f .24 0)
+    (theatre-during
+      (theatre-tween "彩排追光" 'brightness .42 4 'smooth)
+      (theatre-loop (theatre-animate "歌者位置" 'rotation '((0 0) (1 .7) (2 0)))))
+    (theatre-stop-sound "试音")
+    (theatre-say "舞台监督" "再来一遍。这一次，不用收着。" 2.6 "#C5C3BB")
+    (theatre-parallel
+      (theatre-tween "彩排追光" 'brightness 1.4 2 'smooth)
+      (theatre-tween "舞台光池" 'opacity .34 2 'smooth))
+    (theatre-sound "第二遍" "StageSounds/酒馆告别/最后一首" #f .8 0)
+    (theatre-during
+      (theatre-sequence
+        (theatre-wait 6)
+        (theatre-image-to "夜莺" "Portraits/Neon/夜莺_仰头")
+        (theatre-wait 8)
+        (theatre-image-to "夜莺" "Portraits/Neon/夜莺"))
+      (theatre-loop (theatre-animate "歌者位置" 'rotation
+        '((0 0) (2 .8) (4 0) (6 -.8) (8 0)))))
+    (theatre-stop-sound "第二遍")
+    (theatre-tween "彩排追光" 'brightness .55 1.5 'smooth)
+    (theatre-say "夜莺" "你什么时候来的？" 1.8 "#8FD9D0")
+    (theatre-say "尼尔" "第二遍的时候。" 1.8 "#F0CF8A")
+    (theatre-say "夜莺" "那你只听见好的一遍。" 2.2 "#8FD9D0")
+    (theatre-say "夜莺" "我在上面的时候，看起来怎么样？" 2.7 "#8FD9D0")
+    (theatre-say "尼尔" "很漂亮。" 2 "#F0CF8A")
+    (theatre-parallel
+      (theatre-tween "彩排追光" 'brightness 1.1 1.2)
+      (theatre-tween "舞台光池" 'opacity .2 1.2))
+    (theatre-say "夜莺" "我喜欢这里。" 2.5 "#8FD9D0")
+    (theatre-clear-caption)
+    (theatre-wait 2)))
