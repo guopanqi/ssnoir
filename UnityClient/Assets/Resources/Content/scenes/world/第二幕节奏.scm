@@ -1,11 +1,10 @@
 (load-file "scripts/theatre/第二幕城市镜头.scm")
-;; 第二幕新增公共生活节拍。不改夜校及赞助人交锋，只加生活和事件入口。
+;; 第二幕公共生活：大船、码头、经理的下一份调查邀请。彩排与亲密由剧院模块拥有。
 (define 第二幕节奏
  (let ()
   (define tavern? #f)
   (define ship? #f)
   (define ship-work "未参加") ; 未参加／已结算
-  (define coffee? #f)
   (define dock-mark? #f)
   (define poster? #f)
   (define invitation? #f)
@@ -33,16 +32,6 @@
     (if (and (= world-day 9) (equal? ship-work "未参加")) #t
       (error "大船：不在夜班窗口"))
     (start-encounter "大船靠岸" ship-end!))
-  (define (manager-coffee!)
-    (set! coffee? #t)
-    (play-dialogue!
-      (line "世界" "经理在前厅送客，看到尼尔，便从侍者的托盘上拿下一杯咖啡。")
-      (line "经理" "兄弟！忙坏了吧？来，喝杯热的。")
-      (line "尼尔" "你不用特意——")
-      (line "经理" "年轻人不能光顾着挣钱！咱们是一家人。")
-      (line "世界" "赞助人叫住经理。他立刻转身，伸出了手。")
-      (line "经理" "马上来，亲爱的朋友！")
-      (line "世界" "他再拍拍尼尔肩膀，匆匆走远。")))
   (define (dock-mark!)
     (set! dock-mark? #t)
     (第二幕-货栈白线))
@@ -75,9 +64,6 @@
           (list (node "参加大船夜班" :name "参加抢卸夜班"
             :subtitle "货箱与吊索危险同时逼近天亮"
             :resolve (instant (outcome join-ship!)))) '())
-        (if (and (equal? loc "剧院") (= world-day 10)
-                 (第二幕生活 'manager-met?) (not coffee?))
-          (list (instant-action "经理请喝咖啡" manager-coffee!)) '())
         (if (and (equal? loc "剧院") (>= world-day 13)
                  (第二幕生活 'manager-met?) (not invitation?))
           (list (instant-action "经理的新委托" next-job!)) '()))))
@@ -86,7 +72,9 @@
       (list (dossier "临时货船" :kind '城市 :primary #f
         :now (if (= world-day 8)
           "听说一艘大船明天临时改港，码头或许有夜班。"
-          "大船今天靠岸。去码头可以参加抢卸夜班。")
+          (if (equal? ship-work "已结算")
+            "码头抢卸夜班已经收工，工人回了旧街食堂。"
+            "大船今天靠岸。去码头可以参加抢卸夜班。"))
         :where "码头")) '()))
   (lambda args
     (let ((msg (car args)))
@@ -96,14 +84,13 @@
         ((eq? msg 'dossier) (dossier-at))
         ((eq? msg 'ship-work) ship-work)
         ((eq? msg 'save) (list (list "tavern" tavern?) (list "ship" ship?) (list "ship-work" ship-work)
-          (list "coffee" coffee?) (list "dock-mark" dock-mark?)
+          (list "dock-mark" dock-mark?)
           (list "poster" poster?) (list "invitation" invitation?)))
         ((eq? msg 'load!)
           (let ((data (cadr args)))
             (set! tavern? (assoc-get data "tavern" #f))
             (set! ship? (assoc-get data "ship" #f))
             (set! ship-work (assoc-get data "ship-work" "未参加"))
-            (set! coffee? (assoc-get data "coffee" #f))
             (set! dock-mark? (assoc-get data "dock-mark" #f))
             (set! poster? (assoc-get data "poster" #f))
             (set! invitation? (assoc-get data "invitation" #f))))

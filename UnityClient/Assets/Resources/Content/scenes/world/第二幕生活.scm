@@ -178,6 +178,7 @@
           ((eq? msg 'nodes-at) (nodes-at (cadr args)))
           ((eq? msg 'arrivals-at) (arrivals-at (cadr args)))
           ((eq? msg 'met-frank?) met-frank?)
+          ((eq? msg 'manager-met?) met-manager?)
           ((eq? msg 'save)
             (list (list "street" visited-street?)
                   (list "frank" met-frank?)
