@@ -78,6 +78,6 @@
             (outcome (lambda () (查证! 2 0))))))
         (if (not 弗兰克帮忙?)
           (list (node "请弗兰克帮忙" :subtitle "一次协助：取得记录、缓和处分"
-            :progress-target (list 'clock "核清工时")
+            :risk '稳妥 :progress-target (list 'clock "核清工时")
             :requires (list (req-die)) :resolve (instant (outcome 弗兰克调账!)))) '())))
     (list (instant-action "退出争执" (lambda () (收场! '停班)))))))
