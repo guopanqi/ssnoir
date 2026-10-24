@@ -146,6 +146,12 @@
   (set! world-day (assoc-get data "day" 1))
   (set-global! '世界日 world-day)
   (模块读档! data)
+  ;; V0.2前手套曾绑定在D13艾迪公告中；已看过就不重复送一次。
+  (let ((old-aftermath (assoc-get data "act-two-aftermath" '()))
+        (old-announcement (assoc-get data "act-two-announcement" '())))
+    (if (and (equal? (assoc-get old-aftermath "gloves" 'missing) 'missing)
+             (assoc-get old-announcement "eddie" #f))
+      (第二幕余波 'mark-gloves-seen!) #f))
   ;; 涉及多个 owner 的不变量必须等各自状态都恢复后再校验。
   (frank 'validate!)
 )

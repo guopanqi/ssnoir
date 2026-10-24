@@ -225,6 +225,83 @@
       "mode": "realtime"
     },
     {
+      "name": "门廊暖光",
+      "profile": "格兰德酒店",
+      "type": "SPOT",
+      "energy": 1200.0,
+      "size": 0,
+      "spotAngle": 95.00000150525098,
+      "spotBlend": 0.6499999761581421,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "门廊暖光.001",
+      "profile": "格兰德酒店",
+      "type": "SPOT",
+      "energy": 1200.0,
+      "size": 0,
+      "spotAngle": 95.00000150525098,
+      "spotBlend": 0.6499999761581421,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "门廊暖光.002",
+      "profile": "格兰德酒店",
+      "type": "SPOT",
+      "energy": 1200.0,
+      "size": 0,
+      "spotAngle": 95.00000150525098,
+      "spotBlend": 0.6499999761581421,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "入口工作灯",
+      "profile": "报社",
+      "type": "SPOT",
+      "energy": 800.0,
+      "size": 0,
+      "spotAngle": 100.0000005060238,
+      "spotBlend": 0.699999988079071,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "入口工作灯.001",
+      "profile": "报社",
+      "type": "SPOT",
+      "energy": 600.0,
+      "size": 0,
+      "spotAngle": 100.0000005060238,
+      "spotBlend": 0.699999988079071,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "印刷机工作灯",
+      "profile": "报社",
+      "type": "POINT",
+      "energy": 650.0,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "冷白",
+      "mode": "realtime"
+    },
+    {
+      "name": "印刷机工作灯.001",
+      "profile": "报社",
+      "type": "POINT",
+      "energy": 650.0,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "冷白",
+      "mode": "realtime"
+    },
+    {
       "name": "棚口冷光",
       "profile": "让他们安静",
       "type": "SPOT",
@@ -698,6 +775,28 @@
       "mode": "realtime"
     },
     {
+      "name": "门前暖光",
+      "profile": "街角咖啡馆",
+      "type": "POINT",
+      "energy": 180.0,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "门前暖光.001",
+      "profile": "街角咖啡馆",
+      "type": "POINT",
+      "energy": 120.0,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
       "name": "码头冷日光",
       "profile": "码头",
       "type": "SUN",
@@ -728,6 +827,94 @@
       "spotAngle": 160,
       "spotBlend": 0.5,
       "palette": "冷白",
+      "mode": "realtime"
+    },
+    {
+      "name": "主门厅灯",
+      "profile": "货运公司",
+      "type": "POINT",
+      "energy": 230.0,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "保险小门灯",
+      "profile": "货运公司",
+      "type": "POINT",
+      "energy": 90.0,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "剧院环厅灯_0",
+      "profile": "剧院",
+      "type": "AREA",
+      "energy": 900.0,
+      "size": 8.0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "剧院环厅灯_1",
+      "profile": "剧院",
+      "type": "AREA",
+      "energy": 350.0,
+      "size": 5.0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "剧院环厅灯_2",
+      "profile": "剧院",
+      "type": "AREA",
+      "energy": 800.0,
+      "size": 14.0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "冷边",
+      "mode": "realtime"
+    },
+    {
+      "name": "门廊暖光.003",
+      "profile": "警察局",
+      "type": "POINT",
+      "energy": 130.0,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "门廊暖光.004",
+      "profile": "警察局",
+      "type": "POINT",
+      "energy": 130.0,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "诊所门灯",
+      "profile": "诊所",
+      "type": "POINT",
+      "energy": 95.0,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "暖白",
       "mode": "realtime"
     },
     {
@@ -914,6 +1101,30 @@
       "fogEnd": 420.0
     },
     {
+      "name": "格兰德酒店",
+      "worldLinear": {
+        "r": 0.012,
+        "g": 0.016,
+        "b": 0.023,
+        "a": 1.0
+      },
+      "fog": false,
+      "fogStart": 180.0,
+      "fogEnd": 420.0
+    },
+    {
+      "name": "报社",
+      "worldLinear": {
+        "r": 0.012,
+        "g": 0.016,
+        "b": 0.023,
+        "a": 1.0
+      },
+      "fog": false,
+      "fogStart": 180.0,
+      "fogEnd": 420.0
+    },
+    {
       "name": "让他们安静",
       "worldLinear": {
         "r": 0.012,
@@ -998,6 +1209,18 @@
       "fogEnd": 420.0
     },
     {
+      "name": "街角咖啡馆",
+      "worldLinear": {
+        "r": 0.012,
+        "g": 0.016,
+        "b": 0.023,
+        "a": 1.0
+      },
+      "fog": false,
+      "fogStart": 180.0,
+      "fogEnd": 420.0
+    },
+    {
       "name": "码头",
       "worldLinear": {
         "r": 0.012000000104308128,
@@ -1006,6 +1229,54 @@
         "a": 1.0
       },
       "fog": true,
+      "fogStart": 180.0,
+      "fogEnd": 420.0
+    },
+    {
+      "name": "货运公司",
+      "worldLinear": {
+        "r": 0.012,
+        "g": 0.016,
+        "b": 0.023,
+        "a": 1.0
+      },
+      "fog": false,
+      "fogStart": 180.0,
+      "fogEnd": 420.0
+    },
+    {
+      "name": "剧院",
+      "worldLinear": {
+        "r": 0.012,
+        "g": 0.016,
+        "b": 0.025,
+        "a": 1.0
+      },
+      "fog": false,
+      "fogStart": 180.0,
+      "fogEnd": 420.0
+    },
+    {
+      "name": "警察局",
+      "worldLinear": {
+        "r": 0.012,
+        "g": 0.016,
+        "b": 0.023,
+        "a": 1.0
+      },
+      "fog": false,
+      "fogStart": 180.0,
+      "fogEnd": 420.0
+    },
+    {
+      "name": "诊所",
+      "worldLinear": {
+        "r": 0.012,
+        "g": 0.016,
+        "b": 0.023,
+        "a": 1.0
+      },
+      "fog": false,
       "fogStart": 180.0,
       "fogEnd": 420.0
     },
@@ -1037,111 +1308,115 @@
   "placeHashes": [
     {
       "name": "上午十一点零七分",
-      "hash": "7c16059e26cbeec720af54af8b49b8e23aa51f870704cba878040df7ce9e96f6"
+      "hash": "cafb9f1cf78531da392e08b774dc1a3048fcb8cc5a591689c2557bf2cd962722"
     },
     {
       "name": "修理棚",
-      "hash": "d194f933815056979e4ac9ae50d21c21fb531da186f80ffaeed34beaf1714443"
+      "hash": "a3b070eef120a9d16510afa7017bf14ff4b8ba468581c2e9608096faadcdf30b"
     },
     {
       "name": "公园",
-      "hash": "a0859054a6965bf21e4843974eb77242bbd0962091c7519d0ceb55319415695f"
+      "hash": "d424481dbdcf19a5dc53c10bb04183f2f4dfdf921757739a26a18303f9a241f6"
     },
     {
       "name": "别给他们想要的",
-      "hash": "14b3fe72585f10f4960aeb411a1aefc3d07784b8d2e675796e107a2346128ac6"
+      "hash": "b9788cb8c14e93b9f3df9818ce1c10ca7686325b353ef13775fdec2e84616a98"
     },
     {
       "name": "剧院",
-      "hash": "601cc9bd40d9710acad636f59706a28ea7086c2081684468ef388342511c4828"
+      "hash": "822e23111da80b250d5f2fed3fc18ad32bddc7ff94fa2c6240bcfb26f7cfb493"
     },
     {
       "name": "双目标跟拍",
-      "hash": "00bdea67b50a77c5b13c50071730c45a3839a9c837e57f1a1d7a0553e227726a"
+      "hash": "3b82ac3a09c99303d86bfc83cff76ec384f58b9dba3deb715496234351d7a306"
     },
     {
       "name": "家",
-      "hash": "c5a3ad9bd29716e07ed5fee9ef7731f54f9a4a51c8fbb7ec3ff640d2ad3b46ce"
+      "hash": "56625f20059ef90d8941f68e91bdf89e1bc20d8f1b99662d752e72d5fe97db67"
     },
     {
       "name": "尾随取件人",
-      "hash": "79b869dc433099e218e136ea7cbbba6d0ed2867211ce34f2e76bd5273d1a9312"
+      "hash": "b37c8aa7ebf7151ae6aee4e0ad9f020610a9cf56f8b9d795fdfe5b4896587d7c"
     },
     {
       "name": "巷子",
-      "hash": "7814b58b982b8c508fab3164350e53133752bb908399a505643532cec2f7e757"
+      "hash": "4e29a8370d36b65b3e33cd1a113ec2e918721699fd40ea525a81fcae581fce77"
     },
     {
       "name": "巷子里在打人",
-      "hash": "12c3cd1fa66275848873ef0b4277a72bc522ed0c0e458c1f856b81d404db71f7"
+      "hash": "3e75575b1c27116f065da4038f6efe45a38b6dae3e18eb8dca9d728a8774c5e9"
     },
     {
       "name": "布告栏",
-      "hash": "94f6195cb8c55730f69a50a877cdd5aec12ce9196a2ca76b5fd8818e68209965"
+      "hash": "ad0615e42cbf2c6f8fdbbb302c1a613aae2a98ef90788db5126a239247ca2ad3"
     },
     {
       "name": "报社",
-      "hash": "8c6d59e394b3087054813fa5ad83e7c02da483f04fec6853ed8d7383846fd5a9"
+      "hash": "a27a19b88459e0e44fdaf3049083532be074be86c587c05c8947c257dc70fca3"
     },
     {
       "name": "晚宴",
-      "hash": "6ff770e6ae9e66504d2f4c2c13086e56980f177005034b7c46c4dd4bcda4e0ab"
+      "hash": "2070b5cba06fa8bfcef47211cbecbd5a814dfe257f97505a6d898d18f127ad28"
     },
     {
       "name": "格兰德酒店",
-      "hash": "4cdd48022eb3a4661829c2e7cf4307299682e5eedd739fec66360991ef3c1d50"
+      "hash": "603ec7e995b29414fbcfaba080227319c228e75b5cdf016445b4a513669835af"
     },
     {
       "name": "照相馆交涉",
-      "hash": "510a3d9d2f1858528c14f57658c665a7d49ab8c34d4fa81b87af64be4fbca756"
+      "hash": "6d5a2847d36fda622ca348ebf4e46f30029945188a15515064bb430786be3e63"
     },
     {
       "name": "码头",
-      "hash": "31b1bb098a879a5aec96988c219bd9434c72927dbdf7eb1f6bcccbc99dcc65e1"
+      "hash": "1705f5fb6d8c09a7c5bfacfa15728c4913c0d23841c0c51d5a6f983a81beb49f"
     },
     {
       "name": "码头居民区",
-      "hash": "1b00a2aadd9727c2c29fbaa9e589b3e1fffed42582f6c316942fae72eb1f0e43"
+      "hash": "b49548936f5ef8511262b92fd1791536427bd5f593a633c696db358d57a2fb7a"
     },
     {
       "name": "租屋",
-      "hash": "749e08fbfe83f3f7056a0b84469a18b967de671436c2653d4c201332e3094e78"
+      "hash": "058ce5d5764cae9b68855990cb63baacc57069f1fa706e8f3e7712e6f18b2639"
     },
     {
       "name": "老街酒馆",
-      "hash": "886ead1ec303159f8ae1b3b586332f5ab59c2ef6567de5c9e0a24ce674a7c177"
+      "hash": "144b30554be41bb97013c2a787f29b51382d0febf3df43cc6d27ad63bb85f61f"
+    },
+    {
+      "name": "街角咖啡馆",
+      "hash": "147ecfe5c9179ead3b91efe659cb2471998e873575b7efaf1ae39b29c8c246c7"
     },
     {
       "name": "警察局",
-      "hash": "48507aa846c5bb9159e00ef37706657a62197f76c51acb48c5acd0102ceb08b4"
+      "hash": "f5db35fe333baee300be25363ac5884f6206b6ea331191e6cc1ded7061728254"
     },
     {
       "name": "让他们安静",
-      "hash": "eb5b84ceec52cca4678ba1ee5d16f06fa6924a4e17a0b26509d44ebb0c38193f"
+      "hash": "e868eaae661f0ab9de8d42d98f7ea8049101b0fac9b1876ec3481a00542eb1bd"
     },
     {
       "name": "诊所",
-      "hash": "3e908277bafe53a40ac4144b975344386509fa08b64849911031c7819ea984dd"
+      "hash": "1e04d996ea48c0c140f05cdd2c5d80ef01f1a01027368f15c711da7cae35a12e"
     },
     {
       "name": "货运公司",
-      "hash": "8aad8225cb02a5abdd31f1dc3d590117a3103e59e3436b3b9a240f0e5798a598"
+      "hash": "b75a8e631a1103b196a24a955c61b970449bc0309d2c4fb1305b9ed2530b85bd"
     },
     {
       "name": "醉客互相叫骂",
-      "hash": "a007df57c3fb48a28f4dd262646dc275dca5cf755c60c7bbb17dc07977c032ea"
+      "hash": "5c3835d26d69f04b554473bcc9e55634e4fa9cc6dcdb3a824468b51c59f275fd"
     },
     {
       "name": "雕像",
-      "hash": "62ae3e7f21698cddbdaea8adaec7c8056b8f0e20c687e90d2f2524906dda7b6d"
+      "hash": "c374692f67c7342175d87c410dc15f6f3fefb08f789fb46862038079c2e609b9"
     },
     {
       "name": "雨夜同行",
-      "hash": "b091e3ecb7012b9cae6172932f161206be874ae95e47db87ca1c0b6b8aa81e7b"
+      "hash": "af34c919b45a3bd89e5b5afb1f21f62f35fab81513cb2a2531676e5722312f5d"
     },
     {
       "name": "首演之夜",
-      "hash": "3d0a24780e0ae35a03f7de8c0dd6848e6fcd124014784419923ff5b1d82c2441"
+      "hash": "f902e796edd17e00eb6e4a3de9cf02fa4e7cd26d17f7f572a5eb63481f39c299"
     }
   ]
 }

@@ -134,23 +134,18 @@ namespace SSNoir.IMGUI
             StageScreenPainter.Release();
         }
 
-        // 返回 true：普通 play-dialogue! 的说话人此刻不在场，画面仍使用对白舞台，但调用方应报警。
-        // 显式 play-remote-dialogue! 允许同一舞台承接场外人物，不视为降级。
-        public static bool DrawConversationLine(
+        // 立绘舞台按人物身份建立说话人，不依赖城市节点或当前屏幕锚点。
+        // 普通与显式 remote Dialogue 共用舞台表现。
+        public static void DrawConversationLine(
             string speaker,
             string displaySpeaker,
             string text,
             int lineIndex,
-            DialogueAnchors anchors,
-            bool allowsRemoteParticipant,
             DialogueStageCue? stage = null, string? appearance = null)
         {
             NeonPortraitLibrary.DeclareAppearance(speaker, appearance);
             float now = Time.unscaledTime;
             bool isNarration = speaker == NarratorSpeaker;
-            bool usedRemoteFallback = !isNarration
-                && !anchors.TryResolve(speaker, out _)
-                && !allowsRemoteParticipant;
 
             // 行号保证连续两句内容完全相同时仍被视为两句，各自触发弹跳和打字机。
             string lineKey = lineIndex + "\n" + speaker + "\n" + text;
@@ -182,7 +177,6 @@ namespace SSNoir.IMGUI
                 displaySpeaker, visibleText, text, isTyping, isNarration, cue.Inner,
                 lineEase, negative);
             StageScreenPainter.PaintFlash(State.FlashAlpha(now), negative);
-            return usedRemoteFallback;
         }
 
         private static int VisibleCharacterCount()

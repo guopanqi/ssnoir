@@ -209,8 +209,9 @@ namespace SSNoir.Scripting
 
             if (riskLevel.HasValue && (resolve == null || resolve.Type != ResolveType.Roll))
                 throw new InvalidOperationException($"Node '{id}' :risk requires a Roll action.");
-            if ((riskTarget != null || progressTarget != null) && !riskLevel.HasValue)
-                throw new InvalidOperationException($"Node '{id}' declares a target without :risk.");
+            if ((riskTarget != null || progressTarget != null)
+                && (resolve == null || (resolve.Type != ResolveType.Roll && resolve.Type != ResolveType.Instant)))
+                throw new InvalidOperationException($"Node '{id}' declares an effect target without an action.");
             if (riskLevel.HasValue && tags.Exists(t => t == "低风险" || t == "高风险" || t == "稳妥" || t == "冒险" || t == "危险"))
                 throw new InvalidOperationException($"Node '{id}' mixes :risk with a legacy risk tag.");
 
@@ -226,10 +227,10 @@ namespace SSNoir.Scripting
                 Subtitle = subtitle,
                 Risk = riskLevel.HasValue ? new ActionRisk
                 {
-                    Level = riskLevel.Value,
-                    RiskTarget = riskTarget,
-                    ProgressTarget = progressTarget
+                    Level = riskLevel.Value
                 } : null,
+                RiskTarget = riskTarget,
+                ProgressTarget = progressTarget,
                 ButtonText = buttonText,
                 RequiredBeforeRest = requiredBeforeRest,
                 Disabled = disabled,

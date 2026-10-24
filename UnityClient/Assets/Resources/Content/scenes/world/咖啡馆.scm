@@ -33,6 +33,7 @@
               (outcome (lambda () (work-result! 4 '中 0)))
               (outcome (lambda () (work-result! 0 '坏 -1)))
               "一骰帮工；顺利恢复1冷静，每日一次；失手损失1冷静"
+              :anchor "咖啡馆帮工"
               :risk-target (list 'composure "player")
               :progress-target (list 'item "金钱")))
           '()))
@@ -46,5 +47,5 @@
          (set! calm-rest-day (assoc-get (cadr args) "calm-rest-day" 0)))
         (else (error "咖啡馆：未知消息"))))))
 
-;; 咖啡馆暂无独立 3D 锚点：先借照相馆的锚点，把帮工卡落在那一角。
+;; 正式城市地点：默认落在转角入口，露西与帮工使用各自的橱窗位置。
 (define cafe (纯投射地点 "街角咖啡馆" "街角咖啡馆"))

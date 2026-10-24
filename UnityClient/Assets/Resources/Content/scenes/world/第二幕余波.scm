@@ -1,52 +1,27 @@
-;; 第二幕人物余波：不帮忙也不会让人物停在那里等玩家。
-(define 二幕余波-艾迪已演? #f)
-(define (二幕余波-艾迪已知?) 二幕余波-艾迪已演?)
-(define (二幕余波-艾迪近况)
-  (cond
-    ((equal? (第二幕 'wage-state) "凭证核清") "凭工时册拿回工钱，没有闹到停班，艾迪照常上工。")
-    ((equal? (第二幕 'wage-state) "拿回工钱") "工钱拿回了，但艾迪因此被工头停了一天班。")
-    ((equal? (第二幕 'wage-state) "弗兰克调停") "弗兰克核清了账，艾迪仍在码头工作。")
-    ((equal? (第二幕 'wage-state) "保住工作") "工钱上让了步，工友保住了工作。")
-    ((equal? (第二幕 'wage-state) "撤出") "工头暂停了艾迪两天的班，争执还没完。")
-    (else "艾迪和弗兰克后来自己去谈了，艾迪仍在码头工作。")))
-(define (二幕余波-艾迪!)
-  (set! 二幕余波-艾迪已演? #t)
-  (play-dialogue!
-    (line "世界" "艾迪把工帽搁在膝头，往旁边挪了挪，让尼尔坐下。")
-    (line "艾迪"
+;; 亲近只记录是否呈现；不再按五种交锋路径分出五份余波。
+(define 第二幕余波
+  (let ((gloves-seen? #f))
+    (define (gloves!)
+      (if (or gloves-seen? (not (第一幕 'eddie-met?))) #f
+        (begin
+          (set! gloves-seen? #t)
+          (play-dialogue!
+            (line "世界" "艾迪瞥了一眼尼尔磨破的手套，从工具袋里抽出一副厚帆布的，递了过来。")
+            (line "艾迪" "你那破布条早该扔了。戴上这个。")
+            (line "尼尔" "你自己呢？")
+            (line "艾迪" "箱子里还有旧的。顾好你自己的手。")))))
+    (lambda args
       (cond
-        ((equal? (第二幕 'wage-state) "凭证核清")
-          "你把工时册找出来那一刻，他就没法再赖了。明天我们都照常上工。")
-        ((equal? (第二幕 'wage-state) "拿回工钱")
-          "十块钱拿回来了。工头停我一天的班，算是他最后的脾气。")
-        ((equal? (第二幕 'wage-state) "弗兰克调停")
-          "弗兰克核清了账，还顺手教训我一顿。")
-        ((equal? (第二幕 'wage-state) "保住工作")
-          "我们这次让了步。但人没丢饭碗，也算不坏。")
-        ((equal? (第二幕 'wage-state) "撤出")
-          "工头让我停两天班。那事没完，但剩下的我会想办法。")
-        (else
-          "工资那事后来我和弗兰克自己去谈了。别件件事都替我操心。")))
-    (line "尼尔" "你明天还去？")
-    (line "艾迪" (if (第二幕 'eddie-on-dock?)
-      "去啊。总不能为了十块钱连饭都不吃了。"
-      "领班暂时不让我上工。可我总得再找点别的活儿。"))))
-(define (第二幕余波 . args)
-  (cond
-    ((eq? (car args) 'arrivals-at) '())
-    ((eq? (car args) 'nodes-at)
-      (let ((loc (cadr args)))
-        (cond
-          ((and (or (and (equal? loc "码头") (第二幕 'eddie-on-dock?))
-                    (and (equal? loc "码头居民区") (not (第二幕 'eddie-on-dock?))))
-                (> (第二幕 'wage-end-day) 0)
-                (> world-day (第二幕 'wage-end-day))
-                (not 二幕余波-艾迪已演?))
-            (list (instant-action "问艾迪后来的事" 二幕余波-艾迪!)))
-          (else '()))))
-    ((eq? (car args) 'save)
-      (list (list "eddie-seen" 二幕余波-艾迪已演?)))
-    ((eq? (car args) 'load!)
-      (let ((data (cadr args)))
-        (set! 二幕余波-艾迪已演? (assoc-get data "eddie-seen" #f))))
-    (else (error "第二幕余波：未知消息"))))
+        ((eq? (car args) 'gloves!) (gloves!))
+        ((eq? (car args) 'gloves-seen?) gloves-seen?)
+        ((eq? (car args) 'mark-gloves-seen!) (set! gloves-seen? #t))
+        ((eq? (car args) 'nodes-at) '())
+        ((eq? (car args) 'arrivals-at)
+          (if (and (= (第一幕 'act) 2) (第一幕 'eddie-met?) (not gloves-seen?)
+                   (member? (第二幕 'wage-state) '("上工" "停班"))
+                   (or (and (equal? (cadr args) "码头") (第二幕 'eddie-on-dock?))
+                       (and (equal? (cadr args) "码头居民区") (not (第二幕 'eddie-on-dock?)))))
+            (list (arrival "艾迪的手套" gloves!)) '()))
+        ((eq? (car args) 'save) (list (list "gloves" gloves-seen?)))
+        ((eq? (car args) 'load!) (set! gloves-seen? (assoc-get (cadr args) "gloves" #f)))
+        (else (error "第二幕余波：未知消息"))))))

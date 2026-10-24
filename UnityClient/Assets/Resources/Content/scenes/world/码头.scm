@@ -7,7 +7,7 @@
 
     (define (on-haul! grade)
       (cond
-        ((eq? grade '好) (add-item! "金钱" 20))
+        ((eq? grade '好) (add-item! "金钱" 18))
         ((eq? grade '中) (add-item! "金钱" 10) (spend-composure! 1))
         (else (spend-composure! 2)))
       ;; 人物剧情先处理；第二幕矛盾通过日常搬运铺垫。

@@ -138,7 +138,41 @@ public static class WorldLabelLayoutValidation
             new Vector2(330, 178), new Vector2(218, 80)));
         Check(!reflowed.Overlaps(start), "new layout context resolves new blockers");
 
+        ValidateProgressGroups();
+
         Debug.Log("[SSNoir] Stable world label layout validation passed.");
+    }
+
+    public static void ValidateProgressGroups()
+    {
+        var state = new WorldLabelLayout.PlacementState();
+        List<WorldLabelLayout.Request> Requests(Vector2 anchor) => new()
+        {
+            new("clock", WorldLabelLayout.Kind.Annotation, anchor, anchor, new Vector2(180, 90), 0, "clock"),
+            new("roll", WorldLabelLayout.Kind.Action, anchor, anchor, new Vector2(310, 160), 1, "clock"),
+            new("pay", WorldLabelLayout.Kind.Action, anchor, anchor, new Vector2(180, 140), 2, "clock"),
+            new("work", WorldLabelLayout.Kind.Action, anchor, anchor, new Vector2(220, 130), 3)
+        };
+        var area = new Rect(0, 0, 1100, 700);
+        var anchor = new Vector2(550, 500);
+        var wide = state.Arrange(new WorldLabelLayout.Space(area), Requests(anchor));
+        Check(wide["clock"].yMax < wide["roll"].yMin, "Clock above its actions");
+        Check(Mathf.Approximately(wide["roll"].yMin, wide["pay"].yMin), "actions share a row");
+        Check(!wide["roll"].Overlaps(wide["pay"]), "attachment reserves do not overlap");
+        foreach (var key in new[] { "clock", "roll", "pay" })
+            Check(!wide[key].Overlaps(wide["work"]), "unrelated work stays outside group");
+        var moved = state.Arrange(new WorldLabelLayout.Space(area), Requests(anchor + new Vector2(90, 20)));
+        foreach (var key in new[] { "clock", "roll", "pay" })
+            Check(Approximately(moved[key].center - wide[key].center, new Vector2(90, 20)),
+                "camera movement keeps group rigid");
+        var narrow = new WorldLabelLayout.PlacementState().Arrange(
+            new WorldLabelLayout.Space(new Rect(0, 0, 480, 900)), Requests(new Vector2(240, 800)));
+        Check(narrow["roll"].yMax < narrow["pay"].yMin, "narrow area stacks actions");
+        var reduced = Requests(anchor);
+        reduced.RemoveAt(2);
+        var fewer = state.Arrange(new WorldLabelLayout.Space(area), reduced);
+        Check(fewer.Count == 3 && !fewer.ContainsKey("pay"), "removed action leaves group");
+        Check(fewer["clock"].yMax < fewer["roll"].yMin, "remaining action stays below Clock");
     }
 
     private static bool Approximately(Vector2 a, Vector2 b)

@@ -18,7 +18,7 @@ namespace SSNoir.IMGUI
         }
         internal static void Offer(GameNode node) => _next = node;
         internal static bool IsClockFocused(GameClock clock)
-            => Matches(_focus?.Risk?.RiskTarget, clock) || Matches(_focus?.Risk?.ProgressTarget, clock);
+            => Matches(_focus?.RiskTarget, clock) || Matches(_focus?.ProgressTarget, clock);
 
         private static bool Matches(ActionTarget? target, GameClock clock)
             => target?.Kind == ActionTargetKind.Clock

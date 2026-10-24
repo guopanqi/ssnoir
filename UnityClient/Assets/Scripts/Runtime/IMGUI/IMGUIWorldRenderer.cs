@@ -20,7 +20,6 @@ namespace SSNoir.IMGUI
         private StoryStagePlayer _storyStagePlayer = null!;
         private SSNoir.UnityTheatre.TheatrePlayer _theatrePlayer = null!;
         private readonly DialogueAnchors _dialogueAnchors = new DialogueAnchors();
-        private bool _warnedAboutCurrentDialogueRemoteFallback;
         private string? _activeVideoTag;
         private float _animationTimer;
 
@@ -52,7 +51,7 @@ namespace SSNoir.IMGUI
         // 判定条、结果条等不参与卡片布局；它们在所有卡本体之后统一绘制，才不会被近景卡遮住。
         private readonly List<CardAttachmentOverlay> _cardAttachmentOverlays = new List<CardAttachmentOverlay>();
         private string? _consoleDrawerHost;
-        private float _consoleDrawerOpenedAt;
+        private readonly Dictionary<string, float> _consoleDrawerOpenedAt = new();
         private const float ConsoleDrawerOpenSeconds = 0.18f;
 
         // 本帧世界投射层的浓度，由 DrawCards 写、附件那一段读——附件画在卡片之后、
@@ -718,7 +717,6 @@ namespace SSNoir.IMGUI
             if (_conversationPlayer.IsActive)
             {
                 StoryStageDrawer.EndConversation();
-                _warnedAboutCurrentDialogueRemoteFallback = false;
                 _conversationPlayer.Skip();
                 return true;
             }
@@ -822,7 +820,6 @@ namespace SSNoir.IMGUI
             if (StoryStageDrawer.IsCurrentLineFullyRevealed)
             {
                 _conversationPlayer.Advance();
-                _warnedAboutCurrentDialogueRemoteFallback = false;
             }
             else
             {
@@ -939,7 +936,6 @@ namespace SSNoir.IMGUI
             _storyStagePlayer.Reset();
             _theatrePlayer.Reset();
             StoryStageDrawer.BeginConversation();
-            _warnedAboutCurrentDialogueRemoteFallback = false;
             _completionReport = null;
             _completionActionNodeId = string.Empty;
             _completionDone = null;
@@ -1300,10 +1296,14 @@ namespace SSNoir.IMGUI
             HandPanelDrawer.DrawPortraits(_gameManager);
 
             // ── Node Cards (3D projected) ──
-            ActionRiskFocus.BeginFrame(SelectedRiskTarget(_gameManager.DisplayedSnapshot.RootNode, _consoleDrawerHost));
+            ActionRiskFocus.BeginFrame(SelectedEffectTarget(_gameManager.DisplayedSnapshot.RootNode, _consoleDrawerHost));
             DrawCards(worldUi);
-            if (!_cardAttachmentOverlays.Any(attachment => attachment.ConsoleNode != null))
-                _consoleDrawerHost = null;
+            var armedConsoleIds = new HashSet<string>(_cardAttachmentOverlays
+                .Where(attachment => attachment.ConsoleNode != null).Select(attachment => attachment.HostNodeId));
+            foreach (var id in _consoleDrawerOpenedAt.Keys.Where(id => !armedConsoleIds.Contains(id)).ToList())
+                _consoleDrawerOpenedAt.Remove(id);
+            if (_consoleDrawerHost != null && !armedConsoleIds.Contains(_consoleDrawerHost))
+                _consoleDrawerHost = armedConsoleIds.FirstOrDefault();
             bool pointerOnFixedHud = topHud.Bar.Contains(worldUi.Mouse)
                 || topHud.FunctionPlate(!_gameManager.DisplayedSnapshot.IsInEncounter).Contains(worldUi.Mouse)
                 || _pinStripRect.Contains(worldUi.Mouse)
@@ -1650,14 +1650,14 @@ namespace SSNoir.IMGUI
                 Application.Quit();
         }
 
-        private static GameNode? SelectedRiskTarget(GameNode? node, string? selectedId)
+        private static GameNode? SelectedEffectTarget(GameNode? node, string? selectedId)
         {
             if (node == null || selectedId == null) return null;
-            if (node.Id == selectedId && node.Risk != null)
+            if (node.Id == selectedId && (node.RiskTarget != null || node.ProgressTarget != null))
                 return node;
             foreach (var child in node.Children)
             {
-                var found = SelectedRiskTarget(child, selectedId);
+                var found = SelectedEffectTarget(child, selectedId);
                 if (found != null) return found;
             }
             return null;
@@ -1694,6 +1694,9 @@ namespace SSNoir.IMGUI
             if (_activeAutoAction?.AutoActionNode != null)
                 authoredKeys.Add(_activeAutoAction.AutoActionNode.Id);
             _labelPlacements.KeepOnly(authoredKeys);
+            var progressAnchors = nodes.Where(n => AnnotationDrawer.IsAnnotation(n) && n.Resolve?.Clock != null)
+                .GroupBy(n => n.Resolve!.Clock!.Label).Where(g => g.Count() == 1)
+                .ToDictionary(g => g.Key, g => g.First());
             var focusedName = _gameManager.FocusedNodeId;
             // All projected labels use one anchor-local layout, independent of camera mode.
             // 世界投射层跟着换镜一起显形：新那一镜露出多少，这一层就画多浓（见下面
@@ -1755,7 +1758,14 @@ namespace SSNoir.IMGUI
                     // 地点牌与锚定标注只要求锚点在镜头前方：锚点出了画面，牌子
                     // 仍可能露出一角，玩家可以拖镜头把它带回来。动作卡保留视口筛选。
                     // 标注已参与避让，所以也走落镜后再排布 / 已有落点可续画，避免运镜途中乱跳。
-                    var viewPos = cam.WorldToViewportPoint(anchor.transform.position);
+                    // Group members share projection/culling; panning cannot remove
+                    // one action and repeatedly rebuild the remaining group.
+                    var layoutAnchor = anchor;
+                    if (string.IsNullOrEmpty(focusedName)
+                        && node.ProgressTarget is { Kind: ActionTargetKind.Clock } progress
+                        && progressAnchors.TryGetValue(progress.Id, out var clockNode))
+                        layoutAnchor = _gameManager.ResolveAnchor(clockNode) ?? anchor;
+                    var viewPos = cam.WorldToViewportPoint(layoutAnchor.transform.position);
                     float padding = 0.05f;
                     // A node with no established layout must be solved only when
                     // the camera has reached its final view. This applies to
@@ -1770,12 +1780,12 @@ namespace SSNoir.IMGUI
 
                     if (inCameraSight)
                     {
-                        var screenPos = cam.WorldToScreenPoint(anchor.transform.position);
+                        var screenPos = cam.WorldToScreenPoint(layoutAnchor.transform.position);
                         // screenPos is actual screen pixels; order 是内容里的声明序号，
                         // 锚点投影与内容序号用于确定稳定顺序。
                         // 地点牌的悬浮高度属于世界空间；固定屏幕像素会随镜头俯仰改变
                         // 它看起来离建筑的高度。
-                        var labelScreenPos = cam.WorldToScreenPoint(anchor.transform.position + Vector3.up * LocationLabelWorldHeight);
+                        var labelScreenPos = cam.WorldToScreenPoint(layoutAnchor.transform.position + Vector3.up * LocationLabelWorldHeight);
                         // 新动作卡只在目标机位停稳后排布一次。运镜途中用瞬时投影
                         // 反复求解，会让它在场景上左右跳；已有落点的卡仍可稳定显示。
                         if (!waitForLanding)
@@ -1924,13 +1934,25 @@ namespace SSNoir.IMGUI
             // One occupied space for places, actions, annotations and later dialogue.
             var keepOut = BuildWorldLabelSpace(protectedAnchors);
             _worldLabelSpace = keepOut;
+            // Only an unambiguous visible Clock owns a progress group.
+            var clockOwners = layouts.Where(l => l.IsAnnotation && l.Node.Resolve?.Clock != null)
+                .GroupBy(l => l.Node.Resolve!.Clock!.Label)
+                .Where(g => g.Count() == 1).ToDictionary(g => g.Key, g => g.First().Key);
+            string? ProgressGroup(ProjectedCardLayout layout)
+            {
+                if (layout.IsAnnotation && layout.Node.Resolve?.Clock is { } clock
+                    && clockOwners.TryGetValue(clock.Label, out var owner)) return owner;
+                if (layout.Node.ProgressTarget is { Kind: ActionTargetKind.Clock } target
+                    && clockOwners.TryGetValue(target.Id, out var targetOwner)) return targetOwner;
+                return null;
+            }
             var requests = layouts.Select(layout => new WorldLabelLayout.Request(
                 layout.Key,
                 layout.IsAnnotation ? WorldLabelLayout.Kind.Annotation
                     : layout.Node.IsContainer ? WorldLabelLayout.Kind.Location
                     : WorldLabelLayout.Kind.Action,
                 layout.AnchorPos, layout.TargetCenter + layout.AttachmentReserve * .5f,
-                new Vector2(layout.Width, layout.Height) + layout.AttachmentReserve, layout.DeclarationOrder)).ToList();
+                new Vector2(layout.Width, layout.Height) + layout.AttachmentReserve, layout.DeclarationOrder, ProgressGroup(layout))).ToList();
             // Existing cards reserve their remembered positions first; only new
             // cards are placed into the remaining space. Pan and Orbit are identical.
             var placements = _labelPlacements.Arrange(keepOut, requests);
@@ -2115,10 +2137,10 @@ namespace SSNoir.IMGUI
                 var slots = SlotsForNode(node);
                 if (ActionNodeDrawer.IsConsoleArmed(node, slots, GetExecutionState(node.Id).IsExecuting))
                 {
-                    if (!string.Equals(_consoleDrawerHost, node.Id, StringComparison.Ordinal))
+                    if (!_consoleDrawerOpenedAt.ContainsKey(node.Id))
                     {
                         _consoleDrawerHost = node.Id;
-                        _consoleDrawerOpenedAt = Time.unscaledTime;
+                        _consoleDrawerOpenedAt.Add(node.Id, Time.unscaledTime);
                     }
                     _cardAttachmentOverlays.Add(CardAttachmentOverlay.ForConsole(cardRect, node, slots!));
                 }
@@ -2276,8 +2298,8 @@ namespace SSNoir.IMGUI
 
         private float ConsoleDrawerReveal(string nodeId)
         {
-            if (!string.Equals(_consoleDrawerHost, nodeId, StringComparison.Ordinal)) return 0f;
-            float t = Mathf.Clamp01((Time.unscaledTime - _consoleDrawerOpenedAt) / ConsoleDrawerOpenSeconds);
+            if (!_consoleDrawerOpenedAt.TryGetValue(nodeId, out var openedAt)) return 0f;
+            float t = Mathf.Clamp01((Time.unscaledTime - openedAt) / ConsoleDrawerOpenSeconds);
             return 1f - Mathf.Pow(1f - t, 3f);
         }
 
@@ -3113,7 +3135,7 @@ namespace SSNoir.IMGUI
                 _banterPlayer,
                 _dialogueAnchors,
                 _gameManager,
-                speaker => ReportRemoteFallback("play-bubble!", speaker),
+                ReportBanterRemoteFallback,
                 _worldLabelSpace, _banterPlacements, !string.IsNullOrWhiteSpace(_narrationPlayer.CurrentSubtitle));
         }
 
@@ -3150,20 +3172,12 @@ namespace SSNoir.IMGUI
                 return;
             }
 
-            bool usedRemoteFallback = StoryStageDrawer.DrawConversationLine(
+            StoryStageDrawer.DrawConversationLine(
                 line.Speaker,
                 line.DisplaySpeaker,
                 line.Text,
                 _conversationPlayer.CurrentLineIndex,
-                _dialogueAnchors,
-                _conversationPlayer.AllowsRemoteParticipants,
                 line.Stage, line.Appearance);
-
-            if (usedRemoteFallback && !_warnedAboutCurrentDialogueRemoteFallback)
-            {
-                ReportRemoteFallback("play-dialogue!", line.Speaker);
-                _warnedAboutCurrentDialogueRemoteFallback = true;
-            }
 
             if (Event.current.type == EventType.MouseDown && Event.current.button == 0)
             {
@@ -3176,14 +3190,12 @@ namespace SSNoir.IMGUI
             }
         }
 
-        private void ReportRemoteFallback(string command, string speaker)
+        private void ReportBanterRemoteFallback(string speaker)
         {
-            bool isBanter = command == "play-bubble!";
             Debug.LogWarning(
-                $"{command} 说话人 '{speaker}' 无法解析到当前屏幕锚点，"
-                + (isBanter ? "已自动改用场外临时卡。" : "立绘舞台仍会显示，但本行被视为场外对白。")
-                + "若此人确实不在场，请改用对应的 remote 调用；"
-                + "否则请检查说话人拼写和动作前的可见节点。");
+                $"play-bubble! 说话人 '{speaker}' 无法解析到当前屏幕锚点，已自动改用场外临时卡。"
+                + "若此人确实不在场，请改用 play-remote-bubble!；"
+                + "否则请检查 :at、说话人拼写和动作后的可见节点。");
         }
 
         // 视频过场没配到 CutsceneSequence 时的占位:居中显示 [视频] tag。

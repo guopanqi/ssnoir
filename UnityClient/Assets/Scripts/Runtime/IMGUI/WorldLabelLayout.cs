@@ -29,9 +29,10 @@ namespace SSNoir.IMGUI
             public readonly Vector2 Preferred;
             public readonly Vector2 Size;
             public readonly int Order;
+            public readonly string? GroupOwner;
 
             public Request(string key, Kind kind, Vector2 anchor, Vector2 preferred,
-                Vector2 size, int order = 0)
+                Vector2 size, int order = 0, string? groupOwner = null)
             {
                 Key = key;
                 Kind = kind;
@@ -39,6 +40,7 @@ namespace SSNoir.IMGUI
                 Preferred = preferred;
                 Size = size;
                 Order = order;
+                GroupOwner = groupOwner;
             }
         }
 
@@ -58,9 +60,10 @@ namespace SSNoir.IMGUI
             }
 
             private readonly Dictionary<string, Entry> _entries = new();
+            private readonly Dictionary<string, string> _groupSignatures = new();
 
             public bool Contains(string key) => _entries.ContainsKey(key);
-            public void Clear() => _entries.Clear();
+            public void Clear() { _entries.Clear(); _groupSignatures.Clear(); }
 
             /// <summary>Forget removed authored nodes, not nodes merely outside the camera.</summary>
             public void KeepOnly(IEnumerable<string> liveKeys)
@@ -69,7 +72,7 @@ namespace SSNoir.IMGUI
                 var removed = new List<string>();
                 foreach (var key in _entries.Keys)
                     if (!live.Contains(key)) removed.Add(key);
-                foreach (var key in removed) _entries.Remove(key);
+                foreach (var key in removed) { _entries.Remove(key); _groupSignatures.Remove(key); }
             }
 
             /// <summary>
@@ -79,6 +82,8 @@ namespace SSNoir.IMGUI
             /// </summary>
             public Dictionary<string, Rect> Arrange(Space space, IReadOnlyList<Request> requests)
             {
+                foreach (var request in requests)
+                    if (request.GroupOwner != null) return ArrangeGroups(space, requests);
                 var ordered = new List<Request>(requests);
                 ordered.Sort((a, b) =>
                 {
@@ -102,6 +107,100 @@ namespace SSNoir.IMGUI
                 {
                     if (result.ContainsKey(request.Key)) continue;
                     result.Add(request.Key, SolveNew(space, request));
+                }
+                return result;
+            }
+
+            // A Clock and its direct actions reserve one rectangle. No transitive
+            // graph traversal: shared anchors and risk targets do not imply a group.
+            private Dictionary<string, Rect> ArrangeGroups(Space space, IReadOnlyList<Request> requests)
+            {
+                const float gap = 12f;
+                var groups = new Dictionary<string, List<Request>>();
+                foreach (var request in requests)
+                {
+                    if (request.GroupOwner == null) continue;
+                    if (!groups.TryGetValue(request.GroupOwner, out var members))
+                        groups.Add(request.GroupOwner, members = new List<Request>());
+                    members.Add(request);
+                }
+                var units = new List<Request>();
+                var children = new Dictionary<string, List<(Request request, Rect local)>>();
+                var grouped = new HashSet<string>();
+                foreach (var pair in groups)
+                {
+                    var members = pair.Value;
+                    int ownerIndex = members.FindIndex(r => r.Key == pair.Key);
+                    if (ownerIndex < 0 || members.Count < 2) continue;
+                    var owner = members[ownerIndex];
+                    members.RemoveAt(ownerIndex);
+                    members.Sort((a, b) => a.Order != b.Order ? a.Order.CompareTo(b.Order)
+                        : string.CompareOrdinal(a.Key, b.Key));
+                    float widest = owner.Size.x;
+                    foreach (var member in members) widest = Mathf.Max(widest, member.Size.x);
+                    float leftWidth = 0f, rightWidth = 0f;
+                    for (int i = 0; i < members.Count; i++)
+                        if (i % 2 == 0) leftWidth = Mathf.Max(leftWidth, members[i].Size.x);
+                        else rightWidth = Mathf.Max(rightWidth, members[i].Size.x);
+                    bool columns = members.Count > 1
+                        && Mathf.Max(owner.Size.x, leftWidth + gap + rightWidth) <= space.AvailableWidth;
+                    float width = columns ? Mathf.Max(owner.Size.x, leftWidth + gap + rightWidth) : widest;
+                    var local = new List<(Request request, Rect local)>();
+                    local.Add((owner, new Rect((width - owner.Size.x) / 2f, 0, owner.Size.x, owner.Size.y)));
+                    float y = owner.Size.y + gap;
+                    for (int i = 0; i < members.Count;)
+                    {
+                        int count = columns ? Math.Min(2, members.Count - i) : 1;
+                        float rowHeight = 0f;
+                        for (int column = 0; column < count; column++)
+                        {
+                            var member = members[i + column];
+                            float x = columns ? column * (leftWidth + gap) : (width - member.Size.x) / 2f;
+                            local.Add((member, new Rect(x, y, member.Size.x, member.Size.y)));
+                            rowHeight = Mathf.Max(rowHeight, member.Size.y);
+                        }
+                        y += rowHeight + gap;
+                        i += count;
+                    }
+                    var signature = string.Empty;
+                    foreach (var child in local)
+                    {
+                        grouped.Add(child.request.Key);
+                        signature += child.request.Key + ":" + child.local.ToString() + ";";
+                    }
+                    if (!_groupSignatures.TryGetValue(owner.Key, out var prior) || prior != signature)
+                        _entries.Remove(owner.Key);
+                    _groupSignatures[owner.Key] = signature;
+                    var size = new Vector2(width, y - gap);
+                    units.Add(new Request(owner.Key, Kind.Action, owner.Anchor,
+                        PreferredActionCenter(owner.Anchor, size), size, owner.Order));
+                    children.Add(owner.Key, local);
+                }
+                foreach (var request in requests)
+                    if (!grouped.Contains(request.Key))
+                    {
+                        if (_groupSignatures.Remove(request.Key)) _entries.Remove(request.Key);
+                        units.Add(new Request(request.Key, request.Kind, request.Anchor,
+                            request.Preferred, request.Size, request.Order));
+                    }
+                var placed = Arrange(space, units);
+                var result = new Dictionary<string, Rect>();
+                foreach (var unit in units)
+                {
+                    var rect = placed[unit.Key];
+                    if (!children.TryGetValue(unit.Key, out var local))
+                    { result.Add(unit.Key, rect); continue; }
+                    foreach (var child in local)
+                    {
+                        var childRect = new Rect(rect.x + child.local.x, rect.y + child.local.y,
+                            child.local.width, child.local.height);
+                        result.Add(child.request.Key, childRect);
+                        // Keep landing/culling memory for each child, while the owner
+                        // retains the group's full bounds for the next frame.
+                        if (child.request.Key != unit.Key)
+                            _entries[child.request.Key] = new Entry(
+                                childRect.center - child.request.Anchor, child.request.Size);
+                    }
                 }
                 return result;
             }
@@ -168,6 +267,7 @@ namespace SSNoir.IMGUI
             private readonly HashSet<string> _overflow = new();
 
             public Space(Rect safe) => _safe = safe;
+            public float AvailableWidth => Mathf.Max(0f, _safe.width - Edge * 2f);
 
             public void Reserve(Rect rect, ZoneKind kind, bool blocksInput = false)
             {

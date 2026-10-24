@@ -144,3 +144,7 @@ the same project"。先 `pgrep -lf "Unity.app/Contents/MacOS/Unity"` 看一眼�
 
 不用来测试：剧情流程、内容节点名称、数值平衡、完整游玩弧线。这些跟着内容天天变，固化成测试只会让
 每次改内容都得顺手改测试。如果要临时测试可以加，测试完成后删除
+
+## 第二幕V0.2独立交锋与结果回归
+
+`dotnet run --project tools/content-validator/SSNoir.ContentValidator.csproj -- --test-second-act-v02`覆盖独立双目标交锋、交锋回合不推进世界日、截止日、人物在场、自然情感场景、衣箱资源与旧状态归一。精确结果只证明分支和资源契约，不代表真实概率下的难度或Unity演出已验证。

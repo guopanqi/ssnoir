@@ -34,11 +34,8 @@ namespace SSNoir.Core
         }
         private static void Check(GameNode node, Dictionary<string, GameClock> clocks, HashSet<string> ambiguous)
         {
-            if (node.Risk != null)
-            {
-                CheckTarget(node, node.Risk.RiskTarget, clocks, ambiguous);
-                CheckTarget(node, node.Risk.ProgressTarget, clocks, ambiguous);
-            }
+            CheckTarget(node, node.RiskTarget, clocks, ambiguous);
+            CheckTarget(node, node.ProgressTarget, clocks, ambiguous);
             foreach (var child in node.Children) Check(child, clocks, ambiguous);
         }
         private static void CheckTarget(GameNode node, ActionTarget? target,

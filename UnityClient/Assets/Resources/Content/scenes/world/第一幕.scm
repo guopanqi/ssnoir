@@ -124,16 +124,13 @@
       ;; 转幕由告别事件统一拥有；地图与事项都读取 act，不再等清晨另行推进。
       (set! act 2)
       (酒馆最后一夜-演出 (>= singer-stage 1) (> eddie-stage 0) (> lucy-stage 0))
-      (if (>= singer-stage 1)
-        (play-dialogue!
-          (line "夜莺" "后天第一次正式彩排。你来看看，好吗？")
-          (line "尼尔" "大剧院？")
-          (line "夜莺" "对。来侧门，跟他们说是找我的。")
-          (line "尼尔" "后天我一定到。"))
-        (play-dialogue!
-          (line "夜莺" "后天我在大剧院第一次正式彩排。有空的朋友，也来听听吧。")
-          (line "尼尔" "我叫尼尔。后天我会去听。")
-          (line "夜莺" "那就说好了，尼尔。")))
+      (if (= singer-stage 0)
+        (play-dialogue! (line "尼尔" "我叫尼尔。你的歌，我想再听一次。")) #f)
+      (play-dialogue!
+        (line "夜莺" "后天第一次正式彩排。你来看看，好吗？")
+        (line "尼尔" "大剧院？")
+        (line "夜莺" "对。来侧门，跟他们说是找我的。")
+        (line "尼尔" "后天我一定到。"))
       (if (= singer-stage 0) (set! singer-stage 1) #f)
       ;; 演出结束后先提交新地图与事项，再显示第二幕公告。
       (focus-node! "老街酒馆")
@@ -143,7 +140,7 @@
         (error "第二幕：第一次彩排不在观看窗口") #t)
       (set! rehearsal-seen? #t)
       (set! rehearsal-done? #t)
-      (第一幕-彩排 (>= singer-stage 1))
+      (第一幕-彩排)
       (第二幕生活 'meet-manager!)
       (第二幕剧院 'promise-trial!))
 
@@ -325,6 +322,8 @@
              (set! rehearsal-done? (assoc-get data "rehearsal-done" #f))
              (set! notice-seen? (assoc-get data "notice" #f))
              (set! act (assoc-get data "act" 1))
+             ;; 第二幕已发生D6必经相识；旧档向前修复，不保留陌生人彩排剧本。
+             (if (and (= act 2) (= singer-stage 0)) (set! singer-stage 1) #f)
              (if (and (member? act '(1 2))
                       (member? lucy-stage '(0 1 2))
                       (member? eddie-stage '(0 1 2 3))

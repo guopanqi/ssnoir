@@ -21,8 +21,6 @@ namespace SSNoir.Core
     public sealed class ActionRisk
     {
         public ActionRiskLevel Level { get; init; }
-        public ActionTarget? RiskTarget { get; init; }
-        public ActionTarget? ProgressTarget { get; init; }
         public string Label => Level switch
         {
             ActionRiskLevel.Safe => "稳妥",

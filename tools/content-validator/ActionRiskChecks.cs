@@ -34,18 +34,11 @@ namespace SSNoir.Testing
             var root = new GameNode { Id = "root", Children = new List<GameNode>
             {
                 new GameNode { Id = "clock", Clocks = { clock } },
-                new GameNode { Id = "action", Risk = new ActionRisk
-                {
-                    Level = ActionRiskLevel.Risky,
-                    RiskTarget = new ActionTarget { Kind = ActionTargetKind.Clock, Id = "夜莺的恐惧" }
-                }}
+                new GameNode { Id = "action", Risk = new ActionRisk { Level = ActionRiskLevel.Risky },
+                    RiskTarget = new ActionTarget { Kind = ActionTargetKind.Clock, Id = "夜莺的恐惧" } }
             }};
             ActionRiskContract.Validate(root, Array.Empty<GameNode>());
-            root.Children[1].Risk = new ActionRisk
-            {
-                Level = ActionRiskLevel.Risky,
-                RiskTarget = new ActionTarget { Kind = ActionTargetKind.Clock, Id = "缺失钟" }
-            };
+            root.Children[1].RiskTarget = new ActionTarget { Kind = ActionTargetKind.Clock, Id = "缺失钟" };
             bool rejected = false;
             try { ActionRiskContract.Validate(root, Array.Empty<GameNode>()); }
             catch (InvalidOperationException) { rejected = true; }
@@ -55,10 +48,10 @@ namespace SSNoir.Testing
             rain.LoadScene("雨夜同行");
             var shortcut = Find(rain.CurrentRootNode!, "穿过暗巷");
             Assert(shortcut.Risk?.Level == ActionRiskLevel.Risky &&
-                   shortcut.Risk.RiskTarget?.Id == "夜莺的恐惧", "rainy alley preview mismatched");
+                   shortcut.RiskTarget?.Id == "夜莺的恐惧", "rainy alley preview mismatched");
             var safe = Find(rain.CurrentRootNode!, "沿街灯走");
             Assert(safe.Risk?.Level == ActionRiskLevel.Safe &&
-                   safe.Risk.ProgressTarget?.Id == "回到住处", "lit street preview mismatched");
+                   safe.ProgressTarget?.Id == "回到住处", "lit street preview mismatched");
 
             var interpreter = rain.ActiveInterpreter;
             void Reject(string expr)
@@ -70,6 +63,18 @@ namespace SSNoir.Testing
             Reject("(node \"bad\" :risk '陌生)");
             Reject("(node \"invalid\" :risk-target (list 'whatever \"x\"))");
             Reject("(node \"bad-placement\" :risk '稳妥)");
+
+            var payment = NodeConverter.ConvertSingle(interpreter.Eval(
+                "(node \"pay\" :progress-target (list 'clock \"夜莺的恐惧\") :resolve (instant (outcome (lambda () #t))))"), interpreter.RawInterpreter);
+            Assert(payment.Risk == null && payment.ProgressTarget?.Id == "夜莺的恐惧",
+                "instant payment must declare its effect without a roll risk");
+            root.Children[1] = payment;
+            ActionRiskContract.Validate(root, Array.Empty<GameNode>());
+            payment.ProgressTarget = new ActionTarget { Kind = ActionTargetKind.Clock, Id = "缺失钟" };
+            rejected = false;
+            try { ActionRiskContract.Validate(root, Array.Empty<GameNode>()); }
+            catch (InvalidOperationException) { rejected = true; }
+            Assert(rejected, "instant missing Clock target not rejected");
 
             var tavern = new SceneManager(new GameState(), new LocalScriptLoader());
             tavern.LoadScene("醉客互相叫骂");

@@ -25,6 +25,12 @@ namespace SSNoir
                     return;
                 }
 
+                if (args.Length == 1 && args[0] == "--test-second-act-v02")
+                {
+                    SecondActV02Checks.Run();
+                    return;
+                }
+
                 if (args.Length == 1 && args[0] == "--test-first-act")
                 {
                     FirstActChecks.Run();
