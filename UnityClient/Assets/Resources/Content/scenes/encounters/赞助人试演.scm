@@ -1,59 +1,55 @@
-;; 独立筹备交锋：回合压缩后台的排练空档，不推进城市日期。
-;; 资源路径只决定试唱条件；D11由夜莺自己决定演唱版本。
-(define 旧曲 (make-clock "排好旧曲" 5 'gauge "旧谱、伴奏与后台空档，要一件件凑齐。" :beneficial-direction 'increase))
-(define 机会 (make-clock "完整试唱机会" 4 'gauge "为她留出完整唱完旧歌的舞台时间。" :beneficial-direction 'increase))
-(define 压力 (make-clock "排练窗口缩紧" 6 'pressure "节目表就要敲定。排不齐，就得先按新编曲走。" :beneficial-direction 'decrease))
-(define 敲定过? #f)
+;; 赞助人试演：短型舞台时间争取，不替夜莺选择唱法。
+;; 仅留“完整试唱/压缩试唱”两种外部条件，她都能独立完成演出。
+(define 时间 (make-clock "完整演出时间" 4 'gauge "争取让夜莺把整首歌唱完。" :beneficial-direction 'increase))
+(define 节目表 (make-clock "节目表敲定" 5 'pressure "满格后只剩缩短的试演时间。" :beneficial-direction 'decrease))
+(define 改期? #f)
 (define 结束? #f)
 (define (收场! result)
-  (if 结束? (error "旧歌交锋：重复结算") #t)
+  (if 结束? (error "试演：已经结算") #t)
   (set! 结束? #t)
   (play-dialogue!
-    (line "夜莺" (if (eq? result '保留旧歌)
-      "旧曲能排完，舞台也肯留时间了。谢谢。唱哪版，我试过再定。"
-      "先按新谱排吧。新的唱法我也喜欢，旧歌以后再找机会。")))
+    (line "经理" (if (eq? result '完整试唱) "行！给她留整首歌。我相信她能抓住机会。" "赞助人已经等着。只能给她缩短的时间。"))
+    (line "夜莺" "谢谢。剩下的交给我，我知道自己该怎样唱。"))
   (end-encounter result))
-(define (检查局势!)
-  (cond ((压力 'full?) (收场! '接受改编))
-    ((and (旧曲 'full?) (机会 'full?)) (收场! '保留旧歌))
-    ((and (not 敲定过?) (or (>= (压力 'current) 3) (>= (旧曲 'current) 3)))
-      (set! 敲定过? #t)
+(define (检查!)
+  (cond
+    ((节目表 'full?) (收场! '压缩试唱))
+    ((时间 'full?) (收场! '完整试唱))
+    ((and (not 改期?) (>= (时间 'current) 2))
+      (set! 改期? #t)
+      (节目表 'advance! 1)
       (play-dialogue!
-        (line "经理" "节目表等着付印。能排齐就留这段，排不齐就按新谱走。")
-        (line "夜莺" "把两份谱都留给我。我再试一次。")))
+        (line "世界" "赞助人提前落座。舞台监督把节目表上的试演时长又圈短了一截。")
+        (line "夜莺" "我可以少说几句，但这首歌让我自己唱完。")
+        (line "经理" "时间不等人，兄弟。去和监督把剩下的空档谈下来。")))
     (else #f)))
-(define (投入! target amount heat)
-  (if 结束? (error "旧歌交锋：已结束") #t)
-  (target 'advance! amount) (压力 'advance! heat)
-  (检查局势!))
-(define (筹备行动 id name skill target risky?)
-  (node id :name name
-    :subtitle (if risky? "中结果也会挤压排练窗口" "稳步协调；坏结果挤压排练窗口")
-    :risk (if risky? '危险 '冒险)
-    :progress-target (list 'clock (cadr (target 'render-data)))
-    :risk-target (list 'clock "排练窗口缩紧") :requires (list (req-die))
-    :resolve (roll skill
-      (outcome (lambda () (投入! target 0 1)))
-      (outcome (lambda () (投入! target 1 (if risky? 1 0))))
-      (outcome (lambda () (投入! target (if risky? 2 1) 0))))))
-(define-opponent-rule "后台空档缩紧"
+(define (投入! amount stress)
+  (时间 'advance! amount) (节目表 'advance! stress) (检查!))
+(define-opponent-rule "节目表临时调整"
   (lambda () (not 结束?))
-  (lambda () (压力 'advance! 1) (检查局势!)))
+  (lambda () (节目表 'advance! 1) (检查!)))
 (define (on-encounter-enter)
-  (旧曲 'load! 0) (机会 'load! 0) (压力 'load! 0)
-  (set! 敲定过? #f) (set! 结束? #f)
+  (时间 'load! 0) (节目表 'load! 0)
+  (set! 改期? #f) (set! 结束? #f)
   (play-dialogue!
-    (line "世界" "后台正在换场。伴奏把两份谱摊开，舞台监督指了指还没定下的节目顺序。")))
-(define (on-encounter-collapse) (collapse-result '接受改编))
+    (line "世界" "剧院后台人来人往。经理翻着节目单，夜莺在台边轻声试唱。")
+    (line "夜莺" "尼尔，替我争取一点时间就好。歌要怎么唱，我自己来。")))
+(define (on-encounter-collapse) (collapse-result '压缩试唱))
 (define (get-render-data)
   (container "赞助人试演" (append
-    (list (note-node "旧歌：目标" "完整试唱" "排齐旧曲和舞台时间，让夜莺有机会试完两版。")
-      (note-node "旧歌：回合回应" "排练空档" "每次结束回合，排练窗口缩紧增加1；满格后按新编曲排演。"))
-    (clock-nodes (旧曲 'render-data) (机会 'render-data) (压力 'render-data))
-    (if (旧曲 'full?) '() (list
-      (筹备行动 "排旧曲" "和伴奏排旧曲" 'social 旧曲 #f)
-      (筹备行动 "空档赶排" "利用空档赶排" 'sharpness 旧曲 #t)))
-    (if (机会 'full?) '() (list
-      (筹备行动 "谈后台时间" "和监督谈时间" 'social 机会 #f)
-      (筹备行动 "协调后台" "借临工协调" 'social 机会 #t)))
-    (list (instant-action "放下筹备" (lambda () (收场! '接受改编)))))))
+    (clock-nodes (时间 'render-data) (节目表 'render-data))
+    (list
+      (node "协调演出时间" :subtitle "与舞台监督协调；失败无进展"
+        :risk '稳妥 :progress-target (list 'clock "完整演出时间")
+        :requires (list (req-die)) :resolve (roll 'social
+          (outcome (lambda () (投入! 0 0)))
+          (outcome (lambda () (投入! 1 0)))
+          (outcome (lambda () (投入! 2 0)))))
+      (node "抢留舞台空档" :subtitle "推进较快，但可能挤压排程"
+        :risk '危险 :progress-target (list 'clock "完整演出时间")
+        :risk-target (list 'clock "节目表敲定") :requires (list (req-die))
+        :resolve (roll 'sharpness
+          (outcome (lambda () (投入! 0 2)))
+          (outcome (lambda () (投入! 2 1)))
+          (outcome (lambda () (投入! 3 0)))))
+      (instant-action "交给夜莺" (lambda () (收场! '压缩试唱)))))))
