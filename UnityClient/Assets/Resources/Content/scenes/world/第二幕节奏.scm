@@ -1,3 +1,4 @@
+(load-file "scripts/theatre/第二幕城市镜头.scm")
 ;; 第二幕新增公共生活节拍。不改夜校及赞助人交锋，只加生活和事件入口。
 (define 第二幕节奏
  (let ()
@@ -19,15 +20,7 @@
       (line "调酒师" "剧院在招搬布景的。你不是总嫌这儿没出息？")))
   (define (ship-arrival!)
     (set! ship? #t)
-    (play-dialogue!
-      (line "世界" "一声长汽笛响起。一艘临时改港的大船被拖进码头，工人从旧街往栈桥跑来。")
-      (line "工人" "这么大一条？不是说去北港吗？")
-      (line "世界" "弗兰克爬上货箱，组织人手分班卸货。")
-      (line "弗兰克" "东边先接货！等吊索停稳再过去！")
-      (line "世界" "艾迪帮年轻工人抬稳箱子，又把水壶递给他。")
-      (line "艾迪" "先喝口水。船又不会自己跑掉。")
-      (line "弗兰克" "艾迪！东边缺两个人！")
-      (line "艾迪" "来了！尼尔，跟不跟？今晚多给钱。")))
+    (第二幕-大船入港))
   (define (ship-end! result)
     (if (and (list? result) (= (length result) 2)
              (member? (car result) '(满载 停卸))) #t
@@ -52,15 +45,10 @@
       (line "世界" "他再拍拍尼尔肩膀，匆匆走远。")))
   (define (dock-mark!)
     (set! dock-mark? #t)
-    (play-dialogue!
-      (line "世界" "货栈外墙出现几道测绘的粉笔线，旁边贴着腾退评估通知。")
-      (line "工人" "这墙上画的什么？明天还在这儿干活吗？")
-      (line "世界" "测绘员没有回答。远处又响起一声船笛。")))
+    (第二幕-货栈白线))
   (define (poster!)
     (set! poster? #t)
-    (play-dialogue!
-      (line "世界" "大剧院外刚挂上一张新海报：从旧港走向新城——夜莺首演。")
-      (line "世界" "她在海报里笑得灿烂，剧院的工人仍忙着调灯。")))
+    (第二幕-新城海报))
   (define (next-job!)
     (set! invitation? #t)
     (play-dialogue!
