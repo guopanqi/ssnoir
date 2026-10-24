@@ -152,7 +152,6 @@
                 (costume-action "旧库房找衣箱" "翻找旧库房" 'sharpness "剧院-后台")
                 (node "雇人代找衣箱" :name "请人代找"
                   :subtitle (string-append "花" (number->string (代找费用)) "美元补齐剩余线索")
-                  :risk '稳妥 :progress-target (list 'clock "找回演出服")
                   :requires (list (req-item "金钱" (代找费用)))
                   :resolve (instant (outcome 请人代找!)))) '())))
           ((equal? location "码头")

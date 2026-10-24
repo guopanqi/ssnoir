@@ -64,6 +64,5 @@
           (outcome (lambda () (搬运! 2 1)))
           (outcome (lambda () (搬运! 3 0)))))
       (node "收紧吊索" :subtitle "用一次行动稳住吊车"
-        :risk '稳妥 :progress-target (list 'clock "吊索摆动")
         :requires (list (req-die)) :resolve (instant (outcome 固定吊索!)))
       (instant-action "提前收工" (lambda () (收工! '停卸)))))))
