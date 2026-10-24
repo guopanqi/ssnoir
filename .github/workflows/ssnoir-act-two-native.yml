@@ -23,5 +23,7 @@ jobs:
           dotnet-version: '9.0.x'
       - name: Build the original C# content interpreter
         run: dotnet build tools/content-validator/SSNoir.ContentValidator.csproj --nologo -v q
-      - name: Execute native second-act content regression
-        run: dotnet run --no-build --project tools/content-validator/SSNoir.ContentValidator.csproj -- --test-second-act-matters
+      - name: Validate authored Scheme using the original C# interpreter
+        run: dotnet run --no-build --project tools/content-validator/SSNoir.ContentValidator.csproj -- --validate
+      - name: Validate first-act chapter bridge
+        run: dotnet run --no-build --project tools/content-validator/SSNoir.ContentValidator.csproj -- --test-first-act
