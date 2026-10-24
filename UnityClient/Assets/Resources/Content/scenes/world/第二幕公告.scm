@@ -22,18 +22,6 @@
     (line "夜莺" "我知道。我想留住那些日子，也想站在这里。总该有个办法。")))
 (define (第二幕公告 . args)
   (cond
-    ((eq? (car args) 'arrivals-at)
-      (let ((loc (cadr args)))
-        (if (>= world-day 13)
-          (cond
-            ((and (第一幕 'eddie-met?) (not 公告-艾迪看过?)
-                  (第二幕 'eddie-on-dock?) (equal? loc "码头"))
-              (list (arrival "货栈白线" 公告-艾迪!)))
-            ((and (equal? loc "街角咖啡馆") (第一幕 'lucy-met?) (第二幕 'lucy-at-cafe?) (not (第二幕 'lucy-arrival-pending?)) (not 公告-露西看过?))
-              (list (arrival "露西看海报" 公告-露西!)))
-            ((and (equal? loc "剧院") (> (第一幕 'singer-stage) 0) (not 公告-夜莺看过?))
-              (list (arrival "首演海报" 公告-夜莺!)))
-            (else '())) '())))
     ((eq? (car args) 'nodes-at)
       (if (and (>= world-day 13) (equal? (cadr args) "码头"))
         (list (at-anchor "码头-货堆" (note-node "改造测绘线" "货栈外墙"

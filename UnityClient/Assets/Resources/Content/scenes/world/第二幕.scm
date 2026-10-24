@@ -33,7 +33,8 @@
     (define (lucy-open?) (and (active?)
       (or (= lucy-deadline-day 0) (<= world-day lucy-deadline-day))
       (equal? lucy-state "未做")))
-    (define (wage-intro-open?) (and (active?) (< world-day 12) (equal? wage-state "未做")))
+    (define (wage-intro-open?) (and (active?) (>= world-day 10)
+      (<= world-day 11) (equal? wage-state "未做")))
     (define (eddie-on-dock?)
       ;; 统一停三天；恢复工作不改写曾经停班的事实。
       (not (and (equal? wage-state "停班") (< world-day (+ wage-end-day 4)))))
@@ -49,7 +50,7 @@
       (if (and (equal? wage-state "争执中") (<= world-day 11))
         (list (node "介入工钱争执" :anchor "艾迪@码头" :button-text "介入"
           :subtitle "替工友核清工钱，进入交锋"
-          :clocks (list (第二幕-期限钟 "收工前解决" 11 9))
+          :clocks (list (第二幕-期限钟 "收工前解决" 11 10))
           :resolve (instant (outcome enter-wage!)))) '()))
     (define (lucy-at-cafe?)
       ;; 入学手续与第一堂课占两班；此后隔一天上课。不引入早晚时段。
@@ -192,7 +193,7 @@
           (play-dialogue!
             (line "艾迪" "新来的那个伙计，少领了十块钱。工头拿着账本，就是不肯翻给他看。")
             (line "尼尔" "你要去找工头？")
-            (line "艾迪" "先让他把工时簿拿出来。他要是欺负那小子，我不会装没看见。")))))
+            (line "艾迪" "先让他拿出底账。我就不信昨晚那么多人都白干了半班。")))))
     (define (tell-lucy!)
       (set! lucy-introduced? #t)
       (set! lucy-introduced-day world-day)

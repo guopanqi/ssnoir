@@ -26,11 +26,15 @@
         (begin
           (set! met-manager? #t)
           (play-dialogue!
-            (line "夜莺" "这是尼尔。他来听过我唱歌。")
-            (line "经理" "你好。你也在码头做工？")
-            (line "尼尔" "哪里有活就去哪儿。不过我打算接些调查，替人把事情查清楚。")
-            (line "经理" "有人找你办过事吗？")
-            (line "尼尔" "还不多。信誉得从第一桩差事做起。"))
+            (line "夜莺" "经理，这是尼尔。酒馆里他总来听我唱歌。")
+            (line "经理" "尼尔！兄弟！夜莺可跟我提过你。")
+            (line "世界" "经理握着尼尔的手，又十分亲热地拍了拍他的肩。")
+            (line "经理" "她说你靠得住。现在办事靠得住的人，比钢琴还难找！")
+            (line "尼尔" "我想接些真正的调查委托。")
+            (line "经理" "妙极了！年轻人就该有点盼头。")
+            (line "世界" "后台工作人员递来一张未签完的收货单。经理的笑容丝毫没有变。")
+            (line "经理" "那批演出服还没找到？你昨天怎么跟我说的？")
+            (line "世界" "工作人员走开后，他又转过来，像遇见老朋友一样拉住尼尔。"))
           (offer-lines!))))
     (define (accept-contract!)
       (set! contract-state "已接下")
@@ -45,6 +49,13 @@
         (begin
           (add-item! "演出服" 1)
           (play-bubble! (line "尼尔" "剧院的名字，尺码也对。就是这箱。" :at anchor))) #f))
+    (define (代找费用) (+ 5 (* 5 (- 4 (costume-clock 'current)))))
+    (define (请人代找!)
+      (if (finding?) #t (error "演出服：尚未接受委托"))
+      ;; 金钱由 req-item 支付；成本随此前查到的进展下降。
+      (costume-progress! (- 4 (costume-clock 'current)) "剧院-后台")
+      (play-dialogue!
+        (line 剧院运货人 "顺着单子查到了。衣箱送到后台了，您进去点点数。")))
     (define (costume-action id name skill anchor)
       (node id :name name :anchor anchor :subtitle "核对衣箱去向；坏结果损失1冷静"
         :risk '冒险 :risk-target (list 'composure "player")
@@ -138,7 +149,12 @@
                   :requires (list (req-item "演出服" 1)) :resolve (instant (outcome deliver-contract!)))) '())
               (if (finding?) (list
                 (clock-node "演出服搜寻进展" (costume-clock 'render-data))
-                (costume-action "旧库房找衣箱" "翻找旧库房" 'sharpness "剧院-后台")) '())))
+                (costume-action "旧库房找衣箱" "翻找旧库房" 'sharpness "剧院-后台")
+                (node "雇人代找衣箱" :name "请人代找"
+                  :subtitle (string-append "花" (number->string (代找费用)) "美元补齐剩余线索")
+                  :progress-target (list 'clock "找回演出服")
+                  :requires (list (req-item "金钱" (代找费用)))
+                  :resolve (instant (outcome 请人代找!)))) '())))
           ((equal? location "码头")
             (if (finding?) (list
               (costume-action "问运货人衣箱" "向运货人查问" 'social "码头-账房")) '()))

@@ -3,6 +3,7 @@
  (let ()
   (define tavern? #f)
   (define ship? #f)
+  (define ship-work "未参加") ; 未参加／已结算
   (define coffee? #f)
   (define dock-mark? #f)
   (define poster? #f)
@@ -27,14 +28,18 @@
       (line "艾迪" "先喝口水。船又不会自己跑掉。")
       (line "弗兰克" "艾迪！东边缺两个人！")
       (line "艾迪" "来了！尼尔，跟不跟？今晚多给钱。")))
-  (define (shift! kind)
-    (cond
-      ((eq? kind '好) (add-item! "金钱" 28))
-      ((eq? kind '中) (add-item! "金钱" 16) (spend-composure! 1))
-      (else (add-item! "金钱" 6) (spend-composure! 2)))
-    (play-dialogue!
-      (line "世界" "工人把货箱一只只传下栈桥。吊索停住后，艾迪示意大家先歇口气。")
-      (line "艾迪" "好样的！先喝口水，下一车还得等着呢。")))
+  (define (ship-end! result)
+    (if (and (list? result) (= (length result) 2)
+             (member? (car result) '(满载 停卸))) #t
+      (error "大船：非法交锋结果"))
+    (if (equal? ship-work "已结算") (error "大船重复结算") #t)
+    (set! ship-work "已结算")
+    ;; 参与者按实际卸货进度领夜班工资；失手早收工也可领部分收入。
+    (add-item! "金钱" (+ 6 (* 3 (cadr result)))))
+  (define (join-ship!)
+    (if (and (= world-day 9) (equal? ship-work "未参加")) #t
+      (error "大船：不在夜班窗口"))
+    (start-encounter "大船靠岸" ship-end!))
   (define (manager-coffee!)
     (set! coffee? #t)
     (play-dialogue!
@@ -77,14 +82,11 @@
   (define (nodes-at loc)
     (if (not (active?)) '()
       (append
-        (if (and (equal? loc "码头") (= world-day 9))
-          (list (工作 "抢卸夜班" '冒险 'violence
-            (outcome (lambda () (shift! '好)))
-            (outcome (lambda () (shift! '中)))
-            (outcome (lambda () (shift! '坏)))
-            "临时大船，高薪夜班；失手损失冷静"
-            :risk-target (list 'composure "player")
-            :progress-target (list 'item "金钱"))) '())
+        (if (and (equal? loc "码头") (= world-day 9)
+                 (equal? ship-work "未参加"))
+          (list (node "参加大船夜班" :name "参加抢卸夜班"
+            :subtitle "货箱与吊索危险同时逼近天亮"
+            :resolve (instant (outcome join-ship!)))) '())
         (if (and (equal? loc "剧院") (= world-day 10)
                  (第二幕生活 'manager-met?) (not coffee?))
           (list (instant-action "经理请喝咖啡" manager-coffee!)) '())
@@ -104,13 +106,15 @@
         ((eq? msg 'nodes-at) (nodes-at (cadr args)))
         ((eq? msg 'arrivals-at) (arrivals-at (cadr args)))
         ((eq? msg 'dossier) (dossier-at))
-        ((eq? msg 'save) (list (list "tavern" tavern?) (list "ship" ship?)
+        ((eq? msg 'ship-work) ship-work)
+        ((eq? msg 'save) (list (list "tavern" tavern?) (list "ship" ship?) (list "ship-work" ship-work)
           (list "coffee" coffee?) (list "dock-mark" dock-mark?)
           (list "poster" poster?) (list "invitation" invitation?)))
         ((eq? msg 'load!)
           (let ((data (cadr args)))
             (set! tavern? (assoc-get data "tavern" #f))
             (set! ship? (assoc-get data "ship" #f))
+            (set! ship-work (assoc-get data "ship-work" "未参加"))
             (set! coffee? (assoc-get data "coffee" #f))
             (set! dock-mark? (assoc-get data "dock-mark" #f))
             (set! poster? (assoc-get data "poster" #f))
