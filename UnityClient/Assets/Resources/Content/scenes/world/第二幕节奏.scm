@@ -17,8 +17,15 @@
       (line "尼尔" "你不是总嫌她唱得太晚？")
       (line "调酒师" "嫌归嫌。晚上少点动静，酒都卖得慢了。")
       (line "调酒师" "剧院在招搬布景的。你不是总嫌这儿没出息？")))
+  ;; 与弗兰克抢修船分开拥有在泊事实；表现层汇总两条剧情的泊位占用。
+  (define (sync-ship!)
+    (set-global! '抢卸货船在泊 (and (= world-day 9) ship?))
+    (set-global! '抢卸夜班亲历 (equal? ship-work "已结算")))
+  (define-turn-start-rule "抢卸货船泊位"
+    (lambda () #t) sync-ship!)
   (define (ship-arrival!)
     (set! ship? #t)
+    (sync-ship!)
     (第二幕-大船入港))
   (define (ship-end! result)
     (if (and (list? result) (= (length result) 2)
@@ -26,8 +33,9 @@
       (error "大船：非法交锋结果"))
     (if (equal? ship-work "已结算") (error "大船重复结算") #t)
     (set! ship-work "已结算")
-    ;; 参与者按实际卸货进度领夜班工资；失手早收工也可领部分收入。
-    (add-item! "金钱" (+ 6 (* 3 (cadr result)))))
+    (sync-ship!)
+    ;; 整批完成发完整加班费与奖金；未完成（包括倒下）只发固定辛苦钱。
+    (add-item! "金钱" (if (eq? (car result) '满载) (+ 36 12) 6)))
   (define (join-ship!)
     (if (and (= world-day 9) (equal? ship-work "未参加")) #t
       (error "大船：不在夜班窗口"))
@@ -62,7 +70,7 @@
         (if (and (equal? loc "码头") (= world-day 9)
                  (equal? ship-work "未参加"))
           (list (node "参加大船夜班" :name "参加抢卸夜班"
-            :subtitle "货箱与吊索危险同时逼近天亮"
+            :subtitle "卸完本组货物领48块，未完成只领6块"
             :resolve (instant (outcome join-ship!)))) '())
         (if (and (equal? loc "剧院") (>= world-day 13)
                  (第二幕生活 'manager-met?) (not invitation?))
@@ -76,6 +84,8 @@
             "码头抢卸夜班已经收工，工人回了旧街食堂。"
             "大船今天靠岸。去码头可以参加抢卸夜班。"))
         :where "码头")) '()))
+  (set-global! '抢卸货船在泊 #f)
+  (set-global! '抢卸夜班亲历 #f)
   (lambda args
     (let ((msg (car args)))
       (cond
@@ -93,5 +103,6 @@
             (set! ship-work (assoc-get data "ship-work" "未参加"))
             (set! dock-mark? (assoc-get data "dock-mark" #f))
             (set! poster? (assoc-get data "poster" #f))
-            (set! invitation? (assoc-get data "invitation" #f))))
+            (set! invitation? (assoc-get data "invitation" #f))
+            (sync-ship!)))
         (else (error "第二幕节奏：未知消息")))))))

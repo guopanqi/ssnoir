@@ -1,36 +1,11 @@
-;; 第二幕公共事件的三个短镜头：复用现有 theatre DSL、立绘及音效。
+;; 第二幕公共事件：入港复用场景动画，其余短镜头使用 theatre。
 (define (第二幕-大船入港)
-  (play-theatre!
-    (theatre-scene 1600 900 "#080B10"
-      (list
-        (theatre-group "轮船" "" -130 0)
-        (theatre-polygon "船体" "轮船" "#171C25"
-          '((90 425) (1480 425) (1390 710) (260 740)))
-        (theatre-line "船舷" "轮船" "#A2B1B5" 3 '((90 425) (1480 425)))
-        (theatre-polygon "船楼" "轮船" "#343A45"
-          '((960 215) (1200 215) (1200 425) (960 425)))
-        (theatre-line "吊车" "" "#C0BDAA" 5 '((260 760) (375 140) (900 320)))
-        (theatre-line "吊绳" "" "#D7CEB9" 2 '((900 320) (900 535)))
-        (theatre-polygon "货箱" "" "#534B42"
-          '((830 535) (970 535) (970 650) (830 650)))
-        (theatre-with (theatre-glow "甲板灯" "" "#EACB8D" 1180 405 175 100) 'opacity .34)
-        (theatre-with (theatre-glow "码头灯" "" "#F0CD97" 250 720 140 125) 'opacity .4)
-        (theatre-line "水面" "" "#56636A" 2
-          '((0 780) (310 795) (680 785) (940 808) (1600 780)))
-        (theatre-polygon "前景工人左" "" "#08080C"
-          '((40 860) (60 710) (108 665) (155 730) (180 900)))
-        (theatre-polygon "前景工人右" "" "#09090D"
-          '((1340 900) (1380 730) (1435 685) (1490 750) (1560 900)))))
-    (theatre-sound "急活" "StageSounds/码头/急活" #f .6 0)
-    (theatre-parallel
-      (theatre-tween "轮船" 'x 0 3 'smooth)
-      (theatre-tween "甲板灯" 'opacity .65 3 'smooth))
-    (theatre-say "工人" "这么大一条？不是说去北港吗？" 2.5 "#DEDEDC")
-    (theatre-say "弗兰克" "东边先接货！等吊索停稳再过去！" 2.7 "#C9D5CC")
-    (theatre-say "艾迪" "先喝口水。船又不会自己跑掉。" 2.4 "#E8CE9F")
-    (theatre-say "艾迪" "尼尔，跟不跟？今晚多给钱。" 2.3 "#E8CE9F")
-    (theatre-clear-caption)
-    (theatre-wait 1)))
+  (play-motion! "码头/货船" "Berthed" "码头-靠岸")
+  (play-dialogue!
+    (line "工人" "这么大一条？不是说去北港吗？")
+    (line "弗兰克" "东边先接货！等吊索停稳再过去！")
+    (line "艾迪" "先喝口水。船又不会自己跑掉。")
+    (line "艾迪" "尼尔，跟不跟？今晚多给钱。")))
 (define (第二幕-货栈白线)
   (play-theatre!
     (theatre-scene 1600 900 "#0C0C0F"

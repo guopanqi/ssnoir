@@ -1,0 +1,18 @@
+{
+  "model": "诊所",
+  "seed": 1,
+  "paper": false,
+  "name": "诊所选定",
+  "width": 1.5,
+  "density": 1,
+  "angle": 50,
+  "minlen": 3,
+  "jitter": 0.25,
+  "rough": 0.18,
+  "breaks": 0.025,
+  "double": 0.08,
+  "secondary": 0.8,
+  "fill": 0,
+  "author": true,
+  "silhouette": true
+}

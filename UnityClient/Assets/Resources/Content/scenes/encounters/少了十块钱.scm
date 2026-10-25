@@ -5,6 +5,7 @@
 (define 退缩? #f)
 (define 弗兰克帮忙? #f)
 (define 结束? #f)
+(define 亲历已用? #f)
 (define (收场! result)
   (if 结束? (error "工钱：已经结案") #t)
   (set! 结束? #t)
@@ -43,7 +44,7 @@
   (lambda () (处分 'advance! 1) (检查!)))
 (define (on-encounter-enter)
   (凭证 'load! 0) (处分 'load! 0)
-  (set! 退缩? #f) (set! 弗兰克帮忙? #f) (set! 结束? #f)
+  (set! 退缩? #f) (set! 弗兰克帮忙? #f) (set! 结束? #f) (set! 亲历已用? #f)
   (play-dialogue!
     (line "世界" "工资台前，几张皱巴巴的收条夹在账本里。艾迪挡住工头合上账本的手。")
     (line "艾迪" "少了十块钱。我们就在这儿核清楚。")))
@@ -79,4 +80,13 @@
         (if (not 弗兰克帮忙?)
           (list (node "请弗兰克帮忙" :subtitle "一次协助：取得记录、缓和处分"
             :requires (list (req-die)) :resolve (instant (outcome 弗兰克调账!)))) '())))
+    (if (and (get-global '抢卸夜班亲历) (not 亲历已用?))
+      (list (node "核对昨夜货批" :subtitle "亲历夜班：确定核清两格工时"
+        :progress-target (list 'clock "核清工时") :requires (list (req-die))
+        :resolve (instant (outcome (lambda ()
+          (set! 亲历已用? #t)
+          (play-dialogue!
+            (line "尼尔" "我昨晚跟他一组。东边那批货，拿货单和班次对一下就知道。")
+            (line "世界" "账房翻出东侧的货单，逐项核对签收时间。"))
+          (查证! 2 0)))))) '())
     (list (instant-action "退出争执" (lambda () (收场! '停班)))))))

@@ -241,7 +241,8 @@ namespace SSNoir
             // 离港目前由这里静默摆回（扣船暂隐；扣船交锋收尾的离港演出随 hold-open? 恢复时启用）。
             // 这里保证之后每次快照（含读档、debug 重置）它都在该在的地方——
             // 重置回画外之后再进码头，入场才有得演。
-            bool berthed = gameState.Get<object>("货船在泊") is bool b && b;
+            bool berthed = (gameState.Get<object>("货船在泊") is bool b && b)
+                || (gameState.Get<object>("抢卸货船在泊") is bool nightShip && nightShip);
             foreach (var motion in All)
             {
                 if (motion.Has("龟背竹"))

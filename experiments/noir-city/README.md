@@ -12,3 +12,5 @@ CI 截图工作流（`.github/workflows/noir-*.yml`）的工作目录已指向�
 | [noir-graphic-city-lab/](noir-graphic-city-lab/) | 重构版单幅城市 tableaux：矢量建筑线、蓝黑体块、剪影人物、极简图形光 |
 | [noir-theatre-lab/](noir-theatre-lab/) | Noir Theatre Engraving：用现有 City FBX 搭舞台式框景与黑场，四镜头四层诊断 |
 | [noir-world-kernel/](noir-world-kernel/) | Genesis Noir 式可漫游局部 3D 空间：FacadeGrammar + VectorStroke + SVG 人物/道具 + 源驱动反射 |
+
+| [noir-line-lab/](noir-line-lab/) | 长期描线设计工具：真实诊所/咖啡馆样本，屏幕笔触调参、预设与同步对照 |
