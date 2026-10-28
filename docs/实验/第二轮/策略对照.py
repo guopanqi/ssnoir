@@ -2,7 +2,7 @@ import json, subprocess, gzip, tempfile, sys
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[3]
 def run(scene,policy,seed,growth,tag,money=15):
- p=subprocess.Popen(['dotnet','run','--no-build','--project','tools/content-validator/SSNoir.ContentValidator.csproj','--','--session','encounters/实验·'+scene,'--seed',str(seed),'--growth',str(growth),'--item','金钱='+str(money)],cwd=ROOT,stdin=subprocess.PIPE,stdout=subprocess.PIPE,text=True)
+ p=subprocess.Popen(['dotnet','run','--no-build','--project','tools/content-validator/SSNoir.ContentValidator.csproj','--','--session','scenarios/实验·'+scene,'--seed',str(seed),'--growth',str(growth),'--item','金钱='+str(money)],cwd=ROOT,stdin=subprocess.PIPE,stdout=subprocess.PIPE,text=True)
  def read():
   r=json.loads(p.stdout.readline());assert r['type']!='error',r;return r
  def send(c):
@@ -10,7 +10,7 @@ def run(scene,policy,seed,growth,tag,money=15):
  o=read()['observation'];actions=[]
  try:
   for _ in range(60):
-   if o['EncounterResult'] is not None:break
+   if o['ScenarioResult'] is not None:break
    clocks={c['Label']:c['Current'] for c in o['Clocks']};ops=o['Operations']
    def pick(card,high=True):
     xs=[a for a in ops if a['Card']==card]
@@ -45,7 +45,7 @@ def run(scene,policy,seed,growth,tag,money=15):
    raw=Path(scratch)/'session.json';assert send({'command':'save','path':str(raw)})['type']=='saved'
    with gzip.open(directory/f'{scene}-{policy}-{seed}-g{growth}.json.gz','wb') as f:f.write(raw.read_bytes())
   send({'command':'quit'})
-  r=dict(scene=scene,policy=policy,seed=seed,growth=growth,result=o['EncounterResult'],calm=o['Actors'][0]['Composure'],injury=o['Injury'],money=o['Inventory']['金钱'],actions=actions)
+  r=dict(scene=scene,policy=policy,seed=seed,growth=growth,result=o['ScenarioResult'],calm=o['Actors'][0]['Composure'],injury=o['Injury'],money=o['Inventory']['金钱'],actions=actions)
   print(json.dumps(r,ensure_ascii=False),flush=True);return r
  finally:
   if p.poll() is None:p.stdin.close()

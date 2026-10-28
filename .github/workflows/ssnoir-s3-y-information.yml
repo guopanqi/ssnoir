@@ -1,4 +1,4 @@
-name: SSNoir S3-Y 玩家信息与交锋风险反证
+name: SSNoir S3-Y 玩家信息与Scenario风险反证
 on:
   push:
     branches: [main]
@@ -7,7 +7,7 @@ on:
       - 'tools/content-validator/experiments/s3_y_visible_option_audit.py'
       - 'tools/content-validator/experiments/s3_y_route_consequence_contract.py'
       - 'UnityClient/Assets/Resources/Content/scenes/world/三封信.scm'
-      - 'UnityClient/Assets/Resources/Content/scenes/encounters/巷子.scm'
+      - 'UnityClient/Assets/Resources/Content/scenes/scenarios/巷子.scm'
   workflow_dispatch:
 permissions:
   contents: read

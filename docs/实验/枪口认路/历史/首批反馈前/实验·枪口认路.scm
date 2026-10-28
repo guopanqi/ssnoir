@@ -12,7 +12,7 @@
   (if 完了? (error "枪口认路：重复结束") #t)
   (set! 完了? #t)
   (spotlight! "脱身" text)
-  (end-encounter result))
+  (end-scenario result))
 (define (检查!)
   (cond ((货棚 'full?) (结束! '带底片脱身 "你钻出货棚，底片还干干净净地贴在胸口。"))
         ((栈桥 'full?) (结束! '弃底片脱身 "你跳进海里。人游到了岸边，底片却泡烂了。"))
@@ -38,12 +38,12 @@
     (set! 栈桥走过? #f)
     (封锁 'advance! 1)
     (检查!)))
-(define (on-encounter-enter)
+(define (on-scenario-enter)
   (play-dialogue!
     (line "世界" "底片拍下了交易。你要带它逃出去，实在不行就保住自己。")
     (line "世界" "枪声打碎了货棚门口的灯。底片还在你的口袋里。")
     (line "世界" "枪手下回合会盯住你最后走的路。货棚保底片，栈桥只保命。")))
-(define (on-encounter-collapse) (collapse-result '倒下))
+(define (on-scenario-collapse) (collapse-result '倒下))
 (define (get-render-data)
   (container "枪口认路"
     (append

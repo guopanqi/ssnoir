@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parents[3]
 def run(policy, seed):
     process = subprocess.Popen(
         ['dotnet', 'run', '--no-build', '--project', 'tools/content-validator/SSNoir.ContentValidator.csproj',
-         '--', '--session', 'encounters/实验·封死退路', '--seed', str(seed)],
+         '--', '--session', 'scenarios/实验·封死退路', '--seed', str(seed)],
         cwd=ROOT, stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True)
 
     def read():
@@ -30,7 +30,7 @@ def run(policy, seed):
     observation = read()['observation']
     try:
         for _ in range(60):
-            if observation['EncounterResult'] is not None:
+            if observation['ScenarioResult'] is not None:
                 break
             operations = observation['Operations']
             clocks = {c['Label']: c['Current'] for c in observation['Clocks']}
@@ -65,7 +65,7 @@ def run(policy, seed):
             with gzip.open(directory / f'{policy}-{seed}.json.gz', 'wb') as target:
                 target.write(raw.read_bytes())
         send({'command': 'quit'})
-        result = {'policy': policy, 'seed': seed, 'result': observation['EncounterResult'],
+        result = {'policy': policy, 'seed': seed, 'result': observation['ScenarioResult'],
                   'calm': observation['Actors'][0]['Composure'], 'injury': observation['Injury']}
         print(json.dumps(result, ensure_ascii=False), flush=True)
         return result

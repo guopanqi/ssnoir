@@ -8,7 +8,7 @@
 (define 封锁 (make-clock "封锁" 4 'gauge "每回合加1；满4出口封死，脱身失败。"))
 (define (结束! result text)
   (if 完了? (error "枪口认路：重复结束") #t)
-  (set! 完了? #t) (spotlight! "脱身结果" text) (end-encounter result))
+  (set! 完了? #t) (spotlight! "脱身结果" text) (end-scenario result))
 (define (检查!)
   (cond ((hospitalization-pending?) #f)
     ((脱身 'full?)
@@ -25,13 +25,13 @@
 (define-opponent-rule "枪手换位与封锁"
   (lambda () (not 完了?))
   (lambda () (set! 瞄准 上次路线) (火力 'advance! 1) (封锁 'advance! 1) (检查!)))
-(define (on-encounter-enter)
+(define (on-scenario-enter)
   (火力 'load! 2)
   (play-dialogue!
     (line "世界" "你要带拍下交易的底片逃出码头。枪手正盯着货棚出口。")
     (line "世界" "骰子可以用来压制枪手，也可以跑。栈桥更快，但一踏进去就毁掉底片。")
     (line "世界" "枪手下回合改盯你最后走的路，火力也会恢复一点。")))
-(define (on-encounter-collapse) (collapse-result '倒下未脱身))
+(define (on-scenario-collapse) (collapse-result '倒下未脱身))
 (define (get-render-data)
   (container "枪口认路"
     (append

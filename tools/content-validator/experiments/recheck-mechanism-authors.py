@@ -8,7 +8,7 @@ if target.exists():raise FileExistsError(target)
 target.mkdir()
 for path in sorted(source.glob('*.json.gz')):
     old=json.loads(gzip.decompress(path.read_bytes()));setup=old['Setup']
-    session=H['Session'](setup['Entry'].split('encounters/')[-1],setup['Seed'],setup['Growth'])
+    session=H['Session'](setup['Entry'].split('scenarios/')[-1],setup['Seed'],setup['Growth'])
     # 作者原局未使用恢复品；模板会话关掉了库存，故只比较骰、冷静与机制进度。
     try:
         for step in old['Steps']:
@@ -22,7 +22,7 @@ for path in sorted(source.glob('*.json.gz')):
             op=next(x for x in previous['Operations'] if x['Id']==step['OperationId'])
             current_op=next(x for x in current['Operations'] if (x['Kind'],x['Card'],x['DieValue'])==(op['Kind'],op['Card'],op['DieValue']))
             session.act(current_op,'作者原决定回归（非新玩家）：'+step['Reason'])
-        assert session.observation['EncounterResult']==old['Steps'][-1]['After']['EncounterResult']
+        assert session.observation['ScenarioResult']==old['Steps'][-1]['After']['ScenarioResult']
         session.save(target/path.name)
-        print(path.name,'回归通过，结果',session.observation['EncounterResult'])
+        print(path.name,'回归通过，结果',session.observation['ScenarioResult'])
     finally:session.close()

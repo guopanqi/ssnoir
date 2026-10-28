@@ -11,12 +11,12 @@ namespace SSNoir.IMGUI
     ///
     /// 左半是**这个人**：一块相纸黑上的霓虹半身像、展签式的一行小字，底下四个墨方块——
     /// 四项能力画成四个骰面（大字数值在上、名字在下），加点按钮贴在各自底下。
-    /// 这就是手牌方块那一族，玩家在交锋里天天看的东西，不是一张属性表。
+    /// 这就是手牌方块那一族，玩家在Scenario里天天看的东西，不是一张属性表。
     ///
     /// 右半是**他认识的人**：每个给过支援的人一张名片——左边一小块相纸上是他的半身像，
     /// 右边人名、那条办法叫什么、干什么用。办法来自和这个人的关系，所以人像必须在卡上：
     /// 玩家看见的是「弗兰克给的」，不是一条无主的技能。
-    /// 带着的那张金描边（金描边＝当前，全屏只此一处），点别的名片就是换人；交锋里只读。
+    /// 带着的那张金描边（金描边＝当前，全屏只此一处），点别的名片就是换人；Scenario里只读。
     /// 一个人以后可能给不止一条办法，所以名片按人分，办法列在名片里。
     ///
     /// 没有「圈子声誉」那一段：你和谁的关系就是你和那一片的关系，这一页右半已经说完了。
@@ -396,7 +396,7 @@ namespace SSNoir.IMGUI
             };
             IMGUIStyles.DrawLabel(new Rect(col.x, col.y, 70f, 22f), "支 援", head);
             IMGUIStyles.DrawLabel(new Rect(col.x + 70f, col.y, col.width - 70f, 22f),
-                snapshot.IsInEncounter ? "这一场带着谁，进场时就定了" : "一场只带一个，出门前选", note);
+                snapshot.IsInScenario ? "这一场带着谁，进场时就定了" : "一场只带一个，出门前选", note);
 
             var viewport = new Rect(col.x, col.y + 30f, col.width, col.height - 30f);
             if (snapshot.Supports.Count == 0)
@@ -427,7 +427,7 @@ namespace SSNoir.IMGUI
                 float h = CardHeight(e, cardW);
                 var card = UIScale.PixelSnap(new Rect(0f, y, cardW, h));
                 var screen = new Rect(card.x + viewport.x - _scroll.x, card.y + viewport.y - _scroll.y, card.width, card.height);
-                bool canPick = !snapshot.IsInEncounter && !e.Carried;
+                bool canPick = !snapshot.IsInScenario && !e.Carried;
                 bool hover = canPick && ui.CanHover(screen);
 
                 if (e.Carried)

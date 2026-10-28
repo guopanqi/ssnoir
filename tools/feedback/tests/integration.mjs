@@ -15,7 +15,7 @@ server.stderr.on("data", data => { logs += data; });
 const url = "http://127.0.0.1:8792/feedback";
 const id = randomUUID().replaceAll("-", "");
 const payload = { id, text: "接口集成检查：中文反馈与换行\n第二行", version: "test", location: "码头",
-  inEncounter: true, worldDay: 3 };
+  inScenario: true, worldDay: 3 };
 const send = value => fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(value) });
 try {
   let ready = false;
@@ -48,7 +48,7 @@ try {
   const rows = result[0].results;
   assert.equal(rows.length, 1);
   assert.equal(rows[0].text, payload.text);
-  assert.equal(rows[0].in_encounter, 1);
+  assert.equal(rows[0].in_scenario, 1);
   assert.equal(rows[0].world_day, 3);
   assert.ok(rows[0].created_at.endsWith("Z"));
   let limited = false;

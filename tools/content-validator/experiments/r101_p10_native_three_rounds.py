@@ -11,7 +11,7 @@ import sys
 from subprocess import PIPE,Popen
 from probe_four_scenario_causality import ROOT,CMD,recv,finish,clock
 
-SCENE="encounters/研究·分段兑现"
+SCENE="scenarios/研究·分段兑现"
 
 def send(p,obs,op,reason):
     command={"command":"act","version":obs["Version"],
@@ -30,9 +30,9 @@ def run(seed,k):
         assert clock(obs,"储备")==0
         assert clock(obs,"已过回合")==0
         for step in range(35):
-            if obs.get("EncounterResult") is not None:
+            if obs.get("ScenarioResult") is not None:
                 return {"seed":seed,"threshold":k,"actions":rows,
-                        "ending":obs["EncounterResult"],
+                        "ending":obs["ScenarioResult"],
                         "status":"ended","action_count":sum(x["card"]!="end-turn" for x in rows),
                         "round_boundaries":sum(x["card"]=="end-turn" for x in rows)}
             ops=obs["Operations"]
@@ -59,7 +59,7 @@ def run(seed,k):
                 chosen=min(group,key=lambda x:(x.get("DieValue") or 0,str(x.get("Id"))))
             next_obs=send(p,obs,chosen,"R101 scripted threshold native session; not authored or human play")
             after=None
-            if next_obs.get("EncounterResult") is None:
+            if next_obs.get("ScenarioResult") is None:
                 after={name:clock(next_obs,name) for name in ("目标","储备","已过回合")}
                 if card=="end-turn":
                     assert after["已过回合"]==before["已过回合"]+1
@@ -69,7 +69,7 @@ def run(seed,k):
                     assert after["目标"]-before["目标"]==min(
                         18-before["目标"],before["储备"]*(before["储备"]+1)//2)
             rows.append({"card":card,"die":chosen.get("DieValue"),"before":before,
-                         "after":after,"terminal":next_obs.get("EncounterResult") is not None})
+                         "after":after,"terminal":next_obs.get("ScenarioResult") is not None})
             obs=next_obs
         raise AssertionError(f"R101 native session exceeded 35 operations for seed={seed}, threshold={k}")
     finally:

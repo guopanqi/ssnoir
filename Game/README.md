@@ -16,7 +16,7 @@ This is the planned **only** game project. Legacy C#/Unity code is retained duri
 - WeChat: `adapters/wechat/src/host.ts` exposes a deliberately *minimal* WX Canvas/browser compatibility surface; `src/wechat/probe.ts` installs a Pixi `DOMAdapter`.
 - **Both hosts execute the same `src/foundation/render.ts`** using Three.js, PixiJS, a single WebGL2 context, and **two isolated LIPS VMs**. The source imports original `stdlib.scm` at build time (never a second editable copy).
 - Desktop/Electron opens the exact same browser bundle via `desktop/main.cjs`.
-- Scheme is currently a compatibility probe only. **BiwaScheme 0.8.3 fails isolation across Interpreter instances**; see `docs/SCHEME-CANDIDATES.md`. The shared rendering prototype now uses **LIPS** to validate isolated world/encounter bindings and the original SSNoir `stdlib.scm` in all three host bundles. The existing `.scm` content remains in `UnityClient/Assets/Resources/Content`, without a second copy. Game rules/native functions are being migrated incrementally; the phase-2 bridge can now execute the original `engine.scm` inventory rules in the shared Web/MiniGame renderer. Full SceneManager parity is not yet complete; see [PHASE2-RUNTIME.md](docs/PHASE2-RUNTIME.md).
+- Scheme is currently a compatibility probe only. **BiwaScheme 0.8.3 fails isolation across Interpreter instances**; see `docs/SCHEME-CANDIDATES.md`. The shared rendering prototype now uses **LIPS** to validate isolated world/scenario bindings and the original SSNoir `stdlib.scm` in all three host bundles. The existing `.scm` content remains in `UnityClient/Assets/Resources/Content`, without a second copy. Game rules/native functions are being migrated incrementally; the phase-2 bridge can now execute the original `engine.scm` inventory rules in the shared Web/MiniGame renderer. Full SceneManager parity is not yet complete; see [PHASE2-RUNTIME.md](docs/PHASE2-RUNTIME.md).
 
 ## Test commands (from Game/)
 
@@ -64,7 +64,7 @@ The WeChat environment adapter uses secondary canvases when the offscreen API is
 
 CI workflow: `.github/workflows/ssnoir-game-foundation.yml`. Each run uploads browser screenshots and all build outputs as `ssnoir-game-foundation`; it publishes the `ssnoir/game-foundation` commit status with a link to its run. This makes the test/inspect/fix cycle retrievable across agents.
 
-**Do not remove Unity before Phase 2 has full game-runtime/content parity and save/encounter verification.** User reported completing local Phase 1 acceptance; automation does not independently certify device compatibility.
+**Do not remove Unity before Phase 2 has full game-runtime/content parity and save/scenario verification.** User reported completing local Phase 1 acceptance; automation does not independently certify device compatibility.
 
 ## Phase-one acceptance record
 

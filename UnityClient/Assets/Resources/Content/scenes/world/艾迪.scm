@@ -130,7 +130,7 @@
       (if (= side 1) (fighter-a n) (fighter-b n)))
 
     ;; ── 遭遇零：《不是说好第四回合吗》 ───────────────
-    ;; 它不是一张常驻的卡，只在触发当天可见。去了是一场真交锋，
+    ;; 它不是一张常驻的卡，只在触发当天可见。去了是一场真Scenario，
     ;; 赢了这条线才开——窗口过去或救不下来，就是救不下来。
 
     ;; 窗口开着（还没撞上）。这一段里任何一天走进酒馆都会撞上。
@@ -156,10 +156,10 @@
     (define (node-alley)
       (node "巷子里在打人"
         :anchor "老街酒馆"
-        :tags (list "交锋")
+        :tags (list "Scenario")
         :clocks (list (alley-clock))
         :subtitle "酒馆侧墙那条巷子。三个人围着一个，没人打算过去"
-        :resolve (instant (lambda () (start-encounter "巷子里在打人" on-alley-result)))))
+        :resolve (instant (lambda () (start-scenario "巷子里在打人" on-alley-result)))))
 
     (define (on-alley-result result)
       (if (equal? result 'success)
@@ -206,7 +206,7 @@
         (set! alley-day 0)))
 
     ;; 走进酒馆的那一刻才撞上。alley-day 在回调里立刻记下——玩家可以退出去再进来，
-    ;; 等交锋打完再记就会重播一遍。
+    ;; 等Scenario打完再记就会重播一遍。
     ;;
     ;; 记下的是<b>今天</b>，于是这件事就发生在今晚，也只在今晚：一个人不可能
     ;; 连着几天挨同一顿打。窗口是宽的，撞上之后的反应空间是一天。

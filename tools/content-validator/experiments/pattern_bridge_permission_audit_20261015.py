@@ -1,5 +1,5 @@
-"""BRIDGE13-19: exact equivalence of next-encounter permissions under
-different first-encounter histories; retain multiple nonfungible end results.
+"""BRIDGE13-19: exact equivalence of next-scenario permissions under
+different first-scenario histories; retain multiple nonfungible end results.
 This is a constructive negative audit for claimed 'nested architecture'.
 """
 from fractions import Fraction as F

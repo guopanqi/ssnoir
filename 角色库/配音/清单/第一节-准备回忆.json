@@ -2,21 +2,21 @@
   "version": 1,
   "module": "第一小节",
   "location": "准备回忆",
-  "purpose": "试玩候选：交锋进场与追逐换幕时唤起城市准备",
+  "purpose": "试玩候选：Scenario进场与追逐换幕时唤起城市准备",
   "cues": [
     {
       "id": "第一节/准备回忆/邮箱",
       "speaker": "尼尔",
       "text": "我已经在这里待过一阵。那个骑旧车的老邮差，我见过。",
       "direction": "心里有数，果断，只说一次，不重复文字",
-      "sourcePath": "UnityClient/Assets/Resources/Content/scenes/encounters/勒索信.scm"
+      "sourcePath": "UnityClient/Assets/Resources/Content/scenes/scenarios/勒索信.scm"
     },
     {
       "id": "第一节/准备回忆/退路",
       "speaker": "尼尔",
       "text": "这条路我走过。到了货栈，穿过那扇边门，就能绕到他前面。",
       "direction": "心里有数，果断，只说一次，不重复文字",
-      "sourcePath": "UnityClient/Assets/Resources/Content/scenes/encounters/勒索信.scm"
+      "sourcePath": "UnityClient/Assets/Resources/Content/scenes/scenarios/勒索信.scm"
     }
   ]
 }

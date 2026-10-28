@@ -21,12 +21,12 @@ public sealed record SessionActor(string Id, string Name, int Composure, int Max
 
 public sealed record SessionDie(int SlotId, int Value);
 
-public sealed record SessionObservation(long Version, string Scene, bool IsInEncounter,
+public sealed record SessionObservation(long Version, string Scene, bool IsInScenario,
     int WorldDay, string Focus, string Injury, string Scars,
     IReadOnlyList<SessionCard> Cards,
     IReadOnlyList<SessionCard> CarryCards, IReadOnlyList<SessionActor> Actors,
     IReadOnlyDictionary<string, int> Inventory, IReadOnlyList<string> RestBlockers,
-    IReadOnlyList<string> Dossier, string? EncounterResult,
+    IReadOnlyList<string> Dossier, string? ScenarioResult,
     IReadOnlyList<SessionOperation> Operations,
     IReadOnlyList<SessionClock> Clocks);
 

@@ -31,14 +31,14 @@ export class WorldSaveController {
   constructor(state:GameRuntimeState,session:GameScriptSession){this.state=state;this.session=session;}
 
   async capture(settings:Record<string,string|number|boolean>={}):Promise<WorldSaveV1>{
-    if(this.state.getGlobal("location")!=="world")throw new Error("cannot save during an encounter");
+    if(this.state.getGlobal("location")!=="world")throw new Error("cannot save during an scenario");
     if(this.state.hasPendingHospitalization())throw new Error("cannot save during hospitalization");
     const world=await this.session.evaluate(
       '(let ((port (open-output-string))) (write (world-save) port) (get-output-string port))'
     );
     const worldDatum=String(world);
     if(!worldDatum||worldDatum.length>MAX_SAVE_CHARS)throw new Error("invalid world state length");
-    // A saved world must never contain encounter-only temporary helpers.
+    // A saved world must never contain scenario-only temporary helpers.
     this.state.team.snapshot();
     return {format:FORMAT,version:1,state:this.state.snapshot(),
       worldDatum,settings:settingsCopy(settings)};

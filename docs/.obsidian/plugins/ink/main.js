@@ -29210,7 +29210,7 @@ My browser: ${navigator.userAgent}`);
         ] }) : /* @__PURE__ */ (0, import_jsx_runtime25.jsxs)(import_jsx_runtime25.Fragment, { children: [
           /* @__PURE__ */ (0, import_jsx_runtime25.jsx)("h2", { children: "Something's gone wrong." }),
           /* @__PURE__ */ (0, import_jsx_runtime25.jsxs)("p", { children: [
-            "Sorry, we encountered an error. Please refresh the page to continue. If you keep seeing this error, you can ",
+            "Sorry, we scenarioed an error. Please refresh the page to continue. If you keep seeing this error, you can ",
             /* @__PURE__ */ (0, import_jsx_runtime25.jsx)("a", { href: url.toString(), children: "create a GitHub issue" }),
             " or",
             " ",

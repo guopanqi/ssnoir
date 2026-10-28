@@ -4,7 +4,7 @@
   "batch": "DUAL-USE：半成品进展转用 vs 普通库存全树同构与强安全备用",
   "rounds": 170,
   "totalArchivedRounds": 478,
-  "objective": "长期自主发展可复用的玩法模式语言，覆盖已知作品先例、基础原语、完整交锋、跨阶段结构、组合条件与重要负例；评价玩家实际反复作出的判断、反馈、后果。历史20是广度愿景，不是价值认证名单或完成配额。",
+  "objective": "长期自主发展可复用的玩法模式语言，覆盖已知作品先例、基础原语、完整Scenario、跨阶段结构、组合条件与重要负例；评价玩家实际反复作出的判断、反馈、后果。历史20是广度愿景，不是价值认证名单或完成配额。",
   "policy": "从成熟作品、旧实验、新假设三向吸收；先去剧情定义玩家活动，再独立批评同构/最强简单策略，按需模型与盲Agent试玩。数学、作品先例、Agent、原生与真人是正交证据。知识图谱收录不等真人认可，精选展示与Debug独立把关，真人反馈异步且不阻塞。",
   "scope": {
     "default": "abstract-decision-patterns",
@@ -151,7 +151,7 @@
       "summary": "4手两段，敌手私有TYPE_A/B各半，自己破坏A/B收益5/3或3/5、无收益时EXIT1。全部ERASE工作，先AB：TYPE_A STRIKE_A后玩家BB得8；TYPE_B STRIKE_B后玩家AA得10，根9、A/B终局各半；固定全四手最优5。若只CHIP一份，固定AAAA根10；若一手公开SHIELD挡所有1次袭击，敌手自利EXIT，固定A/SHIELD/AA根10。提前知道私有类型根增益0，原ERASE无盾不能保证A全部分支成功。有真正适应性但不是新独立敌手原语/人格学习。"
     },
     {
-      "family": "two-encounter-incentive-compatible-signaling-and-timely-proof",
+      "family": "two-scenario-incentive-compatible-signaling-and-timely-proof",
       "kind": "symmetric-mixed-sequential-equilibrium-witness-with-zero-private-type-information",
       "source": "SIG01 2026-10-14",
       "question": "私人偏好稳定且敌手两次出现，首次动作是否一定能帮助玩家判断下次保护哪一侧？",
@@ -197,7 +197,7 @@
     {
       "id": "ABSTRACT-F-RELATIONAL-RIGHTS-AUTONOMOUS-CONSENT",
       "family": "permission-maintained-by-strategic-other",
-      "question": "若玩家持有的跨交锋许可需要由有自利目标的另一主体维系/认可，他拒绝或撤销许可可否让玩家连续改变目标计划，而非仅显示换工具与固定外部机会信号？",
+      "question": "若玩家持有的跨Scenario许可需要由有自利目标的另一主体维系/认可，他拒绝或撤销许可可否让玩家连续改变目标计划，而非仅显示换工具与固定外部机会信号？",
       "method": "用RGT01全部简单口诀全优与ACT01公开外部机会严格改选作对照；允许对方真实做策略优化且检查自身效用平局，保留同成本ENABLE、固定脚本和短条件式。优先纸面行为循环/主动拒绝权限，不延长纯数学模型。"
     },
     {
@@ -215,7 +215,7 @@
     {
       "id": "ABSTRACT-Q-COST-TO-PIVOT-BEFORE-REVEAL",
       "family": "decision-window-and-human-goal-legibility",
-      "question": "能否在真实较短的交锋内让事件出现在两条路线仍具结果可达性时，且玩家清楚为什么关心它们，而不只是通知他已经发生无法补救的坏事？",
+      "question": "能否在真实较短的Scenario内让事件出现在两条路线仍具结果可达性时，且玩家清楚为什么关心它们，而不只是通知他已经发生无法补救的坏事？",
       "method": "先用RV01实际可达上界、严格终局差异和R54/R50原话审核；数学阈值以实际操作能力和回合计量，人的目标关切仅从无答案体验观察，不堆新随机/计时系统。"
     },
     {
@@ -331,13 +331,13 @@
       "X03=数字效用变化不等同叙事目标重新认同"
     ],
     "noHumanTests": true,
-    "interpretation": "X01、X02与另一批C01、C02是不同的已知组合条件反证，均不构成新独立模式或完整真人交锋认证",
+    "interpretation": "X01、X02与另一批C01、C02是不同的已知组合条件反证，均不构成新独立模式或完整真人Scenario认证",
     "historyCountUnchanged": 478,
     "latestBatch": "docs/实验/机制研究/批次/2026-10-14-边调查边工作与信息兑现窗口/研究记录.md",
     "latestCounterfactual": "IWT01：四手Hidden A/B各半，3份正确WORK得10/8，TRACK工作必+1并有75%准确类型线索；纯INSPECT100%占一手。无信息6、只TRACK119/16、INSPECT9；INSPECT耗时两手TRACK重新胜119/16；完美TRACK19/2、50%TRACK6、TRACK首手限定29/4。正向枚举核对全部潜在真实类型；保留已有DISC/FOCUS/SIG组合。",
     "crossFamilyAudit": "PL-IWT01→PL-DISC01（工作+信息两种不同产出）、FOCUS02/03（及时兑现行动窗口、完美检查强旁路）、SIG01（非战略性线索噪声有别于他者可伪装的行动信号）。"
   },
   "lastFinding": "2026-10-18持续抽象研究：在GitHub main由近期正式内容提交之后读取AGENTS/Skill/定位/队列/状态/模式语言地图/REC/ACTION-SWITCH/BIL/HEDGE，并确认feedback inbox仍只有R37、R50、R54，questions空。新DUAL-USE四手完整菜单：A_WORK使A半成品+1，B_WORK使B+1，RECYCLE消耗1A改得2B，SIDE+1，A需3份B需2份，需求W=A/B各半且前两手不知，完成需求匹配12不匹配2。全状态Fraction枚举动态根27/2，禁转换根13，最强事前固定全四手根9；最优真实第一两手A,SIDE之后W=A走A,A得13、W=B走RECYCLE,SIDE得14；W在第三手后才公布根13，最后才公布根9。同成本普通COMMON每手同时+1A/+1B，则固定无需看世界的根15，严格压过动态13.5。最强同构：对每个正常可达状态、合法玩家动作、后继和两种结果计分，A半成品可改叫可消耗库存stock_a，RECYCLE对应消费一库存加2B，完全全树状态同构，不是新资源原语或实质玩法发明；虽有效展示后到信息改变过去投入的用途，却由两分支短口诀全优。脚本 tools/content-validator/experiments/pattern_dual_use_progress_20261018.py，文档 docs/实验/机制研究/批次/2026-10-18-进展改用途与模式转换边界/研究记录.md；独立Actions 39140474208确认39近期研究脚本0失败。无真人/第二Agent盲评/Unity正式原生体验。知识地图新增PL-DUAL-USE-ISOMORPHISM01、与REC/ACTION/HEDGE/STAKE/CUSTODY/RETURN七条关系；未自动晋升精选/候选/Debug或更改Game。",
-  "nextResearchQuestion": "DUAL-USE和REC/ACTION-SWITCH的数学/普通库存同构负例已完成，停调库存兑换汇率、更多回合数。后续主动探索不同的玩家操作方式，而非只把A工作重叫stock：新的行动在正常可达历史中需真实改变未来合法行为、需要玩家再次做决策，并验证安全同价通用工作、普通许可票、返回菜单预编译政策和具体A/B结果身份；若一个短可读策略完全解释则保留成熟组合不宣称新原语。没有真实人类参与者时继续吸收成熟游戏交锋结构的可学心理活动，或跨其他机制族反证；不以CI代码数量当乐趣。",
+  "nextResearchQuestion": "DUAL-USE和REC/ACTION-SWITCH的数学/普通库存同构负例已完成，停调库存兑换汇率、更多回合数。后续主动探索不同的玩家操作方式，而非只把A工作重叫stock：新的行动在正常可达历史中需真实改变未来合法行为、需要玩家再次做决策，并验证安全同价通用工作、普通许可票、返回菜单预编译政策和具体A/B结果身份；若一个短可读策略完全解释则保留成熟组合不宣称新原语。没有真实人类参与者时继续吸收成熟游戏Scenario结构的可学心理活动，或跨其他机制族反证；不以CI代码数量当乐趣。",
   "lastResearchMaintenance": "2026-10-18恢复仓库main（外部Agent有正式游戏日常内容新提交，未修改它们），读取研究定位/Skill和历史REC/ACTION-SWITCH/BIL研究与反馈。用独立本地Python Fraction实验先验证DUAL-USE逐分支最优、信息晚到/强普通COMMON与全树库存同构；向GitHub main提交可执行脚本，CI runner从38→39及workflow监听；GitHub Actions 39140474208日志真实确认PASS pattern_dual_use_progress_20261018.py，Checked 39 committed experiments, 0 failures。新建详细研究记录和知识地图节点PL-DUAL-USE-ISOMORPHISM01与七关系边、更新当前状态/队列/记忆。无真人、独立Agent、正式引擎/Debug/精选变更。"
 }

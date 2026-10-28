@@ -1,7 +1,7 @@
 {
   "version": 1,
   "purpose": "第一章常驻角色声线试选：弗兰克、莱恩、剧院经理、贝恩斯、记者各四个 VoiceDesign 候选。不接入游戏；选定后再作为 VoiceClone 参考样音。",
-  "source": "UnityClient/Assets/Resources/Content/scenes/world/三封信.scm; UnityClient/Assets/Resources/Content/scenes/world/人物/弗兰克.scm; UnityClient/Assets/Resources/Content/scenes/world/人物/贝恩斯.scm; UnityClient/Assets/Resources/Content/scenes/encounters/巷子.scm",
+  "source": "UnityClient/Assets/Resources/Content/scenes/world/三封信.scm; UnityClient/Assets/Resources/Content/scenes/world/人物/弗兰克.scm; UnityClient/Assets/Resources/Content/scenes/world/人物/贝恩斯.scm; UnityClient/Assets/Resources/Content/scenes/scenarios/巷子.scm",
   "cues": [
     {
       "id": "试音/第一章人物/弗兰克/A/稳重工头",

@@ -13,7 +13,7 @@ def state(o):
  c=clocks(o);p=player(o)
  return c['目标']['Max']-c['目标']['Current'],p['Composure'],c['已过回合']['Max']-c['已过回合']['Current'],tuple(sorted(d['Value'] for d in p['Dice']))
 def result(o):
- m=re.fullmatch(r"\('(?P<status>success|timeout|collapse) (?P<progress>\d+) (?P<round>\d+) (?P<cold>\d+)\)",o['EncounterResult']);assert m,o['EncounterResult']
+ m=re.fullmatch(r"\('(?P<status>success|timeout|collapse) (?P<progress>\d+) (?P<round>\d+) (?P<cold>\d+)\)",o['ScenarioResult']);assert m,o['ScenarioResult']
  return {k:v if k=='status' else int(v) for k,v in m.groupdict().items()}
 def operation(o,choice):
  act,d=choice
@@ -32,7 +32,7 @@ def check(path,growth=1):
  for step in raw['Steps']:
   before,after=step['Before'],step['After'];cb=clocks(before);pc=player(before)['Composure'];progress=cb['目标']['Current'];elapsed=cb['已过回合']['Current']
   op=next(x for x in before['Operations'] if x['Id']==step['OperationId'])
-  collapsed=after['EncounterResult'] is not None and result(after)['status']=='collapse'
+  collapsed=after['ScenarioResult'] is not None and result(after)['status']=='collapse'
   if op['Kind']=='end-turn':dc=-1;elapsed+=0 if collapsed else 1
   else:
    grade=next(e['Text'].split('，')[0].split('：')[1] for e in step['Events'] if e['Text'].startswith('判定：'));j={'Fail':0,'Neutral':1,'Success':2}[grade]
@@ -45,7 +45,7 @@ def check(path,growth=1):
     assert all(abs(actual[k]-v)<1e-12 for k,v in zip(('坏','中','好'),expected)),(path,op)
   assert player(after)['Composure']==min(player(before)['MaxComposure'],max(0,pc+dc)),(path,pc,dc,player(after))
   left|=injury(after)>0 or collapsed
-  if after['EncounterResult'] is None:
+  if after['ScenarioResult'] is None:
    ca=clocks(after);assert (ca['目标']['Current'],ca['已过回合']['Current'])==(progress,elapsed),(path,ca,progress,elapsed)
    if op['Kind']=='action':
     rest=[d['Value'] for d in player(before)['Dice']];rest.remove(op['DieValue']);assert sorted(rest)==sorted(d['Value'] for d in player(after)['Dice'])
@@ -54,7 +54,7 @@ def check(path,growth=1):
    final=result(after);assert final['progress']==progress;assert final['cold']==player(after)['Composure'];assert final['round']==min(3,elapsed+1)
    if final['status']=='success':assert progress==10
    if final['status']=='timeout':assert elapsed==3 and progress<10
-   assert not after['IsInEncounter']
+   assert not after['IsInScenario']
  final=result(raw['Steps'][-1]['After']);return dict(path=path.name,revision=raw['ContentRevision'],steps=len(raw['Steps']),result=final,initial_cold=initial,left_injury_free_model=left,injury_free_completion=final['status']=='success' and not left,heals=heals)
 def replay(path):
  with tempfile.TemporaryDirectory(prefix='r11-replay-') as tmp:
@@ -75,13 +75,13 @@ def main():
   try:
    for _ in range(30):
     o=s.observation
-    if o['EncounterResult'] is not None:break
+    if o['ScenarioResult'] is not None:break
     left|=injury(o)>0
     if not left:
      st=state(o);models[name].value(*st);op=operation(o,models[name].decisions[st])
     else:op=fallback(o,name=='只推进')
     s.act(op,'R11冻结后新种子：按公开目标距离、冷静、期限和手牌选择；首伤后明确使用模型外公开启发式。')
-   assert s.observation['EncounterResult'] is not None
+   assert s.observation['ScenarioResult'] is not None
    p=OUT/f'{name}-{seed}.json.gz';s.save(p);r=check(p,g);r.update(policy=name,growth=g,seed=seed);return r
   finally:s.close()
  with ThreadPoolExecutor(max_workers=4) as pool:rows=list(pool.map(play,jobs))
@@ -89,7 +89,7 @@ def main():
  s=H['Session']('研究·留力推进',2300)
  try:
   for _ in range(3):s.act(operation(s.observation,('结束回合',None)),'边界：三轮到期与时间税。')
-  assert s.observation['EncounterResult']=="('timeout 0 3 0)"
+  assert s.observation['ScenarioResult']=="('timeout 0 3 0)"
   p=OUT/'边界-三轮空过.json.gz';s.save(p);rows.append(check(p))
  finally:s.close()
  # 边界：先恢复至5、跨回合到4，再恢复2只实际增加1；种子搜索只用于覆盖边界。

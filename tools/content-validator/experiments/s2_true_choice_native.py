@@ -10,7 +10,7 @@ from subprocess import Popen,PIPE
 import json,sys
 from probe_four_scenario_causality import ROOT,CMD,recv,act,clock,finish
 
-ENTRY="encounters/研究·线索两选"
+ENTRY="scenarios/研究·线索两选"
 def start():
     p=Popen(CMD+["--session",ENTRY,"--seed","19","--growth","1"],
             cwd=ROOT,stdin=PIPE,stdout=PIPE,stderr=PIPE,text=True)

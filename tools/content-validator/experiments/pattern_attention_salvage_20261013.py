@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""ATN03/04: two goals threatened by public mid-encounter erasure.
+"""ATN03/04: two goals threatened by public mid-scenario erasure.
 Pre: two work actions. Incident: independent 1/2 erasure A and B,
 both publicly observed. Post: three actions. Completion threshold A=B=2.
 Exact full five-action fixed plans, all post-incident responses, early

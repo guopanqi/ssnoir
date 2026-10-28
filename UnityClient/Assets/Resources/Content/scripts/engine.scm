@@ -103,10 +103,10 @@
 ;; 所有换日入口统一由 SceneManager 检查当前世界树。
 (define (end-turn!) (__end-turn!))
 
-;; 交锋内部的阶段切换可以换一手骰，但不把它算作一次休息：不推进回合规则，
-;; 也不收取时间代价。仅交锋解释器注册了这条桥接。
-(define (refresh-encounter-dice!)
-  (__refresh-encounter-dice!))
+;; Scenario内部的阶段切换可以换一手骰，但不把它算作一次休息：不推进回合规则，
+;; 也不收取时间代价。仅Scenario解释器注册了这条桥接。
+(define (refresh-scenario-dice!)
+  (__refresh-scenario-dice!))
 
 ;; AutoAction 的前置对白属于这张卡，不属于登记它的对方回应批次。
 ;; 没有对白也必须显式写 (no-dialogue)，让内容作者明确决定这张卡直接抓骰。
@@ -125,10 +125,10 @@
           (__auto-action! id subtitle anchor demands prelude effect
             (if (null? names) id (car names))))))
 
-;; 倒下协议。交锋不写新的送医路线，只声明这场在主角倒下时如何使用已有结算：
+;; 倒下协议。Scenario不写新的送医路线，只声明这场在主角倒下时如何使用已有结算：
 ;;   (collapse-result 原有结果)  调用原有回调，按失败/既有收场推进
 ;;   (collapse-retry)            不调用回调，保留城市故事状态，出院后可重来
-;; 每个交锋必须重定义 on-encounter-collapse；漏写时在真正倒下处直接报配置错误。
+;; 每个Scenario必须重定义 on-scenario-collapse；漏写时在真正倒下处直接报配置错误。
 (define (hospitalization-pending?)
   (__hospitalization-pending?))
 
@@ -138,8 +138,8 @@
 (define (collapse-retry)
   (list 'collapse-retry))
 
-(define (on-encounter-collapse)
-  (error "交锋没有声明 on-encounter-collapse：请返回 collapse-result 或 collapse-retry"))
+(define (on-scenario-collapse)
+  (error "Scenario没有声明 on-scenario-collapse：请返回 collapse-result 或 collapse-retry"))
 
 ;; Action constructors
 (define (instant effect)
@@ -266,7 +266,7 @@
 
 ;; ── 地点 ─────────────────────────────────────────
 ;; 世界地点。和 container 的区别只有一条：玩家走进去这件事引擎认得，于是可以挂
-;; :arrivals。只有世界根的直接子节点能是 place，交锋树里不许出现。
+;; :arrivals。只有世界根的直接子节点能是 place，Scenario树里不许出现。
 ;; 接受 node 的全部 kwargs（家要用 :subtitle 显示住所等级）。
 (define (place id . kwargs)
   (apply node (cons id (append kwargs (list :place #t)))))
@@ -274,8 +274,8 @@
 ;; 一拍入场叙事。没有 condition——「这一拍在不在」由拼树时决定，和 children 一样：
 ;;   :arrivals (if (and (= stage 4) (not told?)) (list beat) '())
 ;; 一次性由内容自己置标记并跟着自己的 save 走；引擎不持有任何 arrival 状态。
-;; 必须当场发生的遭遇可以把 start-encounter 放在 effect 的最后：客户端会先播完
-;; arrival 的 dialogue / animation，再采用已经准备好的交锋快照。end-turn! 仍然禁止。
+;; 必须当场发生的遭遇可以把 start-scenario 放在 effect 的最后：客户端会先播完
+;; arrival 的 dialogue / animation，再采用已经准备好的Scenario快照。end-turn! 仍然禁止。
 (define (arrival id effect)
   (list 'arrival id effect))
 
@@ -390,7 +390,7 @@
   (node name :anchor anchor :requires #f :resolve (instant effect)))
 
 ;; 给一张已经拼好的卡补落点。只用于构造器没有 :anchor 位的写法
-;; （roll-action / note-node / clock-node / encounter-action 这些），
+;; （roll-action / note-node / clock-node / scenario-action 这些），
 ;; 有 :anchor 位的（node / 工作 / investigation-node）直接写在构造里。
 (define (at-anchor anchor node-data)
   (if (member? :anchor node-data)
@@ -400,8 +400,8 @@
 (define (instant-action-with-tags id tags effect)
   (action-with-tags id tags #f (instant effect)))
 
-(define (encounter-action id effect)
-  (instant-action-with-tags id (list "交锋") effect))
+(define (scenario-action id effect)
+  (instant-action-with-tags id (list "Scenario") effect))
 
 (define (observe-action id text)
   (action id #f (observe text)))
@@ -505,7 +505,7 @@
               (car args) (cadr args) (caddr args) (list-ref args 3) (list-ref args 4))))
 
 ;; ── 随身动作 ─────────────────────────────────────────
-;; 烟、酒这类你自己带进交锋的东西。它们不属于任何一场——没有哪个交锋脚本声明它们，
+;; 烟、酒这类你自己带进Scenario的东西。它们不属于任何一场——没有哪个Scenario脚本声明它们，
 ;; 是引擎在每一场的树上补一份（见 SceneManager.RebuildRenderTree）。只在手里真有那件
 ;; 东西的时候出现。
 ;;
@@ -528,7 +528,7 @@
 
 (define (carry-nodes)
   (append
-    ;; 交锋每回合自动流失 1，一根烟买回两个回合——这是它的单位。
+    ;; Scenario每回合自动流失 1，一根烟买回两个回合——这是它的单位。
     (if (has-item? "香烟" 1)
         (list (随身动作 "抽烟" "香烟" 2 "恢复两点冷静" "抽了一口"
                 (lambda () #f)))
@@ -540,19 +540,19 @@
         '())))
 
 ;; ── 关系支援 ─────────────────────────────────────────
-;; 人物关系推进到某一步，给玩家一条能带进**任何一场**交锋的支援。它是独立的一层：
-;; 不属于哪张行动卡，也不认识这一场的剧情钟，只操作所有交锋共有的东西——骰子、人、冷静。
-;; 所以交锋脚本一行都不用改；哪一场要为它配合什么，说明动词选错了。
+;; 人物关系推进到某一步，给玩家一条能带进**任何一场**Scenario的支援。它是独立的一层：
+;; 不属于哪张行动卡，也不认识这一场的剧情钟，只操作所有Scenario共有的东西——骰子、人、冷静。
+;; 所以Scenario脚本一行都不用改；哪一场要为它配合什么，说明动词选错了。
 ;;
-;; 规则（第一版）：只在交锋里出现；一场只带一个（队伍的 carried support）；每场一次；
+;; 规则（第一版）：只在Scenario里出现；一场只带一个（队伍的 carried support）；每场一次；
 ;; 不占骰、不结束回合；用过当场变灰，下一场恢复。
 ;; 「每场一次」由引擎在执行支援卡时消费（SceneManager.ExecuteAction），内容不写、也写不了；
 ;; 卡上只需 :disabled (support-used?) 让它变灰。
 ;;
-;; 支援卡和烟酒走同一个 encounter-action-nodes 入口；它没有需求槽，因此标准动作卡
+;; 支援卡和烟酒走同一个 scenario-action-nodes 入口；它没有需求槽，因此标准动作卡
 ;; 直接显示执行钮。用过后卡仍保留，但明确进入禁用状态。
 ;;
-;;   (grant-support! "弗兰克")      关系写回处调用；第一条自动成为带进交锋的那一个
+;;   (grant-support! "弗兰克")      关系写回处调用；第一条自动成为带进Scenario的那一个
 ;;   (has-support? "弗兰克")
 ;;   (set-carried-support! "弗兰克")  以后有了选人的界面再用
 (define (grant-support! id) (__grant-support! id))
@@ -561,14 +561,14 @@
 (define (carried-support) (__carried-support))
 (define (support-used?) (__support-used?))
 
-;; 支援叫来的临时帮手：入队并当场发一颗骰，本回合结束（或交锋结束）由引擎自动送走。
+;; 支援叫来的临时帮手：入队并当场发一颗骰，本回合结束（或Scenario结束）由引擎自动送走。
 (define (summon-helper! actor-id name stats-alist)
   (__summon-helper! actor-id name stats-alist))
 
 ;; ── 同伴能力总表 ─────────────────────────────────────
 ;; 全游戏同伴与临时帮手的基础能力只在这里定义一处。
 ;; recruit / summon 处只许引用 (同伴能力 '夜莺)，不许现写四项。
-;; 交锋是独立解释器，看不到 world/人物 模块；两个解释器都加载本文件，
+;; Scenario是独立解释器，看不到 world/人物 模块；两个解释器都加载本文件，
 ;; 所以总表只能落在这里（support-catalog 同理）。
 ;; 每人只有一个特长：单峰，其余 0/1。场景要加强某人，用固定骰/修正/自动动作，
 ;; 不动这里的底值。
@@ -606,7 +606,7 @@
   (let ((row (assoc-get support-catalog id #f)))
     (if row row (error (string-append "support-info：没有登记的支援 " id)))))
 
-;; 引擎在每一场交锋的树旁取一份。带了谁就出谁的卡；没带就是空。
+;; 引擎在每一场Scenario的树旁取一份。带了谁就出谁的卡；没带就是空。
 (define (support-nodes)
   (let ((id (carried-support)))
     (cond
@@ -614,9 +614,9 @@
       ((equal? id "弗兰克") (list (support-frank)))
       (else (error (string-append "support-nodes：没有登记的支援 " id))))))
 
-;; 不属于具体场景、但会在每场交锋里出现的动作统一从这里注入。随身物品和人物支援只是
+;; 不属于具体场景、但会在每场Scenario里出现的动作统一从这里注入。随身物品和人物支援只是
 ;; 两种出现条件；交给客户端之后都是普通动作卡，不再各自发明一套交互。
-(define (encounter-action-nodes)
+(define (scenario-action-nodes)
   (append (carry-nodes) (support-nodes)))
 
 ;; Inventory helpers
@@ -669,9 +669,9 @@
           (run (cdr list-rules)))))
   (run enter-place-rules))
 
-;; 交锋载入完成后的显式入口。交锋脚本可重定义它来安排开场演出；
-;; 世界动作的 on-action 仍属于世界自己，不能借场景切换的时机去跑交锋规则。
-(define (on-encounter-enter) #t)
+;; Scenario载入完成后的显式入口。Scenario脚本可重定义它来安排开场演出；
+;; 世界动作的 on-action 仍属于世界自己，不能借场景切换的时机去跑Scenario规则。
+(define (on-scenario-enter) #t)
 
 (define turn-rules '())
 
@@ -697,7 +697,7 @@
 
 ;; 世界新回合钩子。旧日的期限、租金和倒计时留在 define-turn-rule；只有翻页后玩家
 ;; 才看见的事情（早报、电话、今天开始的事件）登记在这里。引擎在新骰与每日额度发放后
-;; 调用，并把产生的阻塞表现放到睡眠黑幕之后播放。交锋不执行这组规则。
+;; 调用，并把产生的阻塞表现放到睡眠黑幕之后播放。Scenario不执行这组规则。
 (define turn-start-rules '())
 
 (define (define-turn-start-rule name condition action)
@@ -715,7 +715,7 @@
           (run-rules (cdr list-rules)))))
   (run-rules (reverse turn-start-rules)))
 
-;; 交锋回应与世界日终是两套生命周期。每条 opponent rule 是一个因果批，按书写顺序执行；
+;; Scenario回应与世界日终是两套生命周期。每条 opponent rule 是一个因果批，按书写顺序执行；
 ;; 后一条可以读取前一条提交后的状态。一条规则就是玩家看见的一拍：里面改了哪些钟、谁说了话、
 ;; 主角掉了多少，客户端自己从报告和渲染树里读出来（钟画在谁的卡上，谁就在动），
 ;; 脚本不声明归属。
@@ -747,7 +747,7 @@
 (define (日期倒计时 标签 到期日 跨度 备注)
   (list 'clock 标签 (max 0 (- 到期日 (get-global '世界日))) 跨度 'countdown 备注))
 
-;; 局部整数时钟。交锋里的一次性时钟和故事模块里要存档的时钟共用这一个对象——
+;; 局部整数时钟。Scenario里的一次性时钟和故事模块里要存档的时钟共用这一个对象——
 ;; 格数、上限、备注、进退和存档都收在闭包里，改上限只改 make-clock 那一行。
 ;;
 ;; 样式声明的是**这是什么状态**，不是画成什么形状；画法由渲染层按样式和上限决定：
@@ -999,7 +999,7 @@
 
 ;; ── 物品容量 ────────────────────────────────────────
 ;; 绝大多数东西不设上限：线索、钱、剧情物，多一件只是多一件。
-;; 烟不一样——它买得到也买得起，能囤就等于冷静随时可以拿钱换，交锋里那点压力也就不成立了。
+;; 烟不一样——它买得到也买得起，能囤就等于冷静随时可以拿钱换，Scenario里那点压力也就不成立了。
 ;; 所以这里不是给物品系统加一层通用容量，而是一件件点出「这东西不许囤」的那几样。
 (define item-capacities '(("香烟" 5)))
 
@@ -1132,7 +1132,7 @@
 (define (set-actor-permanent-die-penalty! actor-id label penalty)
   (__set-actor-permanent-die-penalty! actor-id label penalty))
 
-;; 让同伴离队。一场交锋临时请来的人必须在结算时离队，否则存档会当场报错。
+;; 让同伴离队。一场Scenario临时请来的人必须在结算时离队，否则存档会当场报错。
 (define (dismiss-companion! actor-id)
   (__dismiss-companion! actor-id))
 
@@ -1147,7 +1147,7 @@
 (define (set-actor-composure! actor-id n)
   (__set-actor-composure! actor-id n))
 
-;; 花冷静（floor 到 0）：失败、交锋伤害等一切"变糟"的效果。
+;; 花冷静（floor 到 0）：失败、Scenario伤害等一切"变糟"的效果。
 (define (spend-actor-composure! actor-id n)
   (__spend-actor-composure! actor-id n))
 
@@ -1185,7 +1185,7 @@
 
 (define (play-intertitle! hold-black . pages) (__play-intertitle! hold-black pages))
 ;; place 为空只运镜；非空在运镜结束后进入地点。
-;; 剧情落点：在该步骤采用新快照，进入节点（允许交锋根），等镜头到位后继续。
+;; 剧情落点：在该步骤采用新快照，进入节点（允许Scenario根），等镜头到位后继续。
 (define (focus-node! id) (__focus-node! id))
 (define (play-camera! anchor hold-seconds place) (__play-camera! anchor hold-seconds place #f))
 ;; 明确的剪辑切镜，不把停留0秒误当成瞬切，也不受玩家的减少动画设置影响。

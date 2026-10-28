@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """DISC-01: learning while doing vs pure research, feedback delay, route switches.
 
-Belief-aware exact DP in a three-action encounter with an unchanging hidden
+Belief-aware exact DP in a three-action scenario with an unchanging hidden
 target T in {A,B}. No policy sees an unobserved type. A software oracle cannot
 establish novelty, narrative meaning, or actual human player understanding.
 """

@@ -279,7 +279,7 @@
       (set-global! '小节二路线 settle-route)
       (set-global! '莱恩下落 lyon-fate)
       (set-global! '经理解雇过尼尔 (has-flag? '被经理解雇))
-      ;; 首演交锋读两个漏洞各在哪一档。
+      ;; 首演Scenario读两个漏洞各在哪一档。
       (set-global! '漏洞-通风口 hole-vent)
       (set-global! '漏洞-配电箱 hole-power))
 
@@ -483,7 +483,7 @@
     (define (tavern-ambush-nodes) '())
     ;; ── 小节一：筹钱与两项准备 ──────────────────────
     ;; 工作与一次性失物委托提供收入；准备直接改变交付现场。
-    ;; 两项具体准备，每项只做一次；下游交锋读取各自的事实。
+    ;; 两项具体准备，每项只做一次；下游Scenario读取各自的事实。
     (define (preparation-done? id) (member? id mail-preparations))
 
     ;; 独自打听只有这一根钟。玩家起初只知道自己在找人；2、4 格时才逐渐看出
@@ -561,7 +561,7 @@
     ;; 她的兜底是有限的：一副首饰当出去就那么多钱，不是一张无限额的保险单。
     ;; 缺口在她能补的范围内 → 她当首饰，处境差一档。
     ;; 缺口超过她能补的 → 信封是薄的，写信的人清点之后开始在老街散照片，
-    ;; 小节二一上来就少三天。代价全部落在城里，不进交锋。
+    ;; 小节二一上来就少三天。代价全部落在城里，不进Scenario。
     (define (nightingale-covers) (min delivery-shortfall nightingale-cover-max))
     (define (envelope-short) (max 0 (- delivery-shortfall nightingale-cover-max)))
 
@@ -575,7 +575,7 @@
         (if (> (envelope-short) 0)
             (set! envelope-thin? #t)
             #f)
-        ;; 将具体准备事实交给交锋；城市不再用重复踩点的总进度代替它们。
+        ;; 将具体准备事实交给Scenario；城市不再用重复踩点的总进度代替它们。
         (set-global! '邮箱街角已观察 (ambush-survey 'full?))
         (set-global! '退路已查看 #f)))
 
@@ -590,7 +590,7 @@
         (cond ((= delivery-shortfall 0) '足额)
               ((= (envelope-short) 0) '她补)
               (else '塞报纸)))
-      (start-encounter "勒索信" on-delivery-result))
+      (start-scenario "勒索信" on-delivery-result))
 
     (define (设伏赴约!)
       (if (ambush-ready?) #t (error "三封信：艾迪尚不能到场"))
@@ -603,7 +603,7 @@
       (邮箱相见-演出 '诱饵)
       (set-global! '雨夜收网帮手名单 (ambush-helpers))
       (set-global! '雨夜收网踩点进度 (ambush-survey 'current))
-      (start-encounter "雨夜收网" on-ambush-result))
+      (start-scenario "雨夜收网" on-ambush-result))
 
     ;; 选择尾随只提出计划；这段对白之后玩家仍可返回，什么也不消耗。
     (define (提出照片尾随!)
@@ -705,7 +705,7 @@
                   :resolve (instant 提出照片尾随!)))
                 '()))))))
 
-    ;; 委派交锋用的是假信封，回调沿用城市契约，但追回现金必为 0。
+    ;; 委派Scenario用的是假信封，回调沿用城市契约，但追回现金必为 0。
     (define (on-ambush-result result)
       (if (and (list? result) (= (length result) 2)) #t
         (error "三封信：雨夜收网结果格式非法"))
@@ -718,7 +718,7 @@
         (on-delivery-result
           (list (if (member? kind (list '截住取信者 '追到线索))
                   '拿到线索 '跟丢) 0))))
-    ;; 交锋回传：(list 人 钱)。四种组合都让故事往前走——交锋失败留疤,不阻断主线。
+    ;; Scenario回传：(list 人 钱)。四种组合都让故事往前走——Scenario失败留疤,不阻断主线。
     ;; 摩托车是这一夜的固定过场，不回传：骑手是谁要等他自己在老街说。
     (define (on-delivery-result result)
       (if (not delivery-pending?)
@@ -726,15 +726,15 @@
           #t)
       (if (and (list? result) (= (length result) 2))
           #t
-          (error "三封信：勒索信交锋应回传 (list 人 钱)"))
+          (error "三封信：勒索信Scenario应回传 (list 人 钱)"))
       (set! delivery-pending? #f)
       (set! photo-follow-choice? #f)
       (let ((caught (car result))
             (money (cadr result)))
-        ;; 钱不再是固定的三档：交锋里它是一路上抓回来的零头，任何 0..100 都合法。
+        ;; 钱不再是固定的三档：Scenario里它是一路上抓回来的零头，任何 0..100 都合法。
         (if (and (>= money 0) (<= money delivery-price))
             #t
-            (error "三封信：勒索信交锋返回了非法的追款金额"))
+            (error "三封信：勒索信Scenario返回了非法的追款金额"))
         ;; 倒下**只换文案，不换状态**：它记成跟丢，后面所有读 delivery-result 的地方
         ;; 因此一个分支也不用加。区别只在这一夜怎么讲——玩家刚从诊所醒过来，
         ;; 正等着知道昨晚发生了什么，那句话必须说对。
@@ -742,7 +742,7 @@
               (cond
                 ((equal? caught '拿到线索) "拿到线索")
                 ((member? caught (list '跟丢 '倒下)) "跟丢")
-                (else (error "三封信：勒索信交锋返回了未登记的人物结果"))))
+                (else (error "三封信：勒索信Scenario返回了未登记的人物结果"))))
         (set! delivery-money money)
         ;; 追到他身后才拿得到他落下的东西：那半包烟是小节二唯一的具名抓手。
         ;; 跟丢则只剩一个方向，她的处境也跟着差一档。
@@ -877,7 +877,7 @@
     ;; 每条路线只在走满时给一段遭遇，不把每个进度格都变成一次播报。
     ;; 这栋楼要说的事只有一件：她不是从老街走出来的明星，她是一个正在把老街
     ;; 从自己身上剥掉的人。中途格子只推进时钟，走满或遇阻时再兑现关键事件。
-    (define (warren-encounter! route n)
+    (define (warren-scenario! route n)
       (cond
         ((equal? route 'east-entry)
          (cond
@@ -911,9 +911,9 @@
 
     ;; 遭遇挂在时钟走满的那一下，不挂在中途的每一格。中途只是"还在走"，
     ;; 没有可说的事；走通了才是这一段真正发生了什么。
-    (define (emit-encounters! route old new)
+    (define (emit-scenarios! route old new)
       (if (crossed? old new 4)
-          (warren-encounter! route 1)
+          (warren-scenario! route 1)
           #f))
 
     ;; 带着她走，坏结果不是走错路，是她被人认出来。
@@ -924,18 +924,18 @@
       (let ((old (east-entry-clk 'current)))
         (east-entry-clk 'advance! n)
         (let ((new (east-entry-clk 'current)))
-          (emit-encounters! 'east-entry old new)
+          (emit-scenarios! 'east-entry old new)
           (if (crossed? old new 4)
               (spotlight! "门廊走通了"
                 "杂货铺的灯亮着，柜台后面那条回廊一直通到里头。")
               #f))))
 
-    (define (advance-east-gallery! n emit-encounter?)
+    (define (advance-east-gallery! n emit-scenario?)
       (let ((old (east-gallery-clk 'current)))
         (east-gallery-clk 'advance! n)
         (let ((new (east-gallery-clk 'current)))
-          (if emit-encounter?
-              (emit-encounters! 'east-gallery old new)
+          (if emit-scenario?
+              (emit-scenarios! 'east-gallery old new)
               #f)
           ;; 走通就是走到了：回廊尽头是工会房间，弗兰克本人就在里面。
           ;; 这里不再留一张"进去问"的卡——那张卡问的东西，你走到门口时已经问完了。
@@ -947,7 +947,7 @@
       (let ((old (west-stairs-clk 'current)))
         (west-stairs-clk 'advance! n)
         (let ((new (west-stairs-clk 'current)))
-          (emit-encounters! 'west-stairs old new)
+          (emit-scenarios! 'west-stairs old new)
           (if (crossed? old new 4)
               (begin
                 (spotlight! "楼梯口被堵住了"
@@ -958,7 +958,7 @@
       (let ((old (west-bridge-clk 'current)))
         (west-bridge-clk 'advance! n)
         (let ((new (west-bridge-clk 'current)))
-          (emit-encounters! 'west-bridge old new)
+          (emit-scenarios! 'west-bridge old new)
           ;; 同东侧：走到桥廊公寓门口，住户就把名字说出来了。
           (if (crossed? old new 4)
               (finish-bridge-inquiry!)
@@ -1422,7 +1422,7 @@
     ;; 衔接：小节二在桥廊上就已经收束完（她当场认下莱恩，然后离队）。
     ;; 所以这一节开场干干净净：你手上只有一个名字，去剧院交差。
     ;;
-    ;; 老街的四把普通钥匙在进场前一次性镜像给交锋。
+    ;; 老街的四把普通钥匙在进场前一次性镜像给Scenario。
     ;; 有钥匙那一手不掷骰;没钥匙照样过得去,只是在弗兰克门口要多花两颗骰。
     (define (lesson-beat?) (and (= story-stage 3) (not lesson-done?)))
     (define (days-waited) (- world-day inquiry-day))
@@ -1441,7 +1441,7 @@
     ;; ── 巷子 ────────────────────────────────────────
     (define (node-alley-entry)
       (at-anchor "码头-巷口"
-       (encounter-action "今晚去货栈后面"
+       (scenario-action "今晚去货栈后面"
         (lambda ()
           (sync-keys!)
           (play-dialogue!
@@ -1452,9 +1452,9 @@
                 (line "世界" "昨天送你出去的那几个人还在路口。他们看见你，没有动。" "三封信/巷子/入场/被赶/01/世界")
                 (line "世界" "他们只是转过身，往堆场那头喊了一句。" "三封信/巷子/入场/被赶/02/世界"))
               #f)
-          (start-encounter "巷子" on-lesson-result)))))
+          (start-scenario "巷子" on-lesson-result)))))
 
-    ;; 交锋只有一种成功：莱恩交出铁盒，答应不再找夜莺。
+    ;; Scenario只有一种成功：莱恩交出铁盒，答应不再找夜莺。
     ;;   这一节一定要真正结案一次：底片到手、他停止勒索、经理满意、世界恢复正常。
     ;;   第三封信之所以能把人打懵，全靠这一次结得干净。
     ;;   '被赶出去 / '倒下 是最终失败：东西没有拿到，经理会解除雇佣；
@@ -1462,7 +1462,7 @@
     (define (on-lesson-result result)
       (if (symbol? result)
           #t
-          (error "三封信：旧账交锋应回传收场 symbol"))
+          (error "三封信：旧账Scenario应回传收场 symbol"))
       (if (member? result (list '被赶出去 '倒下))
           (fail-lesson! (equal? result '倒下))
           (settle-lesson! result)))
@@ -2125,7 +2125,7 @@
       (notify! "今天是首演。天黑以前你得到剧院去。"))
 
     (define (node-premiere-entry)
-      (encounter-action "去剧院"
+      (scenario-action "去剧院"
         (lambda ()
           (play-remote-dialogue!
             (line "夜莺" "别去台下。站在我一转头就能看见你的地方。" "三封信/首演/登台前/01/夜莺")
@@ -2133,14 +2133,14 @@
             (line "经理" "还有两分钟！各就各位！" "三封信/首演/登台前/01/经理"))
           (spotlight! "开演"
             "第三段开始时，全场的灯一起灭了。")
-          (start-encounter "首演之夜" on-premiere-result))))
+          (start-scenario "首演之夜" on-premiere-result))))
 
-    ;; 交锋只回传 'done：四个向量走 global，由这里解释并写成结案。
+    ;; Scenario只回传 'done：四个向量走 global，由这里解释并写成结案。
     (define (on-premiere-result result)
       (if (not premiere-pending?)
           (error "三封信：没有待处理的首演")
           #t)
-      (if (equal? result 'done) #t (error "三封信：首演交锋返回了未登记的结果"))
+      (if (equal? result 'done) #t (error "三封信：首演Scenario返回了未登记的结果"))
       (set! premiere-pending? #f)
       (set! premiere-done? #t)
       (if (get-global '首演-她受伤) (worsen-condition! 2) #f)

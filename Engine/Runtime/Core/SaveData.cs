@@ -24,7 +24,7 @@ namespace SSNoir.Core
         public List<ActorSaveData> Actors { get; set; } = new();
         // 旧存档没有骰池字段；读取时用这一位区分“旧格式”与“当天骰子确实已耗尽”。
         public bool HasSavedActionDice { get; set; }
-        // 关系支援：已获得的人物支援，以及进交锋时带的那一个（见 TeamState.Supports）。
+        // 关系支援：已获得的人物支援，以及进Scenario时带的那一个（见 TeamState.Supports）。
         public List<string> Supports { get; set; } = new();
         public string CarriedSupport { get; set; } = "";
     }

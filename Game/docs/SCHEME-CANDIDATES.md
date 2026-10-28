@@ -1,15 +1,15 @@
 # Scheme runtime candidates: isolation is a hard requirement
 
-SSNoir's existing C# SceneManager holds a long-lived world interpreter plus a separate encounter interpreter per encounter. Defining the same Scheme name in the two namespaces must not cross-mutate values; a failed isolation test is a blocking incompatibility.
+SSNoir's existing C# SceneManager holds a long-lived world interpreter plus a separate scenario interpreter per scenario. Defining the same Scheme name in the two namespaces must not cross-mutate values; a failed isolation test is a blocking incompatibility.
 
 ## BiwaScheme 0.8.3 (current visual probe only)
 
 The live GitHub Actions test at commit 0c798dbdc55edcb84141e81a59b5084288a17b75 demonstrated a real failure:
 - world VM: (define local-stage 17)
-- encounter VM: (define local-stage 2)
+- scenario VM: (define local-stage 2)
 - world VM then evaluated local-stage => **2**, not 17.
 
-All of its other six basic semantics tests passed, including original SSNoir stdlib.scm, named let, lexical mutation, and define-macro. These are necessary but not sufficient. Separate Interpreter objects do *not* isolate the process-global top environment in the tested version. Keep Biwa only as a rendering foundation probe until fixed or replaced. Do not build world/encounter gameplay against it without a verified isolation strategy.
+All of its other six basic semantics tests passed, including original SSNoir stdlib.scm, named let, lexical mutation, and define-macro. These are necessary but not sufficient. Separate Interpreter objects do *not* isolate the process-global top environment in the tested version. Keep Biwa only as a rendering foundation probe until fixed or replaced. Do not build world/scenario gameplay against it without a verified isolation strategy.
 
 ## LIPS 1.0.0-beta.23.1 (experimental candidate)
 
@@ -26,7 +26,7 @@ If LIPS fails a requirement, record the failure and investigate another mature l
 **Decision status:** undecided. A green rendering smoke test does not certify game runtime semantics.
 
 
-Follow-up LIPS checks: load the actual unmodified SSNoir `scripts/stdlib.scm` and confirm native Scheme `set!` remains isolated between world and encounter environments after both are initialized. This validates more than simply using different symbol names.
+Follow-up LIPS checks: load the actual unmodified SSNoir `scripts/stdlib.scm` and confirm native Scheme `set!` remains isolated between world and scenario environments after both are initialized. This validates more than simply using different symbol names.
 
 The first direct stdlib evaluation failed with `Unbound variable equal?` because the LIPS bare `Interpreter` API does not automatically load its Scheme standard library. The candidate test now explicitly bootstraps LIPS's installed `dist/std.xcb` before evaluating the unmodified SSNoir script, following LIPS's documented initialization contract. If this bootstrap fails in CI, treat that as a candidate integration issue, not a reason to change SSNoir content.
 

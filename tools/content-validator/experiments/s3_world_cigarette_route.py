@@ -30,7 +30,7 @@ def choose_action(p,obs,op,history):
 def move_to(p,obs,place,history):
     # Walk out of currently focused world place and enter an original place.
     for _ in range(6):
-        if obs["IsInEncounter"]:raise RuntimeError("Cannot navigate worlds inside encounter")
+        if obs["IsInScenario"]:raise RuntimeError("Cannot navigate worlds inside scenario")
         if obs["Focus"]==place:return obs
         o=get(obs,"enter-place",place)
         if o:return choose_action(p,obs,o,history)
@@ -65,11 +65,11 @@ def run():
                 else:
                     if get(obs,"action","去码头盯着邮箱"):
                         obs=perform(p,obs,"去码头盯着邮箱",history)
-                        stage="mail_encounter"
+                        stage="mail_scenario"
                     else:obs=end(p,obs,history)
                 continue
-            if stage=="mail_encounter":
-                if not obs["IsInEncounter"]:
+            if stage=="mail_scenario":
+                if not obs["IsInScenario"]:
                     cig_obtained=obs["Inventory"].get(ITEM,0)==1
                     stage="post_chase_home"
                     continue

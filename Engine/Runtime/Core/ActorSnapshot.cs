@@ -10,7 +10,7 @@ namespace SSNoir.Core
         public string Role { get; init; } = string.Empty;
         public bool IsDrunk { get; init; }
         public string Status { get; init; } = string.Empty;
-        /// <summary>本场是否登场——即这一场里真的会拿到骰子的人。城市里全队都在，交锋里只有主角。
+        /// <summary>本场是否登场——即这一场里真的会拿到骰子的人。城市里全队都在，Scenario里只有主角。
         /// 凡是「谁能出手」的界面（技能预览、命运条、手牌）都读这个，不要各自再判 Status / Role。</summary>
         public bool OnStage { get; init; }
         public int Composure { get; init; }

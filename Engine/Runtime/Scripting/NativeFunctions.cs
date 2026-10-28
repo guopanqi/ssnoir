@@ -308,7 +308,7 @@ namespace SSNoir.Scripting
                 return new None();
             }, "__recruit-companion!"));
 
-            // __summon-helper!（支援叫来的临时帮手）只能在交锋里用，所以注册在 SceneManager 那头。
+            // __summon-helper!（支援叫来的临时帮手）只能在Scenario里用，所以注册在 SceneManager 那头。
 
             // ── 关系支援 ────────────────────────────────────
             interpreter.DefineGlobal(Symbol.FromString("__grant-support!"), new NativeProcedure(args =>
@@ -398,7 +398,7 @@ namespace SSNoir.Scripting
             {
                 if (gameState.CurrentContext == null)
                     throw new InvalidOperationException(
-                        "__current-actor is only valid during ExecuteAction. An encounter-result callback " +
+                        "__current-actor is only valid during ExecuteAction. An scenario-result callback " +
                         "or a turn-end rule runs outside any action — address the actor explicitly there, " +
                         "e.g. (spend-actor-composure! 'player n) / (restore-actor-composure! 'player n).");
                 return Symbol.FromString(gameState.CurrentContext.ActorId);
@@ -579,7 +579,7 @@ namespace SSNoir.Scripting
             }, "__play-remote-banter!"));
 
             // 命名动画:v1 仅携带 tag,作为有序阻塞剧情步骤(前端占位播放)。
-            // 交锋入场钩子也可调用；Debug 直载没有 ActionReport 时不播放、不报错。
+            // Scenario入场钩子也可调用；Debug 直载没有 ActionReport 时不播放、不报错。
             interpreter.DefineGlobal(Symbol.FromString("__play-video!"), new NativeProcedure(args =>
             {
                 if (args.Count < 1 || !(args[0] is string tag) || string.IsNullOrWhiteSpace(tag))

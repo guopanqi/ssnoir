@@ -79,7 +79,7 @@ namespace SSNoir
                     return;
                 }
 
-                // 交锋试跑：无头跑完一场，打出逐回合流水。
+                // Scenario试跑：无头跑完一场，打出逐回合流水。
                 if (args.Length > 0 && args[0] == "--playtest")
                 {
                     SSNoir.Playtest.PlaytestRunner.Run(args);
@@ -125,7 +125,7 @@ namespace SSNoir
                 Console.Error.WriteLine(
                     "用法：./run --validate | --test-required-before-rest | --test-first-act | --test-node-identity | --test-action-risk | --test-dice-reset | --test-saveload | --test-odds | --test-round-transition | --test-theatre | " +
                     "--playtest <入场表达式或场景名> [选项] | --session <world|场景名|入场表达式> [选项] " +
-                    "| --session-baseline <交锋入口> --output <记录.json> | --session-report <记录.json> [...] | --replay <记录.json> " +
+                    "| --session-baseline <Scenario入口> --output <记录.json> | --session-report <记录.json> [...] | --replay <记录.json> " +
                     "| --theatre-export <Scheme 表达式> <输出.json> | --stage-export <Scheme 表达式> <输出.json>");
                 Environment.Exit(2);
             }

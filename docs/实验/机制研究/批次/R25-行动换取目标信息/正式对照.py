@@ -10,7 +10,7 @@ def state(o):
  cs=clocks(o);note=next(c['Text'] for c in o['Cards'] if c['Name']=='标注：目标信息');target=re.search(r'目标在([甲乙])处',note)
  return cs['搜寻甲']['Current'],cs['搜寻乙']['Current'],target[1] if target else None,player(o)['Composure'],tuple(sorted(d['Value'] for d in player(o)['Dice']))
 def result(o):
- match=re.fullmatch(r"\('(?P<status>success|timeout|collapse) (?P<a>\d+) (?P<b>\d+) '(?P<target>[甲乙]) (?P<known>True|False) (?P<clue>\d+) (?P<cold>\d+)\)",o['EncounterResult']);assert match,o['EncounterResult']
+ match=re.fullmatch(r"\('(?P<status>success|timeout|collapse) (?P<a>\d+) (?P<b>\d+) '(?P<target>[甲乙]) (?P<known>True|False) (?P<clue>\d+) (?P<cold>\d+)\)",o['ScenarioResult']);assert match,o['ScenarioResult']
  return {k:int(v) if k in ('a','b','clue','cold') else v=='True' if k=='known' else v for k,v in match.groupdict().items()}
 def operation(o,ch):
  r,act,d=ch
@@ -20,14 +20,14 @@ def operation(o,ch):
 def finish(s,m):
  for _ in range(6):
   o=s.observation
-  if o['EncounterResult'] is not None:return
+  if o['ScenarioResult'] is not None:return
   st=state(o);m.value(*st);s.act(operation(o,m.decisions[st]),'R25冻结策略：只读搜索进度、公开定位信息、冷静与骰；未定位时不读目标真值。')
- assert s.observation['EncounterResult'] is not None
+ assert s.observation['ScenarioResult'] is not None
 
 def check(path,allowed,g):
  raw=json.loads(gzip.decompress(path.read_bytes()));final=result(raw['Steps'][-1]['After']);truth=final['target'];clue=0;grades=set();empty=repeat=direct=cap=located=0;pending=False
  for step in raw['Steps']:
-  before,after=step['Before'],step['After'];a,b,target,c,h=state(before);op=next(x for x in before['Operations'] if x['Id']==step['OperationId']);ended=after['EncounterResult'] is not None
+  before,after=step['Before'],step['After'];a,b,target,c,h=state(before);op=next(x for x in before['Operations'] if x['Id']==step['OperationId']);ended=after['ScenarioResult'] is not None
   assert target is None or target==truth
   if pending and op['Kind']=='action':repeat+=int(op['Card']=='探查');direct+=int(op['Card']!='探查')
   if op['Kind']=='end-turn':dc=-1;assert ended;assert result(after)['status']=='timeout';pending=False
@@ -47,12 +47,12 @@ def check(path,allowed,g):
     cap+=int(gain>3-old)
     if (a if route=='甲' else b)==3 and route!=truth:target=truth;empty+=1
    won=(a if truth=='甲' else b)==3
-   assert ended==won,(path,op,a,b,truth,after['EncounterResult'])
+   assert ended==won,(path,op,a,b,truth,after['ScenarioResult'])
   assert player(after)['Composure']==c+dc
   assert re.search(r'(\d+)/7',after['Injury'])[1]=='0'
   if ended:
    f=result(after);assert (f['a'],f['b'],f['target'],f['known'],f['clue'],f['cold'])==(a,b,truth,target is not None,clue,c+dc)
-   assert not after['IsInEncounter']
+   assert not after['IsInScenario']
    if f['status']=='success':assert (a if truth=='甲' else b)==3
   else:
    assert state(after)[:4]==(a,b,target,c+dc)

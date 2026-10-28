@@ -19,7 +19,7 @@ namespace SSNoir.Core
         public ActionExecutionContext? CurrentContext { get; set; } = null;
         public ActionReport? CurrentActionReport { get; set; } = null;
         /// <summary>
-        /// 伤势到顶后已经完成医疗数值结算、但还没有由 SceneManager 完成交锋中断与送医演出的记录。
+        /// 伤势到顶后已经完成医疗数值结算、但还没有由 SceneManager 完成Scenario中断与送医演出的记录。
         /// 它故意不进存档：倒下在一次动作/回合结算结束前必须被同步消费。
         /// </summary>
         public Hospitalization? PendingHospitalization { get; private set; }
@@ -57,7 +57,7 @@ namespace SSNoir.Core
             Inventory.SetCount("药品", 1);
             Inventory.SetCount("酒", 0);
             // 开局自带两根烟。它在城市里一点用也没有，但它一直挂在物品栏上——
-            // 等第一场交锋来的时候，答案已经在兜里了，玩家不用先去学一条规则再去买。
+            // 等第一场Scenario来的时候，答案已经在兜里了，玩家不用先去学一条规则再去买。
             Inventory.SetCount("香烟", 2);
 
             // 主角
@@ -108,7 +108,7 @@ namespace SSNoir.Core
         public const int CollapseTreatmentFee = 80;
 
         // 伤势撞到倒下线：当天剩余骰子作废、付一笔治疗费、送医后伤势与冷静归零并留疤。
-        // 这里只做跨系统的数值结算并留下 PendingHospitalization；交锋怎样失败/重试、
+        // 这里只做跨系统的数值结算并留下 PendingHospitalization；Scenario怎样失败/重试、
         // 何时结束当天以及客户端怎样进入诊所，由 SceneManager 在当前动作边界统一完成。
         // 这不是 GAME OVER——倒下是最贵的兜底，不是终局（谷底校验见 docs/城市生活设计.md §2.2）。
         // ResolveCollapse 会再次触发 OnTeamChanged，靠先清 PendingCollapse 挡住重入。

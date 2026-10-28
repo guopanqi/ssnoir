@@ -233,10 +233,10 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
     const visible=displayedNames.slice(listPage*7,(listPage+1)*7);
     for(let i=0;i<visible.length;i++){
       const name=visible[i],x=wx+18,y=wy+92+i*42,width=panelWidth-36,height=35;
-      const inEncounter=authoredWorld?.mode==="encounter";
+      const inScenario=authoredWorld?.mode==="scenario";
       const candidates=(currentContainer?.children??authoredWorld?.root.children??[]);
       const candidate=candidates.find(n=>n.name===name)??(
-        inEncounter?authoredWorld?.runner.getCarryNodes().find(n=>n.name===name):undefined);
+        inScenario?authoredWorld?.runner.getCarryNodes().find(n=>n.name===name):undefined);
       const shownName=name==="__dossier"?"卷宗 · 线索与委托":
         name.startsWith("__dossier-entry:")?"◇ "+name.slice("__dossier-entry:".length):
         name.startsWith("__dossier-row:")?dossierRowDetails[Number(name.slice("__dossier-row:".length))]??name:
@@ -328,7 +328,7 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
     currentContainer=node;
     worldHeading.text="场景 / "+node.name;
     worldStatus.text=node.subtitle||"查看行动，或返回上一级";
-    const sideActions=authoredWorld?.mode==="encounter"&&
+    const sideActions=authoredWorld?.mode==="scenario"&&
       node===authoredWorld.root?authoredWorld.runner.getCarryNodes():[];
     renderPlaces([...node.children,...sideActions].map(n=>n.name),true);
     updateHud(node.subtitle||node.title);
@@ -366,10 +366,10 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
   };
   const redrawCurrent=()=>{
     if(!authoredWorld)return;
-    if(authoredWorld.mode==="encounter"){
-      selectedPlace="__encounter";navigationStack.length=0;
+    if(authoredWorld.mode==="scenario"){
+      selectedPlace="__scenario";navigationStack.length=0;
       showContainer(authoredWorld.root);
-      worldHeading.text="交锋 / "+authoredWorld.root.name;
+      worldHeading.text="Scenario / "+authoredWorld.root.name;
     }else{
       const place=authoredWorld.root.children.find(x=>x.name===selectedPlace);
       if(place)showContainer(place);
@@ -423,7 +423,7 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
           const container=find(authoredWorld.root);
           if(container){showContainer(container);return;}
         }
-        if(authoredWorld.mode==="encounter"){redrawCurrent();return;}
+        if(authoredWorld.mode==="scenario"){redrawCurrent();return;}
         showRoot();return;
       }
       if(dossierMode){
@@ -484,7 +484,7 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
       }
       if(!currentContainer)return;
       const target=currentContainer.children.find(x=>x.name===name)??
-        (authoredWorld.mode==="encounter"&&currentContainer===authoredWorld.root?
+        (authoredWorld.mode==="scenario"&&currentContainer===authoredWorld.root?
           authoredWorld.runner.getCarryNodes().find(x=>x.name===name):undefined);
       if(!target||target.disabled)throw new Error("unavailable node "+name);
       if(target.children.length){
@@ -628,12 +628,12 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
   }
   if(qaMode){
     debugWorld=new LipsSession("SSNoir-foundation-world");
-    const probeEncounter=new LipsSession("SSNoir-foundation-encounter");
+    const probeScenario=new LipsSession("SSNoir-foundation-scenario");
     await debugWorld.evaluate("(define foundation-local 17)");
-    await probeEncounter.evaluate("(define foundation-local 2)");
+    await probeScenario.evaluate("(define foundation-local 2)");
     if(await debugWorld.evaluateNumber("foundation-local")!==17||
-       await probeEncounter.evaluateNumber("foundation-local")!==2)
-      throw new Error("Scheme world/encounter interpreter isolation failed");
+       await probeScenario.evaluateNumber("foundation-local")!==2)
+      throw new Error("Scheme world/scenario interpreter isolation failed");
     await debugWorld.evaluate(ssnoirStdlib);
     if(await debugWorld.evaluateNumber(
       "(length (filter (lambda (x) (> x 2)) '(1 2 3 4)))")!==2)
@@ -704,9 +704,9 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
           showRoot();
           receiveStory();
           worldStatus.text="游戏已恢复 · 世界日 "+String(authoredWorld.state.getGlobal("世界日"));
-        }else if(authoredWorld.mode==="encounter"){
+        }else if(authoredWorld.mode==="scenario"){
           // Use the original opponent rules, forced responses and composure tax.
-          // This control advances the encounter, never the city calendar.
+          // This control advances the scenario, never the city calendar.
           const phases=await authoredWorld.director.endRound();
           await authoredWorld.refresh();
           pendingRoll=null;chosenDice=[];
@@ -715,7 +715,7 @@ export async function mountFoundation(options: FoundationOptions): Promise<Found
             ...authoredWorld.state.takeStoryEvents()
           ]);
           updateStory();redrawCurrent();
-          worldStatus.text="交锋回合结算 · "+phases.map(p=>p.phase).join(" → ");
+          worldStatus.text="Scenario回合结算 · "+phases.map(p=>p.phase).join(" → ");
         }else{
           const day=await authoredWorld.endDay();
           pendingRoll=null;chosenDice=[];

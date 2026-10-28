@@ -12,7 +12,7 @@
 ./run --playtest <入场表达式或场景名>
 ./run --session world --seed 7
 ./run --replay /path/to/record.json
-./run --session-baseline encounters/码头试运行 --seed 7 --output /tmp/baseline.json
+./run --session-baseline scenarios/码头试运行 --seed 7 --output /tmp/baseline.json
 ./run --session-report /tmp/baseline.json /tmp/agent.json
 ```
 
@@ -21,7 +21,7 @@
 `--session` 启动一个持续运行的会话。它从同一份 `PresentationSnapshot` 生成当前焦点、
 可见卡片、全场时钟、角色、骰子、背包、阻塞原因与操作目录。投骰操作附准备值和
 与客户端同源的六面赔率，回合阶段快照也保留全场时钟。工具不会把 Scheme 解释器暴露给
-Agent。入场参数由测试操作者指定：`world` 为新局，`encounters/<名称>` 为直载交锋，
+Agent。入场参数由测试操作者指定：`world` 为新局，`scenarios/<名称>` 为直载Scenario，
 Scheme 入场表达式只在创建会话时执行，用于测试真实的世界入场流程。
 
 标准输出每行一条 JSON，标准输入每行一条命令：

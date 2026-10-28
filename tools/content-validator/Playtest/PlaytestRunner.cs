@@ -8,7 +8,7 @@ using SSNoir.Core;
 namespace SSNoir.Playtest
 {
     /// <summary>
-    /// 命令行试跑：把一场交锋跑到结算，打出逐回合流水与最终结果。
+    /// 命令行试跑：把一场Scenario跑到结算，打出逐回合流水与最终结果。
     ///
     ///   ./run --playtest "(dock-collapse 'debug-enter!)" --runs 20 --growth 1 --seed 7
     ///   ./run --playtest "(dock-collapse 'debug-enter!)" --verbose        # 逐回合看牌面
@@ -45,7 +45,7 @@ namespace SSNoir.Playtest
 
         private static void PlayOnce(string entry, PlaytestSetup setup, bool verbose, int run)
         {
-            var driver = EncounterDriver.Enter(entry, setup);
+            var driver = ScenarioDriver.Enter(entry, setup);
             var log = new StringBuilder();
 
             while (!driver.Finished && driver.Turn <= 20)
@@ -56,7 +56,7 @@ namespace SSNoir.Playtest
                     Console.WriteLine(driver.Observe());
                 }
 
-                // 抽烟不再有专门的入口：它是交锋树上的普通动作卡（engine.scm 的 carry-nodes），
+                // 抽烟不再有专门的入口：它是Scenario树上的普通动作卡（engine.scm 的 carry-nodes），
                 // 会跟着别的卡一起出现在 LegalMoves 里，驱动照常投骰执行。
                 // 它吃骰，所以基线打法按准备值排序时会自动把它排在后面——那和真人的分诊一致。
 
@@ -82,7 +82,7 @@ namespace SSNoir.Playtest
                 + $"；主角冷静 {driver.State.Team.FindActor("player")!.Composure}"
                 + $"，伤势 {driver.State.Team.Injury.Severity}"
                 + $"，队伍 {string.Join("/", driver.State.Team.Actors.Select(a => a.Name))}");
-            // 交锋临时请来的人必须已经离队，否则这里会当场抛错。
+            // Scenario临时请来的人必须已经离队，否则这里会当场抛错。
             driver.State.Team.Serialize();
         }
 

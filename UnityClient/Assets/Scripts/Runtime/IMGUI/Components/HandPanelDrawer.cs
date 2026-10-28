@@ -100,11 +100,11 @@ namespace SSNoir.IMGUI
             into.Add(new Rect(left, blockTop, right - left, blockH));
 
             // 休息键上方的随身消费卡也会接收拖放，世界卡必须让开完整卡面。
-            if (gameManager.DisplayedSnapshot.IsInEncounter)
+            if (gameManager.DisplayedSnapshot.IsInScenario)
             {
-                var carry = ActiveEncounterActionNodes(gameManager);
+                var carry = ActiveScenarioActionNodes(gameManager);
                 for (int i = 0; i < carry.Count; i++)
-                    into.Add(EncounterActionCardRect(carry, i, right, blockTop + 4f, gameManager));
+                    into.Add(ScenarioActionCardRect(carry, i, right, blockTop + 4f, gameManager));
             }
         }
 
@@ -242,7 +242,7 @@ namespace SSNoir.IMGUI
                 ClusterWidth(lead, isLead: true), h);
         }
 
-        /// <summary>右下角那个功能键（城里是「回家」，交锋里是「休息」）。</summary>
+        /// <summary>右下角那个功能键（城里是「回家」，Scenario里是「休息」）。</summary>
         public static Rect FunctionKeyRect(SSNoirGameManager gameManager)
         {
             Rect safe = UIScale.SafeArea;
@@ -262,7 +262,7 @@ namespace SSNoir.IMGUI
             return Mathf.Max(Mathf.Max(isLead ? 248f : 150f, diceW), 200f);
         }
 
-        // 功能键两边都只有一块：交锋里是「休息」，世界里是「回家」。
+        // 功能键两边都只有一块：Scenario里是「休息」，世界里是「回家」。
         // 功能键保持紧凑；随身消费动作已经改成上方的标准卡，不再决定这一列的宽度。
         private const float FunctionBlockW = 108f;
         private static float FunctionWidth(SSNoirGameManager gameManager) => FunctionBlockW;
@@ -1085,7 +1085,7 @@ namespace SSNoir.IMGUI
 
         private static void DrawItemsAndFunctions(float baseline, SSNoirGameManager gameManager, IMGUIInteractionContext ui)
         {
-            bool isInEncounter = gameManager.DisplayedSnapshot.IsInEncounter;
+            bool isInScenario = gameManager.DisplayedSnapshot.IsInScenario;
             float functionW = FunctionWidth(gameManager);
             // 功能键按 64 画在手机上是一块很大的砖；跟手牌方块取齐，一排读起来才是一排。
             float functionH = TokenSize;
@@ -1094,10 +1094,10 @@ namespace SSNoir.IMGUI
             // 名字在方块上方；物品、回家与左侧行动骰共享同一条底线。
             float itemY = baseline - TokenSize;
 
-            if (isInEncounter)
+            if (isInScenario)
             {
                 // 抽烟、喝酒是随身动作节点（engine.scm 的 carry-nodes，由 SceneManager 补进
-                // 每一场交锋），在休息键上方画成带物品槽、行动骰槽和执行钮的标准卡。
+                // 每一场Scenario），在休息键上方画成带物品槽、行动骰槽和执行钮的标准卡。
                 // 功能区只剩“结束回合”：它交出主动权，不吃任何资源。
                 var restRect = new Rect(functionX, functionY, functionW, functionH);
                 DrawnActionRects["结束回合"] = restRect;
@@ -1160,13 +1160,13 @@ namespace SSNoir.IMGUI
                 }
             }
 
-            if (isInEncounter)
-                DrawEncounterActionCards(functionX + functionW, functionY, gameManager, ui);
+            if (isInScenario)
+                DrawScenarioActionCards(functionX + functionW, functionY, gameManager, ui);
         }
 
         // ── 随身消费动作（右下角的动作卡）─────────────────────────
         // 烟、酒复用普通动作卡：物品槽和行动骰槽都是八角消费槽，填满后出现执行按钮。
-        // 唯一特殊之处是摆在随身区，不进入交锋自己的卡片网格。
+        // 唯一特殊之处是摆在随身区，不进入Scenario自己的卡片网格。
         // 物品名在方块上方。
         private const float ItemNameRowH = 15f;
 
@@ -1179,9 +1179,9 @@ namespace SSNoir.IMGUI
         // 标题区 3+22、下方留 6 间隙、执行钮 30、底边 5。
         private const float CompactNoSlotCardH = 3f + 22f + 6f + CompactExecuteH + 5f;
         private const float CarryCardGap = 12f;
-        // 非场景交锋动作共用一列。物品动作只在持有对应物品时出现；关系支援已经由
+        // 非场景Scenario动作共用一列。物品动作只在持有对应物品时出现；关系支援已经由
         // engine.scm 按当前携带者筛过，用掉后保留禁用卡，让玩家看见本场次数已经耗尽。
-        private static List<GameNode> ActiveEncounterActionNodes(SSNoirGameManager gameManager)
+        private static List<GameNode> ActiveScenarioActionNodes(SSNoirGameManager gameManager)
         {
             var list = new List<GameNode>();
             foreach (var node in gameManager.DisplayedSnapshot.CarryNodes)
@@ -1197,7 +1197,7 @@ namespace SSNoir.IMGUI
             return list;
         }
 
-        private static Rect EncounterActionCardRect(
+        private static Rect ScenarioActionCardRect(
             IReadOnlyList<GameNode> nodes, int index, float right, float bottom,
             SSNoirGameManager gameManager)
         {
@@ -1219,20 +1219,20 @@ namespace SSNoir.IMGUI
             throw new InvalidOperationException("随身消费卡索引越界");
         }
 
-        private static void DrawEncounterActionCards(
+        private static void DrawScenarioActionCards(
             float right, float bottom, SSNoirGameManager gameManager, IMGUIInteractionContext ui)
         {
-            var nodes = ActiveEncounterActionNodes(gameManager);
+            var nodes = ActiveScenarioActionNodes(gameManager);
             for (int i = 0; i < nodes.Count; i++)
-                DrawEncounterActionCard(nodes, i, right, bottom, gameManager, ui);
+                DrawScenarioActionCard(nodes, i, right, bottom, gameManager, ui);
         }
 
-        private static void DrawEncounterActionCard(
+        private static void DrawScenarioActionCard(
             IReadOnlyList<GameNode> nodes, int index, float right, float bottom,
             SSNoirGameManager gameManager, IMGUIInteractionContext ui)
         {
             var node = nodes[index];
-            var rect = EncounterActionCardRect(nodes, index, right, bottom, gameManager);
+            var rect = ScenarioActionCardRect(nodes, index, right, bottom, gameManager);
             DrawnActionRects[node.Id] = rect;
             if (!string.IsNullOrEmpty(node.CarryItemId)
                 && (node.Requires == null || node.Requires.Count != 2))
@@ -1264,7 +1264,7 @@ namespace SSNoir.IMGUI
                     $"关系支援「{node.Id}」不应有需求槽（见 engine.scm 的 support-frank），实际有 {requirements.Count} 个。");
             if (string.IsNullOrEmpty(node.SupportId) && string.IsNullOrEmpty(node.CarryItemId))
                 throw new InvalidOperationException(
-                    $"非场景交锋动作「{node.Id}」必须声明 :carry-item 或 :support。");
+                    $"非场景Scenario动作「{node.Id}」必须声明 :carry-item 或 :support。");
             int count = requirements.Count;
             float slotsW = count * CompactSlotSize + Mathf.Max(0, count - 1) * 6f;
             float slotX = rect.center.x - slotsW * 0.5f;

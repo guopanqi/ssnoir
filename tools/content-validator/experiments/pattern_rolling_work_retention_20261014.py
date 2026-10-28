@@ -79,7 +79,7 @@ def main():
 if __name__=='__main__':main()
 
 # Access-window ablation is intentionally a DIFFERENT protocol: A may be
-# worked only on days 0,1,4 in a five-day encounter. Proves that external
+# worked only on days 0,1,4 in a five-day scenario. Proves that external
 # action legality, not tweaking A reward, can make LOCK a feasibility gate.
 def solve_access_window(allow_lock=True,work_days=frozenset((0,1,4))):
     horizon=5

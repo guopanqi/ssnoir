@@ -7,7 +7,7 @@ for seed in ([] if saved else range(6301,6351)):
  try:
   for step in range(18):
    o=s.observation
-   if o['EncounterResult'] is not None:break
+   if o['ScenarioResult'] is not None:break
    ops=[x for x in o['Operations'] if x['Kind']=='action' and x['Card'].endswith('快做')]
    if ops:
     a,bb,c,t,h=K['state'](o)

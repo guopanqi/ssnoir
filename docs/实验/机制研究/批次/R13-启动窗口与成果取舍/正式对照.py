@@ -11,7 +11,7 @@ def clocks(o):return {c['Label']:c for c in o['Clocks']}
 def injury(o):return int(re.search(r'(\d+)/7',o['Injury'])[1])
 def result(o,kind):
  expr=r"\('(?P<status>settled|collapse) (?P<small>\d+) (?P<large>\d+) (?P<score>\d+) (?P<cold>\d+)\)" if kind=='harvest' else r"\('(?P<status>success|timeout|window-expired|collapse) (?P<prep>\d+) (?P<payload>\d+) (?P<elapsed>\d+) (?P<cold>\d+)\)"
- m=re.fullmatch(expr,o['EncounterResult']);assert m,o['EncounterResult'];return {k:v if k=='status' else int(v) for k,v in m.groupdict().items()}
+ m=re.fullmatch(expr,o['ScenarioResult']);assert m,o['ScenarioResult'];return {k:v if k=='status' else int(v) for k,v in m.groupdict().items()}
 def state(o,kind,commit=-1):
  c=clocks(o);p=player(o);hand=tuple(sorted(d['Value'] for d in p['Dice']))
  if kind=='harvest':return (3-c['小成果']['Current'],6-c['大成果']['Current'],p['Composure'],hand,commit)
@@ -31,7 +31,7 @@ def check(path,kind,growth=1,window=True):
  raw=json.loads(gzip.decompress(path.read_bytes()));outside=False;grades=set();opened=False;preheld=False;switched=False;last_route=None
  for step in raw['Steps']:
   before,after=step['Before'],step['After'];cb=clocks(before);pc=player(before)['Composure'];op=next(x for x in before['Operations'] if x['Id']==step['OperationId'])
-  ended=after['EncounterResult'] is not None;final=result(after,kind) if ended else None;collapsed=ended and final['status']=='collapse'
+  ended=after['ScenarioResult'] is not None;final=result(after,kind) if ended else None;collapsed=ended and final['status']=='collapse'
   if kind=='harvest':a,b=cb['小成果']['Current'],cb['大成果']['Current']
   else:p,q,t=cb['前置']['Current'],cb['后续']['Current'],cb['已过回合']['Current']
   if op['Kind']=='end-turn':
@@ -65,7 +65,7 @@ def check(path,kind,growth=1,window=True):
   outside|=injury(after)>0 or collapsed
   if kind=='harvest':assert injury(before)==0 and injury(after)==0,'正式健康单人首轮不应受伤'
   if ended:
-   assert not after['IsInEncounter'];assert final['cold']==player(after)['Composure']
+   assert not after['IsInScenario'];assert final['cold']==player(after)['Composure']
    if kind=='harvest':assert (final['small'],final['large'],final['score'])==(a,b,(1 if a==3 else 0)+(2 if b==6 else 0))
    else:assert (final['prep'],final['payload'],final['elapsed'])==(p,q,t)
   else:
@@ -76,7 +76,7 @@ def check(path,kind,growth=1,window=True):
     actions=[x['Card'] for x in after['Operations'] if x['Kind']=='action'];assert all(x.startswith('后续' if p==3 else '前置') for x in actions)
    if op['Kind']=='action':
     rest=[d['Value'] for d in player(before)['Dice']];rest.remove(op['DieValue']);assert sorted(rest)==sorted(d['Value'] for d in player(after)['Dice'])
- assert raw['Steps'][-1]['After']['EncounterResult'] is not None
+ assert raw['Steps'][-1]['After']['ScenarioResult'] is not None
  return dict(path=path.name,kind=kind,growth=growth,window=window,steps=len(raw['Steps']),revision=raw['ContentRevision'],result=result(raw['Steps'][-1]['After'],kind),model_out=outside,grades=sorted(grades),opened=opened,held_front=preheld,switched=switched)
 def replay(path):
  with tempfile.TemporaryDirectory(prefix='r13-replay-') as tmp:
@@ -95,14 +95,14 @@ def main():
   try:
    for _ in range(25):
     o=s.observation
-    if o['EncounterResult'] is not None:break
+    if o['ScenarioResult'] is not None:break
     outside|=injury(o)>0
     if not outside:
      st=state(o,kind,commit);models[name].value(*st);choice=models[name].decisions[st];op=operation(o,kind,choice)
      if kind=='harvest' and policy=='开局选定' and commit<0 and choice[0]!='结束回合':commit=choice[0]
     else:op=fallback(o,kind)
     s.act(op,'R13冻结条件新种子：只读公开进度、冷静、回合与当前手牌；窗口首伤后标为模型外。')
-   assert s.observation['EncounterResult'] is not None
+   assert s.observation['ScenarioResult'] is not None
    p=OUT/f'{name}-{seed}.json.gz';s.save(p);row=check(p,kind,g,window);row.update(policy=name,seed=seed);return row
   finally:s.close()
  with ThreadPoolExecutor(max_workers=4) as pool:rows=list(pool.map(play,jobs))

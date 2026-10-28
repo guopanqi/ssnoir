@@ -97,8 +97,8 @@
       ;; 不写清楚玩家转镜头都不知道该往哪转。
       (node "开始试运行"
         :subtitle "林和老乔在三号货栈的院子里"
-        :tags (list "交锋")
-        :resolve (instant (lambda () (start-encounter "码头试运行" 试运行结果!)))))
+        :tags (list "Scenario")
+        :resolve (instant (lambda () (start-scenario "码头试运行" 试运行结果!)))))
 
     (define (培训阶段)
       (cond ((< (培训进度 'current) 3) 0)

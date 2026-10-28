@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parents[3]
 
 
 def run(scene, policy, seed):
-    p = subprocess.Popen(['dotnet', 'run', '--no-build', '--project', 'tools/content-validator/SSNoir.ContentValidator.csproj', '--', '--session', 'encounters/实验·'+scene, '--seed', str(seed)], cwd=ROOT, stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True)
+    p = subprocess.Popen(['dotnet', 'run', '--no-build', '--project', 'tools/content-validator/SSNoir.ContentValidator.csproj', '--', '--session', 'scenarios/实验·'+scene, '--seed', str(seed)], cwd=ROOT, stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True)
     def read():
         r = json.loads(p.stdout.readline())
         if r['type'] == 'error': raise RuntimeError(r['message'])
@@ -19,7 +19,7 @@ def run(scene, policy, seed):
         return read()
     o = read()['observation']
     for _ in range(45):
-        if o['EncounterResult'] is not None: break
+        if o['ScenarioResult'] is not None: break
         ops = o['Operations']
         clocks = {c['Label']:c['Current'] for c in o['Clocks']}
         def card(name, high=False):
@@ -49,7 +49,7 @@ def run(scene, policy, seed):
         directory=ROOT/'docs'/'实验'/scene/'对照记录';directory.mkdir(parents=True,exist_ok=True)
         with gzip.open(directory/f'{policy}-{seed}.json.gz','wb') as f: f.write(raw.read_bytes())
     send({'command':'quit'});p.wait()
-    result={'scene':scene,'policy':policy,'seed':seed,'result':o['EncounterResult'],'injury':o['Injury'],'calm':o['Actors'][0]['Composure']}
+    result={'scene':scene,'policy':policy,'seed':seed,'result':o['ScenarioResult'],'injury':o['Injury'],'calm':o['Actors'][0]['Composure']}
     print(json.dumps(result,ensure_ascii=False),flush=True)
     return result
 

@@ -9,14 +9,14 @@ ROOT=Path(__file__).resolve().parents[3]
 
 
 def run(scene, policy, seed):
- p=subprocess.Popen(['dotnet','run','--no-build','--project','tools/content-validator/SSNoir.ContentValidator.csproj','--','--session','encounters/实验·'+scene,'--seed',str(seed)],cwd=ROOT,stdin=subprocess.PIPE,stdout=subprocess.PIPE,text=True)
+ p=subprocess.Popen(['dotnet','run','--no-build','--project','tools/content-validator/SSNoir.ContentValidator.csproj','--','--session','scenarios/实验·'+scene,'--seed',str(seed)],cwd=ROOT,stdin=subprocess.PIPE,stdout=subprocess.PIPE,text=True)
  def read():
   r=json.loads(p.stdout.readline());assert r['type']!='error',r;return r
  def send(c):
   p.stdin.write(json.dumps(c,ensure_ascii=False)+'\n');p.stdin.flush();return read()
  o=read()['observation']
  for _ in range(65):
-  if o['EncounterResult'] is not None:break
+  if o['ScenarioResult'] is not None:break
   ops=o['Operations'];clock={c['Label']:c['Current'] for c in o['Clocks']}
   def pick(name,high=False):
    xs=[a for a in ops if a['Card']==name]
@@ -45,7 +45,7 @@ def run(scene, policy, seed):
   directory=ROOT/'docs'/'实验'/scene/'对照记录';directory.mkdir(parents=True,exist_ok=True)
   with gzip.open(directory/f'{policy}-{seed}.json.gz','wb') as f:f.write(raw.read_bytes())
  send({'command':'quit'});p.wait()
- r={'scene':scene,'policy':policy,'seed':seed,'result':o['EncounterResult'],'calm':o['Actors'][0]['Composure'],'injury':o['Injury']}
+ r={'scene':scene,'policy':policy,'seed':seed,'result':o['ScenarioResult'],'calm':o['Actors'][0]['Composure'],'injury':o['Injury']}
  print(json.dumps(r,ensure_ascii=False),flush=True);return r
 
 if __name__=='__main__':

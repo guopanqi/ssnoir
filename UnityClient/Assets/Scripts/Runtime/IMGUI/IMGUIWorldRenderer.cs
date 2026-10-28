@@ -42,7 +42,7 @@ namespace SSNoir.IMGUI
         // A layout context is a *scene*, not the currently active camera.
         // Camera travel completion is deliberately not an invalidation event.
         private string? _labelLayoutRoot;
-        private bool _labelLayoutEncounter;
+        private bool _labelLayoutScenario;
         private Rect _labelLayoutSafeArea;
         private bool _hasLabelLayoutContext;
         // 结果停留：结算演完、新快照采纳前，结果条挂在宿主卡下面的那几秒。键是动作名。
@@ -1305,7 +1305,7 @@ namespace SSNoir.IMGUI
             if (_consoleDrawerHost != null && !armedConsoleIds.Contains(_consoleDrawerHost))
                 _consoleDrawerHost = armedConsoleIds.FirstOrDefault();
             bool pointerOnFixedHud = topHud.Bar.Contains(worldUi.Mouse)
-                || topHud.FunctionPlate(!_gameManager.DisplayedSnapshot.IsInEncounter).Contains(worldUi.Mouse)
+                || topHud.FunctionPlate(!_gameManager.DisplayedSnapshot.IsInScenario).Contains(worldUi.Mouse)
                 || _pinStripRect.Contains(worldUi.Mouse)
                 || _sceneBandOccupiedRects.Any(rect => rect.Contains(worldUi.Mouse));
             var cardOverlayUi = pointerOnFixedHud ? worldUi.Occluded() : worldUi;
@@ -1329,11 +1329,11 @@ namespace SSNoir.IMGUI
             IMGUIStyles.EndLayer(attachmentRestore);
             DrawGhostsAndFloatingAttachments(cardOverlayUi);
             // 固定 UI 最后盖住世界卡、引线及其附件。
-            if (!_gameManager.DisplayedSnapshot.IsInEncounter)
+            if (!_gameManager.DisplayedSnapshot.IsInScenario)
                 DossierPanelDrawer.DrawPinStrip(_gameManager, topHud.FunctionPlate(true).yMax + 8f);
             if (_sceneBandNotes.Count > 0)
                 AnnotationDrawer.DrawSceneBand(_sceneBandNotes, topHud.ContentTop, _pinStripRect);
-            bool showDossierPlate = !_gameManager.DisplayedSnapshot.IsInEncounter;
+            bool showDossierPlate = !_gameManager.DisplayedSnapshot.IsInScenario;
             Rect functionPlate = topHud.FunctionPlate(showDossierPlate);
             IMGUIStyles.SetColor(IMGUIStyles.FunctionSlotBg);
             GUI.DrawTexture(functionPlate, Texture2D.whiteTexture);
@@ -1355,8 +1355,8 @@ namespace SSNoir.IMGUI
             // 面板，避免两个居中纸卡模态叠在一起抢点击。调试的开关直接在顶栏，面板挂在它自己下面。
             var lockedPanelUi = _windowStack.MakeContext(IMGUIWindowLayer.Panel, true);
 
-            // 卷宗：城里的事，交锋里不给入口。
-            if (!_gameManager.DisplayedSnapshot.IsInEncounter)
+            // 卷宗：城里的事，Scenario里不给入口。
+            if (!_gameManager.DisplayedSnapshot.IsInScenario)
             {
                 bool dossierWasOpen = DossierPanelDrawer.IsOpen;
                 DossierPanelDrawer.Draw(_gameManager, _isGrowthPanelOpen ? lockedPanelUi : panelUi, topHud);
@@ -1368,7 +1368,7 @@ namespace SSNoir.IMGUI
             }
             else
             {
-                // 交锋开场时把它收起来：否则打完回到城里，面板会自己弹回来。
+                // Scenario开场时把它收起来：否则打完回到城里，面板会自己弹回来。
                 DossierPanelDrawer.Close();
             }
 
@@ -1829,8 +1829,8 @@ namespace SSNoir.IMGUI
             // 它挂在右上角功能槽下面，和功能槽同一右缘，位置**恒定**：玩家每天要看的就是
             // 这几句，眼睛该知道往哪儿落，只往右上角落一次。所以让位的是标注带——
             // 标注是"这一场是什么样子"，一天里换好几副面孔，本来就该跟着环境走。
-            // 交锋里不画：那时候没有别的线可想。
-            _pinStripRect = _gameManager.DisplayedSnapshot.IsInEncounter
+            // Scenario里不画：那时候没有别的线可想。
+            _pinStripRect = _gameManager.DisplayedSnapshot.IsInScenario
                 ? new Rect(0f, 0f, 0f, 0f)
                 : DossierPanelDrawer.MeasurePinStrip(_gameManager,
                     _topHud.FunctionPlate(true).yMax + 8f);
@@ -2324,12 +2324,12 @@ namespace SSNoir.IMGUI
             string root = snapshot.RootNode?.Id ?? string.Empty;
             if (_hasLabelLayoutContext
                 && string.Equals(root, _labelLayoutRoot, StringComparison.Ordinal)
-                && _labelLayoutEncounter == snapshot.IsInEncounter
+                && _labelLayoutScenario == snapshot.IsInScenario
                 && _labelLayoutSafeArea.Equals(UIScale.SafeArea))
                 return;
 
             _labelLayoutRoot = root;
-            _labelLayoutEncounter = snapshot.IsInEncounter;
+            _labelLayoutScenario = snapshot.IsInScenario;
             _labelLayoutSafeArea = UIScale.SafeArea;
             _hasLabelLayoutContext = true;
             _labelPlacements.Clear();
@@ -2808,7 +2808,7 @@ namespace SSNoir.IMGUI
 
         /// <summary>
         /// 某个动作此刻的「执行中」进度。原来这只服务画成卡的节点（进度条画在执行钮里），
-        /// 于是没有执行钮的两处——右下角的随身挂件（抽烟）和交锋里的休息键——
+        /// 于是没有执行钮的两处——右下角的随身挂件（抽烟）和Scenario里的休息键——
         /// 明明也在播同一段演出，却什么都不显示。改成按名字问，谁都能来取。
         /// </summary>
         public (bool IsExecuting, float Progress, string Text) GetExecutionState(string nodeId)
@@ -2977,7 +2977,7 @@ namespace SSNoir.IMGUI
 
             var sourceNode = _gameManager.VisibleNodes.FirstOrDefault(node =>
                 string.Equals(node.Id, actionNodeId, StringComparison.Ordinal));
-            // 功能键（交锋里的休息）从来不是一张卡：没有宿主就没有残影可挂。
+            // 功能键（Scenario里的休息）从来不是一张卡：没有宿主就没有残影可挂。
             // 否则它的回合账会顶着浮空牌子压在转场演出上，和散场对白叠在一起。
             if (sourceNode == null)
                 return null;
@@ -3241,7 +3241,7 @@ namespace SSNoir.IMGUI
                 => space.Reserve(rect, WorldLabelLayout.ZoneKind.Hard, blocksInput);
 
             Hard(_topHud.Bar, false);
-            Hard(_topHud.FunctionPlate(!_gameManager.DisplayedSnapshot.IsInEncounter));
+            Hard(_topHud.FunctionPlate(!_gameManager.DisplayedSnapshot.IsInScenario));
             Hard(_topHud.Back);
             Hard(_topHud.GrowthToggle);
             Hard(_topHud.DossierToggle);

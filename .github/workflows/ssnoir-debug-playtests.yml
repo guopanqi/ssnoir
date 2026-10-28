@@ -1,13 +1,13 @@
-name: SSNoir Curated Debug Encounters
+name: SSNoir Curated Debug Scenarios
 on:
   workflow_dispatch:
   push:
     branches: [main]
     paths:
       - '.github/workflows/ssnoir-debug-playtests.yml'
-      - 'UnityClient/Assets/Resources/DemoEncounters.json'
+      - 'UnityClient/Assets/Resources/DemoScenarios.json'
       - 'UnityClient/Assets/Resources/DebugResearchPlaytests.json'
-      - 'UnityClient/Assets/Scripts/Runtime/IMGUI/Components/DebugEncounterCatalog.cs'
+      - 'UnityClient/Assets/Scripts/Runtime/IMGUI/Components/DebugScenarioCatalog.cs'
       - 'UnityClient/Assets/Scripts/Runtime/IMGUI/Components/DebugPanelDrawer.cs'
       - 'UnityClient/Assets/Scripts/Runtime/IMGUI/Components/SceneDropdownDrawer.cs'
       - 'tools/content-validator/experiments/validate_debug_playtests.py'

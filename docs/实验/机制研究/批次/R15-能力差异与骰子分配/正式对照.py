@@ -11,7 +11,7 @@ def clocks(o):return {c['Label']:c for c in o['Clocks']}
 def state(o):
  c=clocks(o);return (3-c['工作甲']['Current'],3-c['工作乙']['Current'],tuple(sorted(d['Value'] for d in player(o)['Dice'])))
 def result(o):
- m=re.fullmatch(r"\('(?P<status>success|timeout|collapse) (?P<a>\d+) (?P<b>\d+) (?P<cold>\d+)\)",o['EncounterResult']);assert m,o['EncounterResult'];return {k:v if k=='status' else int(v) for k,v in m.groupdict().items()}
+ m=re.fullmatch(r"\('(?P<status>success|timeout|collapse) (?P<a>\d+) (?P<b>\d+) (?P<cold>\d+)\)",o['ScenarioResult']);assert m,o['ScenarioResult'];return {k:v if k=='status' else int(v) for k,v in m.groupdict().items()}
 def operation(o,ch):
  route,act,d=ch
  if route=='结束回合':return next(op for op in o['Operations'] if op['Kind']=='end-turn')
@@ -31,7 +31,7 @@ def check(path,growth=1,bonus=1):
  raw=json.loads(gzip.decompress(path.read_bytes()));grades=set();counterstates=[]
  for step in raw['Steps']:
   before,after=step['Before'],step['After'];cb=clocks(before);aa,bb=cb['工作甲']['Current'],cb['工作乙']['Current'];pc=player(before)['Composure']
-  op=next(x for x in before['Operations'] if x['Id']==step['OperationId']);ended=after['EncounterResult'] is not None
+  op=next(x for x in before['Operations'] if x['Id']==step['OperationId']);ended=after['ScenarioResult'] is not None
   if op['Kind']=='end-turn':cost=1;assert ended and result(after)['status']=='timeout'
   else:
    grade=next(e['Text'].split('，')[0].split('：')[1] for e in step['Events'] if e['Text'].startswith('判定：'));grades.add(grade);j={'Fail':0,'Neutral':1,'Success':2}[grade]
@@ -45,14 +45,14 @@ def check(path,growth=1,bonus=1):
   assert player(after)['Composure']==pc-cost and pc-cost>=0
   assert int(re.search(r'(\d+)/7',before['Injury'])[1])==0 and int(re.search(r'(\d+)/7',after['Injury'])[1])==0
   if ended:
-   f=result(after);assert (f['a'],f['b'],f['cold'])==(aa,bb,pc-cost);assert not after['IsInEncounter']
+   f=result(after);assert (f['a'],f['b'],f['cold'])==(aa,bb,pc-cost);assert not after['IsInScenario']
   else:
    ca=clocks(after);assert (ca['工作甲']['Current'],ca['工作乙']['Current'])==(aa,bb)
    rest=[d['Value'] for d in player(before)['Dice']];rest.remove(op['DieValue']);assert sorted(rest)==sorted(d['Value'] for d in player(after)['Dice'])
    cards=[x['Card'] for x in after['Operations'] if x['Kind']=='action']
    if aa==3:assert all(not x.startswith('甲') for x in cards)
    if bb==3:assert all(not x.startswith('乙') for x in cards)
- assert raw['Steps'][-1]['After']['EncounterResult'] is not None
+ assert raw['Steps'][-1]['After']['ScenarioResult'] is not None
  return dict(path=path.name,growth=growth,bonus=bonus,revision=raw['ContentRevision'],steps=len(raw['Steps']),result=result(raw['Steps'][-1]['After']),grades=sorted(grades),counterstates=counterstates)
 def replay(path):
  with tempfile.TemporaryDirectory(prefix='r15-replay-') as tmp:
@@ -69,7 +69,7 @@ def main():
   try:
    for _ in range(8):
     o=s.observation
-    if o['EncounterResult'] is not None:break
+    if o['ScenarioResult'] is not None:break
     st=state(o)
     if groups is None:m.value(*st);choice=m.decisions[st]
     else:
@@ -78,7 +78,7 @@ def main():
      choice=('结束回合',None,None) if act=='结束回合' else (route,act,d)
      if act!='结束回合':groups[route].remove(d)
     op=operation(o,choice);s.act(op,'R15冻结条件新种子：公开手牌与剩余目标；固定分区只在开局分配，组内根据结果优化。')
-   assert s.observation['EncounterResult'] is not None
+   assert s.observation['ScenarioResult'] is not None
    p=OUT/f'{name}-{seed}.json.gz';s.save(p);row=check(p,g,bonus);row.update(policy=name,seed=seed);return row
   finally:s.close()
  with ThreadPoolExecutor(max_workers=4) as pool:rows=list(pool.map(play,jobs))
@@ -86,7 +86,7 @@ def main():
   s=H['Session']('研究·按需用骰' if bonus else '研究·同等判定对照',seed)
   try:
    s.act(operation(s.observation,('结束回合',None,None)),'边界：单回合空过立即到期。')
-   assert s.observation['EncounterResult']=="('timeout 0 0 4)"
+   assert s.observation['ScenarioResult']=="('timeout 0 0 4)"
    p=OUT/f'边界-空过-{bonus}.json.gz';s.save(p);rows.append(check(p,1,bonus))
   finally:s.close()
  paths=sorted(OUT.glob('*.json.gz'))

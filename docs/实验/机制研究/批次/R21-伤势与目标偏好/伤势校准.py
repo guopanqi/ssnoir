@@ -12,7 +12,7 @@ for folder,row in [(folder,row) for folder,rows in sources for row in rows]:
  if row['growth']!=1:continue
  raw=json.loads(gzip.decompress((folder/row['path']).read_bytes()))
  for step in raw['Steps']:
-  before,after=step['Before'],step['After'];c=H['player'](before)['Composure'];k,q=health(before);kk,qq=health(after);op=next(x for x in before['Operations'] if x['Id']==step['OperationId']);ended=after['EncounterResult'] is not None;collapse=ended and H['result'](after)['status']=='collapse'
+  before,after=step['Before'],step['After'];c=H['player'](before)['Composure'];k,q=health(before);kk,qq=health(after);op=next(x for x in before['Operations'] if x['Id']==step['OperationId']);ended=after['ScenarioResult'] is not None;collapse=ended and H['result'](after)['status']=='collapse'
   if op['Kind']=='action':
    d=op['DieValue'];public=H['H']['odds'](op['Odds']);expect=M['ODDS'](d,1-q)
    assert all(abs(public[label]-p)<1e-12 for label,p in zip(('坏','中','好'),expect)),(row['path'],before['Injury'],op)

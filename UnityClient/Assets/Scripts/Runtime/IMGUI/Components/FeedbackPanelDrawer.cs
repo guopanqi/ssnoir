@@ -9,7 +9,7 @@ namespace SSNoir.IMGUI
         private readonly FeedbackClient _client = new();
         private string _draft = string.Empty;
         private string _location = string.Empty;
-        private bool _inEncounter;
+        private bool _inScenario;
         private int _worldDay;
         private FeedbackClient.Submission? _pending;
         private string _error = string.Empty;
@@ -44,7 +44,7 @@ namespace SSNoir.IMGUI
                 _location = manager.DisplayedSnapshot.RootNode?.Name ?? UiText.Get("未加载");
                 if (manager.NavigationStack.Count > 0)
                     _location += " > " + string.Join(" > ", manager.NavigationStack.ConvertAll(n => n.Name));
-                _inEncounter = manager.DisplayedSnapshot.IsInEncounter;
+                _inScenario = manager.DisplayedSnapshot.IsInScenario;
                 _worldDay = manager.DisplayedSnapshot.WorldDay;
             }
             IsOpen = true;
@@ -136,7 +136,7 @@ namespace SSNoir.IMGUI
             {
                 GUI.FocusControl(null);
                 _pending ??= new FeedbackClient.Submission { text = _draft, version = Application.version,
-                    location = _location, inEncounter = _inEncounter, worldDay = _worldDay };
+                    location = _location, inScenario = _inScenario, worldDay = _worldDay };
                 _error = string.Empty;
                 owner.StartCoroutine(_client.Submit(_pending, (saved, status) =>
                 {

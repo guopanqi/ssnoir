@@ -1,4 +1,4 @@
-"""小交锋的有限状态数学分析，不是游戏运行器。
+"""小Scenario的有限状态数学分析，不是游戏运行器。
 
 概率从正式会话的 Odds 读取；参数从正式配置读取。回合新手牌按当前
 无伤主角四枚独立均匀d6枚举。目标先最大化成功概率，概率相同时减少
@@ -45,7 +45,7 @@ class Solver:
     def __init__(self,family,variant,growth,probabilities,objective="保守"):
         self.objective=objective
         self.family,self.variant,self.growth=family,variant,growth
-        path=ROOT/f'UnityClient/Assets/Resources/Content/scenes/encounters/研究·{variant}.scm'
+        path=ROOT/f'UnityClient/Assets/Resources/Content/scenes/scenarios/研究·{variant}.scm'
         self.parameters={k:int(v) for k,v in re.findall(r'\(define ([^\s]+) (\d+)\)',path.read_text())}
         self.target=self.parameters['目标上限'];self.turns=self.parameters['回合上限']
         self.probabilities=probabilities

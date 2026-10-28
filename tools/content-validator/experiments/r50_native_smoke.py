@@ -8,7 +8,7 @@ from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[3]
 CMD=['dotnet','run','--no-build','--project','tools/content-validator/SSNoir.ContentValidator.csproj','--']
-ENTRY='encounters/研究·动作回声'
+ENTRY='scenarios/研究·动作回声'
 
 
 def one(seed:int, growth:int, pattern:str, output:Path)->dict:
@@ -36,7 +36,7 @@ def one(seed:int, growth:int, pattern:str, output:Path)->dict:
         assert a[0]['Prepared']==b[0]['Prepared'],'开局不得有回声'
         steps=0
         verified_mod=False
-        while obs['EncounterResult'] is None and steps<9:
+        while obs['ScenarioResult'] is None and steps<9:
             if steps == 0:
                 opts=options(obs,'推进甲')
                 die=min(opts,key=lambda o:o['DieValue'])
@@ -59,7 +59,7 @@ def one(seed:int, growth:int, pattern:str, output:Path)->dict:
                     assert abs(pair[0]['Prepared']-pair[1]['Prepared'])==2, pair
                     verified_mod=True
         assert verified_mod, '未读取到真实动态准备值'
-        assert obs['EncounterResult'] is not None, '必须终局'
+        assert obs['ScenarioResult'] is not None, '必须终局'
         path=output/f'{seed}-{growth}-{pattern}.json'
         saved=cmd({'command':'save','path':str(path)})
         assert saved['type']=='saved'
@@ -68,7 +68,7 @@ def one(seed:int, growth:int, pattern:str, output:Path)->dict:
         assert p.returncode==0
         check=subprocess.run(CMD+['--replay',str(path)],cwd=ROOT,capture_output=True,text=True,timeout=90)
         assert check.returncode==0,check.stdout+check.stderr
-        return {'seed':seed,'growth':growth,'pattern':pattern,'result':obs['EncounterResult'],
+        return {'seed':seed,'growth':growth,'pattern':pattern,'result':obs['ScenarioResult'],
                 'steps':steps,'dynamic_odds_verified':verified_mod,'replay':'pass'}
     finally:
         if p.poll() is None:

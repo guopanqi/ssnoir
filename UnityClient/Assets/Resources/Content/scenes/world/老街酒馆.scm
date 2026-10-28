@@ -29,7 +29,7 @@
       ;; 她每天都在酒馆唱歌。打工后的相遇，不额外收一枚骰子。
       (第一幕 'on-tavern-work! "看场"))
     (define (on-watch-result result)
-      (if (member? result '(success fail)) #t (error "看场：未知交锋结果"))
+      (if (member? result '(success fail)) #t (error "看场：未知Scenario结果"))
       (set! watch-trouble "")
 
       (if (eq? result 'success)
@@ -52,8 +52,8 @@
             :subtitle "让两桌人都冷静下来，另付工钱"
             :required-before-rest "先平息两桌醉客的争吵"
             :resolve (instant (outcome (lambda ()
-              (start-encounter "醉客互相叫骂" on-watch-result)))))))))
-    ;; 交锋超时后两桌醉客自然散场，额外报酬随之失效。
+              (start-scenario "醉客互相叫骂" on-watch-result)))))))))
+    ;; Scenario超时后两桌醉客自然散场，额外报酬随之失效。
     (define-turn-start-rule "酒馆闹事自然散场"
       (lambda () (not (equal? watch-trouble "")))
       (lambda ()
@@ -515,14 +515,14 @@
     ;; 同价、同效果、共用同一次"当天第一杯"；酒价下调后，只保留酒馆当场喝的那杯。
     ;; 家里那张「喝酒」跟着一起删了：酒买不到了，那张卡就永远是灰的。
 
-    ;; 烟只在交锋里有用：兜里有烟，那一场的树上就多一张「抽烟」卡（见 engine.scm 的
-;; carry-nodes）。投一颗行动骰抽掉，恢复 2 点冷静。交锋每回合自动流失 1，
+    ;; 烟只在Scenario里有用：兜里有烟，那一场的树上就多一张「抽烟」卡（见 engine.scm 的
+;; carry-nodes）。投一颗行动骰抽掉，恢复 2 点冷静。Scenario每回合自动流失 1，
 ;; 所以一根烟买回来的是两个回合——这是它值 20 美元的理由，也是它的单位。
 ;; 它要投骰是故意的：走到旁边点一根烟本来就花掉了一段时间，角落里不该有免费按钮。
 ;; 骰面不参与结算，所以那是全场唯一一处该把最烂那颗骰扔进去的地方。
 ;; 开局自带两根（见 GameState），玩家不用先学规则再来买。
     ;; 买东西的卡不写副标题：标题已经说了买的是什么，价钱由需求格显示，
-    ;; 烟能干什么在交锋里那张卡上写。这里再写一遍只是把两张购买卡撑成两段话。
+    ;; 烟能干什么在Scenario里那张卡上写。这里再写一遍只是把两张购买卡撑成两段话。
     (define (node-buy-cigarettes)
       (node "买烟"
         :anchor "老街酒馆-购买"
@@ -749,7 +749,7 @@
           ((equal? msg 'load!)
            (let ((data (cadr args)))
              (set! watch-first? (assoc-get data "watch-first?" #t))
-             ;; 旧存档中首次交锋发生在第一次看场；将其视为已介绍，避免重新强制播放。
+             ;; 旧存档中首次Scenario发生在第一次看场；将其视为已介绍，避免重新强制播放。
              (set! watch-count (assoc-get data "watch-count" (if watch-first? 0 3)))
              (if (member? watch-count '(0 1 2 3)) #t
                (error "看场存档：看场次数非法"))

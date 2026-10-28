@@ -12,7 +12,7 @@
   (if 完成? (error "行动信息研究：重复结算") #t)
   (set! 完成? #t)
   (spotlight! 研究名称 text)
-  (end-encounter (信息结果 status)))
+  (end-scenario (信息结果 status)))
 (define (信息推进! 方向 n)
   (if (or 完成? (hospitalization-pending?)) #f
     (let ((钟 (if (eq? 方向 'A) 路程A 路程B))
@@ -49,7 +49,7 @@
 (define-opponent-rule "机会结束"
   (lambda () (not 完成?))
   (lambda () (信息结束! 'timeout "回合结束，没有路线完成。")))
-(define (on-encounter-collapse) (collapse-result (信息结果 'collapse)))
+(define (on-scenario-collapse) (collapse-result (信息结果 'collapse)))
 (define (get-render-data)
   (container 研究名称
     (append

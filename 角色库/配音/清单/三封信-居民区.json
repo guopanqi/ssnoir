@@ -54,7 +54,7 @@
       "speaker": "楼上的女人",
       "text": "是你吗？我还当是认错了——",
       "style": "四十多岁的港口居民区女人，略哑；认出旧人时意外，话没说完。",
-      "sourcePath": "warren-encounter!/east-entry/1/1"
+      "sourcePath": "warren-scenario!/east-entry/1/1"
     },
     {
       "id": "三封信/居民区/东侧门廊/烟盒指路/01/柜台后的人/01",
@@ -82,10 +82,10 @@
       "speaker": "世界",
       "text": "你问了几次，都是一样的结果。直到她开口，人们才有所回应。",
       "style": "中文黑色电影风格的环境叙述，四十岁上下的男声，低沉、平静、克制；像在潮湿的港口回廊里陈述眼前所见，不煽情，节奏自然利落。",
-      "sourcePath": "warren-encounter!/east-gallery/1/1"
+      "sourcePath": "warren-scenario!/east-gallery/1/1"
     },
     {
-      "sourcePath": "warren-encounter!/west-stairs/1/1",
+      "sourcePath": "warren-scenario!/west-stairs/1/1",
       "id": "三封信/居民区/西侧楼梯/01/楼梯上的女人",
       "speaker": "楼梯上的女人",
       "text": "你看你看——那不就是她吗？她还回来了。",
@@ -96,7 +96,7 @@
       "speaker": "世界",
       "text": "在那些你已经认不清方向的路口，她甚至不需要看，直接向右拐了进去。",
       "style": "中文黑色电影风格的环境叙述，四十岁上下男声，低沉、平静、克制；像在旧楼桥廊里陈述两人前行。",
-      "sourcePath": "warren-encounter!/west-bridge/1/1"
+      "sourcePath": "warren-scenario!/west-bridge/1/1"
     },
     {
       "id": "三封信/居民区/西侧楼梯/阻碍/01/楼梯口的人",

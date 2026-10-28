@@ -2,7 +2,7 @@
 
 2026-10-02。开始检查多回合组合是否持续产生可理解的判断。第一组是整段完成与冷静延续/恢复，优先试这两场，不用重新试完以前所有入口。求解结果放在[研究记录](研究记录.md)，建议玩完再读。
 
-在现有“交锋测试（直接进入）”中选择：
+在现有“Scenario测试（直接进入）”中选择：
 
 1. **研究·整段留力**：回合末未完成的工作清零。
 2. **研究·进度保留对照**：只取消清零，其他规则完全相同。
@@ -36,8 +36,8 @@
 ## 原生入口与恢复
 
 ```bash
-./run --session encounters/研究·整段留力 --seed 6107 --growth 1
-./run --session encounters/研究·进度保留对照 --seed 6120 --growth 1
+./run --session scenarios/研究·整段留力 --seed 6107 --growth 1
+./run --session scenarios/研究·进度保留对照 --seed 6120 --growth 1
 ```
 
 [版本记录](版本.json)绑定源文件、模型和[运行快照](运行快照.tar.gz)。快照含全Content、原生构建与本批分析/验证脚本和共同依赖，不是完整Unity工程。解压到新目录，用其中`tools/content-validator/bin/Debug/net9.0/SSNoir.ContentValidator.dll --replay`回放本批`正式对照/*.json.gz`解压后的JSON；需要兼容.NET。数学计算使用Python3。

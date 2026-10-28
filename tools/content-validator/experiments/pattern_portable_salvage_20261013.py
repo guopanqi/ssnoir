@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""REL-03: A preserved partial result becomes a method in the NEXT encounter.
+"""REL-03: A preserved partial result becomes a method in the NEXT scenario.
 
 Frozen two-stage abstract decision game; exact Fraction and exhaustive DP.
 This is not a player evaluation or proof of novel gameplay. A previous USE is
@@ -32,7 +32,7 @@ def study(*,first_slot_required=False,matching_probability=Q(3,4)):
     N_early=future("N",0,True,False,False)
     M_later=future("M",0,False,False,False)
     N_later=future("N",0,False,False,False)
-    # At the end of the first encounter there is one remaining action slot.
+    # At the end of the first scenario there is one remaining action slot.
     # SECURE creates one credential, forfeiting a SIDE action worth 2.
     # WAIT takes the SIDE=2 and keeps no credential.
     prepare=p*M_early[0]+(1-p)*N_early[0]

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """R54-RV03: abstract exact reachability of actual R54 Scheme step/attack order.
 This is NOT dice-weighted: every gain 0/1/2 is treated as a possible label.
-Encounter goals A3 or B5, stops at FIRST completed goal; 4 moves maximum;
+Scenario goals A3 or B5, stops at FIRST completed goal; 4 moves maximum;
 after moves 2 or 4, if not already completed, pursuer subtracts 2 progress
 from the leading goal, ties A. Enumerate all live action/outcome prefixes;
 do not mistake branch-count proportions for real player probabilities.

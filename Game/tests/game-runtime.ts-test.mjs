@@ -50,17 +50,17 @@ test("stage 2 runs actual item helper contracts, including smoking cap, transact
   assert.equal(state.getItemCount("金钱"), 20);
 });
 
-test("world/encounter VMs keep Scheme bindings isolated while sharing typed native state", async () => {
+test("world/scenario VMs keep Scheme bindings isolated while sharing typed native state", async () => {
   const state = new GameRuntimeState();
   const world = await create("phase2-world", state);
-  const encounter = await create("phase2-encounter", state);
+  const scenario = await create("phase2-scenario", state);
   await world.evaluate('(define stage-local 17)');
-  await encounter.evaluate('(define stage-local 2)');
+  await scenario.evaluate('(define stage-local 2)');
   assert.equal(await world.evaluateNumber('stage-local'), 17);
-  assert.equal(await encounter.evaluateNumber('stage-local'), 2);
+  assert.equal(await scenario.evaluateNumber('stage-local'), 2);
   await world.evaluate('(begin (set-global! \'线索已看  #t) (add-item! "情报" 1))');
-  assert.equal(await encounter.evaluate("(get-global '线索已看)"), true);
-  assert.equal(await encounter.evaluateNumber('(item-count "情报")'), 1);
+  assert.equal(await scenario.evaluate("(get-global '线索已看)"), true);
+  assert.equal(await scenario.evaluateNumber('(item-count "情报")'), 1);
 });
 
 test("round/rest blocking helpers preserve ordering and save without Scheme closures", async () => {

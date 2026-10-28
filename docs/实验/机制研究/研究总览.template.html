@@ -68,7 +68,7 @@
 </section>
 <section class="wb-page hidden" id="library">
 <div class="simple-heading"><div><span class="section-label">PATTERN LANGUAGE / 可供设计的模式</span><h1>模式目录</h1><p class="simple-subtitle">从已经在作品中使用的结构、实验发现与组合边界中挑选材料。是否经过真人反馈、是否进入精选、是否适合当前情境，是不同的判断。</p></div><span class="simple-count" id="lib-count"></span></div>
-<div class="library-filters"><input type="search" id="lib-search" aria-label="搜索决策模式" placeholder="搜索模式、玩家决策、研究编号"><select id="lib-layer" aria-label="按模式类型筛选"><option value="all">全部尺度</option><option value="decision-relation">基础决策关系</option><option value="encounter-structure">交锋结构</option><option value="combination">组合与边界</option></select><select id="lib-origin" aria-label="按证据来源筛选"><option value="all">全部来源</option><option value="published-game-analysis">成熟作品先例</option><option value="ssnoir-research">本实验研究</option><option value="other">组合与开放问题</option></select><label class="lib-only"><input type="checkbox" id="lib-picked-only"> 仅看已加入</label></div>
+<div class="library-filters"><input type="search" id="lib-search" aria-label="搜索决策模式" placeholder="搜索模式、玩家决策、研究编号"><select id="lib-layer" aria-label="按模式类型筛选"><option value="all">全部尺度</option><option value="decision-relation">基础决策关系</option><option value="scenario-structure">Scenario结构</option><option value="combination">组合与边界</option></select><select id="lib-origin" aria-label="按证据来源筛选"><option value="all">全部来源</option><option value="published-game-analysis">成熟作品先例</option><option value="ssnoir-research">本实验研究</option><option value="other">组合与开放问题</option></select><label class="lib-only"><input type="checkbox" id="lib-picked-only"> 仅看已加入</label></div>
 <div class="library-layout"><div class="library-list" id="lib-list" aria-label="可筛选模式列表"></div><aside class="library-detail" id="lib-detail" aria-live="polite"></aside></div>
 <section class="library-compose"><div class="simple-section-title"><h2>组合用于情境</h2><span>只产生设计简报，不自动修改游戏内容</span></div><div class="library-compose-row"><label>正在设计的情境 <input id="lib-scenario" placeholder="例如：取得照片后说服店主透露记录"></label><button class="button ghost tiny" id="lib-copy">复制模式组合简报</button></div><div id="lib-picked" class="lib-picked"></div><p id="lib-copy-state" class="minor" role="status"></p></section>
 <p class="network-disclaimer">这是一张证据导航图，而不是“通过验收的成熟玩法排名”。成熟作品的应用先例不等于该模式独立经过受控实验；数学结构成立也不证明真人觉得有趣。来源与反例可在右侧查阅。</p>
@@ -260,7 +260,7 @@ function currentOddsText(s){
 function renderGame(){
  var t=getTask(selectedId),root=$("game");root.replaceChildren();
  if(t.mode!=="browser-demo"){
-  var box=child(root,"div","callout");child(box,"strong","","正式规则：没有网页复制版");child(box,"p","",t.officialNote);child(box,"p","", "Unity 调试面板：交锋测试（直接进入） → "+t.official.replace(/^.*研究·/,"研究·").replace(/\.scm$/,""));
+  var box=child(root,"div","callout");child(box,"strong","","正式规则：没有网页复制版");child(box,"p","",t.officialNote);child(box,"p","", "Unity 调试面板：Scenario测试（直接进入） → "+t.official.replace(/^.*研究·/,"研究·").replace(/\.scm$/,""));
   var cli=child(root,"pre","official-code","./run --session "+t.experiment+" --seed 19 --growth 1");
   child(root,"p","minor","这条命令会进入 JSON 行协议的无头会话，适合技术用户；人工逐手试玩建议使用 Unity 现有调试入口。");
   return
@@ -384,7 +384,7 @@ function renderOfficial(){
  var a=anch("正式 Scheme 规则 ↗",link("../../../"+t.official));a.target="_blank";a.rel="noopener noreferrer";links.appendChild(a);
  var b=anch("研究记录 ↗",link(t.record));b.target="_blank";b.rel="noopener noreferrer";links.appendChild(b);
  if(t.sourceRun){var c=anch("自动验证证据 ↗",t.sourceRun);c.target="_blank";c.rel="noopener noreferrer";links.appendChild(c)}
- child(root,"p","minor","若在 Unity 调试界面试玩：交锋测试（直接进入）→ 选择上述相同名称的研究场景。命令行形式供熟悉 JSONL 会话的人使用。");
+ child(root,"p","minor","若在 Unity 调试界面试玩：Scenario测试（直接进入）→ 选择上述相同名称的研究场景。命令行形式供熟悉 JSONL 会话的人使用。");
 }
 function field(parent,id,text,placeholder,rows){
  var wrap=child(parent,"label","field");child(wrap,"span","",text);

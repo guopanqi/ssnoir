@@ -12,7 +12,7 @@ def state(o):
  cs={c['Label']:c for c in o['Clocks']};p=cs['主进度']['Current'];a=2-cs['修复甲']['Current'] if p>=3 else 0;b=2-cs['修复乙']['Current'] if p>=6 else 0
  k,q=health(o);return (p,a,b,cs['压力']['Current'],player(o)['Composure'],k,q,3-cs['已过回合']['Current'],tuple(sorted(d['Value'] for d in player(o)['Dice'])))
 def result(o):
- match=re.fullmatch(r"\('(?P<status>success|timeout|pressure|collapse) (?P<p>\d+) (?P<a>\d+) (?P<b>\d+) (?P<s>\d+) (?P<elapsed>\d+) (?P<c>\d+)\)",o['EncounterResult']);assert match,o['EncounterResult']
+ match=re.fullmatch(r"\('(?P<status>success|timeout|pressure|collapse) (?P<p>\d+) (?P<a>\d+) (?P<b>\d+) (?P<s>\d+) (?P<elapsed>\d+) (?P<c>\d+)\)",o['ScenarioResult']);assert match,o['ScenarioResult']
  return {k:v if k=='status' else int(v) for k,v in match.groupdict().items()}
 def operation(o,ch):
  r,act,d=ch
@@ -22,7 +22,7 @@ def operation(o,ch):
 def finish(s,m,cover=False):
  for _ in range(16):
   o=s.observation
-  if o['EncounterResult'] is not None:return
+  if o['ScenarioResult'] is not None:return
   st=state(o)
   if cover:
    p,a,b,pressure,c,k,q,t,h=st
@@ -33,11 +33,11 @@ def finish(s,m,cover=False):
   else:
    m.value(*st);ch=m.decisions[st+(-1,)]
   s.act(operation(o,ch),'R37冻结公开策略：主进度、修复条、压力、回合、冷静、公开伤势与余骰；不读取脚本私有状态。')
- assert s.observation['EncounterResult'] is not None,'未在三回合合法步骤界限内结束'
+ assert s.observation['ScenarioResult'] is not None,'未在三回合合法步骤界限内结束'
 def check(path,instant):
  raw=json.loads(gzip.decompress(path.read_bytes()));counts={k:0 for k in ('instant_bad','repair','repair_complete','end_pressure','pressure_failure','timeout','success','collapse','head_action','heavy_next_round','born_a','born_b','repaired_kept')};grades=set();finished_a=finished_b=False
  for step in raw['Steps']:
-  before,after=step['Before'],step['After'];p,a,b,s,c,k,q,t,h=state(before);op=next(x for x in before['Operations'] if x['Id']==step['OperationId']);ended=after['EncounterResult'] is not None
+  before,after=step['Before'],step['After'];p,a,b,s,c,k,q,t,h=state(before);op=next(x for x in before['Operations'] if x['Id']==step['OperationId']);ended=after['ScenarioResult'] is not None
   aa,bb,pp,ss,elapsed=a,b,p,s,3-t;gain=0;grade=None
   if op['Kind']=='action':
    grade=next(e['Text'].split('，')[0].split('：')[1] for e in step['Events'] if e['Text'].startswith('判定：'));grades.add(grade);j={'Fail':0,'Neutral':1,'Success':2}[grade]
@@ -73,11 +73,11 @@ def check(path,instant):
   if finished_b:assert bb==0;counts['repaired_kept']+=1
   finished_a|=pp>=3 and aa==0;finished_b|=pp>=6 and bb==0
   status='collapse' if collapsed else 'pressure' if ss>=5 else 'success' if pp==12 else 'timeout' if elapsed==3 else None
-  assert ended==(status is not None),(path,op,ss,elapsed,pp,after['EncounterResult'])
+  assert ended==(status is not None),(path,op,ss,elapsed,pp,after['ScenarioResult'])
   if ended:
    assert (f['status'],f['p'],f['a'],f['b'],f['s'],f['elapsed'],f['c'])==(status,pp,aa,bb,ss,elapsed,nc),(path,f,(status,pp,aa,bb,ss,elapsed,nc))
    if not collapsed:counts[status if status!='pressure' else 'pressure_failure']+=1
-   assert not after['IsInEncounter']
+   assert not after['IsInScenario']
   else:
    assert state(after)[:5]==(pp,aa,bb,ss,nc) and state(after)[7]==3-elapsed
    cards={x['Card'] for x in after['Operations'] if x['Kind']=='action'}

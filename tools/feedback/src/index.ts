@@ -16,7 +16,7 @@ interface Submission {
   text: string;
   version: string;
   location: string;
-  inEncounter: boolean;
+  inScenario: boolean;
   worldDay: number;
 }
 
@@ -27,7 +27,7 @@ function valid(value: unknown): value is Submission {
     && typeof s.text === "string" && s.text.trim().length > 0 && s.text.length <= 2000
     && typeof s.version === "string" && s.version.length > 0 && s.version.length <= 100
     && typeof s.location === "string" && s.location.length > 0 && s.location.length <= 500
-    && typeof s.inEncounter === "boolean"
+    && typeof s.inScenario === "boolean"
     && typeof s.worldDay === "number" && Number.isSafeInteger(s.worldDay) && s.worldDay >= 0;
 }
 
@@ -80,14 +80,14 @@ export default {
     try {
       // Same ID + payload is safe to retry after an interrupted response.
       const result = await env.DB.prepare(`
-        INSERT INTO feedback (id, text, version, location, in_encounter, world_day)
+        INSERT INTO feedback (id, text, version, location, in_scenario, world_day)
         VALUES (?, ?, ?, ?, ?, ?)
         ON CONFLICT(id) DO UPDATE SET id = excluded.id
         WHERE feedback.text = excluded.text AND feedback.version = excluded.version
-          AND feedback.location = excluded.location AND feedback.in_encounter = excluded.in_encounter
+          AND feedback.location = excluded.location AND feedback.in_scenario = excluded.in_scenario
           AND feedback.world_day = excluded.world_day
         RETURNING id
-      `).bind(s.id, s.text, s.version, s.location, s.inEncounter ? 1 : 0, s.worldDay).first<{ id: string }>();
+      `).bind(s.id, s.text, s.version, s.location, s.inScenario ? 1 : 0, s.worldDay).first<{ id: string }>();
       if (!result) return reply(409, { error: "id_conflict" });
       return reply(200, { ok: true, id: result.id });
     } catch (error) {

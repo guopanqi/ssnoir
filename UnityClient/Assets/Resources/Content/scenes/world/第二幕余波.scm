@@ -1,4 +1,4 @@
-;; 亲近只记录是否呈现；不再按五种交锋路径分出五份余波。
+;; 亲近只记录是否呈现；不再按五种Scenario路径分出五份余波。
 (define 第二幕余波
   (let ((gloves-seen? #f))
     (define (gloves!)

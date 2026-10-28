@@ -4,7 +4,7 @@ Stage-one platform validation was completed locally by the user. **Keep one main
 
 ## Current scope
 
-The first slice ports C# `GameState`/inventory/global/rest-block/native functions and uses **the actual unchanged** SSNoir `scripts/stdlib.scm`, `scripts/engine.scm` and `scripts/theatre.scm` via separate LIPS world/encounter interpreters. Scripts are injected by their canonical path. The LIPS R7RS bootstrap is supplied as pinned compiled `lips/dist/std.xcb` bytes (read from the installed package at test/build time). This avoids a cold-start parser issue with source `std.scm`, whose reader extensions are defined during evaluation. The runtime only receives `Uint8Array` and never fetches it. Nothing fetches a script at runtime or accesses a host filesystem.
+The first slice ports C# `GameState`/inventory/global/rest-block/native functions and uses **the actual unchanged** SSNoir `scripts/stdlib.scm`, `scripts/engine.scm` and `scripts/theatre.scm` via separate LIPS world/scenario interpreters. Scripts are injected by their canonical path. The LIPS R7RS bootstrap is supplied as pinned compiled `lips/dist/std.xcb` bytes (read from the installed package at test/build time). This avoids a cold-start parser issue with source `std.scm`, whose reader extensions are defined during evaluation. The runtime only receives `Uint8Array` and never fetches it. Nothing fetches a script at runtime or accesses a host filesystem.
 
 - `src/runtime/game-state.ts` owns portable primitives and a **partial** snapshot; initialization mirrors Unity's starting cash (15), cigarettes (2), medicine (1), chapter (0), etc.
 - `src/runtime/native-bridge.ts` implements a named, typed, strict subset of `Engine/Runtime/Scripting/NativeFunctions.cs`: `get-global`, `set-global!`, inventory, growth, rest blockers, notification and failure.
@@ -16,8 +16,8 @@ No duplicate editable copies of game content; Node tests read the current Unity 
 ## Not yet implemented
 
 - World scene content module orchestration, display/node conversion, dynamic scene tree
-- Actor teams, dice pool, action resolution, injury/scars, encounter rollback, world day/turn
-- Scheme world/encounter closure snapshots (the save model is deliberately partial)
+- Actor teams, dice pool, action resolution, injury/scars, scenario rollback, world day/turn
+- Scheme world/scenario closure snapshots (the save model is deliberately partial)
 - Theatre scene parsing/player and presentation, interaction with actual chapter content
 - Native parity matrix for all 59 native functions, including unsupported visual effects
 - Real device validation of stage-two script behavior
@@ -32,4 +32,4 @@ Do not call this a full C# SceneManager port. Expand via a playable story slice 
 
 ## Full-world bootstrap checkpoint
 
-As of [Actions 38116949362](https://github.com/guopanqi/ssnoir/actions/runs/38116949362), `tests/game-world.ts-test.mjs` successfully evaluates the original `world.scm` through its dependent modules and materializes a nonempty Scheme-authored city root node via TypeScript. The ordered loader preserves literal top-level `load-file` calls. It currently tests an initial scene render only; world traversal, active encounter transitions and true load-from-save are not yet validated. See [PHASE2-ACCEPTANCE](PHASE2-ACCEPTANCE.md) for all completion gates.
+As of [Actions 38116949362](https://github.com/guopanqi/ssnoir/actions/runs/38116949362), `tests/game-world.ts-test.mjs` successfully evaluates the original `world.scm` through its dependent modules and materializes a nonempty Scheme-authored city root node via TypeScript. The ordered loader preserves literal top-level `load-file` calls. It currently tests an initial scene render only; world traversal, active scenario transitions and true load-from-save are not yet validated. See [PHASE2-ACCEPTANCE](PHASE2-ACCEPTANCE.md) for all completion gates.

@@ -74,7 +74,7 @@ public static class RequiredBeforeRestChecks
         var root = new GameNode { Id = "测试世界", Children = new() { place } };
         Throws(() => RequiredBeforeRest.Collect(root, true), "必处理节点不能被禁用");
         disabled.Disabled = false;
-        Throws(() => RequiredBeforeRest.Collect(root, false), "交锋不能声明世界休息条件");
+        Throws(() => RequiredBeforeRest.Collect(root, false), "Scenario不能声明世界休息条件");
         place.IsPlace = false;
         Throws(() => RequiredBeforeRest.Collect(root, true), "必须有可进入的世界地点");
 
@@ -88,11 +88,11 @@ public static class RequiredBeforeRestChecks
             Check(restored.GameState.RestBlockers.Single().TargetNodeId == "旅馆清晨", "读档只恢复剧情，节点树重建必须事项");
         }
         finally { if (File.Exists(path)) File.Delete(path); }
-        real.StartEncounter("醉客互相叫骂");
-        Check(real.GameState.RestBlockers.Count == 0, "进入交锋不携带世界休息条件");
+        real.StartScenario("醉客互相叫骂");
+        Check(real.GameState.RestBlockers.Count == 0, "进入Scenario不携带世界休息条件");
         real.EndTurn();
-        Check(real.CurrentSceneName == "醉客互相叫骂", "世界必须事项不阻止交锋结束回合");
-        real.EndEncounter();
+        Check(real.CurrentSceneName == "醉客互相叫骂", "世界必须事项不阻止Scenario结束回合");
+        real.EndScenario();
         Check(real.GameState.RestBlockers.Single().TargetNodeId == "旅馆清晨", "返回世界自动恢复尚未处理的节点声明");
         var chapter2 = new SceneManager(new GameState(), new LocalScriptLoader()); chapter2.LoadScene("world");
         chapter2.ActiveInterpreter.Eval("(debug-enter-chapter2!)"); chapter2.RebuildRenderTree();

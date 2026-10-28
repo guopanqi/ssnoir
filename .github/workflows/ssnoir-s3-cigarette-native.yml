@@ -25,7 +25,7 @@ jobs:
         with: {python-version: '3.11'}
       - name: 构建游戏正式 C#+Scheme 内容校验器
         run: dotnet build tools/content-validator/SSNoir.ContentValidator.csproj -nologo -v q
-      - name: 原版莱恩交锋无烟、有一份烟的逐手证据
+      - name: 原版莱恩Scenario无烟、有一份烟的逐手证据
         run: |
           set -euo pipefail
           python3 tools/content-validator/experiments/s3_gold_cigarette_native.py /tmp/s3-cigarette-native.json
@@ -37,7 +37,7 @@ jobs:
           assert x['owned']['after_count']==0
           assert not x['owned']['item_can_be_spent_again']
           assert x['owned']['transcript'] and x['unowned']['transcript']
-          print('正式交锋：无物品禁用，持有物品可用并消费一次（测试夹具，不是全世界贯通）')
+          print('正式Scenario：无物品禁用，持有物品可用并消费一次（测试夹具，不是全世界贯通）')
           PY
       - name: 两份实际决策记录各自严格重放
         run: |
@@ -47,7 +47,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: ssnoir-s3-W-原版莱恩交锋物品前后
+          name: ssnoir-s3-W-原版莱恩Scenario物品前后
           path: |
             /tmp/s3-cigarette-native.json
             /tmp/s3-w-lyon-item-0.json
@@ -156,7 +156,7 @@ jobs:
       - uses: actions/setup-python@v5
         with: {python-version: '3.11'}
       - run: dotnet build tools/content-validator/SSNoir.ContentValidator.csproj -nologo -v q
-      - name: 同一正式世界存档自然取得并消费金牌烟后尝试进入莱恩交锋
+      - name: 同一正式世界存档自然取得并消费金牌烟后尝试进入莱恩Scenario
         shell: bash
         run: |
           set -euo pipefail
@@ -171,7 +171,7 @@ jobs:
           if x['status']=='same_original_world_counter_then_lyon_unusable':
               assert x['lyon_card_visible'] and not x['lyon_item_action_legal']
               assert x['lyon_inventory']==0
-              print('同一世界存档：从获得物证到交出，再到莱恩交锋确实不能第二次使用')
+              print('同一世界存档：从获得物证到交出，再到莱恩Scenario确实不能第二次使用')
           if 'last_public_observation' in x:
               print('LAST-OBS',json.dumps(x['last_public_observation'],ensure_ascii=False))
           if x.get('obstacles'):

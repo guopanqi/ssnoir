@@ -3,7 +3,7 @@
 
 R99's two-policy exact envelope was for a 4-die / 2-round toy model.
 R102 executes three fixed threshold scripts under the existing official
-3-round/4-dice-per-round C#+Scheme encounter; 12 deterministic seeds.
+3-round/4-dice-per-round C#+Scheme scenario; 12 deterministic seeds.
 This is a bounded scripted *portability check*, not a strategic optimizer or
 human play study. Action-dependent RNG consumption means even equal seeds
 do not create identical counterfactual dice.

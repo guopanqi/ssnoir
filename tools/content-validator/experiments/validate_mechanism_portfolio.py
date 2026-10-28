@@ -2,7 +2,7 @@
 """Govern the 20-mode design shortlist separately from the Unity Debug UI.
 
 A mathematical idea, an authored native scene, a screened design candidate
-and a HUMAN PLAYTEST-APPROVED debug encounter are different quality levels.
+and a HUMAN PLAYTEST-APPROVED debug scenario are different quality levels.
 The candidate inventory is a review artifact, never an input to Debug.
 """
 from pathlib import Path
@@ -30,7 +30,7 @@ def main():
         if r["playtestApproval"]:
             approved_names.add(Path(r["source"]).stem)
     manifest=json.loads(APPROVAL.read_text(encoding="utf-8"))
-    approved_scene_names={x["scene"] for x in manifest["encounters"]}
+    approved_scene_names={x["scene"] for x in manifest["scenarios"]}
     assert approved_names==approved_scene_names, (
         f"Portfolio to Debug approval mismatch: {approved_names ^ approved_scene_names}")
     assert len(approved_names)<=6, "Twenty promising candidates do not imply 20 Unity Debug entries"

@@ -145,7 +145,7 @@
       (set-global! '夜莺已立案 case-filed?)
       (set-global! '夜莺已移交 surrendered?)
       (set-global! '夜莺信任达标 (trust-met?))
-      ;; 「了断」交锋要按这个基调分台词版本。只镜像这一个只读值,不搬整套状态。
+      ;; 「了断」Scenario要按这个基调分台词版本。只镜像这一个只读值,不搬整套状态。
       (set-global! '夜莺姿态 stance))
 
     (define (advance-stage! new-stage)
@@ -204,7 +204,7 @@
     (define (node-reserve-installment)
       (node "托夜莺保管首期"
         :subtitle (string-append "交出 " (number->string first-installment)
-                                 " 金。收账人第 10 天上门时，你可以让她交钱，也可以取回这笔钱后交锋")
+                                 " 金。收账人第 10 天上门时，你可以让她交钱，也可以取回这笔钱后Scenario")
         :requires (list (req-item "金钱" first-installment))
         :resolve (instant
           (outcome "首期备好了"
@@ -215,7 +215,7 @@
     (define (node-installment-reserved)
       (node "首期已备妥"
         :subtitle (string-append (number->string first-installment)
-                                 " 金由夜莺保管。收账人第 10 天上门时，可交钱让他离开，或取回这笔钱后交锋")
+                                 " 金由夜莺保管。收账人第 10 天上门时，可交钱让他离开，或取回这笔钱后Scenario")
         :tags (list "安全" "等待第 10 天")
         :disabled #t))
 
@@ -336,7 +336,7 @@
           (rest-release! "夜莺/开场敲门")
           (spotlight! "雨夜来客" "她收起一把红伞，靠在门边，伞尖的水在地板上积成一小片。你把钱收进兜里。这不是委托,是一根钓钩,而你已经张了嘴。第三天以前,去酒馆和码头查清那个陌生人藏在哪里。"))))
 
-    ;; ── 第二层揭开(交锋一后,必看) ──────────────────
+    ;; ── 第二层揭开(Scenario一后,必看) ──────────────────
     (define (node-reveal-layer-2)
       (instant-action "听她解释"
         (lambda ()
@@ -350,7 +350,7 @@
           (rest-release! "夜莺/第二层揭开")
           (spotlight! "一笔人的价钱" "一百五。一个人,明码标价。这数字现在既记在你的账本上,也记在她的命上。"))))
 
-    ;; ── 第三层揭开(交锋二后,必看) ──────────────────
+    ;; ── 第三层揭开(Scenario二后,必看) ──────────────────
     (define (node-reveal-layer-3)
       (instant-action "听她说话"
         (lambda ()
@@ -568,7 +568,7 @@
     (define (route-overview-text)
       (string-append
         "付钱封口 —— 还差 " (number->string (hush-due)) " 金\n"
-        "交锋了断 —— 随时可走;城里攒下的一切都是场内的本钱\n"
+        "Scenario了断 —— 随时可走;城里攒下的一切都是场内的本钱\n"
         "送她离开 —— "
         (cond
           (berth? (if (<= world-day 16) "已有舱位,第16天前送船" "船已经开走"))
@@ -635,7 +635,7 @@
     ;; 不再提前交钱。攒着的钱是玩家完成目标的动力,直到收账人真的上门那一刻,
     ;; 才在两条路里选:
     ;;   交钱了事 —— 交出首期,收账人收手,跳过抢人;这笔钱记进日后的封口钱。
-    ;;   动手     —— 进抢人交锋;赢了钱还在你手里,还从收账人身上多抢一笔。
+    ;;   动手     —— 进抢人Scenario;赢了钱还在你手里,还从收账人身上多抢一笔。
     ;; 这样为攒钱努力的玩家不会觉得"钱白掏了",选择硬扛的还能拿到额外回报。
     (define beat2-fight-bonus 50)
 
@@ -653,7 +653,7 @@
               (on-public-event-result 'success))))))
 
     (define (node-beat2-fight)
-      (encounter-action "拒付并动手"
+      (scenario-action "拒付并动手"
         (lambda ()
           (if installment-reserved?
               (begin
@@ -661,7 +661,7 @@
                 (set! installment-reserved? #f)
                 (sync-globals!))
               #f)
-          (start-encounter "夜莺·抢人"
+          (start-scenario "夜莺·抢人"
             (lambda (result)
               (if (equal? result 'success)
                   (begin
@@ -827,10 +827,10 @@
                 "案卷合上那天,你一个人坐在空舞台前。这一次,说了算的是她自己。"))
           (on-public-event-result 'surrendered))))
 
-    (define (node-encounter-entry)
-      (encounter-action (public-event-action-name)
+    (define (node-scenario-entry)
+      (scenario-action (public-event-action-name)
         (lambda ()
-          (start-encounter "夜莺·了断" on-public-event-result))))
+          (start-scenario "夜莺·了断" on-public-event-result))))
 
     (define (node-walk-away-pending)
       (node "去街角喝酒"
@@ -850,10 +850,10 @@
         (surrendered? (list (node-surrender-pending)))
         (hush-paid? (list (node-hush-payoff-pending)))
         (case-filed? (list (node-case-filed-pending)))
-        (farewell? (list (node-encounter-entry)))
+        (farewell? (list (node-scenario-entry)))
         (else
          (append
-           (list (node-encounter-entry))
+           (list (node-scenario-entry))
            (if (truth-known?) (list (node-walk-away-pending)) '())))))
 
     ;; ── 结局信（远方的信 / 信和疤，第 17 天 + letter-delay 天后一次性）──
@@ -948,14 +948,14 @@
     ;; ── 节拍一：查访盯梢者 ──────────────────────────
     (define (node-confront-stalker)
       (node "主动出击"
-        :subtitle "陌生人的藏身处；抢在他找上夜莺之前进行交锋"
-        :tags (list "交锋")
+        :subtitle "陌生人的藏身处；抢在他找上夜莺之前进行Scenario"
+        :tags (list "Scenario")
         :resolve (instant
           (lambda ()
             (set! beat1-early? #t)
             (sync-globals!)
             (begin-public-event-early!)
-            (start-encounter "夜莺·警告" on-public-event-result)))))
+            (start-scenario "夜莺·警告" on-public-event-result)))))
 
     (define (node-tavern-inquire-stalker)
       (node "向酒客打听陌生人"
@@ -1075,11 +1075,11 @@
     (define (node-night-check)
       (node "和萨姆夜查货栈"
         :subtitle "失败会被守夜人撵出来:受伤并损失冷静,夜账改天再翻"
-        :tags (list "交锋")
+        :tags (list "Scenario")
         :requires (list (req-die))
         :resolve (instant
           (lambda ()
-            (start-encounter "夜莺·夜查"
+            (start-scenario "夜莺·夜查"
               (lambda (result)
                 (if (equal? result 'success)
                     (complete-freight-truth!)
@@ -1214,7 +1214,7 @@
              '()))
         (else '())))
 
-    ;; ── 交锋结果回调 ────────────────────────────────
+    ;; ── Scenario结果回调 ────────────────────────────────
     (define (on-bout-result bout result)
       (cond
         ((= bout 0)

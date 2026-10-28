@@ -1,6 +1,6 @@
 ;; R07：共用惯用收益，只改变目标之间的结算关系。
 (define 完成? #f)
-(define 目标A (make-clock "目标A" A上限 'gauge (if (eq? 研究模式 '收尾) "必需目标；完成就结束交锋。" "完成保留；未完成部分按本场规则结算。")))
+(define 目标A (make-clock "目标A" A上限 'gauge (if (eq? 研究模式 '收尾) "必需目标；完成就结束Scenario。" "完成保留；未完成部分按本场规则结算。")))
 (define 目标B (make-clock "目标B" B上限 'gauge (if (eq? 研究模式 '收尾) "额外目标；必须在A完成之前处理。" "完成保留；未完成部分按本场规则结算。")))
 (define 期限 (make-clock "已过回合" 回合上限 'gauge "回合末加1；引擎另花1冷静。"))
 (define (顺序结果 status)
@@ -10,7 +10,7 @@
   (if 完成? (error "顺序研究：重复结算") #t)
   (set! 完成? #t)
   (spotlight! 研究名称 text)
-  (end-encounter (顺序结果 status)))
+  (end-scenario (顺序结果 status)))
 (define (顺序检查!)
   (if (or 完成? (hospitalization-pending?)) #f
     (cond
@@ -48,7 +48,7 @@
         (if (目标B 'full?) #f (目标B 'reset!))) #f)
     (期限 'advance! 1)
     (顺序检查!)))
-(define (on-encounter-collapse) (collapse-result (顺序结果 'collapse)))
+(define (on-scenario-collapse) (collapse-result (顺序结果 'collapse)))
 (define (get-render-data)
   (container 研究名称
     (append

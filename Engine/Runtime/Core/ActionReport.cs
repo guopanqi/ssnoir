@@ -24,7 +24,7 @@ namespace SSNoir.Core
         public List<ActionEffectRecord> Effects { get; } = new List<ActionEffectRecord>();
 
         /// <summary>
-        /// 这一手里时间真的翻了一页——交锋里按下休息，或者在家里睡了一觉。
+        /// 这一手里时间真的翻了一页——Scenario里按下休息，或者在家里睡了一觉。
         /// 由 <c>SceneManager.EndTurn</c> 打上；脚本调 <c>end-turn!</c> 时那次 EndTurn
         /// 写的是同一份报告，所以「睡觉」这类把回合结束包在动作里的节点也带着这个标记。
         /// 客户端据此在结算落地的瞬间放一次黑场，让"下一回合"有个明确的切换。
@@ -91,7 +91,7 @@ namespace SSNoir.Core
         // 阻塞剧情节拍(Spotlight / Dialogue / Animation),按 Scheme 调用顺序;adopt 之前逐个播放。
         public List<BlockingStoryStep> BlockingStorySteps { get; } = new List<BlockingStoryStep>();
 
-        // end-encounter 回到世界后，世界回调追加的叙事；必须在客户端采纳世界快照后播放。
+        // end-scenario 回到世界后，世界回调追加的叙事；必须在客户端采纳世界快照后播放。
         public List<BlockingStoryStep> PostSceneBlockingSteps { get; } = new List<BlockingStoryStep>();
 
         /// <summary>

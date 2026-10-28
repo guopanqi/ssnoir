@@ -2,7 +2,7 @@
 
 整备部分只比较未达目标上限时的单轮平均进度。
 收益口径部分是单轮、三颗剩余骰、冷静5的条件题面；到期额外花1冷静。
-三颗骰及到期最多花4冷静，没有溢出伤势；不模拟整个三回合交锋。
+三颗骰及到期最多花4冷静，没有溢出伤势；不模拟整个三回合Scenario。
 完成价值1，冷静权重lambda只是敏感性分析，不是游戏奖励或玩家偏好。
 """
 from fractions import Fraction as F
@@ -142,7 +142,7 @@ result = {
     'odds_sha256': hashlib.sha256(raw).hexdigest(),
     'source_content_revision': json.loads((BASE / '版本.json').read_text())['ContentRevision'],
     'assumptions': ['技能1；沿用已记录公开赔率', '条件题面有3颗剩余骰，冷静5，结束这一轮即超时',
-                    '无恢复品；最多消耗4冷静，无伤势溢出；不求整场交锋或可达频率',
+                    '无恢复品；最多消耗4冷静，无伤势溢出；不求整场Scenario或可达频率',
                     '目标函数 P(完成)-lambda*E(冷静消耗)；lambda是研究敏感性参数',
                     '冷静消耗统计全部分支；完成即停止；失败回合末消耗1'],
     'preparation': {'per_die': prep_table, 'example': prep_example},

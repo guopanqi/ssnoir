@@ -14,7 +14,7 @@
   (if 完成? (error "定位搜索：重复结算") #t)
   (set! 完成? #t)
   (spotlight! 研究名称 text)
-  (end-encounter (定位搜索结果 status)))
+  (end-scenario (定位搜索结果 status)))
 (define (定位揭晓! 来源)
   (if (or 完成? (hospitalization-pending?)) #f
     (begin
@@ -51,7 +51,7 @@
 (define-opponent-rule "搜索机会结束"
   (lambda () (not 完成?))
   (lambda () (定位搜索结束! 'timeout "这一回合结束，还没找到目标。")))
-(define (on-encounter-collapse) (collapse-result (定位搜索结果 'collapse)))
+(define (on-scenario-collapse) (collapse-result (定位搜索结果 'collapse)))
 (define (get-render-data)
   (container 研究名称
     (append

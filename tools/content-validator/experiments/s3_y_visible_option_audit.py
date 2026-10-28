@@ -12,7 +12,7 @@ import json,re,sys
 
 ROOT=Path(__file__).resolve().parents[3]
 WORLD=ROOT/"UnityClient/Assets/Resources/Content/scenes/world/三封信.scm"
-LYON=ROOT/"UnityClient/Assets/Resources/Content/scenes/encounters/巷子.scm"
+LYON=ROOT/"UnityClient/Assets/Resources/Content/scenes/scenarios/巷子.scm"
 ITEM='半包「老金牌」香烟'
 
 def block(source,name):
@@ -70,7 +70,7 @@ def audit():
     require(her,'(advance-lyon! 3)','high-risk high')
     require(act2,'(= form 1) (list (node-letters) (node-cigs) (node-her-now))','form1 contains choices')
     require(act2,'(= form 2) (list (node-listen) (node-that-line) (node-strip) (node-workbench))','form2 removes item choice')
-    require(fail,"(end-encounter '被赶出去)",'crowd failure is real')
+    require(fail,"(end-scenario '被赶出去)",'crowd failure is real')
     require(l,'(define lyon-stage-max 5)','progress cap')
     return {
       "source":"Official Scheme static contract only",
@@ -86,7 +86,7 @@ def audit():
           "other_low_risk":"letters / knowledge: bad composure -1, mid progress +1, high +2",
           "other_high_risk":"nightingale now / social: bad composure -2 and crowd pressure+1, mid +2, high +3",
           "form_two_excludes_packet":True,"progress_goal":5,
-          "crowd_zero_can_end_encounter":"被赶出去"}}
+          "crowd_zero_can_end_scenario":"被赶出去"}}
 
 def mathematics():
     # Strictly paper examples with equal p for low/medium/high, invented.

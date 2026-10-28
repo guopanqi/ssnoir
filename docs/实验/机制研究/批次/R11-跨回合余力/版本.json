@@ -3,8 +3,8 @@
   "date": "2026-10-02",
   "source_and_model_sha256": {
     "UnityClient/Assets/Resources/Content/scripts/research/跨回合余力.scm": "538cfbedacd3db6c7057d27762d3702001094adf32cb6ba2e93d0e135e731149",
-    "UnityClient/Assets/Resources/Content/scenes/encounters/研究·留力推进.scm": "79194f2ba75dbdcbde7d1829413bba184b89f00f038eb5f6adca59d6b4f98668",
-    "UnityClient/Assets/Resources/Content/scenes/encounters/研究·充足余力对照.scm": "1c0eb49d1e3200bfb94cb722d147d9da14e7c3605a3252f969446719051f8436",
+    "UnityClient/Assets/Resources/Content/scenes/scenarios/研究·留力推进.scm": "79194f2ba75dbdcbde7d1829413bba184b89f00f038eb5f6adca59d6b4f98668",
+    "UnityClient/Assets/Resources/Content/scenes/scenarios/研究·充足余力对照.scm": "1c0eb49d1e3200bfb94cb722d147d9da14e7c3605a3252f969446719051f8436",
     "Engine/Runtime/Core/FateStrip.cs": "18045101bf810b66831d05da267fdd89a66c0c711389041d90fbc5f493dfca0c",
     "Engine/Runtime/Core/Injury.cs": "c592fd3542e1d131babdbff96d44e57790f3cbd211539a363036e3bd73778eb2",
     "Engine/Runtime/Core/TeamState.cs": "2a4130448ff895a0e4d8008fa15f529cc00d389c75050f4debaf59969ab49498",

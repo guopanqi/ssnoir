@@ -10,7 +10,7 @@ def clocks(o):return {c['Label']:c for c in o['Clocks']}
 def state(o):
  c=clocks(o);return 5-c['工作甲']['Current'],3-c['工作乙']['Current'],player(o)['Composure'],3-c['已过回合']['Current'],tuple(sorted(d['Value'] for d in player(o)['Dice']))
 def result(o):
- m=re.fullmatch(r"\('(?P<status>success|timeout|collapse) (?P<a>\d+) (?P<b>\d+) (?P<round>\d+) (?P<cold>\d+)\)",o['EncounterResult']);assert m,o['EncounterResult']
+ m=re.fullmatch(r"\('(?P<status>success|timeout|collapse) (?P<a>\d+) (?P<b>\d+) (?P<round>\d+) (?P<cold>\d+)\)",o['ScenarioResult']);assert m,o['ScenarioResult']
  return {k:v if k=='status' else int(v) for k,v in m.groupdict().items()}
 def operation(o,ch):
  route,act,d=ch
@@ -30,7 +30,7 @@ def check(path,reset,growth):
  witnesses=json.loads((HERE/'交互结果.json').read_text())['witnesses'];index={tuple(x['state'][:-1])+(tuple(x['state'][-1]),):x for x in witnesses}
  for step in raw['Steps']:
   before,after=step['Before'],step['After'];cb=clocks(before);pa=cb['工作甲']['Current'];pb=cb['工作乙']['Current'];elapsed=cb['已过回合']['Current'];cold=player(before)['Composure']
-  op=next(x for x in before['Operations'] if x['Id']==step['OperationId']);ended=after['EncounterResult'] is not None;collapsed=ended and result(after)['status']=='collapse'
+  op=next(x for x in before['Operations'] if x['Id']==step['OperationId']);ended=after['ScenarioResult'] is not None;collapsed=ended and result(after)['status']=='collapse'
   if op['Kind']=='end-turn':
    dc=-1
    if player(before)['Dice']:early+=1
@@ -52,7 +52,7 @@ def check(path,reset,growth):
     if op['Card'].startswith('甲'):pa=min(5,pa+gain)
     elif op['Card'].startswith('乙'):pb=min(3,pb+gain)
    if act=='整顿' and dc==2 and cold==4:cap+=1
-   assert ended==((pa==5 and pb==3) or collapsed),(path,op,pa,pb,after['EncounterResult'])
+   assert ended==((pa==5 and pb==3) or collapsed),(path,op,pa,pb,after['ScenarioResult'])
    st=state(before)
    if growth==1 and injury(before)==0 and st in index:
     witness=index[st];chosen=witness['primary_choice' if reset else 'control_choice'];expected_card=None if chosen[0]=='结束回合' else '整顿' if chosen[0]=='整顿' else chosen[0]+chosen[1]
@@ -61,7 +61,7 @@ def check(path,reset,growth):
   if dc<0 and not collapsed:assert injury(after)>=injury(before)
   outside|=injury(before)>0 or injury(after)>0 or collapsed
   if ended:
-   f=result(after);assert (f['a'],f['b'],f['cold'],f['round'])==(pa,pb,player(after)['Composure'],min(3,elapsed+1));assert not after['IsInEncounter']
+   f=result(after);assert (f['a'],f['b'],f['cold'],f['round'])==(pa,pb,player(after)['Composure'],min(3,elapsed+1));assert not after['IsInScenario']
    if f['status']=='success':assert pa==5 and pb==3
    if f['status']=='timeout':assert elapsed==3 and (pa<5 or pb<3)
   else:
@@ -72,7 +72,7 @@ def check(path,reset,growth):
    assert ('整顿' in cards)==(player(after)['Composure']<5 and bool(player(after)['Dice']))
    if pa==5:assert all(not x.startswith('甲') for x in cards)
    if pb==3:assert all(not x.startswith('乙') for x in cards)
- assert raw['Steps'][-1]['After']['EncounterResult'] is not None
+ assert raw['Steps'][-1]['After']['ScenarioResult'] is not None
  return dict(path=path.name,revision=raw['ContentRevision'],reset=reset,growth=growth,steps=len(raw['Steps']),result=result(raw['Steps'][-1]['After']),left_injury_free_model=outside,grades=sorted(covered),cleared_partial_events=clears,retained_finished_events=retained,preserved_partial_events=preserved,healing_cap_events=cap,early_end_events=early,interaction_visits=interactions)
 def replay(path):
  with tempfile.TemporaryDirectory(prefix='r19-replay-') as tmp:
@@ -82,12 +82,12 @@ def scene(reset):return '研究·整段留力' if reset else '研究·进度保�
 def finish(s,m):
  for _ in range(18):
   o=s.observation
-  if o['EncounterResult'] is not None:return
+  if o['ScenarioResult'] is not None:return
   if injury(o)>0:op=fallback(o)
   else:
    st=state(o);m.value(*st);op=operation(o,m.decisions[st])
   s.act(op,'R19冻结首试：只读公开目标、冷静、回合与剩骰；首伤后使用模型外公开启发式。')
- assert s.observation['EncounterResult'] is not None
+ assert s.observation['ScenarioResult'] is not None
 
 def main():
  OUT.mkdir(exist_ok=True);rows=[];jobs=[];models={}
@@ -107,7 +107,7 @@ def main():
   s=H['Session'](scene(reset),6200)
   try:
    for _ in range(3):s.act(operation(s.observation,('结束回合',None,None)),'边界：三轮空过，仅花回合税。')
-   assert s.observation['EncounterResult']=="('timeout 0 0 3 0)"
+   assert s.observation['ScenarioResult']=="('timeout 0 0 3 0)"
    p=OUT/f'边界-空过-{reset}.json.gz';s.save(p);rows.append(check(p,reset,1))
   finally:s.close()
   for seed in range(6201,6251):

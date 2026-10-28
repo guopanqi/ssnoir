@@ -25,10 +25,10 @@
 
 ## 原生原型与验收
 
-唯一正式原型：UnityClient/Assets/Resources/Content/scenes/encounters/研究·迟到的目标.scm。复用正式 C# Engine/Runtime 和 Scheme，没有重做规则系统、复制 Content 或新建网页客户端。命令：
+唯一正式原型：UnityClient/Assets/Resources/Content/scenes/scenarios/研究·迟到的目标.scm。复用正式 C# Engine/Runtime 和 Scheme，没有重做规则系统、复制 Content 或新建网页客户端。命令：
 
     ./run --validate
-    ./run --session encounters/研究·迟到的目标 --seed 19 --growth 1
+    ./run --session scenarios/研究·迟到的目标 --seed 19 --growth 1
     python3 tools/content-validator/experiments/r49_delayed_target_smoke.py
 
 新增 GitHub Actions 自动构建内容校验器、载入内容、执行独立数学筛选，并实际通过 C# Session 走至少六局「准备→揭示→执行／超时→严格回放」。首次 CI run 37884374824 暴露未支持的 symbol->string，且被 tee 管道掩盖退出码；已经修复，并以真实原生回放重新验证。

@@ -9,7 +9,7 @@
   (if 完成? (error "骰子分配：重复结算") #t)
   (set! 完成? #t)
   (spotlight! 研究名称 text)
-  (end-encounter (分配结果 status)))
+  (end-scenario (分配结果 status)))
 (define (分配推进! clock n)
   (if (or 完成? (hospitalization-pending?)) #f
     (begin (clock 'advance! n)
@@ -27,7 +27,7 @@
       (outcome (lambda () (分配推进! clock (if fast? 2 1)))))))
 (define-opponent-rule "单回合到期" (lambda () (not 完成?))
   (lambda () (分配结束! 'timeout "回合结束，还有工作未完成。")))
-(define (on-encounter-collapse) (collapse-result (分配结果 'collapse)))
+(define (on-scenario-collapse) (collapse-result (分配结果 'collapse)))
 (define (get-render-data)
   (container 研究名称
     (append

@@ -2,7 +2,7 @@
   "version": 1,
   "module": "勒索信",
   "location": "码头",
-  "source": "UnityClient/Assets/Resources/Content/scenes/encounters/勒索信.scm",
+  "source": "UnityClient/Assets/Resources/Content/scenes/scenarios/勒索信.scm",
   "cues": [
     {
       "id": "勒索信/蹲守/认错人/01/尼尔",

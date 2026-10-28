@@ -77,7 +77,7 @@ function findNode(root:RuntimeNode, name:string):RuntimeNode|undefined {
     if(n)return n;
   }
 }
-export interface EncounterCarryHooks {
+export interface ScenarioCarryHooks {
   isSupportUsed():boolean;
   setSupportUsed(used:boolean):void;
   getCarriedSupport():string|false;
@@ -88,11 +88,11 @@ export class GameActionRunner {
   readonly scripts:GameScriptSession;
   readonly state:GameRuntimeState;
   readonly turn:ActionTurnState;
-  private readonly carryHooks?:EncounterCarryHooks;
-  private constructor(scripts:GameScriptSession,state:GameRuntimeState,turn:ActionTurnState,carryHooks?:EncounterCarryHooks) {
+  private readonly carryHooks?:ScenarioCarryHooks;
+  private constructor(scripts:GameScriptSession,state:GameRuntimeState,turn:ActionTurnState,carryHooks?:ScenarioCarryHooks) {
     this.scripts=scripts; this.state=state; this.turn=turn;this.carryHooks=carryHooks;
   }
-  static async create(scripts:GameScriptSession,state:GameRuntimeState,turn:ActionTurnState,carryHooks?:EncounterCarryHooks):Promise<GameActionRunner>{
+  static async create(scripts:GameScriptSession,state:GameRuntimeState,turn:ActionTurnState,carryHooks?:ScenarioCarryHooks):Promise<GameActionRunner>{
     await scripts.evaluate(DISPATCH);
     const result=new GameActionRunner(scripts,state,turn,carryHooks);
     return result;
@@ -103,18 +103,18 @@ export class GameActionRunner {
     const value=await this.scripts.evaluate("(define __ssnoir-active-render-root "+source+") __ssnoir-active-render-root");
     this.root=convertNode(value);
     if(this.carryHooks){
-      // These authored cards live beside the encounter tree, as in C# CurrentCarryNodes.
-      // Keep the Scheme closures in their original encounter VM.
+      // These authored cards live beside the scenario tree, as in C# CurrentCarryNodes.
+      // Keep the Scheme closures in their original scenario VM.
       const raw=await this.scripts.evaluate(
-        '(define __ssnoir-carry-render-root (node "__ssnoir-carry" :children (encounter-action-nodes))) __ssnoir-carry-render-root'
+        '(define __ssnoir-carry-render-root (node "__ssnoir-carry" :children (scenario-action-nodes))) __ssnoir-carry-render-root'
       );
       const carry=convertNode(raw).children;
       const seen=new Set<string>();
       const visit=(n:RuntimeNode)=>{seen.add(n.name);for(const child of n.children)visit(child);};
       visit(this.root);
       for(const card of carry){
-        if(seen.has(card.name))throw new Error("Encounter carry card name conflicts with scene: "+card.name);
-        if(!card.resolve||card.children.length||card.isPlace)throw new Error("invalid encounter carry card: "+card.name);
+        if(seen.has(card.name))throw new Error("Scenario carry card name conflicts with scene: "+card.name);
+        if(!card.resolve||card.children.length||card.isPlace)throw new Error("invalid scenario carry card: "+card.name);
         if(card.supportId&&card.requires.length)throw new Error("support cards must not have requirement slots");
       }
       this.carry=carry;
@@ -180,11 +180,11 @@ export class GameActionRunner {
       throw new Error("unavailable action "+name);
     if(slots.length!==node.requires.length)throw new Error("slot count mismatch");
     if(node.supportId){
-      if(!this.carryHooks||this.state.currentMode()!=="encounter")
-        throw new Error("support card only usable during an encounter");
+      if(!this.carryHooks||this.state.currentMode()!=="scenario")
+        throw new Error("support card only usable during an scenario");
       if(this.carryHooks.getCarriedSupport()!==node.supportId)
         throw new Error("support card does not match the carried relationship");
-      if(this.carryHooks.isSupportUsed())throw new Error("support already used this encounter");
+      if(this.carryHooks.isSupportUsed())throw new Error("support already used this scenario");
     }
     const dice:Array<{actorId:string;slotId:number;value:number}>=[];
     const used=new Set<string>();
@@ -209,7 +209,7 @@ export class GameActionRunner {
     if(actor.status!=="active")throw new Error("inactive acting actor");
     const before=this.state.snapshot();
     const priorSupportUsed=this.carryHooks?.isSupportUsed()??false;
-    this.state.beginActionContext(actorId,this.state.currentMode() as "world"|"encounter");
+    this.state.beginActionContext(actorId,this.state.currentMode() as "world"|"scenario");
     this.state.beginActionReport();
     try{
       let roll:ReturnType<typeof resolveFate>|undefined;

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Bounded complete-world attempt: new save -> chase -> counter -> Lyon encounter.
+"""Bounded complete-world attempt: new save -> chase -> counter -> Lyon scenario.
 
 No --item, no arbitrary Scheme Eval, no debug-finish or story-stage writes.
 All operations are selected from actual public SessionObservation. The
@@ -30,7 +30,7 @@ def choose_action(p,obs,op,history):
 def move_to(p,obs,place,history):
     # Walk out of currently focused world place and enter an original place.
     for _ in range(6):
-        if obs["IsInEncounter"]:raise RuntimeError("Cannot navigate worlds inside encounter")
+        if obs["IsInScenario"]:raise RuntimeError("Cannot navigate worlds inside scenario")
         if obs["Focus"]==place:return obs
         o=get(obs,"enter-place",place)
         if o:return choose_action(p,obs,o,history)
@@ -65,11 +65,11 @@ def run(spend_counter=True, let_chase_escape=False, stop_after_west_identity=Fal
                 else:
                     if get(obs,"action","去码头盯着邮箱"):
                         obs=perform(p,obs,"去码头盯着邮箱",history)
-                        stage="mail_encounter"
+                        stage="mail_scenario"
                     else:obs=end(p,obs,history)
                 continue
-            if stage=="mail_encounter":
-                if let_chase_escape and obs["IsInEncounter"]:
+            if stage=="mail_scenario":
+                if let_chase_escape and obs["IsInScenario"]:
                     # Valid public end-turns instead of a chase-item fixture.
                     # If the actual session requires a mandatory response this
                     # route fails with its real public state (no state mutation).
@@ -77,7 +77,7 @@ def run(spend_counter=True, let_chase_escape=False, stop_after_west_identity=Fal
                     if not op:raise RuntimeError("Cannot decline chase using a public end-turn")
                     obs=choose_action(p,obs,op,history)
                     continue
-                if not obs["IsInEncounter"]:
+                if not obs["IsInScenario"]:
                     cig_obtained=obs["Inventory"].get(ITEM,0)==1
                     stage="post_chase_home"
                     continue
@@ -293,7 +293,7 @@ def run(spend_counter=True, let_chase_escape=False, stop_after_west_identity=Fal
                     obs=end(p,obs,history)
                 continue
             if stage=="alley":
-                if not obs["IsInEncounter"]:
+                if not obs["IsInScenario"]:
                     raise RuntimeError("Returned to world before original Lyon form1")
                 cards={c["Name"] for c in obs["Cards"]}
                 if "把烟盒扔到桌上" in cards:
@@ -363,7 +363,7 @@ def run(spend_counter=True, let_chase_escape=False, stop_after_west_identity=Fal
                         "lyon_worldday":obs["WorldDay"],"lyon_inventory":obs["Inventory"].get(ITEM,0),
                         "native_steps":history,
                         "settings":{"entry":"world","seed":19,"growth":4,"items":{}},
-                        "obstacles":[],"scope":"One unmodified new world session continuously passed early counter to the original Lyon encounter form1; author-known operation choices not human"}
+                        "obstacles":[],"scope":"One unmodified new world session continuously passed early counter to the original Lyon scenario form1; author-known operation choices not human"}
                 for name in ("保证不用经理压他","说清谁付的钱","从头讲起","把她算回来","只拿信和底片"):
                     if get(obs,"action",name):
                         obs=perform(p,obs,name,history)

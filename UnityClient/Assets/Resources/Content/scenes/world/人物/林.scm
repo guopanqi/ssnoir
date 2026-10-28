@@ -20,7 +20,7 @@
 ;;
 ;; DEMO 临时收口：第 2、3 拍尚未完成实际游玩测试，当前不向玩家开放。
 ;; 测试日只会触发“测试改期”的固定收尾，不进入《无人班次》，也不伪造测试结果。
-;; 交锋、结算和尾声实现保留在下方，恢复前必须完成调试与整段试玩。
+;; Scenario、结算和尾声实现保留在下方，恢复前必须完成调试与整段试玩。
 ;;
 ;; 第一章只留两个布尔，第二章再读：
 ;;   技术负责人 —— 这一夜漂不漂亮，决定公司以后绕不绕得开他
@@ -160,12 +160,12 @@
     (define (known?) (>= stage 1))
     (define (prep-open?) (and (<= 1 stage) (<= stage 2)))
     (define (controller-done?) (>= (+ parts-good parts-fair) parts-max))
-    ;; 只开一天：world-day 走过去，交锋就没了。
+    ;; 只开一天：world-day 走过去，Scenario就没了。
     (define (test-due?) (and (prep-open?) (= world-day test-day)))
 
     (define (controller-grade)
       (cond
-        ;; 准备结果只改变交锋题面，不是交锋入场券。
+        ;; 准备结果只改变Scenario题面，不是Scenario入场券。
         ((not (controller-done?)) "凑合")
         ((= parts-fair 0) "上好")
         ((<= parts-fair 1) "将就")
@@ -175,7 +175,7 @@
 
     ;; ── 遭遇零 ──────────────────────────────────────
     ;; 走进码头那一刻就撞上事故。它不是一张可以留到明天的任务卡：入场 dialogue
-    ;; 播完立即进入交锋；交锋结算后才开放工棚与建设阶段。
+    ;; 播完立即进入Scenario；Scenario结算后才开放工棚与建设阶段。
     (define (arrival-runaway)
       (arrival "机械区出事了"
         (lambda ()
@@ -187,7 +187,7 @@
             (line "工人" "别管。那玩意儿前两天就这样了。")
             (line "工人" "……不过今天里头有人。")
             (line "世界" "他说完就转身接着扛他的货。"))
-          (start-encounter "失控的机械" on-runaway-result))))
+          (start-scenario "失控的机械" on-runaway-result))))
 
     (define (on-runaway-result result)
       (if (member? result (list '断闸 '拖走 '撑住 '自己修 '倒下))
@@ -404,18 +404,18 @@
 
     ;; ── 第三拍：测试之夜 ────────────────────────────
     ;; TODO(DEMO): 以下《无人班次》及尾声保留但暂不接入世界树。
-    ;; 恢复时不能只把 node-test 换回去：还要逐路验证交锋结算、
+    ;; 恢复时不能只把 node-test 换回去：还要逐路验证Scenario结算、
     ;; 错过测试日的路径、技术负责人／人文关怀写回，以及两张尾声卡。
     (define (node-test)
       (node "今晚：无人班次"
         :anchor workshop-test-anchor
-        :tags (list "交锋")
+        :tags (list "Scenario")
         :subtitle "四批货，没有人上手。今晚跑完就没有下一次了"
         :resolve (instant (lambda ()
           (set-global! '准备-轨道 (rail-clk 'current))
           (set-global! '控制器成色 (controller-grade))
           (set-global! '控制器隐患 (if (equal? last-flaw "") "接线是临时搭的" last-flaw))
-          (start-encounter "无人班次" on-test-result)))))
+          (start-scenario "无人班次" on-test-result)))))
 
     (define (on-test-result result)
       (if (and (list? result) (= (length result) 2))
@@ -571,7 +571,7 @@
            (list (node-bulletin))))
         (else '())))
 
-    ;; 遭遇零由码头 arrival 直接进入交锋，不在地点里留下可推迟的卡。
+    ;; 遭遇零由码头 arrival 直接进入Scenario，不在地点里留下可推迟的卡。
     (define (dock-nodes)
       '())
 
@@ -612,7 +612,7 @@
       (set! invited? #f)
       (sync-globals!))
 
-    ;; Demo 不再广播“测试之夜”，否则会向玩家许诺一场已隐藏的交锋。
+    ;; Demo 不再广播“测试之夜”，否则会向玩家许诺一场已隐藏的Scenario。
     ;; 当天没去工棚的玩家在回合结束时收到改期消息；没有亲自
     ;; 走完收尾卡，就不发小节成长。
     (define-turn-rule "正式测试改期"

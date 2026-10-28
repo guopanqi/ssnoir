@@ -27,10 +27,10 @@ def end(p,obs):
 def r91():
     rows=[]
     for scene,clear in (("整段完成",True),("分段保留对照",False)):
-        # research scene (not an authored '实验·' encounter).
+        # research scene (not an authored '实验·' scenario).
         from subprocess import Popen,PIPE
         from probe_four_scenario_causality import CMD,ROOT
-        p=Popen(CMD+["--session","encounters/研究·"+scene,"--seed","19","--growth","1"],
+        p=Popen(CMD+["--session","scenarios/研究·"+scene,"--seed","19","--growth","1"],
                 cwd=ROOT,stdin=PIPE,stdout=PIPE,stderr=PIPE,text=True)
         try:
             obs=recv(p)
@@ -51,7 +51,7 @@ def r92():
     from subprocess import Popen,PIPE
     from probe_four_scenario_causality import CMD,ROOT
     def run(seed,scene,nonlinear):
-        p=Popen(CMD+["--session","encounters/研究·"+scene,"--seed",str(seed),"--growth","1"],
+        p=Popen(CMD+["--session","scenarios/研究·"+scene,"--seed",str(seed),"--growth","1"],
                 cwd=ROOT,stdin=PIPE,stdout=PIPE,stderr=PIPE,text=True)
         try:
             obs=recv(p)

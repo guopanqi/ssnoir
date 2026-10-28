@@ -4,7 +4,7 @@
   "batch": "R510–R533 自主他者的私有机会与压力相关因果",
   "rounds": 24,
   "totalArchivedRounds": 478,
-  "objective": "长期自主发展可复用的玩法模式语言，覆盖已知作品先例、基础原语、完整交锋、跨阶段结构、组合条件与重要负例；评价玩家实际反复作出的判断、反馈、后果。历史20是广度愿景，不是价值认证名单或完成配额。",
+  "objective": "长期自主发展可复用的玩法模式语言，覆盖已知作品先例、基础原语、完整Scenario、跨阶段结构、组合条件与重要负例；评价玩家实际反复作出的判断、反馈、后果。历史20是广度愿景，不是价值认证名单或完成配额。",
   "policy": "从成熟作品、旧实验、新假设三向吸收；先去剧情定义玩家活动，再独立批评同构/最强简单策略，按需模型与盲Agent试玩。数学、作品先例、Agent、原生与真人是正交证据。知识图谱收录不等真人认可，精选展示与Debug独立把关，真人反馈异步且不阻塞。",
   "scope": {
     "default": "abstract-decision-patterns",
@@ -260,11 +260,11 @@
       "summary": "4手在A早报时获得真实早窗口收益、后到A/B需求时可耗完整一手REVOKE再一手CLAIM_B，p1/4 SOFT25/2>HARD23/2=SOFT无及时奖励23/2；最强固定SOFT23/2。无窗口且无及时奖金完整菜单13，此处是联合消融。不新增独立承诺原语。"
     },
     {
-      "family": "cross-encounter-causal-coupling-dominated-by-one-lane",
+      "family": "cross-scenario-causal-coupling-dominated-by-one-lane",
       "kind": "negative-architecture-composition-bypass",
-      "question": "两个成熟规则之间有真实双向约束，是否自动形成跨交锋重新分配注意力？",
+      "question": "两个成熟规则之间有真实双向约束，是否自动形成跨Scenario重新分配注意力？",
       "source": "COUP01 2026-10-13",
-      "summary": "七手OPS生产A/B具体证据，CLAIM_A禁止继续生产B；GATED/FLAT比较。phase0下p(A)=1/4、1/2、3/4根均9+10p，并由RUN_A、CLAIM_A、SIDE×5同一简单策略达到。phase1、p1/4虽有FLAT高61/5000的真实局部影响，不能据此认证新跨交锋架构或人的体验。"
+      "summary": "七手OPS生产A/B具体证据，CLAIM_A禁止继续生产B；GATED/FLAT比较。phase0下p(A)=1/4、1/2、3/4根均9+10p，并由RUN_A、CLAIM_A、SIDE×5同一简单策略达到。phase1、p1/4虽有FLAT高61/5000的真实局部影响，不能据此认证新跨Scenario架构或人的体验。"
     },
     {
       "family": "multiobjective-attention-commutativity-and-interruption",
@@ -281,7 +281,7 @@
       "summary": "两项受损独立1/2+伙伴外部机会2或4、救B自利得3；双损低机会玩家修A/伙伴救B，高机会玩家修B/伙伴退出，确有严格正常分叉。全8状态、四组权重，普通公开条件B援助位逐动作复制伙伴。默认工具51/4 vs无伙伴12 vs伙伴报价迟揭49/4。ACT01/NEG03已有自利回应先例，未认证新原语。"
     },
     {
-      "family": "mid-encounter-switch-feasibility-and-antagonist-shortcut",
+      "family": "mid-scenario-switch-feasibility-and-antagonist-shortcut",
       "kind": "method-diagnostic-and-cheap-legacy-counterexample",
       "question": "为何旧R54玩家开局定路线、后期无法改选；上次路线追踪是否一定使玩家应变？",
       "source": "RV01/02 2026-10-13",
@@ -676,14 +676,14 @@
     },
     {
       "id": "ABSTRACT-E-ENDOGENOUS-GOALS-OPERATIVE-RIGHTS",
-      "family": "endogenous-objectives-and-encounter-rights",
+      "family": "endogenous-objectives-and-scenario-rights",
       "question": "怎样让新委托不只是更多收益，而是以可被玩家理解的方式改变此前投入带来的合法操作/结算资格，且不能被几句日期优先规则完全解释？",
       "method": "GOAL01已从同一开局精确比较自己ASK开新R与完整事先条件菜单整树同构，且义务未完成−4时阈值由p>2/5升为p>2/3；不继续加R奖励/回合造新颖性。若再开方向，必须让目标生成改变可复用的操作方式/交付关系，明确强同成本完整菜单或本人可拒绝的承诺权利，先纸面反证。"
     },
     {
       "id": "ABSTRACT-F-RELATIONAL-RIGHTS-AUTONOMOUS-CONSENT",
       "family": "permission-maintained-by-strategic-other",
-      "question": "若玩家持有的跨交锋许可需要由有自利目标的另一主体维系/认可，他拒绝或撤销许可可否让玩家连续改变目标计划，而非仅显示换工具与固定外部机会信号？",
+      "question": "若玩家持有的跨Scenario许可需要由有自利目标的另一主体维系/认可，他拒绝或撤销许可可否让玩家连续改变目标计划，而非仅显示换工具与固定外部机会信号？",
       "method": "用RGT01全部简单口诀全优与ACT01公开外部机会严格改选作对照；允许对方真实做策略优化且检查自身效用平局，保留同成本ENABLE、固定脚本和短条件式。优先纸面行为循环/主动拒绝权限，不延长纯数学模型。"
     },
     {
@@ -737,7 +737,7 @@
     {
       "id": "ABSTRACT-Q-COST-TO-PIVOT-BEFORE-REVEAL",
       "family": "decision-window-and-human-goal-legibility",
-      "question": "能否在真实较短的交锋内让事件出现在两条路线仍具结果可达性时，且玩家清楚为什么关心它们，而不只是通知他已经发生无法补救的坏事？",
+      "question": "能否在真实较短的Scenario内让事件出现在两条路线仍具结果可达性时，且玩家清楚为什么关心它们，而不只是通知他已经发生无法补救的坏事？",
       "method": "先用RV01实际可达上界、严格终局差异和R54/R50原话审核；数学阈值以实际操作能力和回合计量，人的目标关切仅从无答案体验观察，不堆新随机/计时系统。"
     },
     {
@@ -785,11 +785,11 @@
     {
       "id": "ABSTRACT-AA-FOCUS-AND-SAFE-WAITING-REAL-WINDOW",
       "family": "early-mandatory-work-and-context-switching",
-      "question": "现实抽象交锋中为什么会有前期必须真实行动、不能安全SIDE等待的时段？如果没有合适因果理由，是否应直接用更简单的后知后做路线，而不是强迫玩家换焦点？",
+      "question": "现实抽象Scenario中为什么会有前期必须真实行动、不能安全SIDE等待的时段？如果没有合适因果理由，是否应直接用更简单的后知后做路线，而不是强迫玩家换焦点？",
       "method": "使用本批FOCUS无答案观察卡，首先保持规则合法性解释精确（t0必须WORK，t1可WORK或TO，前两手无SIDE），不提示最优；独立比较t2、t4、提前开放SIDE版，记录玩家是否理解预置焦点和剩余余裕。数学已有安全等待22>主20.5，无真人前不说人会喜欢。"
     },
     {
-      "id": "ABSTRACT-AB-SLACK-AWARE-ENCOUNTER-EVALUATION",
+      "id": "ABSTRACT-AB-SLACK-AWARE-SCENARIO-EVALUATION",
       "family": "objective-reachability-and-postcompletion-options",
       "question": "研究者审‘玩家此刻仍可A或B’时，是否都计算目标所需最短合法行动、完成后的保底/支线剩余和该目标真正不可补偿的后果，而不是仅勾选两条仍可达？",
       "method": "以后所有宣称真实可选路径的模型，至少留下一个正常可达前缀，报告距A/B的最短合法资源消耗与可留下的成果；参考FOCUS (4;1,4),(3;3,3),(2;2,2) 和STAKE非补偿义务；不把工具收益当人类关切。"
@@ -845,7 +845,7 @@
     {
       "id": "ABSTRACT-AK-ONE-TEST-FULL-DIAGNOSIS-GLOBAL-BYPASS",
       "family": "multi-step-diagnostic-vs-one-targeted-intervention",
-      "question": "当抽象交锋允许多轮排查时，是否有一手保护/试验直接达到完全识别与较低风险，令多轮试探只是更大的树而非新的选择？",
+      "question": "当抽象Scenario允许多轮排查时，是否有一手保护/试验直接达到完全识别与较低风险，令多轮试探只是更大的树而非新的选择？",
       "method": "以后每当提出逐层缩圈，先在正常初态枚举最强单手试验并核查单次信息是否可准确识别具体来源、潜在事件是否必然、单点操作是否合法。参考GROUP q1 N4完全一手识别，只有真正不满足这些因果前提才研究多轮。"
     },
     {
@@ -923,7 +923,7 @@
     "2026-10-13 X03严格证明局部有限模型中HARD直接禁A vs SOFT高额违约仍合法，虽然相同最大化行动/收益，但非最优表达行动菜单不同；禁止从最优DP推论玩家伦理/情感体验，未真人/原生。",
     "2026-10-13 NEG06/X01-LONG两族研究已发布抽象无答案Web原型+Node回归（协商10、危机136条路径）；前者直接报4即可跳过推理性拒绝分支，后者从同一开局自然得到B0/B2但仅需危机q>1/2一行口诀。都是旧机制族的可执行证据，未人类验证、未计旧478。",
     "2026-10-13五项可信协商研究NEG01—05（原历史478检查不增）：自利延迟付款违约、等预期可执行ESCROW/UPFRONT同值；付费重议被完整条件合同压制；低需求者也会策略性拒绝低报酬；造假成本必须真正足够；过去恩惠已兑现不能自动购买未来授权。R342/R430/R478历史已归入图；完整证据见批次，当前无真人/独立Agent。",
-    "2026-10-13 REL03跨场景保全：将立即5改成下一交锋M工作的凭据，普通窗口SECURE=6+2p<=同成本现场ENABLE/WAIT8；仅M首手截止时WAIT=8−2p且p>1/2提前保全胜，一句阈值口诀全优。证据归入PL-C05/早窗口家族，不能以新权利菜单为创新认证。",
+    "2026-10-13 REL03跨场景保全：将立即5改成下一ScenarioM工作的凭据，普通窗口SECURE=6+2p<=同成本现场ENABLE/WAIT8；仅M首手截止时WAIT=8−2p且p>1/2提前保全胜，一句阈值口诀全优。证据归入PL-C05/早窗口家族，不能以新权利菜单为创新认证。",
     "2026-10-13长期开题：合并成熟作品模式与20历史候选/精选六/R历史证据为正交知识地图（json），新C组和X组不同源脚本与研究记录。X01完整局部枚举：危机+B0优先FIX→A得2.50，B2先B→STOP得3.75，低B报酬退化FIX。X02准备窗口：p红0.5优先EARN得4，p红0.8优先PREP_RED得4.4，去掉早到窗口后EARN/临场ENABLE统一得6。两者无真人/正式C#、无需添加精选；下一步追问前史可达性与是否形成新的心理循环。",
     "较早R462–R533的历史跨批细节已转入各R批次、关系索引、旧归档记忆与模式地图：包括不可验证声明混同、R470真实前提修正、R502同成本ENABLE同构、R510自利伙伴预测边界以及R518压力因果等。精选/候选/Debug和旧478项检查维持原样，后续以原始批次为准。"
   ],
@@ -943,7 +943,7 @@
       "X03=数字效用变化不等同叙事目标重新认同"
     ],
     "noHumanTests": true,
-    "interpretation": "X01、X02与另一批C01、C02是不同的已知组合条件反证，均不构成新独立模式或完整真人交锋认证",
+    "interpretation": "X01、X02与另一批C01、C02是不同的已知组合条件反证，均不构成新独立模式或完整真人Scenario认证",
     "historyCountUnchanged": 478,
     "latestBatch": "docs/实验/机制研究/批次/2026-10-14-双向因果与操作回流/研究记录.md",
     "latestCounterfactual": "GATE三日早报价B关闭未完A，根29/2，删A→B许可根与真实最优路径仍不变；REOPEN四日允许付费补救且遇U时会改变选择，根21、禁补救39/2；BURDEN六日B产生负担封锁下一B、A清理重开，根21415/1024、期望A_CLEAR4103/2048次；最强五条简明策略166859/8192。三者各有可用关系但分别归入已有D02/CLAIM/P11，无独立新玩法认证。",

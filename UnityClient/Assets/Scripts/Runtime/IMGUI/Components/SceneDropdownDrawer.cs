@@ -145,7 +145,7 @@ namespace SSNoir.IMGUI
             // Research files stay available for automated sessions, not UI browsing.
             bool storyHeader = false;
             bool researchHeader = false;
-            foreach (var scene in DebugEncounterCatalog.Load())
+            foreach (var scene in DebugScenarioCatalog.Load())
             {
                 if (scene.Research && !researchHeader)
                 {
@@ -154,7 +154,7 @@ namespace SSNoir.IMGUI
                 }
                 else if (!scene.Research && !storyHeader)
                 {
-                    _dropdownItems.Add(new DropdownItem { Name = "--- STORY ENCOUNTERS ---", IsHeader = true });
+                    _dropdownItems.Add(new DropdownItem { Name = "--- STORY SCENARIOS ---", IsHeader = true });
                     storyHeader = true;
                 }
                 _dropdownItems.Add(new DropdownItem { Name = scene.Label, SceneName = scene.Scene });

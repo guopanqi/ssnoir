@@ -19,4 +19,4 @@ await n('那么也可能是你');
 P('fr',{face:'smile',cl:{tk:1}});await w(1800);P('fr',{cl:{tk:0}});
 go('wk',1240,1200);await w(1400);P('wk',{cl:{tk:1}});await w(1600);P('wk',{cl:{tk:0}});
 P('fr',{face:'n',h:0});dolly(1,50,66,4000);lamp(1);await f('看来你说的有些道理，我们来谈谈这件事');
-cc();await w(1600);await nar('（此后进入和莱恩的交锋：和弗兰克谈判 → 教训莱恩 · 见游戏）',3200)}},
+cc();await w(1600);await nar('（此后进入和莱恩的Scenario：和弗兰克谈判 → 教训莱恩 · 见游戏）',3200)}},

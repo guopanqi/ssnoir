@@ -2,7 +2,7 @@ import { Interpreter, env as lipsEnv, unserialize_bin } from "lips";
 
 /**
  * Stage-one Scheme candidate: a persistent per-scene LIPS VM.
- * Keep world and encounter VMs separate; do not use the BiwaScheme
+ * Keep world and scenario VMs separate; do not use the BiwaScheme
  * global environment (verified to leak top-level bindings).
  */
 export class LipsSession {

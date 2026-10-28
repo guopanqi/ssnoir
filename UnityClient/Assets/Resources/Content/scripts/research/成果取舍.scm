@@ -9,7 +9,7 @@
   (if 完成? (error "成果取舍：重复结算") #t)
   (set! 完成? #t)
   (spotlight! "成果结算" (string-append "已完成成果计" (number->string (成果点)) "点，半成品不计。"))
-  (end-encounter (成果结果 'settled)))
+  (end-scenario (成果结果 'settled)))
 (define (成果推进! clock n)
   (if (or 完成? (hospitalization-pending?)) #f
     (begin
@@ -18,7 +18,7 @@
 (define (成果坏!) (spend-composure! 1))
 (define (成果风险中! clock) (spend-composure! 1) (成果推进! clock 1))
 (define-opponent-rule "到期结算" (lambda () (not 完成?)) 成果结束!)
-(define (on-encounter-collapse) (collapse-result (成果结果 'collapse)))
+(define (on-scenario-collapse) (collapse-result (成果结果 'collapse)))
 (define (成果动作 clock name fast?)
   (node name
     :subtitle (if fast? "坏：冷静−1；中：冷静−1、进度+1；好：进度+2。" "坏：冷静−1；中：无变化；好：进度+1。")

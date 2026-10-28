@@ -107,7 +107,7 @@ namespace SSNoir.IMGUI
         private static void RunChapterJump(SSNoirGameManager gameManager, string code)
         {
             var sceneManager = gameManager.SceneManager;
-            // 只在世界里跳章节：交锋中途改世界状态没有意义，还会把那一场的快照搅乱。
+            // 只在世界里跳章节：Scenario中途改世界状态没有意义，还会把那一场的快照搅乱。
             if (sceneManager.CurrentSceneName != "world")
             {
                 gameManager.ShowNotification("先回到世界地图再跳章节。");
@@ -186,7 +186,7 @@ namespace SSNoir.IMGUI
             return normal + 1 + (_theatreExpanded ? TheatreJumpCount() : 0);
         }
 
-        // 交锋列表里“研究”开头的 encounter 收进二级菜单。
+        // Scenario列表里“研究”开头的 scenario 收进二级菜单。
         private static bool IsResearchScene(SceneItem item) => !item.IsHeader && item.SceneName.StartsWith("研究");
 
         private static int ResearchSceneCount()
@@ -412,13 +412,13 @@ namespace SSNoir.IMGUI
             sepY = sectionEndY + 6f;
             IMGUIStyles.DrawLine(new Vector2(panelX + 8, sepY), new Vector2(panelX + panelW - 8, sepY),
                 new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.25f), 1f);
-            IMGUIStyles.DrawLabel(new Rect(panelX + 8, sepY + 2f, panelW, 18f), "交锋测试（直接进入）", mutedStyle);
+            IMGUIStyles.DrawLabel(new Rect(panelX + 8, sepY + 2f, panelW, 18f), "Scenario测试（直接进入）", mutedStyle);
 
             // Scene list
             float listY = sepY + 4f + itemH * 0.5f;
             string currentScene = gameManager.SceneManager.CurrentSceneName;
 
-            // 研究类 encounter 收进二级菜单：先画组行，展开才画子项（缩进）。
+            // 研究类 scenario 收进二级菜单：先画组行，展开才画子项（缩进）。
             int researchTotal = ResearchSceneCount();
             bool researchGroupDrawn = false;
             foreach (var item in _scenes)
@@ -586,8 +586,8 @@ namespace SSNoir.IMGUI
             _scenes.Add(new SceneItem { Name = "--- 世界 ---", IsHeader = true });
             _scenes.Add(new SceneItem { Name = "world", SceneName = "world" });
 
-            // 剧情交锋全部列出；研究与实验不混入剧情列表。
-            var allowed = DebugEncounterCatalog.Load();
+            // 剧情Scenario全部列出；研究与实验不混入剧情列表。
+            var allowed = DebugScenarioCatalog.Load();
             bool storyHeader = false;
             bool researchHeader = false;
             foreach (var scene in allowed)
@@ -599,7 +599,7 @@ namespace SSNoir.IMGUI
                 }
                 else if (!scene.Research && !storyHeader)
                 {
-                    _scenes.Add(new SceneItem { Name = "--- 剧情交锋 ---", IsHeader = true });
+                    _scenes.Add(new SceneItem { Name = "--- 剧情Scenario ---", IsHeader = true });
                     storyHeader = true;
                 }
                 _scenes.Add(new SceneItem { Name = scene.Label, SceneName = scene.Scene });

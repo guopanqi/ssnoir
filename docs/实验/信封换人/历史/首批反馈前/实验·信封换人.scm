@@ -10,7 +10,7 @@
   (if 完了? (error "信封换人：重复结束") #t)
   (set! 完了? #t)
   (spotlight! "仓库交割" text)
-  (end-encounter (list result 付出)))
+  (end-scenario (list result 付出)))
 (define (查惊动!)
   (if (惊动 'full?) (结束! '人质被带走 "绑匪把人推进车里。你交出去的钱也没有回来。") #f))
 (define (抢! 档)
@@ -35,12 +35,12 @@
     (set! 已付? #f) (set! 已抢? #f)
     (期限 'advance! 1)
     (if (期限 'full?) (结束! '人质被带走 "车灯亮起，绑匪不再等你的决定。") #f)))
-(define (on-encounter-enter)
+(define (on-scenario-enter)
   (play-dialogue!
     (line "世界" "你要把人质救出来。可以付钱换人，也可以等他靠近后抢回来。")
     (line "世界" "绑匪要三只信封，每只五金。每收一只，才让人向出口走一步。")
     (line "世界" "他离门越近，越容易抢回来。交出去的钱不会退。")))
-(define (on-encounter-collapse) (collapse-result (list '倒下 付出)))
+(define (on-scenario-collapse) (collapse-result (list '倒下 付出)))
 (define (get-render-data)
   (container "信封换人"
     (append

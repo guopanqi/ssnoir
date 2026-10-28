@@ -10,7 +10,7 @@
   (if 完成? (error "启动窗口：重复结算") #t)
   (set! 完成? #t)
   (spotlight! 研究名称 text)
-  (end-encounter (开窗结果 status)))
+  (end-scenario (开窗结果 status)))
 (define (开窗推进! n)
   (if (or 完成? (hospitalization-pending?)) #f
     (if (前置 'full?)
@@ -28,7 +28,7 @@
     (cond
       ((and 限定窗口? (前置 'full?)) (开窗结束! 'window-expired "回合结束，后续窗口关闭。"))
       ((期限 'full?) (开窗结束! 'timeout "三回合已过，工作未完成。")))))
-(define (on-encounter-collapse) (collapse-result (开窗结果 'collapse)))
+(define (on-scenario-collapse) (collapse-result (开窗结果 'collapse)))
 (define (get-render-data)
   (container 研究名称
     (append

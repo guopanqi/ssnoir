@@ -9,7 +9,7 @@ def main():
   try:
    for _ in range(20):
     o=s.observation
-    if o['EncounterResult'] is not None:break
+    if o['ScenarioResult'] is not None:break
     choices=[x for x in o['Operations'] if x['Card']=='快做']
     op=min(choices,key=lambda x:x['DieValue']) if choices else K['operation'](o,('结束回合',None))
     s.act(op,'边界：低技能持续推进，覆盖伤势达到7后的真实倒下。')

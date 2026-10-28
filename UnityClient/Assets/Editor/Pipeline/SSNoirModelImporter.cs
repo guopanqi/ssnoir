@@ -323,7 +323,7 @@ namespace SSNoir.Editor
             var ins = vcams.Where(v => v.name.StartsWith("PortalIn_", StringComparison.Ordinal)).ToArray();
 
             // 一台 PortalIn 就是一个 Portal：挂到同名 Stage 的 Anchor 上。Stage 内的揭幕由
-            // StageTransitionController 从交锋根机位算出来，不再要求 PortalOut。
+            // StageTransitionController 从Scenario根机位算出来，不再要求 PortalOut。
             foreach (var inCam in ins)
             {
                 string context = inCam.name.Substring("PortalIn_".Length);

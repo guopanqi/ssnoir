@@ -15,8 +15,8 @@ namespace SSNoir.Core
         private readonly IScriptLoader _loader;
 
         private SchemeInterpreter? _worldInterpreter;
-        private SchemeInterpreter? _encounterInterpreter;
-        private string _encounterSceneName = string.Empty;
+        private SchemeInterpreter? _scenarioInterpreter;
+        private string _scenarioSceneName = string.Empty;
         private bool _turnEndedDuringAction;
         private bool _isExecutingAction;
         private bool _isEnteringPlace;
@@ -27,11 +27,11 @@ namespace SSNoir.Core
         private RoundTransitionPhase _roundTransitionPhase;
         private SchemeInterpreter? _roundTransitionInterpreter;
         private int _nextForcedAction;
-        // 出发去交锋前扣下的世界骰池；回到世界时还回去。null = 没有可还的（新开局/读档/新一天）。
+        // 出发去Scenario前扣下的世界骰池；回到世界时还回去。null = 没有可还的（新开局/读档/新一天）。
         private Dictionary<string, (List<int> Dice, List<int> SlotIds, int IssuedInjuryDieLoss)>? _stashedWorldDice;
-        private bool _pendingSceneIsEncounter;
-        private Procedure? _encounterCallback;
-        private bool _encounterEnded;
+        private bool _pendingSceneIsScenario;
+        private Procedure? _scenarioCallback;
+        private bool _scenarioEnded;
         private readonly HashSet<string> _seenWorldPlaces = new HashSet<string>(StringComparer.Ordinal);
         private bool _hasWorldPlaceBaseline;
 
@@ -58,7 +58,7 @@ namespace SSNoir.Core
 
         public GameNode? CurrentRootNode { get; private set; }
         public List<GameClock> CurrentClocks { get; private set; } = new List<GameClock>();
-        /// <summary>本帧的卷宗（世界场景才有，交锋里是空的）。</summary>
+        /// <summary>本帧的卷宗（世界场景才有，Scenario里是空的）。</summary>
         public List<DossierEntry> CurrentDossier { get; private set; } = new List<DossierEntry>();
         public List<SupportEntry> CurrentSupports { get; private set; } = new List<SupportEntry>();
 
@@ -76,8 +76,8 @@ namespace SSNoir.Core
             => _gameState.Set(DossierUnpinnedKey, string.Join("\n", ids));
         public PresentationSnapshot LatestSnapshot { get; private set; } = new PresentationSnapshot();
 
-        public SchemeInterpreter ActiveInterpreter => _encounterInterpreter ?? _worldInterpreter ?? throw new InvalidOperationException("No active interpreter");
-        public string CurrentSceneName => _encounterInterpreter != null ? _encounterSceneName : "world";
+        public SchemeInterpreter ActiveInterpreter => _scenarioInterpreter ?? _worldInterpreter ?? throw new InvalidOperationException("No active interpreter");
+        public string CurrentSceneName => _scenarioInterpreter != null ? _scenarioSceneName : "world";
         public GameState GameState => _gameState;
 
         public SceneManager(GameState gameState, IScriptLoader loader)
@@ -90,10 +90,10 @@ namespace SSNoir.Core
         {
             Settings.Clear();
             _worldInterpreter = null;
-            _encounterInterpreter = null;
-            _encounterSceneName = string.Empty;
-            _encounterCallback = null;
-            _encounterEnded = false;
+            _scenarioInterpreter = null;
+            _scenarioSceneName = string.Empty;
+            _scenarioCallback = null;
+            _scenarioEnded = false;
             _turnEndedDuringAction = false;
             _hasPendingSceneDiceRoll = false;
             _pendingAutoActions.Clear();
@@ -101,7 +101,7 @@ namespace SSNoir.Core
             _roundTransitionState = RoundTransitionState.Idle;
             _roundTransitionInterpreter = null;
             _nextForcedAction = 0;
-            _pendingSceneIsEncounter = false;
+            _pendingSceneIsScenario = false;
             _stashedWorldDice = null;
             CurrentRootNode = null;
             CurrentClocks.Clear();
@@ -118,13 +118,13 @@ namespace SSNoir.Core
         {
             if (sceneName != CurrentSceneName)
             {
-                // 调试直切不属于原交锋的收场；不能把它的回调带进目标场景。
-                _encounterCallback = null;
+                // 调试直切不属于原Scenario的收场；不能把它的回调带进目标场景。
+                _scenarioCallback = null;
                 LoadScene(sceneName);
             }
         }
 
-        // The world is a single shared interpreter; everything else is an encounter.
+        // The world is a single shared interpreter; everything else is an scenario.
         private static bool IsWorldScene(string sceneName)
         {
             return sceneName == "world" || sceneName == "world/world";
@@ -132,21 +132,21 @@ namespace SSNoir.Core
 
         public void LoadScene(string sceneName)
         {
-            // 世界骰池属于「今天」，不属于「这个场景」。去打一场交锋再回来，天没变，
+            // 世界骰池属于「今天」，不属于「这个场景」。去打一场Scenario再回来，天没变，
             // 骰子就不该换一批——所以离开世界时把骰池扣下来，回来时原样还回去。
             if (IsWorldScene(CurrentSceneName) && !IsWorldScene(sceneName))
                 _stashedWorldDice = _gameState.Team.CaptureActionDice();
 
             if (IsWorldScene(sceneName))
             {
-                _encounterEnded = true;
-                _encounterInterpreter = null;
-                _encounterSceneName = string.Empty;
+                _scenarioEnded = true;
+                _scenarioInterpreter = null;
+                _scenarioSceneName = string.Empty;
                 
                 if (_worldInterpreter == null)
                 {
                     _worldInterpreter = new SchemeInterpreter(_gameState, _loader);
-                    RegisterEncounterBridges(_worldInterpreter);
+                    RegisterScenarioBridges(_worldInterpreter);
                     _worldInterpreter.LoadFile("scenes/world/world.scm");
                 }
                 
@@ -158,31 +158,31 @@ namespace SSNoir.Core
             else
             {
                 // 正式入场和调试直载共用同一条生命周期边界。
-                _encounterEnded = false;
-                SupportUsedThisEncounter = false;
+                _scenarioEnded = false;
+                SupportUsedThisScenario = false;
                 string cleanName = sceneName;
-                if (cleanName.StartsWith("encounters/"))
+                if (cleanName.StartsWith("scenarios/"))
                 {
-                    cleanName = cleanName.Substring("encounters/".Length);
+                    cleanName = cleanName.Substring("scenarios/".Length);
                 }
 
-                _encounterSceneName = cleanName;
-                _encounterInterpreter = new SchemeInterpreter(_gameState, _loader);
-                RegisterEncounterBridges(_encounterInterpreter);
-                _encounterInterpreter.LoadFile($"scenes/encounters/{cleanName}.scm");
+                _scenarioSceneName = cleanName;
+                _scenarioInterpreter = new SchemeInterpreter(_gameState, _loader);
+                RegisterScenarioBridges(_scenarioInterpreter);
+                _scenarioInterpreter.LoadFile($"scenes/scenarios/{cleanName}.scm");
                 
                 if (_gameState.Get<string>("location") != cleanName)
                 {
                     _gameState.Set("location", cleanName);
                 }
 
-                // 交锋自己的入场演出属于刚载入的交锋，而不是发起它的世界动作。
+                // Scenario自己的入场演出属于刚载入的Scenario，而不是发起它的世界动作。
                 // 若本次载入来自一个动作，这些步骤会写进该动作仍持有的 ActionReport；
                 // Debug 直载时则由表现函数安全地忽略。
                 var entryReport = _gameState.CurrentActionReport;
                 int entryStepStart = entryReport?.BlockingStorySteps.Count ?? 0;
-                _encounterInterpreter.Eval("(on-encounter-enter)");
-                // 交锋开场在进入新空间后播放；城市动作先前排入的演出仍留在进门之前。
+                _scenarioInterpreter.Eval("(on-scenario-enter)");
+                // Scenario开场在进入新空间后播放；城市动作先前排入的演出仍留在进门之前。
                 if (entryReport != null && entryReport.BlockingStorySteps.Count > entryStepStart)
                 {
                     int count = entryReport.BlockingStorySteps.Count - entryStepStart;
@@ -198,26 +198,26 @@ namespace SSNoir.Core
             NotifySceneLoaded();
         }
 
-        /// <summary>交锋里每结束一个回合要付的冷静。见 EndTurn。
-        /// 1 点＝满冷静能撑五个回合。曾经是 2：一场交锋三个回合就见底，
+        /// <summary>Scenario里每结束一个回合要付的冷静。见 EndTurn。
+        /// 1 点＝满冷静能撑五个回合。曾经是 2：一场Scenario三个回合就见底，
         /// 玩家还没来得及做完想做的事就已经在流血，代价来得太快，读不成"别磨"，
         /// 只读成"这场打不起"。压到 1，时间表拉长一倍，磨仍然要付账，但付得起。
         ///
         /// 注意这条本身**不构成**"别磨"的全部理由——1 点一回合足够便宜，
-        /// 光靠它玩家可以一直等好骰子。真正让人不敢磨的东西得由交锋自己带
+        /// 光靠它玩家可以一直等好骰子。真正让人不敢磨的东西得由Scenario自己带
         /// （时钟走到底、对手的动作、机会窗口关掉），这条只负责让磨有个底价。</summary>
-        private const int EncounterTurnComposureCost = 1;
+        private const int ScenarioTurnComposureCost = 1;
 
-        private void RollSceneDice(bool isInEncounter)
+        private void RollSceneDice(bool isInScenario)
         {
             if (_isExecutingAction)
             {
                 _hasPendingSceneDiceRoll = true;
-                _pendingSceneIsEncounter = isInEncounter;
+                _pendingSceneIsScenario = isInScenario;
                 return;
             }
 
-            ApplySceneDice(isInEncounter);
+            ApplySceneDice(isInScenario);
         }
 
         private void ApplyPendingSceneDiceRoll()
@@ -228,18 +228,18 @@ namespace SSNoir.Core
             }
 
             _hasPendingSceneDiceRoll = false;
-            ApplySceneDice(_pendingSceneIsEncounter);
+            ApplySceneDice(_pendingSceneIsScenario);
         }
 
-        // 进交锋：交锋有自己的一套骰池，重掷。
+        // 进Scenario：Scenario有自己的一套骰池，重掷。
         // 回世界：有暂存就还回去（同一天不换骰子）；没有暂存才是真的新一天/新开局，重掷。
-        private void ApplySceneDice(bool isInEncounter)
+        private void ApplySceneDice(bool isInScenario)
         {
-            if (isInEncounter)
+            if (isInScenario)
             {
-                // 交锋使用自己的骰池，但不能动离开世界时扣下的那份。它要一直活到
-                // EndEncounter 返回世界；此前这里无条件清 null，导致回来后重掷城市骰。
-                _gameState.Team.RollActionDice(isInEncounter: true, consumeHangover: false);
+                // Scenario使用自己的骰池，但不能动离开世界时扣下的那份。它要一直活到
+                // EndScenario 返回世界；此前这里无条件清 null，导致回来后重掷城市骰。
+                _gameState.Team.RollActionDice(isInScenario: true, consumeHangover: false);
                 return;
             }
 
@@ -252,7 +252,7 @@ namespace SSNoir.Core
 
             // 没有暂存才是真的新开局或新一天。
             _stashedWorldDice = null;
-            _gameState.Team.RollActionDice(isInEncounter: false, consumeHangover: false);
+            _gameState.Team.RollActionDice(isInScenario: false, consumeHangover: false);
         }
 
         private void NotifySceneLoaded()
@@ -265,26 +265,26 @@ namespace SSNoir.Core
             }
         }
 
-        public void StartEncounter(string name)
+        public void StartScenario(string name)
         {
             LoadScene(name);
         }
 
-        /// <summary>带进这一场的关系支援用过了没有。每场一次，随交锋开始归零；
-        /// 交锋中不能存档，所以它不进存档。</summary>
-        public bool SupportUsedThisEncounter { get; private set; }
+        /// <summary>带进这一场的关系支援用过了没有。每场一次，随Scenario开始归零；
+        /// Scenario中不能存档，所以它不进存档。</summary>
+        public bool SupportUsedThisScenario { get; private set; }
 
-        /// <summary>最后一次交锋结算交回来的值。正式流程由回调消费，这里留一份供离线试跑读取。</summary>
-        public object? LastEncounterResult { get; private set; }
+        /// <summary>最后一次Scenario结算交回来的值。正式流程由回调消费，这里留一份供离线试跑读取。</summary>
+        public object? LastScenarioResult { get; private set; }
 
-        public void EndEncounter(object? result = null)
+        public void EndScenario(object? result = null)
         {
-            if (_encounterEnded) return;
-            _encounterEnded = true;
-            LastEncounterResult = result;
+            if (_scenarioEnded) return;
+            _scenarioEnded = true;
+            LastScenarioResult = result;
 
-            var cb = _encounterCallback;
-            _encounterCallback = null;
+            var cb = _scenarioCallback;
+            _scenarioCallback = null;
             var report = _gameState.CurrentActionReport;
             int oldSceneStepCount = report?.BlockingStorySteps.Count ?? 0;
 
@@ -305,25 +305,25 @@ namespace SSNoir.Core
             LoadScene("world");
         }
 
-        private void AbortEncounterForRetry()
+        private void AbortScenarioForRetry()
         {
-            if (_encounterEnded) return;
-            _encounterEnded = true;
-            LastEncounterResult = Symbol.FromString("倒下");
-            _encounterCallback = null;
+            if (_scenarioEnded) return;
+            _scenarioEnded = true;
+            LastScenarioResult = Symbol.FromString("倒下");
+            _scenarioCallback = null;
             _gameState.Team.DismissTemporaryCompanions();
             LoadScene("world");
         }
 
         /// <summary>
-        /// 消费一次倒下：若仍在交锋，先按该交锋声明的现有失败结果或重试协议退出；
+        /// 消费一次倒下：若仍在Scenario，先按该Scenario声明的现有失败结果或重试协议退出；
         /// 随后强制过完这一天，作废此前暂存的城市骰，并把表现位置落到诊所。
         ///
-        /// **「你倒下了」必须排在退场回调讲的话前面。**退出交锋会当场跑世界那边的收场回调
+        /// **「你倒下了」必须排在退场回调讲的话前面。**退出Scenario会当场跑世界那边的收场回调
         /// （勒索信 → 三封信的 on-delivery-result），它讲的是那一夜的结局；而倒下是那个结局
         /// 的**原因**。按追加顺序播，玩家先读到"你跟丢了他、钱一分没剩"——听起来像是他没追上，
         /// 然后才被告知自己其实是被撂倒了、已经躺在诊所。因果反过来，那条失败叙述就变成了假话。
-        /// 因而把送医与倒下展示放在世界回调之前；旧交锋演出结束后先采纳世界快照，
+        /// 因而把送医与倒下展示放在世界回调之前；旧Scenario演出结束后先采纳世界快照，
         /// 再按“诊所醒来 → 你倒下了 → 那一夜的结局”播放。
         /// </summary>
         private void ResolvePendingHospitalization(
@@ -336,41 +336,41 @@ namespace SSNoir.Core
 
             if (!CurrentSceneName.Equals("world", StringComparison.OrdinalIgnoreCase))
             {
-                object rawPolicy = collapseInterpreter.Eval("(on-encounter-collapse)");
+                object rawPolicy = collapseInterpreter.Eval("(on-scenario-collapse)");
                 if (rawPolicy is not List<object> policy || policy.Count == 0)
                     throw new InvalidOperationException(
-                        $"交锋“{CurrentSceneName}”的 on-encounter-collapse 必须返回 collapse-result 或 collapse-retry。");
+                        $"Scenario“{CurrentSceneName}”的 on-scenario-collapse 必须返回 collapse-result 或 collapse-retry。");
 
                 string kind = SchemeValue.AsId(policy[0]);
                 if (kind == "collapse-result" && policy.Count == 2)
                 {
-                    // 回传什么由交锋自己决定，引擎不管。曾经这里写着「只复用既有失败结果，
+                    // 回传什么由Scenario自己决定，引擎不管。曾经这里写着「只复用既有失败结果，
                     // 不增加倒下专属故事路线」——那条约定是错的，实测就露馅了：玩家在巷口被
                     // 撂倒，世界那边照着「跟丢」那条路讲了一遍"你没追上他"。他明明追上了，
                     // 是被打倒的。**倒下和普通失败是两件事，讲成一件就是在骗玩家。**
-                    // 所以交锋在这里应当回传一个能被世界那边认出来的收场（例如 '倒下），
+                    // 所以Scenario在这里应当回传一个能被世界那边认出来的收场（例如 '倒下），
                     // 由拥有故事的模块决定它怎么讲——除非那一场的失败本来就是"你被打趴下"。
                     _stashedWorldDice = null;
-                    EndEncounter(policy[1]);
+                    EndScenario(policy[1]);
                 }
                 else if (kind == "collapse-retry" && policy.Count == 1)
                 {
                     _stashedWorldDice = null;
-                    AbortEncounterForRetry();
+                    AbortScenarioForRetry();
                 }
                 else
                 {
                     throw new InvalidOperationException(
-                        $"交锋“{CurrentSceneName}”返回了非法倒下策略；应为 (collapse-result result) 或 (collapse-retry)。");
+                        $"Scenario“{CurrentSceneName}”返回了非法倒下策略；应为 (collapse-result result) 或 (collapse-retry)。");
                 }
             }
 
             if (!CurrentSceneName.Equals("world", StringComparison.OrdinalIgnoreCase))
-                throw new InvalidOperationException("倒下结算后必须回到世界场景。交锋回调不能在送医途中开启另一场交锋。");
+                throw new InvalidOperationException("倒下结算后必须回到世界场景。Scenario回调不能在送医途中开启另一场Scenario。");
 
             var hospitalization = _gameState.ConsumeHospitalization();
 
-            // 先采纳世界快照并抵达诊所，再讲倒下与退场回调；旧交锋的演出在此前结束。
+            // 先采纳世界快照并抵达诊所，再讲倒下与退场回调；旧Scenario的演出在此前结束。
             report.PostSceneBlockingSteps.Insert(0,
                 BlockingStoryStep.ForEnterPlace("诊所"));
             report.PostSceneBlockingSteps.Insert(1, BlockingStoryStep.ForSpotlight(
@@ -381,8 +381,8 @@ namespace SSNoir.Core
             {
                 var world = _worldInterpreter
                     ?? throw new InvalidOperationException("Hospitalization requires the world interpreter.");
-                // 送医强制结束当天，但日终事件要等诊所醒来与交锋结算播完。
-                // 只搬移这次日终新增的步骤，保留旧交锋在切场景前的演出。
+                // 送医强制结束当天，但日终事件要等诊所醒来与Scenario结算播完。
+                // 只搬移这次日终新增的步骤，保留旧Scenario在切场景前的演出。
                 int firstWorldStep = report.BlockingStorySteps.Count;
                 world.Eval("(on-turn-end)");
                 int worldStepCount = report.BlockingStorySteps.Count - firstWorldStep;
@@ -394,38 +394,38 @@ namespace SSNoir.Core
             foreach (var name in _gameState.Team.BeginCityDay())
                 report.AddSupplement($"{name}缓过来了，今天照旧跟着你。");
 
-            // 这是新的一天，不是普通切场景：必须消费宿醉并重新发骰。EndEncounter 在动作中
+            // 这是新的一天，不是普通切场景：必须消费宿醉并重新发骰。EndScenario 在动作中
             // 可能已经挂起过一次“回世界”的场景骰，那次只是过渡，明确取消，避免随后覆盖新日骰池。
             _hasPendingSceneDiceRoll = false;
-            _gameState.Team.RollActionDice(isInEncounter: false);
+            _gameState.Team.RollActionDice(isInScenario: false);
         }
 
-        private void RegisterEncounterBridges(SchemeInterpreter interpreter)
+        private void RegisterScenarioBridges(SchemeInterpreter interpreter)
         {
             interpreter.RawInterpreter.DefineGlobal(
-                Symbol.FromString("start-encounter"),
+                Symbol.FromString("start-scenario"),
                 new NativeProcedure(args =>
                 {
                     if (args.Count < 1)
-                        throw new ArgumentException("start-encounter requires 1 argument (encounter name)");
+                        throw new ArgumentException("start-scenario requires 1 argument (scenario name)");
                     string name = SchemeValue.AsId(args[0]);
                     if (_isEnteringPlace && _gameState.CurrentActionReport?.Effects.Count > 0)
                         throw new InvalidOperationException(
-                            $"入场节拍在 start-encounter（\"{name}\"）之前产生了动作结算效果。"
-                            + "Arrival 只能先播叙事，再把 start-encounter 放在最后。");
-                    _encounterCallback = args.Count > 1 ? args[1] as Procedure : null;
-                    StartEncounter(name);
+                            $"入场节拍在 start-scenario（\"{name}\"）之前产生了动作结算效果。"
+                            + "Arrival 只能先播叙事，再把 start-scenario 放在最后。");
+                    _scenarioCallback = args.Count > 1 ? args[1] as Procedure : null;
+                    StartScenario(name);
                     return new None();
-                }, "start-encounter")
+                }, "start-scenario")
             );
 
-            // 关系支援每场一次：次数记在这里，随 StartEncounter 归零；消费在 ExecuteAction 里由引擎做，
+            // 关系支援每场一次：次数记在这里，随 StartScenario 归零；消费在 ExecuteAction 里由引擎做，
             // 内容只读它来把卡变灰。
             interpreter.RawInterpreter.DefineGlobal(
                 Symbol.FromString("__support-used?"),
-                new NativeProcedure(args => SupportUsedThisEncounter, "__support-used?"));
+                new NativeProcedure(args => SupportUsedThisScenario, "__support-used?"));
 
-            // 支援叫来的临时帮手：入队并当场发骰；回合末 / 交锋结束由引擎自动清走。只能在交锋里叫。
+            // 支援叫来的临时帮手：入队并当场发骰；回合末 / Scenario结束由引擎自动清走。只能在Scenario里叫。
             interpreter.RawInterpreter.DefineGlobal(
                 Symbol.FromString("__summon-helper!"),
                 new NativeProcedure(args =>
@@ -433,7 +433,7 @@ namespace SSNoir.Core
                     if (args.Count < 3)
                         throw new ArgumentException("__summon-helper! requires id, name, and stats alist");
                     if (IsWorldScene(CurrentSceneName))
-                        throw new InvalidOperationException("summon-helper!: 帮手只能在交锋里叫，城市里没有他的骰位。");
+                        throw new InvalidOperationException("summon-helper!: 帮手只能在Scenario里叫，城市里没有他的骰位。");
                     string actorId = SchemeValue.AsId(args[0]);
                     string name = args[1] as string
                         ?? throw new ArgumentException("helper name must be a string");
@@ -444,20 +444,20 @@ namespace SSNoir.Core
                 }, "__summon-helper!"));
 
             interpreter.RawInterpreter.DefineGlobal(
-                Symbol.FromString("end-encounter"),
+                Symbol.FromString("end-scenario"),
                 new NativeProcedure(args =>
                 {
                     // 造成倒下的脚本效果必须把退场交给 ResolvePendingHospitalization。
-                    // 若此处先正常退场，动作后处理只能看见 world，交锋自己的
-                    // on-encounter-collapse 将永远没有机会决定倒下结果。
+                    // 若此处先正常退场，动作后处理只能看见 world，Scenario自己的
+                    // on-scenario-collapse 将永远没有机会决定倒下结果。
                     if (_gameState.HasPendingHospitalization)
                         throw new InvalidOperationException(
-                            "玩家已经倒下，脚本不能再调用 end-encounter。"
-                            + "请停止当前结算，由 on-encounter-collapse 声明退场结果。");
+                            "玩家已经倒下，脚本不能再调用 end-scenario。"
+                            + "请停止当前结算，由 on-scenario-collapse 声明退场结果。");
                     var result = args.Count > 0 ? args[0] : null;
-                    EndEncounter(result);
+                    EndScenario(result);
                     return new None();
-                }, "end-encounter")
+                }, "end-scenario")
             );
 
             interpreter.RawInterpreter.DefineGlobal(
@@ -473,18 +473,18 @@ namespace SSNoir.Core
             );
 
             interpreter.RawInterpreter.DefineGlobal(
-                Symbol.FromString("__refresh-encounter-dice!"),
+                Symbol.FromString("__refresh-scenario-dice!"),
                 new NativeProcedure(args =>
                 {
                     if (args.Count != 0)
-                        throw new ArgumentException("refresh-encounter-dice!: expected no arguments");
+                        throw new ArgumentException("refresh-scenario-dice!: expected no arguments");
                     if (CurrentSceneName.Equals("world", StringComparison.OrdinalIgnoreCase))
-                        throw new InvalidOperationException("refresh-encounter-dice!: 只能在交锋中使用。");
+                        throw new InvalidOperationException("refresh-scenario-dice!: 只能在Scenario中使用。");
 
                     // 动作内调用时延迟到资源扣除之后，避免新手里的同一槽位被旧动作误扣。
-                    RollSceneDice(isInEncounter: true);
+                    RollSceneDice(isInScenario: true);
                     return new None();
-                }, "__refresh-encounter-dice!")
+                }, "__refresh-scenario-dice!")
             );
 
             interpreter.RawInterpreter.DefineGlobal(
@@ -494,9 +494,9 @@ namespace SSNoir.Core
                     if (args.Count != 7)
                         throw new ArgumentException("auto-action!: expected id, subtitle, anchor, demands, prelude, effect, and display name");
                     if (CurrentSceneName.Equals("world", StringComparison.OrdinalIgnoreCase))
-                        throw new InvalidOperationException("auto-action!: 只能在交锋中使用。");
+                        throw new InvalidOperationException("auto-action!: 只能在Scenario中使用。");
                     if (!_isResolvingTurnEnd)
-                        throw new InvalidOperationException("auto-action!: 只能由交锋的回合结算规则调用。");
+                        throw new InvalidOperationException("auto-action!: 只能由Scenario的回合结算规则调用。");
                     _ = _gameState.CurrentActionReport
                         ?? throw new InvalidOperationException("auto-action!: 必须在回合结算中调用。");
                     string id = args[0] as string
@@ -585,8 +585,8 @@ namespace SSNoir.Core
 
         public void SaveGame(string filePath)
         {
-            if (_encounterInterpreter != null)
-                throw new InvalidOperationException("Cannot save during an encounter. End the encounter first.");
+            if (_scenarioInterpreter != null)
+                throw new InvalidOperationException("Cannot save during an scenario. End the scenario first.");
 
             var globals = _gameState.GetPureGlobals();
             globals.Remove("location"); // reconstructed on load
@@ -615,16 +615,16 @@ namespace SSNoir.Core
             // interpreter so any top-level translated values use that language too.
             _worldInterpreter = null;
 
-            // 1. Force exit any active encounter
-            _encounterInterpreter = null;
-            _encounterSceneName   = string.Empty;
-            _encounterCallback    = null;
+            // 1. Force exit any active scenario
+            _scenarioInterpreter = null;
+            _scenarioSceneName   = string.Empty;
+            _scenarioCallback    = null;
 
             // 2. Ensure world interpreter exists (creates it if not yet initialized)
             if (_worldInterpreter == null)
             {
                 _worldInterpreter = new SchemeInterpreter(_gameState, _loader);
-                RegisterEncounterBridges(_worldInterpreter);
+                RegisterScenarioBridges(_worldInterpreter);
                 _worldInterpreter.LoadFile("scenes/world/world.scm");
             }
 
@@ -653,7 +653,7 @@ namespace SSNoir.Core
             // 新格式原样恢复当天剩余骰池。旧存档没有骰池字段，只在迁移时补掷一次；
             // 空骰池在新格式中是有效状态，绝不能误判成“需要重新掷骰”。
             if (!data.Team.HasSavedActionDice)
-                _gameState.Team.RollActionDice(isInEncounter: false, consumeHangover: false);
+                _gameState.Team.RollActionDice(isInScenario: false, consumeHangover: false);
 
             // 8. 读档后的第一棵世界树只建立地点基线。存档里已经开放的地点
             // 不应被误报为本次新开放。
@@ -703,11 +703,11 @@ namespace SSNoir.Core
             return result;
         }
 
-        /// <summary>出门前选带哪一条支援。交锋里不许换——那一场带谁进场时就定了。</summary>
+        /// <summary>出门前选带哪一条支援。Scenario里不许换——那一场带谁进场时就定了。</summary>
         public void SetCarriedSupport(string id)
         {
             if (!IsWorldScene(CurrentSceneName))
-                throw new InvalidOperationException("交锋里不能换支援。");
+                throw new InvalidOperationException("Scenario里不能换支援。");
             _gameState.Team.SetCarriedSupport(id);
             RebuildRenderTree();
         }
@@ -743,7 +743,7 @@ namespace SSNoir.Core
             CollectClocksRecursive(rootNode, flatClocks);
             CurrentClocks = flatClocks;
 
-            CurrentCarryNodes = BuildEncounterActionNodes(rootNode, active);
+            CurrentCarryNodes = BuildScenarioActionNodes(rootNode, active);
             ActionRiskContract.Validate(rootNode, CurrentCarryNodes);
 
             CurrentDossier = IsWorldScene(CurrentSceneName)
@@ -757,8 +757,8 @@ namespace SSNoir.Core
         }
 
         /// <summary>
-        /// 非场景交锋动作：随身消耗品与人物支援都不由具体交锋声明，否则每写一场都要重抄。
-        /// 引擎通过 engine.scm 的 encounter-action-nodes 统一取一份，城市里不给。
+        /// 非场景Scenario动作：随身消耗品与人物支援都不由具体Scenario声明，否则每写一场都要重抄。
+        /// 引擎通过 engine.scm 的 scenario-action-nodes 统一取一份，城市里不给。
         ///
         /// 它们**不进渲染树**：进了树就会被排进场上的卡片区，读起来像是这一场的事。
         /// 客户端从 CarryNodes 单独取，但一律使用普通动作卡和同一个 ExecuteAction；差别只在
@@ -766,11 +766,11 @@ namespace SSNoir.Core
         /// </summary>
         public IReadOnlyList<GameNode> CurrentCarryNodes { get; private set; } = new List<GameNode>();
 
-        private List<GameNode> BuildEncounterActionNodes(GameNode rootNode, SchemeInterpreter active)
+        private List<GameNode> BuildScenarioActionNodes(GameNode rootNode, SchemeInterpreter active)
         {
             if (IsWorldScene(CurrentSceneName)) return new List<GameNode>();
 
-            var carried = NodeConverter.ConvertList(active.Eval("(encounter-action-nodes)"), active.RawInterpreter);
+            var carried = NodeConverter.ConvertList(active.Eval("(scenario-action-nodes)"), active.RawInterpreter);
             foreach (var node in carried)
             {
                 if (!string.IsNullOrEmpty(node.SupportId) && node.Requires.Count > 0)
@@ -783,11 +783,11 @@ namespace SSNoir.Core
             {
                 if (string.IsNullOrEmpty(node.CarryItemId) && string.IsNullOrEmpty(node.SupportId))
                     throw new InvalidOperationException(
-                        $"非场景交锋动作 '{node.Id}' 必须声明 :carry-item 或 :support。");
+                        $"非场景Scenario动作 '{node.Id}' 必须声明 :carry-item 或 :support。");
                 // 槽位状态按节点 ID 索引，重复 ID 会让随身卡和场上某张卡共用同一份槽位。
                 if (treeIds.Contains(node.Id))
                     throw new InvalidOperationException(
-                        $"非场景交锋动作 '{node.Id}' 和交锋 '{CurrentSceneName}' 里的一张卡 ID 重复。");
+                        $"非场景Scenario动作 '{node.Id}' 和Scenario '{CurrentSceneName}' 里的一张卡 ID 重复。");
             }
             return carried;
         }
@@ -851,7 +851,7 @@ namespace SSNoir.Core
                 inventory[item.Key] = item.Value;
             }
 
-            bool isInEncounter = !CurrentSceneName.Equals("world", StringComparison.OrdinalIgnoreCase);
+            bool isInScenario = !CurrentSceneName.Equals("world", StringComparison.OrdinalIgnoreCase);
             var actors = new List<ActorSnapshot>();
             foreach (var actor in _gameState.Team.Actors)
             {
@@ -861,7 +861,7 @@ namespace SSNoir.Core
                     Name = actor.Name,
                     Role = actor.Role,
                     Status = actor.Status,
-                    OnStage = TeamState.IsOnStage(actor, isInEncounter),
+                    OnStage = TeamState.IsOnStage(actor, isInScenario),
                     Composure = actor.Composure,
                     MaxComposure = actor.MaxComposure,
                     SpentGrowthPoints = actor.SpentGrowthPoints,
@@ -879,7 +879,7 @@ namespace SSNoir.Core
 
             return new PresentationSnapshot
             {
-                Weather = isInEncounter ? string.Empty : _gameState.Get<string>("天气", string.Empty),
+                Weather = isInScenario ? string.Empty : _gameState.Get<string>("天气", string.Empty),
                 RootNode = rootNode,
                 CarryNodes = CurrentCarryNodes,
                 InjurySeverity = _gameState.Team.Injury.Severity,
@@ -902,7 +902,7 @@ namespace SSNoir.Core
                 Dossier = CurrentDossier,
                 Supports = CurrentSupports,
                 Actors = actors,
-                IsInEncounter = isInEncounter,
+                IsInScenario = isInScenario,
             };
         }
 
@@ -944,7 +944,7 @@ namespace SSNoir.Core
         /// <summary>
         /// Place 只能是世界根的直接子节点。地点里的地点会让「走进去」变成一个有层级的
         /// 概念（进了酒馆再进后厨算不算又到了一个地方？），而导航栈里那一串到底哪一层
-        /// 是「玩家在哪」就说不清了。交锋树里则根本没有地点这回事。
+        /// 是「玩家在哪」就说不清了。Scenario树里则根本没有地点这回事。
         /// </summary>
         private static void AssertPlacesWellFormed(GameNode rootNode, bool isWorldScene)
         {
@@ -960,7 +960,7 @@ namespace SSNoir.Core
             {
                 if (child.IsPlace)
                     throw new InvalidOperationException(
-                        $"交锋树里不能出现地点：\"{child.Id}\"。地点只属于世界。");
+                        $"Scenario树里不能出现地点：\"{child.Id}\"。地点只属于世界。");
             }
         }
 
@@ -1011,12 +1011,12 @@ namespace SSNoir.Core
             report.TurnEnded = true;
             try
             {
-                // 交锋里每结束一个回合扣一点冷静：时间本身就是代价。
+                // Scenario里每结束一个回合扣一点冷静：时间本身就是代价。
                 // 没有它，"这一回合手气不好，什么都不投，等下一轮重摇"是完全免费的，
                 // 最优解就变成只投高点数——玩家不再需要在"现在动手"和"再等等"之间取舍。
                 // 花超的部分由 SpendComposure 自动溢出成伤势，那正是"熬太久要还的"。
                 // 动作里已经倒下（end-turn! 包在动作里）则照旧跳过：那一手的规则归动作。
-                // 规则先跑，费用后收：这一回合把交锋结算了（散场/失败回到世界），
+                // 规则先跑，费用后收：这一回合把Scenario结算了（散场/失败回到世界），
                 // 时间税就不再收——成功之后不再调用其他。
                 var turnInterpreter = ActiveInterpreter;
                 int firstTurnStep = report.BlockingStorySteps.Count;
@@ -1049,7 +1049,7 @@ namespace SSNoir.Core
                     report.BlockingStorySteps.RemoveRange(firstTurnStep, turnStepCount);
                     _gameState.Team.DismissTemporaryCompanions();
                     // 城市 EndTurn 的世界日历规则固定最先执行；若后续日终规则意外打倒玩家，
-                    // 日期已经推进，不能再跑一遍。交锋 EndTurn 则还需要补跑一次世界日终。
+                    // 日期已经推进，不能再跑一遍。Scenario EndTurn 则还需要补跑一次世界日终。
                     ResolvePendingHospitalization(report, turnInterpreter, advanceWorldTurnRules: false);
                     report.AddEffect(
                         ActionEffectKind.Composure, "冷静", automaticComposureDelta,
@@ -1072,7 +1072,7 @@ namespace SSNoir.Core
 
                 bool stillInSameMode = IsWorldScene(CurrentSceneName);
                 if (stillInSameMode)
-                    _gameState.Team.RollActionDice(isInEncounter: false);
+                    _gameState.Team.RollActionDice(isInScenario: false);
 
                 // 城市里过完一天：同伴的冷静和行动骰一样按天重发（见 TeamState.BeginCityDay）。
                 // 放在 on-turn-end 之后、和重新发骰同一处，因为它们是同一件事——新的一天的份额。
@@ -1128,11 +1128,11 @@ namespace SSNoir.Core
         public RoundTransitionFrame BeginRoundTransition()
         {
             if (IsWorldScene(CurrentSceneName))
-                throw new InvalidOperationException("交锋回合转换只能在交锋中开始。");
+                throw new InvalidOperationException("Scenario回合转换只能在Scenario中开始。");
             if (_roundTransitionState != RoundTransitionState.Idle)
                 throw new InvalidOperationException($"回合转换已经处于 {_roundTransitionState}。");
             if (_gameState.CurrentActionReport != null)
-                throw new InvalidOperationException("动作结算中不能开始交锋回合转换。");
+                throw new InvalidOperationException("动作结算中不能开始Scenario回合转换。");
 
             _roundTransitionState = RoundTransitionState.Resolving;
             _roundTransitionPhase = RoundTransitionPhase.TimeTax;
@@ -1160,7 +1160,7 @@ namespace SSNoir.Core
                 {
                     case RoundTransitionPhase.TimeTax:
                     {
-                        // 交锋里每结束一个回合扣一点冷静：时间本身就是代价。它是"结束回合"这个
+                        // Scenario里每结束一个回合扣一点冷静：时间本身就是代价。它是"结束回合"这个
                         // 动作自己的账，和按键同一拍结清，然后才轮到场上的人回应。
                         // 没有它，"这一回合手气不好，什么都不投，等下一轮重摇"是完全免费的。
                         // 花超的部分由 SpendComposure 自动溢出成伤势；击穿在这儿就倒下的，
@@ -1171,7 +1171,7 @@ namespace SSNoir.Core
                                 return;
                             int injuryBefore = _gameState.Team.Injury.Severity;
                             int composureBefore = _gameState.Team.FindActor("player")?.Composure ?? 0;
-                            _gameState.Team.SpendComposure("player", EncounterTurnComposureCost);
+                            _gameState.Team.SpendComposure("player", ScenarioTurnComposureCost);
                             int composureDelta = (_gameState.Team.FindActor("player")?.Composure ?? 0) - composureBefore;
                             int injuryDelta = _gameState.HasPendingHospitalization
                                 ? Injury.MaxSeverity - injuryBefore
@@ -1193,7 +1193,7 @@ namespace SSNoir.Core
 
                     case RoundTransitionPhase.OpponentRules:
                     {
-                        if (RoundTransitionLeftEncounter())
+                        if (RoundTransitionLeftScenario())
                             return FinishRoundTransition();
                         if (_gameState.HasPendingHospitalization)
                         {
@@ -1217,13 +1217,13 @@ namespace SSNoir.Core
                         RebuildRenderTree();
                         if (HasVisibleResult(report))
                             return CommitRoundFrame(RoundTransitionPhase.OpponentRules, report);
-                        // 空规则也可能结束交锋或打倒玩家；回到循环顶部先检查终止。
+                        // 空规则也可能结束Scenario或打倒玩家；回到循环顶部先检查终止。
                         continue;
                     }
 
                     case RoundTransitionPhase.RoundEndMaintenance:
                     {
-                        if (RoundTransitionLeftEncounter())
+                        if (RoundTransitionLeftScenario())
                             return FinishRoundTransition();
                         // 回合末的收尾：帮手只待这一回合；击穿/倒下在这儿送医。
                         var report = ResolveWithReport(() =>
@@ -1236,7 +1236,7 @@ namespace SSNoir.Core
                                     advanceWorldTurnRules: true);
                         });
                         RebuildRenderTree();
-                        _roundTransitionPhase = RoundTransitionLeftEncounter()
+                        _roundTransitionPhase = RoundTransitionLeftScenario()
                             ? RoundTransitionPhase.Finished
                             : RoundTransitionPhase.NewDice;
                         if (HasVisibleResult(report))
@@ -1246,9 +1246,9 @@ namespace SSNoir.Core
 
                     case RoundTransitionPhase.NewDice:
                     {
-                        if (RoundTransitionLeftEncounter())
+                        if (RoundTransitionLeftScenario())
                             return FinishRoundTransition();
-                        _gameState.Team.RollActionDice(isInEncounter: true);
+                        _gameState.Team.RollActionDice(isInScenario: true);
                         RebuildRenderTree();
                         _roundTransitionPhase = RoundTransitionPhase.ForcedAction;
                         return CommitRoundFrame(RoundTransitionPhase.NewDice,
@@ -1257,7 +1257,7 @@ namespace SSNoir.Core
 
                     case RoundTransitionPhase.ForcedAction:
                     {
-                        if (RoundTransitionLeftEncounter())
+                        if (RoundTransitionLeftScenario())
                             return FinishRoundTransition();
                         if (_nextForcedAction >= _pendingAutoActions.Count)
                             return FinishRoundTransition();
@@ -1319,9 +1319,9 @@ namespace SSNoir.Core
             };
         }
 
-        private bool RoundTransitionLeftEncounter()
+        private bool RoundTransitionLeftScenario()
             => _roundTransitionInterpreter == null
-                || !ReferenceEquals(_roundTransitionInterpreter, _encounterInterpreter)
+                || !ReferenceEquals(_roundTransitionInterpreter, _scenarioInterpreter)
                 || IsWorldScene(CurrentSceneName);
 
         private static bool HasVisibleResult(ActionReport report)
@@ -1422,7 +1422,7 @@ namespace SSNoir.Core
                     $"地点 \"{placeName}\" 的入场节拍产生了动作结算效果（钟／标注／资源变化）。"
                     + "Arrival 只能播叙事：把状态变更移回日终规则或动作里。");
 
-            // start-encounter 会在入场报告仍被持有时准备好交锋快照；客户端继续显示
+            // start-scenario 会在入场报告仍被持有时准备好Scenario快照；客户端继续显示
             // 刚进入的地点，直到报告中的 dialogue / animation 播完才 adopt 新快照。
             // 没有切场景的普通 arrival 则照常重建世界树并校验地点仍存在。
             if (!IsWorldScene(CurrentSceneName))
@@ -1454,17 +1454,17 @@ namespace SSNoir.Core
             if (!string.IsNullOrEmpty(node.SupportId))
             {
                 if (IsWorldScene(CurrentSceneName))
-                    throw new InvalidOperationException($"支援卡 '{node.Id}' 只能在交锋里用。");
+                    throw new InvalidOperationException($"支援卡 '{node.Id}' 只能在Scenario里用。");
                 if (!string.Equals(node.SupportId, _gameState.Team.CarriedSupport, StringComparison.Ordinal))
                     throw new InvalidOperationException(
                         $"支援卡 '{node.Id}' 属于 '{node.SupportId}'，但这一场带的是 '{_gameState.Team.CarriedSupport}'。");
-                if (SupportUsedThisEncounter)
+                if (SupportUsedThisScenario)
                     throw new InvalidOperationException($"支援卡 '{node.Id}'：这一场的支援已经用过了。");
-                SupportUsedThisEncounter = true;
+                SupportUsedThisScenario = true;
             }
 
             // 一个 action 的后处理规则属于发起该 action 的场景。action 本身可以
-            // start/end encounter 并切换 ActiveInterpreter，但不能因此改写规则归属。
+            // start/end scenario 并切换 ActiveInterpreter，但不能因此改写规则归属。
             var actionInterpreter = ActiveInterpreter;
             var report = new ActionReport();
 
@@ -1575,7 +1575,7 @@ namespace SSNoir.Core
             }
 
             // 谁能出手由「他在不在队里」决定（TeamState.IsOnStage），不在这里按场景类型另判一次。
-            string mode = CurrentSceneName.Equals("world", StringComparison.OrdinalIgnoreCase) ? "world" : "encounter";
+            string mode = CurrentSceneName.Equals("world", StringComparison.OrdinalIgnoreCase) ? "world" : "scenario";
 
             var context = new ActionExecutionContext
             {

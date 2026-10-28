@@ -46,7 +46,7 @@ namespace SSNoir.IMGUI
         public Rect SettingsToggle { get; }
         public Rect DebugToggle { get; }
 
-        /// <summary>右上角整块暗条（含天数读数与五个文字开关）；交锋里卷宗入口隐藏时缩掉空位。</summary>
+        /// <summary>右上角整块暗条（含天数读数与五个文字开关）；Scenario里卷宗入口隐藏时缩掉空位。</summary>
         public Rect FunctionPlate(bool showDossier)
         {
             float left = (showDossier ? DossierToggle : GrowthToggle).xMin;

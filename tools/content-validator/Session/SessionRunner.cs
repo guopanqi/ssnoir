@@ -89,7 +89,7 @@ public static class SessionRunner
     {
         var setup = ParseSetup(args);
         if (setup.Entry == "world")
-            throw new ArgumentException("基线策略需要交锋入口。");
+            throw new ArgumentException("基线策略需要Scenario入口。");
         int outputIndex = Array.IndexOf(args, "--output");
         if (outputIndex < 0 || outputIndex + 1 >= args.Length)
             throw new ArgumentException("基线策略需要 --output <记录.json>");
@@ -131,7 +131,7 @@ public static class SessionRunner
         }
         if (session.Observe().Scene == initialScene && transcript.Steps.Count >= 300)
             throw new InvalidOperationException("基线达到 300 步仍未终局；疑似重复操作，拒绝生成有效记录。");
-        transcript.StopReason = session.Observe().Scene == initialScene ? "回合上限" : "离开交锋";
+        transcript.StopReason = session.Observe().Scene == initialScene ? "回合上限" : "离开Scenario";
         File.WriteAllText(output, JsonConvert.SerializeObject(transcript, Formatting.Indented));
         Console.WriteLine($"基线记录：{output}；{transcript.Steps.Count} 步，{turns} 次结束回合");
     }
@@ -154,7 +154,7 @@ public static class SessionRunner
                 actions = steps.Count(s => s.Before.Operations.Any(o => o.Id == s.OperationId && o.Kind == "action")),
                 turns = steps.Count(s => s.Before.Operations.Any(o => o.Id == s.OperationId && o.Kind == "end-turn")),
                 startScene = first?.Scene, endScene = last?.Scene,
-                result = last?.EncounterResult,
+                result = last?.ScenarioResult,
                 startInventory = first?.Inventory, endInventory = last?.Inventory,
                 decisions = steps.Where(s => s.Reason != null).Select(s => new
                 {

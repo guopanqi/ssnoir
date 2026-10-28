@@ -5,11 +5,11 @@ on:
     paths:
       - '.github/workflows/ssnoir-mechanism-r49.yml'
       - 'tools/content-validator/experiments/r49_delayed_target_*'
-      - 'UnityClient/Assets/Resources/Content/scenes/encounters/研究·迟到的目标.scm'
+      - 'UnityClient/Assets/Resources/Content/scenes/scenarios/研究·迟到的目标.scm'
       - 'tools/content-validator/experiments/r50_recent_action.py'
       - 'tools/content-validator/experiments/r50_heuristic_audit.py'
       - 'tools/content-validator/experiments/r50_native_smoke.py'
-      - 'UnityClient/Assets/Resources/Content/scenes/encounters/研究·动作回声.scm'
+      - 'UnityClient/Assets/Resources/Content/scenes/scenarios/研究·动作回声.scm'
       - 'tools/content-validator/experiments/build_mechanism_atlas.py'
 permissions:
   contents: read

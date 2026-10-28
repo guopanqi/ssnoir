@@ -4,7 +4,7 @@ import argparse, json, pathlib, subprocess
 ROOT = pathlib.Path(__file__).resolve().parents[3]
 
 def run(policy, seed, output):
-    p = subprocess.Popen(['dotnet', 'run', '--no-build', '--project', 'tools/content-validator/SSNoir.ContentValidator.csproj', '--', '--session', 'encounters/实验·橱窗里的脸', '--seed', str(seed)], cwd=ROOT, stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True)
+    p = subprocess.Popen(['dotnet', 'run', '--no-build', '--project', 'tools/content-validator/SSNoir.ContentValidator.csproj', '--', '--session', 'scenarios/实验·橱窗里的脸', '--seed', str(seed)], cwd=ROOT, stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True)
     def read():
         line = p.stdout.readline()
         if not line: raise RuntimeError('会话提前退出')
@@ -17,7 +17,7 @@ def run(policy, seed, output):
     obs = read()['observation']
     trace = []
     for _ in range(90):
-        if obs['EncounterResult'] is not None or not obs['IsInEncounter']: break
+        if obs['ScenarioResult'] is not None or not obs['IsInScenario']: break
         clocks = {c['Label']: c['Current'] for c in obs['Clocks']}
         stage, distance = clocks['路程'], clocks['距离']
         ops = obs['Operations']
@@ -59,7 +59,7 @@ def run(policy, seed, output):
     path = output / f'{policy}-{seed}.json'
     send({'command':'save','path':str(path.resolve())})
     send({'command':'quit'}); p.wait()
-    return {'policy':policy,'seed':seed,'result':obs['EncounterResult'],'trace':trace,'injury':obs['Injury']}
+    return {'policy':policy,'seed':seed,'result':obs['ScenarioResult'],'trace':trace,'injury':obs['Injury']}
 
 if __name__ == '__main__':
     parser=argparse.ArgumentParser(); parser.add_argument('--output', type=pathlib.Path, default=pathlib.Path('/tmp/noir-window-trials')); parser.add_argument('--seeds', nargs='+',type=int,default=[7,11,23])

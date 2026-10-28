@@ -7,7 +7,7 @@ on:
       - 'tools/content-validator/experiments/r51_r54_structure_screen.py'
       - 'tools/content-validator/experiments/r54_reactive_foe_smoke.py'
       - 'tools/content-validator/experiments/r54_bait_audit.py'
-      - 'UnityClient/Assets/Resources/Content/scenes/encounters/研究·追击领先目标.scm'
+      - 'UnityClient/Assets/Resources/Content/scenes/scenarios/研究·追击领先目标.scm'
 permissions:
   contents: read
 jobs:

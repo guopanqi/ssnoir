@@ -30,7 +30,7 @@
   (define (ship-end! result)
     (if (and (list? result) (= (length result) 2)
              (member? (car result) '(满载 停卸))) #t
-      (error "大船：非法交锋结果"))
+      (error "大船：非法Scenario结果"))
     (if (equal? ship-work "已结算") (error "大船重复结算") #t)
     (set! ship-work "已结算")
     (sync-ship!)
@@ -39,7 +39,7 @@
   (define (join-ship!)
     (if (and (= world-day 9) (equal? ship-work "未参加")) #t
       (error "大船：不在夜班窗口"))
-    (start-encounter "大船靠岸" ship-end!))
+    (start-scenario "大船靠岸" ship-end!))
   (define (dock-mark!)
     (set! dock-mark? #t)
     (第二幕-货栈白线))

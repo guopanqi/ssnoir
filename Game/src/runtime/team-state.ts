@@ -1,6 +1,6 @@
 /**
  * Port of Engine/Runtime/Core/{ActorState,TeamState}.cs.
- * One actor roster shared by World and Encounter VMs.
+ * One actor roster shared by World and Scenario VMs.
  */
 export const SKILLS = ["violence", "knowledge", "sharpness", "social"] as const;
 export type Skill = typeof SKILLS[number];
@@ -154,10 +154,10 @@ export class TeamState {
    * Injury removes the final protagonist slots, not arbitrary
    * array index. Hangover affects slot 0 on the NEXT city refresh only.
    */
-  rollDice(random:()=>number,isEncounter=false,consumeHangover=true,injurySlotLoss=0):void {
+  rollDice(random:()=>number,isScenario=false,consumeHangover=true,injurySlotLoss=0):void {
     for(const actor of this.actors){
-      if(!isEncounter&&consumeHangover)actor.isDrunk=false;
-      const applyHangover=!isEncounter&&consumeHangover&&actor.hangoverSlotId!==null;
+      if(!isScenario&&consumeHangover)actor.isDrunk=false;
+      const applyHangover=!isScenario&&consumeHangover&&actor.hangoverSlotId!==null;
       actor.actionDice=[];actor.actionDiceSlotIds=[];
       if(actor.status!=="active")continue;
       let count=actor.actionSlotCount;

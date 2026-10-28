@@ -33,7 +33,7 @@ def odds(text):
 class Session:
     def __init__(self, scene, seed, growth=1):
         self.process = subprocess.Popen(
-            ['dotnet', str(DLL), '--session', 'encounters/'+scene,
+            ['dotnet', str(DLL), '--session', 'scenarios/'+scene,
              '--seed', str(seed), '--growth', str(growth),
              '--item', '香烟=0', '--item', '酒=0', '--item', '药品=0'],
             cwd=ROOT, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
@@ -200,7 +200,7 @@ def run(job):
     try:
         for _ in range(100):
             o=session.observation
-            if o['EncounterResult'] is not None:break
+            if o['ScenarioResult'] is not None:break
             op=choose(o,family,policy)
             if op is None:raise RuntimeError((variant,policy,o))
             choices.append(dict(version=o['Version'],card=op['Card'] or op['Kind'],die=op['DieValue']))
@@ -209,7 +209,7 @@ def run(job):
         name=f'{variant}-{policy}-s{seed}-g{growth}.json.gz'
         revision=session.save(directory/'轨迹'/name)
         o=session.observation
-        result=o['EncounterResult']
+        result=o['ScenarioResult']
         fields=result.strip('()').split()
         status=fields[0].lstrip("'")
         row=dict(family=family,variant=variant,policy=policy,seed=seed,growth=growth,

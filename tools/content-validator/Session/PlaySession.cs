@@ -117,7 +117,7 @@ public sealed class PlaySession
                     AddReport(events, "行动", _scenes.ExecuteAction(choice.Node!, choice.Slots!));
                     break;
                 case "end-turn":
-                    if (_scenes.LatestSnapshot.IsInEncounter)
+                    if (_scenes.LatestSnapshot.IsInScenario)
                     {
                         var frame = _scenes.BeginRoundTransition();
                         while (!frame.IsFinished)
@@ -196,24 +196,24 @@ public sealed class PlaySession
 
         foreach (var node in focus.Children)
         {
-            if (node.IsPlace && focus == root && !snapshot.IsInEncounter)
+            if (node.IsPlace && focus == root && !snapshot.IsInScenario)
                 Add("enter-place", $"进入 {node.Name}", node);
             else if (node.IsContainer)
                 Add("navigate", $"查看 {node.Name}", node);
             else if (node.Resolve?.Type is ResolveType.Instant or ResolveType.Roll && !node.Disabled)
                 AddActionChoices(node, snapshot, Add);
         }
-        // CarryNodes 在客户端是独立的物品/支援区，任何交锋导航层都可访问。
+        // CarryNodes 在客户端是独立的物品/支援区，任何Scenario导航层都可访问。
         foreach (var node in snapshot.CarryNodes)
             if (!node.Disabled && node.Resolve?.Type is ResolveType.Instant or ResolveType.Roll)
                 AddActionChoices(node, snapshot, Add);
         if (_navigation.Count > 0) Add("back", "返回上层");
-        // 交锋可以结束回合；世界有必须处理的节点时不能换日。
-        if (snapshot.IsInEncounter || snapshot.RestBlockers.Count == 0)
+        // Scenario可以结束回合；世界有必须处理的节点时不能换日。
+        if (snapshot.IsInScenario || snapshot.RestBlockers.Count == 0)
             Add("end-turn", "结束回合");
 
         _observation = new SessionObservation(_version, _scenes.CurrentSceneName,
-            snapshot.IsInEncounter, snapshot.WorldDay, focus.Id,
+            snapshot.IsInScenario, snapshot.WorldDay, focus.Id,
             $"{snapshot.InjuryPart} {snapshot.InjuryBandName} {snapshot.InjurySeverity}/{snapshot.InjuryMaxSeverity}",
             snapshot.ScarSummary,
             focus.Children.Select(Card).ToArray(), snapshot.CarryNodes.Select(Card).ToArray(),
@@ -223,7 +223,7 @@ public sealed class PlaySession
             snapshot.Inventory,
             snapshot.RestBlockers.Select(b => b.Reason).ToArray(),
             snapshot.Dossier.Select(d => $"{d.Kind}：{d.Now}（{d.Status}）").ToArray(),
-            FormatResult(_scenes.LastEncounterResult),
+            FormatResult(_scenes.LastScenarioResult),
             operations, AllClocks(snapshot));
     }
 

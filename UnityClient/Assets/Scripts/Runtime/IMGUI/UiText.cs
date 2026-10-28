@@ -15,7 +15,7 @@ namespace SSNoir.IMGUI
             [" ＝ 骰 "] = " = Die ",
             ["< 返 回"] = "< Back",
             ["不可用"] = "Unavailable",
-            ["交锋"] = "Encounter",
+            ["Scenario"] = "Scenario",
             ["从存档加载"] = "Continue",
             ["低风险"] = "Low Risk",
             ["准备值 "] = "Ready ",

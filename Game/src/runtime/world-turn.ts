@@ -19,7 +19,7 @@ export class WorldTurnController {
   constructor(state:GameRuntimeState,world:GameScriptSession) {this.state=state;this.world=world;}
   async endDay(random:()=>number=Math.random):Promise<DayAdvance>{
     if(this.inTransition)throw new Error("world turn already transitioning");
-    if(this.state.getGlobal("location")!=="world")throw new Error("world turn cannot end inside encounter");
+    if(this.state.getGlobal("location")!=="world")throw new Error("world turn cannot end inside scenario");
     if(this.state.hasRestBlockers())throw new Error("unfinished mandatory rest blockers");
     if(this.state.hasPendingHospitalization())throw new Error("hospitalization must be settled first");
     const before=this.state.getGlobal("世界日");

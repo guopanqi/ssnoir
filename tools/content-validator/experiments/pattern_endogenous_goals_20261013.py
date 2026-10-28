@@ -162,7 +162,7 @@ def main():
     assert decoy(1, False, True)[0] == 3
     for b, auto in ((0, True), (0, False), (1, False)):
         assert decoy(b, True, auto)[0] == decoy(b, False, auto)[0] == 8
-    # Full encounter variant: another participant completed 0/1 side-progress
+    # Full scenario variant: another participant completed 0/1 side-progress
     # before this three-slot segment; both public entry states have probability 1/2.
     mixed_decoy = (F(decoy(0, True, True)[0]) +
                    F(decoy(1, True, True)[0])) / 2

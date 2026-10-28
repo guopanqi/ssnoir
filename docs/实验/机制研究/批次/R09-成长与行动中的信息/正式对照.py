@@ -15,8 +15,8 @@ def operation(o,ch):
  i,act,d=ch;name=('稳做' if act=='稳健' else '快做')+('A' if i==0 else 'B')
  return next(op for op in o['Operations'] if op['Card']==name and op['DieValue']==d)
 def result(o):
- match=re.fullmatch(r"\('(?P<status>success|timeout|collapse) (?P<a>\d+) (?P<la>\d+) (?P<ka>True|False) (?P<b>\d+) (?P<lb>\d+) (?P<kb>True|False) (?P<c>\d+)\)",o['EncounterResult'])
- assert match,o['EncounterResult']
+ match=re.fullmatch(r"\('(?P<status>success|timeout|collapse) (?P<a>\d+) (?P<la>\d+) (?P<ka>True|False) (?P<b>\d+) (?P<lb>\d+) (?P<kb>True|False) (?P<c>\d+)\)",o['ScenarioResult'])
+ assert match,o['ScenarioResult']
  return {k:int(v) if k in ('a','la','b','lb','c') else v=='True' if k in ('ka','kb') else v for k,v in match.groupdict().items()}
 def check_record(path,known=False,growth=1):
  raw=json.loads(gzip.decompress(path.read_bytes()));final=result(raw['Steps'][-1]['After']);lens=final['la'],final['lb'];assert all(x in (3,6) for x in lens)
@@ -27,7 +27,7 @@ def check_record(path,known=False,growth=1):
   assert s[:5]==tuple(expected),(path,s,expected)
   op=next(x for x in before['Operations'] if x['Id']==step['OperationId'])
   if op['Kind']=='end-turn':
-   expected[4]-=1;assert final['status']=='timeout';assert after['EncounterResult'] is not None
+   expected[4]-=1;assert final['status']=='timeout';assert after['ScenarioResult'] is not None
   else:
    probs=H['odds'](op['Odds']);official=K['K']['probabilities'](op['DieValue'],growth)
    assert all(abs(probs[k]-v)<1e-12 for k,v in zip(('坏','中','好'),official))
@@ -38,12 +38,12 @@ def check_record(path,known=False,growth=1):
    if expected[i*2]>=1 and expected[i*2+1]<0:
     expected[i*2+1]=lens[i];disclosure+=1
     assert any('已摸清' in e['Text'] for e in step['Events'])
-   if after['EncounterResult'] is None:
+   if after['ScenarioResult'] is None:
     assert state(after)[:5]==tuple(expected)
     rest=list(s[-1]);rest.remove(op['DieValue']);assert state(after)[-1]==tuple(rest)
    else:
     assert final['status']=='success';assert expected[0]>=lens[0] or expected[2]>=lens[1]
-    assert not after['IsInEncounter']
+    assert not after['IsInScenario']
   assert player(after)['Composure']==expected[4]
   assert int(re.search(r'(\d+)/7',after['Injury'])[1])==0
  assert (final['a'],final['b'],final['c'])==(expected[0],expected[2],expected[4])
@@ -71,7 +71,7 @@ def main():
    initial=state(s.observation);switches=0;last=None
    for _ in range(5):
     o=s.observation
-    if o['EncounterResult'] is not None:break
+    if o['ScenarioResult'] is not None:break
     st=state(o)
     if st[-1]:
      m=models[label];m.value(st);ch=m.decisions[st]
@@ -79,7 +79,7 @@ def main():
      last=ch[0];op=operation(o,ch)
     else:op=next(x for x in o['Operations'] if x['Kind']=='end-turn')
     s.act(op,'R09冻结后新种子：依据公开路长、当前进度、冷静与骰子选择。')
-   assert s.observation['EncounterResult'] is not None
+   assert s.observation['ScenarioResult'] is not None
    p=OUT/f'{label}-{seed}.json.gz';s.save(p)
    row=check_record(p,known);row.update(policy=label,seed=seed,switches=switches,initial=initial)
    return row

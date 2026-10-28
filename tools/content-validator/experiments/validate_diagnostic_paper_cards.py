@@ -53,7 +53,7 @@ def role_facilitator(seed):
  for name in PUBLIC_NAME:
   secrets=list(range(4))
   rng.shuffle(secrets)
-  print(f"{name}: four truths in encounter order {secrets}")
+  print(f"{name}: four truths in scenario order {secrets}")
  print("No human feedback is generated or recorded by this command.")
 def main():
  p=argparse.ArgumentParser()

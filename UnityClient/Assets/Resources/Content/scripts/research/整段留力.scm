@@ -11,7 +11,7 @@
   (if 完成? (error "整段留力：重复结算") #t)
   (set! 完成? #t)
   (spotlight! 研究名称 text)
-  (end-encounter (整段结果 status)))
+  (end-scenario (整段结果 status)))
 (define (整段检查!)
   (if (or 完成? (hospitalization-pending?)) #f
     (cond
@@ -44,7 +44,7 @@
         (if (工作乙 'full?) #f (工作乙 'reset!))) #f)
     (期限 'advance! 1)
     (整段检查!)))
-(define (on-encounter-collapse) (collapse-result (整段结果 'collapse)))
+(define (on-scenario-collapse) (collapse-result (整段结果 'collapse)))
 (define (get-render-data)
   (container 研究名称
     (append

@@ -124,10 +124,10 @@ namespace SSNoir.Testing
                 if (sceneManager.CurrentRootNode == null)
                     throw new InvalidDataException($"Scene '{sceneName}' produced an empty world.");
 
-                if (sceneName.StartsWith("encounters/", StringComparison.Ordinal))
-                    AssertEncounterCollapsePolicy(sceneManager, sceneName);
+                if (sceneName.StartsWith("scenarios/", StringComparison.Ordinal))
+                    AssertScenarioCollapsePolicy(sceneManager, sceneName);
                 if (GameLanguage.Current == GameLanguage.English
-                    && (sceneName == "encounters/晚宴" || sceneName == "encounters/核赔"))
+                    && (sceneName == "scenarios/晚宴" || sceneName == "scenarios/核赔"))
                     AssertEnglishPilotTree(sceneManager.CurrentRootNode, sceneName);
 
                 if (sceneName == "world/world")
@@ -200,19 +200,19 @@ namespace SSNoir.Testing
             }
         }
 
-        private static void AssertEncounterCollapsePolicy(SceneManager sceneManager, string sceneName)
+        private static void AssertScenarioCollapsePolicy(SceneManager sceneManager, string sceneName)
         {
-            object raw = sceneManager.ActiveInterpreter.Eval("(on-encounter-collapse)");
+            object raw = sceneManager.ActiveInterpreter.Eval("(on-scenario-collapse)");
             if (raw is not List<object> policy || policy.Count == 0)
                 throw new InvalidDataException(
-                    $"Encounter '{sceneName}' must return collapse-result or collapse-retry from on-encounter-collapse.");
+                    $"Scenario '{sceneName}' must return collapse-result or collapse-retry from on-scenario-collapse.");
 
             string kind = SchemeValue.AsId(policy[0]);
             bool valid = (kind == "collapse-result" && policy.Count == 2)
                 || (kind == "collapse-retry" && policy.Count == 1);
             if (!valid)
                 throw new InvalidDataException(
-                    $"Encounter '{sceneName}' returned an invalid on-encounter-collapse policy.");
+                    $"Scenario '{sceneName}' returned an invalid on-scenario-collapse policy.");
         }
 
         private static void AssertClockPriorityDsl(SceneManager scenes)
@@ -369,15 +369,15 @@ namespace SSNoir.Testing
                 + " :arrivals (list (arrival \"甲\" \"不是过程\")))"),
                 "arrival effect that is not a procedure");
 
-            // 强制遭遇允许把 start-encounter 放在 arrival 末尾。引擎先准备交锋快照，
+            // 强制遭遇允许把 start-scenario 放在 arrival 末尾。引擎先准备Scenario快照，
             // 但不能发普通场景加载事件打断客户端仍在播放的入场报告。
-            var forcedEncounter = ConvertScheme(
+            var forcedScenario = ConvertScheme(
                 "(place \"入场DSL校验-强制遭遇\" :children '()"
                 + " :arrivals (list (arrival \"机器响了\""
                 + "   (lambda ()"
                 + "     (play-dialogue! (line \"世界\" \"里面有东西在响。\"))"
-                + "     (start-encounter \"失控的机械\")))))");
-            sceneManager.CurrentRootNode!.Children.Add(forcedEncounter);
+                + "     (start-scenario \"失控的机械\")))))");
+            sceneManager.CurrentRootNode!.Children.Add(forcedScenario);
             int sceneLoadedEvents = 0;
             sceneManager.OnSceneLoaded += () => sceneLoadedEvents++;
             var arrivalReport = sceneManager.EnterPlace("入场DSL校验-强制遭遇");
@@ -474,12 +474,12 @@ namespace SSNoir.Testing
                 AssertEq("drunk state survives save", true, loaded.Team.FindActor("player")!.IsDrunk);
                 var drunkSceneTeam = new GameState().Team;
                 drunkSceneTeam.FindActor("player")!.IsDrunk = true;
-                drunkSceneTeam.RollActionDice(isInEncounter: false, consumeHangover: false);
+                drunkSceneTeam.RollActionDice(isInScenario: false, consumeHangover: false);
                 AssertEq("drunk state survives scene roll", true, drunkSceneTeam.FindActor("player")!.IsDrunk);
                 AssertEq<int?>("hangover slot", 0, loaded.Team.FindActor("player")!.HangoverSlotId);
                 var drunkResetTeam = new GameState().Team;
                 drunkResetTeam.FindActor("player")!.IsDrunk = true;
-                drunkResetTeam.RollActionDice(isInEncounter: false);
+                drunkResetTeam.RollActionDice(isInScenario: false);
                 AssertEq("drunk state clears on new day", false, drunkResetTeam.FindActor("player")!.IsDrunk);
                 AssertEq("player composure", TeamState.MaxComposure - 1, loaded.Team.FindActor("player")!.Composure);
 
@@ -499,36 +499,36 @@ namespace SSNoir.Testing
                 AssertEq("spent companion dice", 0, loadedCompanion.ActionDice.Count);
                 AssertEq("spent companion die slots", 0, loadedCompanion.ActionDiceSlotIds.Count);
 
-                // 交锋有自己的骰池；返回城市时，当天尚未使用的骰值、骰位和顺序必须原样回来。
+                // Scenario有自己的骰池；返回城市时，当天尚未使用的骰值、骰位和顺序必须原样回来。
                 loadedPlayer.ActionDice.Clear();
                 loadedPlayer.ActionDiceSlotIds.Clear();
                 loadedPlayer.ActionDice.AddRange(new[] { 3, 6, 3, 6 });
                 loadedPlayer.ActionDiceSlotIds.AddRange(new[] { 0, 1, 2, 3 });
-                loadedManager.StartEncounter("失控的机械");
-                loadedManager.EndEncounter();
-                AssertEq("world dice after encounter", "3,6,3,6",
+                loadedManager.StartScenario("失控的机械");
+                loadedManager.EndScenario();
+                AssertEq("world dice after scenario", "3,6,3,6",
                     string.Join(",", loadedPlayer.ActionDice));
-                AssertEq("world die slots after encounter", "0,1,2,3",
+                AssertEq("world die slots after scenario", "0,1,2,3",
                     string.Join(",", loadedPlayer.ActionDiceSlotIds));
 
-                // 城市发出的骰子属于当天，不被交锋途中得到的伤势追回。
-                // 下一次交锋发骰应用新伤势，但返回城市必须还回原先那手。
+                // 城市发出的骰子属于当天，不被Scenario途中得到的伤势追回。
+                // 下一次Scenario发骰应用新伤势，但返回城市必须还回原先那手。
                 var deferred = new GameState();
                 var deferredScenes = new SceneManager(deferred, new LocalScriptLoader());
                 deferredScenes.LoadScene("world");
                 var deferredActor = deferred.Team.FindActor("player")!;
                 AssertEq("deferred initial lock", 0, deferredActor.IssuedInjuryDieLoss);
-                deferredScenes.StartEncounter("失控的机械");
+                deferredScenes.StartScenario("失控的机械");
                 deferred.Team.Injure(1);
-                AssertEq("encounter injury does not alter current hand", 4, deferredActor.ActionDice.Count);
-                AssertEq("encounter current hand still unlocked", 0, deferredActor.IssuedInjuryDieLoss);
-                deferredScenes.EndEncounter();
+                AssertEq("scenario injury does not alter current hand", 4, deferredActor.ActionDice.Count);
+                AssertEq("scenario current hand still unlocked", 0, deferredActor.IssuedInjuryDieLoss);
+                deferredScenes.EndScenario();
                 AssertEq("return to world preserves original hand", 4, deferredActor.ActionDice.Count);
                 AssertEq("return to world preserves original lock", 0, deferredActor.IssuedInjuryDieLoss);
-                deferredScenes.StartEncounter("失控的机械");
-                AssertEq("subsequent encounter applies injury", 3, deferredActor.ActionDice.Count);
-                AssertEq("subsequent encounter locks one", 1, deferredActor.IssuedInjuryDieLoss);
-                deferredScenes.EndEncounter();
+                deferredScenes.StartScenario("失控的机械");
+                AssertEq("subsequent scenario applies injury", 3, deferredActor.ActionDice.Count);
+                AssertEq("subsequent scenario locks one", 1, deferredActor.IssuedInjuryDieLoss);
+                deferredScenes.EndScenario();
 
                 // 存档必须分开保存“现有伤势”和“本手封锁”：受伤、康复的效果都等下次掷骰。
                 deferredScenes.SaveGame(savePath);
@@ -539,7 +539,7 @@ namespace SSNoir.Testing
                 AssertEq("pending injury persists", 1, deferredLoaded.Team.Injury.Severity);
                 AssertEq("pending injury does not eat restored world dice", 4, deferredLoadedActor.ActionDice.Count);
                 AssertEq("pending injury preserves hand lock", 0, deferredLoadedActor.IssuedInjuryDieLoss);
-                deferredLoaded.Team.RollActionDice(isInEncounter: false);
+                deferredLoaded.Team.RollActionDice(isInScenario: false);
                 AssertEq("injury applies after restored roll", 3, deferredLoadedActor.ActionDice.Count);
                 deferredLoaded.Team.HealInjury(1);
                 AssertEq("healing keeps current hand locked", 1, deferredLoadedActor.IssuedInjuryDieLoss);
@@ -551,7 +551,7 @@ namespace SSNoir.Testing
                     recoveredLoaded.Team.FindActor("player")!.IssuedInjuryDieLoss);
                 AssertEq("healed hand keeps three dice after save", 3,
                     recoveredLoaded.Team.FindActor("player")!.ActionDice.Count);
-                recoveredLoaded.Team.RollActionDice(isInEncounter: false);
+                recoveredLoaded.Team.RollActionDice(isInScenario: false);
                 AssertEq("healed hand unlocks on roll after save", 4,
                     recoveredLoaded.Team.FindActor("player")!.ActionDice.Count);
 
@@ -580,7 +580,7 @@ namespace SSNoir.Testing
 
         // 关系支援是引擎底层的一层契约（见 engine.scm「关系支援」与 TeamState.Supports）：
         // 每场一次由引擎消费、帮手只活一回合、永远不进存档。这些都容易被回合结算的改动无声打破，
-        // 所以固化在这里。测试只走引擎接口和 CarryNodes，不依赖某一场交锋的内容。
+        // 所以固化在这里。测试只走引擎接口和 CarryNodes，不依赖某一场Scenario的内容。
         private static void TestRelationSupport()
         {
             Console.WriteLine("=== Relation Support Contract Test ===");
@@ -592,7 +592,7 @@ namespace SSNoir.Testing
                 var scenes = new SceneManager(state, new LocalScriptLoader());
                 scenes.LoadScene("world");
 
-                // 城市里没有支援卡；获得之后第一条自动成为带进交锋的那一个。
+                // 城市里没有支援卡；获得之后第一条自动成为带进Scenario的那一个。
                 AssertEq("no support before grant", 0, state.Team.Supports.Count);
                 state.Team.GrantSupport(supportId);
                 AssertEq("carried defaults to first granted", supportId, state.Team.CarriedSupport);
@@ -607,8 +607,8 @@ namespace SSNoir.Testing
                 AssertEq("supports survive save", supportId, string.Join(",", loaded.Team.Supports));
                 AssertEq("carried survives save", supportId, loaded.Team.CarriedSupport);
 
-                // 进交锋：支援卡出现、不占骰、执行后帮手带着一颗骰入队。
-                loadedScenes.StartEncounter("失控的机械");
+                // 进Scenario：支援卡出现、不占骰、执行后帮手带着一颗骰入队。
+                loadedScenes.StartScenario("失控的机械");
                 var card = FindSupportCard(loadedScenes, supportId);
                 AssertEq("support card takes no die", 0, card.Requires.Count);
                 AssertEq("support card enabled at start", false, card.Disabled);
@@ -621,28 +621,28 @@ namespace SSNoir.Testing
                 // 每场一次由引擎消费：卡变灰，再执行直接报错。
                 card = FindSupportCard(loadedScenes, supportId);
                 AssertEq("support card greyed after use", true, card.Disabled);
-                AssertEq("support used flag", true, loadedScenes.SupportUsedThisEncounter);
+                AssertEq("support used flag", true, loadedScenes.SupportUsedThisScenario);
                 AssertThrowsAny(() =>
                 {
                     var forced = new GameNode { Id = card.Id, Name = card.Name, SupportId = supportId, Resolve = card.Resolve };
                     loadedScenes.ExecuteAction(forced, new List<SlottedResource?>());
-                }, "using the support twice in one encounter");
+                }, "using the support twice in one scenario");
 
                 // 骰子没用也一样：回合末帮手离场，新一手里没有他。
                 loadedScenes.EndTurn();
                 AssertEq("helper leaves at turn end", 0, loaded.Team.Actors.Count(a => a.IsTemporary));
-                AssertEq("support stays used across turns", true, loadedScenes.SupportUsedThisEncounter);
-                loadedScenes.EndEncounter();
+                AssertEq("support stays used across turns", true, loadedScenes.SupportUsedThisScenario);
+                loadedScenes.EndScenario();
 
-                // 新的一场：次数恢复；用了帮手之后直接结束交锋，帮手也不能跟回城市。
-                loadedScenes.StartEncounter("失控的机械");
-                AssertEq("support restored in a new encounter", false, loadedScenes.SupportUsedThisEncounter);
+                // 新的一场：次数恢复；用了帮手之后直接结束Scenario，帮手也不能跟回城市。
+                loadedScenes.StartScenario("失控的机械");
+                AssertEq("support restored in a new scenario", false, loadedScenes.SupportUsedThisScenario);
                 card = FindSupportCard(loadedScenes, supportId);
-                AssertEq("support card enabled in a new encounter", false, card.Disabled);
+                AssertEq("support card enabled in a new scenario", false, card.Disabled);
                 loadedScenes.ExecuteAction(card, new List<SlottedResource?>());
-                AssertEq("helper joined in the new encounter", 1, loaded.Team.Actors.Count(a => a.IsTemporary));
-                loadedScenes.EndEncounter();
-                AssertEq("helper gone after encounter end", 0, loaded.Team.Actors.Count(a => a.IsTemporary));
+                AssertEq("helper joined in the new scenario", 1, loaded.Team.Actors.Count(a => a.IsTemporary));
+                loadedScenes.EndScenario();
+                AssertEq("helper gone after scenario end", 0, loaded.Team.Actors.Count(a => a.IsTemporary));
                 loaded.Team.Serialize();   // 临时帮手若泄漏到城市，这里会抛
 
                 // 城市里执行支援卡是内容错误。
@@ -675,7 +675,7 @@ namespace SSNoir.Testing
             foreach (var node in scenes.CurrentCarryNodes)
                 if (node.SupportId == supportId)
                     return node;
-            throw new Exception($"[support] no support card for '{supportId}' in encounter '{scenes.CurrentSceneName}'");
+            throw new Exception($"[support] no support card for '{supportId}' in scenario '{scenes.CurrentSceneName}'");
         }
 
         // 判定概率是稳定的底层数学契约，算错会同时破坏结算和 UI 概率预览。
@@ -740,29 +740,29 @@ namespace SSNoir.Testing
 
             // 伤势到 2 点封锁一位、到 5 点封锁第二位；状态变化不追回当前手中任何骰子。
             var injuryBandState = new GameState();
-            injuryBandState.Team.RollActionDice(isInEncounter: false);
+            injuryBandState.Team.RollActionDice(isInScenario: false);
             AssertEq("healthy dice count", 4, injuryBandState.Team.FindActor("player")!.ActionDice.Count);
             injuryBandState.Team.Injure(1);
             AssertEq("light injury has no skill penalty", 0, injuryBandState.Team.Injury.SkillPenalty);
             AssertEq("light injury preserves held dice", 4, injuryBandState.Team.FindActor("player")!.ActionDice.Count);
             AssertEq("new light injury awaits next roll", 0, injuryBandState.Team.FindActor("player")!.IssuedInjuryDieLoss);
-            injuryBandState.Team.RollActionDice(isInEncounter: false);
+            injuryBandState.Team.RollActionDice(isInScenario: false);
             AssertEq("severity one preserves four dice", 4, injuryBandState.Team.FindActor("player")!.ActionDice.Count);
             AssertEq("severity one locks no slots", 0, injuryBandState.Team.FindActor("player")!.IssuedInjuryDieLoss);
             injuryBandState.Team.Injure(Injury.FirstActionSlotLossThreshold - 1);
             AssertEq("severity two preserves previously issued dice", 4, injuryBandState.Team.FindActor("player")!.ActionDice.Count);
-            injuryBandState.Team.RollActionDice(isInEncounter: false);
+            injuryBandState.Team.RollActionDice(isInScenario: false);
             AssertEq("severity two locks one issued slot", 1, injuryBandState.Team.FindActor("player")!.IssuedInjuryDieLoss);
             AssertEq("severity two daily dice count", 3, injuryBandState.Team.FindActor("player")!.ActionDice.Count);
             injuryBandState.Team.Injure(Injury.SevereThreshold - Injury.FirstActionSlotLossThreshold);
             AssertEq("severity four preserves previously issued dice", 3, injuryBandState.Team.FindActor("player")!.ActionDice.Count);
             AssertEq("severity four still locks one issued slot", 1, injuryBandState.Team.FindActor("player")!.IssuedInjuryDieLoss);
-            injuryBandState.Team.RollActionDice(isInEncounter: false);
+            injuryBandState.Team.RollActionDice(isInScenario: false);
             AssertEq("severity four daily dice count", 3, injuryBandState.Team.FindActor("player")!.ActionDice.Count);
             injuryBandState.Team.Injure(Injury.SecondActionSlotLossThreshold - Injury.SevereThreshold);
             AssertEq("severity five preserves previously issued dice", 3, injuryBandState.Team.FindActor("player")!.ActionDice.Count);
             AssertEq("new second lock waits for next hand", 1, injuryBandState.Team.FindActor("player")!.IssuedInjuryDieLoss);
-            injuryBandState.Team.RollActionDice(isInEncounter: false);
+            injuryBandState.Team.RollActionDice(isInScenario: false);
             AssertEq("severity five daily dice count", 2, injuryBandState.Team.FindActor("player")!.ActionDice.Count);
             AssertEq("severity five locks two issued slots", 2, injuryBandState.Team.FindActor("player")!.IssuedInjuryDieLoss);
             injuryBandState.Team.HealInjury(Injury.SecondActionSlotLossThreshold);
@@ -770,7 +770,7 @@ namespace SSNoir.Testing
                 injuryBandState.Team.FindActor("player")!.ActionDice.Count);
             AssertEq("healing leaves already issued locks", 2,
                 injuryBandState.Team.FindActor("player")!.IssuedInjuryDieLoss);
-            injuryBandState.Team.RollActionDice(isInEncounter: false);
+            injuryBandState.Team.RollActionDice(isInScenario: false);
             AssertEq("healed daily dice count", 4, injuryBandState.Team.FindActor("player")!.ActionDice.Count);
             AssertEq("healed next roll unlocks slots", 0,
                 injuryBandState.Team.FindActor("player")!.IssuedInjuryDieLoss);
@@ -779,7 +779,7 @@ namespace SSNoir.Testing
             var bottomState = new GameState();
             bottomState.Team.Injure(Injury.SecondActionSlotLossThreshold);
             bottomState.Team.SpendComposure("player", TeamState.MaxComposure);
-            bottomState.Team.RollActionDice(isInEncounter: false);
+            bottomState.Team.RollActionDice(isInScenario: false);
             AssertEq("bottom-state dice", 2, bottomState.Team.FindActor("player")!.ActionDice.Count);
             AssertEq("bottom-state dice remain standard d6", true,
                 bottomState.Team.FindActor("player")!.ActionDice.All(d => d >= 1 && d <= 6));
@@ -796,7 +796,7 @@ namespace SSNoir.Testing
             AssertEq("collapse has no premature global spotlight", false, collapseState.SpotlightCenter.HasSpotlight);
             AssertEq("collapse notification removed", 0, collapseState.NotificationCenter.GetVisible().Count);
 
-            // 动作中倒下也只留下待送医记录。交锋结果、日终和诊所位置必须由 SceneManager
+            // 动作中倒下也只留下待送医记录。Scenario结果、日终和诊所位置必须由 SceneManager
             // 在动作边界一次性完成，GameState 不能抢先把 Spotlight 插进队列。
             var actionCollapseState = new GameState();
             actionCollapseState.Inventory.SetCount("金钱", GameState.CollapseTreatmentFee);
@@ -808,38 +808,38 @@ namespace SSNoir.Testing
                 actionCollapseState.HasPendingHospitalization);
             AssertEq("collapse action global spotlight", false, actionCollapseState.SpotlightCenter.HasSpotlight);
 
-            // 脚本不能在已经造成倒下之后抢先正常结束交锋。否则场景先切回 world，
-            // 动作边界再处理住院时已经找不到交锋的 on-encounter-collapse，收场结果会串线。
+            // 脚本不能在已经造成倒下之后抢先正常结束Scenario。否则场景先切回 world，
+            // 动作边界再处理住院时已经找不到Scenario的 on-scenario-collapse，收场结果会串线。
             var prematureExitState = new GameState();
             prematureExitState.Inventory.SetCount("金钱", GameState.CollapseTreatmentFee);
             var prematureExitManager = new SceneManager(prematureExitState, new LocalScriptLoader());
             prematureExitManager.LoadScene("核赔");
             prematureExitState.Team.Injure(Injury.MaxSeverity);
             AssertThrowsAny(
-                () => prematureExitManager.ActiveInterpreter.Eval("(end-encounter 'confirmed)"),
-                "end encounter while hospitalization is pending");
-            AssertEq("premature end keeps encounter active", "核赔", prematureExitManager.CurrentSceneName);
+                () => prematureExitManager.ActiveInterpreter.Eval("(end-scenario 'confirmed)"),
+                "end scenario while hospitalization is pending");
+            AssertEq("premature end keeps scenario active", "核赔", prematureExitManager.CurrentSceneName);
 
-            // 交锋中倒下：核赔声明为可重试，所以不调用城市回调；但仍结束当天、发放新日骰池，
+            // Scenario中倒下：核赔声明为可重试，所以不调用城市回调；但仍结束当天、发放新日骰池，
             // 并按 EnterPlace → Spotlight 的顺序要求客户端在诊所醒来。
-            var encounterCollapseState = new GameState();
-            encounterCollapseState.Inventory.SetCount("金钱", GameState.CollapseTreatmentFee);
-            var encounterCollapseManager = new SceneManager(encounterCollapseState, new LocalScriptLoader());
-            encounterCollapseManager.LoadScene("world");
-            encounterCollapseManager.ActiveInterpreter.Eval(
+            var scenarioCollapseState = new GameState();
+            scenarioCollapseState.Inventory.SetCount("金钱", GameState.CollapseTreatmentFee);
+            var scenarioCollapseManager = new SceneManager(scenarioCollapseState, new LocalScriptLoader());
+            scenarioCollapseManager.LoadScene("world");
+            scenarioCollapseManager.ActiveInterpreter.Eval(
                 "(define-turn-rule \"送医顺序测试\" (lambda () #t) " +
                 "(lambda () (spotlight! \"日终事件测试\" \"应在医院结算之后\")))");
-            encounterCollapseManager.LoadScene("核赔");
-            encounterCollapseState.Team.Injure(Injury.MaxSeverity - 1);
-            encounterCollapseState.Team.SpendComposure("player", TeamState.MaxComposure);
-            var hospitalizationReport = encounterCollapseManager.EndTurn();
-            AssertEq("collapse exits encounter", "world", encounterCollapseManager.CurrentSceneName);
+            scenarioCollapseManager.LoadScene("核赔");
+            scenarioCollapseState.Team.Injure(Injury.MaxSeverity - 1);
+            scenarioCollapseState.Team.SpendComposure("player", TeamState.MaxComposure);
+            var hospitalizationReport = scenarioCollapseManager.EndTurn();
+            AssertEq("collapse exits scenario", "world", scenarioCollapseManager.CurrentSceneName);
             AssertEq("collapse retry result marker", "倒下",
-                SchemeValue.AsId(encounterCollapseManager.LastEncounterResult));
-            AssertEq("collapse advances world day", 2, encounterCollapseState.Get<int>("世界日"));
-            AssertEq("collapse pending consumed", false, encounterCollapseState.HasPendingHospitalization);
+                SchemeValue.AsId(scenarioCollapseManager.LastScenarioResult));
+            AssertEq("collapse advances world day", 2, scenarioCollapseState.Get<int>("世界日"));
+            AssertEq("collapse pending consumed", false, scenarioCollapseState.HasPendingHospitalization);
             AssertEq("collapse wakes with city dice", true,
-                encounterCollapseState.Team.FindActor("player")!.ActionDice.Count > 0);
+                scenarioCollapseState.Team.FindActor("player")!.ActionDice.Count > 0);
             int enterPlaceIndex = hospitalizationReport.PostSceneBlockingSteps.FindIndex(
                 step => step.Kind == BlockingStoryStepKind.EnterPlace && step.PlaceName == "诊所");
             int collapseSpotlightIndex = hospitalizationReport.PostSceneBlockingSteps.FindIndex(
@@ -851,44 +851,44 @@ namespace SSNoir.Testing
             AssertEq("collapse day-end event follows hospitalization", true,
                 hospitalizationReport.PostSceneBlockingSteps.FindIndex(
                     step => step.Spotlight?.Title == "日终事件测试") > collapseSpotlightIndex);
-            // 调试界面用 GoToLocation 直载交锋。结束过上一场后再直载，也必须能倒下退场。
+            // 调试界面用 GoToLocation 直载Scenario。结束过上一场后再直载，也必须能倒下退场。
             var directLoadState = new GameState();
             var directLoadManager = new SceneManager(directLoadState, new LocalScriptLoader());
             directLoadManager.LoadScene("world");
-            directLoadManager.StartEncounter("巷子里在打人");
-            directLoadManager.EndEncounter();
+            directLoadManager.StartScenario("巷子里在打人");
+            directLoadManager.EndScenario();
             directLoadManager.GoToLocation("巷子里在打人");
             directLoadState.Team.Injure(Injury.MaxSeverity - 1);
             directLoadState.Team.SpendComposure("player", TeamState.MaxComposure);
             directLoadManager.EndTurn();
-            AssertEq("directly loaded encounter exits on collapse", "world", directLoadManager.CurrentSceneName);
+            AssertEq("directly loaded scenario exits on collapse", "world", directLoadManager.CurrentSceneName);
             AssertEq("collapse spotlight follows clinic", true, collapseSpotlightIndex > enterPlaceIndex);
 
-            // 交锋自己的结局先在旧场景播；世界回调的话要等世界快照采纳后再播。
+            // Scenario自己的结局先在旧场景播；世界回调的话要等世界快照采纳后再播。
             var boundaryState = new GameState();
             var boundaryManager = new SceneManager(boundaryState, new LocalScriptLoader());
             boundaryManager.LoadScene("world");
             boundaryManager.ActiveInterpreter.Eval(
-                "(start-encounter \"巷子里在打人\" " +
+                "(start-scenario \"巷子里在打人\" " +
                 "(lambda (result) (spotlight! \"世界回调\" \"已经回到世界\")))");
             var boundaryReport = new ActionReport();
             boundaryState.CurrentActionReport = boundaryReport;
             boundaryManager.ActiveInterpreter.Eval(
-                "(spotlight! \"交锋收场\" \"仍在巷子里\") (end-encounter 'success)");
+                "(spotlight! \"Scenario收场\" \"仍在巷子里\") (end-scenario 'success)");
             boundaryState.CurrentActionReport = null;
-            AssertEq("encounter spotlight stays before scene commit", "交锋收场",
+            AssertEq("scenario spotlight stays before scene commit", "Scenario收场",
                 boundaryReport.BlockingStorySteps.Single().Spotlight!.Title);
             AssertEq("world callback waits until after scene commit", "世界回调",
                 boundaryReport.PostSceneBlockingSteps.Single().Spotlight!.Title);
 
             var hangoverState = new GameState();
             hangoverState.Team.ApplyHangover();
-            hangoverState.Team.RollActionDice(isInEncounter: false, consumeHangover: false);
+            hangoverState.Team.RollActionDice(isInScenario: false, consumeHangover: false);
             AssertEq<int?>("hangover survives scene roll", 0, hangoverState.Team.FindActor("player")!.HangoverSlotId);
-            hangoverState.Team.RollActionDice(isInEncounter: false);
+            hangoverState.Team.RollActionDice(isInScenario: false);
             AssertEq<int?>("hangover consumed on day end", null, hangoverState.Team.FindActor("player")!.HangoverSlotId);
 
-            // 随身动作（烟、酒）不由交锋脚本声明，是 SceneManager 补进每一场交锋的树的。
+            // 随身动作（烟、酒）不由Scenario脚本声明，是 SceneManager 补进每一场Scenario的树的。
             // 它们走的是和别的卡完全同一条路径：骰位 + 物品位 + ExecuteAction。
             // 这里守三件事——这一场真的有它、它认得自己属于哪件物品、手里没那件东西时它不出现。
             var consumableState = new GameState();
@@ -896,8 +896,8 @@ namespace SSNoir.Testing
             consumableState.Inventory.SetCount("酒", 0);
             consumableState.Team.SpendComposure("player", TeamState.MaxComposure);
             var consumableManager = new SceneManager(consumableState, new LocalScriptLoader());
-            // 任意一场活的交锋都行，这里只需要一个已载入的交锋上下文。
-            consumableManager.LoadScene("encounters/巷子里在打人");
+            // 任意一场活的Scenario都行，这里只需要一个已载入的Scenario上下文。
+            consumableManager.LoadScene("scenarios/巷子里在打人");
             var smokeNode = consumableManager.CurrentCarryNodes.FirstOrDefault(n => n.Id == "抽烟")
                 ?? throw new Exception("[saveload] 这一场没有随身动作「抽烟」");
             AssertEq("carry node names its item", "香烟", smokeNode.CarryItemId);
@@ -924,7 +924,7 @@ namespace SSNoir.Testing
                 },
             });
             AssertEq("smoke consumed", 0, consumableState.Inventory.GetCount("香烟"));
-            // 交锋每回合流失 2，一根烟正好换回一个回合。
+            // Scenario每回合流失 2，一根烟正好换回一个回合。
             AssertEq("smoke composure restore", 2, consumableState.Team.FindActor("player")!.Composure);
             // 它要投一颗行动骰：角落里那种一按就生效的按钮已经不存在了。
             AssertEq("smoke spends an action die", diceBeforeSmoke - 1, consumablePlayer.ActionDice.Count);
@@ -941,7 +941,7 @@ namespace SSNoir.Testing
 
         public static void TestRoundTransition()
         {
-            Console.WriteLine("=== Encounter Round Transition Contract Test ===");
+            Console.WriteLine("=== Scenario Round Transition Contract Test ===");
 
             // 世界新日的剧情步骤不能混进睡前报告。客户端只凭这条边界决定：先落黑幕并
             // 采用新日快照，再显示“今早发生了什么”。
@@ -969,7 +969,7 @@ namespace SSNoir.Testing
             // 回应规则在引擎批里执行；客户端拿到的只允许是已结算报告。
             var alleyState = new GameState();
             var alley = new SceneManager(alleyState, new LocalScriptLoader());
-            alley.LoadScene("encounters/巷子里在打人");
+            alley.LoadScene("scenarios/巷子里在打人");
             var alleyFrame = alley.BeginRoundTransition();
             // 结束回合自己的账（时间税）先结，然后才是场上的人回应。
             AssertEq("alley first phase", RoundTransitionPhase.TimeTax, alleyFrame.Phase);
@@ -986,7 +986,7 @@ namespace SSNoir.Testing
             // 晚宴第二轮登记强制行动：先提交完整新骰池，下一次 Advance 才拿真实骰进卡。
             var dinnerState = new GameState();
             var dinner = new SceneManager(dinnerState, new LocalScriptLoader());
-            dinner.LoadScene("encounters/晚宴");
+            dinner.LoadScene("scenarios/晚宴");
             var frame = dinner.BeginRoundTransition(); // turn 2，主人敬酒
             while (!frame.IsFinished && frame.Phase != RoundTransitionPhase.NewDice)
                 frame = dinner.AdvanceRoundTransition();

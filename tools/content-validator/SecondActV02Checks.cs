@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 namespace SSNoir.Testing;
 
-// 精确结果用于边界；真实骰子动作覆盖资源扣除。不是交锋手感的试玩证据。
+// 精确结果用于边界；真实骰子动作覆盖资源扣除。不是Scenario手感的试玩证据。
 internal static class SecondActV02Checks
 {
     public static void Run()
@@ -124,20 +124,20 @@ internal static class SecondActV02Checks
         }
         var e = Start(9);
         var entry = e.EnterPlace("码头");
-        Check(e.CurrentSceneName == "world" && Has(e, "介入工钱争执") && !Has(e, "核对工时簿"), "城市只留交锋入口，不投射调查行动");
+        Check(e.CurrentSceneName == "world" && Has(e, "介入工钱争执") && !Has(e, "核对工时簿"), "城市只留Scenario入口，不投射调查行动");
         Check(!Lines(entry).Any(t => t.Contains("血") || t.Contains("衣领")), "C1开场尚未失控");
         Act(e, "介入工钱争执");
-        Check(e.CurrentSceneName == "少了十块钱" && Has(e,"核对工时簿"), "C1进入独立交锋场景");
+        Check(e.CurrentSceneName == "少了十块钱" && Has(e,"核对工时簿"), "C1进入独立Scenario场景");
         Good(e,"追问账房"); Good(e,"追问账房"); Good(e,"当场作证"); Good(e,"当场作证");
         Check(e.CurrentSceneName == "少了十块钱" && Has(e,"请弗兰克协助"), "四次最好结果未结束，危机支持已开放");
         Round(e);
-        Check(Convert.ToInt32(e.GameState.Get<int>("世界日",0)) == 9, "交锋结束回合不推进世界日期");
+        Check(Convert.ToInt32(e.GameState.Get<int>("世界日",0)) == 9, "Scenario结束回合不推进世界日期");
         Check(Nodes(e.CurrentRootNode!).First(x=>x.Resolve?.Clock?.Label=="核清工时").Resolve!.Clock!.Current == 4 && Nodes(e.CurrentRootNode!).First(x=>x.Resolve?.Clock?.Label=="争执升级").Resolve!.Clock!.Current == 1, "回合保留进度并推进争执压力");
         Good(e,"追问账房");
-        Check(e.CurrentSceneName == "world" && (string)Get(e,"(第二幕 'wage-state)")! == "上工", "独立交锋上工结果回写城市");
+        Check(e.CurrentSceneName == "world" && (string)Get(e,"(第二幕 'wage-state)")! == "上工", "独立Scenario上工结果回写城市");
         Check(Lines(e.EnterPlace("码头")).Any(t=>t.Contains("手套")), "相熟者正常重逢仍自然获得手套");
         e=Reload(e,"wage-result");
-        Check(!Has(e,"介入工钱争执") && (string)Get(e,"(第二幕 'wage-state)")! == "上工", "读档保留结局，不重复开启交锋");
+        Check(!Has(e,"介入工钱争执") && (string)Get(e,"(第二幕 'wage-state)")! == "上工", "读档保留结局，不重复开启Scenario");
 
         var f=Start(9); f.EnterPlace("码头"); Act(f,"介入工钱争执");
         Bad(f,"追问账房"); Bad(f,"追问账房"); Bad(f,"追问账房");
@@ -145,24 +145,24 @@ internal static class SecondActV02Checks
         Bad(f,"追问账房"); Bad(f,"追问账房"); Bad(f,"追问账房"); Bad(f,"追问账房");
         Check(f.CurrentSceneName == "world" && !((bool)Get(f,"(第二幕 'eddie-on-dock?)")!),"压力满回到城市，艾迪停班");
         Check(Lines(f.EnterPlace("码头居民区")).Any(t=>t.Contains("空饭盒")),"停班探望依然自然触发");
-        f.EnterPlace("码头居民区"); Check((bool)Get(f,"(第二幕生活 'met-frank?)")!,"食堂弗兰克不依赖交锋路径");
+        f.EnterPlace("码头居民区"); Check((bool)Get(f,"(第二幕生活 'met-frank?)")!,"食堂弗兰克不依赖Scenario路径");
 
         var n=Start(8); Act(n,"观看正式彩排"); Eval(n,"(end-turn!)");
         Check(Lines(n.EnterPlace("剧院")).Any(t=>t.Contains("分你一半")), "免费私人相处保留");
-        Check(Has(n,"帮她准备旧歌")&&!Has(n,"排旧曲"),"城市只保留旧歌交锋入口");
+        Check(Has(n,"帮她准备旧歌")&&!Has(n,"排旧曲"),"城市只保留旧歌Scenario入口");
         Act(n,"帮她准备旧歌");
-        Check(n.CurrentSceneName=="赞助人试演", "C2进入独立筹备交锋");
+        Check(n.CurrentSceneName=="赞助人试演", "C2进入独立筹备Scenario");
         Good(n,"空档赶排"); Good(n,"空档赶排"); Good(n,"协调后台"); Good(n,"协调后台");
         Check(n.CurrentSceneName=="赞助人试演", "四次最好结果不能一回合做完双目标");
-        Round(n); Check(n.GameState.Get<int>("世界日",0)==9,"C2交锋回合不跨城市日");
+        Round(n); Check(n.GameState.Get<int>("世界日",0)==9,"C2Scenario回合不跨城市日");
         Good(n,"空档赶排"); Check(n.CurrentSceneName=="world"&&!Has(n,"帮她准备旧歌"),"筹备结算返回城市且不重复进入");
         Eval(n,"(end-turn!) (end-turn!)");
-        Check((string)Get(n,"(第二幕剧院 'sponsor-result)")! == "保留旧歌", "D11依交锋结果确定旧歌条件");
+        Check((string)Get(n,"(第二幕剧院 'sponsor-result)")! == "保留旧歌", "D11依Scenario结果确定旧歌条件");
         Check(Lines(n.EnterPlace("剧院")).Any(t=>t.Contains("今天唱旧")),"D11仍由夜莺亲口选择版本");
         Eval(n,"(end-turn!) (end-turn!)"); Check(Find(n,"首演节目单").Resolve!.NoteText.Contains("旧港"),"D13节目单仍兑现旧歌结果");
 
         var stop=Start(8); Act(stop,"观看正式彩排"); Eval(stop,"(end-turn!)"); stop.EnterPlace("剧院"); Act(stop,"帮她准备旧歌"); Act(stop,"放下筹备");
-        Check(stop.CurrentSceneName=="world"&&!Has(stop,"帮她准备旧歌"),"交锋中放下准备返回城市，不能重开刷结果");
+        Check(stop.CurrentSceneName=="world"&&!Has(stop,"帮她准备旧歌"),"Scenario中放下准备返回城市，不能重开刷结果");
         var l = Start(8);
         Eval(l, "(第二幕 'on-cafe-work!)");
         Check(Has(l, "付代班费"), "露西玩法仍可达");

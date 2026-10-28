@@ -45,7 +45,7 @@ namespace SSNoir.IMGUI
         public static void Observe(SSNoirGameManager gameManager, bool hasActionCards)
         {
             var snapshot = gameManager.DisplayedSnapshot;
-            if (snapshot.IsInEncounter) return;
+            if (snapshot.IsInScenario) return;
 
             // 冷静与伤势按实际状态触发教程。
             foreach (var actor in snapshot.Actors)

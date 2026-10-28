@@ -3,8 +3,8 @@
   "date": "2026-10-02",
   "files_sha256": {
     "UnityClient/Assets/Resources/Content/scripts/research/行动信息.scm": "27fb7b7ef899fa42e7711c97e800efc9a24bad2e82847f9bf5ecb8d5e3652ed9",
-    "UnityClient/Assets/Resources/Content/scenes/encounters/研究·边做边看.scm": "c25b5fe586cd35b67eb41dcf712a842a25af1e4fe4970f6d01dac5d382ef9b43",
-    "UnityClient/Assets/Resources/Content/scenes/encounters/研究·路线明示对照.scm": "49010d719af0d53bc98652b4e0f1a008c860c893eabde69545d2364307391b4f",
+    "UnityClient/Assets/Resources/Content/scenes/scenarios/研究·边做边看.scm": "c25b5fe586cd35b67eb41dcf712a842a25af1e4fe4970f6d01dac5d382ef9b43",
+    "UnityClient/Assets/Resources/Content/scenes/scenarios/研究·路线明示对照.scm": "49010d719af0d53bc98652b4e0f1a008c860c893eabde69545d2364307391b4f",
     "Engine/Runtime/Core/FateStrip.cs": "18045101bf810b66831d05da267fdd89a66c0c711389041d90fbc5f493dfca0c",
     "tools/content-validator/experiments/mechanism-study.py": "59bd3eaba31f8eaa874bd9a7f11ab9d21d68dc506662070debcd445e7162c41c",
     "docs/实验/机制研究/批次/R07-顺序与选择权/分段筛选.py": "55184806864b7d70ed218bb9600a8ec9702f4e7071b172e19db687947f9c08e7",

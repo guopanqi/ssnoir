@@ -4,7 +4,7 @@
 ;; 「你站在谁旁边，另一边的门那晚就不开」说的就是这个。
 ;;
 ;; 之后两天他在格兰德酒店大堂等你，把码头那桩疑似骗保的案子交给你：一张卡《核赔》，
-;; 交锋见 encounters/核赔.scm。坐实还是放水由玩家在交锋里定，它决定后面那份活的性质。
+;; Scenario见 scenarios/核赔.scm。坐实还是放水由玩家在Scenario里定，它决定后面那份活的性质。
 ;;
 ;; 了结的回报是一份稳定的侦探活：酒店大堂常驻一张「替沃尔特跑外勤」。坐实→他信你办事，
 ;; 活重钱多；放水→他也知道你会放水，活轻钱少，但失手不扣冷静。这张卡不随码头的班次
@@ -103,7 +103,7 @@
           #f))
 
     ;; ── 舱单 ────────────────────────────────────────
-    ;; 核赔不是一场免费的交锋：先进场的是时间或情报，交锋只是收尾。
+    ;; 核赔不是一场免费的Scenario：先进场的是时间或情报，Scenario只是收尾。
     ;; 两条路都落在码头账房（船位记录本来就在他手里）：
     ;;   翻记录  花骰子，一颗一格往上推，好结果两格；
     ;;   拿情报换 账房认货不认人，一份情报当场换走，不占骰。
@@ -148,8 +148,8 @@
         :anchor "格兰德酒店-大厅"
         :subtitle (if manifest? identity "先拿到那批货的舱单")
         :disabled (not manifest?)
-        :tags (list "交锋")
-        :resolve (instant (lambda () (start-encounter "核赔" on-claim-result)))))
+        :tags (list "Scenario")
+        :resolve (instant (lambda () (start-scenario "核赔" on-claim-result)))))
 
     ;; ── 外勤：核赔之后的稳定活 ──────────────────────
     ;; 报酬夹在码头搬运和「替客人解围」之间：比码头高一档，但不是上城的价。
@@ -368,7 +368,7 @@
             (if (= stage 0) (begin (set! stage 1) (set! met-day world-day)) #f)
             (if (= stage 1) (托付!) #f)
             (set! manifest? #t)
-            (start-encounter "核赔" on-claim-result))
+            (start-scenario "核赔" on-claim-result))
            ((equal? msg 'save)
             (list (list "stage" stage)
                   (list "met-day" met-day)

@@ -315,8 +315,8 @@ namespace SSNoir
         public bool IsStateTainted => _stateTainted;
 
         /// <summary>
-        /// 最近一次落地的快照有没有换根节点（世界 ↔ 交锋）。落地时随 ReconcileContext 传给 Portal，
-        /// 用来分辨"剧情带着镜头走"（进出交锋，不听减少动画）和"玩家自己翻页"（世界里点进一扇门，
+        /// 最近一次落地的快照有没有换根节点（世界 ↔ Scenario）。落地时随 ReconcileContext 传给 Portal，
+        /// 用来分辨"剧情带着镜头走"（进出Scenario，不听减少动画）和"玩家自己翻页"（世界里点进一扇门，
         /// 不落快照、走轮询，听减少动画）。只在落地那一刻有意义，别在别处读它当"现在"。
         /// </summary>
         private bool LastSnapshotChangedRoot { get; set; }
@@ -623,7 +623,7 @@ namespace SSNoir
         ///
         /// <paramref name="storyDriven"/> 区分两种换镜：玩家自己翻页（点地点卡、返回、回家）
         /// 是城里最高频的动作，看多了会腻，「减少动画」就是给它准备的；而剧情把镜头带到
-        /// 另一个地方（交锋里换场、倒下送医、交锋收场退回地点）一局里没几次，这段路本身
+        /// 另一个地方（Scenario里换场、倒下送医、Scenario收场退回地点）一局里没几次，这段路本身
         /// 在交代"你从哪儿到了哪儿"，砍了空间关系就断了，所以不受该设置影响。Portal 和
         /// 过场出于同样理由也永远走全动画。
         /// </summary>
@@ -768,7 +768,7 @@ namespace SSNoir
             {
                 // Stage 身份是节点名（Portal 挂在 Anchor_<名>）。门卡也叫这个名，但
                 // :anchor 指门外挂点（家的「门口」）——那种情况必须用 Stage 根机位，
-                // 不能跟到门外。交锋根若额外声明了区内 :anchor（巷子 → 勒索信-巷口），
+                // 不能跟到门外。Scenario根若额外声明了区内 :anchor（巷子 → 勒索信-巷口），
                 // 且该锚点就在 Stage 空间里，则用分区机位，换段才能切走廊镜头。
                 var stage = ResolveStageAnchor(nodeId);
                 if (stage != null)
@@ -834,7 +834,7 @@ namespace SSNoir
         }
 
         /// <summary>
-        /// 交锋根在 Stage 名上另声明了区内 :anchor 时，取该分区机位。
+        /// Scenario根在 Stage 名上另声明了区内 :anchor 时，取该分区机位。
         /// 门卡那种 :anchor 在城市场地（与 Stage 锚点相距甚远）的，返回 null，继续用 Stage 根机位。
         /// </summary>
         private Cinemachine.CinemachineVirtualCamera? TryResolveInStageZoneCamera(string nodeId, NodeAnchor stage)
@@ -860,7 +860,7 @@ namespace SSNoir
         /// Stage 的身份是**节点名**：`Anchor_<节点名>` 挂着 <see cref="StagePortalConfig"/> 的节点就是一扇门，
         /// 点进去穿门。`:anchor` 只决定这张门卡挂在城市里的哪个位置（家的门口），与门通向哪儿无关——
         /// 门卡在门外看得见，门后的空间却在郊野的 Stage 里，两者不可能是同一个锚点。
-        /// 交锋根容器名就是场景名，所以这条规则对交锋不是新东西。
+        /// Scenario根容器名就是场景名，所以这条规则对Scenario不是新东西。
         /// </summary>
         public NodeAnchor? ResolveStageAnchor(string nodeId)
         {
@@ -1266,7 +1266,7 @@ namespace SSNoir
         /// 记错了片子放完就先飞回旧场景，再由回调推第二趟。
         ///
         /// 只登记，不动优先级——首个阻塞演出可能是几句入场对白，这时候抬优先级会让 brain
-        /// 当场把画面blend到交锋镜头上，玩家在片子之前先看见一次多余的运镜。真正的接管点
+        /// 当场把画面blend到Scenario镜头上，玩家在片子之前先看见一次多余的运镜。真正的接管点
         /// 在过场的回程（见 CutscenePlayer.BeginReturn）。
         /// </summary>
         private void BeginIncomingFocusContext(Cinemachine.CinemachineVirtualCamera? outgoingCamera)
@@ -1392,7 +1392,7 @@ namespace SSNoir
             CleanupNodeSlots();
 
             // 快照是“玩家现在在哪”的唯一事实。Stage Portal 在这里同步接管，Debug 直载、
-            // 正式交锋和返回世界因而共用同一条边界，不再等下一帧 Update 猜执行顺序。
+            // 正式Scenario和返回世界因而共用同一条边界，不再等下一帧 Update 猜执行顺序。
             _stageController?.ReconcileContext(storyDriven: LastSnapshotChangedRoot);
 
             if (pathBefore.Count != _navigationStack.Count)
@@ -1466,7 +1466,7 @@ namespace SSNoir
             }
         }
 
-        public void EnterDemoEncounter(string scene, string entryExpression)
+        public void EnterDemoScenario(string scene, string entryExpression)
         {
             if (_stateTainted) return;
             if (string.IsNullOrWhiteSpace(entryExpression))
@@ -1671,7 +1671,7 @@ namespace SSNoir
             var found = root == null ? null : FindNodeRecursive(root, id);
             if (found != null) return found;
 
-            // 随身动作（烟、酒）不在渲染树上——它们不属于任何一场交锋。但它们是货真价实的
+            // 随身动作（烟、酒）不在渲染树上——它们不属于任何一场Scenario。但它们是货真价实的
             // 动作节点，一样要有骰位、一样能放骰子，所以按 ID 找节点时必须也找得到它们，
             // 否则 GetSlotsForNode 拿不到槽，槽就一直是"放不进去"的红。
             foreach (var carry in _displayedSnapshot.CarryNodes)
@@ -2164,8 +2164,8 @@ namespace SSNoir
 
             _renderer.SetInputLocked(false);
             // 冷却只给城市：睡一觉是一下黑屏就过去的，手抖连点会把第二天也睡掉。
-            // 交锋的回合转换本身要走好几秒、画面一路在变，新骰落定后键就该立刻是你的。
-            if (!_displayedSnapshot.IsInEncounter)
+            // Scenario的回合转换本身要走好几秒、画面一路在变，新骰落定后键就该立刻是你的。
+            if (!_displayedSnapshot.IsInScenario)
                 _restCooldownUntil = Time.unscaledTime + RestCooldownSeconds;
             _isEndingTurn = false;
         }
@@ -2193,7 +2193,7 @@ namespace SSNoir
 
             string oldRoot = _displayedSnapshot.RootNode?.Id ?? string.Empty;
             string newRoot = _sceneManager.LatestSnapshot.RootNode?.Id ?? string.Empty;
-            bool contextChanged = _displayedSnapshot.IsInEncounter != _sceneManager.LatestSnapshot.IsInEncounter
+            bool contextChanged = _displayedSnapshot.IsInScenario != _sceneManager.LatestSnapshot.IsInScenario
                 || !string.Equals(oldRoot, newRoot, StringComparison.Ordinal);
 
             if (resetUiOnContextChange && contextChanged)
@@ -2217,8 +2217,8 @@ namespace SSNoir
         /// <summary>玩家碰了别的东西：休息键的冷却没有继续存在的理由。</summary>
         private void ReleaseRestCooldown() => _restCooldownUntil = 0f;
 
-        // 这里曾有 OnUseEncounterConsumable / HasSelectedDie：烟和酒走引擎旁路的那条。
-        // 它们现在是交锋树上的普通动作卡，走 ExecuteNodeAction，不需要专门的入口。
+        // 这里曾有 OnUseScenarioConsumable / HasSelectedDie：烟和酒走引擎旁路的那条。
+        // 它们现在是Scenario树上的普通动作卡，走 ExecuteNodeAction，不需要专门的入口。
 
         /// <summary>
         /// 这一手是不是该在**按下去的那一刻**就开始黑。
@@ -2332,7 +2332,7 @@ namespace SSNoir
         }
 
         /// <summary>
-        /// 演出中的明确导航落点（送医、回家、交锋总览）。采纳已经准备好的快照，
+        /// 演出中的明确导航落点（送医、回家、Scenario总览）。采纳已经准备好的快照，
         /// 不触发普通 arrival，也不重置正在播放的阻塞演出队列。
         /// </summary>
         public void EnterForcedPlace(string placeName, bool updateCamera = true)

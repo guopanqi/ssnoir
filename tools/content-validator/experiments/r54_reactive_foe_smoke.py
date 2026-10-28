@@ -13,7 +13,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 CMD = ['dotnet', 'run', '--no-build', '--project',
        'tools/content-validator/SSNoir.ContentValidator.csproj', '--']
-ENTRY = 'encounters/研究·追击领先目标'
+ENTRY = 'scenarios/研究·追击领先目标'
 
 
 def progress(observation):
@@ -46,7 +46,7 @@ def one(seed: int, growth: int, pattern: str, directory: Path) -> dict:
         observation = receive()['observation']
         assert progress(observation) == (0, 0)
         for action_count in range(6):
-            if observation['EncounterResult'] is not None:
+            if observation['ScenarioResult'] is not None:
                 break
             actions = [o for o in observation['Operations'] if o['Kind'] == 'action'
                        and o['Card'] in ('推进甲', '推进乙')]
@@ -60,7 +60,7 @@ def one(seed: int, growth: int, pattern: str, directory: Path) -> dict:
                 reply = request({'command': 'act', 'version': observation['Version'],
                                  'operationId': pick['Id'], 'reason': 'R54核对规则与回击'})
                 observation = reply['observation']
-                after = progress(observation) if observation['EncounterResult'] is None else None
+                after = progress(observation) if observation['ScenarioResult'] is None else None
                 attempted.append(pick['Card'])
                 # Verify actual C# state transitions, rather than relying on the
                 # incidental wording/format of action-report supplements.
@@ -69,7 +69,7 @@ def one(seed: int, growth: int, pattern: str, directory: Path) -> dict:
                     aa = min(3, before[0] + (gain if target == 'A' else 0))
                     bb = min(5, before[1] + (gain if target == 'B' else 0))
                     if aa >= 3 or bb >= 5:
-                        if observation['EncounterResult'] is not None:
+                        if observation['ScenarioResult'] is not None:
                             expected.append(('finished', (aa, bb)))
                         continue
                     hit = None
@@ -79,12 +79,12 @@ def one(seed: int, growth: int, pattern: str, directory: Path) -> dict:
                             aa = max(0, aa - 2)
                         else:
                             bb = max(0, bb - 2)
-                    if observation['EncounterResult'] is None and (aa, bb) == after:
+                    if observation['ScenarioResult'] is None and (aa, bb) == after:
                         expected.append((hit, (aa, bb)))
                 assert expected, (
                     f'C# state differs from R54 rule at action {action_count+1}: '
-                    f'{before=}, {after=}, {target=}, {observation["EncounterResult"]=}')
-                if observation['EncounterResult'] is None and action_count + 1 in (2, 4):
+                    f'{before=}, {after=}, {target=}, {observation["ScenarioResult"]=}')
+                if observation['ScenarioResult'] is None and action_count + 1 in (2, 4):
                     choices = {hit for hit, _ in expected}
                     if len(choices) == 1:
                         hit_targets.add(choices.pop())
@@ -95,7 +95,7 @@ def one(seed: int, growth: int, pattern: str, directory: Path) -> dict:
                                  'operationId': ends[0]['Id'], 'reason': 'R54标准期限'})
                 observation = reply['observation']
 
-        assert observation['EncounterResult'] is not None, 'R54 must settle within one round'
+        assert observation['ScenarioResult'] is not None, 'R54 must settle within one round'
         tape = directory / f'{seed}-{growth}-{pattern}.json'
         saved = request({'command': 'save', 'path': str(tape)})
         assert saved['type'] == 'saved'
@@ -106,7 +106,7 @@ def one(seed: int, growth: int, pattern: str, directory: Path) -> dict:
         assert replay.returncode == 0, replay.stdout + replay.stderr
         return {'seed': seed, 'growth': growth, 'pattern': pattern,
                 'attacked': sorted(hit_targets),
-                'actions': attempted, 'result': observation['EncounterResult'],
+                'actions': attempted, 'result': observation['ScenarioResult'],
                 'replay': 'pass'}
     finally:
         if p.poll() is None:

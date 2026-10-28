@@ -86,7 +86,7 @@ const picked=new Set();
 let libSearch="",libLayer="all",libOrigin="all",libPickedOnly=false;
 const graphUrl=p=>"https://github.com/guopanqi/ssnoir/blob/main/"+p.split("/").map(encodeURIComponent).join("/");
 const layerName=n=>{
- if(n.layer==="encounter-structure")return "交锋结构";
+ if(n.layer==="scenario-structure")return "Scenario结构";
  if(n.layer==="decision-relation")return "基础决策";
  if(n.layer==="negative-boundary")return "反证边界";
  if(n.layer==="open-hypothesis")return "开放问题";
@@ -177,7 +177,7 @@ function buildBrief(){
  const selection=[...picked].map(id=>nodeById.get(id));
  const interactions=graph.edges.filter(e=>picked.has(e.from)&&picked.has(e.to));
  const blocks=[
-  "SSNoir · 交锋设计材料（研究知识，不是实现要求）",
+  "SSNoir · Scenario设计材料（研究知识，不是实现要求）",
   "情境："+name,"选用模式："+selection.map(n=>n.name+" ["+n.id+"]").join("、"),
   ...selection.flatMap(n=>[
    "\n"+n.id+" · "+n.name+"（"+sourceName(n)+"）",

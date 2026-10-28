@@ -68,8 +68,8 @@ test("bad save inputs rejected before altering an existing game",async()=>{
  const value=await makeWorld();
  assert.throws(()=>WorldSaveController.parse('{"format":"ssnoir-world","version":2}'),/unsupported/);
  assert.throws(()=>WorldSaveController.parse("{}"),/unsupported/);
- value.state.setGlobal("location","encounter");
- await assert.rejects(new WorldSaveController(value.state,value.session).capture(),/encounter/);
+ value.state.setGlobal("location","scenario");
+ await assert.rejects(new WorldSaveController(value.state,value.session).capture(),/scenario/);
  value.state.setGlobal("location","world");
  value.state.team.recruit("temp","帮手",{violence:0,knowledge:0,sharpness:0,social:0},true);
  await assert.rejects(new WorldSaveController(value.state,value.session).capture(),/temporary/);

@@ -5,8 +5,8 @@ on:
       - 'UnityClient/Assets/Resources/Content/scenes/world/第二幕*.scm'
       - 'UnityClient/Assets/Resources/Content/scenes/world/码头.scm'
       - 'UnityClient/Assets/Resources/Content/scenes/world/咖啡馆.scm'
-      - 'UnityClient/Assets/Resources/Content/scenes/encounters/少了十块钱.scm'
-      - 'UnityClient/Assets/Resources/Content/scenes/encounters/赞助人试演.scm'
+      - 'UnityClient/Assets/Resources/Content/scenes/scenarios/少了十块钱.scm'
+      - 'UnityClient/Assets/Resources/Content/scenes/scenarios/赞助人试演.scm'
       - 'tools/content-validator/FirstActChecks.cs'
       - '.github/workflows/ssnoir-act-two-native.yml'
   workflow_dispatch:

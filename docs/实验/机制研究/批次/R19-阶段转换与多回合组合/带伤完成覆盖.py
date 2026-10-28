@@ -9,7 +9,7 @@ if not metadata:
   try:
    for _ in range(18):
     o=s.observation
-    if o['EncounterResult'] is not None:break
+    if o['ScenarioResult'] is not None:break
     if K['injury'](o)==0:
      st=K['state'](o);model.value(*st);op=K['operation'](o,model.decisions[st])
     else:

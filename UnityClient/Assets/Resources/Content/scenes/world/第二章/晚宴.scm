@@ -1,5 +1,5 @@
 ;; scenes/world/第二章/晚宴.scm - 第二章锚点一《晚宴》的城市入口与结算。
-;; 场内玩法在 encounters/晚宴.scm；这里只管日期、阻塞、入场和写回城市。
+;; 场内玩法在 scenarios/晚宴.scm；这里只管日期、阻塞、入场和写回城市。
 
 (define 晚宴
   (let ()
@@ -11,7 +11,7 @@
     (define (剩几天) (max 0 (- (第二章 'banquet-day) world-day)))
 
     (define (记结果! results)
-      (if (not (list? results)) (error "晚宴：交锋结果必须是列表") #t)
+      (if (not (list? results)) (error "晚宴：Scenario结果必须是列表") #t)
       (set-global! '晚宴-薇拉 (member? '薇拉 results))
       (set-global! '晚宴-沃尔特 (member? '沃尔特 results))
       ;; 沃尔特：吧台上陪他喝到底，他才记得你。过两天他在酒店大堂找你（见 人物/沃尔特.scm）。
@@ -59,10 +59,10 @@
     ;; 正式入场与演示共用演出顺序；日期门槛和城市结算仍归正式动作。
     (define (入场演出! 收场!)
           ;; 门前的车队先到：三辆礼宾轿车依次开到雨棚下停一停再走。一次性演出（once clip），
-          ;; 不记状态、播完车道就空了；随后直接推门进去（start-encounter 的 Stage Portal）。
+          ;; 不记状态、播完车道就空了；随后直接推门进去（start-scenario 的 Stage Portal）。
           ;; 机位与编排在 city-box/prefabs/src/格兰德酒店.py 的 motorcade。
           (play-motion! "格兰德酒店/车队" "到场" "格兰德酒店-车队")
-          (start-encounter "晚宴" 收场!))
+          (start-scenario "晚宴" 收场!))
 
     (define (演示入场节点)
       (node "演示赴晚宴"
@@ -73,7 +73,7 @@
       (node "赴晚宴" :required-before-rest (tr "今晚她在酒店等你" "She is waiting at the hotel tonight")
         :name (tr "赴晚宴" "Go to the Banquet")
         :anchor "格兰德酒店"
-        :tags (list "交锋")
+        :tags (list "Scenario")
         :resolve (instant (lambda ()
           (if (equal? 结果 "未开始") #t (error "晚宴：只能进场一次"))
           (set! 结果 "进行中")

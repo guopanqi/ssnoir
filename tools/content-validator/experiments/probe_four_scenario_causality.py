@@ -9,7 +9,7 @@ import subprocess,json
 ROOT=Path(__file__).resolve().parents[3]
 CMD=["dotnet","run","--no-build","--project","tools/content-validator/SSNoir.ContentValidator.csproj","--"]
 def start(name):
-    p=subprocess.Popen(CMD+["--session","encounters/实验·"+name,"--seed","19","--growth","1"],
+    p=subprocess.Popen(CMD+["--session","scenarios/实验·"+name,"--seed","19","--growth","1"],
       cwd=ROOT,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
     return p,recv(p)
 def recv(p):

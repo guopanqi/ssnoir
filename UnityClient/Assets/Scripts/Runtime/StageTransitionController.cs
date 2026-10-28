@@ -23,7 +23,7 @@ namespace SSNoir
         // 两处净空由 city-box/pipeline/export.py 在有几何的地方 ray_cast 核过，不够直接构建失败，
         // 所以运行时不做任何避障，常量改了要同步那边。
         //
-        // 减少动画：进出交锋（根节点换了）不听它——那段路在交代"剧院在城里哪儿、你进到了里面"；
+        // 减少动画：进出Scenario（根节点换了）不听它——那段路在交代"剧院在城里哪儿、你进到了里面"；
         // 世界里点进一扇门（家 → 租屋，根节点没换）是玩家自己翻页，一局要走很多次，听它：
         // 和城里点地点一样，硬切盖一层溶解（SSNoirCameraManager 的减少动画分支），不黑场——
         // 黑场留给"时间过去了 / 进了一场戏"。
@@ -85,9 +85,9 @@ namespace SSNoir
 
         /// <summary>
         /// 在表现快照落地的确定时点接管 Stage 边界。Update 仍调用它作为安全网，但 Debug
-        /// 直载和正式交锋不再依赖“下一帧刚好先轮询、还是焦点系统先动”的执行顺序。
+        /// 直载和正式Scenario不再依赖“下一帧刚好先轮询、还是焦点系统先动”的执行顺序。
         /// </summary>
-        /// <param name="storyDriven">这次边界变化是不是剧情带来的（进出交锋，快照换了根节点）。
+        /// <param name="storyDriven">这次边界变化是不是剧情带来的（进出Scenario，快照换了根节点）。
         /// 玩家在世界里点进一扇门不落新快照，走的是 Update 的轮询，永远是 false。</param>
         public void ReconcileContext(bool storyDriven)
         {
@@ -221,7 +221,7 @@ namespace SSNoir
 
             ResetFocusCameras();
 
-            // 内半程：从交锋机位沿视轴向后拉，拉到进门时的落点处黑——进门那段的倒放。
+            // 内半程：从Scenario机位沿视轴向后拉，拉到进门时的落点处黑——进门那段的倒放。
             var from = transitionVCam.transform;
             Vector3 pushEnd = from.position - from.forward * RevealDistance(portal, from);
             yield return SwoopTransitionCamera(
@@ -230,7 +230,7 @@ namespace SSNoir
                 from.rotation, from.rotation, transitionVCam.m_Lens,
                 PortalHalfDuration, AccelerateIntoBlack, FadeIntoBlack);
 
-            // 退出交锋时，黑场之前世界快照刚落地，送医流程可能还要把导航落到
+            // 退出Scenario时，黑场之前世界快照刚落地，送医流程可能还要把导航落到
             // 诊所。目标机位必须在这段导航完成后再解析，否则会先取到世界根机位，
             // 下一帧又被诊所机位重定向，表现成一段突然加速的短运镜。
             targetCamera = _gameManager.CurrentFocusCamera;

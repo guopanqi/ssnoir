@@ -9,8 +9,8 @@ Frozen toy horizon: 2 days, 4 actions each, random gain 0/1/2 equally.
 D dock witness progress2, O compulsory solo old street inquiry2 on day1
 which *never itself yields key evidence*, L Nightingale accompanies next day
 only if O completed (L progress2), and E optional Eddie response progress2
-only after witnessed bar encounter and before that evening ends.
-This progress2 for E is a mathematical cost PROXY, not Eddie's real encounter.
+only after witnessed bar scenario and before that evening ends.
+This progress2 for E is a mathematical cost PROXY, not Eddie's real scenario.
 The optimal solver is an AUTHOR-OMNISCIENT upper bound: before solo failure,
 the PLAYER cannot know Nightingale will offer to come tomorrow. Neither the
 optimal policy nor offline-tuned heuristics are human information evidence.

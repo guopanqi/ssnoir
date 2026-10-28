@@ -1,4 +1,4 @@
-;; 第一节照片委托：城市负责物品、费用、存档及结算，交锋只回传成果。
+;; 第一节照片委托：城市负责物品、费用、存档及结算，Scenario只回传成果。
 (define photo-case
   (let ()
     (define rumours (make-clock "小道消息" 4 'gauge "一些客人的谈话中，也许会有一些麻烦，而你是一个解决麻烦的人"))
@@ -200,8 +200,8 @@
            '()))
         ((and (equal? location "格兰德酒店") (= stage 1))
          (list (at-anchor "格兰德酒店-大厅"
-                 (encounter-action "丈夫的约会"
-                   (lambda () (start-encounter "婚外情跟拍·双目标" on-follow-result))))))
+                 (scenario-action "丈夫的约会"
+                   (lambda () (start-scenario "婚外情跟拍·双目标" on-follow-result))))))
         ((equal? location "照相馆")
          (append
            (if (= stage 2)
@@ -209,8 +209,8 @@
                  :requires (list (req-item "家庭胶卷" 1) (req-item "金钱" 5))
                  :resolve (instant develop!))) '())
            (if (source-investigable?)
-               (list (encounter-action "查照片来源"
-                 (lambda () (source-script!) (start-encounter "照相馆交涉" on-source-result)))) '())))
+               (list (scenario-action "查照片来源"
+                 (lambda () (source-script!) (start-scenario "照相馆交涉" on-source-result)))) '())))
         (else '())))
     (lambda args
       (cond

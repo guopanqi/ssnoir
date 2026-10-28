@@ -6,7 +6,7 @@ namespace SSNoir.Core
     public class ActionExecutionContext
     {
         public string ActorId { get; set; } = string.Empty;
-        public string Mode { get; set; } = "world"; // "world" or "encounter"
+        public string Mode { get; set; } = "world"; // "world" or "scenario"
         public List<SlottedResource?> SlottedResources { get; set; } = new List<SlottedResource?>();
     }
 }

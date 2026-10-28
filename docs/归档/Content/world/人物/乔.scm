@@ -139,7 +139,7 @@
             (play-remote-dialogue!
               (line "乔" "没什么拿得出手的。这几瓶酒你留着。")
               (line "乔" "你替我少误了几班工，也替孩子少等了几次空门。"))
-            (spotlight! "乔的谢礼" "乔送来三瓶酒。它们也是交锋里能救急的缓冲。"))))
+            (spotlight! "乔的谢礼" "乔送来三瓶酒。它们也是Scenario里能救急的缓冲。"))))
 
     (define (advance-childcare! n)
       (if (= stage 3) #t (error "乔接送：人物阶段错误"))

@@ -8,7 +8,7 @@ import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[3]
-ENTRY = 'encounters/研究·迟到的目标'
+ENTRY = 'scenarios/研究·迟到的目标'
 CMD = ['dotnet', 'run', '--no-build', '--project',
        'tools/content-validator/SSNoir.ContentValidator.csproj', '--']
 
@@ -41,12 +41,12 @@ def one(seed: int, growth: int, directory: Path) -> dict:
             picked = min(options, key=lambda o: (o['DieValue'] or 0, o['Id']))
             obs = command({'command': 'act', 'version': obs['Version'],
                            'operationId': picked['Id'], 'reason': 'R49原生阶段核对'})['observation']
-        if obs['EncounterResult'] is None:
+        if obs['ScenarioResult'] is None:
             next_ops = [o for o in obs['Operations'] if o['Card'] and o['Card'].startswith('推进')]
             assert len(set(o['Card'] for o in next_ops)) == 1, '揭示后必须只剩唯一目标'
             assert not any(o['Card'] and o['Card'].startswith('准备') for o in obs['Operations'])
         total = 0
-        while obs['EncounterResult'] is None and total < 8:
+        while obs['ScenarioResult'] is None and total < 8:
             steps = [o for o in obs['Operations'] if o['Card'] and o['Card'].startswith('推进')]
             if steps:
                 chosen = max(steps, key=lambda o: (o['DieValue'] or 0, o['Id']))
@@ -55,8 +55,8 @@ def one(seed: int, growth: int, directory: Path) -> dict:
             obs = command({'command': 'act', 'version': obs['Version'],
                            'operationId': chosen['Id'], 'reason': 'R49揭示后完成或超时'})['observation']
             total += 1
-        assert obs['EncounterResult'] is not None, '必须在结果或一轮结束时结算'
-        target = str(obs['EncounterResult'])
+        assert obs['ScenarioResult'] is not None, '必须在结果或一轮结束时结算'
+        target = str(obs['ScenarioResult'])
         assert any(x in target for x in ('甲', '乙', '丙'))
         transcript = directory / f'R49-{growth}-{seed}.json'
         saved = command({'command': 'save', 'path': str(transcript)})

@@ -24,9 +24,9 @@ namespace SSNoir.Core
         public int GrowthLevel { get; set; } = 0;
 
         // ── 关系支援 ──────────────────────────────────────
-        // 人物关系推进到某一步，给玩家一条能带进任何一场交锋的支援能力。它是一个独立层级：
-        // 不属于哪张行动卡，也不认识某一场的剧情钟，只操作所有交锋共有的东西（骰、人、冷静）。
-        // 一场交锋只带一个（CarriedSupport），每场只能用一次（次数记在 SceneManager，随交锋开始归零）。
+        // 人物关系推进到某一步，给玩家一条能带进任何一场Scenario的支援能力。它是一个独立层级：
+        // 不属于哪张行动卡，也不认识某一场的剧情钟，只操作所有Scenario共有的东西（骰、人、冷静）。
+        // 一场Scenario只带一个（CarriedSupport），每场只能用一次（次数记在 SceneManager，随Scenario开始归零）。
         // 支援本身长什么样、做什么，写在 engine.scm 的 support-nodes；这里只记「有哪些、带了谁」。
         private readonly List<string> _supports = new List<string>();
         public IReadOnlyList<string> Supports => _supports;
@@ -34,7 +34,7 @@ namespace SSNoir.Core
 
         public bool HasSupport(string id) => _supports.Contains(id);
 
-        /// <summary>获得一条支援。第一条自动成为带进交锋的那一个；以后换人走 <see cref="SetCarriedSupport"/>。</summary>
+        /// <summary>获得一条支援。第一条自动成为带进Scenario的那一个；以后换人走 <see cref="SetCarriedSupport"/>。</summary>
         public void GrantSupport(string id)
         {
             if (string.IsNullOrWhiteSpace(id))
@@ -54,7 +54,7 @@ namespace SSNoir.Core
             OnTeamChanged?.Invoke();
         }
 
-        /// <summary>支援叫来的临时帮手：入队、当场发一颗骰。回合结束或交锋结束由
+        /// <summary>支援叫来的临时帮手：入队、当场发一颗骰。回合结束或Scenario结束由
         /// <see cref="DismissTemporaryCompanions"/> 清走，不会跟着玩家回城。</summary>
         public ActorState SummonHelper(string actorId, string name, IReadOnlyDictionary<string, int> stats)
         {
@@ -79,7 +79,7 @@ namespace SSNoir.Core
         }
 
         // 骰池位置稳定存在；身体状态附着在位置上，而非可变骰子列表下标。
-        // 主角承担城市与交锋的主要行动，同伴只在城市中提供一枚额外行动骰。
+        // 主角承担城市与Scenario的主要行动，同伴只在城市中提供一枚额外行动骰。
         public const int ProtagonistActionSlotCount = 4;
         public const int CompanionActionSlotCount = 1;
         public const int CompanionComposurePerActionSlot = 2;
@@ -92,10 +92,10 @@ namespace SSNoir.Core
             _ => throw new ArgumentOutOfRangeException(nameof(role), role, "Unknown actor role.")
         };
 
-        /// <summary>本场是否登场：在队里、还站得住，就发骰子。交锋与城市用同一条规则——
+        /// <summary>本场是否登场：在队里、还站得住，就发骰子。Scenario与城市用同一条规则——
         /// 谁能出手由「他在不在队里」决定，不由场景类型决定。要限制某一场的阵容，
         /// 就在那一场里决定谁入队，而不是在发骰的地方加分支。</summary>
-        public static bool IsOnStage(ActorState actor, bool isInEncounter)
+        public static bool IsOnStage(ActorState actor, bool isInScenario)
             => actor.Status == "active";
 
         public int GetAvailableGrowthPoints(ActorState actor)
@@ -256,7 +256,7 @@ namespace SSNoir.Core
         /// 让它跨天等于要玩家去照顾一个自己控制不了的人的状态条，而那条状态条
         /// 没有任何可以投入的动作。
         ///
-        /// 交锋的回合之间不走这里：一场之内耗光了就是耗光了。
+        /// Scenario的回合之间不走这里：一场之内耗光了就是耗光了。
         /// </summary>
         public List<string> BeginCityDay()
         {
@@ -273,7 +273,7 @@ namespace SSNoir.Core
             return returned;
         }
 
-        /// <summary>让同伴离队。一场交锋临时请来的人（弗兰克、林）必须在结算时走这里，
+        /// <summary>让同伴离队。一场Scenario临时请来的人（弗兰克、林）必须在结算时走这里，
         /// 否则他们的骰子会跟着玩家回到城市——存档时的 HasDefaultDieProfile 校验会抓住这种泄漏。</summary>
         public void DismissCompanion(string actorId)
         {
@@ -337,7 +337,7 @@ namespace SSNoir.Core
             OnTeamChanged?.Invoke();
         }
 
-        // 花冷静（失败、交锋每回合自动流失）。协作者在 0 点失能离场；主角击穿
+        // 花冷静（失败、Scenario每回合自动流失）。协作者在 0 点失能离场；主角击穿
         // 0 点后溢出一比一转成伤势——"冷静挡不住子弹"之外的第二个受伤口。
         public void SpendComposure(string actorId, int amount)
         {
@@ -442,14 +442,14 @@ namespace SSNoir.Core
             };
             foreach (var actor in Actors)
             {
-                // 定制骰池只属于交锋临时请来的人。它出现在存档里，说明某场交锋结算时
+                // 定制骰池只属于Scenario临时请来的人。它出现在存档里，说明某场Scenario结算时
                 // 忘了让人离队——这是内容错误，当场中断，不要把它写进城市。
                 if (actor.IsTemporary)
                     throw new InvalidOperationException(
                         $"Actor '{actor.Id}' is a temporary helper; the engine must dismiss them before returning to the city.");
                 if (!actor.HasDefaultDieProfile)
                     throw new InvalidOperationException(
-                        $"Actor '{actor.Id}' still carries an encounter-only die profile; the encounter must dismiss them before returning to the city.");
+                        $"Actor '{actor.Id}' still carries an scenario-only die profile; the scenario must dismiss them before returning to the city.");
                 data.Actors.Add(new ActorSaveData
                 {
                     Id                = actor.Id,
@@ -565,8 +565,8 @@ namespace SSNoir.Core
         }
 
         /// <summary>
-        /// 把当前骰池原样抄一份。用于「离开世界去打一场交锋」——世界骰池是当天的，
-        /// 交锋结束回来时要还回去，而不是重掷（见 SceneManager 的骰池暂存）。
+        /// 把当前骰池原样抄一份。用于「离开世界去打一场Scenario」——世界骰池是当天的，
+        /// Scenario结束回来时要还回去，而不是重掷（见 SceneManager 的骰池暂存）。
         /// </summary>
         public Dictionary<string, (List<int> Dice, List<int> SlotIds, int IssuedInjuryDieLoss)> CaptureActionDice()
         {
@@ -577,7 +577,7 @@ namespace SSNoir.Core
             return result;
         }
 
-        /// <summary>回到世界时还原原本那手骰子及其封锁状态；交锋中发生的伤势待下次发骰兑现。</summary>
+        /// <summary>回到世界时还原原本那手骰子及其封锁状态；Scenario中发生的伤势待下次发骰兑现。</summary>
         public void RestoreActionDice(
             Dictionary<string, (List<int> Dice, List<int> SlotIds, int IssuedInjuryDieLoss)> captured)
         {
@@ -594,27 +594,27 @@ namespace SSNoir.Core
             OnTeamChanged?.Invoke();
         }
 
-        public void RollActionDice(bool isInEncounter, bool consumeHangover = true)
+        public void RollActionDice(bool isInScenario, bool consumeHangover = true)
         {
             foreach (var actor in Actors)
             {
-                if (!isInEncounter && consumeHangover) actor.IsDrunk = false;
-                bool applyHangover = !isInEncounter && consumeHangover && actor.HangoverSlotId != null;
-                RollActionDiceFor(actor, isInEncounter, applyHangover);
+                if (!isInScenario && consumeHangover) actor.IsDrunk = false;
+                bool applyHangover = !isInScenario && consumeHangover && actor.HangoverSlotId != null;
+                RollActionDiceFor(actor, isInScenario, applyHangover);
                 if (applyHangover)
                     actor.HangoverSlotId = null;
             }
             OnTeamChanged?.Invoke();
         }
 
-        /// <summary>给一个人发这一手骰。交锋中途入队的帮手也走这里：他来的时候手里就该有骰。</summary>
-        private void RollActionDiceFor(ActorState actor, bool isInEncounter = true, bool applyHangover = false)
+        /// <summary>给一个人发这一手骰。Scenario中途入队的帮手也走这里：他来的时候手里就该有骰。</summary>
+        private void RollActionDiceFor(ActorState actor, bool isInScenario = true, bool applyHangover = false)
         {
             var rand = GameRandom.Instance;
             actor.ActionDice.Clear();
             actor.ActionDiceSlotIds.Clear();
             actor.IssuedInjuryDieLoss = actor.Role == "protagonist" ? Injury.ActionDieLoss : 0;
-            if (!IsOnStage(actor, isInEncounter))
+            if (!IsOnStage(actor, isInScenario))
                 return;
             // 新一手覆盖所有可用行动位；是否重置不能由新旧点数或剩余数量推断。
             actor.ActionDiceRevision++;

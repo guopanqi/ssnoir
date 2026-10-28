@@ -74,25 +74,25 @@
       "match": true
     },
     {
-      "source": "UnityClient/Assets/Resources/Content/scenes/encounters/研究·定位再搜.scm",
+      "source": "UnityClient/Assets/Resources/Content/scenes/scenarios/研究·定位再搜.scm",
       "expected": "424df171da9663db331fc56d644cd436e5b64225f2d78a68f6c194a23bc8bf95",
       "current": "424df171da9663db331fc56d644cd436e5b64225f2d78a68f6c194a23bc8bf95",
       "match": true
     },
     {
-      "source": "UnityClient/Assets/Resources/Content/scenes/encounters/研究·定位再搜.scm.meta",
+      "source": "UnityClient/Assets/Resources/Content/scenes/scenarios/研究·定位再搜.scm.meta",
       "expected": "697a6b1846e445ccc0010668e16442073694ac0b724c90df3479e3be1d7e9ccd",
       "current": "697a6b1846e445ccc0010668e16442073694ac0b724c90df3479e3be1d7e9ccd",
       "match": true
     },
     {
-      "source": "UnityClient/Assets/Resources/Content/scenes/encounters/研究·直接搜寻对照.scm",
+      "source": "UnityClient/Assets/Resources/Content/scenes/scenarios/研究·直接搜寻对照.scm",
       "expected": "050f277146c0055963ad0948375d193d2a5cb6bb85d9335beae194318f36517f",
       "current": "050f277146c0055963ad0948375d193d2a5cb6bb85d9335beae194318f36517f",
       "match": true
     },
     {
-      "source": "UnityClient/Assets/Resources/Content/scenes/encounters/研究·直接搜寻对照.scm.meta",
+      "source": "UnityClient/Assets/Resources/Content/scenes/scenarios/研究·直接搜寻对照.scm.meta",
       "expected": "5f3629a62427e66dfe7d7432efd890e3b5d43655ed9f436bf80bba9f8b2bc4a2",
       "current": "5f3629a62427e66dfe7d7432efd890e3b5d43655ed9f436bf80bba9f8b2bc4a2",
       "match": true

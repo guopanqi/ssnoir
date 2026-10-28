@@ -3,7 +3,7 @@ CREATE TABLE feedback (
     text TEXT NOT NULL CHECK(length(text) BETWEEN 1 AND 2000),
     version TEXT NOT NULL,
     location TEXT NOT NULL,
-    in_encounter INTEGER NOT NULL CHECK(in_encounter IN (0, 1)),
+    in_scenario INTEGER NOT NULL CHECK(in_scenario IN (0, 1)),
     world_day INTEGER NOT NULL,
     created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
 );

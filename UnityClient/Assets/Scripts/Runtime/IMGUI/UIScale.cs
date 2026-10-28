@@ -128,7 +128,7 @@ namespace SSNoir.IMGUI
         // IMGUIStyles.FontSize() 那个反算救不了它：它返回的仍是虚拟字号。
         //
         // 试过的做法：画字前把 GUI.matrix 拍回 identity，rect 和字号一起乘 scale，
-        // 让字形按最终尺寸烘。设置面板上确实清楚很多，但**推广到全局会把交锋卡的文字画错位**。
+        // 让字形按最终尺寸烘。设置面板上确实清楚很多，但**推广到全局会把Scenario卡的文字画错位**。
         // 原因：GUI.BeginGroup / BeginScrollView 的组偏移不在 GUI.matrix 里，
         // 所以"矩阵还等于这层缩放"并不能证明当前坐标系没被平移过——闸放行了，字就跑到组外面去。
         // 下次要再做，得用 GUIUtility.GUIToScreenPoint(Vector2.zero) 把组偏移也算进来，

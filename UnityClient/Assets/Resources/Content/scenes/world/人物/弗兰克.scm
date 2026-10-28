@@ -207,15 +207,15 @@
 
     ;; ── 船修好了却不开 ───────────────────────────────
     (define (on-hold-result! result)
-      (if (equal? hold-state "待处理") #t (error "弗兰克：没有待结算的扣船交锋"))
+      (if (equal? hold-state "待处理") #t (error "弗兰克：没有待结算的扣船Scenario"))
       (if (and (list? result) (= (length result) 2))
-          #t (error "弗兰克：扣船交锋应回传 (list 'success/'fail 工钱格数)"))
+          #t (error "弗兰克：扣船Scenario应回传 (list 'success/'fail 工钱格数)"))
       (let ((verdict (car result))
             (payment (cadr result)))
         (if (member? verdict (list 'success 'fail))
-            #t (error "弗兰克：扣船交锋返回了未登记的结算"))
+            #t (error "弗兰克：扣船Scenario返回了未登记的结算"))
         (if (and (number? payment) (>= payment 0) (<= payment 6))
-            #t (error "弗兰克：扣船交锋付款进度非法"))
+            #t (error "弗兰克：扣船Scenario付款进度非法"))
         (set! hold-state "已结算")
         (set! hold-paid? (equal? verdict 'success))
         (set! hold-payment payment)
@@ -223,12 +223,12 @@
         (sync-globals!)))
 
     (define (node-hold-entry)
-      (encounter-action "去看那条不开的船"
+      (scenario-action "去看那条不开的船"
         (lambda ()
           (meet!)
           (set-global! '扣船-抢修结果 repair-result)
           (set-global! '扣船-以货抵债 #f)
-          (start-encounter "船修好了却不开" on-hold-result!))))
+          (start-scenario "船修好了却不开" on-hold-result!))))
 
     ;; ── 分钱：他真正在做的事 ─────────────────────────
     (define (distribution-text)

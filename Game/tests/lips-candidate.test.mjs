@@ -12,13 +12,13 @@ async function value(interpreter, code) {
   return results[results.length - 1];
 }
 
-test("LIPS candidate: isolated world/encounter top-level globals", async () => {
+test("LIPS candidate: isolated world/scenario top-level globals", async () => {
   const world = make("SSNoir-world");
-  const encounter = make("SSNoir-encounter");
+  const scenario = make("SSNoir-scenario");
   await world.exec("(define stage-local 17)");
-  await encounter.exec("(define stage-local 2)");
+  await scenario.exec("(define stage-local 2)");
   assert.equal(String(await value(world, "stage-local")), "17");
-  assert.equal(String(await value(encounter, "stage-local")), "2");
+  assert.equal(String(await value(scenario, "stage-local")), "2");
 });
 
 test("LIPS candidate: persistent closure mutation", async () => {
@@ -50,12 +50,12 @@ test("LIPS candidate: real SSNoir stdlib unmodified", async () => {
   assert.equal(String(await value(vm, "(length (filter (lambda (x) (> x 2)) '(1 2 3 4)))")), "2");
 });
 
-test("LIPS candidate: world and encounter share native state but not bindings", async () => {
+test("LIPS candidate: world and scenario share native state but not bindings", async () => {
   const world = make("SSNoir-world-isolation-2");
-  const encounter = make("SSNoir-encounter-isolation-2");
+  const scenario = make("SSNoir-scenario-isolation-2");
   await world.exec("(define event-stage 11)");
-  await encounter.exec("(define event-stage 7)");
+  await scenario.exec("(define event-stage 7)");
   await world.exec("(set! event-stage 12)");
   assert.equal(String(await value(world, "event-stage")), "12");
-  assert.equal(String(await value(encounter, "event-stage")), "7");
+  assert.equal(String(await value(scenario, "event-stage")), "7");
 });

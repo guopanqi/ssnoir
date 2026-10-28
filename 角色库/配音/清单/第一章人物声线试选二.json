@@ -1,7 +1,7 @@
 {
   "version": 1,
   "purpose": "第一章人物声线第二轮：弗兰克沿稳重工头与疲惫担当者两个有效方向继续细化；剧院经理重点测试以利益为转轴的过度热情与圆滑。不接入游戏。",
-  "source": "UnityClient/Assets/Resources/Content/scenes/world/三封信.scm; UnityClient/Assets/Resources/Content/scenes/world/人物/弗兰克.scm; UnityClient/Assets/Resources/Content/scenes/encounters/巷子.scm",
+  "source": "UnityClient/Assets/Resources/Content/scenes/world/三封信.scm; UnityClient/Assets/Resources/Content/scenes/world/人物/弗兰克.scm; UnityClient/Assets/Resources/Content/scenes/scenarios/巷子.scm",
   "cues": [
     {
       "id": "试音/第一章人物二/弗兰克/E/稳重有活气",

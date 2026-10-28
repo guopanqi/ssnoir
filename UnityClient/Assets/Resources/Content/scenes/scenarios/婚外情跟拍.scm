@@ -1,0 +1,138 @@
+;; 独立跟拍原型：未接入委托与照相馆。无额外时间期限。
+;; 引擎原有回合冷静消耗仍适用；爬树与两处拍摄均消耗骰子判定。
+(define finished? #f)
+(define position '车里)
+(define stay-turns 0)
+(define car-trouble? #f)
+(define tree-trouble? #f)
+(define car-handled 0)
+(define tree-handled 0)
+(define tree-access? #f)
+(define situation (random-choice '(平静 送货车 亲密)))
+(define waiter-called? #f)
+(define waiter-active? #f)
+(define waiter-position '车里)
+(define photos (make-clock "有效照片" 12 'gauge "满12完成；树上好2中1坏警觉2，车里好1中0坏警觉1。" :beneficial-direction 'increase))
+(define alertness (make-clock "对象警觉" 6 'gauge "满6暴露；到3后首次回合回应派服务员查看当时的位置。" :beneficial-direction 'decrease))
+(define cover (make-clock "打消怀疑" 4 'gauge "每骰掩饰1；满4服务员离开。留在被查位置每回合警觉加1。" :beneficial-direction 'increase))
+
+(define (tree?) (equal? position '树上))
+(define (blocked?) (equal? situation '送货车))
+(define (trouble?) (if (tree?) tree-trouble? car-trouble?))
+(define (finish! result)
+  (if finished? (error "跟拍：重复结算") #t)
+  (set! finished? #t)
+  (spotlight! "跟拍结束" (if (equal? result '完成)
+    "面孔和亲昵动作都拍清楚了。你收起相机离开。"
+    "男人起身叫人。你带着已经拍到的照片离开。"))
+  (end-scenario (list result (photos 'current) (alertness 'current))))
+(define (check!)
+  (cond ((photos 'full?) (finish! '完成))
+        ((alertness 'full?) (finish! '暴露)) (else #f)))
+(define (shoot! near? grade)
+  (if (or (and (not near?) (blocked?)) (and near? (not tree-access?)))
+    (error "跟拍：当前位置不能拍摄") #t)
+  (let ((next-position (if near? '树上 '车里)))
+    (if (not (equal? position next-position)) (set! stay-turns 0) #f)
+    (set! position next-position))
+  (let ((gain (cond ((equal? grade '好) (if (tree?) 2 1))
+                   ((and (tree?) (equal? grade '中)) 1) (else 0)))
+        (risk (cond ((equal? grade '坏) (if (tree?) 2 1))
+                   ((and (tree?) (equal? grade '中)) 1) (else 0))))
+    ;; 亲密时刻只在树上的俯视角拍得清；车窗被桌沿挡住。
+    (if (and (tree?) (> gain 0) (equal? situation '亲密)) (set! gain (+ gain 1)) #f)
+    (if (trouble?) (set! risk (+ risk 1)) #f)
+    (photos 'advance! gain) (alertness 'advance! risk) (check!)))
+(define (one-die title subtitle effect)
+  (node title :subtitle subtitle :requires (list (req-die))
+    :resolve (instant (outcome effect))))
+(define (climb-node)
+  (node "爬上树" :subtitle "成功后可在树上拍摄；失手消耗1冷静"
+    :requires (list (req-die))
+    :resolve (roll 'violence
+      (outcome (lambda () (spend-composure! 1)))
+      (outcome (lambda () (set! tree-access? #t) (set! position '树上) (set! stay-turns 0)))
+      (outcome (lambda () (set! tree-access? #t) (set! position '树上) (set! stay-turns 0))))))
+(define (photo-node near?)
+  (node (if near? "树上拍摄" "车内拍摄")
+    :tags (list (if near? "高风险" "低风险"))
+    :subtitle (if near? "俯视餐桌，能拍清面孔与亲昵动作" "隔着车窗拍；角度受限，成果较少")
+    :requires (list (req-die))
+    :resolve (roll 'sharpness
+      (outcome (lambda () (shoot! near? '坏)))
+      (outcome (lambda () (shoot! near? '中)))
+      (outcome (lambda () (shoot! near? '好))))))
+(define (trouble-node)
+  (one-die (if (tree?) "应付孩子" "应付路人")
+    "需两骰打发；未处理时拍摄额外警觉1"
+    (lambda ()
+      (if (tree?)
+        (begin (set! tree-handled (+ tree-handled 1))
+          (if (>= tree-handled 2) (set! tree-trouble? #f) #f))
+        (begin (set! car-handled (+ car-handled 1))
+          (if (>= car-handled 2) (set! car-trouble? #f) #f))))))
+(define (cover-node)
+  (one-die "藏起相机" "服务员在查看；每骰掩饰1，满4离开"
+    (lambda ()
+      (cover 'advance! 1)
+      (if (cover 'full?)
+        (begin (set! waiter-active? #f)
+          (play-bubble! (line "世界" "服务员没发现相机，回到饭店里。"))) #f))))
+
+(define-opponent-rule "服务员查原位置"
+  (lambda () (and (not finished?) waiter-active? (equal? position waiter-position)))
+  (lambda () (alertness 'advance! 1) (check!)))
+(define-opponent-rule "丈夫叫服务员"
+  (lambda () (and (not finished?) (not waiter-called?) (>= (alertness 'current) 3)))
+  (lambda ()
+    (set! waiter-called? #t) (set! waiter-active? #t) (set! waiter-position position)
+    (play-dialogue! (line "世界" "男人指了指窗外，服务员走出饭店。")
+      (line "世界" "他查看你刚才的位置。换位能避开，掩饰能让他离开。"))))
+(define-opponent-rule "停留引来注意"
+  (lambda () (not finished?))
+  (lambda ()
+    (set! stay-turns (+ stay-turns 1))
+    (if (and (>= stay-turns 2) (not (trouble?)))
+      (begin
+        (if (tree?)
+          (begin (set! tree-trouble? #t) (set! tree-handled 0))
+          (begin (set! car-trouble? #t) (set! car-handled 0)))
+        (set! stay-turns 0)
+        (play-bubble! (line "世界" (if (tree?)
+          "孩子抬头看着树枝，问你在上面做什么。"
+          "路人停在车旁，敲了敲窗，问你在等谁。")))) #f)))
+(define-opponent-rule "街边场面变化"
+  (lambda () (not finished?))
+  (lambda () (set! situation (random-choice '(平静 送货车 亲密)))))
+(define (on-scenario-enter)
+  (play-dialogue!
+    (line "世界" "两人在饭店窗边吃饭。你坐在街边的车里。")
+    (line "世界" "车里可以直接拍。爬树成功后，也能在树上拍摄。")
+    (line "世界" "留在同一位置两轮，会有人注意你。")))
+(define (on-scenario-collapse)
+  (collapse-result (list '倒下 (photos 'current) (alertness 'current))))
+(define (get-render-data)
+  (container "婚外情跟拍"
+    (append
+      (clock-nodes (photos 'render-data) (alertness 'render-data))
+      (list (note-node "标注：当前位置" (if (tree?) "当前位置：树上" "当前位置：车里")
+        (string-append "同处停留：" (number->string stay-turns)
+          "轮；两轮引来麻烦。两处拍摄各花一骰判定。"))
+        (note-node "标注：场面" "此刻的场面"
+          (cond ((equal? situation '送货车)
+                  "送货车挡住车窗，本轮不能车内拍摄；树上不受影响。")
+                ((equal? situation '亲密) "女人握住男人的手。树上拍成额外加1；车里角度看不清。")
+                (else "两人在桌边交谈。两处都没有临时遮挡。"))))
+      (if tree-trouble? (list (note-node "标注：树下孩子" "孩子盯着树上"
+        (string-append "树上拍摄额外警觉1；已应付" (number->string tree-handled) "/2。"))) '())
+      (if car-trouble? (list (note-node "标注：车旁路人" "路人还在车旁"
+        (string-append "车内拍摄额外警觉1；已应付" (number->string car-handled) "/2。"))) '())
+      (if waiter-active?
+        (list (clock-node "标注：服务员" (cover 'render-data))
+          (note-node "标注：查看位置" "服务员的位置"
+            (if (equal? waiter-position '车里) "还在查看车旁；在车里结束回合警觉加1。"
+              "还在查看树下；在树上结束回合警觉加1。"))
+          (cover-node)) '())
+      (if tree-access? (list (photo-node #t)) (list (climb-node)))
+      (if (trouble?) (list (trouble-node)) '())
+      (if (blocked?) '() (list (photo-node #f))))))

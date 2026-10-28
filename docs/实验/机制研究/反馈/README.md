@@ -57,7 +57,7 @@
   "studyTitle": "对手追击领先目标",
   "createdAt": "2026-10-09T06:00:00.000Z",
   "environment": "browser-sketch",
-  "source": {"studyConfigVersion": 1, "atlasVersion": 1, "officialEntry": "encounters/研究·追击领先目标"},
+  "source": {"studyConfigVersion": 1, "atlasVersion": 1, "officialEntry": "scenarios/研究·追击领先目标"},
   "responses": {
     "understanding": "somewhat",
     "replayInterest": "maybe",

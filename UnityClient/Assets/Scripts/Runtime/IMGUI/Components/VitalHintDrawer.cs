@@ -73,7 +73,7 @@ namespace SSNoir.IMGUI
             float w = Mathf.Min(420f, safe.width-24f), inner = w-32f;
             int count = player.ActionSlotCount;
             int available = count-snapshot.InjuryActionDieLoss;
-            string cadence = snapshot.IsInEncounter ? "每回合" : "每天";
+            string cadence = snapshot.IsInScenario ? "每回合" : "每天";
             string injuryText = $"伤势到 2、5 点时各封锁一个行动位，当前{cadence}可用 {available} 个。";
             string composureText = actor.Role == "protagonist"
                 ? "冷静归零后，继续承受压力会转成身体伤势。"

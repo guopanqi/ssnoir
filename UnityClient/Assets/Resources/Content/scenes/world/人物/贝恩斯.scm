@@ -135,14 +135,14 @@
       (node "桌上那张地址"
         :anchor "警察局-值班台"
         :subtitle "他不说是委托；他说这是你的职业"
-        :tags (list "交锋")
+        :tags (list "Scenario")
         :resolve (instant (lambda ()
           ;; 城里已有的关系决定场内有哪几张牌——不给三个混混各写一套弱点,
           ;; 玩家能用的是他这些天真认识的人：码头＝艾迪，老街＝弗兰克。
           (set-global! '钥匙-码头 (eddie 'known?))
           (set-global! '钥匙-老街 (frank 'met?))
           (set-global! '钥匙-赌场 (eddie 'known?))
-          (start-encounter "让他们安静" on-quiet-result)))))
+          (start-scenario "让他们安静" on-quiet-result)))))
 
     (define (invite!)
       (set! quiet-stage 1)
@@ -376,7 +376,7 @@
           (list (arrival-street))
           '()))
 
-    ;; 第一章一张卡《摆平老街三人》：他推过来那张地址时立卡，交锋结了就了结。
+    ;; 第一章一张卡《摆平老街三人》：他推过来那张地址时立卡，Scenario结了就了结。
     ;; 第二章「贝恩斯叫你去警局拿那张纸」是演出，玩家不用做什么，不立卡。
     (define (dossier-entry)
       (if (>= quiet-stage 1)

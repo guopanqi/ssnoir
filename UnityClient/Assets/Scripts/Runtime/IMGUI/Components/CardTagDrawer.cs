@@ -56,7 +56,7 @@ namespace SSNoir.IMGUI
                 if (string.IsNullOrWhiteSpace(tag) || tag == "人物" || tag == "地点") continue;
                 string shown = tag switch
                 {
-                    "工作" or "紧急" or "必须处理" or "高风险" or "低风险" or "交锋" => UiText.Get(tag),
+                    "工作" or "紧急" or "必须处理" or "高风险" or "低风险" or "Scenario" => UiText.Get(tag),
                     _ => tag,
                 };
                 if (tag == "必须处理") hasRequired = true;

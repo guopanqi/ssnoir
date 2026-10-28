@@ -39,7 +39,7 @@ jobs:
             tests/second-act-relations.ts-test.mjs \
             tests/world-save.ts-test.mjs \
             tests/tavern-watch.ts-test.mjs \
-            tests/encounter-director.ts-test.mjs \
-            tests/encounter-carry.ts-test.mjs \
+            tests/scenario-director.ts-test.mjs \
+            tests/scenario-carry.ts-test.mjs \
             tests/story-events.ts-test.mjs \
-            tests/encounter-round.ts-test.mjs
+            tests/scenario-round.ts-test.mjs

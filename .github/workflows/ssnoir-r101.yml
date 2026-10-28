@@ -6,7 +6,7 @@ on:
     paths:
       - '.github/workflows/ssnoir-r101.yml'
       - 'tools/content-validator/experiments/r101_p10_native_three_rounds.py'
-      - 'UnityClient/Assets/Resources/Content/scenes/encounters/研究·分段兑现.scm'
+      - 'UnityClient/Assets/Resources/Content/scenes/scenarios/研究·分段兑现.scm'
       - 'UnityClient/Assets/Resources/Content/scripts/research/分段兑现.scm'
 permissions:
   contents: read

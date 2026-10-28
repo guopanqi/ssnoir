@@ -28,7 +28,7 @@
       (play-dialogue!
         (line "尼尔" "走吧，我刚好顺路。")
         (line "夜莺" "太谢谢了。"))
-      (start-encounter "雨夜同行" on-result))
+      (start-scenario "雨夜同行" on-result))
     (define (decline!)
       (if (not (equal? status "待答复")) (error "雨夜：没有可拒绝的邀请") #t)
       (set! status "婉拒")
@@ -59,11 +59,11 @@
             (list (at-anchor "夜莺@酒馆" (container "夜莺的邀请" (map (lambda (n) (at-anchor "夜莺@酒馆" n)) (list
               (instant-action "陪她走回去" accept!)
               (instant-action "今晚走不开" decline!)))))))
-          ;; 旧存档可能已经接受邀请、但还没点开交锋卡；保留这条续接入口。
+          ;; 旧存档可能已经接受邀请、但还没点开Scenario卡；保留这条续接入口。
           ((and (available?) (equal? status "已答应"))
             (list (node "雨夜同行" :anchor "夜莺@酒馆" :required-before-rest "先履行送夜莺回家的约定" :subtitle "陪她回家，别让恐惧失控"
               :resolve (instant (outcome
-                (lambda () (start-encounter "雨夜同行" on-result)))))))
+                (lambda () (start-scenario "雨夜同行" on-result)))))))
           (else '()))))
     (define-turn-start-rule "雨夜邀请到期"
       (lambda () #t)

@@ -19,7 +19,7 @@ namespace SSNoir
             public string text = string.Empty;
             public string version = string.Empty;
             public string location = string.Empty;
-            public bool inEncounter;
+            public bool inScenario;
             public int worldDay;
         }
 

@@ -52,11 +52,11 @@ test("named let, rest arguments and nested list operations", () => {
 
 test("BiwaScheme global bindings leak across interpreter instances (known incompatibility)", () => {
   const world = interpreter();
-  const encounter = interpreter();
+  const scenario = interpreter();
   evaluate(world, "(define local-stage 17)");
-  evaluate(encounter, "(define local-stage 2)");
+  evaluate(scenario, "(define local-stage 2)");
   // Assert the *observed deficiency* as a regression diagnostic, NOT as an accepted game behavior.
   // This runtime cannot be promoted to SSNoir SceneManager until isolation is solved.
   assert.equal(evaluate(world, "local-stage"), 2);
-  assert.equal(evaluate(encounter, "local-stage"), 2);
+  assert.equal(evaluate(scenario, "local-stage"), 2);
 });

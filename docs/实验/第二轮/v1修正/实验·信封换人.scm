@@ -7,7 +7,7 @@
 (define (结束! result text)
   (if 完了? (error "信封换人：重复结束") #t)
   (set! 完了? #t) (spotlight! "救人结果" text)
-  (end-encounter (list result 付出)))
+  (end-scenario (list result 付出)))
 (define (检查!)
   (cond ((hospitalization-pending?) #f)
     ((警戒 'full?) (结束! '人质被带走 "绑匪把人拖进车里，拒绝继续交割。你没能救出人质。"))
@@ -22,13 +22,13 @@
 (define-opponent-rule "绑匪越等越紧张"
   (lambda () (not 完了?))
   (lambda () (警戒 'advance! 1) (期限 'advance! 1) (检查!)))
-(define (on-encounter-enter)
+(define (on-scenario-enter)
   (警戒 'load! 1)
   (play-dialogue!
     (line "世界" "你要把人质救出来。交人满八就完成，警戒满四绑匪就会带人走。")
     (line "世界" "交钱稳，谈判省钱，强抢快但会激怒绑匪。安抚能让枪口放低。")
     (line "世界" "每个动作都能反复投入骰子，但拖过三个回合，人质就被带走。")))
-(define (on-encounter-collapse) (collapse-result (list '倒下未救人 付出)))
+(define (on-scenario-collapse) (collapse-result (list '倒下未救人 付出)))
 (define (get-render-data)
   (container "信封换人"
     (append

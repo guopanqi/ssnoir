@@ -52,7 +52,7 @@ namespace SSNoir.Core
         public int? FixedDieValue { get; set; }
         public string FixedDieLabel { get; set; } = string.Empty;
 
-        /// <summary>关系支援叫来的临时帮手：只在当前回合里存在，回合结束或交锋结束由引擎自动离队，
+        /// <summary>关系支援叫来的临时帮手：只在当前回合里存在，回合结束或Scenario结束由引擎自动离队，
         /// 永远不进存档。见 <see cref="TeamState.SummonHelper"/>。</summary>
         public bool IsTemporary { get; set; }
 

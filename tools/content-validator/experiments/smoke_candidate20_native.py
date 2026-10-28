@@ -15,7 +15,7 @@ CMD=["dotnet","run","--no-build","--project",
 
 def check(item):
     name=Path(item["source"]).stem
-    proc=subprocess.run(CMD+["--session","encounters/"+name,"--seed","19","--growth","1"],
+    proc=subprocess.run(CMD+["--session","scenarios/"+name,"--seed","19","--growth","1"],
                         cwd=ROOT,input='{"command":"quit"}\n',encoding="utf-8",
                         capture_output=True,timeout=35)
     lines=proc.stdout.splitlines()
@@ -29,7 +29,7 @@ def check(item):
     cards={str(op.get("Card") or op.get("Kind")) for op in options}
     if len(options)<2 or len(cards)<2:
         raise AssertionError(f"{item['id']} first turn lacks two distinct actions: {sorted(cards)}")
-    if obs.get("EncounterResult") is not None:
+    if obs.get("ScenarioResult") is not None:
         raise AssertionError(f"{item['id']} completed before player decision")
     return {"id":item["id"],"scene":name,"first_turn_operations":len(options),
             "distinct_action_categories":len(cards),"native_start":"PASS"}
@@ -43,7 +43,7 @@ def main():
               flush=True)
     assert len(results)==20
     payload={"schema":"ssnoir.native-candidate-admission/v1",
-            "result":"20 native encounter sessions opened and presented at least two distinct actions",
+            "result":"20 native scenario sessions opened and presented at least two distinct actions",
             "boundary":"Start-state technical smoke only, NOT human playtest or strategy-quality proof",
             "results":results}
     output=Path(sys.argv[1]) if len(sys.argv)>1 else None

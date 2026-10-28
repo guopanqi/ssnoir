@@ -284,7 +284,7 @@ def play(args):
         try:
             for _ in range(100):
                 o=session.observation
-                if o['EncounterResult'] is not None:break
+                if o['ScenarioResult'] is not None:break
                 if policy=='状态求解':
                     state=public_state(o,model.family);action,die=model.decisions[state]
                 else:action,die=choose(model,o,policy)
@@ -292,7 +292,7 @@ def play(args):
                 session.act(op,'研究策略（非新玩家）：'+policy)
             else:raise RuntimeError('100步未终止')
             name=f'{variant}-{policy}-s{seed}-g{growth}.json.gz';revision=session.save(records/name)
-            fields=session.observation['EncounterResult'].strip('()').split()
+            fields=session.observation['ScenarioResult'].strip('()').split()
             return dict(variant=variant,family=model.family,growth=growth,policy=policy,seed=seed,
                         status=fields[0].lstrip("'"),progress=int(fields[1]),rounds=int(fields[2]),calm=int(fields[3]),
                         record='轨迹/'+name,revision=revision)
@@ -325,10 +325,10 @@ def check_new(path):
             model.probabilities[op['DieValue']]=probs
             if family=='整备借力':model.boosted_probabilities[op['DieValue']]=probs
             candidates=[(nr,ns,t,failed) for prob,nr,ns,failed in model.outcomes(action,r,s,op['DieValue']) if prob]
-        if after['EncounterResult'] is None:
+        if after['ScenarioResult'] is None:
             rr,ss,tt,h=public_state(after,family);assert (rr,ss,tt,False) in candidates,(path,step['Version'],candidates,(rr,ss,tt))
         else:
-            fields=after['EncounterResult'].strip('()').split();status=fields[0].lstrip("'");progress=int(fields[1])
+            fields=after['ScenarioResult'].strip('()').split();status=fields[0].lstrip("'");progress=int(fields[1])
             matching=[(nr,ns,tt) for nr,ns,tt,failed in candidates if not failed and
                       ((status=='success' and nr<=0 and progress==model.target) or
                        (status=='timeout' and tt==0 and progress==model.target-nr))]
@@ -337,7 +337,7 @@ def check_new(path):
             player=next(a for a in before['Actors'] if a['Id']=='player')
             assert int(fields[3])==player['Composure']-(action=='end-turn')
             if family=='整备借力':
-                extra=int(re.search(r'\((\d+)\)\)$',after['EncounterResult'])[1])
+                extra=int(re.search(r'\((\d+)\)\)$',after['ScenarioResult'])[1])
                 assert any(ns==extra for nr,ns,tt in matching)
         count+=1
     return count
@@ -348,7 +348,7 @@ def verify(args):
     selected=[];seen=set()
     for path in paths:
         data=json.loads(gzip.decompress(path.read_bytes()));setup=data['Setup']
-        status=data['Steps'][-1]['After']['EncounterResult'].split()[0]
+        status=data['Steps'][-1]['After']['ScenarioResult'].split()[0]
         policy=next((name for name in ('状态求解','当轮规划') if name in path.name),'基线')
         key=(setup['Entry'],setup['Growth'],status,'作者' if '作者' in str(path) else policy)
         if key not in seen:seen.add(key);selected.append(path)

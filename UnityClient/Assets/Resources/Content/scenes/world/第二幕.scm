@@ -38,18 +38,18 @@
     (define (eddie-on-dock?)
       ;; 统一停三天；恢复工作不改写曾经停班的事实。
       (not (and (equal? wage-state "停班") (< world-day (+ wage-end-day 4)))))
-    ;; 世界只保存交锋结果；进展和压力属于独立交锋的回合。
+    ;; 世界只保存Scenario结果；进展和压力属于独立Scenario的回合。
     (define (wage-end! result)
-      (if (member? result '(上工 停班)) #t (error "工钱交锋：非法结果"))
+      (if (member? result '(上工 停班)) #t (error "工钱Scenario：非法结果"))
       (set! wage-state (symbol->string result))
       (set! wage-end-day world-day))
     (define (enter-wage!)
-      (if (and (equal? wage-state "争执中") (<= world-day 11)) #t (error "工钱交锋：窗口已结束"))
-      (start-encounter "少了十块钱" wage-end!))
+      (if (and (equal? wage-state "争执中") (<= world-day 11)) #t (error "工钱Scenario：窗口已结束"))
+      (start-scenario "少了十块钱" wage-end!))
     (define (wage-nodes)
       (if (and (equal? wage-state "争执中") (<= world-day 11))
         (list (node "介入工钱争执" :anchor "艾迪@码头" :button-text "介入"
-          :subtitle "替工友核清工钱，进入交锋"
+          :subtitle "替工友核清工钱，进入Scenario"
           :clocks (list (第二幕-期限钟 "收工前解决" 11 10))
           :resolve (instant (outcome enter-wage!)))) '()))
     (define (lucy-at-cafe?)
@@ -307,7 +307,7 @@
               (assoc-get data "lucy-progress" (min 4 (assoc-get data "lucy-covered" 0)))))
             (if (and (equal? lucy-state "已入学") (= lucy-enrolled-day 0))
               (set! lucy-enrolled-day (max 1 (- world-day 3))) #f)
-            ;; 未结案只恢复城市入口，具体进展属于交锋；超过截止统一停班。
+            ;; 未结案只恢复城市入口，具体进展属于Scenario；超过截止统一停班。
             (if (and (>= world-day 12) (member? wage-state '("未做" "争执中")))
               (begin (set! wage-state "停班") (set! wage-end-day 11)) #f)
             (set! lucy-result-known? (assoc-get data "lucy-result-known" #f))

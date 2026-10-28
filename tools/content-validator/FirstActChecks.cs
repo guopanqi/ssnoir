@@ -77,7 +77,7 @@ public static class FirstActChecks
         }
         finally { if (File.Exists(troubleSave)) File.Delete(troubleSave); }
         Act(tavern, "醉客互相叫骂");
-        Assert(!Has(tavern, "交给酒保"), "酒馆交锋没有主动失败按钮");
+        Assert(!Has(tavern, "交给酒保"), "酒馆Scenario没有主动失败按钮");
         var beforeRise = tavern.CurrentRootNode;
         var frame = tavern.BeginRoundTransition();
         bool sawRise = false;
@@ -90,7 +90,7 @@ public static class FirstActChecks
                     new[] { BlockingStoryStepKind.Dialogue, BlockingStoryStepKind.FocusNode }),
                     "醉客起身报告先说明，再声明导航落点");
                 Assert(frame.Report.BlockingStorySteps.Last().TargetNodeId == "醉客互相叫骂",
-                    "醉客起身明确回到交锋总览");
+                    "醉客起身明确回到Scenario总览");
                 Assert(!Nodes(beforeRise!).Any(n => n.Id == "破口大骂的人")
                     && Nodes(frame.Snapshot.RootNode!).Any(n => n.Id == "破口大骂的人"),
                     "新麻烦只存在于待提交快照，旧树不提前变化");

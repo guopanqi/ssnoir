@@ -1,7 +1,7 @@
 import BiwaScheme from "biwascheme";
 
 /** Persistent Scheme interpreter for semantics / lifecycle validation.
- * This is a probe: encounter/world isolation and native functions come in stage 2.
+ * This is a probe: scenario/world isolation and native functions come in stage 2.
  */
 export class SchemeSession {
   private readonly interpreter = new BiwaScheme.Interpreter((error: unknown) => {

@@ -8,7 +8,7 @@ C# 引擎把脚本求值成一棵节点树,再由前端渲染成可交互的卡�
 
 ---
 
-世界节点可用 `:required-before-rest "原因"` 声明必须在换日前处理的内容。SceneManager 从完整节点树派生 RestBlocker 投影，自动关联地点与目标；其变化会在同一次重建中刷新休息卡状态。C# 与 Scheme 共用换日入口校验；交锋不继承世界休息条件。无手动注册表，也不保存或读档同步阻塞；配置无处理路径或循环依赖会报错。
+世界节点可用 `:required-before-rest "原因"` 声明必须在换日前处理的内容。SceneManager 从完整节点树派生 RestBlocker 投影，自动关联地点与目标；其变化会在同一次重建中刷新休息卡状态。C# 与 Scheme 共用换日入口校验；Scenario不继承世界休息条件。无手动注册表，也不保存或读档同步阻塞；配置无处理路径或循环依赖会报错。
 
 ## 1. 顶层模块与依赖方向
 
@@ -26,7 +26,7 @@ C# 引擎把脚本求值成一棵节点树,再由前端渲染成可交互的卡�
  └──────────────────────────────────────────────────────┘
                  ▲
                  │ 只读同一份 Engine 与 Scheme 内容
- tools/content-validator/（无界面校验、存档测试、交锋试跑）
+ tools/content-validator/（无界面校验、存档测试、Scenario试跑）
 ```
 
 | 模块 | 职责 | 关键点 |
@@ -35,7 +35,7 @@ C# 引擎把脚本求值成一棵节点树,再由前端渲染成可交互的卡�
 | `Engine/Runtime/Scripting` | Scheme ↔ C# 桥:解释器封装、节点转换、原生函数 | `NodeConverter` 把 s-expr 翻成 `GameNode` |
 | `UnityClient/Assets/Resources/Content/` | 游戏数据:场景、规则、对白(`.scm`) | 唯一来源，无同步副本；ID/名称可直接用中文 |
 | `schemy-master/` | fork 的轻量 C# Scheme 解释器 | 改它后必须 `build-unity-plugin.sh` 重建 dll |
-| `tools/content-validator/` | 无界面的内容校验、存档契约测试和交锋试跑 | 直接读取 Unity 中的 `.scm`，不是第二个客户端 |
+| `tools/content-validator/` | 无界面的内容校验、存档契约测试和Scenario试跑 | 直接读取 Unity 中的 `.scm`，不是第二个客户端 |
 | `UnityClient/` | 唯一客户端：IMGUI 前端、3D 场景、资源与发布入口 | 通过本地 UPM package 引入 Engine，并使用 `Plugins/schemy.dll` |
 
 **依赖只有一个方向**:Unity / 校验工具 → Engine → Schemy。Engine 永远不反向依赖 Unity；内容则由
@@ -82,12 +82,12 @@ Unity 和校验工具读取。`Resources/Content` 中的 `.scm` 由项目 import
 
 约束:
 - `get-global/set-global!` **只管纯全局键**
-- encounter 不直接写 global 通知 world,而是 `start-encounter` 传 callback、`end-encounter` 报结果。详见 [skills/write-scheme/SKILL.md](../skills/write-scheme/SKILL.md)。
+- scenario 不直接写 global 通知 world,而是 `start-scenario` 传 callback、`end-scenario` 报结果。详见 [skills/write-scheme/SKILL.md](../skills/write-scheme/SKILL.md)。
 
 ### 场景切换
-- `SceneManager`:world 是一个常驻解释器;每个 encounter 是临时新建的解释器。
+- `SceneManager`:world 是一个常驻解释器;每个 scenario 是临时新建的解释器。
 - 切场景走**显式** `GoToLocation(name)`
-- `world` 与 `world/world` 视为世界场景,其余皆 encounter。
+- `world` 与 `world/world` 视为世界场景,其余皆 scenario。
 
 ### 存档
 `SaveManager`(JSON):纯全局键 + 队伍 + 库存 + `(world-save)` 返回的 Scheme 世界状态。
@@ -124,6 +124,6 @@ Unity 和校验工具读取。`Resources/Content` 中的 `.scm` 由项目 import
 | 状态存活 | Scheme 解释器持续运行 | `set!` 语义干净,地点本地状态自然保留 |
 | 节点动态性 | `define` 成 lambda,渲染时才求值 | 每次都读最新状态 |
 | 规则系统 | `define-rule` 声明式注册,`on-action` 统一遍历 | 规则相互独立 |
-| 场景切换 | 每场景一个 `.scm`,encounter 用临时解释器 | 局部状态自然丢弃 |
+| 场景切换 | 每场景一个 `.scm`,scenario 用临时解释器 | 局部状态自然丢弃 |
 | 单一客户端 | Unity 是唯一游戏工程，无 Terminal 兼容层 | 编辑器所见就是玩家运行时，资源没有双份来源 |
 | 错误处理 | 数据/逻辑错误直接 assert 中断 | 最大化健壮性,尽早暴露内容配置错误 |

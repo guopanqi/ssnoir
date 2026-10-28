@@ -21,7 +21,7 @@ on:
       - 'tools/content-validator/experiments/test_stake_observer_20261014.js'
       - 'docs/实验/机制研究/批次/2026-10-14-策略性伪装与自选成果/**'
       - 'docs/实验/机制研究/批次/2026-10-14-自选承诺与对抗性注意力/**'
-      - 'docs/实验/机制研究/批次/2026-10-14-目标改变与跨交锋凭据/**'
+      - 'docs/实验/机制研究/批次/2026-10-14-目标改变与跨Scenario凭据/**'
       - 'docs/实验/机制研究/批次/2026-10-14-双目标协作者与跨期承诺/**'
       - 'docs/实验/机制研究/批次/2026-10-14-证据与策略性沉默/**'
       - 'docs/实验/机制研究/批次/2026-10-14-行动依赖边与保全税/**'
@@ -74,7 +74,7 @@ jobs:
         run: |
           set -euo pipefail
           python3 tools/content-validator/experiments/pattern_self_pledge_and_adversarial_attention_20261014.py
-      - name: Strategic re-encounter signalling, Bayesian posterior and self-selected outcome robustness
+      - name: Strategic @@KEEP_RE_SCENARIO@@ signalling, Bayesian posterior and self-selected outcome robustness
         run: |
           set -euo pipefail
           python3 tools/content-validator/experiments/pattern_strategic_signal_against_voluntary_goals_20261014.py

@@ -35,7 +35,7 @@ export interface WorldHost {
   session:GameScriptSession;
   runner:GameActionRunner;
   director:GameSceneDirector;
-  mode:"world"|"encounter";
+  mode:"world"|"scenario";
   root:RuntimeNode;
   lastNavigation:{durationMs:number;materializations:number;modeChanged:boolean}|null;
   getPlaces():RuntimeNode[];
@@ -62,7 +62,7 @@ export async function createWorldHostRuntime(random:()=>number=Math.random):Prom
     get lastNavigation(){return lastNavigation;},
     getPlaces:()=>director.mode==="world"?root.children.filter(n=>n.isPlace&&!n.disabled):[],
     async getDossier(){
-      if(director.mode!=="world")throw new Error("city dossier unavailable in encounter");
+      if(director.mode!=="world")throw new Error("city dossier unavailable in scenario");
       return convertDossier(await director.world.evaluate("(get-dossier)"));
     },
     async enterPlace(name:string){
@@ -78,7 +78,7 @@ export async function createWorldHostRuntime(random:()=>number=Math.random):Prom
       };
       try{
         const node=await director.worldActions.enterPlace(name);
-        // An arrival may open an encounter; only that mode transition needs
+        // An arrival may open an scenario; only that mode transition needs
         // a different interpreter's render tree after flush().
         await director.flush();
         const modeChanged=director.mode!==beforeMode;
@@ -97,14 +97,14 @@ export async function createWorldHostRuntime(random:()=>number=Math.random):Prom
       return root;
     },
     async endDay(){
-      if(director.mode!=="world")throw new Error("cannot end the city day during an encounter");
+      if(director.mode!=="world")throw new Error("cannot end the city day during an scenario");
       const result=await new WorldTurnController(director.state,director.world).endDay(random);
       await director.flush();
       root=await director.render();
       return result;
     },
     async save(){
-      if(director.mode!=="world")throw new Error("cannot save inside an encounter");
+      if(director.mode!=="world")throw new Error("cannot save inside an scenario");
       const data=await new WorldSaveController(director.state,director.world).capture();
       return WorldSaveController.encode(data);
     },

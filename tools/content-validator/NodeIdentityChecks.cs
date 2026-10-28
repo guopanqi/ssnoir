@@ -22,10 +22,10 @@ namespace SSNoir.Testing
         {
             var manager = NewManager(new DictionaryScriptLoader(new Dictionary<string, string>
             {
-                ["scenes/encounters/node-identity.scm"] = """
+                ["scenes/scenarios/node-identity.scm"] = """
                     (define selected "")
-                    (define (on-encounter-enter) #t)
-                    (define (on-encounter-collapse) (list 'test))
+                    (define (on-scenario-enter) #t)
+                    (define (on-scenario-collapse) (list 'test))
                     (define (on-action) #t)
                     (define choose-a (lambda () (set! selected "a")))
                     (define choose-b (lambda () (set! selected "b")))
@@ -81,8 +81,8 @@ namespace SSNoir.Testing
         private static void VerifyDuplicateIdsRejected()
         {
             AssertDuplicateRejected("duplicate-sibling", """
-                (define (on-encounter-enter) #t)
-                (define (on-encounter-collapse) (list 'test))
+                (define (on-scenario-enter) #t)
+                (define (on-scenario-collapse) (list 'test))
                 (define (get-render-data)
                   (node "root" :children
                     (list (node "reused-id" :name "甲")
@@ -90,8 +90,8 @@ namespace SSNoir.Testing
                 """);
 
             AssertDuplicateRejected("duplicate-nested", """
-                (define (on-encounter-enter) #t)
-                (define (on-encounter-collapse) (list 'test))
+                (define (on-scenario-enter) #t)
+                (define (on-scenario-collapse) (list 'test))
                 (define (get-render-data)
                   (node "reused-id" :name "父" :children
                     (list (node "reused-id" :name "子"))))
@@ -102,7 +102,7 @@ namespace SSNoir.Testing
         {
             var manager = NewManager(new DictionaryScriptLoader(new Dictionary<string, string>
             {
-                [$"scenes/encounters/{sceneName}.scm"] = source
+                [$"scenes/scenarios/{sceneName}.scm"] = source
             }));
             try
             {
@@ -119,9 +119,9 @@ namespace SSNoir.Testing
         {
             var manager = NewManager(new DictionaryScriptLoader(new Dictionary<string, string>
             {
-                ["scenes/encounters/node-identity.scm"] = """
-                    (define (on-encounter-enter) #t)
-                    (define (on-encounter-collapse) (list 'test))
+                ["scenes/scenarios/node-identity.scm"] = """
+                    (define (on-scenario-enter) #t)
+                    (define (on-scenario-collapse) (list 'test))
                     (define (on-action) #t)
                     (define (get-render-data) (node "identity-root" :children '()))
                     """

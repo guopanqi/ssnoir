@@ -1,7 +1,7 @@
 ;; 第一章唯一的公共事故：码头坍塌。
 ;;
 ;; 本模块只拥有事故排期、响应状态与公共救援结果。乔拥有关系、伤势和照料；
-;; 交锋只拥有现场目标与自身回合。任何人物线都只能接入这里，不能另造一次事故。
+;; Scenario只拥有现场目标与自身回合。任何人物线都只能接入这里，不能另造一次事故。
 ;;
 ;; 乔不在救援现场——玩家赶到以前他已经被救出。本事件只负责触发他的事故后人物线；
 ;; 现场伤亡和玩家是否到场，都不改变乔的伤势与后续内容。
@@ -12,7 +12,7 @@
     (define event-state "未浮现")
     ;; 未结算 / 小型 / 大型。零人死亡也属于小型；玩家缺席不是另一种灾难规模。
     (define rescue-result "未结算")
-    ;; 交锋直接返回灾难规模；世界不保存或重新解释现场人数。
+    ;; Scenario直接返回灾难规模；世界不保存或重新解释现场人数。
     (define scheduled-day 0)
     (define response-day 0)
 
@@ -101,7 +101,7 @@
     (define (settle! result final-state)
       (if (or (equal? event-state "救援中") (equal? event-state "待响应"))
           #t (error "码头坍塌：结算发生在不可能的公共状态"))
-      (if (valid-result? result) #t (error "码头坍塌：交锋返回了未登记的公共结果"))
+      (if (valid-result? result) #t (error "码头坍塌：Scenario返回了未登记的公共结果"))
       (set! rescue-result result)
       (set! event-state final-state)
       ;; TODO：救援归功暂不实现。后续确有消费点时，再独立设计工人 / 机器的归功规则。
@@ -116,7 +116,7 @@
     (define (on-rescue-result result)
       (if (member? result (list "小型" "大型"))
           (settle! result "已结算")
-          (error "码头坍塌：交锋必须返回小型或大型")))
+          (error "码头坍塌：Scenario必须返回小型或大型")))
 
     (define (start-rescue!)
       (if (equal? event-state "待响应") #t (error "码头坍塌：今天已经不能再进入救援"))
@@ -130,7 +130,7 @@
         (line "码头工人" "三号栈桥下去了！货垛、吊杆、分拣棚压在一块！")
         (line "码头工人" "先前抬走了几个。班表上还有四个没上来，谁也说不清在哪一片底下。")
         (line "尼尔" "能走的都拉到封锁线外面。剩下的，一片一片挖。"))
-      (start-encounter "码头坍塌" on-rescue-result))
+      (start-scenario "码头坍塌" on-rescue-result))
 
     ;; 你没去，现场也不会停下来：弗兰克带人挖了两天，林把机器开了过去。
     ;; 数字定死在这里，因为它不是玩家的成绩，而是这座城市在没有你的时候的样子。
@@ -147,7 +147,7 @@
                          "事故响应还剩 "
                          (number->string (max 0 (- 2 (- world-day response-day))))
                          " 天；赶到以后要留在现场，直到救援结算")
-             :tags (list "交锋")
+             :tags (list "Scenario")
              :clocks (list
                (list 'clock "赶到现场" (max 0 (- 2 (- world-day response-day))) 2 'countdown
                      "今天和明天都能赶去；第二天日终仍未进入，就按缺席结算。"))
@@ -205,7 +205,7 @@
              (set! scheduled-day (required-field data "scheduled-day"))
              (set! response-day (required-field data "response-day"))
              (if (equal? event-state "救援中")
-                 (error "码头坍塌存档错误：普通交锋不能保存，城市存档不应停在救援中")
+                 (error "码头坍塌存档错误：普通Scenario不能保存，城市存档不应停在救援中")
                  #t)
              (validate-state!)))
           ((equal? msg 'debug-make-pending!)

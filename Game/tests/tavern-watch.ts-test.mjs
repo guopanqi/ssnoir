@@ -16,19 +16,19 @@ function scan(dir){
 }
 scan("scripts");scan("scenes");
 const std=readFileSync("node_modules/lips/dist/std.xcb");
-test("the new first-act tavern introduces a brief, optional trouble encounter",async()=>{
+test("the new first-act tavern introduces a brief, optional trouble scenario",async()=>{
  const vm=await GameScriptSession.create("tavern-new",new GameRuntimeState(),sources,std);
  await vm.loadFile("scenes/world/world.scm");
  const script=sources["scenes/world/老街酒馆.scm"];
  assert.match(script,/第二次看场固定遇到两桌醉客/);
- assert.match(script,/start-encounter "醉客互相叫骂"/);
+ assert.match(script,/start-scenario "醉客互相叫骂"/);
  assert.match(script,/第一幕 'on-tavern-work!/);
  const tavern=convertNode(await vm.evaluate("(car (old-street-tavern 'render-data))"));
  assert.ok(tavern.children.some(x=>x.name==="看场子"));
  assert.ok(tavern.children.every(x=>x.name!=="闹事：赖账的客人"),"retired trouble route must not leak");
 });
 test("rainy escort depends on fear, not capturing a blackmail suspect",()=>{
- const escort=sources["scenes/encounters/雨夜同行.scm"];
+ const escort=sources["scenes/scenarios/雨夜同行.scm"];
  const entry=sources["scenes/world/第一幕同行.scm"];
  assert.match(escort,/make-clock "回到住处" 4 'gauge/);
  assert.match(escort,/make-clock "夜莺的恐惧" 3 'pressure/);

@@ -16,11 +16,11 @@ def r88():
         obs=act(p,obs,end=True)
         mid=clock(obs,"楼梯追兵")
         obs=act(p,obs,end=True)
-        result=obs.get("EncounterResult")
-        # The official runner drops the clock list after terminal end-encounter.
+        result=obs.get("ScenarioResult")
+        # The official runner drops the clock list after terminal end-scenario.
         # Do not infer a nonexistent "Current" field from that final response.
         assert (first,mid)==(0,1),(first,mid)
-        assert result is not None,"Unsealed deadline should really close encounter"
+        assert result is not None,"Unsealed deadline should really close scenario"
         assert "证人被抓" in json.dumps(result,ensure_ascii=False),result
         unsealed={"observed_preterminal_pursuit":[first,mid],
                   "final":result,"ended":True}
@@ -38,9 +38,9 @@ def r88():
         for _ in range(2):
             obs=act(p,obs,end=True)
             after_closure.append(clock(obs,"楼梯追兵"))
-            assert obs.get("EncounterResult") is None
+            assert obs.get("ScenarioResult") is None
         assert after_closure==[0,0],after_closure
-        sealed={"pursuit":after_closure,"encounter_open":True,
+        sealed={"pursuit":after_closure,"scenario_open":True,
                 "new_ladder_action":True}
     finally:finish(p)
     return {"id":"R88","scene":"实验·封死退路",

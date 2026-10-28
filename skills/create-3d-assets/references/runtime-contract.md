@@ -112,7 +112,7 @@ Orbit 相机必须满足：
 - **Stage 的身份是节点 `Id`，不是 `:anchor`**（`SSNoirGameManager.ResolveStageAnchor`）：导航路径里某个节点的
   `Anchor_<节点Id>` 挂着 `StagePortalConfig`（由同名 `PortalIn_<名>` 导入时挂上），站在它里面就是在那个 Stage
   里，镜头取 `Anchor_<节点名>` 的根机位。`:anchor` 只决定这张门卡挂在城市里的哪儿：家的「租屋」卡挂 `门口`，
-  门后的空间在郊野的 Stage 里，两者不可能同一个锚点。交锋根容器名就是场景名，对交锋这条规则没有新东西。
+  门后的空间在郊野的 Stage 里，两者不可能同一个锚点。Scenario根容器名就是场景名，对Scenario这条规则没有新东西。
 
 ### 随卡显隐（`随卡_<锚点名>`）
 

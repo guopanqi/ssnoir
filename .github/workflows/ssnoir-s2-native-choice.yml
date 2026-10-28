@@ -4,7 +4,7 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/ssnoir-s2-native-choice.yml'
-      - 'UnityClient/Assets/Resources/Content/scenes/encounters/研究·线索两选.scm'
+      - 'UnityClient/Assets/Resources/Content/scenes/scenarios/研究·线索两选.scm'
       - 'tools/content-validator/experiments/s2_true_choice_native.py'
       - 'tools/content-validator/experiments/s2_choice_capacity_native.py'
   workflow_dispatch:

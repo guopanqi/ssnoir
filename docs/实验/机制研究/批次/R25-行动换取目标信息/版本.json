@@ -15,10 +15,10 @@
     "docs/实验/机制研究/批次/R25-行动换取目标信息/信息投资.py": "1951355cc1ecfbd893b12fcfdebee1d8709ded6ae4018564b78553fbb77c3e74",
     "UnityClient/Assets/Resources/Content/scripts/research/定位搜索.scm": "89f74ad755b690476927426be0d6ac0dd3e9c4b547f7187438bbd87ca34f9d38",
     "UnityClient/Assets/Resources/Content/scripts/research/定位搜索.scm.meta": "9c9ce1b1885cccc7ddd70da86ad825d0a6651d072567374aa44a0ec8e8e7a7bb",
-    "UnityClient/Assets/Resources/Content/scenes/encounters/研究·定位再搜.scm": "424df171da9663db331fc56d644cd436e5b64225f2d78a68f6c194a23bc8bf95",
-    "UnityClient/Assets/Resources/Content/scenes/encounters/研究·定位再搜.scm.meta": "697a6b1846e445ccc0010668e16442073694ac0b724c90df3479e3be1d7e9ccd",
-    "UnityClient/Assets/Resources/Content/scenes/encounters/研究·直接搜寻对照.scm": "050f277146c0055963ad0948375d193d2a5cb6bb85d9335beae194318f36517f",
-    "UnityClient/Assets/Resources/Content/scenes/encounters/研究·直接搜寻对照.scm.meta": "5f3629a62427e66dfe7d7432efd890e3b5d43655ed9f436bf80bba9f8b2bc4a2"
+    "UnityClient/Assets/Resources/Content/scenes/scenarios/研究·定位再搜.scm": "424df171da9663db331fc56d644cd436e5b64225f2d78a68f6c194a23bc8bf95",
+    "UnityClient/Assets/Resources/Content/scenes/scenarios/研究·定位再搜.scm.meta": "697a6b1846e445ccc0010668e16442073694ac0b724c90df3479e3be1d7e9ccd",
+    "UnityClient/Assets/Resources/Content/scenes/scenarios/研究·直接搜寻对照.scm": "050f277146c0055963ad0948375d193d2a5cb6bb85d9335beae194318f36517f",
+    "UnityClient/Assets/Resources/Content/scenes/scenarios/研究·直接搜寻对照.scm.meta": "5f3629a62427e66dfe7d7432efd890e3b5d43655ed9f436bf80bba9f8b2bc4a2"
   },
   "snapshot": {
     "path": "运行快照.tar.gz",

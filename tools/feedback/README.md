@@ -1,7 +1,7 @@
 # 游戏反馈
 
 游戏右上角的「反馈」打开居中纸张弹窗，标题「意见反馈」，输入提示「请输入反馈内容」。
-输入 1–2000 个 UTF-16 单元的文字后提交，自动附上版本、显示中的地点 / 导航路径、是否交锋和世界天数。
+输入 1–2000 个 UTF-16 单元的文字后提交，自动附上版本、显示中的地点 / 导航路径、是否Scenario和世界天数。
 不收集设备标识、联系方式、完整存档或截图。关闭窗口保留本次会话的草稿；退出游戏不保留。
 提交成功以服务端入库回执为准，失败保留文字与提交 ID，原样重试不会重复记录。
 
@@ -15,7 +15,7 @@
 登录 Cloudflare 控制台 → Storage & databases → D1 → `ssnoir-feedback` → Console，运行：
 
 ```sql
-SELECT created_at, text, version, location, in_encounter, world_day
+SELECT created_at, text, version, location, in_scenario, world_day
 FROM feedback ORDER BY created_at DESC LIMIT 100;
 ```
 

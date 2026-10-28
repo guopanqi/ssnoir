@@ -10,7 +10,7 @@ namespace SSNoir
     ///   · 焦点切换：不再走弧线，硬切 + 交叉溶解（见 <see cref="ViewCrossfade"/>）。
     ///   · 灯标导航：平移保留但缩短；绕轴那支改成溶解。
     ///
-    /// **剧情带着镜头走的那些不听它**：进出交锋的 Portal 推进 / 穿过 / 拉出、交锋里换场、倒下送医、
+    /// **剧情带着镜头走的那些不听它**：进出Scenario的 Portal 推进 / 穿过 / 拉出、Scenario里换场、倒下送医、
     /// 过场。它们一局没几次，而且那段路本身在交代空间关系——"剧院在城里哪儿、你进到了
     /// 里面"——砍掉就只剩一次莫名其妙的黑场。代码上对应 <c>BeginFocusTravel</c> 的
     /// <c>respectReduceMotion: false</c> 与 <c>UpdateCameraFocus(storyDriven: true)</c>。

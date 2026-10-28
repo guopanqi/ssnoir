@@ -26,7 +26,7 @@ EXPECTED={
 if __name__=='__main__':
  results=[]
  for name,plan in PLANS.items():
-  p=subprocess.Popen(['dotnet','run','--no-build','--project','tools/content-validator/SSNoir.ContentValidator.csproj','--','--session','encounters/实验·最后一页','--seed','7'],cwd=ROOT,stdin=subprocess.PIPE,stdout=subprocess.PIPE,text=True)
+  p=subprocess.Popen(['dotnet','run','--no-build','--project','tools/content-validator/SSNoir.ContentValidator.csproj','--','--session','scenarios/实验·最后一页','--seed','7'],cwd=ROOT,stdin=subprocess.PIPE,stdout=subprocess.PIPE,text=True)
   def send(c):
    p.stdin.write(json.dumps(c,ensure_ascii=False)+'\n');p.stdin.flush()
    r=json.loads(p.stdout.readline());assert r['type']!='error',r
@@ -37,12 +37,12 @@ if __name__=='__main__':
    assert candidates,(name,card)
    a=min(candidates,key=lambda a:a['DieValue'] or 0)
    o=send({'command':'act','version':o['Version'],'operationId':a['Id'],'reason':'固定分支复核：'+name})['observation']
-  assert o['EncounterResult']==EXPECTED[name],(name,o['EncounterResult'])
+  assert o['ScenarioResult']==EXPECTED[name],(name,o['ScenarioResult'])
   with tempfile.TemporaryDirectory(prefix='noir-pages-') as scratch:
    raw=Path(scratch)/'record.json';send({'command':'save','path':str(raw)})
    directory=ROOT/'docs'/'实验'/'最后一页'/'对照记录';directory.mkdir(parents=True,exist_ok=True)
    with gzip.open(directory/f'{name}-7.json.gz','wb') as target:target.write(raw.read_bytes())
   send({'command':'quit'});p.wait()
-  results.append({'policy':name,'seed':7,'result':o['EncounterResult']})
-  print(name,o['EncounterResult'],flush=True)
+  results.append({'policy':name,'seed':7,'result':o['ScenarioResult']})
+  print(name,o['ScenarioResult'],flush=True)
  (ROOT/'docs'/'实验'/'最后一页'/'对照结果.json').write_text(json.dumps(results,ensure_ascii=False,indent=2)+'\n')

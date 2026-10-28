@@ -74,7 +74,7 @@ test("authored prologue drunk state is saved and clears only on the next city di
   copy.restore(JSON.parse(JSON.stringify(saved)));
   assert.equal(copy.team.require("player").isDrunk,true,"C# IsDrunk must survive world save");
   copy.team.rollDice(()=>0.5,true,true);
-  assert.equal(copy.team.require("player").isDrunk,true,"encounter dice do not clear drink");
+  assert.equal(copy.team.require("player").isDrunk,true,"scenario dice do not clear drink");
   copy.team.rollDice(()=>0.5,false,false);
   assert.equal(copy.team.require("player").isDrunk,true,"non-consuming roll does not clear drink");
   copy.team.rollDice(()=>0.5,false,true);

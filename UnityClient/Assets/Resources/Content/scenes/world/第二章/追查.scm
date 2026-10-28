@@ -134,13 +134,13 @@
            (if (equal? result '跟丢)
                "取件人消失在人群里。假消息已经用过，他不会再沿同一条路线出现。"
                "取件人认出了尾随。剧院和报社换了传递方式，这条线到这里结束。")))
-        (#t (error "追查：尾随交锋返回了未知结果"))))
+        (#t (error "追查：尾随Scenario返回了未知结果"))))
 
     (define (尾随节点)
       (at-anchor "剧院-后巷"
-       (encounter-action "等取件人"
+       (scenario-action "等取件人"
         (lambda ()
-          (start-encounter "尾随取件人" 尾随结果!)))))
+          (start-scenario "尾随取件人" 尾随结果!)))))
 
     (define (废稿间结果! result)
       (cond
@@ -151,7 +151,7 @@
          (spotlight! "材料早于信"
            "报社上午已经拿到死亡威胁与内部演出安排。下一步是查清谁准备了稿号四一七。"))
         ((equal? result '未完成) #f)
-        (#t (error "追查：废稿间交锋返回了未知结果"))))
+        (#t (error "追查：废稿间Scenario返回了未知结果"))))
 
     (define (核对登记节点)
       (anchored-instant-action "问十一点零七分" "报社-编辑部"
@@ -171,9 +171,9 @@
 
     (define (废稿间节点)
       (at-anchor "报社"
-       (encounter-action "下废稿间"
+       (scenario-action "下废稿间"
         (lambda ()
-          (start-encounter "上午十一点零七分" 废稿间结果!)))))
+          (start-scenario "上午十一点零七分" 废稿间结果!)))))
 
     (define (节点 location)
       ;; 《谁把她卖给了报纸》结案后，《比信更早的人》仍要继续产出节点。

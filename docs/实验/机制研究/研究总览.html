@@ -547,7 +547,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
 </section>
 <section class="wb-page hidden" id="library">
 <div class="simple-heading"><div><span class="section-label">PATTERN LANGUAGE / 可供设计的模式</span><h1>模式目录</h1><p class="simple-subtitle">从已经在作品中使用的结构、实验发现与组合边界中挑选材料。是否经过真人反馈、是否进入精选、是否适合当前情境，是不同的判断。</p></div><span class="simple-count" id="lib-count"></span></div>
-<div class="library-filters"><input type="search" id="lib-search" aria-label="搜索决策模式" placeholder="搜索模式、玩家决策、研究编号"><select id="lib-layer" aria-label="按模式类型筛选"><option value="all">全部尺度</option><option value="decision-relation">基础决策关系</option><option value="encounter-structure">交锋结构</option><option value="combination">组合与边界</option></select><select id="lib-origin" aria-label="按证据来源筛选"><option value="all">全部来源</option><option value="published-game-analysis">成熟作品先例</option><option value="ssnoir-research">本实验研究</option><option value="other">组合与开放问题</option></select><label class="lib-only"><input type="checkbox" id="lib-picked-only"> 仅看已加入</label></div>
+<div class="library-filters"><input type="search" id="lib-search" aria-label="搜索决策模式" placeholder="搜索模式、玩家决策、研究编号"><select id="lib-layer" aria-label="按模式类型筛选"><option value="all">全部尺度</option><option value="decision-relation">基础决策关系</option><option value="scenario-structure">Scenario结构</option><option value="combination">组合与边界</option></select><select id="lib-origin" aria-label="按证据来源筛选"><option value="all">全部来源</option><option value="published-game-analysis">成熟作品先例</option><option value="ssnoir-research">本实验研究</option><option value="other">组合与开放问题</option></select><label class="lib-only"><input type="checkbox" id="lib-picked-only"> 仅看已加入</label></div>
 <div class="library-layout"><div class="library-list" id="lib-list" aria-label="可筛选模式列表"></div><aside class="library-detail" id="lib-detail" aria-live="polite"></aside></div>
 <section class="library-compose"><div class="simple-section-title"><h2>组合用于情境</h2><span>只产生设计简报，不自动修改游戏内容</span></div><div class="library-compose-row"><label>正在设计的情境 <input id="lib-scenario" placeholder="例如：取得照片后说服店主透露记录"></label><button class="button ghost tiny" id="lib-copy">复制模式组合简报</button></div><div id="lib-picked" class="lib-picked"></div><p id="lib-copy-state" class="minor" role="status"></p></section>
 <p class="network-disclaimer">这是一张证据导航图，而不是“通过验收的成熟玩法排名”。成熟作品的应用先例不等于该模式独立经过受控实验；数学结构成立也不证明真人觉得有趣。来源与反例可在右侧查阅。</p>
@@ -563,9 +563,9 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
   "schema": "ssnoir.pattern-language-map/v1",
   "updated": "2026-10-14",
   "reviewBase": "c8055fa1aa2fe18ec1ecc50c7e721072c67dd809",
-  "scope": "保留成熟作品、20历史候选、精选展示与局部研究；T01是可复用的跨阶段组合边界，非独立新精选/人类认可；本轮另纳入PL-Q01/D01/W01三族跨尺度正负对照，未自动精选或真人认证；新增F1/F2目标内生生成与撤权、D2反驳纯诱饵通用支配，均为局部精确证据；RGT01可更换许可的强简单策略负例及ACT01双向自利公开外部机会模型均纳入；REL01/REL02新增自利关系许可×半成品保全×信息时点可执行证据与短公开口诀全优边界；REL03检验半成品跨交锋转成操作资格的旧启用同构与首手时间窗必要条件；新纳入R342/R430/R478三条历史社会协商先例，以及NEG01—05可信履约、强合同菜单、策略拒绝与伪造成本四个证据节点，不视为新精选；本次未造新节点，用NEG06与X01-LONG独立试玩/完整可达性证据增强原PL-NEG03和X01两个节点，避免数量攀升当价值；X03原纸面开放题升级为HARD禁用与SOFT昂贵可违约的有限最优策略同构/行动菜单差异实证，未加入新模式数量；STG01作为情景化原型实例而非新独立模式：真实三幕历史改变未来可用动作，平坦菜单对照检验换皮，依然无人类体验认证；2026-10-13 PT01转移风险相对同成本擦除的支配边界、INF-P01隐藏触发模式的精确零信息价值证据，均未自动精选或真人认证；GOAL01主动作生成新委托经完整预列条件菜单同构与义务压力消融；DISC01工作兼探查的及时性/换路成本/单份噪声线索可靠度三项正负边界，均未认证独立新原语或真人；REC01互惠生产余效×公开临时阻塞得到正常可达重排，但交替+一次短前瞻全优；REC03保留目标完成率向量与综合分数的评价分离，不晋升精选",
+  "scope": "保留成熟作品、20历史候选、精选展示与局部研究；T01是可复用的跨阶段组合边界，非独立新精选/人类认可；本轮另纳入PL-Q01/D01/W01三族跨尺度正负对照，未自动精选或真人认证；新增F1/F2目标内生生成与撤权、D2反驳纯诱饵通用支配，均为局部精确证据；RGT01可更换许可的强简单策略负例及ACT01双向自利公开外部机会模型均纳入；REL01/REL02新增自利关系许可×半成品保全×信息时点可执行证据与短公开口诀全优边界；REL03检验半成品跨Scenario转成操作资格的旧启用同构与首手时间窗必要条件；新纳入R342/R430/R478三条历史社会协商先例，以及NEG01—05可信履约、强合同菜单、策略拒绝与伪造成本四个证据节点，不视为新精选；本次未造新节点，用NEG06与X01-LONG独立试玩/完整可达性证据增强原PL-NEG03和X01两个节点，避免数量攀升当价值；X03原纸面开放题升级为HARD禁用与SOFT昂贵可违约的有限最优策略同构/行动菜单差异实证，未加入新模式数量；STG01作为情景化原型实例而非新独立模式：真实三幕历史改变未来可用动作，平坦菜单对照检验换皮，依然无人类体验认证；2026-10-13 PT01转移风险相对同成本擦除的支配边界、INF-P01隐藏触发模式的精确零信息价值证据，均未自动精选或真人认证；GOAL01主动作生成新委托经完整预列条件菜单同构与义务压力消融；DISC01工作兼探查的及时性/换路成本/单份噪声线索可靠度三项正负边界，均未认证独立新原语或真人；REC01互惠生产余效×公开临时阻塞得到正常可达重排，但交替+一次短前瞻全优；REC03保留目标完成率向量与综合分数的评价分离，不晋升精选",
   "definitions": {
-    "layer": "机制原语、基础决策关系、交锋结构、跨交锋组织可交叉连接；层级不是质量排名",
+    "layer": "机制原语、基础决策关系、Scenario结构、跨Scenario组织可交叉连接；层级不是质量排名",
     "origin": "设计先例、仓库研究、局部组合假说分开保存",
     "stage": "历史候选/展示精选/有来源先例/数学结论均非普遍有效的认证",
     "evidence": "人类体验、游戏先例、数学与原生运行四类证据不可互相替代；historical humanRelated 与精选库某版本的反馈记录并非同一字段，相关真人反馈另用 humanFeedbackAvailable 与 humanFeedbackScope 说明；curatedSourceEvidence 原样引用精选展示的 math/native/human 标识，不能由历史候选 humanRelated 或 mathematically:true 覆盖"
@@ -574,7 +574,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
     "historicalCandidates": "docs/实验/机制研究/结构候选20.json",
     "curatedDisplay": "docs/实验/机制研究/模式库.json",
     "extensiveHistory": "docs/实验/机制研究/关系索引.md",
-    "cs2Analysis": "docs/设计研究/Citizen_Sleeper_2_交锋决策模式梳理.md"
+    "cs2Analysis": "docs/设计研究/Citizen_Sleeper_2_Scenario决策模式梳理.md"
   },
   "nodes": [
     {
@@ -587,7 +587,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
       "stage": "historical-structural-candidate",
       "curatedDisplay": true,
       "sources": [
-        "UnityClient/Assets/Resources/Content/scenes/encounters/研究·稳险选择.scm",
+        "UnityClient/Assets/Resources/Content/scenes/scenarios/研究·稳险选择.scm",
         "docs/实验/机制研究/结构候选20.json",
         "docs/实验/机制研究/模式库.json"
       ],
@@ -616,7 +616,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
       "stage": "historical-structural-candidate",
       "curatedDisplay": true,
       "sources": [
-        "UnityClient/Assets/Resources/Content/scenes/encounters/研究·成果取舍.scm",
+        "UnityClient/Assets/Resources/Content/scenes/scenarios/研究·成果取舍.scm",
         "docs/实验/机制研究/结构候选20.json",
         "docs/实验/机制研究/模式库.json"
       ],
@@ -644,7 +644,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
       "stage": "historical-structural-candidate",
       "curatedDisplay": true,
       "sources": [
-        "UnityClient/Assets/Resources/Content/scenes/encounters/研究·边做边看.scm",
+        "UnityClient/Assets/Resources/Content/scenes/scenarios/研究·边做边看.scm",
         "docs/实验/机制研究/结构候选20.json",
         "docs/实验/机制研究/模式库.json"
       ],
@@ -673,7 +673,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
       "stage": "historical-structural-candidate",
       "curatedDisplay": false,
       "sources": [
-        "UnityClient/Assets/Resources/Content/scenes/encounters/研究·按需用骰.scm",
+        "UnityClient/Assets/Resources/Content/scenes/scenarios/研究·按需用骰.scm",
         "docs/实验/机制研究/结构候选20.json"
       ],
       "evidence": {
@@ -693,7 +693,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
       "stage": "historical-structural-candidate",
       "curatedDisplay": false,
       "sources": [
-        "UnityClient/Assets/Resources/Content/scenes/encounters/研究·整段完成.scm",
+        "UnityClient/Assets/Resources/Content/scenes/scenarios/研究·整段完成.scm",
         "docs/实验/机制研究/结构候选20.json"
       ],
       "evidence": {
@@ -713,7 +713,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
       "stage": "historical-structural-candidate",
       "curatedDisplay": false,
       "sources": [
-        "UnityClient/Assets/Resources/Content/scenes/encounters/研究·留力推进.scm",
+        "UnityClient/Assets/Resources/Content/scenes/scenarios/研究·留力推进.scm",
         "docs/实验/机制研究/结构候选20.json"
       ],
       "evidence": {
@@ -733,7 +733,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
       "stage": "historical-structural-candidate",
       "curatedDisplay": false,
       "sources": [
-        "UnityClient/Assets/Resources/Content/scenes/encounters/研究·择时开窗.scm",
+        "UnityClient/Assets/Resources/Content/scenes/scenarios/研究·择时开窗.scm",
         "docs/实验/机制研究/结构候选20.json"
       ],
       "evidence": {
@@ -753,7 +753,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
       "stage": "historical-structural-candidate",
       "curatedDisplay": false,
       "sources": [
-        "UnityClient/Assets/Resources/Content/scenes/encounters/研究·定位再搜.scm",
+        "UnityClient/Assets/Resources/Content/scenes/scenarios/研究·定位再搜.scm",
         "docs/实验/机制研究/结构候选20.json"
       ],
       "evidence": {
@@ -773,7 +773,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
       "stage": "historical-structural-candidate",
       "curatedDisplay": false,
       "sources": [
-        "UnityClient/Assets/Resources/Content/scenes/encounters/研究·风险兑现.scm",
+        "UnityClient/Assets/Resources/Content/scenes/scenarios/研究·风险兑现.scm",
         "docs/实验/机制研究/结构候选20.json"
       ],
       "evidence": {
@@ -793,7 +793,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
       "stage": "historical-structural-candidate",
       "curatedDisplay": false,
       "sources": [
-        "UnityClient/Assets/Resources/Content/scenes/encounters/研究·分段兑现.scm",
+        "UnityClient/Assets/Resources/Content/scenes/scenarios/研究·分段兑现.scm",
         "docs/实验/机制研究/结构候选20.json"
       ],
       "evidence": {
@@ -813,7 +813,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
       "stage": "historical-structural-candidate",
       "curatedDisplay": true,
       "sources": [
-        "UnityClient/Assets/Resources/Content/scenes/encounters/研究·压力预算.scm",
+        "UnityClient/Assets/Resources/Content/scenes/scenarios/研究·压力预算.scm",
         "docs/实验/机制研究/结构候选20.json",
         "docs/实验/机制研究/模式库.json"
       ],
@@ -838,11 +838,11 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
       "layer": "decision-relation",
       "origin": "ssnoir-research",
       "family": "完成关闭机会",
-      "idea": "现在完成必需目标结束交锋还是先争副目标",
+      "idea": "现在完成必需目标结束Scenario还是先争副目标",
       "stage": "historical-structural-candidate",
       "curatedDisplay": false,
       "sources": [
-        "UnityClient/Assets/Resources/Content/scenes/encounters/研究·保留终点.scm",
+        "UnityClient/Assets/Resources/Content/scenes/scenarios/研究·保留终点.scm",
         "docs/实验/机制研究/结构候选20.json"
       ],
       "evidence": {
@@ -862,7 +862,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
       "stage": "historical-structural-candidate",
       "curatedDisplay": false,
       "sources": [
-        "UnityClient/Assets/Resources/Content/scenes/encounters/研究·整备借力.scm",
+        "UnityClient/Assets/Resources/Content/scenes/scenarios/研究·整备借力.scm",
         "docs/实验/机制研究/结构候选20.json"
       ],
       "evidence": {
@@ -882,7 +882,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
       "stage": "historical-structural-candidate",
       "curatedDisplay": false,
       "sources": [
-        "UnityClient/Assets/Resources/Content/scenes/encounters/研究·情报承诺.scm",
+        "UnityClient/Assets/Resources/Content/scenes/scenarios/研究·情报承诺.scm",
         "docs/实验/机制研究/结构候选20.json"
       ],
       "evidence": {
@@ -902,7 +902,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
       "stage": "historical-structural-candidate",
       "curatedDisplay": false,
       "sources": [
-        "UnityClient/Assets/Resources/Content/scenes/encounters/研究·承诺分流.scm",
+        "UnityClient/Assets/Resources/Content/scenes/scenarios/研究·承诺分流.scm",
         "docs/实验/机制研究/结构候选20.json"
       ],
       "evidence": {
@@ -922,7 +922,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
       "stage": "historical-structural-candidate",
       "curatedDisplay": true,
       "sources": [
-        "UnityClient/Assets/Resources/Content/scenes/encounters/研究·追击领先目标.scm",
+        "UnityClient/Assets/Resources/Content/scenes/scenarios/研究·追击领先目标.scm",
         "docs/实验/机制研究/结构候选20.json",
         "docs/实验/机制研究/模式库.json"
       ],
@@ -951,7 +951,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
       "stage": "historical-structural-candidate",
       "curatedDisplay": false,
       "sources": [
-        "UnityClient/Assets/Resources/Content/scenes/encounters/实验·证词掺水.scm",
+        "UnityClient/Assets/Resources/Content/scenes/scenarios/实验·证词掺水.scm",
         "docs/实验/机制研究/结构候选20.json"
       ],
       "evidence": {
@@ -971,7 +971,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
       "stage": "historical-structural-candidate",
       "curatedDisplay": false,
       "sources": [
-        "UnityClient/Assets/Resources/Content/scenes/encounters/实验·枪口认路.scm",
+        "UnityClient/Assets/Resources/Content/scenes/scenarios/实验·枪口认路.scm",
         "docs/实验/机制研究/结构候选20.json"
       ],
       "evidence": {
@@ -991,7 +991,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
       "stage": "historical-structural-candidate",
       "curatedDisplay": false,
       "sources": [
-        "UnityClient/Assets/Resources/Content/scenes/encounters/实验·等买主现身.scm",
+        "UnityClient/Assets/Resources/Content/scenes/scenarios/实验·等买主现身.scm",
         "docs/实验/机制研究/结构候选20.json"
       ],
       "evidence": {
@@ -1011,7 +1011,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
       "stage": "historical-structural-candidate",
       "curatedDisplay": false,
       "sources": [
-        "UnityClient/Assets/Resources/Content/scenes/encounters/实验·封死退路.scm",
+        "UnityClient/Assets/Resources/Content/scenes/scenarios/实验·封死退路.scm",
         "docs/实验/机制研究/结构候选20.json"
       ],
       "evidence": {
@@ -1024,14 +1024,14 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
     {
       "id": "CS2-01",
       "name": "单目标推进",
-      "layer": "encounter-structure",
+      "layer": "scenario-structure",
       "origin": "published-game-analysis",
       "family": "objective-topology",
       "idea": "行动逐步增加同一目标进度；容易退化为机械填条",
       "stage": "documented-comparative-reference",
       "curatedDisplay": false,
       "sources": [
-        "docs/设计研究/Citizen_Sleeper_2_交锋决策模式梳理.md"
+        "docs/设计研究/Citizen_Sleeper_2_Scenario决策模式梳理.md"
       ],
       "evidence": {
         "publishedWorkExample": true,
@@ -1043,14 +1043,14 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
     {
       "id": "CS2-02",
       "name": "阶段解锁",
-      "layer": "encounter-structure",
+      "layer": "scenario-structure",
       "origin": "published-game-analysis",
       "family": "objective-topology",
       "idea": "达成一段才开放下一段；需区分解锁内容与新决策",
       "stage": "documented-comparative-reference",
       "curatedDisplay": false,
       "sources": [
-        "docs/设计研究/Citizen_Sleeper_2_交锋决策模式梳理.md"
+        "docs/设计研究/Citizen_Sleeper_2_Scenario决策模式梳理.md"
       ],
       "evidence": {
         "publishedWorkExample": true,
@@ -1062,14 +1062,14 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
     {
       "id": "CS2-03",
       "name": "并行必需目标",
-      "layer": "encounter-structure",
+      "layer": "scenario-structure",
       "origin": "published-game-analysis",
       "family": "objective-topology",
       "idea": "两个目标都必需，有限行动决定先后与分配",
       "stage": "documented-comparative-reference",
       "curatedDisplay": false,
       "sources": [
-        "docs/设计研究/Citizen_Sleeper_2_交锋决策模式梳理.md"
+        "docs/设计研究/Citizen_Sleeper_2_Scenario决策模式梳理.md"
       ],
       "evidence": {
         "publishedWorkExample": true,
@@ -1081,14 +1081,14 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
     {
       "id": "CS2-04",
       "name": "替代路径",
-      "layer": "encounter-structure",
+      "layer": "scenario-structure",
       "origin": "published-game-analysis",
       "family": "objective-topology",
       "idea": "多条路线可达同一结果，资源与后果决定选路",
       "stage": "documented-comparative-reference",
       "curatedDisplay": false,
       "sources": [
-        "docs/设计研究/Citizen_Sleeper_2_交锋决策模式梳理.md"
+        "docs/设计研究/Citizen_Sleeper_2_Scenario决策模式梳理.md"
       ],
       "evidence": {
         "publishedWorkExample": true,
@@ -1100,14 +1100,14 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
     {
       "id": "CS2-05",
       "name": "基本目标与额外目标",
-      "layer": "encounter-structure",
+      "layer": "scenario-structure",
       "origin": "published-game-analysis",
       "family": "objective-topology",
       "idea": "达到最低成果后继续投入可能获得更多但承担风险",
       "stage": "documented-comparative-reference",
       "curatedDisplay": false,
       "sources": [
-        "docs/设计研究/Citizen_Sleeper_2_交锋决策模式梳理.md"
+        "docs/设计研究/Citizen_Sleeper_2_Scenario决策模式梳理.md"
       ],
       "evidence": {
         "publishedWorkExample": true,
@@ -1119,14 +1119,14 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
     {
       "id": "CS2-06",
       "name": "竞争时钟",
-      "layer": "encounter-structure",
+      "layer": "scenario-structure",
       "origin": "published-game-analysis",
       "family": "pressure-dynamics",
       "idea": "外部事件推进，玩家不犯错也会错过机会",
       "stage": "documented-comparative-reference",
       "curatedDisplay": false,
       "sources": [
-        "docs/设计研究/Citizen_Sleeper_2_交锋决策模式梳理.md"
+        "docs/设计研究/Citizen_Sleeper_2_Scenario决策模式梳理.md"
       ],
       "evidence": {
         "publishedWorkExample": true,
@@ -1138,14 +1138,14 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
     {
       "id": "CS2-07",
       "name": "危险累积",
-      "layer": "encounter-structure",
+      "layer": "scenario-structure",
       "origin": "published-game-analysis",
       "family": "pressure-dynamics",
       "idea": "推进或失手积累风险，改变之后行动的价值",
       "stage": "documented-comparative-reference",
       "curatedDisplay": false,
       "sources": [
-        "docs/设计研究/Citizen_Sleeper_2_交锋决策模式梳理.md"
+        "docs/设计研究/Citizen_Sleeper_2_Scenario决策模式梳理.md"
       ],
       "evidence": {
         "publishedWorkExample": true,
@@ -1157,14 +1157,14 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
     {
       "id": "CS2-08",
       "name": "危机打断",
-      "layer": "encounter-structure",
+      "layer": "scenario-structure",
       "origin": "published-game-analysis",
       "family": "pressure-dynamics",
       "idea": "新增必须关注的问题，原有计划遭到干扰",
       "stage": "documented-comparative-reference",
       "curatedDisplay": false,
       "sources": [
-        "docs/设计研究/Citizen_Sleeper_2_交锋决策模式梳理.md"
+        "docs/设计研究/Citizen_Sleeper_2_Scenario决策模式梳理.md"
       ],
       "evidence": {
         "publishedWorkExample": true,
@@ -1176,14 +1176,14 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
     {
       "id": "CS2-09",
       "name": "目标意义重估",
-      "layer": "encounter-structure",
+      "layer": "scenario-structure",
       "origin": "published-game-analysis",
       "family": "outcome-structure",
       "idea": "新信息或关系要求重新考虑是否仍追求原定目标",
       "stage": "documented-comparative-reference",
       "curatedDisplay": false,
       "sources": [
-        "docs/设计研究/Citizen_Sleeper_2_交锋决策模式梳理.md"
+        "docs/设计研究/Citizen_Sleeper_2_Scenario决策模式梳理.md"
       ],
       "evidence": {
         "publishedWorkExample": true,
@@ -1325,7 +1325,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
         "mathematical": true,
         "humanVerified": false
       },
-      "note": "仅局部状态冻结、无随机；不是一套新的原创交锋模式或完整玩家体验；X01-LONG独立新数值方案：A初始2/3、B0/4，先两手准备，后公开危机再两手响应；低风险q=1/4最优SIDE×2→危机FIX,A期望35/2，高风险q=3/4最优B×2→危机B,B期望17；强条件阈值q>1/2完全解释。不是对旧局部奖励作同协议数值续推。"
+      "note": "仅局部状态冻结、无随机；不是一套新的原创Scenario模式或完整玩家体验；X01-LONG独立新数值方案：A初始2/3、B0/4，先两手准备，后公开危机再两手响应；低风险q=1/4最优SIDE×2→危机FIX,A期望35/2，高风险q=3/4最优B×2→危机B,B期望17；强条件阈值q>1/2完全解释。不是对旧局部奖励作同协议数值续推。"
     },
     {
       "id": "X02",
@@ -1355,7 +1355,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
       "curatedDisplay": false,
       "sources": [
         "docs/实验/机制研究/批次/长期研究-启动-组合诊断/研究记录.md",
-        "docs/设计研究/Citizen_Sleeper_2_交锋决策模式梳理.md",
+        "docs/设计研究/Citizen_Sleeper_2_Scenario决策模式梳理.md",
         "docs/实验/机制研究/批次/2026-10-13-目标语义与行动权对照/研究记录.md",
         "docs/实验/机制研究/批次/2026-10-13-目标语义与行动权对照/无答案观察卡.md",
         "tools/content-validator/experiments/pattern_objective_affordance_20261013.py"
@@ -1522,7 +1522,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
       "id": "PL-W02",
       "name": "持续临时目标改变跨日注意力",
       "origin": "new-local-experiment",
-      "layer": "cross-encounter-architecture",
+      "layer": "cross-scenario-architecture",
       "family": "并行目标/期限/行动预算",
       "idea": "每天新的短期任务有时到来；过去在长期目标留下的进度会改变今天应接临时任务还是赶长期目标，临界时可主动放弃原目标",
       "stage": "exact-three-day-model-with-observed-branch-and-strong-rule-counterexample; no human",
@@ -1542,7 +1542,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
     {
       "id": "PL-F01",
       "name": "行动创造下一日后续目标",
-      "layer": "cross-encounter-combination",
+      "layer": "cross-scenario-combination",
       "origin": "new-local-experiment",
       "family": "内生机会/跨日目标图",
       "idea": "玩家今天完成U，会主动生成明天独占一行动的R；晚一天的目标不是外部独立随机给出",
@@ -1582,7 +1582,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
     {
       "id": "PL-F02",
       "name": "新后续任务撤销旧目标结算资格",
-      "layer": "cross-encounter-combination",
+      "layer": "cross-scenario-combination",
       "origin": "new-local-experiment",
       "family": "目标权利/不可逆承诺",
       "idea": "R从一个额外机会变为会取消长期B终局结算权的机会；在自然可达day3 B=2/R可用/无新U时，行动从接R反转为保护B",
@@ -1601,8 +1601,8 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
     },
     {
       "id": "PL-RGT01",
-      "name": "跨交锋访问资格的可逆性与简单切换规则",
-      "layer": "cross-encounter-negative-boundary",
+      "name": "跨Scenario访问资格的可逆性与简单切换规则",
+      "layer": "cross-scenario-negative-boundary",
       "origin": "new-local-experiment",
       "family": "行动权限/未来机会匹配",
       "idea": "当前许可A/B决定多日匹配工作是否合法；可在当前行动换许可一次，但高持续性下的首次错配换、低持续性下保持等简单口诀已解释全部测试值",
@@ -1622,7 +1622,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
     {
       "id": "PL-ACT01",
       "name": "协作者公开外部机会改变玩家跨轮投入",
-      "layer": "cross-encounter-actor-composition",
+      "layer": "cross-scenario-actor-composition",
       "origin": "new-local-experiment",
       "family": "独立主体效用/跨阶段注意力",
       "idea": "伙伴保留一次自身稀缺行动权，A/B/HOLD/OUT按自身终局收益最优响应；第二轮公开OUT外部机会使玩家在相同正常可达状态严格A↔B反转",
@@ -1637,12 +1637,12 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
         "native": false,
         "humanVerified": false
       },
-      "note": "公开信号早到根玩家7/2、伙伴17/2；无OUT玩家6；OUT第三轮才知道玩家3；8份事先公开承诺固定动作最佳AAA为3（不同承诺协议）；两类伙伴tie-break同7/2。既不是R510私有信念也不等于真实社会交锋，简短条件口诀全优。"
+      "note": "公开信号早到根玩家7/2、伙伴17/2；无OUT玩家6；OUT第三轮才知道玩家3；8份事先公开承诺固定动作最佳AAA为3（不同承诺协议）；两类伙伴tie-break同7/2。既不是R510私有信念也不等于真实社会Scenario，简短条件口诀全优。"
     },
     {
       "id": "PL-REL01",
       "name": "关系许可退出窗口下的半成品保全",
-      "layer": "cross-encounter-composition",
+      "layer": "cross-scenario-composition",
       "origin": "new-local-experiment",
       "family": "他者许可/成果暴露/保全时点",
       "idea": "另一个主体可以为自身更好的机会撤回持续许可；此前USE半成品需要在许可消失前SECURE并放弃完整A，否则在合作许可仍有效时追求完整成果",
@@ -1682,12 +1682,12 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
     },
     {
       "id": "PL-REL03",
-      "name": "跨交锋半成品改造为未来操作资格的现场启用反证",
-      "layer": "cross-encounter-negative-boundary",
+      "name": "跨Scenario半成品改造为未来操作资格的现场启用反证",
+      "layer": "cross-scenario-negative-boundary",
       "origin": "new-local-experiment",
       "family": "可移植物件/提前准备与现场启用",
       "idea": "将REL01的SECURE立即分数改为下一场M专属WORK资格；若能到场用同成本ENABLE，提前SECURE被等待弱支配；只有M须在第一手WORK，早备才可能有优势",
-      "stage": "exact-two-encounter-Fraction-with-single-slot-deadline-and-public-prior; no human",
+      "stage": "exact-two-scenario-Fraction-with-single-slot-deadline-and-public-prior; no human",
       "curatedDisplay": false,
       "sources": [
         "docs/实验/机制研究/批次/2026-10-13-关系许可与成果保全/后续行动权反证.md",
@@ -1703,7 +1703,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
     {
       "id": "R342",
       "name": "条件合同的回应与跨期再协商",
-      "layer": "encounter-composition",
+      "layer": "scenario-composition",
       "origin": "ssnoir-research",
       "family": "承诺/回应/后续权利",
       "idea": "先提A/B、接受/反建议或延期；未来需求揭晓后按代价改约或守约，条件策略可产生可达分歧",
@@ -1760,7 +1760,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
     {
       "id": "PL-NEG01",
       "name": "可信履约与跨期恩惠沉没的双重边界",
-      "layer": "cross-encounter-commitment-boundary",
+      "layer": "cross-scenario-commitment-boundary",
       "origin": "new-local-experiment",
       "family": "可信交换/后期自利回应",
       "idea": "非约束口头未来支付不足以换合作；已给对方的好处成为沉没收益时也不能强制未来授权；若有可执行约束则两方可能事前合作",
@@ -1908,7 +1908,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
     {
       "id": "PL-GOAL01",
       "name": "主动发现的新目标被完整条件菜单同构覆盖",
-      "layer": "cross-encounter-option-boundary",
+      "layer": "cross-scenario-option-boundary",
       "origin": "new-local-experiment",
       "family": "自主探索/新目标/机会与义务",
       "idea": "先花一手ASK有概率打开高/低新任务，之后按观察到的状态决定放弃旧事、接新事；若完整同成本条件菜单已有所有对应合法路线，主观发现感不自动构成新的策略循环",
@@ -2113,16 +2113,16 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
     },
     {
       "id": "PL-COUP01",
-      "name": "真实双向跨交锋规则仍被一条单线策略旁路",
+      "name": "真实双向跨Scenario规则仍被一条单线策略旁路",
       "layer": "gameplay-architecture-negative",
       "origin": "new-local-experiment",
-      "family": "跨交锋操作生产/凭据归属/关闭行动权/简单策略压制",
+      "family": "跨Scenario操作生产/凭据归属/关闭行动权/简单策略压制",
       "idea": "操作规则生成A/B证明，提前提交A反过来禁止制作B；即使两级规则双向影响合法性，某些正常开局下首手RUN获得A证据、第二手提交A、后五手全部SIDE已全优",
       "stage": "exact-seven-turn-two-variant-Fraction-DP-three-priors-two-initial-phases-with-strong-constructive-bypass; no-human",
       "curatedDisplay": false,
       "sources": [
-        "docs/实验/机制研究/批次/2026-10-13-跨期操作与可撤回承诺/跨交锋拼接反证.md",
-        "tools/content-validator/experiments/pattern_cross_encounter_coupling_20261013.py"
+        "docs/实验/机制研究/批次/2026-10-13-跨期操作与可撤回承诺/跨Scenario拼接反证.md",
+        "tools/content-validator/experiments/pattern_cross_scenario_coupling_20261013.py"
       ],
       "evidence": {
         "mathematical": true,
@@ -2174,7 +2174,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
     {
       "id": "PL-ATN03",
       "name": "部分进度损毁后的分散准备与适应性挽救",
-      "layer": "encounter-composition",
+      "layer": "scenario-composition",
       "origin": "new-local-experiment",
       "family": "成果脆弱性/危机打断/跨阶段准备/双目标保全",
       "idea": "两手准备A/B后有可观察的单边或双边已投入进度全失，后三手根据损毁对象改做不同工作，失去两项时不能兼得；保留损失、不同目标完成机会的实际后果而非新动作按钮",
@@ -2270,7 +2270,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
       "sources": [
         "docs/实验/机制研究/批次/2026-10-13-自利救援与改选窗口/R54原规则可达性复核.md",
         "tools/content-validator/experiments/pattern_r54_live_reachability_20261013.py",
-        "UnityClient/Assets/Resources/Content/scenes/encounters/研究·追击领先目标.scm",
+        "UnityClient/Assets/Resources/Content/scenes/scenarios/研究·追击领先目标.scm",
         "docs/实验/机制研究/反馈/inbox/SSNoir-feedback-R54-20261009-062528-43765ce6ee.json"
       ],
       "evidence": {
@@ -2283,7 +2283,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
     {
       "id": "PL-PS01",
       "name": "受损双目标与有条件援助确实产生补救分叉，但仍被普通B容量全复刻",
-      "layer": "encounter-composition-positive-with-substitution-limit",
+      "layer": "scenario-composition-positive-with-substitution-limit",
       "origin": "new-local-exact-experiment",
       "family": "成果损毁/危机后分诊/自利伙伴/同成本容量对照",
       "idea": "两手分散准备、独立擦除A/B成果后，公开协作者自身外部机会是否允许其用一手救B；低机会可在双损时同时保两项，高机会必须放弃其中一项；若备用工具在同一时点提供相同条件B工作量，全部结果等价。",
@@ -2779,16 +2779,16 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
     {
       "id": "PL-META02",
       "name": "物理终局可达以外应核查达成该结果后仍有多少行动余裕",
-      "layer": "research-method-residual-slack-and-encounter-causal-audit",
+      "layer": "research-method-residual-slack-and-scenario-causal-audit",
       "origin": "cross-family-source-grounded-synthesis",
       "family": "目标拓扑/行动非交换性/切换负担/信息窗口/余裕/玩家真实关心",
-      "idea": "跨ATN/OPS/HEDGE/CLOCK/FOCUS/STAKE与本项目CS2交锋决策模式设计归纳，提出六层检查：目标、顺序非交换、重配置成本、实际可达、完成后行动余裕、目标意义和他者意愿。FOCUS三条前缀虽A/B均可完成仍有不同SIDE余裕和根值。",
+      "idea": "跨ATN/OPS/HEDGE/CLOCK/FOCUS/STAKE与本项目CS2Scenario决策模式设计归纳，提出六层检查：目标、顺序非交换、重配置成本、实际可达、完成后行动余裕、目标意义和他者意愿。FOCUS三条前缀虽A/B均可完成仍有不同SIDE余裕和根值。",
       "stage": "cross-source-conceptual-diagnostic-not-new-numeric-or-human-experiment",
       "curatedDisplay": false,
       "sources": [
         "docs/实验/机制研究/批次/2026-10-13-注意力切换与计划余裕/跨模式决策结构诊断.md",
         "docs/实验/机制研究/批次/2026-10-13-注意力切换与计划余裕/研究记录.md",
-        "docs/设计研究/Citizen_Sleeper_2_交锋决策模式梳理.md"
+        "docs/设计研究/Citizen_Sleeper_2_Scenario决策模式梳理.md"
       ],
       "evidence": {
         "mathematical": true,
@@ -3240,7 +3240,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
       "layer": "cross-family-causal-affordance-graph-and-decision-audit",
       "origin": "source-grounded-synthesis-of-PRF-HEDGE-FOCUS-CUST-GRC-GOAL-HAND-RETENTION",
       "family": "动作影响未来其他动作/非交换顺序/安全普通替代/真实开局利用/实际玩家目标",
-      "idea": "目标节点与箭头数量不足以描述交锋：需说清做A如何改写未来B的合法性、行动税、可见信息、结果归属、截止窗口、其他主体的独立参与、生成目标或半成品保存。顺序AB和BA不交换仅是因果线索；还须检查固定顺序是否全优、安全等消息再做是否覆盖、普通同成本菜单是否复刻、真实起点是否会选用、受保护目标是否有独立结果、人类能否理解。",
+      "idea": "目标节点与箭头数量不足以描述Scenario：需说清做A如何改写未来B的合法性、行动税、可见信息、结果归属、截止窗口、其他主体的独立参与、生成目标或半成品保存。顺序AB和BA不交换仅是因果线索；还须检查固定顺序是否全优、安全等消息再做是否覆盖、普通同成本菜单是否复刻、真实起点是否会选用、受保护目标是否有独立结果、人类能否理解。",
       "stage": "cross-family-source-audit-plus-RETENTION-two-access-protocols; no-independent-peer-or-human",
       "curatedDisplay": false,
       "sources": [
@@ -3460,7 +3460,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
       "origin": "author-exhaustive-20261014-rational-help-and-two-contract-typed-matching",
       "curatedDisplay": false,
       "sources": [
-        "docs/实验/机制研究/批次/2026-10-14-目标改变与跨交锋凭据/研究记录.md",
+        "docs/实验/机制研究/批次/2026-10-14-目标改变与跨Scenario凭据/研究记录.md",
         "tools/content-validator/experiments/pattern_mutable_goals_crosscontract_20261014.py"
       ],
       "evidence": {
@@ -3480,7 +3480,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
       "origin": "author-exhaustive-20261014-rational-help-and-two-contract-typed-matching",
       "curatedDisplay": false,
       "sources": [
-        "docs/实验/机制研究/批次/2026-10-14-目标改变与跨交锋凭据/研究记录.md",
+        "docs/实验/机制研究/批次/2026-10-14-目标改变与跨Scenario凭据/研究记录.md",
         "tools/content-validator/experiments/pattern_mutable_goals_crosscontract_20261014.py"
       ],
       "evidence": {
@@ -3530,11 +3530,11 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
     {
       "id": "PL-SIG01",
       "name": "敌手两次相遇仍可让首次攻击零信息：玩家未来防护使对方策略性伪装",
-      "layer": "strategic-reencounter-signal-and-costly-verification",
+      "layer": "strategic-rescenario-signal-and-costly-verification",
       "family": "稳定对手私有偏好/行为作为策略信号/贝叶斯后验/可信证明/防护动作窗口/全保险强反例",
       "idea": "两种等可能私人A/B偏好，首阶段真实目标额外自利值r1、虚假0；第二阶段打偏好目标8、另一目标1、对被保护目标减5，故任意保护时敌手都严格打真实偏好。玩家见首次指向哪边再保护一边。证明一份对称混合序贯均衡：各类型首手A/B各1/2，消息与类型独立，后验仍各1/2，玩家见消息以q=(r+5)/10=3/5保护消息侧；敌手两种首招都自利无差异，玩家第二阶段预期损失11/2。天真总保护首次目标会让敌手严格伪装，导致损失8而非均衡；若更改首阶段真实目标自利收益r6，可得严格可信的分离首次行为，损失3（不同私人收益协议）。原r1下及时真类型报告成本1使总损失4，报告迟到需6.5，一手全保盾成本3可支配报告。这里只证明存在一种对称混合均衡，不是所有均衡唯一。",
       "stage": "verified-Fraction-symmetric-mixed-sequential-equilibrium-witness-with-two-type-best-responses-on-path-Bayes-independent-info-and-timely-report-safe-substitutes; author-only-no-human",
-      "origin": "author-exact-two-encounter-signalling-equilibrium-and-voluntary-stake-replay-20261014",
+      "origin": "author-exact-two-scenario-signalling-equilibrium-and-voluntary-stake-replay-20261014",
       "curatedDisplay": false,
       "sources": [
         "docs/实验/机制研究/批次/2026-10-14-策略性伪装与自选成果/研究记录.md",
@@ -3553,7 +3553,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
       "family": "自愿目标/不可交换成果/跨场合法动作/完整条件策略/无答案体验/万能SAFE同规则对照",
       "idea": "原样重算CROSS两阶段各2手、A/B需求公开时点、合法WORK/SIDE/DIRECT/SUBMIT和普通结果。无人类参与时只能模拟目标A/B/BOTH/FULL_C/FLEX：原根依次29/2、27/2、11、31/2、31/2；增加一次完整C的普通SAFE后依次17、16、11、17、17。硬目标路径全部仍是无约束FLEX子集。新增自包含HTML参与者先自述关切而非先看数学最优，再玩4手、记录后到需求与结果、可复制纯本机观察轨迹；Node三条真实脚本离线行为验证。没有实际用户反馈，所以不能认证玩家自愿想保哪一项；它是研究的体验工具而非新原语、正式Debug或已部署Pages。",
       "stage": "verified-Fraction-complete-same-CROSS-policy-trees-and-Node-vm-three-trace-html-logic-smoke; untested-by-human-real-browser-or-native",
-      "origin": "author-exact-two-encounter-signalling-equilibrium-and-voluntary-stake-replay-20261014",
+      "origin": "author-exact-two-scenario-signalling-equilibrium-and-voluntary-stake-replay-20261014",
       "curatedDisplay": false,
       "sources": [
         "docs/实验/机制研究/批次/2026-10-14-策略性伪装与自选成果/研究记录.md",
@@ -4473,7 +4473,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
     {
       "from": "PL-OPS01",
       "to": "PL-CLAIM03",
-      "relation": "open-cross-encounter-composition",
+      "relation": "open-cross-scenario-composition",
       "reason": "后续可试操作映射实际生成不同合法凭据、承诺又反馈修改可用操作，否则仅拼装两个孤立钟"
     },
     {
@@ -4534,7 +4534,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
       "from": "CS2-08",
       "to": "PL-ATN03",
       "relation": "mature-crisis-interruption-composition",
-      "reason": "危机改变既有工作的命运，推动处理次序重选；属于作品分析归纳的可用交锋结构"
+      "reason": "危机改变既有工作的命运，推动处理次序重选；属于作品分析归纳的可用Scenario结构"
     },
     {
       "from": "CS2-03",
@@ -4605,7 +4605,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
     {
       "from": "PL-ATN03",
       "to": "PL-RV01",
-      "relation": "feasible-mid-encounter-replanning",
+      "relation": "feasible-mid-scenario-replanning",
       "reason": "ATN03在危机公开后保留3手和真实不同补救法；RV01检查目标实际还来得及完成的必要条件"
     },
     {
@@ -4683,7 +4683,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
     {
       "from": "PL-PS01",
       "to": "PL-COUP01",
-      "relation": "cross-encounter-non-bypass-contrast",
+      "relation": "cross-scenario-non-bypass-contrast",
       "reason": "COUP01可由单线RUN A→CLAIM A全优旁路；PS01单线完整固定17小于动态71/4，组合对正常最优有用却仍非新原语"
     },
     {
@@ -6063,7 +6063,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
     {
       "from": "PL-SIG01",
       "to": "PL-ADV01",
-      "relation": "second-encounter-opponent-incentives-can-nullify-first-behavior-information",
+      "relation": "second-scenario-opponent-incentives-can-nullify-first-behavior-information",
       "reason": "ADV一次攻击的最优准备不需提前类型；SIG延长成两次出手后，对方若预见玩家将按第一次保护，首招信号完全可能与类型独立（均衡后验各1/2），不能把二次出现自动说成学习。"
     },
     {
@@ -6138,7 +6138,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
     "curatedDisplayMappedCount": 6,
     "cs2AnalyticalPatterns": 9,
     "unconvertedHistory": "关系索引中的其他R批次、数学负例和组合应按主题逐步纳入；不能据本地图未出现就认定没有价值",
-    "additionalExperimentalCompositions": "PL-C01/PL-C02/PL-C03已做最小模型、PL-C04仅概念问题；与另一研究线的C01/C02/C03区别命名；PL-Q01/D01/W01另有3个独立模型及消融和负面边界；PL-W02新增连续三天注意力容量组合，最强简明口诀和变更容量边界明确；F1/F2/D2三项同源跨家族与充分边界反证，不增精选；RGT01/ACT01用各自精确逆推补充许可资源与自利协作者正负证据，无真人；REL01/REL02四轮精确博弈与私有信号消融已完成（同原语条件组合；不改变精选六或Debug）；REL03后续通行凭据仅真实首手截止窗口有正准备选择价值、普通窗口弱支配；未证独立新玩法；NEG01—05双方自利协商五项精确反证；R342/R430/R478原生历史首次结构化归图，均非真人。；NEG06双回合私人回应DOM全十路，X01-LONG准备→事件→响应两段完整枚举及136条合法UI路径，均一行规则全优，无真人；X03 hard disable vs costly defiance两种不同动作合法性协议在完整可达子博弈仍同最优；无真人意义证据；STG01共4种规则组合×完整路径40，因果未来菜单5对纯文本菜单1，仅网页逻辑回归，不是互动/情感新模式认证；PT01四回合双目标压转与14短策略强对照/网页试玩；INF-P01 cap2/3贝叶斯模型覆盖72+96局部公开状态信息值0；未改变历史478；GOAL01七个p×可选/强制义务、同树强预列菜单；DISC01三手有理数belief-DP、单份可靠度q后验、三种时点/换路与网页合法路径，不动历史478或精选；REC01四手四分之一禁A/B×81信号历史、16条强固定序列、一步前瞻全优及六种因果消融；REC03各目标完成概率独立统计，且最优总体策略B完成率低于简单交替；无真人；SEM01—04动作产出对象改道与材料消费改道，两项均被同成本完整菜单追平，短条件程序全优，无真人。；横向读R366函数编辑与R422预编译强对照：持久编辑可超过固定日程却不一定超过同成本完整工具，源实验非本轮重复执行。；OPS01六手动态维护与同成本SET/一手前瞻全等（含2048独立实际输入历史），CLAIM四手付费撤回×真实A早窗口互补、已给HARD/无加成消融及无窗口强菜单；均不认证新独立原语。；COUP01七手把OPS操作实际变成A/B凭据、CLAIM A禁止制作B，仍在起始phase0三类需求先验下被RUN A→CLAIM A→SIDE×5一行策略全优；局部可达差异不等于有价值的双向注意力循环。；ATN01/02检测4手交换律、1296条件序列与20个Pareto成果向量仍由固定计划追平；ATN03/04双任务已投入进度遭公开单/双损5手模型动态33/2胜固定15，提前预知35/2，单损仍可保证双目标，归入成熟危机保全组合，真人缺席。；ACT-R01/02伙伴真自利救B(3)vs外部工作(2/4)使玩家双损低/高报价严格改选，默认动态51/4 vs迟揭49/4，却与条件备用B位逐动作同构；RV01简化4手R54式A3/B5可达上界t3仅18/64前缀两路线仍各有完成可能，结合旧R37/R50/R54真实反馈提出目标意义×改选容量双审核；RV02旧P18的极简上次路径追踪被固定ABABA全优。；RV03读原R54 Scene后用真实行动/追击次序穷举：第2手后33条活跃形式历史里9可分别达成双终局，第3手后196条中0可分别达成双终局（72仅甲、12仅乙、112无终局）；无骰面概率，非真人概率。；PS01将ATN03实际受损成果与ACT自利援助组合：五手动态71/4 vs ATN03无援33/2 vs五手固定17，分目标(1,7/8,3/4)；双损低报价可保两项目标，高报价必须放弃B，外部信号晚一手零价值；同条件B备用行动容量全状态完全替代。；GRC01/02自利伙伴最初愿帮（玩家11、伙伴3），玩家未来新增低于原成本3的BYPASS使伙伴初始EXIT（玩家3、伙伴5/2），可执行HIGH条件合同或排他承诺恢复11；GRC03/04同样提前公开HIGH/LOW在w5/2令玩家11跌至17/2、在w7/2令玩家3升至17/2；跨族审计区分动作合法、物理终局可达、伙伴策略同意、人类关切。；TRL01生产性试做提供真实产出1且耗时1，诚实信号下直接SIDE2、纯检验2、边做边看3；TRL02低能力主体花1修饰PASS(1/4→3/4)以谋求未来HIRE4，唯一纯均衡下两类型信号池化、试做总值退至2；TRL03修饰成本2存在两纯均衡值2或3、成本3诚实3，q诚实准确度1/2→1试做值2→4。属DISC/R478/NEG04成熟组合边界，不认证新原语。；PRF01 A真实工作副产C凭据3手DP29/2 vs固定14，A+ENABLE同成本同值，始终开放或由B工作附资格DP31/2；CUST01不可再造原件A/C局原件12、COPY15、可复用31/2，但开放独立B后所有版权制度动态19、固定17，证明目标旁路；PUB01公开证据让自利第三方撤B许可动态14 vs固定19/2，但普通排他菜单逐动作同构，取消互斥动态/固定16。均成熟组合/负例，无新人类/Unity。；STAKE01对原CUST不改数值的全条件策略和四维目标反证：original/copy旧根均19、固定均17，但可达向量68/82、Pareto18/23，保护A所有HIGH/LOW时原17/copy37/2/reusable19；STAKE04首手后公布保护A/B时copy75/4、原版18，提前公布无增益。META回归PRF22/PUB10状态真动作同构与CUST仅同根不同可行结果，纠正旧“COPY全无价值”的过强读法，无真人。；补充STAKE向量语义审计：C物理SHOW交付不等于HIGH时有价值交付。original/copy物理四维结果68/82、Pareto18/23；按HIGH∧SHOW有效C结果67/72、Pareto15/17；保A约束17 vs37/2不变。；TRIG01四手首次A推进引发SAFE/RISK修补责任，动态15胜固定14，首手前预知风险仍15，无风险19；一行公开条件计划全优，归入R37/P11而不是新原语。OPEN01五手两可认领工作高14低1，打开后三手未履行损失4，付一手DROP；动态47/4胜固定19/2，只许单工作19/2、无DROP41/4、无违约损失25/2、价值推迟到首次WORK39/4、提前知道双工作53/4、绝对必须履行19/2；都属于GOAL01×注意力/退出/信息时点的成熟组合，无新人类。；HEDGE01五手首手A唯一机会+LOW A5/LOW B0+三次行动后截止，允许双LIVE的动态51/4严格大于禁止并行47/4与最强固定23/2；A低时先OPEN B保留A，B高做B14、B低回来做A5。HEDGE02若A以后也可开，先B失败再开A的完全串行策略同得51/4，说明全局并发必要性依赖早窗口；同分方案PA/PB不同(并发3/4,1/4，串行1/2,1/2)，非动作同构。deadline2或无DROP/无B时并发优势消失。无真人。；CLOCK四语义冻结HEDGE任务而改时钟：global并发51/4/串行47/4，double_if_overlap两者47/4，neglect_only和contested_only仍51/4/47/4；去掉A早开窗口后四语义并发/串行都51/4，全部强固定23/2。DICE公开手牌H2,H2,L1,L1、A3奖励9、B2奖励6、首A有RISK2需修；动态13优于1536种强固定23/2，高骰不得FIX或修复质量不区分时25/2，SAFE分支A+B+SIDE16，RISK高骰FIX/低骰补A+SIDE10。熟悉P02×P11/R37模式边界，无新真人与新原语。；FOCUS 六手A/B各需3手、焦点改向耗1、需求A/B后公布，前两手SIDE非法，动态41/2胜280合法固定及15625条容错固定全最优15；TO与同成本SETUP在89个可达状态完全相同，免费改向A3+B3固定24；开放早期SIDE等待22>主20.5，证明安全等待旁路。需求t0/1/2/3/4公布DP 22/21/41/2/20/19；t2/3/4最优前缀后BFS两目标均可达，剩余手数与最短用手依次(4;1,4),(3;3,3),(2;2,2)，需要记录达成某结局后行动余裕而非仅二元可达。META02六层抽象交锋审计，仅设计归纳，不当真人反馈和新原语。；HAND四手A3奖12/B2奖9/SIDE1，SEND1手启动GOOD后台2进度或BAD1进度等概率，及时报告动态17胜固定15和禁助手13；质量在SEND后0/1/2/3/4行动才公开时根17,17,33/2,15,15，反馈窗口晚到可使改投收益逐步消失。必须等后台至少两手再花ACCEPT1手验收才能让代理产能计入A时，四手根13、五手21，等于同期限纯亲自工作；五手无需验收根43/2。SEND+ACCEPT耗2手代理好时最多给A2，无不可替代能力时委托被普通自身施工/机器替代。META03跨HAND/ACT/GRC区分产能事实、报告、成果可结算权、伙伴自主参加、玩家真正关心五层，非新人类和新独立原语。；CERT新增A达标且领取后才可结算独立资格C奖励10，4/5/6手helper与等价robot根45/2、27、63/2，对比一手REGISTER只给C根22/23/31、无C根13/21/22；去掉C价值4/5手助手验收又根13/21。ROUTE五手后到需求，付一手改派机器根53/2、禁止改派但安全SIDE等待再START根26、免费自动跟随27，固定全17；增值有限、仍普通工具。CARRY两周期2+3手PLEDGE暂时完成A，第二周期FOLLOW1/2未知且随机U需两手，允许PLEDGE与不允许的全局动态/固定根均18，强制先PLEDGE SIDE仅33/2，被不承诺固定A A→A U U支配。META04区分资格新增合法终局、晚开工作全局旁路与跨周期复杂义务无全局采用价值。模型本地通过，独立原语未认证，真实人类未观察。；INV01—06四手隐藏R/B源等半，SHIELD保A无损但无直接痕迹，WATCH得准确来源却1/2有不可逆损害，后3手PROBE可得到正确率3/4线索、一次STOP和SIDE。三条透明政策终局向量(无伤,正确STOP,SIDE)=(1,3/4,1),(1,1/2,2),(1/2,1,2)，互不支配；权重6/12/1动态17固定14偏WATCH，权重12/8/1动态19固定18偏SHIELD。硬无伤要求WATCH不可选，前一权重下根16；保护后免费得到真来源根20，花一手安全完美探查根19，强信息菜单压平两难。未来STOP权重4N（安全8/SIDE1）N1..4的根12/15/18/22只是未来收益折算、非跨期动作模型。INV没有自主对手，直接痕迹并非CERT的可结算证据；成熟P09×P03×STAKE组合且不自动精选或Debug。；PART选择性保护的缺席证据：当原事件必然q1，隐藏来源R/B，PARTIAL_R只保护R，B事件或没有事件都能确定来源，终局(无伤3/4,STOP正确1,SIDE2)严格优于WATCH(1/2,1,2)；价值根PARTIAL37/2 vs WATCH17，原INV首手菜单不含PARTIAL所以并非旧计算错误。事件基线q=1/2时NO_EVENT后PARTIAL后验R2/3、WATCH后验R1/2，完整PROBE后续价值不同：FULL16 WATCH33/2 PARTIAL65/4，反而WATCH略好；q1/4时WATCH65/4 PARTIAL129/8。单次MAP准确率均(1+q)/2不等于相同序贯信息价值。没有真人/独立原语。；2026-10-14 GROUP四源q1可选择保护任意集合，事件未保护则精确来源但有1/2伤害，三手4源均等、无伤6/STOP12/SIDE1，全子集或只护一个的完整DP均67/4，不做任何TEST11；单点保护即完美辨源、无伤5/8、SIDE1；完全辨源时至少(N−1)/N暴露的全NO_EVENT日志下界，N2..5验证。RECORD四手R/B q1，TEST选择性保护后无事本身能准确推断源，但NO_EVENT只有提前REGISTER才可提交PROOF10：无登记根22，预登记45/2，同成本LICENSE全同构45/2，事后只在NO_EVENT补登记23，安全完美认可调查25；对应全10^4固定最佳18、37/2、37/2、19、21。结论为单次试探全局旁路和提交资格成熟组合，不宣称新原语或真人认可。；2026-10-14 RETENTION易衰减A3完成12、每日U半概率给4/SIDE1、未完成A转别事流失1，花一手LOCK可永久保存未完成进度：5/6/7天有无LOCK根同145/8、333/16、375/16；8天有LOCK1669/64、无1667/64，仅多1/32，最优到达LOCK历史第0日做A/第1日无U概率1/4。若明确更改A工作许可为仅第0/1/4日，则五天有LOCK29/2、无LOCK25/2，因为早期进度否则停工流失而A不可完；最优仍是固定WORK WORK LOCK （U或SIDE） WORK，不能按新合法结果认定新反复决策原语。META07横向对合法性/操作税/信息生成/成果资格/时限/他者决定/生成目标/进度保存八类因果依赖边做证据层校准：AB与BA非交换仅必要线索，须检验强普通策略/匹配菜单/真实开局及玩家关切。不动精选/候选/Debug。",
+    "additionalExperimentalCompositions": "PL-C01/PL-C02/PL-C03已做最小模型、PL-C04仅概念问题；与另一研究线的C01/C02/C03区别命名；PL-Q01/D01/W01另有3个独立模型及消融和负面边界；PL-W02新增连续三天注意力容量组合，最强简明口诀和变更容量边界明确；F1/F2/D2三项同源跨家族与充分边界反证，不增精选；RGT01/ACT01用各自精确逆推补充许可资源与自利协作者正负证据，无真人；REL01/REL02四轮精确博弈与私有信号消融已完成（同原语条件组合；不改变精选六或Debug）；REL03后续通行凭据仅真实首手截止窗口有正准备选择价值、普通窗口弱支配；未证独立新玩法；NEG01—05双方自利协商五项精确反证；R342/R430/R478原生历史首次结构化归图，均非真人。；NEG06双回合私人回应DOM全十路，X01-LONG准备→事件→响应两段完整枚举及136条合法UI路径，均一行规则全优，无真人；X03 hard disable vs costly defiance两种不同动作合法性协议在完整可达子博弈仍同最优；无真人意义证据；STG01共4种规则组合×完整路径40，因果未来菜单5对纯文本菜单1，仅网页逻辑回归，不是互动/情感新模式认证；PT01四回合双目标压转与14短策略强对照/网页试玩；INF-P01 cap2/3贝叶斯模型覆盖72+96局部公开状态信息值0；未改变历史478；GOAL01七个p×可选/强制义务、同树强预列菜单；DISC01三手有理数belief-DP、单份可靠度q后验、三种时点/换路与网页合法路径，不动历史478或精选；REC01四手四分之一禁A/B×81信号历史、16条强固定序列、一步前瞻全优及六种因果消融；REC03各目标完成概率独立统计，且最优总体策略B完成率低于简单交替；无真人；SEM01—04动作产出对象改道与材料消费改道，两项均被同成本完整菜单追平，短条件程序全优，无真人。；横向读R366函数编辑与R422预编译强对照：持久编辑可超过固定日程却不一定超过同成本完整工具，源实验非本轮重复执行。；OPS01六手动态维护与同成本SET/一手前瞻全等（含2048独立实际输入历史），CLAIM四手付费撤回×真实A早窗口互补、已给HARD/无加成消融及无窗口强菜单；均不认证新独立原语。；COUP01七手把OPS操作实际变成A/B凭据、CLAIM A禁止制作B，仍在起始phase0三类需求先验下被RUN A→CLAIM A→SIDE×5一行策略全优；局部可达差异不等于有价值的双向注意力循环。；ATN01/02检测4手交换律、1296条件序列与20个Pareto成果向量仍由固定计划追平；ATN03/04双任务已投入进度遭公开单/双损5手模型动态33/2胜固定15，提前预知35/2，单损仍可保证双目标，归入成熟危机保全组合，真人缺席。；ACT-R01/02伙伴真自利救B(3)vs外部工作(2/4)使玩家双损低/高报价严格改选，默认动态51/4 vs迟揭49/4，却与条件备用B位逐动作同构；RV01简化4手R54式A3/B5可达上界t3仅18/64前缀两路线仍各有完成可能，结合旧R37/R50/R54真实反馈提出目标意义×改选容量双审核；RV02旧P18的极简上次路径追踪被固定ABABA全优。；RV03读原R54 Scene后用真实行动/追击次序穷举：第2手后33条活跃形式历史里9可分别达成双终局，第3手后196条中0可分别达成双终局（72仅甲、12仅乙、112无终局）；无骰面概率，非真人概率。；PS01将ATN03实际受损成果与ACT自利援助组合：五手动态71/4 vs ATN03无援33/2 vs五手固定17，分目标(1,7/8,3/4)；双损低报价可保两项目标，高报价必须放弃B，外部信号晚一手零价值；同条件B备用行动容量全状态完全替代。；GRC01/02自利伙伴最初愿帮（玩家11、伙伴3），玩家未来新增低于原成本3的BYPASS使伙伴初始EXIT（玩家3、伙伴5/2），可执行HIGH条件合同或排他承诺恢复11；GRC03/04同样提前公开HIGH/LOW在w5/2令玩家11跌至17/2、在w7/2令玩家3升至17/2；跨族审计区分动作合法、物理终局可达、伙伴策略同意、人类关切。；TRL01生产性试做提供真实产出1且耗时1，诚实信号下直接SIDE2、纯检验2、边做边看3；TRL02低能力主体花1修饰PASS(1/4→3/4)以谋求未来HIRE4，唯一纯均衡下两类型信号池化、试做总值退至2；TRL03修饰成本2存在两纯均衡值2或3、成本3诚实3，q诚实准确度1/2→1试做值2→4。属DISC/R478/NEG04成熟组合边界，不认证新原语。；PRF01 A真实工作副产C凭据3手DP29/2 vs固定14，A+ENABLE同成本同值，始终开放或由B工作附资格DP31/2；CUST01不可再造原件A/C局原件12、COPY15、可复用31/2，但开放独立B后所有版权制度动态19、固定17，证明目标旁路；PUB01公开证据让自利第三方撤B许可动态14 vs固定19/2，但普通排他菜单逐动作同构，取消互斥动态/固定16。均成熟组合/负例，无新人类/Unity。；STAKE01对原CUST不改数值的全条件策略和四维目标反证：original/copy旧根均19、固定均17，但可达向量68/82、Pareto18/23，保护A所有HIGH/LOW时原17/copy37/2/reusable19；STAKE04首手后公布保护A/B时copy75/4、原版18，提前公布无增益。META回归PRF22/PUB10状态真动作同构与CUST仅同根不同可行结果，纠正旧“COPY全无价值”的过强读法，无真人。；补充STAKE向量语义审计：C物理SHOW交付不等于HIGH时有价值交付。original/copy物理四维结果68/82、Pareto18/23；按HIGH∧SHOW有效C结果67/72、Pareto15/17；保A约束17 vs37/2不变。；TRIG01四手首次A推进引发SAFE/RISK修补责任，动态15胜固定14，首手前预知风险仍15，无风险19；一行公开条件计划全优，归入R37/P11而不是新原语。OPEN01五手两可认领工作高14低1，打开后三手未履行损失4，付一手DROP；动态47/4胜固定19/2，只许单工作19/2、无DROP41/4、无违约损失25/2、价值推迟到首次WORK39/4、提前知道双工作53/4、绝对必须履行19/2；都属于GOAL01×注意力/退出/信息时点的成熟组合，无新人类。；HEDGE01五手首手A唯一机会+LOW A5/LOW B0+三次行动后截止，允许双LIVE的动态51/4严格大于禁止并行47/4与最强固定23/2；A低时先OPEN B保留A，B高做B14、B低回来做A5。HEDGE02若A以后也可开，先B失败再开A的完全串行策略同得51/4，说明全局并发必要性依赖早窗口；同分方案PA/PB不同(并发3/4,1/4，串行1/2,1/2)，非动作同构。deadline2或无DROP/无B时并发优势消失。无真人。；CLOCK四语义冻结HEDGE任务而改时钟：global并发51/4/串行47/4，double_if_overlap两者47/4，neglect_only和contested_only仍51/4/47/4；去掉A早开窗口后四语义并发/串行都51/4，全部强固定23/2。DICE公开手牌H2,H2,L1,L1、A3奖励9、B2奖励6、首A有RISK2需修；动态13优于1536种强固定23/2，高骰不得FIX或修复质量不区分时25/2，SAFE分支A+B+SIDE16，RISK高骰FIX/低骰补A+SIDE10。熟悉P02×P11/R37模式边界，无新真人与新原语。；FOCUS 六手A/B各需3手、焦点改向耗1、需求A/B后公布，前两手SIDE非法，动态41/2胜280合法固定及15625条容错固定全最优15；TO与同成本SETUP在89个可达状态完全相同，免费改向A3+B3固定24；开放早期SIDE等待22>主20.5，证明安全等待旁路。需求t0/1/2/3/4公布DP 22/21/41/2/20/19；t2/3/4最优前缀后BFS两目标均可达，剩余手数与最短用手依次(4;1,4),(3;3,3),(2;2,2)，需要记录达成某结局后行动余裕而非仅二元可达。META02六层抽象Scenario审计，仅设计归纳，不当真人反馈和新原语。；HAND四手A3奖12/B2奖9/SIDE1，SEND1手启动GOOD后台2进度或BAD1进度等概率，及时报告动态17胜固定15和禁助手13；质量在SEND后0/1/2/3/4行动才公开时根17,17,33/2,15,15，反馈窗口晚到可使改投收益逐步消失。必须等后台至少两手再花ACCEPT1手验收才能让代理产能计入A时，四手根13、五手21，等于同期限纯亲自工作；五手无需验收根43/2。SEND+ACCEPT耗2手代理好时最多给A2，无不可替代能力时委托被普通自身施工/机器替代。META03跨HAND/ACT/GRC区分产能事实、报告、成果可结算权、伙伴自主参加、玩家真正关心五层，非新人类和新独立原语。；CERT新增A达标且领取后才可结算独立资格C奖励10，4/5/6手helper与等价robot根45/2、27、63/2，对比一手REGISTER只给C根22/23/31、无C根13/21/22；去掉C价值4/5手助手验收又根13/21。ROUTE五手后到需求，付一手改派机器根53/2、禁止改派但安全SIDE等待再START根26、免费自动跟随27，固定全17；增值有限、仍普通工具。CARRY两周期2+3手PLEDGE暂时完成A，第二周期FOLLOW1/2未知且随机U需两手，允许PLEDGE与不允许的全局动态/固定根均18，强制先PLEDGE SIDE仅33/2，被不承诺固定A A→A U U支配。META04区分资格新增合法终局、晚开工作全局旁路与跨周期复杂义务无全局采用价值。模型本地通过，独立原语未认证，真实人类未观察。；INV01—06四手隐藏R/B源等半，SHIELD保A无损但无直接痕迹，WATCH得准确来源却1/2有不可逆损害，后3手PROBE可得到正确率3/4线索、一次STOP和SIDE。三条透明政策终局向量(无伤,正确STOP,SIDE)=(1,3/4,1),(1,1/2,2),(1/2,1,2)，互不支配；权重6/12/1动态17固定14偏WATCH，权重12/8/1动态19固定18偏SHIELD。硬无伤要求WATCH不可选，前一权重下根16；保护后免费得到真来源根20，花一手安全完美探查根19，强信息菜单压平两难。未来STOP权重4N（安全8/SIDE1）N1..4的根12/15/18/22只是未来收益折算、非跨期动作模型。INV没有自主对手，直接痕迹并非CERT的可结算证据；成熟P09×P03×STAKE组合且不自动精选或Debug。；PART选择性保护的缺席证据：当原事件必然q1，隐藏来源R/B，PARTIAL_R只保护R，B事件或没有事件都能确定来源，终局(无伤3/4,STOP正确1,SIDE2)严格优于WATCH(1/2,1,2)；价值根PARTIAL37/2 vs WATCH17，原INV首手菜单不含PARTIAL所以并非旧计算错误。事件基线q=1/2时NO_EVENT后PARTIAL后验R2/3、WATCH后验R1/2，完整PROBE后续价值不同：FULL16 WATCH33/2 PARTIAL65/4，反而WATCH略好；q1/4时WATCH65/4 PARTIAL129/8。单次MAP准确率均(1+q)/2不等于相同序贯信息价值。没有真人/独立原语。；2026-10-14 GROUP四源q1可选择保护任意集合，事件未保护则精确来源但有1/2伤害，三手4源均等、无伤6/STOP12/SIDE1，全子集或只护一个的完整DP均67/4，不做任何TEST11；单点保护即完美辨源、无伤5/8、SIDE1；完全辨源时至少(N−1)/N暴露的全NO_EVENT日志下界，N2..5验证。RECORD四手R/B q1，TEST选择性保护后无事本身能准确推断源，但NO_EVENT只有提前REGISTER才可提交PROOF10：无登记根22，预登记45/2，同成本LICENSE全同构45/2，事后只在NO_EVENT补登记23，安全完美认可调查25；对应全10^4固定最佳18、37/2、37/2、19、21。结论为单次试探全局旁路和提交资格成熟组合，不宣称新原语或真人认可。；2026-10-14 RETENTION易衰减A3完成12、每日U半概率给4/SIDE1、未完成A转别事流失1，花一手LOCK可永久保存未完成进度：5/6/7天有无LOCK根同145/8、333/16、375/16；8天有LOCK1669/64、无1667/64，仅多1/32，最优到达LOCK历史第0日做A/第1日无U概率1/4。若明确更改A工作许可为仅第0/1/4日，则五天有LOCK29/2、无LOCK25/2，因为早期进度否则停工流失而A不可完；最优仍是固定WORK WORK LOCK （U或SIDE） WORK，不能按新合法结果认定新反复决策原语。META07横向对合法性/操作税/信息生成/成果资格/时限/他者决定/生成目标/进度保存八类因果依赖边做证据层校准：AB与BA非交换仅必要线索，须检验强普通策略/匹配菜单/真实开局及玩家关切。不动精选/候选/Debug。",
     "humanFeedbackNote": "目前有关稳险/R06、边做边看/R10、压力/R37、R54、R50的有限设计者反馈；原记录各不等价于受控盲试玩；P02/R13仍没有真人反馈。",
     "thirdComparison": "PL-C05 supplies a tested negative boundary; not a new curated or debug pattern"
   },
@@ -6184,7 +6184,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
         "P03",
         "P11"
       ],
-      "context": "研究库已经包含基础关系、完整交锋结构和跨阶段组织，但这些结论未必能直接变成设计师可用的选择。",
+      "context": "研究库已经包含基础关系、完整Scenario结构和跨阶段组织，但这些结论未必能直接变成设计师可用的选择。",
       "ask": "如果你正在构思一段调查、谈判、追逐或其他情境，你会先描述什么信息，才能从模式库中判断哪种结构合适？哪些说明是必需的，哪些是冗余的？",
       "why": "检验模式语言是否真正能辅助场景创作，而不只是成为研究员内部分类。",
       "evidence": "这是工作台使用方式的研究请求，不是玩法好坏的评分。"
@@ -6246,7 +6246,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
     {
       "id": "RQ-FOCUS",
       "title": "没有安全等待时，玩家愿意为保留另一条路线预先切换焦点吗？",
-      "priority": "抽象交锋决策可读性和余裕认知",
+      "priority": "抽象Scenario决策可读性和余裕认知",
       "status": "待独立无提示观察",
       "related": [
         "PL-FOCUS01",
@@ -6328,7 +6328,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
         "剩余目标与冷静改变两者的价值"
       ],
       "dynamic": "临近终点、剩余骰质量、冷静余量变化会改变安全与冒险的相对价值。",
-      "why": "容易学会，却能贯穿许多场面；不是独立长交锋深度的保证。",
+      "why": "容易学会，却能贯穿许多场面；不是独立长Scenario深度的保证。",
       "counter": "若好档已保证、失败代价可忽略或一种行动处处支配另一种，玩家会形成固定选择。",
       "boundary": "已有反馈认可基本模式，未证明所有数值版本都有乐趣。早期大数字原型不能直接代表游戏内小收益口径。",
       "next": "用正式惯用收益在具体目标余量中测何时发生可理解的稳险切换。",
@@ -6347,7 +6347,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
         },
         {
           "label": "现有原型入口",
-          "href": "../../../UnityClient/Assets/Resources/Content/scenes/encounters/研究·稳险选择.scm"
+          "href": "../../../UnityClient/Assets/Resources/Content/scenes/scenarios/研究·稳险选择.scm"
         }
       ]
     },
@@ -6414,7 +6414,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
       "dynamic": "发现路线较长而剩余行动有限时，可能从继续投入变为换路线。",
       "why": "信息不是纯粹的菜单选项，而由正常行动自然产生；容易形成继续/放弃的思考。",
       "counter": "低骰先试并在揭示后照固定口诀做，可能解释大部分收益；没有剩余行动时信息不值钱。",
-      "boundary": "R10真人反馈认可有思考与重玩意愿，但也指出体验偏猜测，尚未证明它足以支撑完整交锋。",
+      "boundary": "R10真人反馈认可有思考与重玩意愿，但也指出体验偏猜测，尚未证明它足以支撑完整Scenario。",
       "next": "改善信息表达，比较玩家是否能解释转向原因，而不只是猜长度。",
       "metric": null,
       "evidence": {
@@ -6431,7 +6431,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
         },
         {
           "label": "R10 真人反馈",
-          "href": "批次/R10-试玩裁决与交锋方向/研究记录.md"
+          "href": "批次/R10-试玩裁决与Scenario方向/研究记录.md"
         }
       ]
     },
@@ -6515,7 +6515,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
         },
         {
           "label": "R54 正式原型",
-          "href": "../../../UnityClient/Assets/Resources/Content/scenes/encounters/研究·追击领先目标.scm"
+          "href": "../../../UnityClient/Assets/Resources/Content/scenes/scenarios/研究·追击领先目标.scm"
         },
         {
           "label": "完整 R54 数学与正式 CI 证据",
@@ -6603,7 +6603,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
   "nextQuestions": [
     "危机是否真的改变玩家的原计划与可行动作，还是被一条固定修理口诀解释？",
     "事前准备与替代成果在什么条件下产生玩家可理解的跨阶段取舍？T01的风险阈值是否仅是经典分散投资？",
-    "成熟作品中的完整交锋决策结构如何与实验室的基础关系相互组合，又能在哪里被简化或反证？"
+    "成熟作品中的完整Scenario决策结构如何与实验室的基础关系相互组合，又能在哪里被简化或反证？"
   ],
   "references": [
     {
@@ -6646,7 +6646,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
   "headline": "长期抽象玩法模式研究：机制发现、组合关系、成熟作品参考与真人体验校准并行",
   "intro": "Agent自主探索与积累模式语言；设计师可在工作台的模式目录检索整个知识图、选择适合情境的结构，在研究提问区描述实际体验或设计需求。实验室只放经审阅的少量可试玩原型，不是全部研究成果。",
   "current": [
-    "模式语言知识图已吸收Citizen Sleeper 2交锋结构的设计归纳、历史研究与负面边界；候选/精选是展示方式，不能代表模式的全部价值。",
+    "模式语言知识图已吸收Citizen Sleeper 2Scenario结构的设计归纳、历史研究与负面边界；候选/精选是展示方式，不能代表模式的全部价值。",
     "T01跨阶段预案×替代成果：在有限准备中，风险低时专注主目标，适中时保留次级方案，较高时优先可靠成果；已做有理数完整枚举，仍缺人类体验证据。",
     "工作台新增完整模式目录、情境组合简报及独立研究提问。只有在需要人类解释理解、情绪或使用方式时提出问题；其它机制探索持续自主进行。"
   ],
@@ -6711,8 +6711,8 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
       "browserVariant": "echo",
       "estimatedMinutes": "约 3–5 分钟",
       "intro": "同一目标连续投入，下一次判定会变难；切换目标则变容易。",
-      "experiment": "encounters/研究·动作回声",
-      "official": "UnityClient/Assets/Resources/Content/scenes/encounters/研究·动作回声.scm",
+      "experiment": "scenarios/研究·动作回声",
+      "official": "UnityClient/Assets/Resources/Content/scenes/scenarios/研究·动作回声.scm",
       "record": "批次/R50-动作回声/研究记录.md",
       "sourceRun": "https://github.com/guopanqi/ssnoir/actions/runs/37885651004",
       "askBefore": "这是R50历史原版。你之前指出四颗骰、目标一旦投入便不容易改；无需在这里重测。下一版已另建为R55「双成果改道」。",
@@ -6739,8 +6739,8 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
       "mode": "official-only",
       "estimatedMinutes": "约 10–15 分钟",
       "intro": "推进主目标时生成问题，若放着不处理，压力会在后续回合恶化。",
-      "experiment": "encounters/研究·压力预算",
-      "official": "UnityClient/Assets/Resources/Content/scenes/encounters/研究·压力预算.scm",
+      "experiment": "scenarios/研究·压力预算",
+      "official": "UnityClient/Assets/Resources/Content/scenes/scenarios/研究·压力预算.scm",
       "record": "批次/R37-压力预算正式接入/README.md",
       "sourceRun": "",
       "askBefore": "已有人类文字评价。可继续体验原版，但不要求刷局；如果你对成功生问题与失败导致问题有不同感觉，可以直接写一两句想法。",
@@ -6754,7 +6754,7 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
         "你有任何一次主动改变原计划的局面可以分享吗？如果没有也没关系。"
       ],
       "purpose": "已有玩家认可推进生问题、失败升压力两种关系。下一研究先区分触发来源能否引起不同计划，匹配出现频率和修理成本，而不是要求重复玩原型。",
-      "officialNote": "目前没有网页等价版本。请用Unity调试面板「交锋测试（直接进入）」或本地 C# 会话。"
+      "officialNote": "目前没有网页等价版本。请用Unity调试面板「Scenario测试（直接进入）」或本地 C# 会话。"
     },
     {
       "id": "R54",
@@ -6767,8 +6767,8 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
       "browserVariant": "reactive",
       "estimatedMinutes": "约 3–5 分钟",
       "intro": "甲3值1、乙5值2；对手每两手打当前进度领先的目标。浏览器新增可选第五颗骰子，只比较行动容量。",
-      "experiment": "encounters/研究·追击领先目标",
-      "official": "UnityClient/Assets/Resources/Content/scenes/encounters/研究·追击领先目标.scm",
+      "experiment": "scenarios/研究·追击领先目标",
+      "official": "UnityClient/Assets/Resources/Content/scenes/scenarios/研究·追击领先目标.scm",
       "record": "批次/R51-R54-结构广度探索/研究记录.md",
       "sourceRun": "https://github.com/guopanqi/ssnoir/actions/runs/37887824281",
       "askBefore": "先用原版4骰的感受做参照；有兴趣时选择5骰模式（只改变容量）。不需要刻意中途换线，真实记录是否更有调整余地。",
@@ -6795,8 +6795,8 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
       "mode": "official-only",
       "estimatedMinutes": "约 5 分钟",
       "intro": "两次准备后才会指定真正有效的目标，比较集中准备与分散投入。",
-      "experiment": "encounters/研究·迟到的目标",
-      "official": "UnityClient/Assets/Resources/Content/scenes/encounters/研究·迟到的目标.scm",
+      "experiment": "scenarios/研究·迟到的目标",
+      "official": "UnityClient/Assets/Resources/Content/scenes/scenarios/研究·迟到的目标.scm",
       "record": "批次/R49-迟到的目标/README.md",
       "sourceRun": "https://github.com/guopanqi/ssnoir/actions/runs/37884657667",
       "askBefore": "这是次要参考：有兴趣再测，重点看是否在揭示前就形成固定准备口诀。",
@@ -6821,8 +6821,8 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
       "mode": "official-only",
       "estimatedMinutes": "约 5–10 分钟",
       "intro": "比较安全的低波动行动与冒险的高收益行动。",
-      "experiment": "encounters/研究·稳险选择",
-      "official": "UnityClient/Assets/Resources/Content/scenes/encounters/研究·稳险选择.scm",
+      "experiment": "scenarios/研究·稳险选择",
+      "official": "UnityClient/Assets/Resources/Content/scenes/scenarios/研究·稳险选择.scm",
       "record": "批次/R06-试玩反馈与收益口径/研究记录.md",
       "sourceRun": "",
       "askBefore": "这是可选的研究原型，可先阅读规则，不必完成所有历史实验。",
@@ -6847,8 +6847,8 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
       "mode": "official-only",
       "estimatedMinutes": "约 5–10 分钟",
       "intro": "推进路线同时揭示信息，判断是否继续投入。",
-      "experiment": "encounters/研究·边做边看",
-      "official": "UnityClient/Assets/Resources/Content/scenes/encounters/研究·边做边看.scm",
+      "experiment": "scenarios/研究·边做边看",
+      "official": "UnityClient/Assets/Resources/Content/scenes/scenarios/研究·边做边看.scm",
       "record": "批次/R09-成长与行动中的信息/研究记录.md",
       "sourceRun": "",
       "askBefore": "这是可选的研究原型，可先阅读规则，不必完成所有历史实验。",
@@ -6873,8 +6873,8 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
       "mode": "official-only",
       "estimatedMinutes": "约 5–10 分钟",
       "intro": "有限冷静和持续目标之间的行动分配。",
-      "experiment": "encounters/研究·留力推进",
-      "official": "UnityClient/Assets/Resources/Content/scenes/encounters/研究·留力推进.scm",
+      "experiment": "scenarios/研究·留力推进",
+      "official": "UnityClient/Assets/Resources/Content/scenes/scenarios/研究·留力推进.scm",
       "record": "批次/R11-跨回合余力/研究记录.md",
       "sourceRun": "",
       "askBefore": "这是可选的研究原型，可先阅读规则，不必完成所有历史实验。",
@@ -6899,8 +6899,8 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
       "mode": "official-only",
       "estimatedMinutes": "约 5–10 分钟",
       "intro": "有限行动只能兑现部分成果，比较小目标和大目标。",
-      "experiment": "encounters/研究·成果取舍",
-      "official": "UnityClient/Assets/Resources/Content/scenes/encounters/研究·成果取舍.scm",
+      "experiment": "scenarios/研究·成果取舍",
+      "official": "UnityClient/Assets/Resources/Content/scenes/scenarios/研究·成果取舍.scm",
       "record": "批次/R13-启动窗口与成果取舍/研究记录.md",
       "sourceRun": "",
       "askBefore": "这是可选的研究原型，可先阅读规则，不必完成所有历史实验。",
@@ -6925,8 +6925,8 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
       "mode": "official-only",
       "estimatedMinutes": "约 5–10 分钟",
       "intro": "两项目判定不同，在同一骰池中重新分配。",
-      "experiment": "encounters/研究·按需用骰",
-      "official": "UnityClient/Assets/Resources/Content/scenes/encounters/研究·按需用骰.scm",
+      "experiment": "scenarios/研究·按需用骰",
+      "official": "UnityClient/Assets/Resources/Content/scenes/scenarios/研究·按需用骰.scm",
       "record": "批次/R15-能力差异与骰子分配/README.md",
       "sourceRun": "",
       "askBefore": "这是可选的研究原型，可先阅读规则，不必完成所有历史实验。",
@@ -6951,8 +6951,8 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
       "mode": "official-only",
       "estimatedMinutes": "约 5–10 分钟",
       "intro": "跨回合累积与整段完成的规划。",
-      "experiment": "encounters/研究·整段留力",
-      "official": "UnityClient/Assets/Resources/Content/scenes/encounters/研究·整段留力.scm",
+      "experiment": "scenarios/研究·整段留力",
+      "official": "UnityClient/Assets/Resources/Content/scenes/scenarios/研究·整段留力.scm",
       "record": "批次/R19-阶段转换与多回合组合/研究记录.md",
       "sourceRun": "",
       "askBefore": "这是可选的研究原型，可先阅读规则，不必完成所有历史实验。",
@@ -6977,8 +6977,8 @@ h1,h2{font-family:var(--field-serif);font-weight:500;letter-spacing:-.05em}
       "mode": "official-only",
       "estimatedMinutes": "约 5–10 分钟",
       "intro": "是否花行动定位目标，再集中搜索。",
-      "experiment": "encounters/研究·定位再搜",
-      "official": "UnityClient/Assets/Resources/Content/scenes/encounters/研究·定位再搜.scm",
+      "experiment": "scenarios/研究·定位再搜",
+      "official": "UnityClient/Assets/Resources/Content/scenes/scenarios/研究·定位再搜.scm",
       "record": "批次/R25-行动换取目标信息/研究记录.md",
       "sourceRun": "",
       "askBefore": "这是可选的研究原型，可先阅读规则，不必完成所有历史实验。",
@@ -7200,7 +7200,7 @@ function currentOddsText(s){
 function renderGame(){
  var t=getTask(selectedId),root=$("game");root.replaceChildren();
  if(t.mode!=="browser-demo"){
-  var box=child(root,"div","callout");child(box,"strong","","正式规则：没有网页复制版");child(box,"p","",t.officialNote);child(box,"p","", "Unity 调试面板：交锋测试（直接进入） → "+t.official.replace(/^.*研究·/,"研究·").replace(/\.scm$/,""));
+  var box=child(root,"div","callout");child(box,"strong","","正式规则：没有网页复制版");child(box,"p","",t.officialNote);child(box,"p","", "Unity 调试面板：Scenario测试（直接进入） → "+t.official.replace(/^.*研究·/,"研究·").replace(/\.scm$/,""));
   var cli=child(root,"pre","official-code","./run --session "+t.experiment+" --seed 19 --growth 1");
   child(root,"p","minor","这条命令会进入 JSON 行协议的无头会话，适合技术用户；人工逐手试玩建议使用 Unity 现有调试入口。");
   return
@@ -7324,7 +7324,7 @@ function renderOfficial(){
  var a=anch("正式 Scheme 规则 ↗",link("../../../"+t.official));a.target="_blank";a.rel="noopener noreferrer";links.appendChild(a);
  var b=anch("研究记录 ↗",link(t.record));b.target="_blank";b.rel="noopener noreferrer";links.appendChild(b);
  if(t.sourceRun){var c=anch("自动验证证据 ↗",t.sourceRun);c.target="_blank";c.rel="noopener noreferrer";links.appendChild(c)}
- child(root,"p","minor","若在 Unity 调试界面试玩：交锋测试（直接进入）→ 选择上述相同名称的研究场景。命令行形式供熟悉 JSONL 会话的人使用。");
+ child(root,"p","minor","若在 Unity 调试界面试玩：Scenario测试（直接进入）→ 选择上述相同名称的研究场景。命令行形式供熟悉 JSONL 会话的人使用。");
 }
 function field(parent,id,text,placeholder,rows){
  var wrap=child(parent,"label","field");child(wrap,"span","",text);
@@ -8041,7 +8041,7 @@ const picked=new Set();
 let libSearch="",libLayer="all",libOrigin="all",libPickedOnly=false;
 const graphUrl=p=>"https://github.com/guopanqi/ssnoir/blob/main/"+p.split("/").map(encodeURIComponent).join("/");
 const layerName=n=>{
- if(n.layer==="encounter-structure")return "交锋结构";
+ if(n.layer==="scenario-structure")return "Scenario结构";
  if(n.layer==="decision-relation")return "基础决策";
  if(n.layer==="negative-boundary")return "反证边界";
  if(n.layer==="open-hypothesis")return "开放问题";
@@ -8132,7 +8132,7 @@ function buildBrief(){
  const selection=[...picked].map(id=>nodeById.get(id));
  const interactions=graph.edges.filter(e=>picked.has(e.from)&&picked.has(e.to));
  const blocks=[
-  "SSNoir · 交锋设计材料（研究知识，不是实现要求）",
+  "SSNoir · Scenario设计材料（研究知识，不是实现要求）",
   "情境："+name,"选用模式："+selection.map(n=>n.name+" ["+n.id+"]").join("、"),
   ...selection.flatMap(n=>[
    "\n"+n.id+" · "+n.name+"（"+sourceName(n)+"）",

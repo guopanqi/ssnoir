@@ -17,7 +17,7 @@ POLICIES = {
 def run(scene, policy, seed):
     process = subprocess.Popen(['dotnet', 'run', '--no-build', '--project',
         'tools/content-validator/SSNoir.ContentValidator.csproj', '--', '--session',
-        'encounters/实验·' + scene, '--seed', str(seed)], cwd=ROOT,
+        'scenarios/实验·' + scene, '--seed', str(seed)], cwd=ROOT,
         stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True)
 
     def read():
@@ -37,7 +37,7 @@ def run(scene, policy, seed):
     counts = {}
     try:
         for _ in range(60):
-            if observation['EncounterResult'] is not None:
+            if observation['ScenarioResult'] is not None:
                 break
             operations = observation['Operations']
             clocks = {c['Label']: c['Current'] for c in observation['Clocks']}
@@ -101,7 +101,7 @@ def run(scene, policy, seed):
                 target.write(raw.read_bytes())
         send({'command': 'quit'})
         result = {'scene': scene, 'policy': policy, 'seed': seed,
-            'result': observation['EncounterResult'], 'calm': observation['Actors'][0]['Composure'],
+            'result': observation['ScenarioResult'], 'calm': observation['Actors'][0]['Composure'],
             'injury': observation['Injury'], 'money': observation['Inventory'].get('金钱'), 'actions': counts}
         print(json.dumps(result, ensure_ascii=False), flush=True)
         return result

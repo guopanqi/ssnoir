@@ -13,14 +13,14 @@ def main():
   try:
    for step in range(18):
     o=s.observation
-    if o['EncounterResult'] is not None:break
+    if o['ScenarioResult'] is not None:break
     ops=[x for x in o['Operations'] if x['Kind']=='action' and x['Card']!='整顿']
     if ops:
      op=min(ops,key=lambda x:(x['DieValue'],x['Card'].endswith('稳做'),x['Card']))
      covered+=health(o)[1]
     else:op=K['operation'](o,('结束回合',None,None))
     s.act(op,'R21预先冻结补覆盖：只用公开操作；低骰快做，核对轻伤头部后续判定。')
-   assert s.observation['EncounterResult'] is not None
+   assert s.observation['ScenarioResult'] is not None
    attempts.append(dict(seed=seed,completed=True,head_penalty_actions=covered,result=K['result'](s.observation)))
    if covered:
     p=OUT/f'头伤后续-{seed}.json.gz';s.save(p);row=K['check'](p,True,1);replay=K['replay'](p)

@@ -31,7 +31,7 @@ export class GameRuntimeState {
   private clockEffects: Array<{label:string; displayLabel:string; delta:number}> | null = null;
   private storyInAction:StoryEvent[]|null=null;
   private storyReady:StoryEvent[]=[];
-  private actionContext:{actorId:string;mode:"world"|"encounter"}|null=null;
+  private actionContext:{actorId:string;mode:"world"|"scenario"}|null=null;
 
   constructor() { this.reset(); }
 
@@ -124,7 +124,7 @@ export class GameRuntimeState {
     this.storyReady=[];return result;
   }
   isActionReporting():boolean {return this.clockEffects!==null;}
-  beginActionContext(actorId:string,mode:"world"|"encounter"):void {
+  beginActionContext(actorId:string,mode:"world"|"scenario"):void {
     if(this.actionContext)throw new Error("nested action context");
     if(this.team.require(actorId).status!=="active")throw new Error("inactive action actor");
     this.actionContext={actorId,mode};
@@ -136,7 +136,7 @@ export class GameRuntimeState {
   }
   currentMode():string {
     const location=this.getGlobal("location");
-    return this.actionContext?.mode??(location==="encounter"?"encounter":"world");
+    return this.actionContext?.mode??(location==="scenario"?"scenario":"world");
   }
   /**
    * Mirrors GameState.CheckCollapse: impact is settled at the instant the

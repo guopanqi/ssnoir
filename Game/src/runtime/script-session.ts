@@ -8,7 +8,7 @@ export interface ScriptSources { [canonicalPath: string]: string }
 /**
  * Equivalent to SchemeInterpreter's startup order:
  * stdlib.scm -> engine.scm -> its load-file scripts/theatre.scm.
- * This deliberately does NOT start the entire world/encounter SceneManager yet.
+ * This deliberately does NOT start the entire world/scenario SceneManager yet.
  */
 export class GameScriptSession {
   readonly name: string;

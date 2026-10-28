@@ -46,7 +46,7 @@ def check(path):
                 if failed and family=='余热转用':progress=old_p
                 status='overheat' if failed and family=='余热转用' else 'alarm' if failed else 'success' if progress>=model.target else None
                 candidates.append((progress,st,old_t,status))
-        if after['EncounterResult'] is None:
+        if after['ScenarioResult'] is None:
             c={x['Label']:x['Current'] for x in after['Clocks']}
             if family=='情报承诺':
                 cards={x['Name']:x['Text'] for x in after['Cards']}
@@ -55,7 +55,7 @@ def check(path):
             actual=(c['目标'],st,c['已过回合'],None)
             assert actual in candidates,(path,step['Version'],actual,candidates)
         else:
-            result=after['EncounterResult'];fields=result.strip('()').split();status=fields[0].lstrip("'");progress=int(fields[1])
+            result=after['ScenarioResult'];fields=result.strip('()').split();status=fields[0].lstrip("'");progress=int(fields[1])
             if family!='情报承诺':
                 mechanism=int(re.search(r'\((\d+)\)\)$',result)[1])
                 assert any((p,st,s)==(progress,mechanism,status) for p,st,t,s in candidates),(path,step['Version'],result,candidates)

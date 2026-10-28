@@ -56,7 +56,7 @@ def run(scene, filename):
             observation = message['observation']
             assert observation == step['After'], (scene, index, '行动后完整观测变化')
             assert message['events'] == step['Events'], (scene, index, '事件变化')
-        assert observation['EncounterResult'] is not None, (scene, '未结束')
+        assert observation['ScenarioResult'] is not None, (scene, '未结束')
         with tempfile.TemporaryDirectory(prefix='noir-revalidate-') as scratch:
             raw = Path(scratch) / 'current.json'
             assert send({'command': 'save', 'path': str(raw)})['type'] == 'saved'
@@ -69,7 +69,7 @@ def run(scene, filename):
         send({'command': 'quit'})
         result = {'scene': scene, 'authorRecord': str(source.relative_to(ROOT)),
                   'regressionRecord': str(destination.relative_to(ROOT)), 'steps': len(previous['Steps']),
-                  'contentRevision': current['ContentRevision'], 'result': observation['EncounterResult'],
+                  'contentRevision': current['ContentRevision'], 'result': observation['ScenarioResult'],
                   'completeObservationsAndEventsMatch': True, 'strictReplayPassed': True}
         print(json.dumps(result, ensure_ascii=False), flush=True)
         return result

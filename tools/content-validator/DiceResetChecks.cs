@@ -11,7 +11,7 @@ namespace SSNoir.Testing
         public static void Run()
         {
             VerifyTeamRollReplacesTheWholeHand();
-            VerifySceneManagerRefreshEncounterRoundAndCityRest();
+            VerifySceneManagerRefreshScenarioRoundAndCityRest();
             VerifyRevisionIsNotSaved();
             Console.WriteLine("[test-dice-reset] Dice hand revision contracts passed.");
         }
@@ -23,7 +23,7 @@ namespace SSNoir.Testing
             var actor = Player(state);
             long initialRevision = actor.ActionDiceRevision;
 
-            team.RollActionDice(isInEncounter: false);
+            team.RollActionDice(isInScenario: false);
             Require(actor.ActionDiceRevision == initialRevision + 1,
                 "A newly issued city hand must increment its revision once.");
             Require(actor.ActionDice.SequenceEqual(new[] { 4, 4, 4, 4 }),
@@ -36,7 +36,7 @@ namespace SSNoir.Testing
             Require(afterConsume == initialRevision + 1 && actor.ActionDice.Count == 3,
                 "Spending a die must not increment the hand revision.");
 
-            team.RollActionDice(isInEncounter: false);
+            team.RollActionDice(isInScenario: false);
             Require(actor.ActionDiceRevision == afterConsume + 1,
                 "A second hand with identical values must still increment the revision.");
             Require(actor.ActionDice.SequenceEqual(new[] { 4, 4, 4, 4 })
@@ -45,7 +45,7 @@ namespace SSNoir.Testing
 
             team.Injury.Restore(5, "手");
             long beforeInjuredRoll = actor.ActionDiceRevision;
-            team.RollActionDice(isInEncounter: false);
+            team.RollActionDice(isInScenario: false);
             Require(actor.ActionDiceRevision == beforeInjuredRoll + 1,
                 "An injured actor's newly issued hand must increment once.");
             Require(actor.IssuedInjuryDieLoss == 2
@@ -54,7 +54,7 @@ namespace SSNoir.Testing
                 "Injury-blocked slots must not receive dice in the new hand.");
         }
 
-        private static void VerifySceneManagerRefreshEncounterRoundAndCityRest()
+        private static void VerifySceneManagerRefreshScenarioRoundAndCityRest()
         {
             var loader = new FixtureScriptLoader();
             var state = NewFixedDieState();
@@ -73,12 +73,12 @@ namespace SSNoir.Testing
             int[] stashedCityDice = actor.ActionDice.ToArray();
             int[] stashedCitySlots = actor.ActionDiceSlotIds.ToArray();
 
-            manager.StartEncounter("dice-reset-fixture");
-            long encounterRevision = actor.ActionDiceRevision;
-            Require(encounterRevision == cityRevision + 1,
-                "Entering an encounter must issue exactly one new hand.");
-            manager.EndEncounter();
-            Require(actor.ActionDiceRevision == encounterRevision,
+            manager.StartScenario("dice-reset-fixture");
+            long scenarioRevision = actor.ActionDiceRevision;
+            Require(scenarioRevision == cityRevision + 1,
+                "Entering an scenario must issue exactly one new hand.");
+            manager.EndScenario();
+            Require(actor.ActionDiceRevision == scenarioRevision,
                 "Returning to the city must restore its stashed hand without incrementing revision.");
             Require(actor.ActionDice.SequenceEqual(stashedCityDice)
                 && actor.ActionDiceSlotIds.SequenceEqual(stashedCitySlots),
@@ -86,18 +86,18 @@ namespace SSNoir.Testing
 
             manager.EndTurn();
             long afterCityRest = actor.ActionDiceRevision;
-            Require(afterCityRest == encounterRevision + 1,
+            Require(afterCityRest == scenarioRevision + 1,
                 "A city rest/new day must issue exactly one new hand.");
             AssertSnapshotRevision(manager, actor, afterCityRest, 4);
 
-            manager.StartEncounter("dice-reset-fixture");
+            manager.StartScenario("dice-reset-fixture");
             long beforeRound = actor.ActionDiceRevision;
             manager.EndTurn();
             Require(actor.ActionDiceRevision == beforeRound + 1,
-                "The SceneManager encounter EndTurn facade must issue exactly one new hand.");
+                "The SceneManager scenario EndTurn facade must issue exactly one new hand.");
             Require(actor.ActionDice.SequenceEqual(new[] { 4, 4, 4, 4 })
                 && actor.ActionDiceSlotIds.SequenceEqual(new[] { 0, 1, 2, 3 }),
-                "The encounter round must replace the full hand, including unspent dice.");
+                "The scenario round must replace the full hand, including unspent dice.");
         }
 
         private static void VerifyRevisionIsNotSaved()
@@ -145,13 +145,13 @@ namespace SSNoir.Testing
                     (define (on-turn-end) #t)
                     (define (on-turn-start) #t)
                     """,
-                ["scenes/encounters/dice-reset-fixture.scm"] = """
-                    (define (get-render-data) (node "encounter-root" :name "测试交锋" :children '()))
-                    (define (on-encounter-enter) #t)
-                    (define (on-encounter-collapse) (list 'test))
+                ["scenes/scenarios/dice-reset-fixture.scm"] = """
+                    (define (get-render-data) (node "scenario-root" :name "测试Scenario" :children '()))
+                    (define (on-scenario-enter) #t)
+                    (define (on-scenario-collapse) (list 'test))
                     (define (on-turn-end) #t)
                     (define (on-action) #t)
-                    (define (encounter-action-nodes) '())
+                    (define (scenario-action-nodes) '())
                     """
             };
             private readonly LocalScriptLoader _fallback = new();

@@ -64,7 +64,7 @@ def check_step(variant,before,op,response):
   if injury(before)==0:
    actual=H['odds'](op['Odds']);assert all(abs(actual[k]-v)<1e-12 for k,v in zip(('坏','中','好'),C['odds'](op['DieValue']))),(variant,op)
  assert player(after)['Composure']==max(0,pc-cost),(variant,pc,cost,player(after))
- if after['EncounterResult'] is None:
+ if after['ScenarioResult'] is None:
   ca=clocks(after);assert (ca['目标A']['Current'],ca['目标B']['Current'],ca['已过回合']['Current'])==(a,b,elapsed)
   if op['Kind']=='action':
    rest=[d['Value'] for d in player(before)['Dice']];rest.remove(op['DieValue'])
@@ -73,7 +73,7 @@ def check_step(variant,before,op,response):
   assert all(not x['Card'] or not (a==CONFIGS[variant][0] and x['Card'].endswith('A')) for x in after['Operations'])
   assert all(not x['Card'] or not (b==CONFIGS[variant][1] and x['Card'].endswith('B')) for x in after['Operations'])
  else:
-  fields=after['EncounterResult'].strip('()').split();status=fields[0].lstrip("'")
+  fields=after['ScenarioResult'].strip('()').split();status=fields[0].lstrip("'")
   assert tuple(map(int,fields[1:3]))==(a,b),(variant,fields,(a,b))
   assert int(fields[3])==min(CONFIGS[variant][2],elapsed+1)
   assert int(fields[4])==max(0,pc-cost)
@@ -86,7 +86,7 @@ def run(job):
  variant,policy,seed=job;m=models[(variant,policy)];s=H['Session']('研究·'+variant,seed)
  seen_injury=False;steps=0
  try:
-  while s.observation['EncounterResult'] is None:
+  while s.observation['ScenarioResult'] is None:
    o=s.observation;a,b,c,t,h=state(o)
    if injury(o)>0:seen_injury=True
    if seen_injury:op=fallback(o);why='已超出无伤模型；按当前公开赔率与剩余目标做局部选择。'
@@ -97,7 +97,7 @@ def run(job):
    response=s.act(op,why);check_step(variant,o,op,response);steps+=1
    assert steps<=16,(variant,seed)
   o=s.observation;seen_injury=seen_injury or injury(o)>0
-  fields=o['EncounterResult'].strip('()').split();success=fields[0].lstrip("'")=='success'
+  fields=o['ScenarioResult'].strip('()').split();success=fields[0].lstrip("'")=='success'
   bonus=success and variant=='保留终点' and int(fields[2])==CONFIGS[variant][1]
   path=OUT/f'{variant}-{policy}-s{seed}.json.gz';rev=s.save(path)
   return dict(variant=variant,policy=policy,seed=seed,success=success,bonus=bonus,injury_free_success=success and not seen_injury,
@@ -133,17 +133,17 @@ s=H['Session']('研究·整段完成',1301)
 try:
  for _ in range(2):
   o=s.observation;op=operation(o,('结束回合',None,None));check_step('整段完成',o,op,s.act(op,'边界核对：两回合到期与时间税。'))
- assert s.observation['EncounterResult']=="('timeout 0 0 2 3)"
+ assert s.observation['ScenarioResult']=="('timeout 0 0 2 3)"
  s.save(OUT/'边界-两轮到期.json.gz')
 finally:s.close()
-# 边界3：必需目标先完成，B的操作随交锋立即关闭。
+# 边界3：必需目标先完成，B的操作随Scenario立即关闭。
 for seed in range(1302,1401):
  s=H['Session']('研究·保留终点',seed)
  if 6 in state(s.observation)[4]:break
  s.close()
 try:
  o=s.observation;op=operation(o,(0,'风险',6));check_step('保留终点',o,op,s.act(op,'边界核对：完成A立即结束，B未完成。'))
- assert s.observation['EncounterResult']=="('success 2 0 1 5)"
+ assert s.observation['ScenarioResult']=="('success 2 0 1 5)"
  s.save(OUT/'边界-终点关闭.json.gz')
 finally:s.close()
 
@@ -163,7 +163,7 @@ paths=list(OUT.glob('*.json.gz'));all_steps=sum(len(json.loads(gzip.decompress(p
 verification=dict(native_games=len(paths),checked_steps=all_steps,strict_replays=replays,
                   unity_visual_checked=False,summary=summary)
 (OUT/'验证.json').write_text(json.dumps(verification,ensure_ascii=False,indent=2)+'\n')
-files=[ROOT/'UnityClient/Assets/Resources/Content/scripts/research/顺序选择.scm']+list((ROOT/'UnityClient/Assets/Resources/Content/scenes/encounters').glob('研究·*段*.scm'))+[ROOT/'UnityClient/Assets/Resources/Content/scenes/encounters/研究·保留终点.scm']
+files=[ROOT/'UnityClient/Assets/Resources/Content/scripts/research/顺序选择.scm']+list((ROOT/'UnityClient/Assets/Resources/Content/scenes/scenarios').glob('研究·*段*.scm'))+[ROOT/'UnityClient/Assets/Resources/Content/scenes/scenarios/研究·保留终点.scm']
 version=dict(ContentRevision=rows[0]['revision'],source_sha256={str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in files},
              model_files_sha256={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in (HERE/'筛选.py',HERE/'分段筛选.py',Path(__file__))})
 (HERE/'版本.json').write_text(json.dumps(version,ensure_ascii=False,indent=2)+'\n')

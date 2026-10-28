@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""S3-W: actual unmodified 'encounters/巷子' C#+Scheme session, with --item fixture.
+"""S3-W: actual unmodified 'scenarios/巷子' C#+Scheme session, with --item fixture.
 
 This checks a real authored Lyon item action, NOT full first-chapter
 world progression nor official way to acquire/cash the item at east counter.
@@ -11,7 +11,7 @@ from subprocess import Popen, PIPE
 from probe_four_scenario_causality import ROOT,CMD,recv,finish
 
 ITEM="半包「老金牌」香烟"
-ENTRY="encounters/巷子"
+ENTRY="scenarios/巷子"
 SEED=19
 GROWTH=4
 
@@ -66,14 +66,14 @@ def test_with_fixture(qty):
                     assert "把烟盒扔到桌上" not in {
                         x.get("Card") for x in obs["Operations"] if x["Kind"]=="action"}
                     return {"fixture_qty":qty,"initial_inventory":qty,
-                      "phase2_reached_in_original_encounter":True,"card_present_before":True,
+                      "phase2_reached_in_original_scenario":True,"card_present_before":True,
                       "usable_before":True,"before_count":before_count,"after_count":after_count,
                       "original_lyon_item_action_executed":True,
                       "item_can_be_spent_again":False,
                       "transcript":save_transcript(p,qty),
                       "steps_to_phase2":len(history),"history":history}
                 return {"fixture_qty":qty,"initial_inventory":qty,
-                    "phase2_reached_in_original_encounter":True,
+                    "phase2_reached_in_original_scenario":True,
                     "card_present_before":True,"usable_before":False,
                     "before_count":before_count,"after_count":inventory(obs),
                     "original_lyon_item_action_executed":False,
@@ -113,7 +113,7 @@ def test_with_fixture(qty):
             except Exception as exc:
                 raise AssertionError(f"Native action error after {len(history)} commands: {history[-12:]}: {exc}") from exc
             if obs.get("Scene")!=initial_scene:
-                raise AssertionError("Left original encounter before Lyon phase: "+str(history[-12:]))
+                raise AssertionError("Left original scenario before Lyon phase: "+str(history[-12:]))
         raise AssertionError("Could not reach original Lyon phase in 110 genuine operations "+str(history[-15:]))
     finally:
         finish(p)
@@ -125,7 +125,7 @@ def main():
     assert owned["before_count"]==1 and owned["after_count"]==0
     assert not no_item["usable_before"]
     assert no_item["card_present_before"]
-    report={"identity":"Actual unmodified SSNoir C# + Scheme encounters/巷子 item action, via explicit --item test fixture; NOT normal world first-to-third-stage progression.",
+    report={"identity":"Actual unmodified SSNoir C# + Scheme scenarios/巷子 item action, via explicit --item test fixture; NOT normal world first-to-third-stage progression.",
       "seed":SEED,"growth":GROWTH,"item":ITEM,
       "controls":{"unowned":no_item,"owned":owned},
       "nonclaims":["Does not execute official east-side counter", "Does not show player naturally acquired cigarette",

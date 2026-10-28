@@ -30,9 +30,9 @@ async function act(vm,day){
   await vm.evaluate(`(set! world-day ${day})`);
 }
 async function count(vm,expr){return vm.evaluateNumber(`(length ${expr})`);}
-async function encounter(vm,name){
-  await vm.loadFile(`scenes/encounters/${name}.scm`);
-  await vm.evaluate("(on-encounter-enter)");
+async function scenario(vm,name){
+  await vm.loadFile(`scenes/scenarios/${name}.scm`);
+  await vm.evaluate("(on-scenario-enter)");
   return convertNode(await vm.evaluate("(get-render-data)"));
 }
 const labels=node=>node.children.map(x=>x.name);
@@ -55,9 +55,9 @@ test("public daily rhythm runs independently of whether Neil takes the shift",as
   assert.equal(await count(vm,`(第二幕节奏 'arrivals-at "码头")`),0);
 });
 
-test("cargo ship is a finite multi-round risk encounter, not a renamed wage job",async()=>{
+test("cargo ship is a finite multi-round risk scenario, not a renamed wage job",async()=>{
   const {vm}=await setup();
-  const n=await encounter(vm,"大船靠岸");
+  const n=await scenario(vm,"大船靠岸");
   assert.equal(n.name,"大船靠岸");
   assert.ok(labels(n).includes("齐心卸货"));
   assert.ok(labels(n).includes("抢卸高架货"));
@@ -69,7 +69,7 @@ test("cargo ship is a finite multi-round risk encounter, not a renamed wage job"
 
 test("Eddie risks his job when the witness backs away; only two permanent outcomes",async()=>{
   const {vm}=await setup();
-  const n=await encounter(vm,"少了十块钱");
+  const n=await scenario(vm,"少了十块钱");
   assert.equal(n.name,"少了十块钱");
   assert.ok(labels(n).includes("核对工时簿"));
   assert.ok(!labels(n).includes("请弗兰克帮忙"));
@@ -83,7 +83,7 @@ test("Eddie risks his job when the witness backs away; only two permanent outcom
 
 test("sponsor stage only contests the performance window, not who Nightingale becomes",async()=>{
   const {vm}=await setup();
-  const n=await encounter(vm,"赞助人试演");
+  const n=await scenario(vm,"赞助人试演");
   assert.equal(n.name,"赞助人试演");
   assert.ok(labels(n).includes("协调演出时间"));
   assert.ok(labels(n).includes("抢留舞台空档"));
