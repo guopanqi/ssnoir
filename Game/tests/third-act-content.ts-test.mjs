@@ -25,7 +25,7 @@ async function setup() {
   const vm = await GameScriptSession.create("third-act-" + (++sequence), state, sources, std);
   await vm.loadFile("scenes/world/world.scm");
   await vm.evaluate("(第一幕 'load! (list (list \"opened\" #t) (list \"tavern\" #t) (list \"act\" 2) (list \"singer\" 2) (list \"rehearsal-seen\" #t)))");
-  await vm.evaluate("(第二幕生活 'load! (list (list \"manager\" #t)))");
+  await vm.evaluate("(第二幕生活 'load! (list (list \"manager\" #t) (list \"manager-met-day\" 8)))");
   await vm.evaluate("(set! world-day 16)");
   state.setGlobal("世界日", 16);
   return { vm, state };
