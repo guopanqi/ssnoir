@@ -37,6 +37,7 @@ jobs:
             tests/game-world.ts-test.mjs \
             tests/first-act.ts-test.mjs \
             tests/second-act-relations.ts-test.mjs \
+            tests/third-act-content.ts-test.mjs \
             tests/world-save.ts-test.mjs \
             tests/tavern-watch.ts-test.mjs \
             tests/scenario-director.ts-test.mjs \
