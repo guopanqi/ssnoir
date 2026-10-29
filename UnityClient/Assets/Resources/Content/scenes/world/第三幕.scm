@@ -409,6 +409,7 @@
       (cond
         ((eq? msg 'start!) (start!))
         ((eq? msg 'started?) started?)
+        ((eq? msg 'on-day!) (on-day!))
         ((eq? msg 'finished?) (and report? nightingale-night?))
         ((eq? msg 'nodes-at) (nodes-at (cadr args)))
         ((eq? msg 'arrivals-at) '())
