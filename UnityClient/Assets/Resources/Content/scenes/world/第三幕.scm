@@ -342,13 +342,13 @@
         (if (and (equal? loc "码头") eddie-hired? (not eddie-celebrated?))
           (list (instant-action "艾迪的新工作靴" eddie-celebrate!)) '())
         ;; 露西：可交流她的写作，不将文学阅读伪装成骰子判定。
-        (if (and (equal? loc "街角咖啡馆") (>= (elapsed) 1) (not lucy-met?))
+        (if (and (and (equal? loc "街角咖啡馆") (第二幕 'lucy-at-cafe?)) (>= (elapsed) 1) (not lucy-met?))
           (list (instant-action "露西的三个客人" lucy-meet!)) '())
-        (if (and (equal? loc "街角咖啡馆") lucy-met? (not lucy-read?) (not lucy-mailed?))
+        (if (and (and (equal? loc "街角咖啡馆") (第二幕 'lucy-at-cafe?)) lucy-met? (not lucy-read?) (not lucy-mailed?))
           (list (instant-action "读露西的小说" lucy-read!)) '())
-        (if (and (equal? loc "街角咖啡馆") lucy-read? (not lucy-comment?) (not lucy-mailed?))
+        (if (and (and (equal? loc "街角咖啡馆") (第二幕 'lucy-at-cafe?)) lucy-read? (not lucy-comment?) (not lucy-mailed?))
           (list (instant-action "聊聊小说结尾" lucy-talk!)) '())
-        (if (and (equal? loc "街角咖啡馆") lucy-mailed? (not lucy-after?))
+        (if (and (and (equal? loc "街角咖啡馆") (第二幕 'lucy-at-cafe?)) lucy-mailed? (not lucy-after?))
           (list (instant-action "露西寄出的信" lucy-after!)) '())
         ;; 弗兰克：这回收的是泊位使用权，不是船。
         (if (and (equal? loc "码头居民区") (>= (elapsed) 1) (not frank-met?)
