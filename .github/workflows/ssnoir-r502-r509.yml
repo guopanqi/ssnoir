@@ -6,7 +6,7 @@ on:
     paths:
       - '.github/workflows/ssnoir-r502-r509.yml'
       - 'tools/content-validator/experiments/r502_r509_graph_enable_isomorphism.py'
-      - 'docs/实验/机制研究/批次/R502-R509-依赖修复与选项启用同构/**'
+      - 'experiments/抽象决策关系研究/批次/R502-R509-依赖修复与选项启用同构/**'
 permissions:
   contents: read
 jobs:

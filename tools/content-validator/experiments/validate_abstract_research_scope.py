@@ -9,7 +9,7 @@ mechanisms merely because a branch has mathematical evidence.
 import json
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[3]
-BASE=ROOT/"docs/实验/机制研究"
+BASE=ROOT/"experiments/抽象决策关系研究"
 SKILL=ROOT/"skills/research-mechanisms/SKILL.md"
 ARCH=BASE/"归档/2026-10-12-方向校准前"
 

@@ -573,7 +573,9 @@
 ;; 每人只有一个特长：单峰，其余 0/1。场景要加强某人，用固定骰/修正/自动动作，
 ;; 不动这里的底值。
 (define 同伴能力表
-  (list (list '夜莺 (list (list 'violence 0) (list 'knowledge 1)
+  (list (list '艾迪 (list (list 'violence 1) (list 'knowledge 0)
+                         (list 'sharpness 3) (list 'social 1)))
+        (list '夜莺 (list (list 'violence 0) (list 'knowledge 1)
                          (list 'sharpness 1) (list 'social 3)))
         (list '老街帮手 (list (list 'violence 2) (list 'knowledge 0)
                              (list 'sharpness 1) (list 'social 0)))))

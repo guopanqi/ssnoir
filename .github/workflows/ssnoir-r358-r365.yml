@@ -6,7 +6,7 @@ on:
     paths:
       - '.github/workflows/ssnoir-r358-r365.yml'
       - 'tools/content-validator/experiments/r358_r365_delegation.py'
-      - 'docs/实验/机制研究/批次/R358-R365-独立目标与委托决策权/研究记录.md'
+      - 'experiments/抽象决策关系研究/批次/R358-R365-独立目标与委托决策权/研究记录.md'
 permissions:
   contents: read
 jobs:

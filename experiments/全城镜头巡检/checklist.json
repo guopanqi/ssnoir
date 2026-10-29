@@ -1,0 +1,261 @@
+{
+  "version": 1,
+  "scope": "顶层地点入口与返回；内部机位逐地点发现并记录。不是所有运行时起点的穷举。",
+  "places": [
+    {
+      "place": "上午十一点零七分",
+      "status": "未检查",
+      "batch": null,
+      "evidence": null
+    },
+    {
+      "place": "别给他们想要的",
+      "status": "待确认",
+      "batch": "001",
+      "evidence": "batches/001/",
+      "note": "代表曲线/几何已检查，真实起点、触发范围与主体画面仍需复核；纠正工具后证据见batches/001-fixed"
+    },
+    {
+      "place": "首演之夜",
+      "status": "未检查",
+      "batch": null,
+      "evidence": null
+    },
+    {
+      "place": "巷子",
+      "status": "未检查",
+      "batch": null,
+      "evidence": null
+    },
+    {
+      "place": "尾随取件人",
+      "status": "代表样本无已检出问题",
+      "batch": "003",
+      "evidence": "batches/003/README.md",
+      "note": "中央最近侧背面回退已修；17地点默认世界入口85帧已审，34往返路线未检出机身/near穿插；货运公司正式材质入口可见。不含任意拖动起点和Stage。"
+    },
+    {
+      "place": "格兰德酒店",
+      "status": "代表样本无已检出问题",
+      "batch": "003",
+      "evidence": "batches/003/README.md",
+      "note": "中央最近侧背面回退已修；17地点默认世界入口85帧已审，34往返路线未检出机身/near穿插；货运公司正式材质入口可见。不含任意拖动起点和Stage。"
+    },
+    {
+      "place": "报社",
+      "status": "代表样本无已检出问题",
+      "batch": "003",
+      "evidence": "batches/003/README.md",
+      "note": "中央最近侧背面回退已修；17地点默认世界入口85帧已审，34往返路线未检出机身/near穿插；货运公司正式材质入口可见。不含任意拖动起点和Stage。"
+    },
+    {
+      "place": "租屋",
+      "status": "未检查",
+      "batch": null,
+      "evidence": null
+    },
+    {
+      "place": "让他们安静",
+      "status": "未检查",
+      "batch": null,
+      "evidence": null
+    },
+    {
+      "place": "巷子里在打人",
+      "status": "未检查",
+      "batch": null,
+      "evidence": null
+    },
+    {
+      "place": "修理棚",
+      "status": "未检查",
+      "batch": null,
+      "evidence": null
+    },
+    {
+      "place": "双目标跟拍",
+      "status": "未检查",
+      "batch": null,
+      "evidence": null
+    },
+    {
+      "place": "照相馆交涉",
+      "status": "未检查",
+      "batch": null,
+      "evidence": null
+    },
+    {
+      "place": "雨夜同行",
+      "status": "未检查",
+      "batch": null,
+      "evidence": null
+    },
+    {
+      "place": "醉客互相叫骂",
+      "status": "未检查",
+      "batch": null,
+      "evidence": null
+    },
+    {
+      "place": "街角咖啡馆",
+      "status": "代表样本无已检出问题",
+      "batch": "003",
+      "evidence": "batches/003/README.md",
+      "note": "中央最近侧背面回退已修；17地点默认世界入口85帧已审，34往返路线未检出机身/near穿插；货运公司正式材质入口可见。不含任意拖动起点和Stage。"
+    },
+    {
+      "place": "雨夜追车",
+      "status": "未检查",
+      "batch": null,
+      "evidence": null
+    },
+    {
+      "place": "联合起吊",
+      "status": "未检查",
+      "batch": null,
+      "evidence": null,
+      "additional_checks": [
+        {
+          "batch": "005",
+          "scope": "第二幕实际起吊/落地进出与动画过程",
+          "status": "已修复并回归",
+          "evidence": "batches/005/README.md"
+        }
+      ]
+    },
+    {
+      "place": "码头",
+      "status": "代表样本无已检出问题",
+      "batch": "003",
+      "evidence": "batches/003/README.md",
+      "note": "中央最近侧背面回退已修；17地点默认世界入口85帧已审，34往返路线未检出机身/near穿插；货运公司正式材质入口可见。不含任意拖动起点和Stage。"
+    },
+    {
+      "place": "货运公司",
+      "status": "代表样本无已检出问题",
+      "batch": "003",
+      "evidence": "batches/003/README.md",
+      "note": "中央最近侧背面回退已修；17地点默认世界入口85帧已审，34往返路线未检出机身/near穿插；货运公司正式材质入口可见。不含任意拖动起点和Stage。",
+      "additional_checks": [
+        {
+          "batch": "004",
+          "scope": "世界PanBounds两对角稳定边界→该地点",
+          "status": "代表样本无已检出问题",
+          "evidence": "batches/004/README.md"
+        }
+      ]
+    },
+    {
+      "place": "剧院",
+      "status": "代表样本无已检出问题",
+      "batch": "003",
+      "evidence": "batches/003/README.md",
+      "note": "中央最近侧背面回退已修；17地点默认世界入口85帧已审，34往返路线未检出机身/near穿插；货运公司正式材质入口可见。不含任意拖动起点和Stage。"
+    },
+    {
+      "place": "警察局",
+      "status": "代表样本无已检出问题",
+      "batch": "003",
+      "evidence": "batches/003/README.md",
+      "note": "中央最近侧背面回退已修；17地点默认世界入口85帧已审，34往返路线未检出机身/near穿插；货运公司正式材质入口可见。不含任意拖动起点和Stage。"
+    },
+    {
+      "place": "诊所",
+      "status": "代表样本无已检出问题",
+      "batch": "003",
+      "evidence": "batches/003/README.md",
+      "note": "中央最近侧背面回退已修；17地点默认世界入口85帧已审，34往返路线未检出机身/near穿插；货运公司正式材质入口可见。不含任意拖动起点和Stage。"
+    },
+    {
+      "place": "老街酒馆",
+      "status": "代表样本无已检出问题",
+      "batch": "003",
+      "evidence": "batches/003/README.md",
+      "note": "中央最近侧背面回退已修；17地点默认世界入口85帧已审，34往返路线未检出机身/near穿插；货运公司正式材质入口可见。不含任意拖动起点和Stage。",
+      "additional_checks": [
+        {
+          "batch": "004",
+          "scope": "世界PanBounds两对角稳定边界→该地点",
+          "status": "代表样本无已检出问题",
+          "evidence": "batches/004/README.md"
+        }
+      ]
+    },
+    {
+      "place": "码头居民区",
+      "status": "代表样本无已检出问题",
+      "batch": "003",
+      "evidence": "batches/003/README.md",
+      "note": "中央最近侧背面回退已修；17地点默认世界入口85帧已审，34往返路线未检出机身/near穿插；货运公司正式材质入口可见。不含任意拖动起点和Stage。"
+    },
+    {
+      "place": "公园",
+      "status": "代表样本无已检出问题",
+      "batch": "003",
+      "evidence": "batches/003/README.md",
+      "note": "中央最近侧背面回退已修；17地点默认世界入口85帧已审，34往返路线未检出机身/near穿插；货运公司正式材质入口可见。不含任意拖动起点和Stage。"
+    },
+    {
+      "place": "家",
+      "status": "代表样本无已检出问题",
+      "batch": "003",
+      "evidence": "batches/003/README.md",
+      "note": "中央最近侧背面回退已修；17地点默认世界入口85帧已审，34往返路线未检出机身/near穿插；货运公司正式材质入口可见。不含任意拖动起点和Stage。"
+    },
+    {
+      "place": "布告栏",
+      "status": "代表样本无已检出问题",
+      "batch": "003",
+      "evidence": "batches/003/README.md",
+      "note": "中央最近侧背面回退已修；17地点默认世界入口85帧已审，34往返路线未检出机身/near穿插；货运公司正式材质入口可见。不含任意拖动起点和Stage。",
+      "additional_checks": [
+        {
+          "batch": "004",
+          "scope": "世界PanBounds两对角稳定边界→该地点",
+          "status": "代表样本无已检出问题",
+          "evidence": "batches/004/README.md"
+        }
+      ]
+    },
+    {
+      "place": "晚宴",
+      "status": "未检查",
+      "batch": null,
+      "evidence": null
+    },
+    {
+      "place": "雕像",
+      "status": "代表样本无已检出问题",
+      "batch": "003",
+      "evidence": "batches/003/README.md",
+      "note": "中央最近侧背面回退已修；17地点默认世界入口85帧已审，34往返路线未检出机身/near穿插；货运公司正式材质入口可见。不含任意拖动起点和Stage。"
+    },
+    {
+      "place": "三号货栈工棚",
+      "status": "代表样本无已检出问题",
+      "batch": "003",
+      "evidence": "batches/003/README.md",
+      "note": "中央最近侧背面回退已修；17地点默认世界入口85帧已审，34往返路线未检出机身/near穿插；货运公司正式材质入口可见。不含任意拖动起点和Stage。"
+    },
+    {
+      "place": "勒索信",
+      "status": "代表样本无已检出问题",
+      "batch": "003",
+      "evidence": "batches/003/README.md",
+      "note": "中央最近侧背面回退已修；17地点默认世界入口85帧已审，34往返路线未检出机身/near穿插；货运公司正式材质入口可见。不含任意拖动起点和Stage。"
+    }
+  ],
+  "next_batch": {
+    "scope": "仅第二幕，不含第二章",
+    "suggested_scenario": "第一次彩排",
+    "instruction": "从第一幕.scm watch-rehearsal! 的第二幕时间窗核对实际触发与呈现；有真实3D镜头才生成路线。"
+  },
+  "scenario_batches": [
+    {
+      "batch": "005",
+      "scope": "仅第二幕：联合起吊、最后一排的观众、公共大船入港",
+      "status": "已检查并修复落地镜头裁切",
+      "evidence": "batches/005/README.md"
+    }
+  ]
+}

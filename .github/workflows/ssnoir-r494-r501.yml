@@ -6,7 +6,7 @@ on:
     paths:
       - '.github/workflows/ssnoir-r494-r501.yml'
       - 'tools/content-validator/experiments/r494_r501_refusal_and_exhaustion.py'
-      - 'docs/实验/机制研究/批次/R494-R501-拒绝与疲惫的混淆/**'
+      - 'experiments/抽象决策关系研究/批次/R494-R501-拒绝与疲惫的混淆/**'
 permissions:
   contents: read
 jobs:

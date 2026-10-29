@@ -6,7 +6,7 @@ on:
     paths:
       - '.github/workflows/ssnoir-r188-r197.yml'
       - 'tools/content-validator/experiments/r188_r197_allocation_and_policy.py'
-      - 'docs/实验/机制研究/批次/R188-R197-跨周期资源与规则编排/研究记录.md'
+      - 'experiments/抽象决策关系研究/批次/R188-R197-跨周期资源与规则编排/研究记录.md'
 permissions:
   contents: read
 jobs:

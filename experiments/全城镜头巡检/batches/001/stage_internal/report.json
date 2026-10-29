@@ -1,0 +1,120 @@
+{
+  "travel_spaces_omitted": false,
+  "endpoint_parity": null,
+  "source": "/Users/usr/Documents/play/ssnoir/city-box/build/city/city_build.blend",
+  "source_sha256": "2acf1f5d474595aca5798d3e64f1f312d489a4c5c05bf3a581f50a9113ef9d61",
+  "math_sha256": "40d1dea7a61e5d329cf68c4132967f6cfda274da08ffd26d5c21515dc6811491",
+  "seconds": 11.733099667006172,
+  "meshes": 6658,
+  "routes": [
+    {
+      "source": "Camera_别给他们想要的",
+      "target": "Camera_别给他们想要的-叫喊",
+      "path": "DirectApproach",
+      "crossfade": true,
+      "crossings": [],
+      "near_plane_hits": [],
+      "start_interest": [
+        -609.808,
+        0,
+        -954.368
+      ],
+      "target_interest": [
+        -606.5454,
+        0,
+        -952.88184
+      ]
+    },
+    {
+      "source": "Camera_别给他们想要的",
+      "target": "Camera_别给他们想要的-退让",
+      "path": "DirectApproach",
+      "crossfade": true,
+      "crossings": [],
+      "near_plane_hits": [],
+      "start_interest": [
+        -609.808,
+        0,
+        -954.368
+      ],
+      "target_interest": [
+        -604.93335,
+        0,
+        -951.4667
+      ]
+    },
+    {
+      "source": "Camera_别给他们想要的-叫喊",
+      "target": "Camera_别给他们想要的",
+      "path": "DirectApproach",
+      "crossfade": true,
+      "crossings": [],
+      "near_plane_hits": [],
+      "start_interest": [
+        -606.5454,
+        0,
+        -952.88184
+      ],
+      "target_interest": [
+        -609.808,
+        0,
+        -954.368
+      ]
+    },
+    {
+      "source": "Camera_别给他们想要的-叫喊",
+      "target": "Camera_别给他们想要的-退让",
+      "path": "DirectApproach",
+      "crossfade": true,
+      "crossings": [],
+      "near_plane_hits": [],
+      "start_interest": [
+        -606.5454,
+        0,
+        -952.88184
+      ],
+      "target_interest": [
+        -604.93335,
+        0,
+        -951.4667
+      ]
+    },
+    {
+      "source": "Camera_别给他们想要的-退让",
+      "target": "Camera_别给他们想要的",
+      "path": "DirectApproach",
+      "crossfade": true,
+      "crossings": [],
+      "near_plane_hits": [],
+      "start_interest": [
+        -604.93335,
+        0,
+        -951.4667
+      ],
+      "target_interest": [
+        -609.808,
+        0,
+        -954.368
+      ]
+    },
+    {
+      "source": "Camera_别给他们想要的-退让",
+      "target": "Camera_别给他们想要的-叫喊",
+      "path": "DirectApproach",
+      "crossfade": true,
+      "crossings": [],
+      "near_plane_hits": [],
+      "start_interest": [
+        -604.93335,
+        0,
+        -951.4667
+      ],
+      "target_interest": [
+        -606.5454,
+        0,
+        -952.88184
+      ]
+    }
+  ],
+  "limitations": "Authored endpoints only; evaluated Blender visibility, no runtime presence/drag/stage changes. Sampled near-plane tests are not continuous volume collision. Subject visibility requires a semantic subject, not a ground-ray hit."
+}

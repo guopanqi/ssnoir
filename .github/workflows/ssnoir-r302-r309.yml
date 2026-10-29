@@ -6,7 +6,7 @@ on:
     paths:
       - '.github/workflows/ssnoir-r302-r309.yml'
       - 'tools/content-validator/experiments/r302_r309_decision_relevant_tests.py'
-      - 'docs/实验/机制研究/批次/R302-R309-只识别足以行动的信息/研究记录.md'
+      - 'experiments/抽象决策关系研究/批次/R302-R309-只识别足以行动的信息/研究记录.md'
 permissions:
   contents: read
 jobs:

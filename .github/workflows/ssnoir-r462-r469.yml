@@ -6,7 +6,7 @@ on:
     paths:
       - '.github/workflows/ssnoir-r462-r469.yml'
       - 'tools/content-validator/experiments/r462_r469_actor_effort.py'
-      - 'docs/实验/机制研究/批次/R462-R469-他者稀缺努力与跨期回应/**'
+      - 'experiments/抽象决策关系研究/批次/R462-R469-他者稀缺努力与跨期回应/**'
 permissions:
   contents: read
 jobs:

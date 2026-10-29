@@ -6,7 +6,7 @@ on:
     paths:
       - '.github/workflows/ssnoir-r518-r525.yml'
       - 'tools/content-validator/experiments/r518_r525_pressure_success_failure.py'
-      - 'docs/实验/机制研究/批次/R518-R525-成功与失败的同边际压力/**'
+      - 'experiments/抽象决策关系研究/批次/R518-R525-成功与失败的同边际压力/**'
 permissions:
   contents: read
 jobs:

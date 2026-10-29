@@ -6,7 +6,7 @@ on:
     paths:
       - '.github/workflows/ssnoir-r470-r477.yml'
       - 'tools/content-validator/experiments/r470_r477_shared_premise.py'
-      - 'docs/实验/机制研究/批次/R470-R477-共同前提与逆向修复/**'
+      - 'experiments/抽象决策关系研究/批次/R470-R477-共同前提与逆向修复/**'
 permissions:
   contents: read
 jobs:

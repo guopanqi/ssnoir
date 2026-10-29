@@ -6,7 +6,7 @@ on:
     paths:
       - '.github/workflows/ssnoir-r486-r493.yml'
       - 'tools/content-validator/experiments/r486_r493_selective_salvage.py'
-      - 'docs/实验/机制研究/批次/R486-R493-双分支局部修复/**'
+      - 'experiments/抽象决策关系研究/批次/R486-R493-双分支局部修复/**'
 permissions:
   contents: read
 jobs:

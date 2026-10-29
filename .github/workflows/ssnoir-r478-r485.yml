@@ -6,7 +6,7 @@ on:
     paths:
       - '.github/workflows/ssnoir-r478-r485.yml'
       - 'tools/content-validator/experiments/r478_r485_verifiable_signal.py'
-      - 'docs/实验/机制研究/批次/R478-R485-可验证信号与他者意志/**'
+      - 'experiments/抽象决策关系研究/批次/R478-R485-可验证信号与他者意志/**'
 permissions:
   contents: read
 jobs:

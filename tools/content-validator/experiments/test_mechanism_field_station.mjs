@@ -11,12 +11,12 @@ import { chromium } from "../../../Game/node_modules/playwright/index.mjs";
 import { execFileSync } from "node:child_process";
 
 const root=path.resolve(import.meta.dirname,"../../..");
-const html=path.join(root,"docs/实验/机制研究/研究总览.html");
+const html=path.join(root,"experiments/抽象决策关系研究/研究总览.html");
 const artifact=path.join(root,"artifacts/research-field-station");
 fs.mkdirSync(artifact,{recursive:true});
-const inbox="docs/实验/机制研究/反馈/inbox";
-const reviewDir="docs/实验/机制研究/反馈/reviews";
-const questionDir="docs/实验/机制研究/反馈/questions";
+const inbox="experiments/抽象决策关系研究/反馈/inbox";
+const reviewDir="experiments/抽象决策关系研究/反馈/reviews";
+const questionDir="experiments/抽象决策关系研究/反馈/questions";
 const fbName="SSNoir-feedback-R54-20261009-062528-43765ce6ee.json";
 const full=inbox+"/"+fbName;
 const reviewPath=reviewDir+"/"+fbName;
@@ -127,7 +127,7 @@ try{
  assert.match(await page.locator("#lib-picked").innerText(),/×/);
  await page.locator("#lib-scenario").fill("照相馆交涉：获得部分记录");
  await page.locator('.desk-nav a[href="#journal"]').click();
- assert.equal(await page.locator("#field-journal-events article").count(),JSON.parse(fs.readFileSync(path.join(root,"docs/实验/机制研究/试玩任务.json"),"utf8")).current.length);
+ assert.equal(await page.locator("#field-journal-events article").count(),JSON.parse(fs.readFileSync(path.join(root,"experiments/抽象决策关系研究/试玩任务.json"),"utf8")).current.length);
  await page.locator('.desk-nav a[href="#experiments"]').click();
  await page.waitForFunction(()=>!document.querySelector("#experiments").classList.contains("hidden"));
  assert.equal(await page.locator("#experiments:not(.hidden)").count(),1);

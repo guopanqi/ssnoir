@@ -6,8 +6,9 @@
 
 ## 功能冻结（常驻最高优先级）
 
-- **冻结一切新 feature**，包括但不限于 web 移植、配音。专注于内容创造、玩家的感受、细节优化，否则不可能完成这个游戏，更不可能完成一个打磨过的内容。
-- 每当用户试图增加新的 feature 时，**必须先提醒**：现在最重要的问题不是堆砌功能，而是把已有的东西做对、做好。
+- **冻结一切新 feature**，包括但不限于 web 移植、配音，以及炫技式运镜、额外的装备制作系统、涂色预览等功能。专注于内容创造、玩家的感受、已有功能的修复与打磨，否则不可能完成这个游戏，更不可能完成一个打磨过的内容。
+- 当用户提出真正新增的 feature 时，**先拒绝实施，不要提醒后照常开工**；简要说明功能冻结原则，并指出现在更重要的是把已有内容和功能做对、做好。只有用户听取拒绝及其理由后，仍明确、强烈地要求实施这个具体 feature，才继续；不能把最初的提议本身视为再次确认。修复缺陷、完成已确定的工作或打磨已有功能不属于新增 feature，不要误拒。
+- 对耗费更多资源、后续更难修改的内容保持克制，包括 3D 动画和剧场演出；即使由 AI 完成，也不应太早投入。判断当前玩法、决策关系或内容体验仍处于高频试错阶段，而用户正准备把重资产附加上去、可能损伤 **iteration of fun** 时，**不要只提醒后照常执行：应直接拒绝启动或继续这项重资产工作**，说明它会怎样增加修改成本、拖慢迭代，并追问：**这难道真的不是在逃避更重要的迭代吗？** 只有用户了解这个风险后仍明确、强烈地要求继续，才按其要求执行；不能把最初的提议本身视为这次再次确认。
 
 本文件是所有 AI / 协作者的**统一入口**。下面先是文档导航,再是常驻工程规则。
 
@@ -23,15 +24,20 @@
 
 ## 文档导航
 
-- **架构总览**：[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+- **实验存放**：agent 的实验、原型与验证记录统一放在 `experiments/<具体实验名称>/`，不放进 `docs/`；新增目录以实验内容命名。
+
+- **文档首页（章节、人物、制作与研究入口）**：[docs/README.md](docs/README.md)
+
+- **架构总览**：[docs/工程/ARCHITECTURE.md](docs/工程/ARCHITECTURE.md)
+- **已有Scenario的决策结构与体验备注**：[docs/制作/Scenario决策结构卡.md](docs/制作/Scenario决策结构卡.md)，修改Scenario决策关系时同步对应卡片。
 
 - **Schemy 解释器(库开发)**：[schemy-master/AGENTS.md](schemy-master/AGENTS.md)
 
 - **写 .scm 内容（世界观口径 + 引擎隐含行为 + 内容作者的判断）**：[skills/write-scheme/SKILL.md](skills/write-scheme/SKILL.md)
-- **抽象玩法结构研究（唯一默认研究对象：决策关系，不是剧情）**：[docs/实验/机制研究/README.md](docs/实验/机制研究/README.md) → [研究定位](docs/实验/机制研究/研究定位与评价.md) → [实验维护契约](docs/实验/机制研究/实验结构与维护契约.md)。执行方法见 [skills/research-mechanisms/SKILL.md](skills/research-mechanisms/SKILL.md)；S2/S3正式内容问题另见 [正式内容验证](docs/实验/正式内容验证/README.md)。
-- **制作 3D 资产（参考图、低模、Blender 加工、Unity 命名契约）**：[skills/create-3d-assets/SKILL.md](skills/create-3d-assets/SKILL.md)
+- **抽象玩法结构研究（唯一默认研究对象：决策关系，不是剧情）**：[experiments/抽象决策关系研究/README.md](experiments/抽象决策关系研究/README.md) → [研究定位](experiments/抽象决策关系研究/研究定位与评价.md) → [实验维护契约](experiments/抽象决策关系研究/实验结构与维护契约.md)。执行方法见 [skills/research-mechanisms/SKILL.md](skills/research-mechanisms/SKILL.md)；S2/S3正式内容问题另见 [正式内容验证](experiments/第一章内容验证/README.md)。
+- **制作单件 3D 资产（代码建模、已有模型加工、生成模型、网格与尺度）**：[skills/make-3d-asset/SKILL.md](skills/make-3d-asset/SKILL.md)
 - **制作游戏图片（舞台人物、姿势、2D 道具、3D 参考图）**：[skills/make-images/SKILL.md](skills/make-images/SKILL.md)
-- **场景制作与视觉组合**：[skills/make-scene/SKILL.md](skills/make-scene/SKILL.md) → [组合设计与审核](skills/make-scene/references/visual-language.md)；[共同视觉基准](docs/城市视觉基准.md) 维护风格，[CityBox 视觉参数](city-box/docs/视觉参数.md) 维护作者声明与组合限制。
+- **地点与场景制作（地标、室内、街区、视觉组合与 CityBox 发布）**：[skills/make-scene/SKILL.md](skills/make-scene/SKILL.md) → [组合设计与审核](skills/make-scene/references/visual-language.md)；[共同视觉基准](docs/制作/城市视觉基准.md) 维护风格，[CityBox 视觉参数](city-box/docs/视觉参数.md) 维护作者声明与组合限制。
 - **要不要验证 / 怎么验证**：[tools/VERIFYING.md](tools/VERIFYING.md)
 - **Web Preview、Web Release、TapTap Release 三种构建方式**：[tools/BUILDING.md](tools/BUILDING.md)
 
@@ -60,6 +66,8 @@
 先读 [skills/write-scheme/SKILL.md](skills/write-scheme/SKILL.md) §一（判断标准与穿帮词，唯一权威）。
 
 **回答语言**：使用中文回答；专有名词等更适合英文的内容保持英文。
+
+**运镜约定**：普通聚焦、返回和剧情演出共用镜头管理器中的中央默认策略。默认 Direct Approach；先求出 Orbit 从当前侧最近的目标机位，再预测途中构图，若中后段明显丢失目标或途中突然翻向，回退到原有围绕注视点的 AuthoredArc。Pan/Static 保留固定终点，不因剧情或拖拽类型直接改走弧线；不要以朝向插值或单纯抬高路径代替主体取景。特殊编排才显式指定；以后调整规则时改中心策略，不逐场景添加覆盖。
 
 # UI-rules
 

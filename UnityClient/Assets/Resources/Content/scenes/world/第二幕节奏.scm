@@ -26,20 +26,22 @@
   (define (ship-arrival!)
     (set! ship? #t)
     (sync-ship!)
-    (第二幕-大船入港))
+    (第二幕-大船入港)
+    (play-dialogue!
+      (line "艾迪" "尼尔，这班跟我们一起卸。先把普通货卸下来，再看舱里的大件。")
+      (line "尼尔" "好，我跟你们干。")))
   (define (ship-end! result)
-    (if (and (list? result) (= (length result) 2)
-             (member? (car result) '(满载 停卸))) #t
+    (if (member? result '(安全落货 延期卸载)) #t
       (error "大船：非法Scenario结果"))
     (if (equal? ship-work "已结算") (error "大船重复结算") #t)
     (set! ship-work "已结算")
     (sync-ship!)
-    ;; 整批完成发完整加班费与奖金；未完成（包括倒下）只发固定辛苦钱。
-    (add-item! "金钱" (if (eq? (car result) '满载) (+ 36 12) 6)))
+    ;; 安全落货发完整加班费与奖金；未完成（包括倒下）只发固定辛苦钱。
+    (add-item! "金钱" (if (eq? result '安全落货) (+ 36 12) 6)))
   (define (join-ship!)
     (if (and (= world-day 9) (equal? ship-work "未参加")) #t
       (error "大船：不在夜班窗口"))
-    (start-scenario "大船靠岸" ship-end!))
+    (start-scenario "大船靠岸（联合起吊）" ship-end!))
   (define (dock-mark!)
     (set! dock-mark? #t)
     (第二幕-货栈白线))
@@ -60,9 +62,9 @@
           (list (arrival "酒馆里少了一个人" empty-tavern!)) '())
         (if (and (= world-day 9) (equal? loc "码头") (not ship?))
           (list (arrival "大船靠岸" ship-arrival!)) '())
-        (if (and (>= world-day 13) (equal? loc "码头") (not dock-mark?))
+        (if (and (>= world-day 15) (equal? loc "码头") (not dock-mark?))
           (list (arrival "旧港测绘标记" dock-mark!)) '())
-        (if (and (>= world-day 13) (equal? loc "剧院") (not poster?))
+        (if (and (>= world-day 15) (equal? loc "剧院") (not poster?))
           (list (arrival "新城海报" poster!)) '()))))
   (define (nodes-at loc)
     (if (not (active?)) '()
@@ -70,9 +72,10 @@
         (if (and (equal? loc "码头") (= world-day 9)
                  (equal? ship-work "未参加"))
           (list (node "参加大船夜班" :name "参加抢卸夜班"
-            :subtitle "卸完本组货物领48块，未完成只领6块"
+            :subtitle "安全落货领48块，延期卸载领6块"
+            :required-before-rest "先参加大船抢卸夜班"
             :resolve (instant (outcome join-ship!)))) '())
-        (if (and (equal? loc "剧院") (>= world-day 13)
+        (if (and (equal? loc "剧院") (>= world-day 15)
                  (第二幕生活 'manager-met?) (not invitation?))
           (list (instant-action "经理的新委托" next-job!)) '()))))
   (define (dossier-at)

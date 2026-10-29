@@ -68,7 +68,7 @@ namespace SSNoir.Playtest
 
         public bool Finished => !Scenes.CurrentSceneName.Equals(ScenarioScene, StringComparison.OrdinalIgnoreCase);
 
-        /// <summary>Scenario end-scenario 交回来的值。</summary>
+        /// <summary>`end-scenario` 返回的值。</summary>
         public object? Result => Scenes.LastScenarioResult;
 
         /// <summary>此刻能做的每一件事：每张可执行的卡 × 每个人手上的每一颗骰。

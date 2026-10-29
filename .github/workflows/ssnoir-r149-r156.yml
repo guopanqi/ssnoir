@@ -6,7 +6,7 @@ on:
     paths:
       - '.github/workflows/ssnoir-r149-r156.yml'
       - 'tools/content-validator/experiments/r149_r156_autonomous_city_agendas.py'
-      - 'docs/实验/机制研究/批次/R149-R156-城市人物自主议程/研究记录.md'
+      - 'experiments/抽象决策关系研究/批次/R149-R156-城市人物自主议程/研究记录.md'
 permissions:
   contents: read
 jobs:

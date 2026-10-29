@@ -5,12 +5,12 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/ssnoir-r358-r389-suite.yml'
-      - 'docs/实验/机制研究/当前状态.md'
-      - 'docs/实验/机制研究/研究队列.md'
-      - 'docs/实验/机制研究/自主研究记忆.json'
-      - 'docs/实验/机制研究/批次/R358-R389-跨心理活动质量审计/**'
-      - 'docs/实验/机制研究/批次/R366-R373-可组合规则的执行与修订/参与者卡片.md'
-      - 'docs/实验/机制研究/批次/R366-R373-可组合规则的执行与修订/研究员规约.md'
+      - 'experiments/抽象决策关系研究/当前状态.md'
+      - 'experiments/抽象决策关系研究/研究队列.md'
+      - 'experiments/抽象决策关系研究/自主研究记忆.json'
+      - 'experiments/抽象决策关系研究/批次/R358-R389-跨心理活动质量审计/**'
+      - 'experiments/抽象决策关系研究/批次/R366-R373-可组合规则的执行与修订/参与者卡片.md'
+      - 'experiments/抽象决策关系研究/批次/R366-R373-可组合规则的执行与修订/研究员规约.md'
 permissions:
   contents: read
 jobs:
@@ -42,7 +42,7 @@ jobs:
           assert [v[k] for v,k in zip(results,(
            'R358_belief_DP','R366_full_program_DP','R374_full_public_belief_DP',
            'R382_full_non_linear_posterior_DP'))]==['37/16','111/32','7/4','16921/4096']
-          m=json.loads(Path('docs/实验/机制研究/自主研究记忆.json').read_text())
+          m=json.loads(Path('experiments/抽象决策关系研究/自主研究记忆.json').read_text())
           assert m['totalArchivedRounds']>=334
           assert m['roundsSinceCalibration']>=216
           assert m['totalArchivedRounds']==118+m['roundsSinceCalibration']
@@ -57,7 +57,7 @@ jobs:
           set -euo pipefail
           python3 - <<'PY'
           from pathlib import Path
-          root=Path('docs/实验/机制研究/批次/R366-R373-可组合规则的执行与修订')
+          root=Path('experiments/抽象决策关系研究/批次/R366-R373-可组合规则的执行与修订')
           pub=(root/'参与者卡片.md').read_text()
           secret=(root/'研究员规约.md').read_text()
           assert len(pub)>500 and len(secret)>500

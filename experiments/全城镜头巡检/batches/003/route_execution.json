@@ -1,0 +1,197 @@
+{
+  "routes": 34,
+  "landmarks": 17,
+  "samples_per_route": 120,
+  "duration_seconds": 2,
+  "elapsed_seconds": 1.9269090419984423,
+  "shared_program": "/Users/usr/Documents/play/ssnoir/tools/camera-review/bin/Debug/net9.0/CameraReview.dll",
+  "per_landmark": [
+    {
+      "place": "尾随取件人",
+      "command": [
+        "/usr/local/share/dotnet/dotnet",
+        "/Users/usr/Documents/play/ssnoir/tools/camera-review/bin/Debug/net9.0/CameraReview.dll",
+        "<pair-input.json>",
+        "<pair-routes.json>"
+      ],
+      "returncode": 0,
+      "stdout": "Sampled 2 routes using shared runtime math."
+    },
+    {
+      "place": "格兰德酒店",
+      "command": [
+        "/usr/local/share/dotnet/dotnet",
+        "/Users/usr/Documents/play/ssnoir/tools/camera-review/bin/Debug/net9.0/CameraReview.dll",
+        "<pair-input.json>",
+        "<pair-routes.json>"
+      ],
+      "returncode": 0,
+      "stdout": "Sampled 2 routes using shared runtime math."
+    },
+    {
+      "place": "报社",
+      "command": [
+        "/usr/local/share/dotnet/dotnet",
+        "/Users/usr/Documents/play/ssnoir/tools/camera-review/bin/Debug/net9.0/CameraReview.dll",
+        "<pair-input.json>",
+        "<pair-routes.json>"
+      ],
+      "returncode": 0,
+      "stdout": "Sampled 2 routes using shared runtime math."
+    },
+    {
+      "place": "街角咖啡馆",
+      "command": [
+        "/usr/local/share/dotnet/dotnet",
+        "/Users/usr/Documents/play/ssnoir/tools/camera-review/bin/Debug/net9.0/CameraReview.dll",
+        "<pair-input.json>",
+        "<pair-routes.json>"
+      ],
+      "returncode": 0,
+      "stdout": "Sampled 2 routes using shared runtime math."
+    },
+    {
+      "place": "码头",
+      "command": [
+        "/usr/local/share/dotnet/dotnet",
+        "/Users/usr/Documents/play/ssnoir/tools/camera-review/bin/Debug/net9.0/CameraReview.dll",
+        "<pair-input.json>",
+        "<pair-routes.json>"
+      ],
+      "returncode": 0,
+      "stdout": "Sampled 2 routes using shared runtime math."
+    },
+    {
+      "place": "三号货栈工棚",
+      "command": [
+        "/usr/local/share/dotnet/dotnet",
+        "/Users/usr/Documents/play/ssnoir/tools/camera-review/bin/Debug/net9.0/CameraReview.dll",
+        "<pair-input.json>",
+        "<pair-routes.json>"
+      ],
+      "returncode": 0,
+      "stdout": "Sampled 2 routes using shared runtime math."
+    },
+    {
+      "place": "勒索信",
+      "command": [
+        "/usr/local/share/dotnet/dotnet",
+        "/Users/usr/Documents/play/ssnoir/tools/camera-review/bin/Debug/net9.0/CameraReview.dll",
+        "<pair-input.json>",
+        "<pair-routes.json>"
+      ],
+      "returncode": 0,
+      "stdout": "Sampled 2 routes using shared runtime math."
+    },
+    {
+      "place": "货运公司",
+      "command": [
+        "/usr/local/share/dotnet/dotnet",
+        "/Users/usr/Documents/play/ssnoir/tools/camera-review/bin/Debug/net9.0/CameraReview.dll",
+        "<pair-input.json>",
+        "<pair-routes.json>"
+      ],
+      "returncode": 0,
+      "stdout": "Sampled 2 routes using shared runtime math."
+    },
+    {
+      "place": "剧院",
+      "command": [
+        "/usr/local/share/dotnet/dotnet",
+        "/Users/usr/Documents/play/ssnoir/tools/camera-review/bin/Debug/net9.0/CameraReview.dll",
+        "<pair-input.json>",
+        "<pair-routes.json>"
+      ],
+      "returncode": 0,
+      "stdout": "Sampled 2 routes using shared runtime math."
+    },
+    {
+      "place": "警察局",
+      "command": [
+        "/usr/local/share/dotnet/dotnet",
+        "/Users/usr/Documents/play/ssnoir/tools/camera-review/bin/Debug/net9.0/CameraReview.dll",
+        "<pair-input.json>",
+        "<pair-routes.json>"
+      ],
+      "returncode": 0,
+      "stdout": "Sampled 2 routes using shared runtime math."
+    },
+    {
+      "place": "诊所",
+      "command": [
+        "/usr/local/share/dotnet/dotnet",
+        "/Users/usr/Documents/play/ssnoir/tools/camera-review/bin/Debug/net9.0/CameraReview.dll",
+        "<pair-input.json>",
+        "<pair-routes.json>"
+      ],
+      "returncode": 0,
+      "stdout": "Sampled 2 routes using shared runtime math."
+    },
+    {
+      "place": "老街酒馆",
+      "command": [
+        "/usr/local/share/dotnet/dotnet",
+        "/Users/usr/Documents/play/ssnoir/tools/camera-review/bin/Debug/net9.0/CameraReview.dll",
+        "<pair-input.json>",
+        "<pair-routes.json>"
+      ],
+      "returncode": 0,
+      "stdout": "Sampled 2 routes using shared runtime math."
+    },
+    {
+      "place": "码头居民区",
+      "command": [
+        "/usr/local/share/dotnet/dotnet",
+        "/Users/usr/Documents/play/ssnoir/tools/camera-review/bin/Debug/net9.0/CameraReview.dll",
+        "<pair-input.json>",
+        "<pair-routes.json>"
+      ],
+      "returncode": 0,
+      "stdout": "Sampled 2 routes using shared runtime math."
+    },
+    {
+      "place": "公园",
+      "command": [
+        "/usr/local/share/dotnet/dotnet",
+        "/Users/usr/Documents/play/ssnoir/tools/camera-review/bin/Debug/net9.0/CameraReview.dll",
+        "<pair-input.json>",
+        "<pair-routes.json>"
+      ],
+      "returncode": 0,
+      "stdout": "Sampled 2 routes using shared runtime math."
+    },
+    {
+      "place": "家",
+      "command": [
+        "/usr/local/share/dotnet/dotnet",
+        "/Users/usr/Documents/play/ssnoir/tools/camera-review/bin/Debug/net9.0/CameraReview.dll",
+        "<pair-input.json>",
+        "<pair-routes.json>"
+      ],
+      "returncode": 0,
+      "stdout": "Sampled 2 routes using shared runtime math."
+    },
+    {
+      "place": "布告栏",
+      "command": [
+        "/usr/local/share/dotnet/dotnet",
+        "/Users/usr/Documents/play/ssnoir/tools/camera-review/bin/Debug/net9.0/CameraReview.dll",
+        "<pair-input.json>",
+        "<pair-routes.json>"
+      ],
+      "returncode": 0,
+      "stdout": "Sampled 2 routes using shared runtime math."
+    },
+    {
+      "place": "雕像",
+      "command": [
+        "/usr/local/share/dotnet/dotnet",
+        "/Users/usr/Documents/play/ssnoir/tools/camera-review/bin/Debug/net9.0/CameraReview.dll",
+        "<pair-input.json>",
+        "<pair-routes.json>"
+      ],
+      "returncode": 0,
+      "stdout": "Sampled 2 routes using shared runtime math."
+    }
+  ]
+}

@@ -7,7 +7,7 @@ on:
       - '.github/workflows/ssnoir-r422-r429.yml'
       - 'tools/content-validator/experiments/r422_r429_precompiled_modes.py'
       - 'tools/content-validator/experiments/r414_r421_late_sensor.py'
-      - 'docs/实验/机制研究/批次/R422-R429-预编译模式强基线/**'
+      - 'experiments/抽象决策关系研究/批次/R422-R429-预编译模式强基线/**'
 permissions:
   contents: read
 jobs:

@@ -15,6 +15,9 @@ namespace SSNoir
         [Header("Drag Mode")]
         public CameraDragMode dragMode = CameraDragMode.Pan;
 
+        [Tooltip("过渡时的真实主体焦点；空中主体、平视机位应显式配置，不使用 UI Anchor。") ]
+        public Transform? focusTarget;
+
         [Header("Orbit Settings")]
         [Tooltip("Required when Drag Mode is Orbit. This is the stable scene-space orbit center, not the node interaction anchor.")]
         public Transform? orbitPivot;
@@ -30,6 +33,31 @@ namespace SSNoir
         [Header("Model Space")]
         [Tooltip("导入器指定：这台相机所属模型的根。Pan Bounds 与裁剪面按它的变换换算成世界值；为空则视为已是世界值。")]
         public Transform? modelRoot;
+
+        [Header("Focus Travel Space")]
+        [Tooltip("导入器绑定地点声明的相机通行空间；仅检查过渡，不改变拖拽边界。")]
+        public Transform? travelSpace;
+        public Vector3 travelSpaceMin;
+        public Vector3 travelSpaceMax;
+
+        public FocusTravelMath.TravelVolume? TravelVolume
+        {
+            get
+            {
+                if (travelSpace == null) return null;
+                Vector3 half = (travelSpaceMax - travelSpaceMin) * .5f;
+                if (half.x <= 0 || half.y <= 0 || half.z <= 0)
+                    throw new System.InvalidOperationException($"Camera '{name}' has invalid travel space.");
+                Vector3 center = travelSpace.TransformPoint((travelSpaceMin + travelSpaceMax) * .5f);
+                Vector3 size = Vector3.Scale(half, travelSpace.lossyScale);
+                Quaternion rotation = travelSpace.rotation;
+                return new FocusTravelMath.TravelVolume {
+                    Center = new System.Numerics.Vector3(center.x, center.y, center.z),
+                    HalfSize = new System.Numerics.Vector3(Mathf.Abs(size.x), Mathf.Abs(size.y), Mathf.Abs(size.z)),
+                    Rotation = new System.Numerics.Quaternion(rotation.x, rotation.y, rotation.z, rotation.w)
+                };
+            }
+        }
 
         [Header("Pan Bounds")]
         [Tooltip("Only applies to Pan cameras. X / Y = model-space X / Z（modelRoot 为空时即世界 X / Z）。")]

@@ -609,7 +609,7 @@ namespace SSNoir
             var camera = anchor.FocusVirtualCamera
                 ?? throw new InvalidOperationException($"剧情运镜锚点缺少机位: {anchorName}");
             if (cut) _cameraManager.CutFocusTo(camera);
-            else _cameraManager.BeginFocusTravel(camera, respectReduceMotion: false, path: FocusTravelPath.AuthoredArc);
+            else _cameraManager.BeginFocusTravel(camera, respectReduceMotion: false);
             PromoteFocusCamera(camera);
             yield return null;
             var brain = Camera.main != null ? Camera.main.GetComponent<Cinemachine.CinemachineBrain>() : null;
@@ -650,14 +650,10 @@ namespace SSNoir
             if (focusCamera != null)
             {
                 bool ownsCityOutline = _cityOutlines?.HasOwner(focusCamera) == true;
-                // 探索只声明意图；路径由镜头管理器根据进出两端选择。
-                // 剧情仍明确使用编排弧线，不受探索设置影响。
-                // All player-initiated navigation (room → house → world included)
-                // uses the same exploration policy. Cinematic routes explicitly
-                // request AuthoredArc; the UI never selects a camera trajectory.
+                // 普通聚焦与剧情沿用镜头管理器的同一个默认策略。
+                // storyDriven仅决定是否服从减少动画偏好，不决定路径。
                 bool travelStarted = _cameraManager.BeginFocusTravel(
-                    focusCamera, out float travelDuration, respectReduceMotion: !storyDriven,
-                    path: SSNoirCameraManager.NavigationTravelPath(storyDriven));
+                    focusCamera, out float travelDuration, respectReduceMotion: !storyDriven);
 
                 // 旧世界须保持到抓帧完成；目标描线、内部、灯光与雾由放行新机位统一提交。
                 if (_cameraManager.IsReducedViewSwapping)
@@ -1382,6 +1378,7 @@ namespace SSNoir
                 if (_displayedSnapshot.RootNode != null)
                     CollectEffectiveAnchors(_displayedSnapshot.RootNode, referenced);
                 _cityOutlines.SetReferencedAnchors(referenced);
+                PropMotion.SyncPresence(referenced);
             }
             _ambientMusic.Apply(_gameState.Get<object>("音乐") as string);
             PropMotion.SyncAll(_gameState);

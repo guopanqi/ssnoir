@@ -1,0 +1,4 @@
+interface:
+  display_name: "制作单件 3D 资产"
+  short_description: "为 SSNoir 选择代码建模、现有模型加工或生成服务，交付可用单件资产"
+  default_prompt: "使用 $make-3d-asset 制作一个 SSNoir 单件资产，按目标形体选择制作路线，完成网格加工与预览后交给场景装配或既有消费者。"

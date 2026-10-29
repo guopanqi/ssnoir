@@ -1,0 +1,236 @@
+{
+  "source": "/Users/usr/Documents/play/ssnoir/city-box/build/city/city_build.blend",
+  "source_sha256": "9de4f596a8436274a100e4686970ffba58c7ead3e808f0eedc92090ef5bec060",
+  "shared_math_sha256": "308fcb74f09cb368face52178a7a2bb6c368344404b49f797f96ae134d13be95",
+  "program_sha256": "4974117c956af84e5003127487a5da347d5f4615068cb549678f7e72e267da1d",
+  "evidence_sha256": {
+    "UnityClient/Assets/Resources/Content/scenes/world/第二幕节奏.scm": "38333d8913cf38849780c8e9b52440303b3afff406b878f7f05240027a94124e",
+    "UnityClient/Assets/Resources/Content/scripts/theatre/第二幕城市镜头.scm": "d8e44491d29abf1773271a4d0398bb7601a0767abcc601dd98dd9aedba7b04fb",
+    "UnityClient/Assets/Resources/Content/scenes/scenarios/大船靠岸（联合起吊）.scm": "28611d25cf027e8a20aa854ec6d3a7a4918f820c2d50e1461b077b19e9ca18ef",
+    "UnityClient/Assets/Resources/Content/scenes/world/第二幕剧院.scm": "bbd776cc9d1d364379c5651bac378aa5e8052a0b6e794b2b69f46008113da76e",
+    "UnityClient/Assets/Resources/Content/scenes/scenarios/最后一排的观众.scm": "a9e00671b7e3ed96a9bc9f027dba5cfcd7dcda5e7de8ad240e0964b24b6de72e",
+    "UnityClient/Assets/Scripts/Runtime/SSNoirCameraManager.cs": "8035aae64ef75c339f9778699c3d36444310358c9b7ae10ff849189eb08e9035",
+    "UnityClient/Assets/Scripts/Runtime/Cutscene/CutscenePlayer.cs": "63fe7de700f3e937855991b453ef95d0413fc34f6b7fdca523eeb784d3321d75",
+    "city-box/build/city/report.json": "4d55dd08eb4c78393b2561f58e570d5c5efa567439ebb61fdf1c57253b092193"
+  },
+  "pairs": [
+    {
+      "sequence": "联合起吊进入Suspended演出及返回",
+      "trigger": "大船靠岸（联合起吊）.scm 准备完成后的 play-motion!；play-motion结束返回当时Camera_联合起吊",
+      "source": {
+        "Name": "Camera_联合起吊",
+        "Mode": "static",
+        "Position": [
+          -1680.0,
+          17.0,
+          -916.0
+        ],
+        "Rotation": [
+          0.03820043057203293,
+          0.9567371010780334,
+          -0.14742031693458557,
+          0.24791553616523743
+        ],
+        "Fov": 26.991466561591622,
+        "Near": 0.15000000596046448,
+        "Pivot": [
+          -1660.0,
+          4.0,
+          -952.0
+        ]
+      },
+      "destination": {
+        "Name": "Camera_联合起吊-起吊",
+        "Mode": "static",
+        "Position": [
+          -1653.0,
+          6.400000095367432,
+          -932.0
+        ],
+        "Rotation": [
+          0.0033339504152536392,
+          -0.9798071980476379,
+          0.01639530435204506,
+          0.19924356043338776
+        ],
+        "Fov": 53.13010235415599,
+        "Near": 0.15000000596046448,
+        "Pivot": [
+          -1660.0,
+          5.800000190734863,
+          -948.5
+        ]
+      },
+      "source_root": "联合起吊",
+      "destination_root": "联合起吊",
+      "joint_focus_interest_assertion": "passed",
+      "source_anchor": {
+        "name": "Anchor_联合起吊",
+        "position": [
+          -1660.0,
+          2.5,
+          -944.0
+        ]
+      },
+      "destination_anchor": null,
+      "source_focus_interest": {
+        "kind": "FocusTarget",
+        "name": "FocusTarget_联合起吊",
+        "position": [
+          -1660.0,
+          4.0,
+          -952.0
+        ]
+      },
+      "destination_focus_interest": {
+        "kind": "FocusTarget",
+        "name": "FocusTarget_联合起吊-起吊",
+        "position": [
+          -1660.0,
+          5.800000190734863,
+          -948.5
+        ]
+      },
+      "shared_program_stdout": "Sampled 2 routes using shared runtime math."
+    },
+    {
+      "sequence": "联合起吊Landed演出及返回",
+      "trigger": "大船靠岸（联合起吊）.scm 安全落货的 play-motion!；play-motion结束返回当时Camera_联合起吊",
+      "source": {
+        "Name": "Camera_联合起吊",
+        "Mode": "static",
+        "Position": [
+          -1680.0,
+          17.0,
+          -916.0
+        ],
+        "Rotation": [
+          0.03820043057203293,
+          0.9567371010780334,
+          -0.14742031693458557,
+          0.24791553616523743
+        ],
+        "Fov": 26.991466561591622,
+        "Near": 0.15000000596046448,
+        "Pivot": [
+          -1660.0,
+          4.0,
+          -952.0
+        ]
+      },
+      "destination": {
+        "Name": "Camera_联合起吊-落地",
+        "Mode": "static",
+        "Position": [
+          -1671.0,
+          4.800000190734863,
+          -926.0
+        ],
+        "Rotation": [
+          0.0013396224239841104,
+          0.9608832597732544,
+          -0.004648602567613125,
+          0.2769114673137665
+        ],
+        "Fov": 53.13010235415599,
+        "Near": 0.15000000596046448,
+        "Pivot": [
+          -1660.0,
+          4.599999904632568,
+          -943.5
+        ]
+      },
+      "source_root": "联合起吊",
+      "destination_root": "联合起吊",
+      "joint_focus_interest_assertion": "passed",
+      "source_anchor": {
+        "name": "Anchor_联合起吊",
+        "position": [
+          -1660.0,
+          2.5,
+          -944.0
+        ]
+      },
+      "destination_anchor": null,
+      "source_focus_interest": {
+        "kind": "FocusTarget",
+        "name": "FocusTarget_联合起吊",
+        "position": [
+          -1660.0,
+          4.0,
+          -952.0
+        ]
+      },
+      "destination_focus_interest": {
+        "kind": "FocusTarget",
+        "name": "FocusTarget_联合起吊-落地",
+        "position": [
+          -1660.0,
+          4.599999904632568,
+          -943.5
+        ]
+      },
+      "shared_program_stdout": "Sampled 2 routes using shared runtime math."
+    },
+    {
+      "sequence": "第二幕货船Berthed入港演出及返回",
+      "trigger": "第二幕节奏.scm 入场时第二幕-大船入港 play-motion!；结束返回当时码头相机",
+      "source": {
+        "Name": "Camera_码头",
+        "Mode": "pan",
+        "Position": [
+          -34.62868118286133,
+          80.6500015258789,
+          138.7831268310547
+        ],
+        "Rotation": [
+          0.30409470200538635,
+          0.6153498888015747,
+          -0.2785533666610718,
+          0.6717730164527893
+        ],
+        "Fov": 26.991466561591622,
+        "Near": 0.5
+      },
+      "destination": {
+        "Name": "Camera_码头-靠岸",
+        "Mode": "static",
+        "Position": [
+          8.282526016235352,
+          3.8499999046325684,
+          180.87384033203125
+        ],
+        "Rotation": [
+          0.003489681053906679,
+          -0.9778169393539429,
+          0.016343219205737114,
+          0.2087935358285904
+        ],
+        "Fov": 64.55128862915527,
+        "Near": 0.5
+      },
+      "source_root": "码头",
+      "destination_root": "码头",
+      "joint_focus_interest_assertion": "not_applicable",
+      "source_anchor": {
+        "name": "Anchor_码头",
+        "position": [
+          29.358505249023438,
+          3.6500000953674316,
+          144.91824340820312
+        ]
+      },
+      "destination_anchor": null,
+      "source_focus_interest": {
+        "kind": "GroundInterest fallback",
+        "reason": "No FocusTarget; target camera is not Orbit"
+      },
+      "destination_focus_interest": {
+        "kind": "GroundInterest fallback",
+        "reason": "No FocusTarget; target camera is not Orbit"
+      },
+      "shared_program_stdout": "Sampled 2 routes using shared runtime math."
+    }
+  ],
+  "last_row_scenario": "第二幕剧院.scm D13 play-dialogue then start-scenario 最后一排的观众; no Stage/Anchor/Camera/motion/FocusNode; no 3D route was fabricated."
+}

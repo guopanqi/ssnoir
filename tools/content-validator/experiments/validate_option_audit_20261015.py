@@ -1,6 +1,6 @@
 """Validate the cross-family option-preservation evidence matrix without re-solving old models."""
 import json, pathlib
-P=pathlib.Path(__file__).resolve().parents[3]/"docs/实验/机制研究/批次/2026-10-15-保留选择权跨族审计/反证矩阵.json"
+P=pathlib.Path(__file__).resolve().parents[3]/"experiments/抽象决策关系研究/批次/2026-10-15-保留选择权跨族审计/反证矩阵.json"
 def validate(data):
  assert data["schema"]=="ssnoir.option-value-counterfactual-matrix/v1"
  cases=data["cases"]
@@ -8,7 +8,7 @@ def validate(data):
  assert len(set(z["id"] for z in cases))==5
  assert len(data["gate_questions"])>=8
  for item in cases:
-  assert item["source"].startswith("docs/实验/机制研究/批次/")
+  assert item["source"].startswith("experiments/抽象决策关系研究/批次/")
   assert item["main"] and item["control"] and item["control_definition"]
   assert item["failure_condition"]
  assert any("waiting" in item["failure_condition"] for item in cases)

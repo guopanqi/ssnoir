@@ -6,7 +6,7 @@ on:
     paths:
       - '.github/workflows/ssnoir-r366-r373.yml'
       - 'tools/content-validator/experiments/r366_r373_program_composition.py'
-      - 'docs/实验/机制研究/批次/R366-R373-可组合规则的执行与修订/研究记录.md'
+      - 'experiments/抽象决策关系研究/批次/R366-R373-可组合规则的执行与修订/研究记录.md'
 permissions:
   contents: read
 jobs:

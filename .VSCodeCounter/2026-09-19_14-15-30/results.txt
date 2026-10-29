@@ -350,7 +350,7 @@ Files
 | /Users/usr/Documents/play/ssnoir/.agents/skills/mimo-tts/SKILL.md                                                    | Skill              |         34 |          0 |         17 |         51 |
 | /Users/usr/Documents/play/ssnoir/.agents/skills/verify/SKILL.md                                                      | Skill              |        103 |          0 |         42 |        145 |
 | /Users/usr/Documents/play/ssnoir/.agents/skills/write-scheme/SKILL.md                                                | Skill              |        131 |          0 |         48 |        179 |
-| /Users/usr/Documents/play/ssnoir/.agents/skills/write-scheme/references/交锋.md                                        | Markdown           |         11 |          0 |          3 |         14 |
+| /Users/usr/Documents/play/ssnoir/.agents/skills/write-scheme/references/Scenario.md                                        | Markdown           |         11 |          0 |          3 |         14 |
 | /Users/usr/Documents/play/ssnoir/.agents/skills/write-scheme/references/舞台.md                                        | Markdown           |         91 |          0 |         27 |        118 |
 | /Users/usr/Documents/play/ssnoir/.agents/skills/write-scheme/references/表现.md                                        | Markdown           |         62 |          0 |         23 |         85 |
 | /Users/usr/Documents/play/ssnoir/.agents/skills/write-scheme/scripts/list-anchors.py                                 | Python             |         23 |         12 |          9 |         44 |
@@ -758,7 +758,7 @@ Files
 | /Users/usr/Documents/play/ssnoir/docs/归档/Content/world/陌生人藏身处.scm                                                    | Scheme             |         12 |          1 |          2 |         15 |
 | /Users/usr/Documents/play/ssnoir/docs/归档/demo短篇/demo短篇·剧本总表.md                                                       | Markdown           |        169 |          0 |         51 |        220 |
 | /Users/usr/Documents/play/ssnoir/docs/归档/demo短篇/demo短篇·夜莺故事设计.md                                                     | Markdown           |        211 |          0 |         48 |        259 |
-| /Users/usr/Documents/play/ssnoir/docs/归档/demo短篇·夜莺交锋方案.md                                                            | Markdown           |        177 |          0 |         61 |        238 |
+| /Users/usr/Documents/play/ssnoir/docs/归档/demo短篇·夜莺Scenario方案.md                                                            | Markdown           |        177 |          0 |         61 |        238 |
 | /Users/usr/Documents/play/ssnoir/docs/归档/三封信-第一章方案.md                                                                | Markdown           |        760 |          0 |        329 |      1,089 |
 | /Users/usr/Documents/play/ssnoir/docs/归档/三种生活方式实施计划.md                                                               | Markdown           |        343 |          0 |        163 |        506 |
 | /Users/usr/Documents/play/ssnoir/docs/归档/命运骰结算实施计划.md                                                                | Markdown           |        176 |          0 |         59 |        235 |
@@ -766,9 +766,9 @@ Files
 | /Users/usr/Documents/play/ssnoir/docs/归档/城市生活-提案.md                                                                  | Markdown           |        566 |          0 |        164 |        730 |
 | /Users/usr/Documents/play/ssnoir/docs/归档/夜莺最小主线实施计划.md                                                               | Markdown           |        397 |          0 |        136 |        533 |
 | /Users/usr/Documents/play/ssnoir/docs/归档/数字命运骰结算实施计划.md                                                              | Markdown           |        191 |          0 |         58 |        249 |
-| /Users/usr/Documents/play/ssnoir/docs/归档/第二章-晚宴交锋.md                                                                 | Markdown           |         40 |          0 |         23 |         63 |
+| /Users/usr/Documents/play/ssnoir/docs/归档/第二章-晚宴Scenario.md                                                                 | Markdown           |         40 |          0 |         23 |         63 |
 | /Users/usr/Documents/play/ssnoir/docs/手稿/AAA.md                                                                      | Markdown           |         35 |          0 |         19 |         54 |
-| /Users/usr/Documents/play/ssnoir/docs/手稿/交锋结构想法收集.md                                                                 | Markdown           |        157 |          0 |         34 |        191 |
+| /Users/usr/Documents/play/ssnoir/docs/手稿/Scenario结构想法收集.md                                                                 | Markdown           |        157 |          0 |         34 |        191 |
 | /Users/usr/Documents/play/ssnoir/docs/手稿/关于游戏动作工作的设计模式和创意组合/CS1, CS2中的一些例子.md                                        | Markdown           |          0 |          0 |          2 |          2 |
 | /Users/usr/Documents/play/ssnoir/docs/手稿/关于游戏动作工作的设计模式和创意组合/CS2中的数学拓扑，心理模型和情感解释.md                                   | Markdown           |         72 |          0 |         28 |        100 |
 | /Users/usr/Documents/play/ssnoir/docs/手稿/关于游戏动作工作的设计模式和创意组合/CS2游戏动作系统的设计模式与创意组合.md                                   | Markdown           |        101 |          0 |         50 |        151 |
@@ -845,7 +845,7 @@ Files
 | /Users/usr/Documents/play/ssnoir/skills/make-video/references/踩过的坑.md                                                | Markdown           |         48 |          0 |         29 |         77 |
 | /Users/usr/Documents/play/ssnoir/skills/verify/SKILL.md                                                              | Skill              |        103 |          0 |         42 |        145 |
 | /Users/usr/Documents/play/ssnoir/skills/write-scheme/SKILL.md                                                        | Skill              |        131 |          0 |         48 |        179 |
-| /Users/usr/Documents/play/ssnoir/skills/write-scheme/references/交锋.md                                                | Markdown           |         11 |          0 |          3 |         14 |
+| /Users/usr/Documents/play/ssnoir/skills/write-scheme/references/Scenario.md                                                | Markdown           |         11 |          0 |          3 |         14 |
 | /Users/usr/Documents/play/ssnoir/skills/write-scheme/references/舞台.md                                                | Markdown           |         91 |          0 |         27 |        118 |
 | /Users/usr/Documents/play/ssnoir/skills/write-scheme/references/表现.md                                                | Markdown           |         62 |          0 |         23 |         85 |
 | /Users/usr/Documents/play/ssnoir/skills/write-scheme/scripts/list-anchors.py                                         | Python             |         23 |         12 |          9 |         44 |

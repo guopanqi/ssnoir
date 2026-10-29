@@ -138,8 +138,15 @@
     (define (rehearsal!)
       (if (or (not (= world-day 8)) rehearsal-seen?)
         (error "第二幕：第一次彩排不在观看窗口") #t)
+      (start-scenario "第一次彩排" finish-rehearsal!))
+    (define (finish-rehearsal! result)
+      (if (member? result '(两项交付 一项交付 无交付)) #t
+        (error "第一次彩排：非法工作结果"))
       (set! rehearsal-seen? #t)
       (set! rehearsal-done? #t)
+      (cond ((eq? result '两项交付) (add-item! "金钱" 40))
+            ((eq? result '一项交付) (add-item! "金钱" 10))
+            (else #f))
       (第一幕-彩排)
       (第二幕生活 'meet-manager!)
       (第二幕剧院 'promise-trial!))
@@ -211,8 +218,9 @@
           (list (at-anchor "夜莺@剧院"
             (note-node "夜莺排练" "夜莺"
               (cond ((and (= world-day 8) (not rehearsal-seen?)) "正式彩排就要开始。你答应了来听。")
+                ((= world-day 7) "明天就要正式彩排。她在后台熟悉舞台。")
                 ((第二幕剧院 'trial-pending?) "试唱要开始了。她在后台等你赴约。")
-                ((<= world-day 11) "她正和钢琴师练习试唱的曲子。")
+                ((< world-day 13) "她正和钢琴师练习试唱的曲子。")
                 (else "她在后台准备首演。"))))) '())))
 
     (define-turn-start-rule "第一章前两幕日程"
@@ -227,7 +235,7 @@
           #f)
         (if (and (>= world-day 9) (not rehearsal-done?))
           (set! rehearsal-done? #t) #f)
-        (if (and (>= world-day 13) (not notice-seen?))
+        (if (and (>= world-day 15) (not notice-seen?))
           (begin
             (set! notice-seen? #t)
             (play-dialogue!
@@ -265,12 +273,14 @@
                ((not opened?) "起床，看看手里的钱。")
                ((not tavern-seen?) "去酒馆打听零工。")
                ((and (= act 2) (= world-day 7)) "夜莺去大剧院了。那里招临工，旧街也有新机会。")
-               ((and (= act 2) (= world-day 8)) "今天夜莺在大剧院第一次正式彩排。可以去看看她。")
+               ((and (= act 2) (= world-day 8)) "今天夜莺在大剧院第一次正式彩排。先去赴约。")
                ((and (= act 2) (= world-day 9)) "大船今天临时靠岸。码头高薪夜班正在招人。")
-               ((and (= act 2) (= world-day 10)) "码头夜班的工资出了争议，夜莺的试演也临近了。")
-               ((and (= act 2) (= world-day 11)) "今天剧院有赞助人试演。码头的争议仍在。")
-               ((and (= act 2) (= world-day 12)) "这两天都很忙。也许可以去剧院找夜莺坐一会儿。")
-               ((and (= act 2) (>= world-day 13)) "夜莺的首演海报与旧港改造出现在同一份公告上。")
+               ((and (= act 2) (= world-day 10)) "大船夜班结束了。可以处理委托，或去看看朋友。")
+               ((and (= act 2) (= world-day 11)) "剧院仍在筹备试唱，也许可以抽空和夜莺吃点东西。")
+               ((and (= act 2) (= world-day 12)) "明天赞助人来听试唱。今天可以陪夜莺吃夜宵。")
+               ((and (= act 2) (= world-day 13)) "今天去剧院看赞助人试唱。")
+               ((and (= act 2) (= world-day 14)) "试唱结束了。去见见朋友，也可以找夜莺聊聊那天的事。")
+               ((and (= act 2) (>= world-day 15)) "夜莺的首演海报与旧港改造出现在同一份公告上。")
                ((= act 2) "酒馆告别演出已经结束。尼尔仍得挣钱，也想找到自己的出路。")
                ((= world-day 6) "夜莺今晚在酒馆唱最后一场。")
                (else "在城市工作，与认识的人相处。"))

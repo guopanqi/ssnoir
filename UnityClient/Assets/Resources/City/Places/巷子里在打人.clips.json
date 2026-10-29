@@ -1,0 +1,232 @@
+{
+ "fps": 30,
+ "clips": [
+  {
+   "name": "击倒皮夹克__站立",
+   "start": 1,
+   "end": 31,
+   "loop": false,
+   "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
+   "from": "",
+   "to": ""
+  },
+  {
+   "name": "击倒毡帽__站立",
+   "start": 1,
+   "end": 31,
+   "loop": false,
+   "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
+   "from": "",
+   "to": ""
+  },
+  {
+   "name": "击倒卷袖子__站立",
+   "start": 1,
+   "end": 31,
+   "loop": false,
+   "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
+   "from": "",
+   "to": ""
+  },
+  {
+   "name": "开场__撑住",
+   "start": 1,
+   "end": 31,
+   "loop": false,
+   "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
+   "from": "",
+   "to": ""
+  },
+  {
+   "name": "击倒皮夹克__倒地",
+   "start": 36,
+   "end": 66,
+   "loop": false,
+   "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
+   "from": "",
+   "to": ""
+  },
+  {
+   "name": "击倒毡帽__倒地",
+   "start": 36,
+   "end": 66,
+   "loop": false,
+   "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
+   "from": "",
+   "to": ""
+  },
+  {
+   "name": "击倒卷袖子__倒地",
+   "start": 36,
+   "end": 66,
+   "loop": false,
+   "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
+   "from": "",
+   "to": ""
+  },
+  {
+   "name": "击倒皮夹克__重拳",
+   "start": 71,
+   "end": 164,
+   "loop": false,
+   "once": false,
+   "ambient": false,
+   "participants": [
+    "巷战_皮夹克",
+    "巷战_尼尔"
+   ],
+   "travelSeconds": 0,
+   "from": "站立",
+   "to": "倒地"
+  },
+  {
+   "name": "击倒皮夹克__出拳",
+   "start": 170,
+   "end": 287,
+   "loop": false,
+   "once": true,
+   "ambient": false,
+   "participants": [
+    "巷战_皮夹克",
+    "巷战_尼尔"
+   ],
+   "travelSeconds": 0,
+   "from": "站立",
+   "to": ""
+  },
+  {
+   "name": "击倒毡帽__重拳",
+   "start": 293,
+   "end": 386,
+   "loop": false,
+   "once": false,
+   "ambient": false,
+   "participants": [
+    "巷战_毡帽",
+    "巷战_尼尔"
+   ],
+   "travelSeconds": 0,
+   "from": "站立",
+   "to": "倒地"
+  },
+  {
+   "name": "击倒毡帽__出拳",
+   "start": 392,
+   "end": 509,
+   "loop": false,
+   "once": true,
+   "ambient": false,
+   "participants": [
+    "巷战_毡帽",
+    "巷战_尼尔"
+   ],
+   "travelSeconds": 0,
+   "from": "站立",
+   "to": ""
+  },
+  {
+   "name": "击倒卷袖子__重拳",
+   "start": 515,
+   "end": 608,
+   "loop": false,
+   "once": false,
+   "ambient": false,
+   "participants": [
+    "巷战_卷袖子",
+    "巷战_尼尔"
+   ],
+   "travelSeconds": 0,
+   "from": "站立",
+   "to": "倒地"
+  },
+  {
+   "name": "击倒卷袖子__出拳",
+   "start": 614,
+   "end": 731,
+   "loop": false,
+   "once": true,
+   "ambient": false,
+   "participants": [
+    "巷战_卷袖子",
+    "巷战_尼尔"
+   ],
+   "travelSeconds": 0,
+   "from": "站立",
+   "to": ""
+  },
+  {
+   "name": "开场__围殴",
+   "start": 737,
+   "end": 872,
+   "loop": false,
+   "once": true,
+   "ambient": false,
+   "participants": [
+    "巷战_艾迪",
+    "巷战_尼尔",
+    "巷战_皮夹克",
+    "巷战_毡帽",
+    "巷战_卷袖子"
+   ],
+   "travelSeconds": 0,
+   "from": "撑住",
+   "to": ""
+  }
+ ],
+ "parts": [
+  {
+   "prop": "击倒皮夹克",
+   "names": [
+    "巷战_皮夹克"
+   ],
+   "anchor": "皮夹克",
+   "present": "站立",
+   "absent": "倒地"
+  },
+  {
+   "prop": "击倒毡帽",
+   "names": [
+    "巷战_毡帽"
+   ],
+   "anchor": "毡帽",
+   "present": "站立",
+   "absent": "倒地"
+  },
+  {
+   "prop": "击倒卷袖子",
+   "names": [
+    "巷战_卷袖子"
+   ],
+   "anchor": "卷袖子",
+   "present": "站立",
+   "absent": "倒地"
+  },
+  {
+   "prop": "开场",
+   "names": [
+    "巷战_艾迪"
+   ]
+  }
+ ]
+}

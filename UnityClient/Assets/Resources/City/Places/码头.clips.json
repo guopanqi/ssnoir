@@ -7,6 +7,9 @@
    "end": 31,
    "loop": false,
    "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
    "from": "",
    "to": ""
   },
@@ -16,6 +19,9 @@
    "end": 66,
    "loop": false,
    "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
    "from": "",
    "to": ""
   },
@@ -25,6 +31,9 @@
    "end": 479,
    "loop": false,
    "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
    "from": "Offshore",
    "to": "Berthed"
   },
@@ -34,6 +43,9 @@
    "end": 724,
    "loop": false,
    "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
    "from": "Berthed",
    "to": "Offshore"
   }

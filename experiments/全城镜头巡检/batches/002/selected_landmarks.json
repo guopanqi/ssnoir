@@ -1,0 +1,149 @@
+{
+  "version": 1,
+  "source": "city-box/build/city/report.json",
+  "scope": "city-box顶层Prefab；stage=false；排除世界根；每地点只取 Camera_<地点名>，不含独立Stage/内部镜头。",
+  "count": 17,
+  "places": [
+    {
+      "place": "尾随取件人",
+      "root": "尾随取件人",
+      "camera": "Camera_尾随取件人",
+      "mode": "pan",
+      "camera_present_in_build_report": true,
+      "stage": false
+    },
+    {
+      "place": "格兰德酒店",
+      "root": "格兰德酒店",
+      "camera": "Camera_格兰德酒店",
+      "mode": "orbit",
+      "camera_present_in_build_report": true,
+      "stage": false
+    },
+    {
+      "place": "报社",
+      "root": "报社",
+      "camera": "Camera_报社",
+      "mode": "orbit",
+      "camera_present_in_build_report": true,
+      "stage": false
+    },
+    {
+      "place": "街角咖啡馆",
+      "root": "街角咖啡馆",
+      "camera": "Camera_街角咖啡馆",
+      "mode": "orbit",
+      "camera_present_in_build_report": true,
+      "stage": false
+    },
+    {
+      "place": "码头",
+      "root": "码头",
+      "camera": "Camera_码头",
+      "mode": "pan",
+      "camera_present_in_build_report": true,
+      "stage": false
+    },
+    {
+      "place": "三号货栈工棚",
+      "root": "三号货栈工棚",
+      "camera": "Camera_三号货栈工棚",
+      "mode": "orbit",
+      "camera_present_in_build_report": true,
+      "stage": false
+    },
+    {
+      "place": "勒索信",
+      "root": "勒索信",
+      "camera": "Camera_勒索信",
+      "mode": "pan",
+      "camera_present_in_build_report": true,
+      "stage": false
+    },
+    {
+      "place": "货运公司",
+      "root": "货运公司",
+      "camera": "Camera_货运公司",
+      "mode": "orbit",
+      "camera_present_in_build_report": true,
+      "stage": false
+    },
+    {
+      "place": "剧院",
+      "root": "剧院",
+      "camera": "Camera_剧院",
+      "mode": "orbit",
+      "camera_present_in_build_report": true,
+      "stage": false
+    },
+    {
+      "place": "警察局",
+      "root": "警察局",
+      "camera": "Camera_警察局",
+      "mode": "orbit",
+      "camera_present_in_build_report": true,
+      "stage": false
+    },
+    {
+      "place": "诊所",
+      "root": "诊所",
+      "camera": "Camera_诊所",
+      "mode": "orbit",
+      "camera_present_in_build_report": true,
+      "stage": false
+    },
+    {
+      "place": "老街酒馆",
+      "root": "老街酒馆",
+      "camera": "Camera_老街酒馆",
+      "mode": "orbit",
+      "camera_present_in_build_report": true,
+      "stage": false
+    },
+    {
+      "place": "码头居民区",
+      "root": "码头居民区",
+      "camera": "Camera_码头居民区",
+      "mode": "orbit",
+      "camera_present_in_build_report": true,
+      "stage": false
+    },
+    {
+      "place": "公园",
+      "root": "公园",
+      "camera": "Camera_公园",
+      "mode": "orbit",
+      "camera_present_in_build_report": true,
+      "stage": false
+    },
+    {
+      "place": "家",
+      "root": "家",
+      "camera": "Camera_家",
+      "mode": "orbit",
+      "camera_present_in_build_report": true,
+      "stage": false
+    },
+    {
+      "place": "布告栏",
+      "root": "布告栏",
+      "camera": "Camera_布告栏",
+      "mode": "orbit",
+      "camera_present_in_build_report": true,
+      "stage": false
+    },
+    {
+      "place": "雕像",
+      "root": "雕像",
+      "camera": "Camera_雕像",
+      "mode": "static",
+      "camera_present_in_build_report": true,
+      "stage": false
+    }
+  ],
+  "excluded_non_stage_cameras": {
+    "保险公司": "World content states it is no longer a map location; its camera is grouped under 货运公司.",
+    "照相馆": "It is grouped under 世界, not a top-level place in build report."
+  },
+  "source_sha256": "2acf1f5d474595aca5798d3e64f1f312d489a4c5c05bf3a581f50a9113ef9d61"
+}

@@ -1,6 +1,7 @@
 """复制正式 Unity 工程到独立缓存，以同一 Main、资产和运行时代码截图。"""
 import argparse
 import hashlib
+import html
 import json
 import math
 import os
@@ -38,9 +39,22 @@ def main():
     parser.add_argument('--out', type=Path, help='输出根目录；每轮创建独立目录，失败不会复用旧 PNG')
     parser.add_argument('--height', type=int, default=900)
     parser.add_argument('--verify-play', action='store_true', help='额外启动正式 Main 的 Play，比较同机位配置')
+    parser.add_argument('--clip', help='审阅一个已发布的完整 clip 名；需指定一个 --scene 机位，不进入 Play')
+    parser.add_argument('--times', help='片段内采样秒数，逗号分隔；默认首、中、末')
+    parser.add_argument('--pose', action='append', default=[], help='先采样同模型的准备姿态 clip 首帧，可重复')
     parser.add_argument('--unity', default='/Applications/Unity/Unity.app/Contents/MacOS/Unity')
     parser.add_argument('--timeout', type=int, default=600)
     args = parser.parse_args()
+    if args.clip and (args.verify_play or not args.scene or len(args.scene) != 1):
+        parser.error('--clip 需要且只接受一个 --scene，不能与 --verify-play 合用')
+    if not args.clip and (args.times is not None or args.pose):
+        parser.error('--times / --pose 只用于 --clip')
+    try:
+        times = [] if args.times is None else [float(t) for t in args.times.split(',')]
+        if any(not math.isfinite(t) or t < 0 for t in times):
+            raise ValueError()
+    except ValueError:
+        parser.error('--times 必须是逗号分隔的非负有限秒数')
     project = args.project.resolve()
     if project == SOURCE or project in SOURCE.parents or SOURCE in project.parents:
         parser.error('--project 必须是独立目录')
@@ -71,7 +85,8 @@ def main():
     scenes = args.scene or SCENES
     env = dict(os.environ, SSNOIR_PREVIEW_OUTPUT=str(output),
                SSNOIR_PREVIEW_SCENES='|'.join(scenes), SSNOIR_PREVIEW_HEIGHT=str(args.height),
-               SSNOIR_PREVIEW_PLAY='1' if args.verify_play else '0')
+               SSNOIR_PREVIEW_PLAY='1' if args.verify_play else '0',
+               SSNOIR_PREVIEW_MOTION=json.dumps(dict(clip=args.clip, times=times, poses=args.pose), ensure_ascii=False) if args.clip else '')
     # 不使用 -quit：Editor→Play 的异步截图完成后由 C# 明确退出。
     with (output / 'launch.log').open('w') as log:
         result = subprocess.run([args.unity, '-batchmode', '-job-worker-count', '2', '-buildTarget', 'WebGL', '-projectPath', str(project),
@@ -87,7 +102,22 @@ def main():
         raise RuntimeError('未完成要求的 Play 验证')
     files = []
     comparisons = {}
-    for scene in scenes:
+    if args.clip:
+        motion = json.loads((output / 'motion.json').read_text())
+        for frame in motion['frames']:
+            for suffix in ('png', 'json'):
+                path = output / f"frame-{frame['index']:03d}.{suffix}"
+                files.append({'file': path.name, 'sha256': hashlib.sha256(path.read_bytes()).hexdigest()})
+        cards = ''.join(f"<figure><a href='{f['image']}'><img src='{f['image']}'></a><figcaption>{f['seconds']:.3f}s</figcaption></figure>"
+                        for f in motion['frames'])
+        (output / 'index.html').write_text('<!doctype html><meta charset="utf-8"><title>动画审阅</title>'
+            '<style>body{background:#17191c;color:#ddd;font:16px sans-serif}main{display:flex;flex-wrap:wrap}'
+            'figure{margin:8px;width:min(480px,95vw)}img{width:100%}</style>'
+            f'<h1>{html.escape(args.clip)}</h1><p>固定帧不代替动作与构图审阅，点击图片看原图。</p><main>{cards}</main>')
+        files.append({'file': 'motion.json', 'sha256': hashlib.sha256((output / 'motion.json').read_bytes()).hexdigest()})
+        if motion['negativeScaleChannels']:
+            print('注意：导入曲线含负缩放，请判断是否为有意镜像；详见 motion.json')
+    for scene in ([] if args.clip else scenes):
         modes = ('editor', 'play') if args.verify_play else ('editor',)
         for mode in modes:
             for suffix in ('png', 'json'):

@@ -7,6 +7,9 @@
    "end": 109,
    "loop": true,
    "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
    "from": "",
    "to": ""
   },
@@ -16,6 +19,9 @@
    "end": 222,
    "loop": true,
    "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
    "from": "",
    "to": ""
   },
@@ -25,6 +31,9 @@
    "end": 335,
    "loop": true,
    "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
    "from": "",
    "to": ""
   },
@@ -34,6 +43,9 @@
    "end": 448,
    "loop": true,
    "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
    "from": "",
    "to": ""
   },
@@ -43,6 +55,9 @@
    "end": 561,
    "loop": true,
    "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
    "from": "",
    "to": ""
   },
@@ -52,6 +67,9 @@
    "end": 674,
    "loop": true,
    "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
    "from": "",
    "to": ""
   },
@@ -61,6 +79,9 @@
    "end": 787,
    "loop": true,
    "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
    "from": "",
    "to": ""
   },
@@ -70,6 +91,9 @@
    "end": 834,
    "loop": false,
    "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
    "from": "苗",
    "to": "初展"
   },
@@ -79,6 +103,9 @@
    "end": 881,
    "loop": false,
    "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
    "from": "苗",
    "to": "舒展"
   },
@@ -88,6 +115,9 @@
    "end": 928,
    "loop": false,
    "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
    "from": "苗",
    "to": "繁茂"
   },
@@ -97,6 +127,9 @@
    "end": 975,
    "loop": false,
    "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
    "from": "苗",
    "to": "成株"
   },
@@ -106,6 +139,9 @@
    "end": 1022,
    "loop": false,
    "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
    "from": "苗",
    "to": "硕大"
   },
@@ -115,6 +151,9 @@
    "end": 1069,
    "loop": false,
    "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
    "from": "苗",
    "to": "巨株"
   },
@@ -124,6 +163,9 @@
    "end": 1116,
    "loop": false,
    "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
    "from": "初展",
    "to": "苗"
   },
@@ -133,6 +175,9 @@
    "end": 1163,
    "loop": false,
    "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
    "from": "初展",
    "to": "舒展"
   },
@@ -142,6 +187,9 @@
    "end": 1210,
    "loop": false,
    "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
    "from": "初展",
    "to": "繁茂"
   },
@@ -151,6 +199,9 @@
    "end": 1257,
    "loop": false,
    "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
    "from": "初展",
    "to": "成株"
   },
@@ -160,6 +211,9 @@
    "end": 1304,
    "loop": false,
    "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
    "from": "初展",
    "to": "硕大"
   },
@@ -169,6 +223,9 @@
    "end": 1351,
    "loop": false,
    "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
    "from": "初展",
    "to": "巨株"
   },
@@ -178,6 +235,9 @@
    "end": 1398,
    "loop": false,
    "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
    "from": "舒展",
    "to": "苗"
   },
@@ -187,6 +247,9 @@
    "end": 1445,
    "loop": false,
    "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
    "from": "舒展",
    "to": "初展"
   },
@@ -196,6 +259,9 @@
    "end": 1492,
    "loop": false,
    "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
    "from": "舒展",
    "to": "繁茂"
   },
@@ -205,6 +271,9 @@
    "end": 1539,
    "loop": false,
    "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
    "from": "舒展",
    "to": "成株"
   },
@@ -214,6 +283,9 @@
    "end": 1586,
    "loop": false,
    "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
    "from": "舒展",
    "to": "硕大"
   },
@@ -223,6 +295,9 @@
    "end": 1633,
    "loop": false,
    "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
    "from": "舒展",
    "to": "巨株"
   },
@@ -232,6 +307,9 @@
    "end": 1680,
    "loop": false,
    "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
    "from": "繁茂",
    "to": "苗"
   },
@@ -241,6 +319,9 @@
    "end": 1727,
    "loop": false,
    "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
    "from": "繁茂",
    "to": "初展"
   },
@@ -250,6 +331,9 @@
    "end": 1774,
    "loop": false,
    "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
    "from": "繁茂",
    "to": "舒展"
   },
@@ -259,6 +343,9 @@
    "end": 1821,
    "loop": false,
    "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
    "from": "繁茂",
    "to": "成株"
   },
@@ -268,6 +355,9 @@
    "end": 1868,
    "loop": false,
    "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
    "from": "繁茂",
    "to": "硕大"
   },
@@ -277,6 +367,9 @@
    "end": 1915,
    "loop": false,
    "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
    "from": "繁茂",
    "to": "巨株"
   },
@@ -286,6 +379,9 @@
    "end": 1962,
    "loop": false,
    "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
    "from": "成株",
    "to": "苗"
   },
@@ -295,6 +391,9 @@
    "end": 2009,
    "loop": false,
    "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
    "from": "成株",
    "to": "初展"
   },
@@ -304,6 +403,9 @@
    "end": 2056,
    "loop": false,
    "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
    "from": "成株",
    "to": "舒展"
   },
@@ -313,6 +415,9 @@
    "end": 2103,
    "loop": false,
    "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
    "from": "成株",
    "to": "繁茂"
   },
@@ -322,6 +427,9 @@
    "end": 2150,
    "loop": false,
    "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
    "from": "成株",
    "to": "硕大"
   },
@@ -331,6 +439,9 @@
    "end": 2197,
    "loop": false,
    "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
    "from": "成株",
    "to": "巨株"
   },
@@ -340,6 +451,9 @@
    "end": 2244,
    "loop": false,
    "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
    "from": "硕大",
    "to": "苗"
   },
@@ -349,6 +463,9 @@
    "end": 2291,
    "loop": false,
    "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
    "from": "硕大",
    "to": "初展"
   },
@@ -358,6 +475,9 @@
    "end": 2338,
    "loop": false,
    "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
    "from": "硕大",
    "to": "舒展"
   },
@@ -367,6 +487,9 @@
    "end": 2385,
    "loop": false,
    "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
    "from": "硕大",
    "to": "繁茂"
   },
@@ -376,6 +499,9 @@
    "end": 2432,
    "loop": false,
    "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
    "from": "硕大",
    "to": "成株"
   },
@@ -385,6 +511,9 @@
    "end": 2479,
    "loop": false,
    "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
    "from": "硕大",
    "to": "巨株"
   },
@@ -394,6 +523,9 @@
    "end": 2526,
    "loop": false,
    "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
    "from": "巨株",
    "to": "苗"
   },
@@ -403,6 +535,9 @@
    "end": 2573,
    "loop": false,
    "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
    "from": "巨株",
    "to": "初展"
   },
@@ -412,6 +547,9 @@
    "end": 2620,
    "loop": false,
    "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
    "from": "巨株",
    "to": "舒展"
   },
@@ -421,6 +559,9 @@
    "end": 2667,
    "loop": false,
    "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
    "from": "巨株",
    "to": "繁茂"
   },
@@ -430,6 +571,9 @@
    "end": 2714,
    "loop": false,
    "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
    "from": "巨株",
    "to": "成株"
   },
@@ -439,6 +583,9 @@
    "end": 2761,
    "loop": false,
    "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
    "from": "巨株",
    "to": "硕大"
   },
@@ -448,6 +595,9 @@
    "end": 2796,
    "loop": false,
    "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
    "from": "",
    "to": ""
   },
@@ -457,6 +607,9 @@
    "end": 2882,
    "loop": false,
    "once": true,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
    "from": "隐藏",
    "to": ""
   },
@@ -466,6 +619,9 @@
    "end": 2917,
    "loop": false,
    "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
    "from": "",
    "to": ""
   },
@@ -475,6 +631,9 @@
    "end": 3030,
    "loop": true,
    "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
    "from": "",
    "to": ""
   },
@@ -484,6 +643,9 @@
    "end": 3074,
    "loop": false,
    "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
    "from": "Stopped",
    "to": "Playing"
   },
@@ -493,6 +655,9 @@
    "end": 3118,
    "loop": false,
    "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
    "from": "Playing",
    "to": "Stopped"
   }

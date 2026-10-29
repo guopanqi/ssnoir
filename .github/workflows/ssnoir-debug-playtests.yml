@@ -12,7 +12,7 @@ on:
       - 'UnityClient/Assets/Scripts/Runtime/IMGUI/Components/SceneDropdownDrawer.cs'
       - 'tools/content-validator/experiments/validate_debug_playtests.py'
       - 'tools/content-validator/experiments/validate_mechanism_portfolio.py'
-      - 'docs/实验/机制研究/结构候选20.json'
+      - 'experiments/抽象决策关系研究/结构候选20.json'
 permissions:
   contents: read
 jobs:

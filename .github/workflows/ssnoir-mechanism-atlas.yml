@@ -4,14 +4,14 @@ on:
   push:
     paths:
       - '.github/workflows/ssnoir-mechanism-atlas.yml'
-      - 'docs/实验/机制研究/模式库.json'
-      - 'docs/实验/机制研究/模式语言知识地图.json'
-      - 'docs/实验/机制研究/研究沟通.json'
-      - 'docs/实验/机制研究/研究总览.template.html'
-      - 'docs/实验/机制研究/研究总览.html'
+      - 'experiments/抽象决策关系研究/模式库.json'
+      - 'experiments/抽象决策关系研究/模式语言知识地图.json'
+      - 'experiments/抽象决策关系研究/研究沟通.json'
+      - 'experiments/抽象决策关系研究/研究总览.template.html'
+      - 'experiments/抽象决策关系研究/研究总览.html'
       - 'tools/content-validator/experiments/build_mechanism_atlas.py'
       - 'tools/content-validator/experiments/test_mechanism_field_station.mjs'
-      - 'docs/实验/机制研究/试玩任务.json'
+      - 'experiments/抽象决策关系研究/试玩任务.json'
       - 'tools/content-validator/experiments/mechanism_cloud_feedback.js'
       - 'tools/content-validator/experiments/mechanism_workbench.css'
       - 'tools/content-validator/experiments/mechanism_workbench.js'
@@ -44,8 +44,8 @@ jobs:
         with:
           name: ssnoir-abstract-pattern-atlas
           path: |
-            docs/实验/机制研究/研究总览.html
-            docs/实验/机制研究/模式库.json
-            docs/实验/机制研究/试玩任务.json
+            experiments/抽象决策关系研究/研究总览.html
+            experiments/抽象决策关系研究/模式库.json
+            experiments/抽象决策关系研究/试玩任务.json
             artifacts/research-field-station/*.png
           retention-days: 30

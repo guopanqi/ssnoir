@@ -6,7 +6,7 @@ on:
     paths:
       - '.github/workflows/ssnoir-r174-r187.yml'
       - 'tools/content-validator/experiments/r174_r187_horizontal_abstract.py'
-      - 'docs/实验/机制研究/批次/R174-R187-横向抽象机制/研究记录.md'
+      - 'experiments/抽象决策关系研究/批次/R174-R187-横向抽象机制/研究记录.md'
 permissions:
   contents: read
 jobs:

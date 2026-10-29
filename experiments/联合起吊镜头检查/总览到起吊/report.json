@@ -1,0 +1,228 @@
+{
+  "travel_spaces_omitted": false,
+  "endpoint_parity": null,
+  "source": "/Users/usr/Documents/play/ssnoir/city-box/prefabs/联合起吊.blend",
+  "source_sha256": "a799861f35f371d9014d044b0639feddef2d792bdcc4b3789925beede9851003",
+  "math_sha256": "a29e7ed05797b678e5d0de8f4fad2db221cddca28560a6e4317a221076db41d7",
+  "seconds": 3.3766872500127647,
+  "meshes": 125,
+  "routes": [
+    {
+      "source": "Camera_联合起吊",
+      "target": "Camera_联合起吊-摆动",
+      "path": "DirectApproach",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": [],
+      "start_interest": [
+        6.1538525,
+        0,
+        -13.076927
+      ],
+      "target_interest": [
+        56.00034,
+        0,
+        -150.00092
+      ]
+    },
+    {
+      "source": "Camera_联合起吊",
+      "target": "Camera_联合起吊-落地",
+      "path": "DirectApproach",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": [],
+      "start_interest": [
+        6.1538525,
+        0,
+        -13.076927
+      ],
+      "target_interest": [
+        29.615448,
+        0,
+        -40.61547
+      ]
+    },
+    {
+      "source": "Camera_联合起吊",
+      "target": "Camera_联合起吊-起吊",
+      "path": "DirectApproach",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": [],
+      "start_interest": [
+        6.1538525,
+        0,
+        -13.076927
+      ],
+      "target_interest": [
+        -67.66656,
+        0,
+        -157.99976
+      ]
+    },
+    {
+      "source": "Camera_联合起吊-摆动",
+      "target": "Camera_联合起吊",
+      "path": "DirectApproach",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": [],
+      "start_interest": [
+        56.00034,
+        0,
+        -150.00092
+      ],
+      "target_interest": [
+        6.1538525,
+        0,
+        -13.076927
+      ]
+    },
+    {
+      "source": "Camera_联合起吊-摆动",
+      "target": "Camera_联合起吊-落地",
+      "path": "DirectApproach",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": [],
+      "start_interest": [
+        56.00034,
+        0,
+        -150.00092
+      ],
+      "target_interest": [
+        29.615448,
+        0,
+        -40.61547
+      ]
+    },
+    {
+      "source": "Camera_联合起吊-摆动",
+      "target": "Camera_联合起吊-起吊",
+      "path": "DirectApproach",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": [],
+      "start_interest": [
+        56.00034,
+        0,
+        -150.00092
+      ],
+      "target_interest": [
+        -67.66656,
+        0,
+        -157.99976
+      ]
+    },
+    {
+      "source": "Camera_联合起吊-落地",
+      "target": "Camera_联合起吊",
+      "path": "DirectApproach",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": [],
+      "start_interest": [
+        29.615448,
+        0,
+        -40.61547
+      ],
+      "target_interest": [
+        6.1538525,
+        0,
+        -13.076927
+      ]
+    },
+    {
+      "source": "Camera_联合起吊-落地",
+      "target": "Camera_联合起吊-摆动",
+      "path": "DirectApproach",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": [],
+      "start_interest": [
+        29.615448,
+        0,
+        -40.61547
+      ],
+      "target_interest": [
+        56.00034,
+        0,
+        -150.00092
+      ]
+    },
+    {
+      "source": "Camera_联合起吊-落地",
+      "target": "Camera_联合起吊-起吊",
+      "path": "DirectApproach",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": [],
+      "start_interest": [
+        29.615448,
+        0,
+        -40.61547
+      ],
+      "target_interest": [
+        -67.66656,
+        0,
+        -157.99976
+      ]
+    },
+    {
+      "source": "Camera_联合起吊-起吊",
+      "target": "Camera_联合起吊",
+      "path": "AuthoredArc",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": [],
+      "start_interest": [
+        -67.66656,
+        0,
+        -157.99976
+      ],
+      "target_interest": [
+        6.1538525,
+        0,
+        -13.076927
+      ]
+    },
+    {
+      "source": "Camera_联合起吊-起吊",
+      "target": "Camera_联合起吊-摆动",
+      "path": "DirectApproach",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": [],
+      "start_interest": [
+        -67.66656,
+        0,
+        -157.99976
+      ],
+      "target_interest": [
+        56.00034,
+        0,
+        -150.00092
+      ]
+    },
+    {
+      "source": "Camera_联合起吊-起吊",
+      "target": "Camera_联合起吊-落地",
+      "path": "AuthoredArc",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": [],
+      "start_interest": [
+        -67.66656,
+        0,
+        -157.99976
+      ],
+      "target_interest": [
+        29.615448,
+        0,
+        -40.61547
+      ]
+    }
+  ],
+  "limitations": "Authored endpoints only; evaluated Blender visibility, no runtime presence/drag/stage changes. Sampled near-plane tests are not continuous volume collision. Subject visibility requires a semantic subject, not a ground-ray hit."
+}

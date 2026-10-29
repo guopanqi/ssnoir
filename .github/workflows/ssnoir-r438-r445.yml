@@ -6,7 +6,7 @@ on:
     paths:
       - '.github/workflows/ssnoir-r438-r445.yml'
       - 'tools/content-validator/experiments/r438_r445_offstage_contribution.py'
-      - 'docs/实验/机制研究/批次/R438-R445-场外出力与互补/**'
+      - 'experiments/抽象决策关系研究/批次/R438-R445-场外出力与互补/**'
 permissions:
   contents: read
 jobs:

@@ -7,7 +7,7 @@ import {storyArguments} from "./story-events.ts";
 
 /**
  * One state, two isolated Scheme interpreters; original C# SceneManager
- * start/end-scenario contract. Source scripts remain unchanged.
+ * start/end-scenario contract. Scheme scripts use the matching start/end-scenario contract.
  * Transitions are applied AFTER a Scheme effect finishes (not nested inside
  * Interpreter.exec), so world callbacks retain their original Scheme closure.
  */

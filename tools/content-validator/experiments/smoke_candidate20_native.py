@@ -9,7 +9,7 @@ import subprocess
 import sys
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[3]
-PORT=ROOT/"docs/实验/机制研究/结构候选20.json"
+PORT=ROOT/"experiments/抽象决策关系研究/结构候选20.json"
 CMD=["dotnet","run","--no-build","--project",
      "tools/content-validator/SSNoir.ContentValidator.csproj","--"]
 

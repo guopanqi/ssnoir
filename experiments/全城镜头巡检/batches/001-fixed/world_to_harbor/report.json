@@ -1,0 +1,48 @@
+{
+  "travel_spaces_omitted": false,
+  "endpoint_parity": null,
+  "source": "/Users/usr/Documents/play/ssnoir/city-box/build/city/city_build.blend",
+  "source_sha256": "2acf1f5d474595aca5798d3e64f1f312d489a4c5c05bf3a581f50a9113ef9d61",
+  "math_sha256": "40d1dea7a61e5d329cf68c4132967f6cfda274da08ffd26d5c21515dc6811491",
+  "seconds": 5.752471959014656,
+  "meshes": 6658,
+  "routes": [
+    {
+      "source": "Camera_世界",
+      "target": "Camera_码头",
+      "path": "AuthoredArc",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": [],
+      "start_interest": [
+        35.92716,
+        0,
+        144.9809
+      ],
+      "target_interest": [
+        35.92716,
+        0,
+        144.9809
+      ]
+    },
+    {
+      "source": "Camera_码头",
+      "target": "Camera_世界",
+      "path": "AuthoredArc",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": [],
+      "start_interest": [
+        35.92716,
+        0,
+        144.9809
+      ],
+      "target_interest": [
+        35.92716,
+        0,
+        144.9809
+      ]
+    }
+  ],
+  "limitations": "Authored endpoints only; evaluated Blender visibility, no runtime presence/drag/stage changes. Sampled near-plane tests are not continuous volume collision. Subject visibility requires a semantic subject, not a ground-ray hit."
+}

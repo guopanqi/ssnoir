@@ -8,7 +8,7 @@ on:
       - 'tools/content-validator/experiments/pattern_certified_delivery_20261013.py'
       - 'tools/content-validator/experiments/pattern_inflight_redirection_20261013.py'
       - 'tools/content-validator/experiments/pattern_carryover_obligation_20261013.py'
-      - 'docs/实验/机制研究/批次/2026-10-13-可交付成果与延续义务/试玩.html'
+      - 'experiments/抽象决策关系研究/批次/2026-10-13-可交付成果与延续义务/试玩.html'
 permissions:
   contents: read
 jobs:
@@ -51,7 +51,7 @@ jobs:
               def handle_data(self, data):
                   if self.inside:
                       self.scripts.append(data)
-          page=Path('docs/实验/机制研究/批次/2026-10-13-可交付成果与延续义务/试玩.html').read_text(encoding='utf-8')
+          page=Path('experiments/抽象决策关系研究/批次/2026-10-13-可交付成果与延续义务/试玩.html').read_text(encoding='utf-8')
           parser=Extract()
           parser.feed(page)
           assert len(parser.scripts)==1

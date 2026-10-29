@@ -42,7 +42,7 @@ def run(scene, policy, seed):
  else:raise RuntimeError('65步内未结束')
  with tempfile.TemporaryDirectory(prefix='noir-batch2-') as scratch:
   raw=Path(scratch)/'record.json';send({'command':'save','path':str(raw)})
-  directory=ROOT/'docs'/'实验'/scene/'对照记录';directory.mkdir(parents=True,exist_ok=True)
+  directory=ROOT/'experiments/Scenario候选模式对照'/scene/'对照记录';directory.mkdir(parents=True,exist_ok=True)
   with gzip.open(directory/f'{policy}-{seed}.json.gz','wb') as f:f.write(raw.read_bytes())
  send({'command':'quit'});p.wait()
  r={'scene':scene,'policy':policy,'seed':seed,'result':o['ScenarioResult'],'calm':o['Actors'][0]['Composure'],'injury':o['Injury']}
@@ -53,4 +53,4 @@ if __name__=='__main__':
  for scene,policies in [('赃款会拖脚',['死抱3袋','保2袋','保1袋','全扔','末轮求稳']),('只够一条线',['手动','焊接','不接线','撤离'])]:
   for policy in policies:
    for seed in (7,11,23,31,41):results.append(run(scene,policy,seed))
- (ROOT/'docs'/'实验'/'第二批对照结果.json').write_text(json.dumps(results,ensure_ascii=False,indent=2)+'\n')
+ (ROOT/'experiments/Scenario候选模式对照'/'第二批对照结果.json').write_text(json.dumps(results,ensure_ascii=False,indent=2)+'\n')

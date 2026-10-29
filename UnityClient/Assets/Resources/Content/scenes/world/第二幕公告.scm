@@ -1,4 +1,4 @@
-;; D13公共消息不等待支线。每个人留在自己的生活里，不轮番发表同一段担忧。
+;; D15公共消息不等待支线。每个人留在自己的生活里，不轮番发表同一段担忧。
 (define 公告-艾迪看过? #f)
 (define 公告-露西看过? #f)
 (define 公告-夜莺看过? #f)
@@ -23,7 +23,7 @@
 (define (第二幕公告 . args)
   (cond
     ((eq? (car args) 'nodes-at)
-      (if (and (>= world-day 13) (equal? (cadr args) "码头"))
+      (if (and (>= world-day 15) (equal? (cadr args) "码头"))
         (list (at-anchor "码头-货堆" (note-node "改造测绘线" "货栈外墙"
           "货栈外墙新画了一道白线，墙脚立着测绘木桩。扛货的人得绕开走。"))) '()))
     ((eq? (car args) 'save) (list (list "eddie" 公告-艾迪看过?) (list "lucy" 公告-露西看过?) (list "singer" 公告-夜莺看过?)))

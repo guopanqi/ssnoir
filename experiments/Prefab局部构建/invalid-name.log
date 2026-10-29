@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/Users/usr/Documents/play/ssnoir/city-box/pipeline/build.py", line 252, in <module>
+    main()
+    ~~~~^^
+  File "/Users/usr/Documents/play/ssnoir/city-box/pipeline/build.py", line 128, in main
+    build_partial(selected)
+    ~~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/usr/Documents/play/ssnoir/city-box/pipeline/build_partial.py", line 32, in build_partial
+    assert set(names) <= set(report['places']), \
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 局部构建只接受已有顶层 Prefab；嵌套件请指定所属顶层地点，新增地点请完整构建

@@ -6,7 +6,7 @@ on:
     paths:
       - '.github/workflows/ssnoir-r390-r397.yml'
       - 'tools/content-validator/experiments/r390_r397_strategic_veto.py'
-      - 'docs/实验/机制研究/批次/R390-R397-对方战略保留异议权/研究记录.md'
+      - 'experiments/抽象决策关系研究/批次/R390-R397-对方战略保留异议权/研究记录.md'
 permissions:
   contents: read
 jobs:

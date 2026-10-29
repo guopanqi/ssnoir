@@ -124,7 +124,7 @@ namespace SSNoir.Core
             }
         }
 
-        // The world is a single shared interpreter; everything else is an scenario.
+        // The world is a single shared interpreter; everything else is a scenario.
         private static bool IsWorldScene(string sceneName)
         {
             return sceneName == "world" || sceneName == "world/world";
@@ -586,7 +586,7 @@ namespace SSNoir.Core
         public void SaveGame(string filePath)
         {
             if (_scenarioInterpreter != null)
-                throw new InvalidOperationException("Cannot save during an scenario. End the scenario first.");
+                throw new InvalidOperationException("Cannot save during a scenario. End the scenario first.");
 
             var globals = _gameState.GetPureGlobals();
             globals.Remove("location"); // reconstructed on load

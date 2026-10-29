@@ -3,7 +3,7 @@
    Execute exact inline JS in a minimal DOM-shaped Node vm, not a real browser.
    Does NOT certify human usability, layout, or GitHub Pages deployment. */
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
-const page='docs/实验/机制研究/批次/2026-10-14-策略性伪装与自选成果/试玩.html';
+const page='experiments/抽象决策关系研究/批次/2026-10-14-策略性伪装与自选成果/试玩.html';
 const html=fs.readFileSync(page,'utf8');
 const js=html.match(/<script>([\s\S]*?)<\/script>/);
 assert(js,'page should contain exactly one inline JS game');

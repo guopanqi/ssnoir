@@ -75,6 +75,8 @@ namespace SSNoir
             public CinemachineVirtualCamera? Camera;
             public Action Start = null!;
             public Func<bool> IsDone = null!;
+            public Action? Settle;
+            public float TravelSeconds;
         }
         private LiveShot? _live;
         // 道具动画不该比这更长；万一 IsDone 永远不回真（clip 名配错），也不能把玩家关在影幕里。
@@ -165,19 +167,20 @@ namespace SSNoir
         /// <paramref name="start"/> → 等 <paramref name="isDone"/> 回真 → 收影幕、回原机位 → <paramref name="onComplete"/>。
         /// 剧本里的 (play-motion! ...) 落到这里；影幕和运镜和视频过场一模一样，玩家不该分得出这是哪种过场。
         /// </summary>
-        public void PlayLive(CinemachineVirtualCamera? camera, Action start, Func<bool> isDone, Action? onComplete = null)
+        public void PlayLive(CinemachineVirtualCamera? camera, Action start, Func<bool> isDone, Action? onComplete = null, Action? settle = null, float travelSeconds = 0f)
         {
             if (IsActive)
             {
                 Debug.LogWarning("[SSNoir] 实时演出被忽略：另一场过场还在播。直接执行，不带镜头。");
                 start();
+                settle?.Invoke();
                 onComplete?.Invoke();
                 return;
             }
 
             _sequence = null;
             _shots.Clear();
-            _live = new LiveShot { Camera = camera, Start = start, IsDone = isDone };
+            _live = new LiveShot { Camera = camera, Start = start, IsDone = isDone, Settle = settle, TravelSeconds = travelSeconds };
             _onComplete = onComplete;
             _shotIndex = 0;
             _letterboxRaised = false;
@@ -283,12 +286,16 @@ namespace SSNoir
             if (_phase == Phase.LetterboxOut || _phase == Phase.Return)
                 return;
 
+            var settle = _live?.Settle;
+            if (_live != null) _live.Settle = null;
+            settle?.Invoke();
+
             float letterboxProgress = LetterboxProgress();
             if (letterboxProgress > 0f)
             {
                 _letterboxOutStartProgress = letterboxProgress;
                 _letterboxOutDuration = Mathf.Max(
-                    0.01f, DefaultLetterboxDuration * letterboxProgress);
+                    0.01f, (_live?.TravelSeconds > 0 ? 0.16f : DefaultLetterboxDuration) * letterboxProgress);
                 EnterPhase(Phase.LetterboxOut);
                 return;
             }
@@ -323,7 +330,8 @@ namespace SSNoir
             if (_returnCamera != null)
             {
                 _gameManager.PromoteFocusCamera(_returnCamera);
-                _gameManager.CameraManager.BeginFocusTravel(_returnCamera, respectReduceMotion: false);
+                _gameManager.CameraManager.BeginFocusTravel(_returnCamera, out _, respectReduceMotion: false,
+                    durationOverride: _live?.TravelSeconds > 0 ? _live.TravelSeconds : (float?)null);
             }
 
             EnterPhase(Phase.Return);
@@ -363,14 +371,15 @@ namespace SSNoir
             // 那就什么都没发生，下面抬完优先级由 brain 按默认混合直线推过去——退化成直线，
             // 不是不动。
             _gameManager.CameraManager.BeginFocusTravel(
-                camera, out float cameraTransitionDuration, respectReduceMotion: false);
+                camera, out float cameraTransitionDuration, respectReduceMotion: false,
+                durationOverride: _live?.TravelSeconds > 0 ? _live.TravelSeconds : (float?)null);
 
             if (!_letterboxRaised)
             {
                 // 黑边与第一镜同起同落；但相机已足够接近而直接到位时，黑边仍走自己的最短节奏。
                 // 上限服从 Approach 的超时，否则一个异常的超长 blend 会绕过防卡死约束。
                 _letterboxInDuration = Mathf.Clamp(
-                    cameraTransitionDuration, DefaultLetterboxDuration, MoveTimeout);
+                    cameraTransitionDuration, _live?.TravelSeconds > 0 ? 0.16f : DefaultLetterboxDuration, MoveTimeout);
             }
 
             camera.Priority = CutscenePriority;

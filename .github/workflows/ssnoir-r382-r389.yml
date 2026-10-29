@@ -6,7 +6,7 @@ on:
     paths:
       - '.github/workflows/ssnoir-r382-r389.yml'
       - 'tools/content-validator/experiments/r382_r389_nonlinear_program.py'
-      - 'docs/实验/机制研究/批次/R382-R389-非线性规则的迁移与反证/研究记录.md'
+      - 'experiments/抽象决策关系研究/批次/R382-R389-非线性规则的迁移与反证/研究记录.md'
 permissions:
   contents: read
 jobs:

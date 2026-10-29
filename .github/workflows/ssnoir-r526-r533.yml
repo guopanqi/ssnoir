@@ -7,7 +7,7 @@ on:
       - '.github/workflows/ssnoir-r526-r533.yml'
       - 'tools/content-validator/experiments/r526_r533_hidden_pressure_identity.py'
       - 'tools/content-validator/experiments/r518_r525_pressure_success_failure.py'
-      - 'docs/实验/机制研究/批次/R526-R533-隐藏压力因果的零信息价值/**'
+      - 'experiments/抽象决策关系研究/批次/R526-R533-隐藏压力因果的零信息价值/**'
 permissions:
   contents: read
 jobs:

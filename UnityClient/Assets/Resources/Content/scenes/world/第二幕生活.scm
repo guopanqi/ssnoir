@@ -8,13 +8,17 @@
     (define visited-street? #f)
     (define met-frank? #f)
     (define met-manager? #f)
+    (define manager-met-day 0)
     (define contract-state "未提起")
     (define costume-clock (make-clock "找回演出服" 4 'gauge "后台的衣箱和运货记录还没对上。把这批衣服找齐，送回剧院。" :beneficial-direction 'increase))
     (define (contract-open?)
-      (and (active?) (<= world-day 11)
+      (and (active?) (<= world-day 13)
         (member? contract-state '("待答复" "已接下"))))
+    (define (offer-available?)
+      (and (active?) met-manager? (> world-day manager-met-day) (<= world-day 13)
+           (equal? contract-state "未提起")))
     (define (offer-lines!)
-      (if (<= world-day 11)
+      (if (offer-available?)
         (begin
           (set! contract-state "待答复")
           (play-dialogue!
@@ -25,6 +29,7 @@
       (if met-manager? #f
         (begin
           (set! met-manager? #t)
+          (set! manager-met-day world-day)
           (play-dialogue!
             (line "夜莺" "经理，这是尼尔。酒馆里他总来听我唱歌。")
             (line "经理" "尼尔！兄弟！夜莺可跟我提过你。")
@@ -32,14 +37,20 @@
             (line "经理" "她说你靠得住。现在办事靠得住的人，比钢琴还难找！")
             (line "尼尔" "我想接些真正的调查委托。")
             (line "经理" "妙极了！年轻人就该有点盼头。")
-            (line "世界" "后台工作人员递来一张未签完的收货单。经理的笑容丝毫没有变。")
-            (line "经理" "那批演出服还没找到？你昨天怎么跟我说的？")
-            (line "世界" "工作人员走开后，他又转过来，像遇见老朋友一样拉住尼尔。"))
-          (offer-lines!))))
+            (line "经理" "我得去招呼他们了。往后常来，尼尔。")))))
     (define (accept-contract!)
+      (if (and (contract-open?) (equal? contract-state "待答复")) #t
+        (error "演出服：当前不可接下委托"))
       (set! contract-state "已接下")
       (play-dialogue! (line "尼尔" "我去把它找回来。")
-        (line "经理" (string-append (第二幕-日期 11) "试演收工前，把衣箱带来。"))))
+        (line "经理" (string-append (第二幕-日期 13) "试演收工前，把衣箱带来。"))))
+    (define (decline-contract!)
+      (if (and (contract-open?) (equal? contract-state "待答复")) #t
+        (error "演出服：当前不可婉拒委托"))
+      (set! contract-state "婉拒")
+      (play-dialogue!
+        (line "尼尔" "这次恐怕腾不出手。你另找个人吧。")
+        (line "经理" "行，兄弟。以后有机会再合作。")))
     (define (finding?)
       (and (contract-open?) (equal? contract-state "已接下") (= (item-count "演出服") 0)))
     (define (costume-progress! amount anchor)
@@ -81,11 +92,14 @@
             (list (dossier "经理：找回演出服" :kind '委托
               :primary (contract-open?) :status (if (contract-open?) '进行中 '了结)
               :now (cond
+                ((equal? contract-state "婉拒") "你婉拒了演出服调查，经理会另找人。")
+                ((equal? contract-state "待答复")
+                  (string-append "经理提出45美元的演出服调查，" (第二幕-日期 13) "试演收工前交付。还没答应，可以接下或婉拒。"))
                 ((equal? contract-state "完成") "演出服已交付，收到45美元。经理记住了尼尔做事的能力。")
                 ((equal? contract-state "另找他人") "期限到了，经理已另派人找回衣服。这次差事结束了。")
                 ((>= (item-count "演出服") 1)
-                  (string-append "衣箱已经找到，" (第二幕-日期 11) "收工前交给经理。"))
-                (else (string-append (第二幕-日期 11)
+                  (string-append "衣箱已经找到，" (第二幕-日期 13) "收工前交给经理。"))
+                (else (string-append (第二幕-日期 13)
                   "收工前带回一批演出服。可以搜找后台，或向运货人查问。")))
               :clocks (if (finding?) (list (costume-clock 'render-data)) '()) :where "剧院")))
           (if met-manager?
@@ -142,8 +156,12 @@
                     (outcome (lambda () (cards! '赢))))))))
           ((equal? location "剧院")
             (append
+              (if (offer-available?)
+                (list (node "经理有话想说" :anchor "剧院" :subtitle "经理招呼你过去，似乎有件事想谈"
+                  :resolve (instant (outcome offer-lines!)))) '())
               (if (and (contract-open?) (equal? contract-state "待答复"))
-                (list (instant-action "接下演出服调查" accept-contract!)) '())
+                (list (instant-action "接下演出服调查" accept-contract!)
+                      (instant-action "婉拒演出服调查" decline-contract!)) '())
               (if (and (contract-open?) (equal? contract-state "已接下"))
                 (list (node "交付演出服" :subtitle "交出一批演出服，领取45美元"
                   :requires (list (req-item "演出服" 1)) :resolve (instant (outcome deliver-contract!)))) '())
@@ -165,7 +183,7 @@
           (if (not visited-street?) (list (arrival "初到旧街" street-intro!)) '())
           (if (and visited-street? (not met-frank?)) (list (arrival "食堂账单" frank-intro!)) '())) '()))
     (define-turn-start-rule "经理另外找人"
-      (lambda () (and (> world-day 11) (member? contract-state '("待答复" "已接下"))))
+      (lambda () (and (> world-day 13) (member? contract-state '("待答复" "已接下"))))
       (lambda ()
         (set! contract-state "另找他人")
         (notify! "演出服委托已到期，剧院经理另找了人。")))
@@ -181,7 +199,7 @@
           ((eq? msg 'save)
             (list (list "street" visited-street?)
                   (list "frank" met-frank?)
-                  (list "manager" met-manager?)
+                  (list "manager" met-manager?) (list "manager-met-day" manager-met-day)
                   (list "version" 2) (list "contract" contract-state)
                   (list "progress" (costume-clock 'save))))
           ((eq? msg 'load!)
@@ -189,14 +207,14 @@
               (set! visited-street? (assoc-get data "street" #f))
               (set! met-frank? (assoc-get data "frank" #f))
               (set! met-manager? (assoc-get data "manager" #f))
+              (set! manager-met-day (assoc-get data "manager-met-day" (if met-manager? 8 0)))
               (set! contract-state (assoc-get data "contract" "未提起"))
               ;; 已有衣箱只恢复进展，不再次发物品；已领报酬保持完成。
               (costume-clock 'load! (assoc-get data "progress"
                 (if (or (equal? contract-state "完成") (> (item-count "演出服") 0)) 4 0)))
               (if (equal? contract-state "退回") (set! contract-state "另找他人") #f)
-              ;; 旧档认识经理却没点击“谈打算”，向前合并成已提出机会。
-              (if (and met-manager? (equal? contract-state "未提起") (<= world-day 11))
-                (set! contract-state "待答复") #f)
-              (if (member? contract-state '("未提起" "待答复" "已接下" "完成" "另找他人")) #t
+              (if (and (>= manager-met-day 0)
+                       (or (not met-manager?) (> manager-met-day 0))
+                       (member? contract-state '("未提起" "待答复" "已接下" "完成" "另找他人" "婉拒"))) #t
                 (error "经理委托：非法存档阶段"))))
           (else (error "第二幕生活：未知消息")))))))

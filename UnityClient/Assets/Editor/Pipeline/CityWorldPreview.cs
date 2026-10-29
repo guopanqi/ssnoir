@@ -21,6 +21,7 @@ namespace SSNoir.Editor
         private static int _index;
         private static bool _complete;
         private static CityOutlineState? _editorState;
+        private static CityMotionPreview? _motion;
         private static string Output => Environment.GetEnvironmentVariable("SSNOIR_PREVIEW_OUTPUT")
             ?? throw new InvalidOperationException("缺少预览输出目录");
         private static string[] Names => (Environment.GetEnvironmentVariable("SSNOIR_PREVIEW_SCENES")
@@ -47,6 +48,17 @@ namespace SSNoir.Editor
             EditorSceneManager.OpenScene(Main);
             _editorState = CityOutlineState.TryCreateFromActiveScene()
                 ?? throw new InvalidOperationException("正式 Main 缺少 City");
+            var motion=Environment.GetEnvironmentVariable("SSNOIR_PREVIEW_MOTION");
+            if(!string.IsNullOrEmpty(motion))
+            {
+                if(VerifyPlay || Names.Length!=1)throw new InvalidOperationException("动画审阅只使用单机位 Editor 固定帧。");
+                var camera=UnityEngine.Object.FindObjectsOfType<CinemachineVirtualCamera>(true)
+                    .Single(v=>v.name=="Camera_"+Names[0]+"_VCam");
+                _editorState.SetFocusedCamera(camera,0);
+                CityOutlineState.CompleteEditorTransitions();
+                CityWorldVisuals.CompleteEditorTransitions();
+                _motion=new CityMotionPreview(motion,Output,Names[0]);
+            }
             StartCaptures();
         }
         private static void CheckError(string message, string trace, LogType type)
@@ -76,7 +88,12 @@ namespace SSNoir.Editor
                 if(_runtimeError != null) throw new InvalidOperationException("正式预览发生错误："+_runtimeError);
                 // 让主相机和 URP 先经历正常帧，避免第一次附加灯阴影尚未建立。
                 if(++_frames < 8) return;
-                if(_index < Names.Length)
+                if(_motion!=null)
+                {
+                    if(!_motion.Advance(()=>Capture(Names[0]))) { _frames=0;return; }
+                    _motion=null;
+                }
+                else if(_index < Names.Length)
                 {
                     Capture(Names[_index++]);_frames=0;return;
                 }
@@ -94,6 +111,9 @@ namespace SSNoir.Editor
                 SessionState.SetBool(Pending,false);
                 _editorState?.Dispose();
                 _editorState=null;
+                // 先在正常Editor帧卸载蒙皮/渲染器，再退出，避免原生资源留到Mono关闭阶段。
+                if(!Application.isPlaying)
+                    EditorSceneManager.NewScene(NewSceneSetup.EmptyScene,NewSceneMode.Single);
                 File.WriteAllText(Path.Combine(Output,"complete.json"),"{\"version\":1,\"formalMain\":true,\"playVerified\":"+(Application.isPlaying?"true":"false")+"}");
                 Debug.Log("[WorldPreview] 完成："+Output);
                 _complete=true;_frames=0;EditorApplication.update+=Tick;

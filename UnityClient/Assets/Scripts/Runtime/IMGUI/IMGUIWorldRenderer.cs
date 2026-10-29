@@ -657,11 +657,18 @@ namespace SSNoir.IMGUI
                         $"[SSNoir] play-motion! 显式要求的机位 '{wanted}' 场上不存在。");
             }
             string state = step.MotionState;
+            motion.PrepareTransition(prop, state);
             _gameManager.Cutscene.PlayLive(
                 camera,
                 () => motion.PlayTransition(prop, state),
                 () => !motion.IsTransitioning(prop),
-                AdvanceToBlockingPresentationOrFinish);
+                () =>
+                {
+                    motion.ReleaseParticipants(prop);
+                    AdvanceToBlockingPresentationOrFinish();
+                },
+                settle: () => motion.CompleteTransition(prop, state),
+                travelSeconds: motion.TravelSeconds(prop, state));
         }
 
         private void ReleaseNarrations(System.Collections.Generic.List<string> ids)

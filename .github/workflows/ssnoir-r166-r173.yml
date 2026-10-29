@@ -6,7 +6,7 @@ on:
     paths:
       - '.github/workflows/ssnoir-r166-r173.yml'
       - 'tools/content-validator/experiments/r166_r173_city_cascade_network.py'
-      - 'docs/实验/机制研究/批次/R166-R173-人物议程连锁/研究记录.md'
+      - 'experiments/抽象决策关系研究/批次/R166-R173-人物议程连锁/研究记录.md'
 permissions:
   contents: read
 jobs:

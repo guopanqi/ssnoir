@@ -6,7 +6,7 @@ on:
     paths:
       - '.github/workflows/ssnoir-r128-r130.yml'
       - 'tools/content-validator/experiments/r128_r130_social_deadline.py'
-      - 'docs/实验/机制研究/批次/R128-R130-人物关系与期限/研究记录.md'
+      - 'experiments/抽象决策关系研究/批次/R128-R130-人物关系与期限/研究记录.md'
 permissions:
   contents: read
 jobs:

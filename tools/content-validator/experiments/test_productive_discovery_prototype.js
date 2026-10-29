@@ -3,7 +3,7 @@
 /* Browser-free interaction check, NOT an actual human or visual playtest. */
 const fs=require("node:fs"),assert=require("node:assert/strict"),
       vm=require("node:vm"),path=require("node:path");
-const html=fs.readFileSync(path.resolve(__dirname,"../../../docs/实验/机制研究/批次/2026-10-13-目标生成与生产性发现/试玩.html"),"utf8");
+const html=fs.readFileSync(path.resolve(__dirname,"../../../experiments/抽象决策关系研究/批次/2026-10-13-目标生成与生产性发现/试玩.html"),"utf8");
 const scripts=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)];
 assert.equal(scripts.length,1);
 new vm.Script(scripts[0][1]);

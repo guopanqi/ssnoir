@@ -1,0 +1,247 @@
+{
+ "fps": 30,
+ "clips": [
+  {
+   "name": "东桌醉客__平静",
+   "start": 1,
+   "end": 31,
+   "loop": false,
+   "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
+   "from": "",
+   "to": ""
+  },
+  {
+   "name": "西桌醉客__平静",
+   "start": 1,
+   "end": 31,
+   "loop": false,
+   "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
+   "from": "",
+   "to": ""
+  },
+  {
+   "name": "东桌醉客__吵嚷",
+   "start": 36,
+   "end": 66,
+   "loop": false,
+   "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
+   "from": "",
+   "to": ""
+  },
+  {
+   "name": "西桌醉客__吵嚷",
+   "start": 36,
+   "end": 66,
+   "loop": false,
+   "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
+   "from": "",
+   "to": ""
+  },
+  {
+   "name": "东桌醉客__起身",
+   "start": 71,
+   "end": 101,
+   "loop": false,
+   "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
+   "from": "",
+   "to": ""
+  },
+  {
+   "name": "西桌醉客__起身",
+   "start": 71,
+   "end": 101,
+   "loop": false,
+   "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
+   "from": "",
+   "to": ""
+  },
+  {
+   "name": "东桌醉客__平静到吵嚷",
+   "start": 106,
+   "end": 173,
+   "loop": false,
+   "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
+   "from": "平静",
+   "to": "吵嚷"
+  },
+  {
+   "name": "西桌醉客__平静到吵嚷",
+   "start": 106,
+   "end": 173,
+   "loop": false,
+   "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
+   "from": "平静",
+   "to": "吵嚷"
+  },
+  {
+   "name": "东桌醉客__平静到起身",
+   "start": 178,
+   "end": 401,
+   "loop": false,
+   "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
+   "from": "平静",
+   "to": "起身"
+  },
+  {
+   "name": "西桌醉客__平静到起身",
+   "start": 178,
+   "end": 401,
+   "loop": false,
+   "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
+   "from": "平静",
+   "to": "起身"
+  },
+  {
+   "name": "东桌醉客__吵嚷到平静",
+   "start": 406,
+   "end": 473,
+   "loop": false,
+   "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
+   "from": "吵嚷",
+   "to": "平静"
+  },
+  {
+   "name": "西桌醉客__吵嚷到平静",
+   "start": 406,
+   "end": 473,
+   "loop": false,
+   "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
+   "from": "吵嚷",
+   "to": "平静"
+  },
+  {
+   "name": "东桌醉客__吵嚷到起身",
+   "start": 478,
+   "end": 701,
+   "loop": false,
+   "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
+   "from": "吵嚷",
+   "to": "起身"
+  },
+  {
+   "name": "西桌醉客__吵嚷到起身",
+   "start": 478,
+   "end": 701,
+   "loop": false,
+   "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
+   "from": "吵嚷",
+   "to": "起身"
+  },
+  {
+   "name": "东桌醉客__起身到平静",
+   "start": 706,
+   "end": 861,
+   "loop": false,
+   "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
+   "from": "起身",
+   "to": "平静"
+  },
+  {
+   "name": "西桌醉客__起身到平静",
+   "start": 706,
+   "end": 861,
+   "loop": false,
+   "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
+   "from": "起身",
+   "to": "平静"
+  },
+  {
+   "name": "东桌醉客__起身到吵嚷",
+   "start": 866,
+   "end": 1078,
+   "loop": false,
+   "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
+   "from": "起身",
+   "to": "吵嚷"
+  },
+  {
+   "name": "西桌醉客__起身到吵嚷",
+   "start": 866,
+   "end": 1078,
+   "loop": false,
+   "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
+   "from": "起身",
+   "to": "吵嚷"
+  }
+ ],
+ "parts": [
+  {
+   "prop": "东桌醉客",
+   "names": [
+    "醉客_东桌醉客",
+    "东椅东座板",
+    "东椅东腿-1-1",
+    "东椅东腿-11",
+    "东椅东腿1-1",
+    "东椅东腿11",
+    "东椅东椅背"
+   ]
+  },
+  {
+   "prop": "西桌醉客",
+   "names": [
+    "醉客_西桌醉客",
+    "西椅西座板",
+    "西椅西腿-1-1",
+    "西椅西腿-11",
+    "西椅西腿1-1",
+    "西椅西腿11",
+    "西椅西椅背"
+   ]
+  }
+ ]
+}

@@ -6,7 +6,7 @@ on:
     paths:
       - '.github/workflows/ssnoir-r510-r517.yml'
       - 'tools/content-validator/experiments/r510_r517_partner_private_future.py'
-      - 'docs/实验/机制研究/批次/R510-R517-私有意志与场外机会/**'
+      - 'experiments/抽象决策关系研究/批次/R510-R517-私有意志与场外机会/**'
 permissions:
   contents: read
 jobs:

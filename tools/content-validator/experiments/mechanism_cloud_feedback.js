@@ -7,8 +7,8 @@
 const app = window.SSNoirFieldStation;
 if (!app) throw new Error("SSNoir field station bridge missing");
 const REPO = "guopanqi/ssnoir";
-const DIR = "docs/实验/机制研究/反馈/inbox";
-const REVIEWS = "docs/实验/机制研究/反馈/reviews";
+const DIR = "experiments/抽象决策关系研究/反馈/inbox";
+const REVIEWS = "experiments/抽象决策关系研究/反馈/reviews";
 const API = "https://api.github.com";
 const TOKEN_KEY = "ssnoir/github-feedback-token/v1";
 const ACTIVE_KEY = "ssnoir/github-feedback-active/v1";
@@ -93,7 +93,7 @@ window.SSNoirResearchDialogue={
     const stamp=clean.createdAt.replace(/[-:]/g,"").replace(/\..+$/,"").replace("T","-");
     const random=crypto.getRandomValues(new Uint8Array(6));
     const suffix=Array.from(random,x=>x.toString(16).padStart(2,"0")).join("");
-    const dest="docs/实验/机制研究/反馈/questions/SSNoir-dialogue-"+question.id+"-"+stamp+"-"+suffix+".json";
+    const dest="experiments/抽象决策关系研究/反馈/questions/SSNoir-dialogue-"+question.id+"-"+stamp+"-"+suffix+".json";
     const result=await request("PUT","/repos/"+REPO+"/contents/"+endpoint(dest),
       {message:"research: designer response to "+question.id,
         content:encoded(safeJson(clean)),branch:"main"});

@@ -6,7 +6,7 @@ on:
     paths:
       - '.github/workflows/ssnoir-r157-r165.yml'
       - 'tools/content-validator/experiments/r157_r165_event_generated_targets.py'
-      - 'docs/实验/机制研究/批次/R157-R165-事件生成新目标/研究记录.md'
+      - 'experiments/抽象决策关系研究/批次/R157-R165-事件生成新目标/研究记录.md'
 permissions:
   contents: read
 jobs:

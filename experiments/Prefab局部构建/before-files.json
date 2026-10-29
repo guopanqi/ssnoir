@@ -1,0 +1,227 @@
+{
+  "report.json": {
+    "sha256": "ec266695fe082795b329453dc275a29d9ef5a7adb18346f040dea468c3190fff",
+    "mtime_ns": 1793246744289828633,
+    "size": 22749
+  },
+  "city_build.blend": {
+    "sha256": "68f57cb73a5fc4a09154cb72922a2a71b863947f5317844acd563ad64e9f5fcc",
+    "mtime_ns": 1793246467227788547,
+    "size": 89815672
+  },
+  "City.fbx": {
+    "sha256": "2c9621bef254fddcb25f58cb6e413076837cba258dad65ea89350998eea1e6a0",
+    "mtime_ns": 1793246535398096007,
+    "size": 12372332
+  },
+  "social-World.visual.json": {
+    "sha256": "156a9d3d5ee99d1d3ff94ee28131fd77374fbab62125e04bf612e003285ea88a",
+    "mtime_ns": 1793181572057598843,
+    "size": 34223
+  },
+  "World.environment.json": {
+    "sha256": "60db4761a153ec251a959ca28da0586fb1e2d34a11295be2d6ecde8e5c2f17d2",
+    "mtime_ns": 1791121322156980536,
+    "size": 93623
+  },
+  "World.visual.json": {
+    "sha256": "eb89b1d4f1fe7843464de216378f40dd050c150d9977e6a05eb9304a47b70cb4",
+    "mtime_ns": 1793246744247828362,
+    "size": 35610
+  },
+  "places/警察局.fbx": {
+    "sha256": "6ff147b4c068f47df75bb98a2d7737f93d924cffdcdbddb53c7ff1889088e427",
+    "mtime_ns": 1793246739704641526,
+    "size": 574956
+  },
+  "places/别给他们想要的.clips.json": {
+    "sha256": "89f5e154af3aca96657678345589593f1af2780a22710188d31533b6f02ba723",
+    "mtime_ns": 1793246744251687410,
+    "size": 3013
+  },
+  "places/别给他们想要的.fbx": {
+    "sha256": "64b6c39b415075dc41d10badfe325f8bdb00ebb0d5afa09c0341fd4a7366d94a",
+    "mtime_ns": 1793246561077790843,
+    "size": 7724652
+  },
+  "places/格兰德酒店.clips.json": {
+    "sha256": "340b8126e5f82260c1f8f6f9bbd854c4c7b37d9e47dc11d49fa2ba167f151532",
+    "mtime_ns": 1793246744256648625,
+    "size": 559
+  },
+  "places/码头居民区.fbx": {
+    "sha256": "9554a8bed226a9d2bc039afdc8ad802241a93ededc2d2973e331cf6e7dab7a0d",
+    "mtime_ns": 1793246740876301559,
+    "size": 6487980
+  },
+  "places/修理棚.fbx": {
+    "sha256": "4c26d8fb9f0dac1e7844b4944c4f0055110cc9aa57b0fe0ac2bc9596cb912687",
+    "mtime_ns": 1793246655747343452,
+    "size": 937068
+  },
+  "places/家.fbx": {
+    "sha256": "d6e8592ac882548c66edf8e7f51e057a6f5eebd6a67e202a56cae38d0e3a34be",
+    "mtime_ns": 1793246741337060994,
+    "size": 859004
+  },
+  "places/剧院.fbx": {
+    "sha256": "13f54b043ea0be1cb77344901419b39088562bf9f637d75bb760b8da58ed2fe5",
+    "mtime_ns": 1793246739488339705,
+    "size": 788300
+  },
+  "places/让他们安静.fbx": {
+    "sha256": "f88a29db48852fb2e964b870f67d7be3d307c951fa0e8ff436c1a75fd048c5c5",
+    "mtime_ns": 1793246639201221278,
+    "size": 673740
+  },
+  "places/晚宴.fbx": {
+    "sha256": "2feabe19df4a8e2ee5526419f22d10566e1f467f1fe150cb0058734a0e3f9cf7",
+    "mtime_ns": 1793246743010067648,
+    "size": 5076076
+  },
+  "places/雨夜追车.fbx": {
+    "sha256": "e5d753204246c0a39e1fb0773a60659d884d1f588a7708afd6ea34ba8ffb97fa",
+    "mtime_ns": 1793246696604908218,
+    "size": 3053308
+  },
+  "places/上午十一点零七分.fbx": {
+    "sha256": "59f74717cc4bd66b268bb8e6de0f5427f6ee7352aa727fa8d02534d499ff8f56",
+    "mtime_ns": 1793246537421077799,
+    "size": 626716
+  },
+  "places/尾随取件人.fbx": {
+    "sha256": "a6851e03407cef94c7d44c422c536b8fd1f2741ea2eb93f83457dfb07652f73d",
+    "mtime_ns": 1793246571956520637,
+    "size": 2590636
+  },
+  "places/雨夜追车.clips.json": {
+    "sha256": "dc8d0e45e400af79e5881b30e6b53f89566dc103a87903ef73860f55c014c462",
+    "mtime_ns": 1793246744272078732,
+    "size": 2123
+  },
+  "places/雨夜同行.fbx": {
+    "sha256": "9ae56990fe631feae3649418cf5b91ba6cb769ac5d8518930b832ac7136c434a",
+    "mtime_ns": 1793246663036457826,
+    "size": 4477660
+  },
+  "places/雕像.fbx": {
+    "sha256": "2549eb2779a3573c635ddb02200f88f230a4e7e750b203dd05a671c1c1c6239a",
+    "mtime_ns": 1793246743249074712,
+    "size": 789148
+  },
+  "places/布告栏.fbx": {
+    "sha256": "f20a04740f38500c470d773de71042caf292c73b26e0cc6b34a74837dad7a0a5",
+    "mtime_ns": 1793246741550108603,
+    "size": 131916
+  },
+  "places/租屋.fbx": {
+    "sha256": "d899a641fddf045afb016e77a156f2a301dfb45445c401b0dfc7147b0b7d19c2",
+    "mtime_ns": 1793246638694937108,
+    "size": 4013628
+  },
+  "places/街角咖啡馆.fbx": {
+    "sha256": "219517c41d2775b9677ea2421506adeab3c00485a54cd060ed8c8ab3800502d5",
+    "mtime_ns": 1793246683642001201,
+    "size": 563132
+  },
+  "places/巷子里在打人.clips.json": {
+    "sha256": "150b20e928d498af1dfd67f58090f3abbfbc5d4089ad24aee9696b2d5404f863",
+    "mtime_ns": 1793246744261599966,
+    "size": 3895
+  },
+  "places/醉客互相叫骂.clips.json": {
+    "sha256": "b715d536312fe049062d3f4eae850a54d068cdc5e14f73fa5742c010cc1fb61a",
+    "mtime_ns": 1793246744269512436,
+    "size": 4432
+  },
+  "places/码头.fbx": {
+    "sha256": "87d2a4ea48946f7c046c503454a545d71d6535c166053ef9b8781129fc221c2f",
+    "mtime_ns": 1793246739047805675,
+    "size": 15090892
+  },
+  "places/照相馆交涉.fbx": {
+    "sha256": "8215b2c5cf94c70e71747bebcb12586468d572f0cd4d937f193169066a3bf613",
+    "mtime_ns": 1793246657664893594,
+    "size": 708956
+  },
+  "places/巷子里在打人.fbx": {
+    "sha256": "cc2914ed78750ea7267b0c5ed81a068ac5cc3d71a218d6960256a5ce4cf523f7",
+    "mtime_ns": 1793246654983578984,
+    "size": 6786364
+  },
+  "places/联合起吊.fbx": {
+    "sha256": "dda06b9031223b60719eb3b4ad41a7909d6c34b65d249f75d3fbed98c3e6246f",
+    "mtime_ns": 1793246725655535394,
+    "size": 10051228
+  },
+  "places/诊所.fbx": {
+    "sha256": "e5ba5382e29070ec86900a72cbf1819eff085d4a15ed3d402e8fdc7f7ee2c082",
+    "mtime_ns": 1793246739908547995,
+    "size": 306636
+  },
+  "places/公园.fbx": {
+    "sha256": "fc9b6fc477c48c279c4a8fdafee4aea281b5651be0b1e9d4795915d789c032cd",
+    "mtime_ns": 1793246741103940231,
+    "size": 635756
+  },
+  "places/租屋.clips.json": {
+    "sha256": "f15f6a7231619a1f81190a3e9330f76d141abdae80a98cd7b93d542cc771b9b9",
+    "mtime_ns": 1793246744259318713,
+    "size": 12613
+  },
+  "places/格兰德酒店.fbx": {
+    "sha256": "251c9b53cb2461c7ef5cadc4ec031984b6b6c64df496c4f769c94c402df605ca",
+    "mtime_ns": 1793246587507015828,
+    "size": 2159436
+  },
+  "places/双目标跟拍.fbx": {
+    "sha256": "53677d46299c0798e71f2c0bfcb92eca41380f42ae266fbe9b5a9e97fd4d63d9",
+    "mtime_ns": 1793246656755720117,
+    "size": 1475468
+  },
+  "places/首演之夜.fbx": {
+    "sha256": "8ca17c2bb8009233ea6bb14e1072580d94cbdd160b428cbc728e34d4aecfdadf",
+    "mtime_ns": 1793246566425182748,
+    "size": 2179596
+  },
+  "places/联合起吊.clips.json": {
+    "sha256": "7ebf65c136b4b10bd1bc32729c25abfcf06189153dc17de70d49632a602859e6",
+    "mtime_ns": 1793246744273465067,
+    "size": 3709
+  },
+  "places/首演之夜.clips.json": {
+    "sha256": "5eef6150881f6f3e9713f4d5721a3b717563eb03f8f8ab95f34a2dcf1fab8567",
+    "mtime_ns": 1793246744253119787,
+    "size": 1231
+  },
+  "places/码头.clips.json": {
+    "sha256": "713fd08b4ca2d4787c78307f872187a57689f789678e4537da147659c2e8bbce",
+    "mtime_ns": 1793246744275844779,
+    "size": 1006
+  },
+  "places/醉客互相叫骂.fbx": {
+    "sha256": "236f2cf53a9e3430c934c629f10bf9d646e04fca3e5110baa1aad9f91e0787ae",
+    "mtime_ns": 1793246683039227764,
+    "size": 5098572
+  },
+  "places/老街酒馆.fbx": {
+    "sha256": "b5dab7d5cadf6bcf67d960421d28d8f43cebd0349efa86550e0b68de4dbec965",
+    "mtime_ns": 1793246740448036798,
+    "size": 960156
+  },
+  "places/货运公司.fbx": {
+    "sha256": "696dcecfa436c80b0dc90f01bb8a971d6605acfa998c501a330d43b622efc195",
+    "mtime_ns": 1793246739256284818,
+    "size": 143516
+  },
+  "places/巷子.fbx": {
+    "sha256": "7613e214edf4c9911049cb48c71ed74db8e14101b1f52e32910d7f054dc4e66e",
+    "mtime_ns": 1793246570159564965,
+    "size": 2443644
+  },
+  "places/报社.fbx": {
+    "sha256": "e76df4d320d90597d586a956b14404ed3fbf1ca729708c9f530faada0bb88910",
+    "mtime_ns": 1793246588009866826,
+    "size": 1169932
+  }
+}

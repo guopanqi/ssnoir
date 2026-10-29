@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 "use strict";
 const fs=require("node:fs"),vm=require("node:vm"),path=require("node:path"),assert=require("node:assert/strict");
-const file=path.resolve(__dirname,"../../../docs/实验/机制研究/批次/2026-10-13-策略回应与危机可达性/危机试玩.html");
+const file=path.resolve(__dirname,"../../../experiments/抽象决策关系研究/批次/2026-10-13-策略回应与危机可达性/危机试玩.html");
 const html=fs.readFileSync(file,"utf8");
 const scripts=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)];
 assert.equal(scripts.length,1);

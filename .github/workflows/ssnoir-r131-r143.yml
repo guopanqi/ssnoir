@@ -6,7 +6,7 @@ on:
     paths:
       - '.github/workflows/ssnoir-r131-r143.yml'
       - 'tools/content-validator/experiments/r131_r143_information_and_ally.py'
-      - 'docs/实验/机制研究/批次/R131-R143-信息和自主同伴/研究记录.md'
+      - 'experiments/抽象决策关系研究/批次/R131-R143-信息和自主同伴/研究记录.md'
 permissions:
   contents: read
 jobs:

@@ -23,7 +23,7 @@ RECORDS = {
 
 
 def run(scene, filename):
-    source = ROOT / 'docs/实验' / scene / filename
+    source = ROOT / 'experiments/Scenario候选模式对照' / scene / filename
     previous = json.loads(gzip.decompress(source.read_bytes()))
     setup = previous['Setup']
     command = ['dotnet', 'run', '--no-build', '--project', 'tools/content-validator/SSNoir.ContentValidator.csproj',
@@ -81,4 +81,4 @@ def run(scene, filename):
 
 if __name__ == '__main__':
     results = [run(scene, filename) for scene, filename in RECORDS.items()]
-    (ROOT / 'docs/实验/最终轨迹复核.json').write_text(json.dumps(results, ensure_ascii=False, indent=2) + '\n')
+    (ROOT / 'experiments/Scenario候选模式对照/最终轨迹复核.json').write_text(json.dumps(results, ensure_ascii=False, indent=2) + '\n')

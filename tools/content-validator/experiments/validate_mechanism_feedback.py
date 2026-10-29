@@ -8,7 +8,7 @@ from datetime import datetime
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[3]
-BASE=ROOT/"docs/实验/机制研究"
+BASE=ROOT/"experiments/抽象决策关系研究"
 CONFIG=BASE/"试玩任务.json"
 INBOX=BASE/"反馈/inbox"
 SCHEMA="ssnoir.mechanism-feedback/v1"
@@ -74,7 +74,7 @@ def check(path:Path, tasks:dict)->dict:
         target=data.get("inReplyTo")
         assert isinstance(target,dict), "Reply must link specific review source"
         parent=target.get("feedbackPath","")
-        assert parent.startswith("docs/实验/机制研究/反馈/inbox/SSNoir-feedback-"+study+"-")
+        assert parent.startswith("experiments/抽象决策关系研究/反馈/inbox/SSNoir-feedback-"+study+"-")
         assert parent.endswith(".json") and ".." not in parent
         assert isinstance(target.get("feedbackSha"),str) and len(target["feedbackSha"])==40
         assert all(c in "0123456789abcdef" for c in target["feedbackSha"].lower())

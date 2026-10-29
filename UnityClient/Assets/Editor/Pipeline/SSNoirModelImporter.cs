@@ -19,12 +19,11 @@ namespace SSNoir.Editor
     {
         // Bump this whenever serialized importer output changes so existing model assets
         // are reprocessed instead of keeping stale generated VCams in the import cache.
-        public override uint GetVersion() => 16;   // 13：地点文件按 clips.json 切道具 clip；15：fbx 依赖 sidecar，json 后到也会重导；16：City.fbx 的河面重挂 RiverFlowUV.mat
+        public override uint GetVersion() => 22;   // 22：恢复动画部件刚性描线的单位局部姿态
 
-        // CityBox 相机一律 50mm、36×24 传感器、按 16:9 标定（pipeline/export.py 强制焦距）。
-        // Blender 的 FBX 导出把 FieldOfView 写成**水平**视角（39.6°），Unity 却当**竖直**视角用，
-        // 结果游戏里比 Blender 预览宽一圈、东西小一圈、按像素标定的描线也细一圈。
-        // 这里把水平角按 16:9 换回竖直角（26.99°）；已经是竖直角的原样保留。
+        // 当前正式 FBX 的 50mm / 24mm film height 导入为竖直 FOV 26.99°，原样保留。
+        // 旧输入若报告 36mm film width 的水平角 39.6°，仍按 16:9 转为竖直角 22.90°。
+        // 离线检查按实际导入约定取值，不用 Blender 视口的自动 sensor fit 推测游戏 FOV。
         private const float BlenderHorizontalFov50mm = 39.5978f;
         private const float CalibrationAspect = 16f / 9f;
 
@@ -108,6 +107,46 @@ namespace SSNoir.Editor
                 return;
             // 对着 clips.json 核对切出来的长度：帧数对不上就是 take 起点和 Blender 帧号没对齐
             var bindings = AnimationUtility.GetCurveBindings(clip);
+            var sidecar = Path.ChangeExtension(assetPath, null) + ".clips.json";
+            var spec = PropClips.Parse(File.ReadAllText(sidecar));
+            var declared = spec.clips.FirstOrDefault(c => c.name == clip.name);
+            if (declared != null)
+            {
+                var group = spec.parts.FirstOrDefault(p => p.prop == declared.Prop);
+                var allowed = declared.participants.Length > 0 ? declared.participants : group?.names;
+                if (allowed != null && allowed.Length > 0)
+                    foreach (var binding in bindings)
+                        if (!binding.path.Split('/').Any(segment => allowed.Contains(segment)))
+                            AnimationUtility.SetEditorCurve(clip, binding, null);
+                bindings = AnimationUtility.GetCurveBindings(clip);
+            }
+            // 生成描线是部件的刚性子节点。FBX在父节点缩为0时无法求逆，
+            // 会烘出子节点位置/缩放的补偿曲线；Unity再精简/插值这些曲线，
+            // 恢复显示时描线会从部件原点向外扩张。只让父部件控制它，
+            // 保留模型中的固定局部TRS。骨骼曲线和真正的部件曲线不受影响。
+            var partNames = new System.Collections.Generic.HashSet<string>(spec.parts.SelectMany(p => p.names));
+            foreach (var binding in bindings)
+            {
+                var segments = binding.path.Split('/');
+                if (binding.type == typeof(Transform) && segments.Length >= 2
+                    && segments[segments.Length - 1].StartsWith("描线_", StringComparison.Ordinal)
+                    && partNames.Contains(segments[segments.Length - 2]))
+                    AnimationUtility.SetEditorCurve(clip, binding, null);
+            }
+            bindings = AnimationUtility.GetCurveBindings(clip);
+            // FBX 已按30fps烘焙。Unity自动平滑会让 1→0→0→1 的隐藏段在两个0之间
+            // 下冲成负缩放，循环复位中的对象便会反向闪现。线性连接烘焙样本，保留明确的0平台。
+            foreach (var binding in bindings.Where(b => b.propertyName.StartsWith("m_LocalScale.", StringComparison.Ordinal)))
+            {
+                var curve = AnimationUtility.GetEditorCurve(clip, binding);
+                for (int i = 0; i < curve.length; i++)
+                {
+                    AnimationUtility.SetKeyBroken(curve, i, true);
+                    AnimationUtility.SetKeyLeftTangentMode(curve, i, AnimationUtility.TangentMode.Linear);
+                    AnimationUtility.SetKeyRightTangentMode(curve, i, AnimationUtility.TangentMode.Linear);
+                }
+                AnimationUtility.SetEditorCurve(clip, binding, curve);
+            }
             var byPath = bindings.GroupBy(b => b.path.Substring(b.path.LastIndexOf('/') + 1))
                 .Select(g => $"{g.Key}[{string.Join(",", g.Select(b => b.propertyName.Replace("m_Local", "")).Distinct())}]");
             Debug.Log($"[SSNoir] ModelImporter: clip '{clip.name}' length={clip.length * clip.frameRate:F1}f @{clip.frameRate}fps loop={clip.isLooping} curves: {string.Join(" ", byPath)}");
@@ -169,6 +208,24 @@ namespace SSNoir.Editor
                 RemapRiverMaterial(root);
 
             var allTransforms = root.GetComponentsInChildren<Transform>(true);
+            var clipsPath = Path.ChangeExtension(assetPath, null) + ".clips.json";
+            if (File.Exists(clipsPath))
+            {
+                var spec = PropClips.Parse(File.ReadAllText(clipsPath));
+                var partNames = new System.Collections.Generic.HashSet<string>(spec.parts.SelectMany(p => p.names));
+                foreach (var node in allTransforms)
+                {
+                    if (!node.name.StartsWith("描线_", StringComparison.Ordinal)
+                        || node.parent == null || !partNames.Contains(node.parent.name))
+                        continue;
+                    // CityBox 已将刚性描线顶点烘入部件局部空间，子节点应恒为单位 TRS。
+                    // FBX 在父部件默认 s=0 时会导出零缩放补偿；移除动画曲线还不够，
+                    // 必须同时恢复静止姿态，否则船体出现后描线仍缩成一点。
+                    node.localPosition = Vector3.zero;
+                    node.localRotation = Quaternion.identity;
+                    node.localScale = Vector3.one;
+                }
+            }
             var orbitPivots = allTransforms.Where(t => IsOrbitPivotName(t.name)).ToArray();
 
             // ==========================================
@@ -220,7 +277,16 @@ namespace SSNoir.Editor
                     // Portal Camera 只描述穿门路径，不是玩家可操纵的焦点相机。
                     var config = isPortalCamera ? null : vcamGo.AddComponent<SSNoirVirtualCameraConfig>();
                     if (config != null)
+                    {
                         config.modelRoot = root.transform;
+                        var targets = cam.name.StartsWith("Camera_", StringComparison.Ordinal)
+                            ? allTransforms.Where(t => t.parent == cam.transform.parent
+                                && StripNumericSuffix(t.name) == "FocusTarget_" + StripNumericSuffix(cam.name).Substring("Camera_".Length)).ToArray()
+                            : Array.Empty<Transform>();
+                        if (targets.Length > 1) throw new InvalidOperationException("Duplicate focus target: " + cam.name);
+                        config.focusTarget = targets.SingleOrDefault();
+                        ConfigureTravelSpace(config, cam.transform);
+                    }
                     // 机位类型由 Prefab 里看得见的对象决定，没有默认分支：
                     //   orbit pivot → Orbit；PanBounds_<名> → Pan；都没有 → Static；都有 → 错。
                     var panBounds = isPortalCamera ? null : FindPanBounds(cam.transform);
@@ -434,6 +500,36 @@ namespace SSNoir.Editor
             }
 
             return closest;
+        }
+
+        private static string StripNumericSuffix(string name)
+        {
+            int dot = name.LastIndexOf('.');
+            return dot >= 0 && int.TryParse(name.Substring(dot + 1), out _) ? name.Substring(0, dot) : name;
+        }
+
+        private static void ConfigureTravelSpace(SSNoirVirtualCameraConfig config, Transform camera)
+        {
+            // 只认同一 Prefab 根中的声明，不借邻居或嵌套地点的盒子。
+            var spaces = camera.parent.Cast<Transform>()
+                .Where(t => t.name.StartsWith("CameraTravelBounds_", StringComparison.Ordinal)).ToArray();
+            if (spaces.Length == 0) return;
+            if (spaces.Length != 1)
+                throw new InvalidOperationException($"[SSNoir] '{camera.name}' has multiple travel spaces.");
+            var space = spaces[0];
+            // Blender 全城装配会为跨 Prefab 的同名角点追加数字后缀；只在该空间的
+            // 直接子节点中匹配，名称仍必须是明确的 _min / _max。
+            var min = space.Cast<Transform>().SingleOrDefault(t => StripNumericSuffix(t.name) == "_min");
+            var max = space.Cast<Transform>().SingleOrDefault(t => StripNumericSuffix(t.name) == "_max");
+            if (min == null || max == null)
+                throw new InvalidOperationException($"[SSNoir] '{space.name}' needs _min and _max.");
+            config.travelSpace = space;
+            // FBX 轴变换可能反转一根轴，重新排序角点。
+            config.travelSpaceMin = Vector3.Min(min.localPosition, max.localPosition);
+            config.travelSpaceMax = Vector3.Max(min.localPosition, max.localPosition);
+            var size = config.travelSpaceMax - config.travelSpaceMin;
+            if (size.x <= 0 || size.y <= 0 || size.z <= 0)
+                throw new InvalidOperationException($"[SSNoir] '{space.name}' has empty travel space.");
         }
 
         private static void ConfigureOrbit(SSNoirVirtualCameraConfig config, Transform orbitPivot)

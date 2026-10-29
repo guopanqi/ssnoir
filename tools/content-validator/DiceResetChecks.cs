@@ -76,7 +76,7 @@ namespace SSNoir.Testing
             manager.StartScenario("dice-reset-fixture");
             long scenarioRevision = actor.ActionDiceRevision;
             Require(scenarioRevision == cityRevision + 1,
-                "Entering an scenario must issue exactly one new hand.");
+                "Entering a scenario must issue exactly one new hand.");
             manager.EndScenario();
             Require(actor.ActionDiceRevision == scenarioRevision,
                 "Returning to the city must restore its stashed hand without incrementing revision.");

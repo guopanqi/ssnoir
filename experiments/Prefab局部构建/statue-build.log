@@ -1,0 +1,5 @@
+OUTLINE| 雕像       w=0.08m 共享线=0 壳=1 暗线=0 远景=有 内部=0
+TIMING| partial_prefabs 4.549s
+TIMING| export City.fbx 3.324s
+TIMING| export 雕像.fbx 0.165s
+BUILD| partial=雕像 total=15.933s; 其他地点与城市填充复用基线

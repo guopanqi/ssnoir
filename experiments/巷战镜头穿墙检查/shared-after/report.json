@@ -1,0 +1,2774 @@
+{
+  "source": "/Users/usr/Documents/play/ssnoir/city-box/prefabs/巷子里在打人.blend",
+  "seconds": 5.259589916997356,
+  "meshes": 31,
+  "routes": [
+    {
+      "source": "Camera_巷子里在打人",
+      "target": "Camera_巷战-卷袖子",
+      "path": "AuthoredArc",
+      "crossfade": true,
+      "crossings": [
+        {
+          "progress": 0.19166666,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.21666667,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.825,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.8833333,
+          "objects": [
+            "对面墙"
+          ]
+        }
+      ],
+      "near_plane_hits": [
+        {
+          "progress": 0.19166666,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.2,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.21666667,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.225,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.23333333,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.825,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.875,
+          "objects": [
+            "对面墙"
+          ]
+        }
+      ],
+      "start_interest": [
+        1.5454559,
+        0,
+        8.554554
+      ],
+      "target_interest": [
+        5.3014665,
+        0,
+        -2.4985218
+      ]
+    },
+    {
+      "source": "Camera_巷子里在打人",
+      "target": "Camera_巷战-开场",
+      "path": "DirectApproach",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": [],
+      "start_interest": [
+        1.5454559,
+        0,
+        8.554554
+      ],
+      "target_interest": [
+        2.5473285,
+        0,
+        10.439011
+      ]
+    },
+    {
+      "source": "Camera_巷子里在打人",
+      "target": "Camera_巷战-毡帽",
+      "path": "AuthoredArc",
+      "crossfade": true,
+      "crossings": [
+        {
+          "progress": 0.20833333,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.25,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.825,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.8833333,
+          "objects": [
+            "对面墙"
+          ]
+        }
+      ],
+      "near_plane_hits": [
+        {
+          "progress": 0.20833333,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.21666667,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.225,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.25,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.25833333,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.81666666,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.875,
+          "objects": [
+            "对面墙"
+          ]
+        }
+      ],
+      "start_interest": [
+        1.5454559,
+        0,
+        8.554554
+      ],
+      "target_interest": [
+        5.4898844,
+        0,
+        -0.4259353
+      ]
+    },
+    {
+      "source": "Camera_巷子里在打人",
+      "target": "Camera_巷战-皮夹克",
+      "path": "AuthoredArc",
+      "crossfade": true,
+      "crossings": [
+        {
+          "progress": 0.3,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.33333334,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.825,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.8833333,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        }
+      ],
+      "near_plane_hits": [
+        {
+          "progress": 0.3,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.30833334,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.33333334,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.34166667,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.81666666,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.875,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        }
+      ],
+      "start_interest": [
+        1.5454559,
+        0,
+        8.554554
+      ],
+      "target_interest": [
+        -4.3109884,
+        0,
+        0.5166085
+      ]
+    },
+    {
+      "source": "Camera_巷子里在打人",
+      "target": "Camera_巷战还击-卷袖子",
+      "path": "AuthoredArc",
+      "crossfade": true,
+      "crossings": [
+        {
+          "progress": 0.15,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.175,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.80833334,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.84166664,
+          "objects": [
+            "对面墙"
+          ]
+        }
+      ],
+      "near_plane_hits": [
+        {
+          "progress": 0.15,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.15833333,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.175,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.80833334,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.8333333,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.84166664,
+          "objects": [
+            "对面墙"
+          ]
+        }
+      ],
+      "start_interest": [
+        1.5454559,
+        0,
+        8.554554
+      ],
+      "target_interest": [
+        4.0236597,
+        0,
+        -5.2800226
+      ]
+    },
+    {
+      "source": "Camera_巷子里在打人",
+      "target": "Camera_巷战还击-毡帽",
+      "path": "AuthoredArc",
+      "crossfade": true,
+      "crossings": [
+        {
+          "progress": 0.15833333,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.18333334,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.8333333,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.8666667,
+          "objects": [
+            "对面墙"
+          ]
+        }
+      ],
+      "near_plane_hits": [
+        {
+          "progress": 0.15833333,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.16666667,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.18333334,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.19166666,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.8333333,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.8666667,
+          "objects": [
+            "对面墙"
+          ]
+        }
+      ],
+      "start_interest": [
+        1.5454559,
+        0,
+        8.554554
+      ],
+      "target_interest": [
+        4.898982,
+        0,
+        -3.4293282
+      ]
+    },
+    {
+      "source": "Camera_巷子里在打人",
+      "target": "Camera_巷战还击-皮夹克",
+      "path": "AuthoredArc",
+      "crossfade": true,
+      "crossings": [
+        {
+          "progress": 0.225,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.24166666,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.8666667,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.90833336,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        }
+      ],
+      "near_plane_hits": [
+        {
+          "progress": 0.225,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.24166666,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.25,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.8666667,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.90833336,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        }
+      ],
+      "start_interest": [
+        1.5454559,
+        0,
+        8.554554
+      ],
+      "target_interest": [
+        -4.2582083,
+        0,
+        -2.537678
+      ]
+    },
+    {
+      "source": "Camera_巷战-卷袖子",
+      "target": "Camera_巷子里在打人",
+      "path": "DirectApproach",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": [],
+      "start_interest": [
+        5.3014665,
+        0,
+        -2.4985218
+      ],
+      "target_interest": [
+        1.5454559,
+        0,
+        8.554554
+      ]
+    },
+    {
+      "source": "Camera_巷战-卷袖子",
+      "target": "Camera_巷战-开场",
+      "path": "AuthoredArc",
+      "crossfade": true,
+      "crossings": [
+        {
+          "progress": 0.2,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.33333334,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.45,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.55833334,
+          "objects": [
+            "对面墙"
+          ]
+        }
+      ],
+      "near_plane_hits": [
+        {
+          "progress": 0.2,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.20833333,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.33333334,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.34166667,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.35,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.35833332,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.43333334,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.44166666,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.55,
+          "objects": [
+            "对面墙"
+          ]
+        }
+      ],
+      "start_interest": [
+        5.3014665,
+        0,
+        -2.4985218
+      ],
+      "target_interest": [
+        2.5473285,
+        0,
+        10.439011
+      ]
+    },
+    {
+      "source": "Camera_巷战-卷袖子",
+      "target": "Camera_巷战-毡帽",
+      "path": "DirectApproach",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": [],
+      "start_interest": [
+        5.3014665,
+        0,
+        -2.4985218
+      ],
+      "target_interest": [
+        5.4898844,
+        0,
+        -0.4259353
+      ]
+    },
+    {
+      "source": "Camera_巷战-卷袖子",
+      "target": "Camera_巷战-皮夹克",
+      "path": "AuthoredArc",
+      "crossfade": true,
+      "crossings": [
+        {
+          "progress": 0.5416667,
+          "objects": [
+            "酒馆侧墙_壁柱_3"
+          ]
+        },
+        {
+          "progress": 0.55,
+          "objects": [
+            "酒馆侧墙",
+            "酒馆侧墙_壁柱_3"
+          ]
+        },
+        {
+          "progress": 0.59166664,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.80833334,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.8833333,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        }
+      ],
+      "near_plane_hits": [
+        {
+          "progress": 0.5416667,
+          "objects": [
+            "酒馆侧墙_壁柱_3"
+          ]
+        },
+        {
+          "progress": 0.55,
+          "objects": [
+            "酒馆侧墙",
+            "酒馆侧墙_壁柱_3"
+          ]
+        },
+        {
+          "progress": 0.59166664,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.6,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.8,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.875,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        }
+      ],
+      "start_interest": [
+        5.3014665,
+        0,
+        -2.4985218
+      ],
+      "target_interest": [
+        -4.3109884,
+        0,
+        0.5166085
+      ]
+    },
+    {
+      "source": "Camera_巷战-卷袖子",
+      "target": "Camera_巷战还击-卷袖子",
+      "path": "DirectApproach",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": [],
+      "start_interest": [
+        5.3014665,
+        0,
+        -2.4985218
+      ],
+      "target_interest": [
+        4.0236597,
+        0,
+        -5.2800226
+      ]
+    },
+    {
+      "source": "Camera_巷战-卷袖子",
+      "target": "Camera_巷战还击-毡帽",
+      "path": "DirectApproach",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": [],
+      "start_interest": [
+        5.3014665,
+        0,
+        -2.4985218
+      ],
+      "target_interest": [
+        4.898982,
+        0,
+        -3.4293282
+      ]
+    },
+    {
+      "source": "Camera_巷战-卷袖子",
+      "target": "Camera_巷战还击-皮夹克",
+      "path": "AuthoredArc",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": [],
+      "start_interest": [
+        5.3014665,
+        0,
+        -2.4985218
+      ],
+      "target_interest": [
+        -4.2582083,
+        0,
+        -2.537678
+      ]
+    },
+    {
+      "source": "Camera_巷战-开场",
+      "target": "Camera_巷子里在打人",
+      "path": "DirectApproach",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": [],
+      "start_interest": [
+        2.5473285,
+        0,
+        10.439011
+      ],
+      "target_interest": [
+        1.5454559,
+        0,
+        8.554554
+      ]
+    },
+    {
+      "source": "Camera_巷战-开场",
+      "target": "Camera_巷战-卷袖子",
+      "path": "AuthoredArc",
+      "crossfade": true,
+      "crossings": [
+        {
+          "progress": 0.45,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.55833334,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.675,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.80833334,
+          "objects": [
+            "对面墙"
+          ]
+        }
+      ],
+      "near_plane_hits": [
+        {
+          "progress": 0.45,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.45833334,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.55833334,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.56666666,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.575,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.65,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.65833336,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.6666667,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.8,
+          "objects": [
+            "对面墙"
+          ]
+        }
+      ],
+      "start_interest": [
+        2.5473285,
+        0,
+        10.439011
+      ],
+      "target_interest": [
+        5.3014665,
+        0,
+        -2.4985218
+      ]
+    },
+    {
+      "source": "Camera_巷战-开场",
+      "target": "Camera_巷战-毡帽",
+      "path": "AuthoredArc",
+      "crossfade": true,
+      "crossings": [
+        {
+          "progress": 0.575,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.7583333,
+          "objects": [
+            "对面墙"
+          ]
+        }
+      ],
+      "near_plane_hits": [
+        {
+          "progress": 0.575,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.5833333,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.59166664,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.73333335,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.7416667,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.75,
+          "objects": [
+            "对面墙"
+          ]
+        }
+      ],
+      "start_interest": [
+        2.5473285,
+        0,
+        10.439011
+      ],
+      "target_interest": [
+        5.4898844,
+        0,
+        -0.4259353
+      ]
+    },
+    {
+      "source": "Camera_巷战-开场",
+      "target": "Camera_巷战-皮夹克",
+      "path": "AuthoredArc",
+      "crossfade": true,
+      "crossings": [
+        {
+          "progress": 0.35833332,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.45833334,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.7083333,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.825,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        }
+      ],
+      "near_plane_hits": [
+        {
+          "progress": 0.35833332,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.45833334,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.46666667,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.69166666,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.7,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.81666666,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        }
+      ],
+      "start_interest": [
+        2.5473285,
+        0,
+        10.439011
+      ],
+      "target_interest": [
+        -4.3109884,
+        0,
+        0.5166085
+      ]
+    },
+    {
+      "source": "Camera_巷战-开场",
+      "target": "Camera_巷战还击-卷袖子",
+      "path": "AuthoredArc",
+      "crossfade": true,
+      "crossings": [
+        {
+          "progress": 0.30833334,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.34166667,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.76666665,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.80833334,
+          "objects": [
+            "对面墙"
+          ]
+        }
+      ],
+      "near_plane_hits": [
+        {
+          "progress": 0.30833334,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.31666666,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.34166667,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.35,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.76666665,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.8,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.80833334,
+          "objects": [
+            "对面墙"
+          ]
+        }
+      ],
+      "start_interest": [
+        2.5473285,
+        0,
+        10.439011
+      ],
+      "target_interest": [
+        4.0236597,
+        0,
+        -5.2800226
+      ]
+    },
+    {
+      "source": "Camera_巷战-开场",
+      "target": "Camera_巷战还击-毡帽",
+      "path": "AuthoredArc",
+      "crossfade": true,
+      "crossings": [
+        {
+          "progress": 0.35,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.38333333,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.78333336,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.8333333,
+          "objects": [
+            "对面墙"
+          ]
+        }
+      ],
+      "near_plane_hits": [
+        {
+          "progress": 0.35,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.38333333,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.39166668,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.775,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.825,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.8333333,
+          "objects": [
+            "对面墙"
+          ]
+        }
+      ],
+      "start_interest": [
+        2.5473285,
+        0,
+        10.439011
+      ],
+      "target_interest": [
+        4.898982,
+        0,
+        -3.4293282
+      ]
+    },
+    {
+      "source": "Camera_巷战-开场",
+      "target": "Camera_巷战还击-皮夹克",
+      "path": "AuthoredArc",
+      "crossfade": true,
+      "crossings": [
+        {
+          "progress": 0.23333333,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.275,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.84166664,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.89166665,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        }
+      ],
+      "near_plane_hits": [
+        {
+          "progress": 0.23333333,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.275,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.84166664,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.89166665,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        }
+      ],
+      "start_interest": [
+        2.5473285,
+        0,
+        10.439011
+      ],
+      "target_interest": [
+        -4.2582083,
+        0,
+        -2.537678
+      ]
+    },
+    {
+      "source": "Camera_巷战-毡帽",
+      "target": "Camera_巷子里在打人",
+      "path": "DirectApproach",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": [],
+      "start_interest": [
+        5.4898844,
+        0,
+        -0.4259353
+      ],
+      "target_interest": [
+        1.5454559,
+        0,
+        8.554554
+      ]
+    },
+    {
+      "source": "Camera_巷战-毡帽",
+      "target": "Camera_巷战-卷袖子",
+      "path": "DirectApproach",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": [],
+      "start_interest": [
+        5.4898844,
+        0,
+        -0.4259353
+      ],
+      "target_interest": [
+        5.3014665,
+        0,
+        -2.4985218
+      ]
+    },
+    {
+      "source": "Camera_巷战-毡帽",
+      "target": "Camera_巷战-开场",
+      "path": "AuthoredArc",
+      "crossfade": true,
+      "crossings": [
+        {
+          "progress": 0.25,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.43333334,
+          "objects": [
+            "对面墙"
+          ]
+        }
+      ],
+      "near_plane_hits": [
+        {
+          "progress": 0.25,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.25833333,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.26666668,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.275,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.41666666,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.425,
+          "objects": [
+            "对面墙"
+          ]
+        }
+      ],
+      "start_interest": [
+        5.4898844,
+        0,
+        -0.4259353
+      ],
+      "target_interest": [
+        2.5473285,
+        0,
+        10.439011
+      ]
+    },
+    {
+      "source": "Camera_巷战-毡帽",
+      "target": "Camera_巷战-皮夹克",
+      "path": "AuthoredArc",
+      "crossfade": true,
+      "crossings": [
+        {
+          "progress": 0.175,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.30833334,
+          "objects": [
+            "对面墙"
+          ]
+        }
+      ],
+      "near_plane_hits": [
+        {
+          "progress": 0.175,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.18333334,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.3,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.30833334,
+          "objects": [
+            "对面墙"
+          ]
+        }
+      ],
+      "start_interest": [
+        5.4898844,
+        0,
+        -0.4259353
+      ],
+      "target_interest": [
+        -4.3109884,
+        0,
+        0.5166085
+      ]
+    },
+    {
+      "source": "Camera_巷战-毡帽",
+      "target": "Camera_巷战还击-卷袖子",
+      "path": "DirectApproach",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": [],
+      "start_interest": [
+        5.4898844,
+        0,
+        -0.4259353
+      ],
+      "target_interest": [
+        4.0236597,
+        0,
+        -5.2800226
+      ]
+    },
+    {
+      "source": "Camera_巷战-毡帽",
+      "target": "Camera_巷战还击-毡帽",
+      "path": "DirectApproach",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": [],
+      "start_interest": [
+        5.4898844,
+        0,
+        -0.4259353
+      ],
+      "target_interest": [
+        4.898982,
+        0,
+        -3.4293282
+      ]
+    },
+    {
+      "source": "Camera_巷战-毡帽",
+      "target": "Camera_巷战还击-皮夹克",
+      "path": "AuthoredArc",
+      "crossfade": true,
+      "crossings": [
+        {
+          "progress": 0.18333334,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.35,
+          "objects": [
+            "对面墙"
+          ]
+        }
+      ],
+      "near_plane_hits": [
+        {
+          "progress": 0.18333334,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.19166666,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.2,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.34166667,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.35,
+          "objects": [
+            "对面墙"
+          ]
+        }
+      ],
+      "start_interest": [
+        5.4898844,
+        0,
+        -0.4259353
+      ],
+      "target_interest": [
+        -4.2582083,
+        0,
+        -2.537678
+      ]
+    },
+    {
+      "source": "Camera_巷战-皮夹克",
+      "target": "Camera_巷子里在打人",
+      "path": "DirectApproach",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": [],
+      "start_interest": [
+        -4.3109884,
+        0,
+        0.5166085
+      ],
+      "target_interest": [
+        1.5454559,
+        0,
+        8.554554
+      ]
+    },
+    {
+      "source": "Camera_巷战-皮夹克",
+      "target": "Camera_巷战-卷袖子",
+      "path": "AuthoredArc",
+      "crossfade": true,
+      "crossings": [
+        {
+          "progress": 0.125,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.2,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.41666666,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.45833334,
+          "objects": [
+            "酒馆侧墙",
+            "酒馆侧墙_壁柱_3"
+          ]
+        },
+        {
+          "progress": 0.46666667,
+          "objects": [
+            "酒馆侧墙_壁柱_3"
+          ]
+        }
+      ],
+      "near_plane_hits": [
+        {
+          "progress": 0.125,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.13333334,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.2,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.20833333,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.40833333,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.45833334,
+          "objects": [
+            "酒馆侧墙",
+            "酒馆侧墙_壁柱_3"
+          ]
+        },
+        {
+          "progress": 0.46666667,
+          "objects": [
+            "酒馆侧墙_壁柱_3"
+          ]
+        }
+      ],
+      "start_interest": [
+        -4.3109884,
+        0,
+        0.5166085
+      ],
+      "target_interest": [
+        5.3014665,
+        0,
+        -2.4985218
+      ]
+    },
+    {
+      "source": "Camera_巷战-皮夹克",
+      "target": "Camera_巷战-开场",
+      "path": "AuthoredArc",
+      "crossfade": true,
+      "crossings": [
+        {
+          "progress": 0.18333334,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.3,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.55,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.65,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        }
+      ],
+      "near_plane_hits": [
+        {
+          "progress": 0.18333334,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.19166666,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.3,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.30833334,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.31666666,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.5416667,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.55,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.65,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        }
+      ],
+      "start_interest": [
+        -4.3109884,
+        0,
+        0.5166085
+      ],
+      "target_interest": [
+        2.5473285,
+        0,
+        10.439011
+      ]
+    },
+    {
+      "source": "Camera_巷战-皮夹克",
+      "target": "Camera_巷战-毡帽",
+      "path": "AuthoredArc",
+      "crossfade": true,
+      "crossings": [
+        {
+          "progress": 0.7,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.8333333,
+          "objects": [
+            "对面墙"
+          ]
+        }
+      ],
+      "near_plane_hits": [
+        {
+          "progress": 0.7,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.7083333,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.825,
+          "objects": [
+            "对面墙"
+          ]
+        }
+      ],
+      "start_interest": [
+        -4.3109884,
+        0,
+        0.5166085
+      ],
+      "target_interest": [
+        5.4898844,
+        0,
+        -0.4259353
+      ]
+    },
+    {
+      "source": "Camera_巷战-皮夹克",
+      "target": "Camera_巷战还击-卷袖子",
+      "path": "AuthoredArc",
+      "crossfade": true,
+      "crossings": [
+        {
+          "progress": 0.125,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.2,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.55,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.59166664,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        }
+      ],
+      "near_plane_hits": [
+        {
+          "progress": 0.125,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.13333334,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.2,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.55,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.59166664,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        }
+      ],
+      "start_interest": [
+        -4.3109884,
+        0,
+        0.5166085
+      ],
+      "target_interest": [
+        4.0236597,
+        0,
+        -5.2800226
+      ]
+    },
+    {
+      "source": "Camera_巷战-皮夹克",
+      "target": "Camera_巷战还击-毡帽",
+      "path": "AuthoredArc",
+      "crossfade": true,
+      "crossings": [
+        {
+          "progress": 0.125,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.19166666,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.51666665,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.5416667,
+          "objects": [
+            "酒馆侧墙_壁柱_3"
+          ]
+        },
+        {
+          "progress": 0.55833334,
+          "objects": [
+            "酒馆侧墙",
+            "酒馆侧墙_壁柱_3"
+          ]
+        }
+      ],
+      "near_plane_hits": [
+        {
+          "progress": 0.125,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.13333334,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.19166666,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.5083333,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.51666665,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.5416667,
+          "objects": [
+            "酒馆侧墙_壁柱_3"
+          ]
+        },
+        {
+          "progress": 0.55,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.55833334,
+          "objects": [
+            "酒馆侧墙",
+            "酒馆侧墙_壁柱_3"
+          ]
+        }
+      ],
+      "start_interest": [
+        -4.3109884,
+        0,
+        0.5166085
+      ],
+      "target_interest": [
+        4.898982,
+        0,
+        -3.4293282
+      ]
+    },
+    {
+      "source": "Camera_巷战-皮夹克",
+      "target": "Camera_巷战还击-皮夹克",
+      "path": "DirectApproach",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": [],
+      "start_interest": [
+        -4.3109884,
+        0,
+        0.5166085
+      ],
+      "target_interest": [
+        -4.2582083,
+        0,
+        -2.537678
+      ]
+    },
+    {
+      "source": "Camera_巷战还击-卷袖子",
+      "target": "Camera_巷子里在打人",
+      "path": "AuthoredArc",
+      "crossfade": true,
+      "crossings": [
+        {
+          "progress": 0.16666667,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.2,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.8333333,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.85833335,
+          "objects": [
+            "对面墙"
+          ]
+        }
+      ],
+      "near_plane_hits": [
+        {
+          "progress": 0.16666667,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.175,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.2,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.8333333,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.85,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.85833335,
+          "objects": [
+            "对面墙"
+          ]
+        }
+      ],
+      "start_interest": [
+        4.0236597,
+        0,
+        -5.2800226
+      ],
+      "target_interest": [
+        1.5454559,
+        0,
+        8.554554
+      ]
+    },
+    {
+      "source": "Camera_巷战还击-卷袖子",
+      "target": "Camera_巷战-卷袖子",
+      "path": "DirectApproach",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": [],
+      "start_interest": [
+        4.0236597,
+        0,
+        -5.2800226
+      ],
+      "target_interest": [
+        5.3014665,
+        0,
+        -2.4985218
+      ]
+    },
+    {
+      "source": "Camera_巷战还击-卷袖子",
+      "target": "Camera_巷战-开场",
+      "path": "AuthoredArc",
+      "crossfade": true,
+      "crossings": [
+        {
+          "progress": 0.2,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.24166666,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.6666667,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.7,
+          "objects": [
+            "对面墙"
+          ]
+        }
+      ],
+      "near_plane_hits": [
+        {
+          "progress": 0.2,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.20833333,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.24166666,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.65833336,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.6666667,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.69166666,
+          "objects": [
+            "对面墙"
+          ]
+        }
+      ],
+      "start_interest": [
+        4.0236597,
+        0,
+        -5.2800226
+      ],
+      "target_interest": [
+        2.5473285,
+        0,
+        10.439011
+      ]
+    },
+    {
+      "source": "Camera_巷战还击-卷袖子",
+      "target": "Camera_巷战-毡帽",
+      "path": "AuthoredArc",
+      "crossfade": true,
+      "crossings": [],
+      "near_plane_hits": [],
+      "start_interest": [
+        4.0236597,
+        0,
+        -5.2800226
+      ],
+      "target_interest": [
+        5.4898844,
+        0,
+        -0.4259353
+      ]
+    },
+    {
+      "source": "Camera_巷战还击-卷袖子",
+      "target": "Camera_巷战-皮夹克",
+      "path": "AuthoredArc",
+      "crossfade": true,
+      "crossings": [
+        {
+          "progress": 0.41666666,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.45833334,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.80833334,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.8833333,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        }
+      ],
+      "near_plane_hits": [
+        {
+          "progress": 0.41666666,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.45833334,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.80833334,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.875,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        }
+      ],
+      "start_interest": [
+        4.0236597,
+        0,
+        -5.2800226
+      ],
+      "target_interest": [
+        -4.3109884,
+        0,
+        0.5166085
+      ]
+    },
+    {
+      "source": "Camera_巷战还击-卷袖子",
+      "target": "Camera_巷战还击-毡帽",
+      "path": "DirectApproach",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": [],
+      "start_interest": [
+        4.0236597,
+        0,
+        -5.2800226
+      ],
+      "target_interest": [
+        4.898982,
+        0,
+        -3.4293282
+      ]
+    },
+    {
+      "source": "Camera_巷战还击-卷袖子",
+      "target": "Camera_巷战还击-皮夹克",
+      "path": "AuthoredArc",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": [],
+      "start_interest": [
+        4.0236597,
+        0,
+        -5.2800226
+      ],
+      "target_interest": [
+        -4.2582083,
+        0,
+        -2.537678
+      ]
+    },
+    {
+      "source": "Camera_巷战还击-毡帽",
+      "target": "Camera_巷子里在打人",
+      "path": "DirectApproach",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": [],
+      "start_interest": [
+        4.898982,
+        0,
+        -3.4293282
+      ],
+      "target_interest": [
+        1.5454559,
+        0,
+        8.554554
+      ]
+    },
+    {
+      "source": "Camera_巷战还击-毡帽",
+      "target": "Camera_巷战-卷袖子",
+      "path": "DirectApproach",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": [],
+      "start_interest": [
+        4.898982,
+        0,
+        -3.4293282
+      ],
+      "target_interest": [
+        5.3014665,
+        0,
+        -2.4985218
+      ]
+    },
+    {
+      "source": "Camera_巷战还击-毡帽",
+      "target": "Camera_巷战-开场",
+      "path": "AuthoredArc",
+      "crossfade": true,
+      "crossings": [
+        {
+          "progress": 0.175,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.225,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.625,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.65833336,
+          "objects": [
+            "对面墙"
+          ]
+        }
+      ],
+      "near_plane_hits": [
+        {
+          "progress": 0.175,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.18333334,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.225,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.23333333,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.6166667,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.65833336,
+          "objects": [
+            "对面墙"
+          ]
+        }
+      ],
+      "start_interest": [
+        4.898982,
+        0,
+        -3.4293282
+      ],
+      "target_interest": [
+        2.5473285,
+        0,
+        10.439011
+      ]
+    },
+    {
+      "source": "Camera_巷战还击-毡帽",
+      "target": "Camera_巷战-毡帽",
+      "path": "DirectApproach",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": [],
+      "start_interest": [
+        4.898982,
+        0,
+        -3.4293282
+      ],
+      "target_interest": [
+        5.4898844,
+        0,
+        -0.4259353
+      ]
+    },
+    {
+      "source": "Camera_巷战还击-毡帽",
+      "target": "Camera_巷战-皮夹克",
+      "path": "AuthoredArc",
+      "crossfade": true,
+      "crossings": [
+        {
+          "progress": 0.45,
+          "objects": [
+            "酒馆侧墙",
+            "酒馆侧墙_壁柱_3"
+          ]
+        },
+        {
+          "progress": 0.46666667,
+          "objects": [
+            "酒馆侧墙_壁柱_3"
+          ]
+        },
+        {
+          "progress": 0.49166667,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.81666666,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.8833333,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        }
+      ],
+      "near_plane_hits": [
+        {
+          "progress": 0.45,
+          "objects": [
+            "酒馆侧墙",
+            "酒馆侧墙_壁柱_3"
+          ]
+        },
+        {
+          "progress": 0.45833334,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.46666667,
+          "objects": [
+            "酒馆侧墙_壁柱_3"
+          ]
+        },
+        {
+          "progress": 0.49166667,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.5,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.81666666,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.875,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.8833333,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        }
+      ],
+      "start_interest": [
+        4.898982,
+        0,
+        -3.4293282
+      ],
+      "target_interest": [
+        -4.3109884,
+        0,
+        0.5166085
+      ]
+    },
+    {
+      "source": "Camera_巷战还击-毡帽",
+      "target": "Camera_巷战还击-卷袖子",
+      "path": "DirectApproach",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": [],
+      "start_interest": [
+        4.898982,
+        0,
+        -3.4293282
+      ],
+      "target_interest": [
+        4.0236597,
+        0,
+        -5.2800226
+      ]
+    },
+    {
+      "source": "Camera_巷战还击-毡帽",
+      "target": "Camera_巷战还击-皮夹克",
+      "path": "AuthoredArc",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": [],
+      "start_interest": [
+        4.898982,
+        0,
+        -3.4293282
+      ],
+      "target_interest": [
+        -4.2582083,
+        0,
+        -2.537678
+      ]
+    },
+    {
+      "source": "Camera_巷战还击-皮夹克",
+      "target": "Camera_巷子里在打人",
+      "path": "DirectApproach",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": [],
+      "start_interest": [
+        -4.2582083,
+        0,
+        -2.537678
+      ],
+      "target_interest": [
+        1.5454559,
+        0,
+        8.554554
+      ]
+    },
+    {
+      "source": "Camera_巷战还击-皮夹克",
+      "target": "Camera_巷战-卷袖子",
+      "path": "AuthoredArc",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": [],
+      "start_interest": [
+        -4.2582083,
+        0,
+        -2.537678
+      ],
+      "target_interest": [
+        5.3014665,
+        0,
+        -2.4985218
+      ]
+    },
+    {
+      "source": "Camera_巷战还击-皮夹克",
+      "target": "Camera_巷战-开场",
+      "path": "AuthoredArc",
+      "crossfade": true,
+      "crossings": [
+        {
+          "progress": 0.11666667,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.16666667,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.73333335,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.775,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        }
+      ],
+      "near_plane_hits": [
+        {
+          "progress": 0.11666667,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.16666667,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.73333335,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        },
+        {
+          "progress": 0.775,
+          "objects": [
+            "酒馆侧墙"
+          ]
+        }
+      ],
+      "start_interest": [
+        -4.2582083,
+        0,
+        -2.537678
+      ],
+      "target_interest": [
+        2.5473285,
+        0,
+        10.439011
+      ]
+    },
+    {
+      "source": "Camera_巷战还击-皮夹克",
+      "target": "Camera_巷战-毡帽",
+      "path": "AuthoredArc",
+      "crossfade": true,
+      "crossings": [
+        {
+          "progress": 0.65833336,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.825,
+          "objects": [
+            "对面墙"
+          ]
+        }
+      ],
+      "near_plane_hits": [
+        {
+          "progress": 0.65833336,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.6666667,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.80833334,
+          "objects": [
+            "对面墙"
+          ]
+        },
+        {
+          "progress": 0.81666666,
+          "objects": [
+            "对面墙"
+          ]
+        }
+      ],
+      "start_interest": [
+        -4.2582083,
+        0,
+        -2.537678
+      ],
+      "target_interest": [
+        5.4898844,
+        0,
+        -0.4259353
+      ]
+    },
+    {
+      "source": "Camera_巷战还击-皮夹克",
+      "target": "Camera_巷战-皮夹克",
+      "path": "DirectApproach",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": [],
+      "start_interest": [
+        -4.2582083,
+        0,
+        -2.537678
+      ],
+      "target_interest": [
+        -4.3109884,
+        0,
+        0.5166085
+      ]
+    },
+    {
+      "source": "Camera_巷战还击-皮夹克",
+      "target": "Camera_巷战还击-卷袖子",
+      "path": "AuthoredArc",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": [],
+      "start_interest": [
+        -4.2582083,
+        0,
+        -2.537678
+      ],
+      "target_interest": [
+        4.0236597,
+        0,
+        -5.2800226
+      ]
+    },
+    {
+      "source": "Camera_巷战还击-皮夹克",
+      "target": "Camera_巷战还击-毡帽",
+      "path": "AuthoredArc",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": [],
+      "start_interest": [
+        -4.2582083,
+        0,
+        -2.537678
+      ],
+      "target_interest": [
+        4.898982,
+        0,
+        -3.4293282
+      ]
+    }
+  ],
+  "limitations": "Authored endpoints only; evaluated Blender visibility, no runtime presence/drag/stage changes. Sampled near-plane tests are not continuous volume collision. Subject visibility requires a semantic subject, not a ground-ray hit."
+}

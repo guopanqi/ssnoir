@@ -1,0 +1,11 @@
+{
+  "source": "/Users/usr/Documents/play/ssnoir/city-box/build/city/city_build.blend",
+  "selected_cameras": [
+    "Camera_别给他们想要的",
+    "Camera_别给他们想要的-叫喊",
+    "Camera_别给他们想要的-退让"
+  ],
+  "volume_override": "--without-travel-space (diagnostic baseline)",
+  "review": "/Users/usr/Documents/play/ssnoir/tools/camera-review/review.py",
+  "seconds": 11.296311790996697
+}

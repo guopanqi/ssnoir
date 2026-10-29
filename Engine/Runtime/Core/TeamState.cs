@@ -449,7 +449,7 @@ namespace SSNoir.Core
                         $"Actor '{actor.Id}' is a temporary helper; the engine must dismiss them before returning to the city.");
                 if (!actor.HasDefaultDieProfile)
                     throw new InvalidOperationException(
-                        $"Actor '{actor.Id}' still carries an scenario-only die profile; the scenario must dismiss them before returning to the city.");
+                        $"Actor '{actor.Id}' still carries a scenario-only die profile; the scenario must dismiss them before returning to the city.");
                 data.Actors.Add(new ActorSaveData
                 {
                     Id                = actor.Id,

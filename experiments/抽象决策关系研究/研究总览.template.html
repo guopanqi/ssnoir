@@ -1,0 +1,502 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#f6f5f0"><title>OPEN FIELD · SSNoir 自主玩法研究工作台</title><meta name="description" content="SSNoir 玩法研究工作台：研究简报、试玩、反馈与可追溯研究档案。"><style>/*WORKBENCH_CSS*/</style></head>
+<body><div class="field-shell"><aside class="field-side" aria-label="主导航">
+  <a href="#overview" class="field-brand" aria-label="OPEN FIELD · SSNoir 研究工作台">
+    <span class="field-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+    <span><strong>OPEN FIELD<span class="field-blue">.</span></strong><small>PLAY RESEARCH STUDIO</small></span>
+  </a>
+  <div class="field-side-caption">THE WORKSPACE / 研究空间</div>
+  <nav class="desk-nav" aria-label="研究工作台页面">
+    <a href="#overview" aria-current="page"><span class="nav-ico" aria-hidden="true">◫</span><span>研究概览</span><small>01</small></a>
+    <a href="#experiments"><span class="nav-ico" aria-hidden="true">▧</span><span>实验室</span><small>02</small></a>
+    <a href="#map"><span class="nav-ico" aria-hidden="true">◇</span><span>研究地图</span><small>03</small></a>
+    <a href="#library"><span class="nav-ico" aria-hidden="true">▤</span><span>模式目录</span><small>04</small></a>
+    <a href="#journal"><span class="nav-ico" aria-hidden="true">≡</span><span>研究日志</span><small>05</small></a>
+  </nav>
+  </aside><div class="field-main">
+<header class="field-topbar"><div class="field-crumb">SSNOIR / RESEARCH <span aria-hidden="true">／</span> <strong id="field-breadcrumb">研究概览</strong></div>
+  <div class="field-top-actions"><span class="field-live-label">记录快照 · 非实时运行状态</span>
+  <a href="https://github.com/guopanqi/ssnoir/blob/main/docs/%E5%AE%9E%E9%AA%8C/%E6%9C%BA%E5%88%B6%E7%A0%94%E7%A9%B6/%E7%BB%93%E6%9E%84%E5%80%99%E9%80%8920-%E8%B4%A8%E9%87%8F%E5%AE%A1%E6%A0%B8.md" target="_blank" rel="noopener noreferrer" title="20项结构候选及各自最缺的反证，不代表20场已经获准试玩">20项候选质量审核 ↗</a>　<a href="https://github.com/guopanqi/ssnoir/tree/main/docs/%E5%AE%9E%E9%AA%8C/%E6%9C%BA%E5%88%B6%E7%A0%94%E7%A9%B6" target="_blank" rel="noopener noreferrer">研究源码 ↗</a></div>
+</header>
+<main class="wrap wb-root">
+<section class="wb-page" id="overview">
+ <div class="simple-heading"><div><span class="section-label">CURRENT RESEARCH / 当前研究</span><h1>现在研究到哪里？</h1></div><span class="wb-updated" id="wb-updated"></span></div>
+ <div class="overview-primary">
+  <article class="overview-lead"><span class="wb-kicker">NEXT QUESTION / 下一步</span><h2 id="wb-main-question"></h2><div class="overview-cta"><a id="wb-main-link" class="wb-cta" href="#experiments">查看实验 ↗</a><a href="#map">查看相关方向 →</a></div></article>
+  <article class="overview-attention"><div class="simple-section-title"><h2>可以参与</h2><span id="wb-attention-status"></span></div><div id="wb-attention"></div><a href="#experiments" class="overview-small-link">全部实验 →</a></article>
+ </div>
+ <section class="overview-updates"><div class="simple-section-title"><h2>最新变化</h2><a href="#journal">查看日志 →</a></div><div id="wb-notes" class="overview-updates-list"></div></section>
+<section class="dialogue-section" aria-labelledby="dialogue-title"><div class="simple-section-title"><h2 id="dialogue-title">研究者向你提问</h2><span>反馈不要求评分，也不会阻断 Agent 的研究</span></div><div id="wb-dialogue-requests"></div><p class="minor">回答将作为研究记录保存在公开 GitHub 仓库；请勿填写私人信息或不希望公开的设计材料。提交后不会自动生成即时 AI 回复。</p></section>
+</section>
+<section class="wb-page hidden" id="experiments">
+<div class="lab-heading"><span class="section-label">PLAYTEST LAB</span><h1>实验室</h1></div>
+<div class="wb-lab-layout"><aside class="experiment-sidebar">
+
+<div class="sidebar-filters"><input id="study-search" type="search" placeholder="编号或实验名称" aria-label="搜索实验">
+<select id="study-filter" aria-label="筛选反馈"><option value="all">全部实验</option><option value="todo">待体验</option><option value="pending">待研究回复</option><option value="reviewed">已有回复</option></select>
+<select id="study-order" aria-label="排序"><option value="attention">优先程度</option><option value="recent">最近反馈</option><option value="name">实验编号</option></select></div>
+<p class="sidebar-count" id="list-count"></p><div id="featured-tasks" class="experiment-list"></div><div id="other-tasks" class="hidden"></div>
+</aside>
+<div class="experiment-content"><section class="workspace" id="workshop">
+<div class="detail-top"><div><span class="eyebrow" id="selected-study"></span><h2 id="selected-title"></h2><p id="selected-description"></p></div><span class="detail-state" id="selected-state"></span></div>
+<div class="detail-intro"><div><strong>研究希望观察</strong><p id="selected-observe"></p><div id="study-lineage" class="inline"></div></div></div>
+<div class="workspace-grid"><div class="panel play-panel"><div class="panel-head"><div><h3>试玩</h3><p class="desc" id="play-label"></p></div><span class="flag" id="engine-label"></span></div>
+<div id="game"></div><details class="quiet-details"><summary>正式 Unity / C# + Scheme 原型和证据</summary><div id="official"></div></details></div>
+<div class="panel feedback-panel"><div class="panel-head"><div><h3>反馈</h3><p class="desc">不需要正式报告，写下重要的时刻。</p></div><span class="flag" id="cloud-status">读取中</span></div>
+<div id="feedback"></div><div class="editor-toolbar"><button id="gh-save" class="button">提交到 GitHub ↗</button><button id="gh-new" class="button ghost tiny">新建另一份</button></div><p id="gh-operation" class="saved-state" role="status"></p><div id="gh-active" class="saved-state record-active"></div>
+<details class="quiet-details"><summary>追加观察 / 本地备份 / GitHub 连接</summary>
+<label class="field"><span>补充后来的感受（提交时追加）</span><textarea id="gh-add-note" rows="3" placeholder="又玩了几局后，我发现……"></textarea></label>
+<div class="feedback-actions"><button class="button ghost tiny" id="export">下载 JSON 备份</button><button class="button ghost tiny" id="import-trigger">导入旧文件</button><input class="hidden" id="import-file" type="file" accept=".json,application/json"></div>
+<div id="draft-indicator" class="saved-state"></div><div class="upload-next"><p>不使用 Token 也可<a id="upload-link" target="_blank" rel="noopener noreferrer">手工上传</a> · <a id="protocol-link" target="_blank" rel="noopener noreferrer">反馈协议</a></p></div>
+<div id="cloud-connect"><label class="field"><span>Fine-grained GitHub Token（首次连接）</span><input id="gh-token" type="password" autocomplete="off" placeholder="github_pat_…"></label><button class="button ghost tiny" id="gh-connect">连接并保存在本机</button><p id="gh-connect-error" class="minor" role="alert"></p><p class="footnote">仅授予该仓库 Contents 读写。Token 保存在浏览器 localStorage，可被同源脚本读取；请使用最小权限，并勿在共享设备保存。公开反馈不应包含敏感信息。</p></div>
+<div id="cloud-connected" class="hidden"><div class="inline"><span class="minor" id="gh-user"></span><button class="button ghost tiny" id="gh-refresh">刷新反馈</button><button class="button ghost tiny" id="gh-disconnect">清除 Token</button></div></div>
+</details></div></div>
+<section class="review-section" id="research-response"><div class="review-heading"><div><h3>研究回复</h3></div><span class="minor">按反馈版本回复 · 非实时 AI</span></div>
+<div id="research-reply" class="review-paper"></div>
+<div class="callout" id="reply-composer">
+<strong>回复研究者 · 不修改原反馈</strong><p class="minor" id="reply-context">旧反馈与研究者回复将保留为研究记录。</p>
+<textarea id="research-reply-text" rows="3" style="width:100%;padding:10px;margin:8px 0" placeholder="我不同意哪一点？新的试玩感受是什么？下一步应该怎样研究？"></textarea>
+<div class="inline"><button id="gh-reply" class="button">提交独立回帖 ↗</button><span id="reply-status" class="minor" role="status"></span></div>
+</div><div id="thread-history" aria-live="polite"></div>
+<details class="wb-records" id="github-feedback"><summary>历史反馈 · 继续编辑</summary><div id="gh-list"></div></details></section>
+</section></div></div></section>
+<section class="wb-page hidden" id="map">
+<div class="simple-heading"><div><span class="section-label">RESEARCH MAP / 探索路径</span><h1>我们探索了哪些方向？</h1><p class="simple-subtitle">沿着分支查看已研究的机制。点击任一节点，阅读实际证据、局限和后续问题。</p></div><span class="simple-count" id="wb-map-count"></span></div>
+<div class="research-network"><div class="research-network-tree" id="wb-map-grid"></div><aside class="research-network-detail" id="wb-map-inspector" aria-live="polite"></aside></div>
+<details class="research-paused"><summary>暂缓探索 <span id="wb-stop-count"></span></summary><div id="wb-stop-list"></div></details>
+<p class="network-disclaimer">分支表示问题分类，不代表机制之间存在已证实的因果或演化关系；数学验证、正式运行与真人反馈分别标记。</p>
+</section>
+<section class="wb-page hidden" id="library">
+<div class="simple-heading"><div><span class="section-label">PATTERN LANGUAGE / 可供设计的模式</span><h1>模式目录</h1><p class="simple-subtitle">从已经在作品中使用的结构、实验发现与组合边界中挑选材料。是否经过真人反馈、是否进入精选、是否适合当前情境，是不同的判断。</p></div><span class="simple-count" id="lib-count"></span></div>
+<div class="library-filters"><input type="search" id="lib-search" aria-label="搜索决策模式" placeholder="搜索模式、玩家决策、研究编号"><select id="lib-layer" aria-label="按模式类型筛选"><option value="all">全部尺度</option><option value="decision-relation">基础决策关系</option><option value="scenario-structure">Scenario结构</option><option value="combination">组合与边界</option></select><select id="lib-origin" aria-label="按证据来源筛选"><option value="all">全部来源</option><option value="published-game-analysis">成熟作品先例</option><option value="ssnoir-research">本实验研究</option><option value="other">组合与开放问题</option></select><label class="lib-only"><input type="checkbox" id="lib-picked-only"> 仅看已加入</label></div>
+<div class="library-layout"><div class="library-list" id="lib-list" aria-label="可筛选模式列表"></div><aside class="library-detail" id="lib-detail" aria-live="polite"></aside></div>
+<section class="library-compose"><div class="simple-section-title"><h2>组合用于情境</h2><span>只产生设计简报，不自动修改游戏内容</span></div><div class="library-compose-row"><label>正在设计的情境 <input id="lib-scenario" placeholder="例如：取得照片后说服店主透露记录"></label><button class="button ghost tiny" id="lib-copy">复制模式组合简报</button></div><div id="lib-picked" class="lib-picked"></div><p id="lib-copy-state" class="minor" role="status"></p></section>
+<p class="network-disclaimer">这是一张证据导航图，而不是“通过验收的成熟玩法排名”。成熟作品的应用先例不等于该模式独立经过受控实验；数学结构成立也不证明真人觉得有趣。来源与反例可在右侧查阅。</p>
+</section>
+<section class="wb-page hidden" id="journal">
+<div class="simple-heading"><div><span class="section-label">RESEARCH LOG</span><h1>研究日志</h1><p class="simple-subtitle">按已有研究记录呈现变化。目前同一天的记录没有精确时刻，不额外推测先后。</p></div></div>
+<div class="plain-log" id="field-journal-events"></div>
+<p class="plain-log-source"><a href="https://github.com/guopanqi/ssnoir/blob/main/docs/%E5%AE%9E%E9%AA%8C/%E6%9C%BA%E5%88%B6%E7%A0%94%E7%A9%B6/%E5%BD%93%E5%89%8D%E7%8A%B6%E6%80%81.md" target="_blank" rel="noopener noreferrer">详细研究记录 ↗</a><a href="https://github.com/guopanqi/ssnoir/commits/main/docs/%E5%AE%9E%E9%AA%8C/%E6%9C%BA%E5%88%B6%E7%A0%94%E7%A9%B6" target="_blank" rel="noopener noreferrer">提交历史 ↗</a></p>
+</section>
+<div class="hidden" aria-hidden="true"><div id="patterns"></div><div id="not-promoted"></div><ul id="now-research"></ul><a id="research-root"></a></div>
+</main><footer class="wrap foot"><span>SSNOIR / HUMAN–AGENT RESEARCH</span><span>资料更新 <span id="updated"></span> · 反馈有版本，结论可修订</span></footer></div></div><div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+<script type="application/json" id="pattern-map-data">/*PATTERN_MAP_DATA*/</script>
+<script type="application/json" id="research-dialogue-data">/*RESEARCH_DIALOGUE_DATA*/</script>
+<script type="application/json" id="atlas-data">/*ATLAS_DATA*/</script>
+<script type="application/json" id="tasks-data">/*TASK_DATA*/</script>
+<script>
+(function(){
+"use strict";
+var library=JSON.parse(document.getElementById("atlas-data").textContent);
+var config=JSON.parse(document.getElementById("tasks-data").textContent);
+var SOURCE="https://github.com/guopanqi/ssnoir/blob/main/experiments/抽象决策关系研究/";
+var UPLOAD="https://github.com/guopanqi/ssnoir/upload/main/experiments/抽象决策关系研究/反馈/inbox";
+var STORAGE="ssnoir-mechanism-human-feedback-v1";
+function $(id){return document.getElementById(id)}
+function link(path){if(!path)return "#";if(/^(?:https?:|#)/.test(path))return path;return new URL(path,SOURCE).href}
+function el(tag,cls,text){var x=document.createElement(tag);if(cls)x.className=cls;if(text!==undefined)x.textContent=text;return x}
+function child(parent,tag,cls,text){var x=el(tag,cls,text);parent.appendChild(x);return x}
+function button(text,cls,fn){var x=el("button",cls,text);x.type="button";x.addEventListener("click",fn);return x}
+function anch(text,href,cls){var x=el("a",cls,text);x.href=href;return x}
+function toast(text){var t=$("toast");t.textContent=text;t.classList.remove("hidden");clearTimeout(toast.timer);toast.timer=setTimeout(function(){t.classList.add("hidden")},3800)}
+function readStore(){try{var s=localStorage.getItem(STORAGE);return s?JSON.parse(s):{}}catch(e){return {}}}
+var drafts=readStore(),selectedId=config.tasks[0].id;
+function persist(){try{localStorage.setItem(STORAGE,JSON.stringify(drafts));$("draft-indicator").textContent="草稿已尝试保存在当前浏览器；导出 JSON 才能可靠提交。"}catch(e){$("draft-indicator").textContent="此浏览器不允许本地存储；请在离开页面前导出 JSON。"}}
+function getTask(id){return config.tasks.find(function(t){return t.id===id})}
+function draft(id){if(!drafts[id])drafts[id]={environment:getTask(id).mode==="browser-demo"?"browser-sketch":"official-runtime",responses:{},runs:[],notes:[],live:null};return drafts[id]}
+function commitDraft(){persist()}
+function label(parent,text,value){var row=child(parent,"div","inline");child(row,"strong","",text);child(row,"span","minor",value);return row}
+var studyProgress={},studyFilter="all",studySort="attention";
+function studyState(t){return studyProgress[t.id]||{status:"todo",count:0};}
+function stateLabel(t){
+ const s=studyState(t);
+ return s.status==="reviewed"?"已有研究回复":s.status==="pending"?"已反馈 · 待研究":"待体验";
+}
+function sortExperiments(list){
+ return list.sort((a,b)=>{
+  const aa=studyState(a),bb=studyState(b);
+  if(studySort==="name")return a.id.localeCompare(b.id,"en",{numeric:true});
+  if(studySort==="recent")return (bb.updatedAt||"").localeCompare(aa.updatedAt||"")||a.rank-b.rank;
+  const category=s=>(s.status==="todo"?0:s.status==="pending"?1:2);
+  return category(aa)-category(bb)||a.rank-b.rank;
+ });
+}
+function taskCard(t){
+ const state=studyState(t);
+ const b=button("","experiment-row"+(t.id===selectedId?" active":""),()=>choose(t.id));
+ b.setAttribute("aria-label",t.id+" "+t.title+" "+stateLabel(t));
+ const top=child(b,"div","study-row-top");const id=child(top,"span","mono");
+ const dot=child(id,"i","attention-dot "+(t.rank<=2?"high":t.rank<=3?"medium":""));
+ dot.setAttribute("aria-hidden","true");id.appendChild(document.createTextNode(t.id));
+ child(top,"span","study-row-status "+(state.status==="pending"?"wait":state.status==="reviewed"?"done":""),stateLabel(t));
+ child(b,"span","study-row-name",t.title);
+ child(b,"span","study-row-sub",(state.count?state.count+"份反馈 · ":"")+t.estimatedMinutes);
+ return b;
+}
+function renderTasks(){
+ const q=$("study-search")?.value.trim().toLowerCase()||"";
+ const filter=$("study-filter")?.value||"all";
+ const selected=sortExperiments(config.tasks.filter(t=>
+  (filter==="all"||studyState(t).status===filter)&&
+  (!q||(t.id+" "+t.title+" "+t.intro).toLowerCase().includes(q))));
+ const list=$("featured-tasks");list.replaceChildren();
+ selected.forEach(t=>list.appendChild(taskCard(t)));
+ $("list-count").textContent=selected.length+" / "+config.tasks.length+" 项实验"+
+  (filter==="all"?"":" · 当前筛选");
+ if(!selected.length)child(list,"div","feedback-empty","当前没有符合条件的实验。");
+ $("selected-state").textContent=stateLabel(getTask(selectedId));
+}
+function renderPatterns(){
+ var grid=$("patterns");grid.replaceChildren();library.patterns.forEach(function(p,i){
+  var card=child(grid,"article","pattern");var head=child(card,"div","pattern-header");child(head,"span","num","0"+(i+1)+" / "+p.family);child(head,"span","flag",p.focus);
+  child(card,"h3","",p.name);child(card,"p","question",p.decision);
+  var box=child(card,"div","insight");child(box,"div","eyebrow","决策何时改变");child(box,"p","",p.dynamic);
+  var ev=child(card,"div","evidence");var labels=[];if(p.evidence.math)labels.push("数学");if(p.evidence.native)labels.push("正式运行");if(p.evidence.human)labels.push("有真人反馈");
+  ev.textContent="证据："+labels.join(" · ")+" / 评价不等于好玩";
+  var details=child(card,"details");child(details,"summary","","理解结论与局限");
+  var parts=[["为何值得",p.why],["可能退化为",p.counter],["适用范围",p.boundary],["研究者的判断",p.potential],["下一步",p.next]];
+  parts.forEach(function(a){child(details,"strong","",a[0]);child(details,"p","",a[1])});
+  var ls=child(details,"div","links");p.links.forEach(function(l){var a=anch(l.label+" ↗",link(l.href));a.target="_blank";a.rel="noopener noreferrer";ls.appendChild(a)})
+ });
+ if($("pattern-count"))$("pattern-count").textContent=library.patterns.length;
+}
+function choose(id){
+ if(!getTask(id))return;
+ selectedId=id;
+ renderTasks();renderSelection();
+ window.dispatchEvent(new CustomEvent("ssnoir:study-change",{detail:{studyId:id}}));
+ document.getElementById("workshop").scrollIntoView({behavior:"smooth",block:"start"});
+}
+function renderSelection(){
+ var t=getTask(selectedId);
+ $("selected-state").textContent=stateLabel(t);
+ $("selected-study").textContent=t.id+" / PRIORITY "+t.rank+" / "+t.estimatedMinutes;
+ $("selected-title").textContent=t.title;
+ $("selected-description").textContent=t.intro+" "+t.purpose;
+ $("selected-observe").textContent=t.observe[0];
+ var lineage=$("study-lineage");lineage.replaceChildren();
+ var relatedId=t.derivedFrom||(t.id==="R50"?"R55":null);
+ if(relatedId&&getTask(relatedId)){
+  lineage.appendChild(button(t.derivedFrom?"查看原版 "+relatedId+" ↗":"进入独立改版 "+relatedId+" →","button ghost tiny",function(){choose(relatedId)}));
+  child(lineage,"span","minor",t.derivedFrom?"这是独立实验，不修改原版数据。":"旧反馈不必修改，新版单独试玩和提交。");
+ }
+ $("play-label").textContent=t.mode==="browser-demo"?"本页可直接试玩。其规则由正式实验抽象而来，但不调用C#引擎。":"只有正式运行入口，当前没有伪造的网页演示。";
+ $("engine-label").textContent=t.mode==="browser-demo"?"独立网页示意版":"正式引擎入口";
+ renderGame();renderOfficial();renderFeedback();
+}
+function rng(state){state.rngState=(state.rngState+0x6D2B79F5)>>>0;var t=state.rngState;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return((t^(t>>>14))>>>0)/4294967296}
+function d6(s){return Math.floor(rng(s)*6)+1}
+function fresh(t,skill,handSize,pairedSeed){
+ var seed=Number.isInteger(pairedSeed)?pairedSeed:(Math.floor(Math.random()*4294967295)>>>0);
+ var s={variant:t.browserVariant,seed:seed,rngState:seed,skill:skill,handSize:handSize,initialDice:[],dice:[],progress:[0,0],previous:null,actions:[],result:null,startedAt:new Date().toISOString(),hesitations:[]};
+ for(var i=0;i<handSize;i++){var v=d6(s);s.initialDice.push(v);s.dice.push({id:i,value:v,used:false})}return s
+}
+function odds(die,skill,mod){var n=die+skill+mod;var failures,middle;
+ if(n<=1){failures=3;middle=3}else{var map={2:[2,3],3:[1,3],4:[1,2],5:[0,2],6:[0,1]};var a=map[n]||[0,0];failures=a[0];middle=a[1]}
+ return [failures,middle,6-failures-middle]
+}
+function modifier(s,target){return (s.variant==="echo"||s.variant==="echo-dual")&&s.previous!==null?(target===s.previous?-1:1):0}
+function selectDraftRun(){var d=draft(selectedId);return d.live||null}
+var choice={dieId:null,target:null};
+function start(){
+ var t=getTask(selectedId),d=draft(selectedId);
+ if(d.live&&!d.live.result&&!window.confirm("当前这一局还没有结束。确定要放弃它并重新开始吗？"))return;
+ if(d.runs.length>=20){toast("每份反馈最多记录 20 局，请先导出 JSON 再开始新一份。");return}
+ var skill=Number($("difficulty")?$("difficulty").value:1);
+ var size=t.browserVariant==="echo-dual"?5:(t.browserVariant==="reactive"?Number($("capacity")?$("capacity").value:4):4);
+ if(size!==4&&size!==5)size=4;
+ var previous=(t.browserVariant==="echo"&&d.runs.length)?d.runs[d.runs.length-1]:null;
+ var repeat=previous&&$("r50-repeat-seed")?.checked&&previous.variant==="echo";
+ if(repeat)skill=previous.skill;
+ d.live=fresh(t,skill,size,repeat?previous.seed:undefined);
+ if(repeat)d.live.pairedWithSeed=previous.seed;
+ if(t.browserVariant==="echo")d.live.presentation=($("r50-presentation")?.value==="legacy-abstract"?"legacy-abstract":"goal-explicit");
+ d.environment="browser-sketch";choice={dieId:null,target:null};commitDraft();renderGame()
+}
+function apply(){
+ var d=draft(selectedId),s=d.live;
+ if(!s||s.result)return;
+ if(choice.dieId===null||choice.target===null){toast("先选择一颗骰子和一条目标。");return}
+ var die=s.dice.find(function(x){return x.id===choice.dieId&&!x.used});
+ if(!die){toast("所选骰子不可用。");return}
+ var before=s.progress.slice(),mod=modifier(s,choice.target),distribution=odds(die.value,s.skill,mod);
+ var rolled=d6(s),outcome=rolled<=distribution[0]?0:(rolled<=distribution[0]+distribution[1]?1:2);
+ var ix=choice.target==="A"?0:1,threshold=ix===0?3:(s.variant==="echo-dual"?4:5);
+ s.progress[ix]=Math.min(threshold,s.progress[ix]+outcome);
+ die.used=true;
+ s.previous=choice.target;
+ var attacked=null;
+ if(s.variant==="echo-dual"&&s.progress[0]>=3&&s.progress[1]>=4)s.result="both";
+ else if(s.variant!=="echo-dual"&&s.progress[0]>=3)s.result="A";
+ else if(s.variant!=="echo-dual"&&s.progress[1]>=5)s.result="B";
+ else if(s.variant==="reactive"&&((s.actions.length+1)%2===0)){
+  attacked=s.progress[0]>=s.progress[1]?"A":"B";
+  var hit=attacked==="A"?0:1;s.progress[hit]=Math.max(0,s.progress[hit]-2);
+ }
+ var hesitate=$("hesitate")&&$("hesitate").checked;
+ var note=$("step-note")?$("step-note").value.trim():"";
+ var step={index:s.actions.length+1,target:choice.target,die:die.value,dieId:die.id,prepared:die.value+s.skill+mod,modifier:mod,odds:distribution,rolled:rolled,outcome:["bad","neutral","good"][outcome],gain:outcome,before:before,after:s.progress.slice(),attacked:attacked,hesitated:!!hesitate,note:note};
+ s.actions.push(step);
+ s.markHesitate=false;
+ s.stepNote="";
+ if(s.actions.length===s.dice.length&&!s.result){
+  s.result=s.variant==="echo-dual"?(s.progress[0]>=3?"A":s.progress[1]>=4?"B":"timeout"):"timeout";
+ }
+ if(s.result){
+  s.completedAt=new Date().toISOString();d.runs.push({...s});d.live=null;toast("本局结束，行动记录已经附在本次反馈中。")
+ }
+ choice={dieId:null,target:null};commitDraft();renderGame();renderFeedbackSummary()
+}
+function progressBar(parent,current,max){
+ var row=child(parent,"div","goal-bar");
+ for(var i=0;i<max;i++)child(row,"span","bar-tick"+(i<current?" filled":""));
+}
+function currentOddsText(s){
+ if(choice.dieId===null||choice.target===null)return "选一颗骰子，再选甲或乙，查看这一手的判定概率。";
+ var die=s.dice.find(function(d){return d.id===choice.dieId});if(!die)return "";
+ var mod=modifier(s,choice.target),counts=odds(die.value,s.skill,mod);
+ return "骰面 "+die.value+" · 成长 "+s.skill+" · 修正 "+(mod>0?"+":"")+mod+" → 失败 "+(counts[0]*100/6).toFixed(0)+"% / 普通 "+(counts[1]*100/6).toFixed(0)+"% / 好结果 "+(counts[2]*100/6).toFixed(0)+"%";
+}
+function renderGame(){
+ var t=getTask(selectedId),root=$("game");root.replaceChildren();
+ if(t.mode!=="browser-demo"){
+  var box=child(root,"div","callout");child(box,"strong","","正式规则：没有网页复制版");child(box,"p","",t.officialNote);child(box,"p","", "Unity 调试面板：Scenario测试（直接进入） → "+t.official.replace(/^.*研究·/,"研究·").replace(/\.scm$/,""));
+  var cli=child(root,"pre","official-code","./run --session "+t.experiment+" --seed 19 --growth 1");
+  child(root,"p","minor","这条命令会进入 JSON 行协议的无头会话，适合技术用户；人工逐手试玩建议使用 Unity 现有调试入口。");
+  return
+ }
+ var d=draft(selectedId),s=d.live;
+ var box=child(root,"div","game-surface");
+ if(!s){
+  var heading=child(box,"h3","",t.browserVariant==="reactive"?"甲 3 格 / 乙 5 格":t.browserVariant==="echo-dual"?"双成果改道 · 独立新实验":"连续行动与换线奖励");
+  child(box,"p","minor",t.browserVariant==="reactive"?"默认四颗骰；第2和第4手结束后，若尚未完成，对手扣除领先目标最多2格（平手甲）。可选第五颗骰子进行容量对照；这不是正式引擎规则。甲收益1，乙收益2。":t.browserVariant==="echo-dual"?"五颗骰；甲3格得1、乙4格得2，两项成果可以分别兑现、累加至3。完成一项后继续争取另一项。继续同目标−1，切换+1；没有伤势或额外回合。":"四颗骰；上一手选过的目标，本手判定−1；切换目标，本手判定+1。甲完成收益1，乙完成收益2。");
+  if(d.runs.length)child(box,"p","minor","已完成 "+d.runs.length+" 局，结果已包含在反馈草稿。");
+  var controls=child(box,"div","inline");child(controls,"label","minor","成长值（首轮建议 1）");
+  var sel=child(controls,"select");sel.id="difficulty";[1,2].forEach(function(n){var o=child(sel,"option","",String(n));o.value=String(n)});
+  if(t.browserVariant==="echo"){
+    var modeRow=child(box,"div","inline");
+    var modeLabel=child(modeRow,"label","minor","信息呈现对照：");modeLabel.htmlFor="r50-presentation";
+    var mode=child(modeRow,"select");mode.id="r50-presentation";
+    [["goal-explicit","目标明确（建议先体验）"],["legacy-abstract","原版简略说明（对照）"]].forEach(function(pair){
+      var option=child(mode,"option","",pair[1]);option.value=pair[0];
+    });
+    mode.value=d.echoPresentation==="legacy-abstract"?"legacy-abstract":"goal-explicit";
+    mode.addEventListener("change",function(){
+      d.echoPresentation=mode.value;persist();renderGame();
+    });
+    if(mode.value==="goal-explicit"){
+      var goals=child(box,"div","callout");
+      child(goals,"strong","","这局的目标：四次行动内兑现任意一项成果。");
+      child(goals,"p","","完成甲（3格）立刻得到1份成果；完成乙（5格）立刻得到2份成果。只能选择一个结局；四颗骰子都用完仍未完成，得到0份成果。这一页没有伤势或额外回合。");
+      child(goals,"p","","行动间关系：连续推进同目标，下一手判定修正−1；转投另一目标，下一手修正+1。判定越好越容易推进。");
+    }
+    child(box,"p","minor","这两个选项只改变解释与结算提示，完全不改变骰子、目标、概率和胜负规则。观察明确目标能否改善你的决策体验。");
+    if(d.runs.length){
+      var sameRow=child(box,"div","inline");
+      var same=child(sameRow,"input");same.type="checkbox";same.id="r50-repeat-seed";same.checked=true;
+      var sameLabel=child(sameRow,"label","minor","复用上一局随机种子和成长值（便于比较同一局面下的两种说明）");sameLabel.htmlFor="r50-repeat-seed";
+      child(box,"p","minor","配对实验只控制初始骰面与底层随机数：如果你改变行动或骰子顺序，最终结果仍可能不同。");
+    }
+  }
+  if(t.browserVariant==="reactive"){
+    var cap=child(box,"div","inline");
+    var caplabel=child(cap,"label","minor","行动容量：");caplabel.htmlFor="capacity";
+    var count=child(cap,"select");count.id="capacity";
+    [[4,"4 颗骰（原实验）"],[5,"5 颗骰（容量对照）"]].forEach(function(option){
+      var o=child(count,"option","",option[1]);o.value=String(option[0]);
+    });
+    if(d.comparisonCapacity===5)count.value="5";
+    count.addEventListener("change",function(){d.comparisonCapacity=Number(count.value);persist()});
+    child(box,"p","minor","唯一改变：多一颗行动骰；甲/乙目标、收益、判定概率、对手的第2/4手反击规则均不变。");
+  }
+  box.appendChild(button(d.runs.length?"再玩一局 →":t.browserVariant==="echo-dual"?"开始 R55 新版实验 →":"开始四骰实验 →","button",start));
+  child(root,"p","study-tip",t.officialNote);
+  if(d.runs.length)renderRecentRuns(root,d);
+  return
+ }
+ var h=child(box,"div","game-header");child(h,"span","mono","SEED "+s.seed+" / SKILL "+s.skill);child(h,"span","","已行动 "+s.actions.length+" / "+s.dice.length);
+ if(s.variant==="echo"&&s.presentation==="goal-explicit"){
+    var brief=child(box,"div","callout");
+    child(brief,"strong","","四手截止 · 剩余 "+(s.dice.length-s.actions.length)+" 手");
+    child(brief,"p","","甲还需 "+Math.max(0,3-s.progress[0])+" 格（收益1），乙还需 "+Math.max(0,5-s.progress[1])+" 格（收益2）。完成任意一项立即结算；到期未完成为0，本实验没有伤势。");
+ }
+ var rem=t.browserVariant==="reactive"?(s.actions.length>=4?"第2/4手反击已执行；可用剩余骰行动":"第 "+(s.actions.length<2?"2":"4")+" 手后敌方打击领先目标"):"上一手目标："+(s.previous==="A"?"甲":s.previous==="B"?"乙":"尚无");
+ child(box,"p","round-brief",rem);
+ if(s.variant==="echo-dual"){
+ var achieved=(s.progress[0]>=3?1:0)+(s.progress[1]>=4?2:0);
+ var promise=child(box,"div","callout");
+ child(promise,"strong","","已兑现成果 "+achieved+" / 3 · 剩余 "+(s.dice.length-s.actions.length)+" 手");
+ child(promise,"p","","甲、乙都可以完成，进度保留。你并非在两项互斥结局间下注。");
+ }
+ var names=s.variant==="echo-dual"?[["A","甲",3,1],["B","乙",4,2]]:[["A","甲",3,1],["B","乙",5,2]];
+ names.forEach(function(item,i){
+  var g=child(box,"button","goal"+(choice.target===item[0]?" active":""));
+  g.type="button";g.disabled=s.variant==="echo-dual"&&s.progress[i]>=item[2];var top=child(g,"div","goal-top");child(top,"strong","",item[1]+" / "+s.progress[i]+" of "+item[2]);child(top,"span","","完成收益 "+item[3]);progressBar(g,s.progress[i],item[2]);
+  g.addEventListener("click",function(){if(!g.disabled){choice.target=item[0];renderGame()}});
+ });
+ child(box,"div","minor","选择这次使用的骰子");
+ var dice=child(box,"div","die-row");s.dice.forEach(function(die){
+  var b=button(String(die.value),"die"+(choice.dieId===die.id?" active":""),function(){choice.dieId=die.id;renderGame()});
+  b.disabled=die.used;b.setAttribute("aria-label","选择骰面 "+die.value+"，序号 "+(die.id+1));dice.appendChild(b)
+ });
+ child(box,"div","preview",currentOddsText(s));
+ var note=child(box,"div","inline");
+ var ck=child(note,"input");ck.type="checkbox";ck.id="hesitate";ck.checked=!!s.markHesitate;
+ var cklabel=child(note,"label","minor","这一手我犹豫了");cklabel.htmlFor="hesitate";
+ ck.addEventListener("change",function(){s.markHesitate=ck.checked;commitDraft()});
+ var message=child(box,"input","");message.id="step-note";message.type="text";message.placeholder="我现在考虑的是……（可留空）";message.style.width="100%";message.style.margin="9px 0";message.style.padding="9px";
+ message.value=s.stepNote||"";message.addEventListener("input",function(){s.stepNote=message.value;commitDraft()});
+ var controls=child(box,"div","play-controls");
+ controls.appendChild(button("执行这一手 →","button",apply));
+ controls.appendChild(button("放弃并重新开始","button ghost tiny",function(){if(window.confirm("放弃这一局并重新开始？")){d.live=null;persist();renderGame()}}));
+ if(s.actions.length){child(root,"p","minor","本局已发生");var ol=child(root,"ol","stage-log");
+ s.actions.forEach(function(a){var atext="第 "+a.index+" 手，"+(a.target==="A"?"甲":"乙")+"，骰 "+a.die+" → "+({bad:"失败",neutral:"普通",good:"好结果"}[a.outcome])+" +"+a.gain;
+ if(a.attacked)atext+="；对手攻击"+(a.attacked==="A"?"甲":"乙");
+ if(a.hesitated)atext+="（你标记了犹豫）";if(a.note)atext+="；"+a.note;
+ child(ol,"li","",atext)})}
+ child(root,"p","study-tip","请先按自己的直觉完成。你标记的犹豫时刻、所选骰子和行动结果会一起导出。")
+}
+function renderRecentRuns(root,d){
+ var last=d.runs[d.runs.length-1];
+ if(!last)return;
+ var p=child(root,"div","callout");
+ child(p,"strong","","上一局："+(last.result==="both"?"完成甲乙，收益3":last.result==="A"?"完成甲，收益1":last.result==="B"?"完成乙，收益2":"到期未达成，收益0")); 
+ if(last.variant==="echo"){
+   child(p,"p","minor","展示条件："+(last.presentation==="goal-explicit"?"目标明确":"原版简略说明")+"。所有判定与目标阈值相同；无论哪种展示，这一网页局都没有伤势。");
+ }
+ child(p,"p","",(last.handSize||4)+"骰配置，共 "+last.actions.length+" 手；含 "+last.actions.filter(function(a){return a.hesitated}).length+" 次你标记的犹豫。可继续试玩对比，也可直接写反馈。");
+}
+function renderFeedbackSummary(){
+ var d=draft(selectedId);
+ var n=$("run-summary");if(n)n.textContent="网页记录 "+d.runs.length+" 局。请描述哪一手真正有意义，或哪里让你不想继续。";
+}
+function renderOfficial(){
+ var t=getTask(selectedId),root=$("official");root.replaceChildren();
+ child(root,"p","minor",t.officialNote);
+ if(t.browserOnly){
+  var info=child(root,"div","callout");child(info,"strong","","此项尚无正式 C# / Scheme 场景");
+  child(info,"p","","R55为独立网页假设，不应与原R50正式原型混同。");
+  var source=anch("查看R55精确数学模型 ↗",link("../../"+t.official));source.target="_blank";source.rel="noopener noreferrer";info.appendChild(source);
+  return;
+ }
+ var code=child(root,"pre","official-code","./run --session "+t.experiment+" --seed 19 --growth 1");
+ var links=child(root,"div","inline");
+ var a=anch("正式 Scheme 规则 ↗",link("../../"+t.official));a.target="_blank";a.rel="noopener noreferrer";links.appendChild(a);
+ var b=anch("研究记录 ↗",link(t.record));b.target="_blank";b.rel="noopener noreferrer";links.appendChild(b);
+ if(t.sourceRun){var c=anch("自动验证证据 ↗",t.sourceRun);c.target="_blank";c.rel="noopener noreferrer";links.appendChild(c)}
+ child(root,"p","minor","若在 Unity 调试界面试玩：Scenario测试（直接进入）→ 选择上述相同名称的研究场景。命令行形式供熟悉 JSONL 会话的人使用。");
+}
+function field(parent,id,text,placeholder,rows){
+ var wrap=child(parent,"label","field");child(wrap,"span","",text);
+ var t=child(wrap,"textarea");t.id="fb-"+id;t.placeholder=placeholder||"";t.rows=rows||3;
+ var d=draft(selectedId);t.value=d.responses[id]||"";
+ t.addEventListener("input",function(){d.responses[id]=t.value;persist()});
+ return t
+}
+function dropdown(parent,key,title,options){
+ var wrap=child(parent,"label","field");child(wrap,"span","",title);
+ var sel=child(wrap,"select"),d=draft(selectedId);
+ options.forEach(function(item){var o=child(sel,"option","",item[1]);o.value=item[0]});
+ sel.value=d.responses[key]||"";
+ sel.addEventListener("change",function(){d.responses[key]=sel.value;persist()});return sel
+}
+function renderFeedback(){
+ const t=getTask(selectedId),d=draft(selectedId),root=$("feedback");root.replaceChildren();
+ const intro=child(root,"p","minor");intro.id="run-summary";intro.textContent="已记录 "+d.runs.length+" 局；只写最重要的观察即可。";
+ const free=field(root,"mechanicalFeeling","你的体验与想法","哪些选择有意思？有没有让你犹豫的地方？可以直接对研究者提问。",6);
+ free.closest(".field").classList.add("primary-feedback");
+ const optional=child(root,"details","quiet-details optional-fields");child(optional,"summary","","其他补充（完全可选）");
+ const content=child(optional,"div");
+ const env=child(content,"label","field");child(env,"span","","体验来自哪里？");
+ const sel=child(env,"select");
+ [["browser-sketch","网页独立实验（非C#）"],["official-runtime","Unity / C# + Scheme 正式规则"]].forEach(item=>{
+  const opt=child(sel,"option","",item[1]);opt.value=item[0];
+ });
+ sel.value=d.environment||"official-runtime";
+ sel.addEventListener("change",()=>{if(sel.value==="official-runtime"&&d.runs.length){toast("已有网页试玩记录，请先备份，再创建正式规则反馈。");sel.value="browser-sketch";return;}d.environment=sel.value;persist()});
+ const pair=child(content,"div","field-pair");
+ dropdown(pair,"understanding","理解规则吗？",[["","跳过"],["yes","清楚"],["somewhat","部分清楚"],["no","不清楚"],["not-sure","说不准"]]);
+ dropdown(pair,"replayInterest","还想继续吗？",[["","跳过"],["yes","愿意"],["maybe","可能"],["no","不想"],["not-sure","说不准"]]);
+ config.feedbackFields.filter(f=>f.id!=="mechanicalFeeling").forEach(item=>{
+   const input=field(content,item.id,item.label,item.placeholder,2);
+   input.closest(".field").classList.add("optional");
+ });
+ const tip=child(content,"div","study-tip");child(tip,"strong","","研究者特别希望知道：");
+ const ul=child(tip,"ul");t.askAfter.forEach(q=>child(ul,"li","",q));
+}
+function outputFeedback(){
+ var t=getTask(selectedId),d=draft(selectedId),responses={};["understanding","replayInterest"].forEach(function(k){responses[k]=d.responses[k]||""});
+ config.feedbackFields.forEach(function(f){responses[f.id]=d.responses[f.id]||""});
+ var runs=d.environment==="browser-sketch"?d.runs.map(function(s){return {
+  variant:s.variant,seed:s.seed,skill:s.skill,handSize:s.handSize||4,presentation:s.presentation||undefined,pairedWithSeed:s.pairedWithSeed,initialDice:s.initialDice,startedAt:s.startedAt,completedAt:s.completedAt,
+  actions:s.actions,result:s.result
+ }}):[];
+ var feedback={schema:"ssnoir.mechanism-feedback/v1",studyId:t.id,studyTitle:t.title,createdAt:new Date().toISOString(),
+ environment:d.environment,source:{studyConfigVersion:config.version,atlasVersion:library.version,officialEntry:t.experiment},responses:responses,runs:runs,notes:d.notes||[]};
+ return feedback
+}
+function exportFeedback(){
+ var o=outputFeedback();var r=o.responses;
+ if(!o.runs.length&&!o.notes.length&&!Object.keys(r).some(function(k){return (r[k]||"").trim()})){toast("请至少完成一局，或写下一句实际体验。");return}
+ var text=JSON.stringify(o,null,2)+"\n",blob=new Blob([text],{type:"application/json;charset=utf-8"}),url=URL.createObjectURL(blob);
+ var n=new Date().toISOString().slice(0,10);var name="SSNoir-feedback-"+selectedId+"-"+n+"-"+Math.random().toString(36).slice(2,8)+".json";
+ var a=anch("download",url);a.download=name;document.body.appendChild(a);a.click();a.remove();
+ setTimeout(function(){URL.revokeObjectURL(url)},1500);
+ toast("已生成反馈文件。下一步上传到 GitHub 的 feedback/inbox 文件夹。");
+}
+function importFeedback(file){
+ if(!file)return;
+ file.text().then(function(text){
+  var item=JSON.parse(text);
+  if(item.schema!=="ssnoir.mechanism-feedback/v1"||!getTask(item.studyId))throw Error("文件格式或实验ID不匹配");
+  if(!item.responses||!Array.isArray(item.runs)||item.runs.length>20)throw Error("文件内容不完整或超过20局");
+  if(item.environment!=="browser-sketch"&&item.environment!=="official-runtime")throw Error("未知运行环境");
+  if(item.environment==="official-runtime"&&item.runs.length)throw Error("正式游戏反馈不应包含网页模拟记录");
+  drafts[item.studyId]={environment:item.environment,responses:item.responses,runs:item.runs,notes:item.notes||[],live:null};
+  persist();selectedId=item.studyId;renderTasks();renderSelection();toast("已载入 "+item.studyId+" 的反馈草稿，可以继续编辑或导出。")
+ }).catch(function(e){toast("导入失败："+e.message)});
+}
+function init(){
+ $("updated").textContent=config.updated;
+ $("upload-link").href=UPLOAD;
+ $("protocol-link").href=link(config.protocol);
+ $("research-root").href=link("研究定位与评价.md");
+ $("not-promoted").replaceChildren();
+ config.nonPromoted.forEach(d=>{const c=child($("not-promoted"),"p");child(c,"strong","",d.id+" · "+d.title+"：");c.appendChild(document.createTextNode(d.summary));});
+ const now=$("now-research");now.replaceChildren();
+ library.nextQuestions.forEach(q=>child(now,"li","",q));
+ $("export").addEventListener("click",exportFeedback);
+ $("import-trigger").addEventListener("click",()=>$("import-file").click());
+ $("import-file").addEventListener("change",e=>{importFeedback(e.target.files[0]);e.target.value=""});
+ ["study-search","study-filter","study-order"].forEach(id=>{
+  $(id).addEventListener(id==="study-search"?"input":"change",()=>{
+   studySort=$("study-order").value;renderTasks();
+  });
+ });
+ renderTasks();renderPatterns();renderSelection();
+}
+window.SSNoirFieldStation={
+ currentStudy:function(){return selectedId},
+ currentFeedback:outputFeedback,
+ loadFeedback:function(item){
+  if(!item||item.schema!=="ssnoir.mechanism-feedback/v1"||!getTask(item.studyId))throw Error("反馈结构或实验 ID 无效");
+  if(!Array.isArray(item.runs)||item.runs.length>20)throw Error("反馈超出20局限制");
+  if(item.environment!=="browser-sketch"&&item.environment!=="official-runtime")throw Error("未知运行环境");
+  if(item.environment==="official-runtime"&&item.runs.length)throw Error("正式反馈含网页模拟记录");
+  drafts[item.studyId]={environment:item.environment,responses:item.responses||{},runs:item.runs,notes:item.notes||[],live:null};
+  persist();selectedId=item.studyId;renderTasks();renderSelection();
+  document.getElementById("workshop").scrollIntoView({behavior:"smooth"});
+ },
+ getTask:getTask,
+ selectStudy:choose,
+ tasks:function(){return config.tasks;},
+ updateStudyProgress:function(next){studyProgress=next||{};renderTasks();},
+ showResearchReply:function(render){const root=document.getElementById('research-reply');root.replaceChildren();if(typeof render==='function')render(root);else root.textContent='这项实验尚无研究者回复；反馈并不会自动得到 AI 回复，研究者将在下一轮审阅后提交。';}
+};
+init();
+})();
+</script>
+<script>/*CLOUD_FEEDBACK_SCRIPT*/</script>
+<script>/*WORKBENCH_JS*/</script>
+</body>
+</html>

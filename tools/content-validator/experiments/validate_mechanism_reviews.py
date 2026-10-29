@@ -3,13 +3,13 @@
 from pathlib import Path
 import json
 ROOT=Path(__file__).resolve().parents[3]
-BASE=ROOT/"docs/实验/机制研究/反馈"
+BASE=ROOT/"experiments/抽象决策关系研究/反馈"
 items=sorted((BASE/"reviews").glob("*.json"))
 for path in items:
     assert path.stat().st_size < 40000, path
     data=json.loads(path.read_text(encoding="utf8"))
     assert data["schema"]=="ssnoir.mechanism-review/v1", path
-    assert data["sourcePath"]=="docs/实验/机制研究/反馈/inbox/"+path.name, path
+    assert data["sourcePath"]=="experiments/抽象决策关系研究/反馈/inbox/"+path.name, path
     assert len(data["feedbackSha"])==40, path
     assert isinstance(data["observations"],list) and data["observations"], path
     for key in ("headline","acknowledgment","interpretation","question","next"):

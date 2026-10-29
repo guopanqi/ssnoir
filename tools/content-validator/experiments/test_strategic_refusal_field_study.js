@@ -3,7 +3,7 @@
 // Non-browser DOM action simulation: checks information hiding, 2-stage input,
 // partner response and copied trail. Not evidence of human comprehension.
 const fs=require("node:fs"),vm=require("node:vm"),assert=require("node:assert/strict"),path=require("node:path");
-const html=fs.readFileSync(path.resolve(__dirname,"../../../docs/实验/机制研究/批次/2026-10-13-策略回应与危机可达性/协商试玩.html"),"utf8");
+const html=fs.readFileSync(path.resolve(__dirname,"../../../experiments/抽象决策关系研究/批次/2026-10-13-策略回应与危机可达性/协商试玩.html"),"utf8");
 const scripts=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)];
 assert.equal(scripts.length,1);
 new vm.Script(scripts[0][1]);

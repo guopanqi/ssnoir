@@ -6,7 +6,7 @@ on:
     paths:
       - '.github/workflows/ssnoir-r446-r453.yml'
       - 'tools/content-validator/experiments/r446_r453_rule_authoring_menu.py'
-      - 'docs/实验/机制研究/批次/R446-R453-规则编写与预设覆盖/**'
+      - 'experiments/抽象决策关系研究/批次/R446-R453-规则编写与预设覆盖/**'
 permissions:
   contents: read
 jobs:

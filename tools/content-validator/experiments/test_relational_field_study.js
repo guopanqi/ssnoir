@@ -5,7 +5,7 @@ const assert=require("node:assert/strict");
 const fs=require("node:fs");
 const vm=require("node:vm");
 const path=require("node:path");
-const html=fs.readFileSync(path.resolve(__dirname,"../../../docs/实验/机制研究/批次/2026-10-13-关系许可与成果保全/试玩.html"),"utf8");
+const html=fs.readFileSync(path.resolve(__dirname,"../../../experiments/抽象决策关系研究/批次/2026-10-13-关系许可与成果保全/试玩.html"),"utf8");
 const parts=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)];
 assert.equal(parts.length,1);
 const source=parts[0][1];

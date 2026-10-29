@@ -86,15 +86,15 @@ public static class WorldLabelLayoutValidation
             "new content must not move established card");
         Check(!together["old"].Overlaps(together["new"]), "cards must occupy distinct slots");
 
-        // Navigation transition policy is independent of label placement.
-        // Regression: the previous "settleImmediately" shortcut disabled the
-        // house → world pullback while room → house still animated.
-        Check(SSNoirCameraManager.NavigationTravelPath(storyDriven: false)
-            == FocusTravelPath.Exploration,
-            "all player navigation, including parent-world return, must animate");
-        Check(SSNoirCameraManager.NavigationTravelPath(storyDriven: true)
-            == FocusTravelPath.AuthoredArc,
-            "scripted navigation retains authored camera travel");
+        // 所有入口共用默认策略，不能再按剧情/探索或调用重载暗中选不同曲线。
+        Check(SSNoirCameraManager.DefaultTravelPath != FocusTravelPath.Default,
+            "global default must resolve to a concrete path");
+        foreach(var method in typeof(SSNoirCameraManager).GetMethods())
+            if(method.Name == "BeginFocusTravel")
+                foreach(var parameter in method.GetParameters())
+                    if(parameter.Name == "path")
+                        Check(parameter.HasDefaultValue && Equals(parameter.DefaultValue,FocusTravelPath.Default),
+                            "every focus travel overload must inherit the shared default");
 
         // Enter a location and return to the world with its map labels still authored
         // in the same root tree. Navigating to a child must NOT prune the map memory.

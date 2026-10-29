@@ -7,6 +7,9 @@
    "end": 31,
    "loop": false,
    "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
    "from": "",
    "to": ""
   },
@@ -16,6 +19,9 @@
    "end": 764,
    "loop": false,
    "once": true,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
    "from": "空",
    "to": ""
   }

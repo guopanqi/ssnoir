@@ -6,7 +6,7 @@ on:
     paths:
       - '.github/workflows/ssnoir-r310-r317.yml'
       - 'tools/content-validator/experiments/r310_r317_spatial_information.py'
-      - 'docs/实验/机制研究/批次/R310-R317-部分观察与付费扫描/研究记录.md'
+      - 'experiments/抽象决策关系研究/批次/R310-R317-部分观察与付费扫描/研究记录.md'
 permissions:
   contents: read
 jobs:

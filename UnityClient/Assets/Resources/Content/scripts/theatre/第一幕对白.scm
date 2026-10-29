@@ -188,9 +188,9 @@
         '((0 0) (2 .8) (4 0) (6 -.8) (8 0)))))
     (theatre-stop-sound "第二遍")
     (theatre-tween "彩排追光" 'brightness .55 1.5 'smooth)
-    (theatre-say "夜莺" "你什么时候来的？" 1.8 "#8FD9D0")
-    (theatre-say "尼尔" "第二遍的时候。" 1.8 "#F0CF8A")
-    (theatre-say "夜莺" "那你只听见好的一遍。" 2.2 "#8FD9D0")
+    (theatre-say "夜莺" "刚才在后面忙什么？" 1.8 "#8FD9D0")
+    (theatre-say "尼尔" "在侧幕后头干活。一直听得见。" 1.8 "#F0CF8A")
+    (theatre-say "夜莺" "我看见你了。戴着那副大手套。" 2.2 "#8FD9D0")
     (theatre-say "夜莺" "我在上面的时候，看起来怎么样？" 2.7 "#8FD9D0")
     (theatre-say "尼尔" "很漂亮。" 2 "#F0CF8A")
     (theatre-parallel

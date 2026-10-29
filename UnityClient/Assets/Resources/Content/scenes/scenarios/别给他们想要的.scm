@@ -83,6 +83,8 @@
   (set! 喊人在? #f)
   (set! 警棍在? #f)
   (set! finished? #f)
+  (play-motion! "别给他们想要的/喊的人" "静候" "别给他们想要的-叫喊")
+  (play-motion! "别给他们想要的/前排工人" "静候" "别给他们想要的-退让")
   (play-dialogue!
     (line "世界" "两个警察架着一个年轻人往车那边走。他没反抗，脸一直朝着人堆。")
     (line "世界" "弗兰克的人从酒馆出来了。年轻人的母亲从对面出来了。街口又停下一辆警车。")
@@ -92,6 +94,12 @@
     (line "尼尔" "那边我来。")))
 
 ;; ── 两边 ─────────────────────────────────────────
+(define (安抚老街! amount)
+  (老街-clk 'advance! amount)
+  (if (老街-clk 'full?)
+      (play-motion! "别给他们想要的/前排工人" "退开" "别给他们想要的-退让")
+      #f)
+  (check!))
 (define (node-street)
   (node "安抚老街的人"
     :subtitle "站到他们前面，把话说给他们听"
@@ -99,13 +107,8 @@
     :requires (list (req-die))
     :resolve (roll 'social
       (outcome (lambda () (escalate!)))
-      (outcome (lambda () (老街-clk 'tick!) (check!)))
-      (outcome (lambda ()
-          (老街-clk 'advance! 2)
-          (if (老街-clk 'full?)
-              (play-bubble! (line "世界" "弗兰克抬了抬手。前排的人往门里退了。"))
-              #f)
-          (check!))))))
+      (outcome (lambda () (安抚老街! 1)))
+      (outcome (lambda () (安抚老街! 2))))))
 
 (define (node-police)
   (node "跟警官谈"
@@ -137,7 +140,7 @@
   (if (喊人-clk 'full?)
       (begin
         (set! 喊人在? #f)
-        (play-bubble! (line "世界" "他被人从后面拖进酒馆。门在他身后关上了。")))
+        (play-motion! "别给他们想要的/喊的人" "退开" "别给他们想要的-叫喊"))
       #f)
   (check!))
 
@@ -165,8 +168,9 @@
 (define (spawn-shouter!)
   (set! 喊人在? #t)
   (喊人-clk 'reset!)
+  (play-motion! "别给他们想要的/喊的人" "叫喊" "别给他们想要的-叫喊")
   (play-bubble!
-    (line "世界" "前排有人喊起来了。喊的是那个警察的名字，和他家住哪条街。")))
+    (line "世界" "他喊的是那个警察的名字，和他家住哪条街。")))
 
 (define (spawn-baton!)
   (set! 警棍在? #t)

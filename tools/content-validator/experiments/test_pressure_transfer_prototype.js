@@ -3,7 +3,7 @@
 /* Abstract UI correctness check only. Not human play or psychological proof. */
 const assert=require("node:assert/strict");
 const fs=require("node:fs"),vm=require("node:vm"),path=require("node:path");
-const html=fs.readFileSync(path.resolve(__dirname,"../../../docs/实验/机制研究/批次/2026-10-13-压力转移与隐藏触发/压力分配.html"),"utf8");
+const html=fs.readFileSync(path.resolve(__dirname,"../../../experiments/抽象决策关系研究/批次/2026-10-13-压力转移与隐藏触发/压力分配.html"),"utf8");
 const scripts=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)];
 assert.equal(scripts.length,1);
 const script=new vm.Script(scripts[0][1]);

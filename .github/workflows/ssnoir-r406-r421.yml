@@ -7,7 +7,7 @@ on:
       - '.github/workflows/ssnoir-r406-r421.yml'
       - 'tools/content-validator/experiments/r406_r413_online_other.py'
       - 'tools/content-validator/experiments/r414_r421_late_sensor.py'
-      - 'docs/实验/机制研究/批次/R406-R421-他者在线博弈与迟到传感规则/**'
+      - 'experiments/抽象决策关系研究/批次/R406-R421-他者在线博弈与迟到传感规则/**'
 permissions:
   contents: read
 jobs:

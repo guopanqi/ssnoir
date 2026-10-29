@@ -6,7 +6,7 @@ on:
     paths:
       - '.github/workflows/ssnoir-r326-r333.yml'
       - 'tools/content-validator/experiments/r326_r333_action_seals_evidence.py'
-      - 'docs/实验/机制研究/批次/R326-R333-行动封闭证据/研究记录.md'
+      - 'experiments/抽象决策关系研究/批次/R326-R333-行动封闭证据/研究记录.md'
 permissions:
   contents: read
 jobs:

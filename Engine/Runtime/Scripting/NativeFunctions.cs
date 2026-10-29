@@ -398,7 +398,7 @@ namespace SSNoir.Scripting
             {
                 if (gameState.CurrentContext == null)
                     throw new InvalidOperationException(
-                        "__current-actor is only valid during ExecuteAction. An scenario-result callback " +
+                        "__current-actor is only valid during ExecuteAction. A scenario-result callback " +
                         "or a turn-end rule runs outside any action — address the actor explicitly there, " +
                         "e.g. (spend-actor-composure! 'player n) / (restore-actor-composure! 'player n).");
                 return Symbol.FromString(gameState.CurrentContext.ActorId);

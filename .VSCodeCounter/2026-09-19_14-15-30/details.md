@@ -81,7 +81,7 @@ Total : 679 files,  164832 codes, 10980 comments, 16055 blanks, all 191867 lines
 | [.agents/skills/mimo-tts/SKILL.md](/.agents/skills/mimo-tts/SKILL.md) | Skill | 34 | 0 | 17 | 51 |
 | [.agents/skills/verify/SKILL.md](/.agents/skills/verify/SKILL.md) | Skill | 103 | 0 | 42 | 145 |
 | [.agents/skills/write-scheme/SKILL.md](/.agents/skills/write-scheme/SKILL.md) | Skill | 131 | 0 | 48 | 179 |
-| [.agents/skills/write-scheme/references/交锋.md](/.agents/skills/write-scheme/references/%E4%BA%A4%E9%94%8B.md) | Markdown | 11 | 0 | 3 | 14 |
+| [.agents/skills/write-scheme/references/Scenario.md](/.agents/skills/write-scheme/references/%E4%BA%A4%E9%94%8B.md) | Markdown | 11 | 0 | 3 | 14 |
 | [.agents/skills/write-scheme/references/舞台.md](/.agents/skills/write-scheme/references/%E8%88%9E%E5%8F%B0.md) | Markdown | 91 | 0 | 27 | 118 |
 | [.agents/skills/write-scheme/references/表现.md](/.agents/skills/write-scheme/references/%E8%A1%A8%E7%8E%B0.md) | Markdown | 62 | 0 | 23 | 85 |
 | [.agents/skills/write-scheme/scripts/list-anchors.py](/.agents/skills/write-scheme/scripts/list-anchors.py) | Python | 23 | 12 | 9 | 44 |
@@ -489,7 +489,7 @@ Total : 679 files,  164832 codes, 10980 comments, 16055 blanks, all 191867 lines
 | [docs/归档/Content/world/陌生人藏身处.scm](/docs/%E5%BD%92%E6%A1%A3/Content/world/%E9%99%8C%E7%94%9F%E4%BA%BA%E8%97%8F%E8%BA%AB%E5%A4%84.scm) | Scheme | 12 | 1 | 2 | 15 |
 | [docs/归档/demo短篇/demo短篇·剧本总表.md](/docs/%E5%BD%92%E6%A1%A3/demo%E7%9F%AD%E7%AF%87/demo%E7%9F%AD%E7%AF%87%C2%B7%E5%89%A7%E6%9C%AC%E6%80%BB%E8%A1%A8.md) | Markdown | 169 | 0 | 51 | 220 |
 | [docs/归档/demo短篇/demo短篇·夜莺故事设计.md](/docs/%E5%BD%92%E6%A1%A3/demo%E7%9F%AD%E7%AF%87/demo%E7%9F%AD%E7%AF%87%C2%B7%E5%A4%9C%E8%8E%BA%E6%95%85%E4%BA%8B%E8%AE%BE%E8%AE%A1.md) | Markdown | 211 | 0 | 48 | 259 |
-| [docs/归档/demo短篇·夜莺交锋方案.md](/docs/%E5%BD%92%E6%A1%A3/demo%E7%9F%AD%E7%AF%87%C2%B7%E5%A4%9C%E8%8E%BA%E4%BA%A4%E9%94%8B%E6%96%B9%E6%A1%88.md) | Markdown | 177 | 0 | 61 | 238 |
+| [docs/归档/demo短篇·夜莺Scenario方案.md](/docs/%E5%BD%92%E6%A1%A3/demo%E7%9F%AD%E7%AF%87%C2%B7%E5%A4%9C%E8%8E%BA%E4%BA%A4%E9%94%8B%E6%96%B9%E6%A1%88.md) | Markdown | 177 | 0 | 61 | 238 |
 | [docs/归档/三封信-第一章方案.md](/docs/%E5%BD%92%E6%A1%A3/%E4%B8%89%E5%B0%81%E4%BF%A1-%E7%AC%AC%E4%B8%80%E7%AB%A0%E6%96%B9%E6%A1%88.md) | Markdown | 760 | 0 | 329 | 1,089 |
 | [docs/归档/三种生活方式实施计划.md](/docs/%E5%BD%92%E6%A1%A3/%E4%B8%89%E7%A7%8D%E7%94%9F%E6%B4%BB%E6%96%B9%E5%BC%8F%E5%AE%9E%E6%96%BD%E8%AE%A1%E5%88%92.md) | Markdown | 343 | 0 | 163 | 506 |
 | [docs/归档/命运骰结算实施计划.md](/docs/%E5%BD%92%E6%A1%A3/%E5%91%BD%E8%BF%90%E9%AA%B0%E7%BB%93%E7%AE%97%E5%AE%9E%E6%96%BD%E8%AE%A1%E5%88%92.md) | Markdown | 176 | 0 | 59 | 235 |
@@ -497,9 +497,9 @@ Total : 679 files,  164832 codes, 10980 comments, 16055 blanks, all 191867 lines
 | [docs/归档/城市生活-提案.md](/docs/%E5%BD%92%E6%A1%A3/%E5%9F%8E%E5%B8%82%E7%94%9F%E6%B4%BB-%E6%8F%90%E6%A1%88.md) | Markdown | 566 | 0 | 164 | 730 |
 | [docs/归档/夜莺最小主线实施计划.md](/docs/%E5%BD%92%E6%A1%A3/%E5%A4%9C%E8%8E%BA%E6%9C%80%E5%B0%8F%E4%B8%BB%E7%BA%BF%E5%AE%9E%E6%96%BD%E8%AE%A1%E5%88%92.md) | Markdown | 397 | 0 | 136 | 533 |
 | [docs/归档/数字命运骰结算实施计划.md](/docs/%E5%BD%92%E6%A1%A3/%E6%95%B0%E5%AD%97%E5%91%BD%E8%BF%90%E9%AA%B0%E7%BB%93%E7%AE%97%E5%AE%9E%E6%96%BD%E8%AE%A1%E5%88%92.md) | Markdown | 191 | 0 | 58 | 249 |
-| [docs/归档/第二章-晚宴交锋.md](/docs/%E5%BD%92%E6%A1%A3/%E7%AC%AC%E4%BA%8C%E7%AB%A0-%E6%99%9A%E5%AE%B4%E4%BA%A4%E9%94%8B.md) | Markdown | 40 | 0 | 23 | 63 |
+| [docs/归档/第二章-晚宴Scenario.md](/docs/%E5%BD%92%E6%A1%A3/%E7%AC%AC%E4%BA%8C%E7%AB%A0-%E6%99%9A%E5%AE%B4%E4%BA%A4%E9%94%8B.md) | Markdown | 40 | 0 | 23 | 63 |
 | [docs/手稿/AAA.md](/docs/%E6%89%8B%E7%A8%BF/AAA.md) | Markdown | 35 | 0 | 19 | 54 |
-| [docs/手稿/交锋结构想法收集.md](/docs/%E6%89%8B%E7%A8%BF/%E4%BA%A4%E9%94%8B%E7%BB%93%E6%9E%84%E6%83%B3%E6%B3%95%E6%94%B6%E9%9B%86.md) | Markdown | 157 | 0 | 34 | 191 |
+| [docs/手稿/Scenario结构想法收集.md](/docs/%E6%89%8B%E7%A8%BF/%E4%BA%A4%E9%94%8B%E7%BB%93%E6%9E%84%E6%83%B3%E6%B3%95%E6%94%B6%E9%9B%86.md) | Markdown | 157 | 0 | 34 | 191 |
 | [docs/手稿/关于游戏动作工作的设计模式和创意组合/CS1, CS2中的一些例子.md](/docs/%E6%89%8B%E7%A8%BF/%E5%85%B3%E4%BA%8E%E6%B8%B8%E6%88%8F%E5%8A%A8%E4%BD%9C%E5%B7%A5%E4%BD%9C%E7%9A%84%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%92%8C%E5%88%9B%E6%84%8F%E7%BB%84%E5%90%88/CS1,%20CS2%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9B%E4%BE%8B%E5%AD%90.md) | Markdown | 0 | 0 | 2 | 2 |
 | [docs/手稿/关于游戏动作工作的设计模式和创意组合/CS2中的数学拓扑，心理模型和情感解释.md](/docs/%E6%89%8B%E7%A8%BF/%E5%85%B3%E4%BA%8E%E6%B8%B8%E6%88%8F%E5%8A%A8%E4%BD%9C%E5%B7%A5%E4%BD%9C%E7%9A%84%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%92%8C%E5%88%9B%E6%84%8F%E7%BB%84%E5%90%88/CS2%E4%B8%AD%E7%9A%84%E6%95%B0%E5%AD%A6%E6%8B%93%E6%89%91%EF%BC%8C%E5%BF%83%E7%90%86%E6%A8%A1%E5%9E%8B%E5%92%8C%E6%83%85%E6%84%9F%E8%A7%A3%E9%87%8A.md) | Markdown | 72 | 0 | 28 | 100 |
 | [docs/手稿/关于游戏动作工作的设计模式和创意组合/CS2游戏动作系统的设计模式与创意组合.md](/docs/%E6%89%8B%E7%A8%BF/%E5%85%B3%E4%BA%8E%E6%B8%B8%E6%88%8F%E5%8A%A8%E4%BD%9C%E5%B7%A5%E4%BD%9C%E7%9A%84%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%92%8C%E5%88%9B%E6%84%8F%E7%BB%84%E5%90%88/CS2%E6%B8%B8%E6%88%8F%E5%8A%A8%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%9A%84%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B8%8E%E5%88%9B%E6%84%8F%E7%BB%84%E5%90%88.md) | Markdown | 101 | 0 | 50 | 151 |
@@ -576,7 +576,7 @@ Total : 679 files,  164832 codes, 10980 comments, 16055 blanks, all 191867 lines
 | [skills/make-video/references/踩过的坑.md](/skills/make-video/references/%E8%B8%A9%E8%BF%87%E7%9A%84%E5%9D%91.md) | Markdown | 48 | 0 | 29 | 77 |
 | [skills/verify/SKILL.md](/skills/verify/SKILL.md) | Skill | 103 | 0 | 42 | 145 |
 | [skills/write-scheme/SKILL.md](/skills/write-scheme/SKILL.md) | Skill | 131 | 0 | 48 | 179 |
-| [skills/write-scheme/references/交锋.md](/skills/write-scheme/references/%E4%BA%A4%E9%94%8B.md) | Markdown | 11 | 0 | 3 | 14 |
+| [skills/write-scheme/references/Scenario.md](/skills/write-scheme/references/%E4%BA%A4%E9%94%8B.md) | Markdown | 11 | 0 | 3 | 14 |
 | [skills/write-scheme/references/舞台.md](/skills/write-scheme/references/%E8%88%9E%E5%8F%B0.md) | Markdown | 91 | 0 | 27 | 118 |
 | [skills/write-scheme/references/表现.md](/skills/write-scheme/references/%E8%A1%A8%E7%8E%B0.md) | Markdown | 62 | 0 | 23 | 85 |
 | [skills/write-scheme/scripts/list-anchors.py](/skills/write-scheme/scripts/list-anchors.py) | Python | 23 | 12 | 9 | 44 |

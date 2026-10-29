@@ -6,7 +6,7 @@ on:
     paths:
       - '.github/workflows/ssnoir-r278-r285.yml'
       - 'tools/content-validator/experiments/r278_r285_diagnostic_transfer.py'
-      - 'docs/实验/机制研究/批次/R278-R285-诊断结构迁移与强负例/研究记录.md'
+      - 'experiments/抽象决策关系研究/批次/R278-R285-诊断结构迁移与强负例/研究记录.md'
 permissions:
   contents: read
 jobs:

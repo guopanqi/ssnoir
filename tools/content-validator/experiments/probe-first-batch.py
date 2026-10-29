@@ -46,7 +46,7 @@ def run(scene, policy, seed):
     with tempfile.TemporaryDirectory(prefix='noir-probe-') as scratch:
         raw=Path(scratch)/'record.json'
         send({'command':'save','path':str(raw)})
-        directory=ROOT/'docs'/'实验'/scene/'对照记录';directory.mkdir(parents=True,exist_ok=True)
+        directory=ROOT/'experiments/Scenario候选模式对照'/scene/'对照记录';directory.mkdir(parents=True,exist_ok=True)
         with gzip.open(directory/f'{policy}-{seed}.json.gz','wb') as f: f.write(raw.read_bytes())
     send({'command':'quit'});p.wait()
     result={'scene':scene,'policy':policy,'seed':seed,'result':o['ScenarioResult'],'injury':o['Injury'],'calm':o['Actors'][0]['Composure']}
@@ -58,4 +58,4 @@ if __name__=='__main__':
     for scene,policies in [('逼他出门',['稳压2','过度施压','不理他','撤离']),('枪口认路',['直冲货棚','只走栈桥','不动','投降'])]:
         for policy in policies:
             for seed in (7,23): results.append(run(scene,policy,seed))
-    (ROOT/'docs'/'实验'/'首批对照结果.json').write_text(json.dumps(results,ensure_ascii=False,indent=2)+'\n')
+    (ROOT/'experiments/Scenario候选模式对照'/'首批对照结果.json').write_text(json.dumps(results,ensure_ascii=False,indent=2)+'\n')

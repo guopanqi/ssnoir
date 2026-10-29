@@ -5,7 +5,7 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/ssnoir-native-candidate20.yml'
-      - 'docs/实验/机制研究/结构候选20.json'
+      - 'experiments/抽象决策关系研究/结构候选20.json'
       - 'tools/content-validator/experiments/smoke_candidate20_native.py'
       - 'tools/content-validator/experiments/probe_four_scenario_causality.py'
 permissions:

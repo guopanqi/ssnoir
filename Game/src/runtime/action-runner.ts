@@ -181,7 +181,7 @@ export class GameActionRunner {
     if(slots.length!==node.requires.length)throw new Error("slot count mismatch");
     if(node.supportId){
       if(!this.carryHooks||this.state.currentMode()!=="scenario")
-        throw new Error("support card only usable during an scenario");
+        throw new Error("support card only usable during a scenario");
       if(this.carryHooks.getCarriedSupport()!==node.supportId)
         throw new Error("support card does not match the carried relationship");
       if(this.carryHooks.isSupportUsed())throw new Error("support already used this scenario");

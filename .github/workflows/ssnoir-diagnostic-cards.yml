@@ -6,11 +6,11 @@ on:
     paths:
       - '.github/workflows/ssnoir-diagnostic-cards.yml'
       - 'tools/content-validator/experiments/validate_diagnostic_paper_cards.py'
-      - 'docs/实验/机制研究/当前状态.md'
-      - 'docs/实验/机制研究/研究队列.md'
-      - 'docs/实验/机制研究/自主研究记忆.json'
-      - 'docs/实验/机制研究/批次/R278-R285-诊断结构迁移与强负例/参与者卡片.md'
-      - 'docs/实验/机制研究/批次/R278-R285-诊断结构迁移与强负例/研究员规约.md'
+      - 'experiments/抽象决策关系研究/当前状态.md'
+      - 'experiments/抽象决策关系研究/研究队列.md'
+      - 'experiments/抽象决策关系研究/自主研究记忆.json'
+      - 'experiments/抽象决策关系研究/批次/R278-R285-诊断结构迁移与强负例/参与者卡片.md'
+      - 'experiments/抽象决策关系研究/批次/R278-R285-诊断结构迁移与强负例/研究员规约.md'
 permissions:
   contents: read
 jobs:

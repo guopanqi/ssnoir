@@ -4,22 +4,11 @@ using System.Linq;
 
 namespace SSNoir
 {
-    public enum FocusTravelPath { AuthoredArc, DirectApproach, Exploration }
-
     public class SSNoirCameraManager
     {
-        // 实验选择入口：旧路径保留；只由玩家探索调用方选择，剧情调用默认走 AuthoredArc。
-        public FocusTravelPath ExplorationPath { get; set; } = FocusTravelPath.DirectApproach;
+        // 全游戏默认直接靠近；预测途中丢失主体时回退到原有绕主体路径。
+        public const FocusTravelPath DefaultTravelPath = FocusTravelPath.DirectApproach;
         private FocusTravelPath _activeFocusPath;
-
-        /// <summary>
-        /// Player navigation has one transition contract regardless of depth:
-        /// entering a room, returning to its parent, and returning to the world
-        /// are all Exploration. Scripted shots remain AuthoredArc.
-        /// Stage Portals own their own transitions instead of invoking this policy.
-        /// </summary>
-        public static FocusTravelPath NavigationTravelPath(bool storyDriven)
-            => storyDriven ? FocusTravelPath.AuthoredArc : FocusTravelPath.Exploration;
 
         private const float NavigationDuration = 0.42f;
 
@@ -1113,7 +1102,7 @@ namespace SSNoir
         public bool BeginFocusTravel(
             Cinemachine.CinemachineVirtualCamera focusCamera,
             bool respectReduceMotion = true,
-            FocusTravelPath path = FocusTravelPath.AuthoredArc)
+            FocusTravelPath path = FocusTravelPath.Default)
         {
             return BeginFocusTravel(focusCamera, out _, respectReduceMotion, path);
         }
@@ -1129,7 +1118,8 @@ namespace SSNoir
             Cinemachine.CinemachineVirtualCamera focusCamera,
             out float transitionDuration,
             bool respectReduceMotion = true,
-            FocusTravelPath path = FocusTravelPath.AuthoredArc)
+            FocusTravelPath path = FocusTravelPath.Default,
+            float? durationOverride = null)
         {
             transitionDuration = 0f;
 
@@ -1222,61 +1212,45 @@ namespace SSNoir
             // is stale and the rendered view has to speak for itself.
             var sourceCamera = ReferenceEquals(brain.ActiveVirtualCamera, previousFocus) ? previousFocus : null;
 
-            if (path == FocusTravelPath.Exploration)
-                path = ResolveExplorationPath(sourceCamera, focusCamera);
-
-
-            if (!TryResolveInterestPoints(
-                    focusCamera, targetPosition, targetRotation,
-                    sourceCamera, startPosition, startRotation,
-                    redirectedStart?.Interest,
-                    out Vector3 startInterest, out Vector3 targetInterest))
+            Vector3? sourceInterest = redirectedStart?.Interest;
+            if (!sourceInterest.HasValue && sourceCamera != null && TryGetTravelInterest(sourceCamera, out var sourcePivot))
+                sourceInterest = sourcePivot;
+            Vector3? targetInterestOverride = TryGetTravelInterest(focusCamera, out var targetPivot)
+                ? targetPivot : (Vector3?)null;
+            var plan = FocusTravelMath.Create(
+                Numeric(startPosition), Numeric(startRotation), Numeric(targetPosition), Numeric(targetRotation),
+                sourceInterest.HasValue ? Numeric(sourceInterest.Value) : (System.Numerics.Vector3?)null,
+                targetInterestOverride.HasValue ? Numeric(targetInterestOverride.Value) : (System.Numerics.Vector3?)null,
+                config != null && config.dragMode == CameraDragMode.Orbit,
+                config != null && config.dragMode == CameraDragMode.Pan,
+                config != null ? config.minPitch : 16f, config != null ? config.maxPitch : 35f,
+                config != null && config.modelRoot != null ? config.modelRoot.lossyScale.x : 1f,
+                startFieldOfView, targetFieldOfView, path, duration, redirectedStart.HasValue);
+            if (plan == null)
                 return false;
-
-            if (path == FocusTravelPath.DirectApproach)
+            var travelVolume = config != null ? config.TravelVolume : null;
+            // 跨空间入场由 Portal 负责；同一空间的所有聚焦/返回/演出共用安全判定。
+            if (travelVolume != null && !plan.Fits(travelVolume,
+                    startFieldOfView, targetFieldOfView, startNearClip, targetNearClip, renderedCamera.aspect))
             {
-                if (config == null || config.dragMode == CameraDragMode.Static)
-                    throw new System.InvalidOperationException("直接靠近路径只接受 orbit 地点或世界返回机位。");
-                if (config.dragMode == CameraDragMode.Orbit)
-                {
-                    // 预设机位决定取景距离和俯角，不决定必须从哪一侧观看。
-                    ToPolar(targetPosition - targetInterest, out _, out float pitch, out float radius);
-                    Vector3 incoming = startPosition - targetInterest;
-                    float yaw = incoming.x * incoming.x + incoming.z * incoming.z < 0.0001f
-                        ? Mathf.Atan2(-(startRotation * Vector3.forward).x, -(startRotation * Vector3.forward).z) * Mathf.Rad2Deg
-                        : Mathf.Atan2(incoming.x, incoming.z) * Mathf.Rad2Deg;
-                    pitch = Mathf.Clamp(pitch, config.minPitch, config.maxPitch);
-                    targetPosition = targetInterest + FromPolar(yaw, pitch, radius);
-                    targetRotation = Quaternion.LookRotation(targetInterest - targetPosition, Vector3.up);
-                }
-                // 世界远镜的地面注视点可能超过旧路径的 500 米限制。
-                // 直接路径需要真实起点视线，不能把它借成目的地中心，否则起飞时会先转头。
-                if (redirectedStart == null)
-                {
-                    var plane = new Plane(Vector3.up, new Vector3(0, targetInterest.y, 0));
-                    Vector3 forward = startRotation * Vector3.forward;
-                    if (plane.Raycast(new Ray(startPosition, forward), out float distance))
-                        startInterest = startPosition + forward * distance;
-                }
-                // 返回 Pan 世界远景时也使用目的地真正的注视点。
-                // 编排弧线的距离上限会借用近景主体；直接运镜需要让注视点与位置共同移动。
-                if (config.dragMode == CameraDragMode.Pan)
-                {
-                    var plane = new Plane(Vector3.up, new Vector3(0, targetInterest.y, 0));
-                    Vector3 forward = targetRotation * Vector3.forward;
-                    if (plane.Raycast(new Ray(targetPosition, forward), out float distance))
-                        targetInterest = targetPosition + forward * distance;
-                }
-                float scale = config.modelRoot != null ? config.modelRoot.lossyScale.x : 1;
-                float distanceDuration = Mathf.Clamp(
-                    Vector3.Distance(startPosition, targetPosition) / scale * 0.0012f, 0.3f, 1.5f);
-                // 大角度转向需要更长的时间，尤其是从码头返回城市远景。
-                // 五次缓动的峰值速度为平均值的 1.875 倍，按峰值 90 度/秒安排时长。
-                float rotationDuration = Quaternion.Angle(startRotation, targetRotation) * 1.875f / 90f;
-                duration = Mathf.Max(distanceDuration, rotationDuration);
+                transitionDuration = MotionSettings.CrossfadeDuration;
+                return BeginReducedFocusChange(focusCamera, brain, renderedCamera);
+            }
+            Vector3 startInterest = Unity(plan.A);
+            Vector3 targetInterest = Unity(plan.B);
+            targetPosition = Unity(plan.End);
+            targetRotation = Unity(plan.EndRotation);
+            path = plan.Path;
+            duration = plan.Duration;
+            transitionDuration = duration;
+            _activeFocusPath = path;
+            if (durationOverride.HasValue)
+            {
+                if (durationOverride.Value <= 0f || float.IsNaN(durationOverride.Value) || float.IsInfinity(durationOverride.Value))
+                    throw new System.ArgumentOutOfRangeException(nameof(durationOverride));
+                duration = durationOverride.Value;
                 transitionDuration = duration;
             }
-            _activeFocusPath = path;
 
             if ((targetPosition - targetInterest).sqrMagnitude < 0.0001f
                 || (startPosition - startInterest).sqrMagnitude < 0.0001f)
@@ -1313,7 +1287,7 @@ namespace SSNoir
             _focusArcStartPosition = startPosition;
             _focusArcStartRotation = startRotation;
 
-            // The arc *is* the transition, so the brain must not blend on top of it.
+            // This manual travel is the transition; the brain must not blend on top of it.
             // Cutting is invisible: the camera starts exactly where the rendered view is.
             _focusArcSavedBlend = brain.m_DefaultBlend;
             brain.m_DefaultBlend = new Cinemachine.CinemachineBlendDefinition(
@@ -1499,9 +1473,26 @@ namespace SSNoir
             return EaseFocusTravel(t);
         }
 
-        private float EaseFocusTravel(float t) => _activeFocusPath == FocusTravelPath.DirectApproach
-            ? t * t * t * (t * (t * 6f - 15f) + 10f)
-            : t * t * (3f - 2f * t);
+        private static System.Numerics.Vector3 Numeric(Vector3 v) => new System.Numerics.Vector3(v.x, v.y, v.z);
+        private static System.Numerics.Quaternion Numeric(Quaternion q) => new System.Numerics.Quaternion(q.x, q.y, q.z, q.w);
+        private static Vector3 Unity(System.Numerics.Vector3 v) => new Vector3(v.X, v.Y, v.Z);
+        private static Quaternion Unity(System.Numerics.Quaternion q) => new Quaternion(q.X, q.Y, q.Z, q.W);
+
+        private float EaseFocusTravel(float t) => FocusTravelMath.Ease(t, _activeFocusPath);
+
+        private static void SampleDirectApproachPose(
+            Vector3 startPosition, Vector3 targetPosition,
+            Vector3 startInterest, Vector3 targetInterest, float eased,
+            out Vector3 interest, out Vector3 position)
+        {
+            FocusTravelMath.DirectPosition(Numeric(startPosition), Numeric(targetPosition),
+                Numeric(startInterest), Numeric(targetInterest), eased, out var i, out var p);
+            interest = Unity(i);
+            position = Unity(p);
+        }
+
+        private static Quaternion AimedAt(Vector3 position, Vector3 interest, Quaternion aim, Quaternion fallbackRotation)
+            => Unity(FocusTravelMath.AimedAt(Numeric(position), Numeric(interest), Numeric(aim), Numeric(fallbackRotation)));
 
         private void ApplyFocusArcPose(float eased)
         {
@@ -1513,35 +1504,56 @@ namespace SSNoir
             // centre. Between two orbit buildings the centre walks from one pivot to the
             // other; between two pan shots both centres are ground points and the whole
             // thing collapses back into a straight slide.
-            Vector3 interest = Vector3.Lerp(_focusArcStartInterest, _focusArcTargetInterest, eased);
-            float yaw = Mathf.LerpAngle(_focusArcStartYaw, _focusArcTargetYaw, eased);
-            float pitch = Mathf.Lerp(_focusArcStartPitch, _focusArcTargetPitch, eased);
-            float radius = Mathf.Lerp(_focusArcStartRadius, _focusArcTargetRadius, eased);
-
-            if (_focusArcInputMode == CameraDragMode.Orbit)
+            Vector3 interest;
+            Vector3 position;
+            if (_activeFocusPath == FocusTravelPath.DirectApproach)
             {
-                yaw += _focusArcYawOffset;
-                pitch += _focusArcPitchOffset;
+                SampleDirectApproachPose(
+                    _focusArcStartPosition, _focusArcTargetPosition,
+                    _focusArcStartInterest, _focusArcTargetInterest,
+                    eased, out interest, out position);
+
+                if (_focusArcInputMode == CameraDragMode.Orbit)
+                {
+                    // 玩家转向偏置把移动中的镜头绕其移动注视点转过去：落点仍是曲线上的
+                    // 一点，只是换了方位。注视点保持原样，偏置写在机位上。
+                    ToPolar(position - interest, out float directYaw, out float directPitch, out float directRadius);
+                    position = interest + FromPolar(
+                        directYaw + _focusArcYawOffset, directPitch + _focusArcPitchOffset, directRadius);
+                }
+                else
+                {
+                    // Moving both the camera and its interest point preserves the authored
+                    // framing while the whole travelling shot slides across the ground plane.
+                    interest += _focusArcPanOffset;
+                    position += _focusArcPanOffset;
+                }
             }
             else
             {
-                // Moving both the camera and its interest point preserves the authored
-                // framing while the whole travelling shot slides across the ground plane.
-                interest += _focusArcPanOffset;
-            }
+                interest = Vector3.Lerp(_focusArcStartInterest, _focusArcTargetInterest, eased);
+                float yaw = Mathf.LerpAngle(_focusArcStartYaw, _focusArcTargetYaw, eased);
+                float pitch = Mathf.Lerp(_focusArcStartPitch, _focusArcTargetPitch, eased);
+                float radius = Mathf.Lerp(_focusArcStartRadius, _focusArcTargetRadius, eased);
 
-            Vector3 position = interest + FromPolar(yaw, pitch, radius);
-            if (_activeFocusPath == FocusTravelPath.DirectApproach)
-            {
-                // 线性推进 + 少量抬升，不绕建筑扫过；同样保留途中手势偏移。
-                Vector3 direct = Vector3.Lerp(_focusArcStartPosition, _focusArcTargetPosition, eased);
-                direct.y += Mathf.Sin(Mathf.PI * eased) * Vector3.Distance(_focusArcStartPosition, _focusArcTargetPosition) * .04f;
                 if (_focusArcInputMode == CameraDragMode.Orbit)
                 {
-                    ToPolar(direct - interest, out float directYaw, out float directPitch, out float directRadius);
-                    position = interest + FromPolar(directYaw + _focusArcYawOffset, directPitch + _focusArcPitchOffset, directRadius);
+                    yaw += _focusArcYawOffset;
+                    pitch += _focusArcPitchOffset;
                 }
-                else position = direct + _focusArcPanOffset;
+                else
+                {
+                    interest += _focusArcPanOffset;
+                }
+
+                Vector3 startPolar = new Vector3(_focusArcStartYaw, _focusArcStartPitch, _focusArcStartRadius);
+                Vector3 endPolar = new Vector3(_focusArcTargetYaw, _focusArcTargetPitch, _focusArcTargetRadius);
+                position = Unity(FocusTravelMath.ArcPosition(Numeric(_focusArcStartInterest),
+                    Numeric(_focusArcTargetInterest), Numeric(startPolar), Numeric(endPolar), eased));
+                if (_focusArcInputMode == CameraDragMode.Orbit)
+                    position = interest + FromPolar(yaw, pitch, radius);
+                else
+                    position += _focusArcPanOffset;
             }
 
             if (_focusArcInputMode == CameraDragMode.Static && _focusArcInputConfig != null)
@@ -1552,12 +1564,9 @@ namespace SSNoir
             // offset rather than the world rotation is what keeps the subject parked in
             // the frame for the whole sweep instead of drifting out and swinging back in.
             Quaternion aim = Quaternion.Slerp(_focusArcStartAim, _focusArcTargetAim, eased);
-            Vector3 toInterest = interest - position;
-            // 位置与注视点共同推进，每一帧都看向移动的主体（与 fog-neon 相同）。
-            // AimOffset 保留两端原有构图；仅在注视点与机位重合时插值端点朝向。
-            Quaternion rotation = toInterest.sqrMagnitude < 0.0001f
-                ? Quaternion.Slerp(_focusArcStartRotation, _focusArcTargetRotation, eased)
-                : Quaternion.LookRotation(toInterest, Vector3.up) * aim;
+            Quaternion rotation = AimedAt(
+                position, interest, aim,
+                Quaternion.Slerp(_focusArcStartRotation, _focusArcTargetRotation, eased));
 
             _focusArcCamera.transform.SetPositionAndRotation(position, rotation);
             SetLens(
@@ -1727,81 +1736,17 @@ namespace SSNoir
             camera.m_Lens = lens;
         }
 
-        // 同一对探索机位交换方向时得到同一种路径。
-        // Pan ↔ Pan 保留编排弧线；有 Orbit 的一端才允许从当前一侧直接靠近。
-        // Static 有自己的编排构图，不借用直接靠近策略。
-        private FocusTravelPath ResolveExplorationPath(
-            Cinemachine.CinemachineVirtualCamera? source,
-            Cinemachine.CinemachineVirtualCamera destination)
-        {
-            var from = source != null ? source.GetComponent<SSNoirVirtualCameraConfig>() : null;
-            var to = destination.GetComponent<SSNoirVirtualCameraConfig>();
-            if (from == null || to == null
-                || from.dragMode == CameraDragMode.Static || to.dragMode == CameraDragMode.Static)
-                return FocusTravelPath.AuthoredArc;
-            return from.dragMode == CameraDragMode.Orbit || to.dragMode == CameraDragMode.Orbit
-                ? ExplorationPath : FocusTravelPath.AuthoredArc;
-        }
-
-        /// <summary>
-        /// Finds what each end of the trip is looking at. An orbit shot says so itself —
-        /// its pivot. A pan shot is looking at the ground, so its interest point is where
-        /// its centre ray lands on the plane the trip is being framed against (the orbit
-        /// end's pivot height, or the world floor when neither end orbits). A ray that
-        /// never reaches that plane borrows the other end's point, which turns the trip
-        /// into a plain single-centre arc.
-        /// </summary>
-        private bool TryResolveInterestPoints(
-            Cinemachine.CinemachineVirtualCamera destination,
-            Vector3 destinationPosition,
-            Quaternion destinationRotation,
-            Cinemachine.CinemachineVirtualCamera? source,
-            Vector3 sourcePosition,
-            Quaternion sourceRotation,
-            Vector3? sourceInterestOverride,
-            out Vector3 sourceInterest,
-            out Vector3 destinationInterest)
-        {
-            sourceInterest = sourceInterestOverride ?? Vector3.zero;
-            bool destinationOrbits = TryGetOrbitPivotPoint(destination, out destinationInterest);
-            bool sourceOrbits = sourceInterestOverride == null
-                && source != null
-                && TryGetOrbitPivotPoint(source, out sourceInterest);
-
-            float planeHeight = destinationOrbits
-                ? destinationInterest.y
-                : (sourceOrbits || sourceInterestOverride != null ? sourceInterest.y : 0f);
-
-            bool destinationHasInterest = destinationOrbits || TryGroundInterest(
-                destinationPosition, destinationRotation * Vector3.forward,
-                planeHeight, out destinationInterest);
-            bool sourceHasInterest = sourceInterestOverride != null
-                || sourceOrbits
-                || TryGroundInterest(
-                    sourcePosition, sourceRotation * Vector3.forward,
-                    planeHeight, out sourceInterest);
-
-            // A very high overview camera can hit the ground well beyond the finite
-            // distance we accept as a meaningful subject. Resolve both ends before
-            // deciding: if the close place shot has a valid point, the overview borrows
-            // it in either direction. The old destination-first early return made the
-            // same world/place pair arc on entry but fall back to Cinemachine on exit.
-            if (!destinationHasInterest && !sourceHasInterest)
-                return false;
-            if (!destinationHasInterest)
-                destinationInterest = sourceInterest;
-            if (!sourceHasInterest)
-                sourceInterest = destinationInterest;
-
-            return true;
-        }
-
-        private bool TryGetOrbitPivotPoint(Cinemachine.CinemachineVirtualCamera camera, out Vector3 point)
+        private bool TryGetTravelInterest(Cinemachine.CinemachineVirtualCamera camera, out Vector3 point)
         {
             point = Vector3.zero;
             var config = camera.GetComponent<SSNoirVirtualCameraConfig>();
-            if (config == null || config.dragMode != CameraDragMode.Orbit)
-                return false;
+            if (config == null) return false;
+            if (config.focusTarget != null)
+            {
+                point = config.focusTarget.position;
+                return true;
+            }
+            if (config.dragMode != CameraDragMode.Orbit) return false;
 
             var pivot = GetOrbitPivot(camera);
             if (pivot == null)
@@ -1811,46 +1756,19 @@ namespace SSNoir
             return true;
         }
 
-        private static bool TryGroundInterest(Vector3 position, Vector3 forward, float planeHeight, out Vector3 point)
-        {
-            const float MaxInterestDistance = 500f;
-
-            point = Vector3.zero;
-            var plane = new Plane(Vector3.up, new Vector3(0f, planeHeight, 0f));
-            if (!plane.Raycast(new Ray(position, forward), out float distance) || distance > MaxInterestDistance)
-                return false;
-
-            point = position + forward.normalized * distance;
-            return true;
-        }
-
         private static void ToPolar(Vector3 offset, out float yaw, out float pitch, out float radius)
         {
-            radius = offset.magnitude;
-            Vector3 horizontal = new Vector3(offset.x, 0f, offset.z);
-            yaw = horizontal.sqrMagnitude < 0.0001f ? 0f : Mathf.Atan2(offset.x, offset.z) * Mathf.Rad2Deg;
-            pitch = Mathf.Atan2(offset.y, horizontal.magnitude) * Mathf.Rad2Deg;
+            var polar = FocusTravelMath.Polar(Numeric(offset));
+            yaw = polar.X;
+            pitch = polar.Y;
+            radius = polar.Z;
         }
 
         private static Vector3 FromPolar(float yaw, float pitch, float radius)
-        {
-            float yawRadians = yaw * Mathf.Deg2Rad;
-            float pitchRadians = pitch * Mathf.Deg2Rad;
-            float horizontalRadius = radius * Mathf.Cos(pitchRadians);
-            return new Vector3(
-                horizontalRadius * Mathf.Sin(yawRadians),
-                radius * Mathf.Sin(pitchRadians),
-                horizontalRadius * Mathf.Cos(yawRadians));
-        }
+            => Unity(FocusTravelMath.FromPolar(new System.Numerics.Vector3(yaw, pitch, radius)));
 
         private static Quaternion AimOffset(Vector3 position, Quaternion rotation, Vector3 pivot)
-        {
-            Vector3 toPivot = pivot - position;
-            if (toPivot.sqrMagnitude < 0.0001f)
-                return Quaternion.identity;
-
-            return Quaternion.Inverse(Quaternion.LookRotation(toPivot, Vector3.up)) * rotation;
-        }
+            => Unity(FocusTravelMath.AimOffset(Numeric(position), Numeric(rotation), Numeric(pivot)));
 
         private void NavigateToWorldPoint(Vector3 targetWorldPosition)
         {

@@ -3,7 +3,7 @@ import gzip,json
 from pathlib import Path
 import runpy
 H=runpy.run_path(str(Path(__file__).with_name('mechanism-study.py')))
-ROOT=H['ROOT'];source=ROOT/'docs/实验/机制研究/作者逐步';target=ROOT/'docs/实验/机制研究/作者回归'
+ROOT=H['ROOT'];source=ROOT/'experiments/抽象决策关系研究/作者逐步';target=ROOT/'experiments/抽象决策关系研究/作者回归'
 if target.exists():raise FileExistsError(target)
 target.mkdir()
 for path in sorted(source.glob('*.json.gz')):

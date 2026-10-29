@@ -1,0 +1,70 @@
+{
+  "source": "/Users/usr/Documents/play/ssnoir/city-box/build/city/city_build.blend",
+  "source_sha256": "2acf1f5d474595aca5798d3e64f1f312d489a4c5c05bf3a581f50a9113ef9d61",
+  "blender_version": "5.2.2 LTS",
+  "review_script": "/Users/usr/Documents/play/ssnoir/tools/camera-review/review.py",
+  "review_script_sha256": "f49a68ac360afd4499e198ac30f0ebabe80a80661cca4d2029859768353a60ea",
+  "shared_math": "/Users/usr/Documents/play/ssnoir/UnityClient/Assets/Scripts/Runtime/FocusTravelMath.cs",
+  "shared_math_sha256": "40d1dea7a61e5d329cf68c4132967f6cfda274da08ffd26d5c21515dc6811491",
+  "selected_camera_sets": {
+    "world_to_harbor": [
+      "Camera_世界",
+      "Camera_码头"
+    ],
+    "stage_internal": [
+      "Camera_别给他们想要的",
+      "Camera_别给他们想要的-叫喊",
+      "Camera_别给他们想要的-退让"
+    ]
+  },
+  "preparation_seconds": 0.38230175100034103,
+  "preparation": {
+    "world_to_harbor": {
+      "kept_cameras": [
+        "Camera_世界",
+        "Camera_码头"
+      ],
+      "removed_camera_count": 61,
+      "evaluated_scene_objects": 7687
+    },
+    "stage_internal": {
+      "kept_cameras": [
+        "Camera_别给他们想要的",
+        "Camera_别给他们想要的-叫喊",
+        "Camera_别给他们想要的-退让"
+      ],
+      "removed_camera_count": 60,
+      "evaluated_scene_objects": 7688
+    }
+  },
+  "runs": [
+    {
+      "label": "world_to_harbor",
+      "command": [
+        "runpy.run_path",
+        "/Users/usr/Documents/play/ssnoir/tools/camera-review/review.py",
+        "--out",
+        "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/001-fixed/world_to_harbor",
+        "--dotnet",
+        "/usr/local/share/dotnet/dotnet"
+      ],
+      "returncode": 0,
+      "seconds": 5.761669125000481,
+      "log": null
+    },
+    {
+      "label": "stage_internal",
+      "command": [
+        "runpy.run_path",
+        "/Users/usr/Documents/play/ssnoir/tools/camera-review/review.py",
+        "--out",
+        "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/001-fixed/stage_internal",
+        "--dotnet",
+        "/usr/local/share/dotnet/dotnet"
+      ],
+      "returncode": 0,
+      "seconds": 10.564664750010706,
+      "log": null
+    }
+  ]
+}

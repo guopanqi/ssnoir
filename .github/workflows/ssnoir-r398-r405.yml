@@ -6,7 +6,7 @@ on:
     paths:
       - '.github/workflows/ssnoir-r398-r405.yml'
       - 'tools/content-validator/experiments/r398_r405_script_capacity.py'
-      - 'docs/实验/机制研究/批次/R398-R405-自动委托不等于写规则/研究记录.md'
+      - 'experiments/抽象决策关系研究/批次/R398-R405-自动委托不等于写规则/研究记录.md'
 permissions:
   contents: read
 jobs:

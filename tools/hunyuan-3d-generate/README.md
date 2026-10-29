@@ -49,4 +49,4 @@ JSON
 python3 tools/hunyuan-3d-generate/generate.py --request request.json --dry-run
 ```
 
-输出模型仍是候选资产。必须按 `create-3d-assets` 的网格质量门检查轮廓、缺损、表面噪声和拓扑风险，不能直接进入 CityBox 或 Unity。
+输出模型仍是候选资产。必须按 `make-3d-asset` 的网格质量门检查轮廓、缺损、表面噪声和拓扑风险，不能直接进入 CityBox 或 Unity。

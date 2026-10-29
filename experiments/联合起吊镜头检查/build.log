@@ -1,0 +1,45 @@
+OUTLINE| 联合起吊     w=0.02m 共享线=0 壳=6 暗线=48 远景=无 内部=125
+TIMING| partial_prefabs 21.082s
+TIMING| export City.fbx 6.239s
+TIMING| export 联合起吊.fbx 31.616s
+BUILD| partial=联合起吊 total=78.386s; 其他地点与城市填充复用基线
+PUBLISH| ! 以下 Anchor 在当前 Scheme 中没有同名字符串（未阻断）:
+  丈夫@双目标跟拍
+  会面女子@双目标跟拍
+  保险公司
+  公园
+  剧院-中央台
+  剧院-内环
+  剧院-外圈
+  勒索信-散钞-巷口
+  勒索信-散钞-货栈区
+  勒索信-散钞-邮局后街
+  双目标跟拍-门口
+  夜莺@首演之夜
+  尼尔@双目标跟拍
+  报社-旧报库
+  桥廊公寓
+  照相馆
+  码头-巷口
+  码头居民区-上层桥廊
+  码头居民区-东侧回廊
+  码头居民区-东侧门廊
+  码头居民区-西侧楼梯
+  窗台
+  货运公司-门口
+  雕像
+  雨夜同行-住处
+  首演之夜-七号门
+  首演之夜-中央台
+  首演之夜-侧台
+  首演之夜-化妆间
+  首演之夜-后台
+  首演之夜-后巷
+  首演之夜-池座
+  首演之夜-灯桥
+  首演之夜-环廊
+  首演之夜-边门
+PUBLISH| partial=联合起吊
+PUBLISH| /Users/usr/Documents/play/ssnoir/UnityClient/Assets/Resources/Models/Environment/City.fbx
+PUBLISH| sha256=94eb88bdc7127830d8aa22dfddfd6cab053fc4563e858b75a262979250de1f9f
+PUBLISH| prefabs=33 anchors=167 places=30 -> /Users/usr/Documents/play/ssnoir/UnityClient/Assets/Resources/City/Places

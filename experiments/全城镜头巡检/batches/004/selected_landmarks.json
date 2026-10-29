@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "scope": "仅检查世界PanBounds两个对角可达起点至三处Orbit目标主机位，共6条单向入场路线；完整City装配。",
+  "places": [
+    {"place": "布告栏", "root": "布告栏", "camera": "Camera_布告栏"},
+    {"place": "老街酒馆", "root": "老街酒馆", "camera": "Camera_老街酒馆"},
+    {"place": "货运公司", "root": "货运公司", "camera": "Camera_货运公司"}
+  ]
+}

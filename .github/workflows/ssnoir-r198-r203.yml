@@ -6,7 +6,7 @@ on:
     paths:
       - '.github/workflows/ssnoir-r198-r203.yml'
       - 'tools/content-validator/experiments/r198_r203_rule_switching.py'
-      - 'docs/实验/机制研究/批次/R198-R203-规则编辑的退化/研究记录.md'
+      - 'experiments/抽象决策关系研究/批次/R198-R203-规则编辑的退化/研究记录.md'
 permissions:
   contents: read
 jobs:

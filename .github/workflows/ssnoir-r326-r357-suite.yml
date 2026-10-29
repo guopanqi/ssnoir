@@ -5,12 +5,12 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/ssnoir-r326-r357-suite.yml'
-      - 'docs/实验/机制研究/自主研究记忆.json'
-      - 'docs/实验/机制研究/当前状态.md'
-      - 'docs/实验/机制研究/研究队列.md'
-      - 'docs/实验/机制研究/批次/R326-R357-跨机制质量审计/**'
-      - 'docs/实验/机制研究/批次/R334-R341-位置改变合法行动/参与者卡片.md'
-      - 'docs/实验/机制研究/批次/R350-R357-自主贡献与等待观察/参与者卡片.md'
+      - 'experiments/抽象决策关系研究/自主研究记忆.json'
+      - 'experiments/抽象决策关系研究/当前状态.md'
+      - 'experiments/抽象决策关系研究/研究队列.md'
+      - 'experiments/抽象决策关系研究/批次/R326-R357-跨机制质量审计/**'
+      - 'experiments/抽象决策关系研究/批次/R334-R341-位置改变合法行动/参与者卡片.md'
+      - 'experiments/抽象决策关系研究/批次/R350-R357-自主贡献与等待观察/参与者卡片.md'
       - 'tools/content-validator/experiments/r326_r333_action_seals_evidence.py'
       - 'tools/content-validator/experiments/r334_r341_position_action_rights.py'
       - 'tools/content-validator/experiments/r342_r349_renegotiation.py'
@@ -46,7 +46,7 @@ jobs:
           assert data[1]['R334_stable_target']['best']=='3'
           assert data[2]['R342_two_round_commitment']['optimal']=='17/4'
           assert data[3]['R350_main_partial_information']=='5'
-          memo=json.loads(Path('docs/实验/机制研究/自主研究记忆.json').read_text())
+          memo=json.loads(Path('experiments/抽象决策关系研究/自主研究记忆.json').read_text())
           assert memo['totalArchivedRounds']>=302 and memo['roundsSinceCalibration']>=184
           assert memo['totalArchivedRounds']==118+memo['roundsSinceCalibration']
           assert sum(x['rounds'] for x in memo['history'])==memo['roundsSinceCalibration']
@@ -58,7 +58,7 @@ jobs:
           set -euo pipefail
           python3 - <<'PY'
           from pathlib import Path
-          root=Path('docs/实验/机制研究/批次')
+          root=Path('experiments/抽象决策关系研究/批次')
           left=(root/'R334-R341-位置改变合法行动/参与者卡片.md').read_text()
           shared=(root/'R350-R357-自主贡献与等待观察/参与者卡片.md').read_text()
           key=(root/'R326-R357-跨机制质量审计/研究员纸面规约.md').read_text()

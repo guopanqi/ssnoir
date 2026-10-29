@@ -405,7 +405,7 @@ Paper 底、PaperInk 文字、硬投影偏移 (5,6) 黑 @ 50%。叙事物件（�
 
 ### 持续维护的视觉设计稿
 
-[UI 设计稿](../docs/UI设计稿/index.html) 为整体 UI 的可交互视觉参考，逐步覆盖全部界面。主强调色以设计稿 sRGB `#E8C35A` 为准，Unity Linear 项目在颜色令牌定义处转换一次；失败与压力红为 `#E83323`。
+[UI 设计稿](../docs/制作/UI设计稿/index.html) 为整体 UI 的可交互视觉参考，逐步覆盖全部界面。主强调色以设计稿 sRGB `#E8C35A` 为准，Unity Linear 项目在颜色令牌定义处转换一次；失败与压力红为 `#E83323`。
 
 卷宗页面及右上角 pin 的 Clock 尺寸、宽度和换行由 DossierPanelDrawer 独立控制，不跟随场景 Clock 放大；仅复用图形样式和颜色。
 

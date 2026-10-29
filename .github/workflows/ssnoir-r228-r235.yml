@@ -6,7 +6,7 @@ on:
     paths:
       - '.github/workflows/ssnoir-r228-r235.yml'
       - 'tools/content-validator/experiments/r228_r235_dynamic_operator_order.py'
-      - 'docs/实验/机制研究/批次/R228-R235-中间反馈重排操作/研究记录.md'
+      - 'experiments/抽象决策关系研究/批次/R228-R235-中间反馈重排操作/研究记录.md'
 permissions:
   contents: read
 jobs:

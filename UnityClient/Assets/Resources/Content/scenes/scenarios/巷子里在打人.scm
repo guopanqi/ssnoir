@@ -73,20 +73,21 @@
 (define (check-victory!)
   (if (and (not finished?) (all-down?))
       (finish! 'success "三个人都倒了"
-        "最后一个人撑着墙退出巷子。靠墙那个抹掉嘴角的血，自己站了起来。")
+        "三个打手躺在巷子里。靠墙那个抹掉嘴角的血，自己站了起来。")
       #f))
 
-(define (hit-enemy! life amount down-line)
+(define (hit-enemy! name life amount)
   (if (life 'empty?)
       (error "巷子里在打人：试图攻击已经退场的人")
       #t)
   (life 'advance! (- amount))
   (if (life 'empty?)
-      (play-bubble! (line "世界" down-line))
+      (play-motion! (string-append "巷子里在打人/击倒" name) "倒地"
+        (string-append "巷战-" name))
       #f)
   (check-victory!))
 
-(define (enemy-node title subtitle life attack down-line)
+(define (enemy-node title subtitle life attack)
   ;; 一人一锚：卡钉在场上对应人形；生命/出手钟挂在这张人卡上，不另漂。
   (node title
     :anchor title
@@ -98,22 +99,22 @@
       ;; 代价当场结清，不改变"他还有几回合出手"这个玩家正在算的数。
       (outcome (lambda ()
           (spend-actor-composure! 'player 1)))
-      (outcome (lambda () (hit-enemy! life 1 down-line)))
-      (outcome (lambda () (hit-enemy! life 2 down-line))))))
+      (outcome (lambda () (hit-enemy! title life 1)))
+      (outcome (lambda () (hit-enemy! title life 2))))))
 
 ;; 卡就是这个人。标题是他的名字，不是"对付他"——对方回合里说话、出拳、掉血的都是这张卡。
 ;; 三个人的生命钟都叫"生命"：钟的身份靠它挂在谁的卡上，不靠标签里再写一遍名字。
 (define (node-coat)
   (enemy-node "皮夹克" "个子最大，挨打后仍能站住"
-    coat-life coat-attack "皮夹克撞上砖墙，顺着墙根滑了下去。"))
+    coat-life coat-attack))
 
 (define (node-hat)
   (enemy-node "毡帽" "出手最快，已经向你走过来"
-    hat-life hat-attack "毡帽掉在水沟里。他贴着墙，没有再起来。"))
+    hat-life hat-attack))
 
 (define (node-sleeves)
   (enemy-node "卷袖子" "脚步快，但他不经打"
-    sleeves-life sleeves-attack "卷袖子捂住鼻子，跌跌撞撞地退到了巷口。"))
+    sleeves-life sleeves-attack))
 
 (define (standing? life) (not (life 'empty?)))
 
@@ -125,15 +126,16 @@
 
 ;; 一个人出拳，自成一条规则、自成一拍：他开口，拳头落下，你的冷静跟着掉，他的钟重新拉满。
 ;; 谁在动不用写——他的出手钟变了、他说了话，客户端就知道亮哪张卡。
-(define (define-strike! name life attack damage say attack-line)
+(define (define-strike! name life attack damage say)
   (define-opponent-rule (string-append name "出手")
     (lambda () (and (not finished?) (standing? life) (attack 'empty?)))
     (lambda ()
       (play-bubble! (line name say))
       ;; 出手之后重新拉满：下一次又要等这么久。
       (attack 'set! (attack 'max))
-      (spend-actor-composure! 'player damage)
-      (play-bubble! (line "世界" attack-line)))))
+      (play-motion! (string-append "巷子里在打人/击倒" name) "出拳"
+        (string-append "巷战还击-" name))
+      (spend-actor-composure! 'player damage))))
 
 (define (on-scenario-enter)
   (set! finished? #f)
@@ -149,10 +151,13 @@
   (sleeves-life 'load! sleeves-life-max)
   (sleeves-attack 'load! 2)
   (play-dialogue!
-    (line "世界" "酒馆侧墙那条巷子。三个人围着一个，靠墙那个已经不还手了。")
+    (line "世界" "酒馆侧墙那条巷子。三个人把艾迪堵在里面，他已经不还手了。")
     (line "打人的" "不是说好第四回合吗。")
-    (line "打人的" "第四回合。你他妈数得清吗。")
-    (line "世界" "你走进去。戴毡帽的先转过身，另外两个才把目光从地上移开。")))
+    (line "打人的" "第四回合。你他妈数得清吗。"))
+  (play-motion! "巷子里在打人/开场" "围殴" "巷战-开场")
+  (play-dialogue!
+    (line "尼尔" "够了。")
+    (line "世界" "你站在巷口这一侧。三个打手转向你，艾迪仍靠在他们身后的墙边。")))
 
 ;; ── 对方回合 ─────────────────────────────────────
 ;; 规则按书写顺序一条一拍：先是三个人一起逼近（钟各走一格），然后倒计时到零的人依次出手
@@ -167,16 +172,13 @@
     (approach! coat-life coat-attack)))
 
 (define-strike! "毡帽" hat-life hat-attack 1
-  "看哪儿呢。"
-  "毡帽从侧面撞进来，肘子顶在你的肋下。")
+  "看哪儿呢。")
 
 (define-strike! "卷袖子" sleeves-life sleeves-attack 1
-  "转过来。"
-  "卷袖子趁你回头，一拳砸在你的耳根。")
+  "转过来。")
 
 (define-strike! "皮夹克" coat-life coat-attack 3
-  "站好了。"
-  "皮夹克迎面一拳，你的半边身子都麻了。")
+  "站好了。")
 
 (define-opponent-rule "艾迪撑不住了"
   (lambda () (not finished?))

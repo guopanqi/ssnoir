@@ -6,7 +6,7 @@ on:
     paths:
       - '.github/workflows/ssnoir-r334-r341.yml'
       - 'tools/content-validator/experiments/r334_r341_position_action_rights.py'
-      - 'docs/实验/机制研究/批次/R334-R341-位置改变合法行动/研究记录.md'
+      - 'experiments/抽象决策关系研究/批次/R334-R341-位置改变合法行动/研究记录.md'
 permissions:
   contents: read
 jobs:

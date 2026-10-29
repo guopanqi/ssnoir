@@ -13,7 +13,6 @@
       ;; 人物剧情先处理；第二幕矛盾通过日常搬运铺垫。
       (let ((story-played? (if (第二幕 'eddie-on-dock?)
                               (第一幕 'on-work! "码头" grade) #f)))
-        (第二幕 'on-dock-work!)
         ;; 没有第一幕人物对白占用这次失败演出时，艾迪每天可救场一次。
         (if (and (eq? grade '坏) (not story-played?) (not (= help-day world-day))
                  (第二幕 'eddie-on-dock?))

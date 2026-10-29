@@ -37,7 +37,7 @@ Scheme 的 `node` 第一个参数是稳定的 `Id`；`:name` 是玩家看到的�
 - **要知道现有哪些 Anchor 可用，列模型，不要翻 `Main.unity`。** 锚点是 Blender 那头的
   `Anchor_<节点名>` 空节点，导入时由 `UnityClient/Assets/Editor/Pipeline/SSNoirModelImporter.cs`
   挂上 `NodeAnchor`；场景文件里只留了几个特例，照它判断会得出「这个锚点不存在」的错误结论。
-  命名契约见 [create-3d-assets/references/asset-contract.md](../create-3d-assets/references/asset-contract.md)。
+  命名契约见 [make-scene/references/runtime-contract.md](../make-scene/references/runtime-contract.md)。
   列出全部可用锚点：
 
   ```bash
@@ -77,6 +77,12 @@ Scheme 的 `node` 第一个参数是稳定的 `Id`；`:name` 是玩家看到的�
 耗尽把玩家锁死。有限期委托接受后可以因到期失败，不因“已经答应”强制阻止换日，也不自动添加
 主动退出按钮。是否允许撤回由具体内容决定；经理演出服委托只有交付或逾期失败。
 声明只读真实剧情状态，完成对应事件后解除。
+
+### 不擅自添加中途退出或认输入口
+
+除非用户明确要求，不得自行新增「暂且离开」「放弃调查」「认输」「撤退」等中途退出Scenario的行动、按钮或结算分支。
+Scenario没有整场倒计时，或只剩困难的保底行动，不构成添加退出入口的理由。窗口结束只按内容规则关闭对应机会；
+不要擅自把它改成退出或失败。引擎要求的倒下处理与Scenario本身已有的胜负结算仍应正常实现。
 
 ### 手头的事记录已知片段，而不只是待执行动作
 

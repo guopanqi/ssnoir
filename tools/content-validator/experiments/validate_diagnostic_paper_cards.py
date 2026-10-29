@@ -13,7 +13,7 @@ import random
 from pathlib import Path
 
 HERE=Path(__file__).resolve().parent
-RESEARCH=Path(__file__).resolve().parents[3]/"docs/实验/机制研究/批次/R278-R285-诊断结构迁移与强负例"
+RESEARCH=Path(__file__).resolve().parents[3]/"experiments/抽象决策关系研究/批次/R278-R285-诊断结构迁移与强负例"
 CARDS=RESEARCH/"参与者卡片.md"
 FACILITATOR=RESEARCH/"研究员规约.md"
 PUBLIC_NAME=("第一组","第二组","第三组")

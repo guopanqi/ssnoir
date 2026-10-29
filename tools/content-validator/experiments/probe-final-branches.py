@@ -95,7 +95,7 @@ def run(scene, policy, seed):
         with tempfile.TemporaryDirectory(prefix='noir-branches-') as scratch:
             raw = Path(scratch) / 'record.json'
             assert send({'command': 'save', 'path': str(raw)})['type'] == 'saved'
-            directory = ROOT / 'docs/实验' / scene / '最终分支记录'
+            directory = ROOT / 'experiments/Scenario候选模式对照' / scene / '最终分支记录'
             directory.mkdir(parents=True, exist_ok=True)
             with gzip.open(directory / f'{policy}-{seed}.json.gz', 'wb') as target:
                 target.write(raw.read_bytes())
@@ -114,4 +114,4 @@ def run(scene, policy, seed):
 if __name__ == '__main__':
     results = [run(scene, policy, seed) for scene, policies in POLICIES.items()
                for policy in policies for seed in (7, 19, 31)]
-    (ROOT / 'docs/实验/最终分支对照.json').write_text(json.dumps(results, ensure_ascii=False, indent=2) + '\n')
+    (ROOT / 'experiments/Scenario候选模式对照/最终分支对照.json').write_text(json.dumps(results, ensure_ascii=False, indent=2) + '\n')

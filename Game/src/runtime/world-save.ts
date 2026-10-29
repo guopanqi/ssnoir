@@ -31,7 +31,7 @@ export class WorldSaveController {
   constructor(state:GameRuntimeState,session:GameScriptSession){this.state=state;this.session=session;}
 
   async capture(settings:Record<string,string|number|boolean>={}):Promise<WorldSaveV1>{
-    if(this.state.getGlobal("location")!=="world")throw new Error("cannot save during an scenario");
+    if(this.state.getGlobal("location")!=="world")throw new Error("cannot save during a scenario");
     if(this.state.hasPendingHospitalization())throw new Error("cannot save during hospitalization");
     const world=await this.session.evaluate(
       '(let ((port (open-output-string))) (write (world-save) port) (get-output-string port))'

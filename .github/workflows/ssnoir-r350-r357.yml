@@ -6,7 +6,7 @@ on:
     paths:
       - '.github/workflows/ssnoir-r350-r357.yml'
       - 'tools/content-validator/experiments/r350_r357_other_contributor.py'
-      - 'docs/实验/机制研究/批次/R350-R357-自主贡献与等待观察/研究记录.md'
+      - 'experiments/抽象决策关系研究/批次/R350-R357-自主贡献与等待观察/研究记录.md'
 permissions:
   contents: read
 jobs:

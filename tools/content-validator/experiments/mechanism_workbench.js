@@ -5,7 +5,7 @@
 const app=window.SSNoirFieldStation;if(!app)throw Error("Research app not initialized");
 const atlas=JSON.parse(document.getElementById("atlas-data").textContent);
 const tasks=JSON.parse(document.getElementById("tasks-data").textContent);
-const SOURCE="https://github.com/guopanqi/ssnoir/blob/main/docs/实验/机制研究/";
+const SOURCE="https://github.com/guopanqi/ssnoir/blob/main/experiments/抽象决策关系研究/";
 const $=id=>document.getElementById(id);
 const make=(p,t,c,v)=>{const e=document.createElement(t);if(c)e.className=c;if(v!==undefined)e.textContent=v;p.appendChild(e);return e};
 const external=s=>/^(https?:|#)/.test(s)?s:new URL(s,SOURCE).href;

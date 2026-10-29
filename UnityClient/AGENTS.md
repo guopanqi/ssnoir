@@ -3,7 +3,7 @@
 本指导文档适用于 `UnityClient` 下的 IMGUI 界面编写。
 
 - 美术 / 视觉风格规范（「墨与纸」Ink & Paper Noir 视觉语言）见 [DESIGN.md](DESIGN.md)。
-- 项目整体架构见 [../docs/ARCHITECTURE.md](../docs/ARCHITECTURE.md)。
+- 项目整体架构见 [../docs/工程/ARCHITECTURE.md](../docs/工程/ARCHITECTURE.md)。
 
 ## UI 绘制与缩放规则
 - UI 边缘锚定必须使用 `UIScale.VW` / `UIScale.VH`，严禁硬编码虚拟分辨率（如 1920/1080）来计算右侧或下方位置。

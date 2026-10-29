@@ -60,7 +60,7 @@ def run(policy, seed):
         with tempfile.TemporaryDirectory(prefix='noir-roof-') as scratch:
             raw = Path(scratch) / 'record.json'
             send({'command': 'save', 'path': str(raw)})
-            directory = ROOT / 'docs/实验/封死退路/对照记录'
+            directory = ROOT / 'experiments/Scenario候选模式对照/封死退路/对照记录'
             directory.mkdir(parents=True, exist_ok=True)
             with gzip.open(directory / f'{policy}-{seed}.json.gz', 'wb') as target:
                 target.write(raw.read_bytes())
@@ -78,5 +78,5 @@ def run(policy, seed):
 if __name__ == '__main__':
     results = [run(policy, seed) for policy in ('始终不封门', '开场封门', '留最后骰保底')
                for seed in (7, 11, 23, 31, 41)]
-    (ROOT / 'docs/实验/封死退路/对照结果.json').write_text(
+    (ROOT / 'experiments/Scenario候选模式对照/封死退路/对照结果.json').write_text(
         json.dumps(results, ensure_ascii=False, indent=2) + '\n')

@@ -6,7 +6,7 @@ on:
     paths:
       - '.github/workflows/ssnoir-r125-r127.yml'
       - 'tools/content-validator/experiments/r125_r127_spatial_social_audit.py'
-      - 'docs/实验/机制研究/批次/R125-R127-空间与证人连带/研究记录.md'
+      - 'experiments/抽象决策关系研究/批次/R125-R127-空间与证人连带/研究记录.md'
 permissions:
   contents: read
 jobs:

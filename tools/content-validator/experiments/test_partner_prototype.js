@@ -7,7 +7,7 @@ const assert=require("node:assert/strict");
 const fs=require("node:fs");
 const vm=require("node:vm");
 const path=require("node:path");
-const file=path.resolve(__dirname,"../../../docs/实验/机制研究/批次/2026-10-13-行动权利与自主他者/试玩.html");
+const file=path.resolve(__dirname,"../../../experiments/抽象决策关系研究/批次/2026-10-13-行动权利与自主他者/试玩.html");
 const html=fs.readFileSync(file,"utf8");
 const scripts=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)];
 assert.equal(scripts.length,1,"standalone study must include one script");

@@ -9,7 +9,7 @@ from pathlib import Path
 import json
 
 ROOT=Path(__file__).resolve().parents[3]
-PORT=ROOT/"docs/实验/机制研究/结构候选20.json"
+PORT=ROOT/"experiments/抽象决策关系研究/结构候选20.json"
 APPROVAL=ROOT/"UnityClient/Assets/Resources/DebugResearchPlaytests.json"
 
 def main():

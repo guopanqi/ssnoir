@@ -1,0 +1,4373 @@
+{
+  "source": "/Users/usr/Documents/play/ssnoir/city-box/build/city/city_build.blend",
+  "source_sha256": "2acf1f5d474595aca5798d3e64f1f312d489a4c5c05bf3a581f50a9113ef9d61",
+  "evaluated_mesh_count": 6658,
+  "geometry_scope": "all evaluated meshes from complete city build; same review.py exclusions for render-hidden, preview, proxy and generated outline meshes; no dynamic/runtime presence filtering",
+  "geometry_routes": [
+    {
+      "from": "Camera_世界",
+      "to": "Camera_尾随取件人",
+      "path": "AuthoredArc",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": []
+    },
+    {
+      "from": "Camera_尾随取件人",
+      "to": "Camera_世界",
+      "path": "AuthoredArc",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": []
+    },
+    {
+      "from": "Camera_世界",
+      "to": "Camera_格兰德酒店",
+      "path": "DirectApproach",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": []
+    },
+    {
+      "from": "Camera_格兰德酒店",
+      "to": "Camera_世界",
+      "path": "AuthoredArc",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": []
+    },
+    {
+      "from": "Camera_世界",
+      "to": "Camera_报社",
+      "path": "DirectApproach",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": []
+    },
+    {
+      "from": "Camera_报社",
+      "to": "Camera_世界",
+      "path": "AuthoredArc",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": []
+    },
+    {
+      "from": "Camera_世界",
+      "to": "Camera_街角咖啡馆",
+      "path": "DirectApproach",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": []
+    },
+    {
+      "from": "Camera_街角咖啡馆",
+      "to": "Camera_世界",
+      "path": "AuthoredArc",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": []
+    },
+    {
+      "from": "Camera_世界",
+      "to": "Camera_码头",
+      "path": "AuthoredArc",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": []
+    },
+    {
+      "from": "Camera_码头",
+      "to": "Camera_世界",
+      "path": "AuthoredArc",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": []
+    },
+    {
+      "from": "Camera_世界",
+      "to": "Camera_三号货栈工棚",
+      "path": "DirectApproach",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": []
+    },
+    {
+      "from": "Camera_三号货栈工棚",
+      "to": "Camera_世界",
+      "path": "AuthoredArc",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": []
+    },
+    {
+      "from": "Camera_世界",
+      "to": "Camera_勒索信",
+      "path": "AuthoredArc",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": []
+    },
+    {
+      "from": "Camera_勒索信",
+      "to": "Camera_世界",
+      "path": "AuthoredArc",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": []
+    },
+    {
+      "from": "Camera_世界",
+      "to": "Camera_货运公司",
+      "path": "DirectApproach",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": []
+    },
+    {
+      "from": "Camera_货运公司",
+      "to": "Camera_世界",
+      "path": "AuthoredArc",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": []
+    },
+    {
+      "from": "Camera_世界",
+      "to": "Camera_剧院",
+      "path": "DirectApproach",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": []
+    },
+    {
+      "from": "Camera_剧院",
+      "to": "Camera_世界",
+      "path": "DirectApproach",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": []
+    },
+    {
+      "from": "Camera_世界",
+      "to": "Camera_警察局",
+      "path": "DirectApproach",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": []
+    },
+    {
+      "from": "Camera_警察局",
+      "to": "Camera_世界",
+      "path": "AuthoredArc",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": []
+    },
+    {
+      "from": "Camera_世界",
+      "to": "Camera_诊所",
+      "path": "DirectApproach",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": []
+    },
+    {
+      "from": "Camera_诊所",
+      "to": "Camera_世界",
+      "path": "AuthoredArc",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": []
+    },
+    {
+      "from": "Camera_世界",
+      "to": "Camera_老街酒馆",
+      "path": "DirectApproach",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": []
+    },
+    {
+      "from": "Camera_老街酒馆",
+      "to": "Camera_世界",
+      "path": "AuthoredArc",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": []
+    },
+    {
+      "from": "Camera_世界",
+      "to": "Camera_码头居民区",
+      "path": "DirectApproach",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": []
+    },
+    {
+      "from": "Camera_码头居民区",
+      "to": "Camera_世界",
+      "path": "DirectApproach",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": []
+    },
+    {
+      "from": "Camera_世界",
+      "to": "Camera_公园",
+      "path": "DirectApproach",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": []
+    },
+    {
+      "from": "Camera_公园",
+      "to": "Camera_世界",
+      "path": "AuthoredArc",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": []
+    },
+    {
+      "from": "Camera_世界",
+      "to": "Camera_家",
+      "path": "DirectApproach",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": []
+    },
+    {
+      "from": "Camera_家",
+      "to": "Camera_世界",
+      "path": "AuthoredArc",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": []
+    },
+    {
+      "from": "Camera_世界",
+      "to": "Camera_布告栏",
+      "path": "DirectApproach",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": []
+    },
+    {
+      "from": "Camera_布告栏",
+      "to": "Camera_世界",
+      "path": "AuthoredArc",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": []
+    },
+    {
+      "from": "Camera_世界",
+      "to": "Camera_雕像",
+      "path": "DirectApproach",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": []
+    },
+    {
+      "from": "Camera_雕像",
+      "to": "Camera_世界",
+      "path": "DirectApproach",
+      "crossfade": false,
+      "crossings": [],
+      "near_plane_hits": []
+    }
+  ],
+  "landmark_body_framing": {
+    "尾随取件人": {
+      "camera": "Camera_尾随取件人",
+      "root_position": [
+        157.0,
+        1.0499999523162842,
+        -188.0
+      ],
+      "world_visible_mesh_count": 19,
+      "world_visible_vertex_count": 152,
+      "largest_exterior_meshes": [
+        {
+          "name": "车道",
+          "dimensions": [
+            73.8107681274414,
+            0.1199999451637268,
+            32.571380615234375
+          ],
+          "projected_area_rank": 2404.1186221817043,
+          "vertices": 8
+        },
+        {
+          "name": "人行道_远.001",
+          "dimensions": [
+            72.95571899414062,
+            0.20000004768371582,
+            30.222137451171875
+          ],
+          "projected_area_rank": 2204.8777672899887,
+          "vertices": 8
+        },
+        {
+          "name": "人行道_近",
+          "dimensions": [
+            72.95571899414062,
+            0.20000004768371582,
+            30.222137451171875
+          ],
+          "projected_area_rank": 2204.8777672899887,
+          "vertices": 8
+        },
+        {
+          "name": "轨道_75",
+          "dimensions": [
+            71.45767211914062,
+            0.07999992370605469,
+            26.106292724609375
+          ],
+          "projected_area_rank": 1865.494905761443,
+          "vertices": 8
+        },
+        {
+          "name": "轨道_-75",
+          "dimensions": [
+            71.45767211914062,
+            0.07999992370605469,
+            26.106292724609375
+          ],
+          "projected_area_rank": 1865.494905761443,
+          "vertices": 8
+        }
+      ],
+      "samples": [
+        {
+          "progress": 0,
+          "camera_position": [
+            1040.0001,
+            960,
+            109.999985
+          ],
+          "focus_interest": [
+            181.75697,
+            0,
+            -201.8473
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.419031611398392,
+                -0.3310590530280611
+              ],
+              "y": [
+                -0.04385627928163964,
+                0.1272021177709536
+              ]
+            },
+            "median_depth": 1321.424868933836
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 0,
+            "external_blockers": {
+              "郊野地面_东": 32
+            }
+          }
+        },
+        {
+          "progress": 0.25,
+          "camera_position": [
+            882.8638,
+            799.3948,
+            167.58943
+          ],
+          "focus_interest": [
+            181.75697,
+            0,
+            -201.8473
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.35952420635227955,
+                -0.2398221553907935
+              ],
+              "y": [
+                -0.03544969289536709,
+                0.1512014981465154
+              ]
+            },
+            "median_depth": 1128.883558687673
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 0,
+            "external_blockers": {
+              "郊野地面_东": 32
+            }
+          }
+        },
+        {
+          "progress": 0.5,
+          "camera_position": [
+            539.2988,
+            465.53757,
+            155.50056
+          ],
+          "focus_interest": [
+            181.75697,
+            0,
+            -201.8473
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.23691387704310007,
+                0.0017167818216303904
+              ],
+              "y": [
+                -0.03005183024666865,
+                0.1950529228945345
+              ]
+            },
+            "median_depth": 694.2877670803762
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 0,
+            "external_blockers": {
+              "城市地面": 27,
+              "B.1251": 3,
+              "街区pad": 2
+            }
+          }
+        },
+        {
+          "progress": 0.75,
+          "camera_position": [
+            270.64185,
+            160.03905,
+            -33.385803
+          ],
+          "focus_interest": [
+            181.75697,
+            0,
+            -201.8473
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.16020313443249382,
+                0.5504339185800639
+              ],
+              "y": [
+                -0.05763970143301046,
+                0.280960499184394
+              ]
+            },
+            "median_depth": 251.2270625314871
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 32,
+            "external_blockers": {}
+          }
+        },
+        {
+          "progress": 1,
+          "camera_position": [
+            194.94006,
+            31.049974,
+            -165.62703
+          ],
+          "focus_interest": [
+            181.75697,
+            0,
+            -201.8473
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 0.45394736842105265,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.5244399375737414,
+                3.461309663240031
+              ],
+              "y": [
+                -0.41769535979445754,
+                1.047666000844337
+              ]
+            },
+            "median_depth": 47.449875585692325
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 14,
+            "tested_in_frame_points": 14,
+            "unblocked_by_other_meshes": 14,
+            "external_blockers": {}
+          }
+        }
+      ]
+    },
+    "格兰德酒店": {
+      "camera": "Camera_格兰德酒店",
+      "root_position": [
+        358.0,
+        1.0499999523162842,
+        -322.0
+      ],
+      "world_visible_mesh_count": 10,
+      "world_visible_vertex_count": 15276,
+      "largest_exterior_meshes": [
+        {
+          "name": "酒店建筑_地面_dim_hard_edges",
+          "dimensions": [
+            63.79998779296875,
+            0.440000057220459,
+            50.79998779296875
+          ],
+          "projected_area_rank": 3241.0386010743678,
+          "vertices": 16
+        },
+        {
+          "name": "酒店建筑_主体_bright_hard_edges",
+          "dimensions": [
+            64.0,
+            43.700000047683716,
+            50.45001220703125
+          ],
+          "projected_area_rank": 3228.80078125,
+          "vertices": 2252
+        },
+        {
+          "name": "酒店建筑_主体_dim_none",
+          "dimensions": [
+            63.6500244140625,
+            42.21500110626221,
+            47.324981689453125
+          ],
+          "projected_area_rank": 3012.236239928752,
+          "vertices": 3264
+        },
+        {
+          "name": "酒店建筑_主体_dim_hard_edges",
+          "dimensions": [
+            63.4000244140625,
+            41.500001668930054,
+            33.5
+          ],
+          "projected_area_rank": 2631.1011189938,
+          "vertices": 80
+        },
+        {
+          "name": "酒店建筑_象牙饰面_dim_none",
+          "dimensions": [
+            59.4000244140625,
+            40.91000056266785,
+            27.55999755859375
+          ],
+          "projected_area_rank": 2430.0550322017807,
+          "vertices": 1696
+        }
+      ],
+      "samples": [
+        {
+          "progress": 0,
+          "camera_position": [
+            1040,
+            960,
+            110
+          ],
+          "focus_interest": [
+            358,
+            16.41,
+            -322
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.771401355869006,
+                -0.6621661684063219
+              ],
+              "y": [
+                -0.48835191251308646,
+                -0.297403898663249
+              ]
+            },
+            "median_depth": 1180.0447124342427
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 0,
+            "external_blockers": {
+              "郊野地面_东": 32
+            }
+          }
+        },
+        {
+          "progress": 0.25,
+          "camera_position": [
+            984.22473,
+            886.5207,
+            74.67021
+          ],
+          "focus_interest": [
+            358,
+            16.41,
+            -322
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.7588177382316819,
+                -0.6405708548341291
+              ],
+              "y": [
+                -0.4765931942760028,
+                -0.26977100981800106
+              ]
+            },
+            "median_depth": 1088.585553644984
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 0,
+            "external_blockers": {
+              "郊野地面_东": 32
+            }
+          }
+        },
+        {
+          "progress": 0.5,
+          "camera_position": [
+            770.595,
+            582.161,
+            -60.649544
+          ],
+          "focus_interest": [
+            358,
+            16.41,
+            -322
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.6963530408059015,
+                -0.518650185688826
+              ],
+              "y": [
+                -0.41287129989870175,
+                -0.1033424707550854
+              ]
+            },
+            "median_depth": 719.7304703574472
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 32,
+            "external_blockers": {}
+          }
+        },
+        {
+          "progress": 0.75,
+          "camera_position": [
+            556.96515,
+            220.38092,
+            -195.9693
+          ],
+          "focus_interest": [
+            358,
+            16.41,
+            -322
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.5409233918907179,
+                -0.13076542919242426
+              ],
+              "y": [
+                -0.3210602398438236,
+                0.33364586419298325
+              ]
+            },
+            "median_depth": 305.5341163525561
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 32,
+            "external_blockers": {}
+          }
+        },
+        {
+          "progress": 1,
+          "camera_position": [
+            501.18988,
+            119.942,
+            -231.29909
+          ],
+          "focus_interest": [
+            358,
+            16.41,
+            -322
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.3675170231119562,
+                0.26016248669543635
+              ],
+              "y": [
+                -0.37829184158969054,
+                0.5442904173783985
+              ]
+            },
+            "median_depth": 195.19511123630872
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 32,
+            "external_blockers": {}
+          }
+        }
+      ]
+    },
+    "报社": {
+      "camera": "Camera_报社",
+      "root_position": [
+        178.0,
+        1.0499999523162842,
+        -306.0
+      ],
+      "world_visible_mesh_count": 7,
+      "world_visible_vertex_count": 8034,
+      "largest_exterior_meshes": [
+        {
+          "name": "报社建筑_主体_dim_hard_edges_shell",
+          "dimensions": [
+            59.31709289550781,
+            46.79999852180481,
+            28.201904296875
+          ],
+          "projected_area_rank": 2776.039859827524,
+          "vertices": 4092
+        },
+        {
+          "name": "报社建筑_主体_bright_hard_edges_shell",
+          "dimensions": [
+            59.37371826171875,
+            33.74999928474426,
+            28.612030029296875
+          ],
+          "projected_area_rank": 2003.8629488656152,
+          "vertices": 264
+        },
+        {
+          "name": "报社建筑_主体_dim_none_shell",
+          "dimensions": [
+            59.11326599121094,
+            33.8800003528595,
+            27.04052734375
+          ],
+          "projected_area_rank": 2002.7574726409039,
+          "vertices": 1806
+        },
+        {
+          "name": "报社建筑_地面_dim_hard_edges_shell",
+          "dimensions": [
+            60.11891174316406,
+            1.220000147819519,
+            7.97613525390625
+          ],
+          "projected_area_rank": 479.5165713811293,
+          "vertices": 48
+        },
+        {
+          "name": "报社建筑_象牙饰面_bright_none_shell",
+          "dimensions": [
+            9.290069580078125,
+            3.452519655227661,
+            0.61431884765625
+          ],
+          "projected_area_rank": 32.07414782365231,
+          "vertices": 1004
+        }
+      ],
+      "samples": [
+        {
+          "progress": 0,
+          "camera_position": [
+            1040,
+            960,
+            110
+          ],
+          "focus_interest": [
+            178.00002,
+            15.05,
+            -306
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.5999335480368408,
+                -0.5503045464986699
+              ],
+              "y": [
+                0.015862140887102485,
+                0.13820860120041745
+              ]
+            },
+            "median_depth": 1316.0311396019256
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 0,
+            "external_blockers": {
+              "郊野地面_东": 32
+            }
+          }
+        },
+        {
+          "progress": 0.25,
+          "camera_position": [
+            965.71857,
+            887.38635,
+            74.15189
+          ],
+          "focus_interest": [
+            178.00002,
+            15.05,
+            -306
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.5857887836518628,
+                -0.5319203186460834
+              ],
+              "y": [
+                0.01739065246013216,
+                0.1504315715218361
+              ]
+            },
+            "median_depth": 1211.2704716353996
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 0,
+            "external_blockers": {
+              "郊野地面_东": 32
+            }
+          }
+        },
+        {
+          "progress": 0.5,
+          "camera_position": [
+            681.2068,
+            584.0272,
+            -63.153107
+          ],
+          "focus_interest": [
+            178.00002,
+            15.05,
+            -306
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.5081588034169382,
+                -0.4257145675720867
+              ],
+              "y": [
+                0.020542826742563896,
+                0.2237474858330496
+              ]
+            },
+            "median_depth": 791.2971164522003
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 32,
+            "external_blockers": {}
+          }
+        },
+        {
+          "progress": 0.75,
+          "camera_position": [
+            396.69498,
+            217.44676,
+            -200.45811
+          ],
+          "focus_interest": [
+            178.00002,
+            15.05,
+            -306
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.2782922388579129,
+                -0.07208299128913627
+              ],
+              "y": [
+                -0.05989771062925841,
+                0.41955161398195284
+              ]
+            },
+            "median_depth": 325.7728268118218
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 32,
+            "external_blockers": {}
+          }
+        },
+        {
+          "progress": 1,
+          "camera_position": [
+            322.41357,
+            115.15001,
+            -236.30621
+          ],
+          "focus_interest": [
+            178.00002,
+            15.05,
+            -306
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.04787455231346761,
+                0.29779578805274753
+              ],
+              "y": [
+                -0.22836624592030905,
+                0.4984889603636158
+              ]
+            },
+            "median_depth": 200.98215175207446
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 32,
+            "external_blockers": {}
+          }
+        }
+      ]
+    },
+    "街角咖啡馆": {
+      "camera": "Camera_街角咖啡馆",
+      "root_position": [
+        140.0,
+        1.0499999523162842,
+        -115.0
+      ],
+      "world_visible_mesh_count": 149,
+      "world_visible_vertex_count": 3758,
+      "largest_exterior_meshes": [
+        {
+          "name": "转角人行道",
+          "dimensions": [
+            16.0,
+            0.2999999523162842,
+            20.0
+          ],
+          "projected_area_rank": 320.0,
+          "vertices": 8
+        },
+        {
+          "name": "店内地坪",
+          "dimensions": [
+            12.0,
+            0.12000000476837158,
+            16.0
+          ],
+          "projected_area_rank": 192.0,
+          "vertices": 10
+        },
+        {
+          "name": "平屋顶",
+          "dimensions": [
+            12.0,
+            0.2200002670288086,
+            16.0
+          ],
+          "projected_area_rank": 192.0,
+          "vertices": 10
+        },
+        {
+          "name": "层间檐带",
+          "dimensions": [
+            12.0,
+            0.2200002670288086,
+            16.0
+          ],
+          "projected_area_rank": 192.0,
+          "vertices": 10
+        },
+        {
+          "name": "底层后墙.001",
+          "dimensions": [
+            0.220001220703125,
+            4.883582234382629,
+            16.0
+          ],
+          "projected_area_rank": 78.13731575012207,
+          "vertices": 8
+        }
+      ],
+      "samples": [
+        {
+          "progress": 0,
+          "camera_position": [
+            1040,
+            960,
+            110
+          ],
+          "focus_interest": [
+            140.2,
+            4.66,
+            -115.4
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.24992217726805555,
+                -0.22748354925699327
+              ],
+              "y": [
+                0.05086695271067866,
+                0.07751492916798775
+              ]
+            },
+            "median_depth": 1319.4764543378626
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 0,
+            "external_blockers": {
+              "郊野地面_东": 32
+            }
+          }
+        },
+        {
+          "progress": 0.25,
+          "camera_position": [
+            951.20184,
+            879.84125,
+            87.75606
+          ],
+          "focus_interest": [
+            140.2,
+            4.66,
+            -115.4
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.24805749728855553,
+                -0.22335940645210217
+              ],
+              "y": [
+                0.04904757979994462,
+                0.0785988787981873
+              ]
+            },
+            "median_depth": 1199.0567873359437
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 0,
+            "external_blockers": {
+              "郊野地面_东": 32
+            }
+          }
+        },
+        {
+          "progress": 0.5,
+          "camera_position": [
+            611.08826,
+            544.88257,
+            2.5575523
+          ],
+          "focus_interest": [
+            140.2,
+            4.66,
+            -115.4
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.24174013284094079,
+                -0.20057225565342615
+              ],
+              "y": [
+                0.035847994524216574,
+                0.08660601365786891
+              ]
+            },
+            "median_depth": 718.0145354098297
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 0,
+            "external_blockers": {
+              "郊野地面_东": 32
+            }
+          }
+        },
+        {
+          "progress": 0.75,
+          "camera_position": [
+            270.9746,
+            139.93797,
+            -82.64095
+          ],
+          "focus_interest": [
+            140.2,
+            4.66,
+            -115.4
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.268013703386812,
+                -0.11262791902218507
+              ],
+              "y": [
+                -0.04897769797332822,
+                0.1415489495315695
+              ]
+            },
+            "median_depth": 185.13845243878353
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 32,
+            "external_blockers": {}
+          }
+        },
+        {
+          "progress": 1,
+          "camera_position": [
+            182.17647,
+            26.919998,
+            -104.884895
+          ],
+          "focus_interest": [
+            140.2,
+            4.66,
+            -115.4
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.3925133331692078,
+                0.2249960582784143
+              ],
+              "y": [
+                -0.2994239856373209,
+                0.3278962760412476
+              ]
+            },
+            "median_depth": 42.588592905488454
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 32,
+            "external_blockers": {}
+          }
+        }
+      ]
+    },
+    "码头": {
+      "camera": "Camera_码头",
+      "root_position": [
+        27.39229965209961,
+        0.6499999761581421,
+        128.9140625
+      ],
+      "world_visible_mesh_count": 361,
+      "world_visible_vertex_count": 12116,
+      "largest_exterior_meshes": [
+        {
+          "name": "岸口与后街",
+          "dimensions": [
+            38.47484588623047,
+            6.0000001192092896,
+            154.43987274169922
+          ],
+          "projected_area_rank": 5942.050302425923,
+          "vertices": 168
+        },
+        {
+          "name": "吊杆",
+          "dimensions": [
+            41.128947734832764,
+            8.616145730018616,
+            131.06022262573242
+          ],
+          "projected_area_rank": 5390.369046489295,
+          "vertices": 360
+        },
+        {
+          "name": "货堆",
+          "dimensions": [
+            20.342918395996094,
+            5.9533034563064575,
+            78.70243072509766
+          ],
+          "projected_area_rank": 1601.0371258071973,
+          "vertices": 4072
+        },
+        {
+          "name": "堤",
+          "dimensions": [
+            3.132101058959961,
+            3.9499998092651367,
+            186.0022201538086
+          ],
+          "projected_area_rank": 734.7087341304359,
+          "vertices": 602
+        },
+        {
+          "name": "划子",
+          "dimensions": [
+            4.3232574462890625,
+            0.5999999046325684,
+            132.20893096923828
+          ],
+          "projected_area_rank": 571.573245278676,
+          "vertices": 144
+        }
+      ],
+      "samples": [
+        {
+          "progress": 0,
+          "camera_position": [
+            1039.9999,
+            959.99994,
+            110.00003
+          ],
+          "focus_interest": [
+            35.92716,
+            0,
+            144.9809
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                0.07546019960849917,
+                0.3297417664080806
+              ],
+              "y": [
+                0.18852628933273546,
+                0.29808973345209155
+              ]
+            },
+            "median_depth": 1378.8764919593823
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 31,
+            "external_blockers": {
+              "郊野地面_东": 1
+            }
+          }
+        },
+        {
+          "progress": 0.25,
+          "camera_position": [
+            777.8809,
+            833.2636,
+            -266.7001
+          ],
+          "focus_interest": [
+            35.92716,
+            0,
+            144.9809
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                0.021374426096984728,
+                0.2984690017457824
+              ],
+              "y": [
+                0.07783088946987954,
+                0.267014694916201
+              ]
+            },
+            "median_depth": 1176.3842591599428
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 1,
+            "external_blockers": {
+              "郊野地面_东": 31
+            }
+          }
+        },
+        {
+          "progress": 0.5,
+          "camera_position": [
+            49.599117,
+            540.24695,
+            -372.8509
+          ],
+          "focus_interest": [
+            35.92716,
+            0,
+            144.9809
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 0.9650049521294156,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                0.009357615201649381,
+                0.17644989276985248
+              ],
+              "y": [
+                -0.27957973946783965,
+                0.3407104760298516
+              ]
+            },
+            "median_depth": 733.5096824845133
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 31,
+            "tested_in_frame_points": 31,
+            "unblocked_by_other_meshes": 0,
+            "external_blockers": {
+              "河面": 20,
+              "郊野地面_东": 10,
+              "驳岸": 1
+            }
+          }
+        },
+        {
+          "progress": 0.75,
+          "camera_position": [
+            -138.82677,
+            228.3947,
+            35.57498
+          ],
+          "focus_interest": [
+            35.92716,
+            0,
+            144.9809
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 0.9650049521294156,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.3066758508509481,
+                0.7213674655689579
+              ],
+              "y": [
+                -0.6869154634986836,
+                0.37756536047496764
+              ]
+            },
+            "median_depth": 300.38288539612046
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 31,
+            "tested_in_frame_points": 31,
+            "unblocked_by_other_meshes": 31,
+            "external_blockers": {}
+          }
+        },
+        {
+          "progress": 1,
+          "camera_position": [
+            -34.628643,
+            80.64997,
+            138.78314
+          ],
+          "focus_interest": [
+            35.92716,
+            0,
+            144.9809
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 0.5222845823704193,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -1.2194036152304555,
+                2.2426235689626615
+              ],
+              "y": [
+                -1.214975534168157,
+                0.5912129586619295
+              ]
+            },
+            "median_depth": 106.84165647659883
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 17,
+            "tested_in_frame_points": 17,
+            "unblocked_by_other_meshes": 17,
+            "external_blockers": {}
+          }
+        }
+      ]
+    },
+    "三号货栈工棚": {
+      "camera": "Camera_三号货栈工棚",
+      "root_position": [
+        39.54010009765625,
+        0.6499999761581421,
+        58.93955993652344
+      ],
+      "world_visible_mesh_count": 83,
+      "world_visible_vertex_count": 1080,
+      "largest_exterior_meshes": [
+        {
+          "name": "地面.005",
+          "dimensions": [
+            22.02952003479004,
+            0.10000002384185791,
+            14.046432495117188
+          ],
+          "projected_area_rank": 309.4361660685099,
+          "vertices": 8
+        },
+        {
+          "name": "右墙.004",
+          "dimensions": [
+            22.001220703125,
+            7.499999523162842,
+            0.6464691162109375
+          ],
+          "projected_area_rank": 165.00914478243794,
+          "vertices": 8
+        },
+        {
+          "name": "远端墙",
+          "dimensions": [
+            0.6320991516113281,
+            7.499999523162842,
+            15.201236724853516
+          ],
+          "projected_area_rank": 114.00926818788685,
+          "vertices": 8
+        },
+        {
+          "name": "院子",
+          "dimensions": [
+            7.0320892333984375,
+            0.08000004291534424,
+            15.214752197265625
+          ],
+          "projected_area_rank": 106.99149511521682,
+          "vertices": 8
+        },
+        {
+          "name": "左墙_矮",
+          "dimensions": [
+            22.001220703125,
+            1.4000000357627869,
+            0.6464614868164062
+          ],
+          "projected_area_rank": 30.801709771199967,
+          "vertices": 8
+        }
+      ],
+      "samples": [
+        {
+          "progress": 0,
+          "camera_position": [
+            1040,
+            960,
+            110
+          ],
+          "focus_interest": [
+            42.03904,
+            1.65,
+            59.44484
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                0.07367949812291996,
+                0.09700773653680705
+              ],
+              "y": [
+                0.20420256155213146,
+                0.26994648012242506
+              ]
+            },
+            "median_depth": 1381.0400119565406
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 32,
+            "external_blockers": {}
+          }
+        },
+        {
+          "progress": 0.25,
+          "camera_position": [
+            940.9537,
+            880.5721,
+            104.98247
+          ],
+          "focus_interest": [
+            42.03904,
+            1.65,
+            59.44484
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                0.07123134596686234,
+                0.0969033082475274
+              ],
+              "y": [
+                0.1996559707711035,
+                0.2725233781227026
+              ]
+            },
+            "median_depth": 1254.8624734398018
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 32,
+            "external_blockers": {}
+          }
+        },
+        {
+          "progress": 0.5,
+          "camera_position": [
+            561.58746,
+            547.2986,
+            85.76436
+          ],
+          "focus_interest": [
+            42.03904,
+            1.65,
+            59.44484
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                0.05589011766980799,
+                0.09868923377474247
+              ],
+              "y": [
+                0.165928159489043,
+                0.2908878384479711
+              ]
+            },
+            "median_depth": 751.976745979228
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 32,
+            "external_blockers": {}
+          }
+        },
+        {
+          "progress": 0.75,
+          "camera_position": [
+            182.22124,
+            141.24771,
+            66.54625
+          ],
+          "focus_interest": [
+            42.03904,
+            1.65,
+            59.44484
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.026134637357814874,
+                0.1361383385501492
+              ],
+              "y": [
+                -0.04892054545151027,
+                0.42360640738468947
+              ]
+            },
+            "median_depth": 197.28694267188354
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 32,
+            "external_blockers": {}
+          }
+        },
+        {
+          "progress": 1,
+          "camera_position": [
+            83.17489,
+            27.650003,
+            61.528717
+          ],
+          "focus_interest": [
+            42.03904,
+            1.65,
+            59.44484
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 0.9712962962962963,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.35987513999153653,
+                0.31788121474407527
+              ],
+              "y": [
+                -0.8477644605278966,
+                0.7912981207293629
+              ]
+            },
+            "median_depth": 48.1032487728524
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 30,
+            "tested_in_frame_points": 30,
+            "unblocked_by_other_meshes": 30,
+            "external_blockers": {}
+          }
+        }
+      ]
+    },
+    "勒索信": {
+      "camera": "Camera_勒索信",
+      "root_position": [
+        35.865570068359375,
+        0.6499999761581421,
+        188.93209838867188
+      ],
+      "world_visible_mesh_count": 230,
+      "world_visible_vertex_count": 2688,
+      "largest_exterior_meshes": [
+        {
+          "name": "车道.002",
+          "dimensions": [
+            9.728784561157227,
+            0.0,
+            50.014556884765625
+          ],
+          "projected_area_rank": 486.5808488536277,
+          "vertices": 30
+        },
+        {
+          "name": "货栈侧人行道",
+          "dimensions": [
+            6.605068206787109,
+            0.0,
+            50.008148193359375
+          ],
+          "projected_area_rank": 330.30722971225623,
+          "vertices": 30
+        },
+        {
+          "name": "店铺侧人行道",
+          "dimensions": [
+            3.505584716796875,
+            0.0,
+            50.007171630859375
+          ],
+          "projected_area_rank": 175.30437659937888,
+          "vertices": 20
+        },
+        {
+          "name": "货栈东翼",
+          "dimensions": [
+            12.519824981689453,
+            5.900000333786011,
+            9.4263916015625
+          ],
+          "projected_area_rank": 118.01677306042984,
+          "vertices": 8
+        },
+        {
+          "name": "货栈圆角檐",
+          "dimensions": [
+            10.499979019165039,
+            0.2799997329711914,
+            10.499969482421875
+          ],
+          "projected_area_rank": 110.24945926730288,
+          "vertices": 96
+        }
+      ],
+      "samples": [
+        {
+          "progress": 0,
+          "camera_position": [
+            1039.9999,
+            959.99994,
+            110.00004
+          ],
+          "focus_interest": [
+            39.67079,
+            0,
+            190.46153
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                0.2733511751229144,
+                0.34080788865430744
+              ],
+              "y": [
+                0.20032884754850774,
+                0.2534892662209877
+              ]
+            },
+            "median_depth": 1375.9455256231772
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 32,
+            "external_blockers": {}
+          }
+        },
+        {
+          "progress": 0.25,
+          "camera_position": [
+            871.5142,
+            793.63043,
+            443.07928
+          ],
+          "focus_interest": [
+            39.67079,
+            0,
+            190.46153
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                0.22639758614278838,
+                0.2919470089809166
+              ],
+              "y": [
+                0.16157299202284028,
+                0.24164877637205465
+              ]
+            },
+            "median_depth": 1170.060570339304
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 32,
+            "external_blockers": {}
+          }
+        },
+        {
+          "progress": 0.5,
+          "camera_position": [
+            278.99686,
+            452.10056,
+            684.95374
+          ],
+          "focus_interest": [
+            39.67079,
+            0,
+            190.46153
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                0.12258192778794101,
+                0.1876117119581757
+              ],
+              "y": [
+                0.05791412809486156,
+                0.20665112742090738
+              ]
+            },
+            "median_depth": 711.7866839782107
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 32,
+            "external_blockers": {}
+          }
+        },
+        {
+          "progress": 0.75,
+          "camera_position": [
+            -32.594353,
+            146.2634,
+            374.342
+          ],
+          "focus_interest": [
+            39.67079,
+            0,
+            190.46153
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.0464239137589747,
+                0.23075332336664753
+              ],
+              "y": [
+                -0.09804978049682164,
+                0.23678363119558712
+              ]
+            },
+            "median_depth": 244.27809939822825
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 32,
+            "external_blockers": {}
+          }
+        },
+        {
+          "progress": 1,
+          "camera_position": [
+            20.648104,
+            19.678724,
+            210.89928
+          ],
+          "focus_interest": [
+            39.67079,
+            0,
+            190.46153
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 0.6569940476190477,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -1.4086395456854308,
+                1.6284746685961375
+              ],
+              "y": [
+                -0.9883661901175395,
+                0.984239630633127
+              ]
+            },
+            "median_depth": 30.714345638259058
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 21,
+            "tested_in_frame_points": 21,
+            "unblocked_by_other_meshes": 21,
+            "external_blockers": {}
+          }
+        }
+      ]
+    },
+    "货运公司": {
+      "camera": "Camera_货运公司",
+      "root_position": [
+        -80.0,
+        1.0499999523162842,
+        -305.0
+      ],
+      "world_visible_mesh_count": 33,
+      "world_visible_vertex_count": 376,
+      "largest_exterior_meshes": [
+        {
+          "name": "新楔形塔身",
+          "dimensions": [
+            37.011444091796875,
+            71.80000591278076,
+            28.430206298828125
+          ],
+          "projected_area_rank": 2657.42190463157,
+          "vertices": 20
+        },
+        {
+          "name": "新塔身承接带",
+          "dimensions": [
+            37.011444091796875,
+            0.8000001907348633,
+            28.430206298828125
+          ],
+          "projected_area_rank": 1052.2429909473285,
+          "vertices": 20
+        },
+        {
+          "name": "新凹屋顶与女儿墙",
+          "dimensions": [
+            37.011444091796875,
+            3.1999969482421875,
+            28.430206298828125
+          ],
+          "projected_area_rank": 1052.2429909473285,
+          "vertices": 40
+        },
+        {
+          "name": "新门厅基座",
+          "dimensions": [
+            35.506553649902344,
+            0.4500000476837158,
+            27.88543701171875
+          ],
+          "projected_area_rank": 990.1157653075643,
+          "vertices": 36
+        },
+        {
+          "name": "新门厅厚墙",
+          "dimensions": [
+            35.506553649902344,
+            7.75,
+            27.88543701171875
+          ],
+          "projected_area_rank": 990.1157653075643,
+          "vertices": 36
+        }
+      ],
+      "samples": [
+        {
+          "progress": 0,
+          "camera_position": [
+            1040,
+            960,
+            110
+          ],
+          "focus_interest": [
+            -80,
+            38.85,
+            -305
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.49504167490763773,
+                -0.4460361603569918
+              ],
+              "y": [
+                0.5430495932954583,
+                0.7432556494037516
+              ]
+            },
+            "median_depth": 1491.0883591787797
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 0,
+            "external_blockers": {
+              "郊野地面_东": 32
+            }
+          }
+        },
+        {
+          "progress": 0.25,
+          "camera_position": [
+            946.8111,
+            893.44934,
+            75.47017
+          ],
+          "focus_interest": [
+            -80,
+            38.85,
+            -305
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.47928066547260817,
+                -0.426439178239736
+              ],
+              "y": [
+                0.524907089190927,
+                0.7412991305934817
+              ]
+            },
+            "median_depth": 1377.8083718037133
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 0,
+            "external_blockers": {
+              "郊野地面_东": 32
+            }
+          }
+        },
+        {
+          "progress": 0.5,
+          "camera_position": [
+            589.8799,
+            611.43427,
+            -56.785576
+          ],
+          "focus_interest": [
+            -80,
+            38.85,
+            -305
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.3952947739088677,
+                -0.31813121601405675
+              ],
+              "y": [
+                0.40058823924687853,
+                0.7249427704010192
+              ]
+            },
+            "median_depth": 925.5572435181432
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 32,
+            "external_blockers": {}
+          }
+        },
+        {
+          "progress": 0.75,
+          "camera_position": [
+            232.9487,
+            261.4929,
+            -189.04132
+          ],
+          "focus_interest": [
+            -80,
+            38.85,
+            -305
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.1835875374386029,
+                -0.0445990207015268
+              ],
+              "y": [
+                -0.0882137448847749,
+                0.6882451077086105
+              ]
+            },
+            "median_depth": 422.73170942517754
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 32,
+            "external_blockers": {}
+          }
+        },
+        {
+          "progress": 1,
+          "camera_position": [
+            139.75977,
+            163.05002,
+            -223.57115
+          ],
+          "focus_interest": [
+            -80,
+            38.85,
+            -305
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.04293736613261489,
+                0.15612031980625563
+              ],
+              "y": [
+                -0.5038185453277265,
+                0.7285470601266846
+              ]
+            },
+            "median_depth": 282.86374896310525
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 32,
+            "external_blockers": {}
+          }
+        }
+      ]
+    },
+    "剧院": {
+      "camera": "Camera_剧院",
+      "root_position": [
+        -278.0,
+        1.0499999523162842,
+        5.0
+      ],
+      "world_visible_mesh_count": 166,
+      "world_visible_vertex_count": 5735,
+      "largest_exterior_meshes": [
+        {
+          "name": "托球腰环",
+          "dimensions": [
+            45.99322509765625,
+            0.2800006866455078,
+            45.99323844909668
+          ],
+          "projected_area_rank": 2115.377368959482,
+          "vertices": 388
+        },
+        {
+          "name": "穹顶_球面",
+          "dimensions": [
+            45.142669677734375,
+            20.216428756713867,
+            44.684003829956055
+          ],
+          "projected_area_rank": 2017.1552247743239,
+          "vertices": 1427
+        },
+        {
+          "name": "基座下沿",
+          "dimensions": [
+            43.593597412109375,
+            0.2999999523162842,
+            43.59359169006348
+          ],
+          "projected_area_rank": 1900.401485884504,
+          "vertices": 388
+        },
+        {
+          "name": "基座上沿",
+          "dimensions": [
+            43.49359130859375,
+            0.26000022888183594,
+            43.49360656738281
+          ],
+          "projected_area_rank": 1891.6931485785171,
+          "vertices": 388
+        },
+        {
+          "name": "弧形门厅顶",
+          "dimensions": [
+            14.749664306640625,
+            0.2199993133544922,
+            33.411956787109375
+          ],
+          "projected_area_rank": 492.8151464378461,
+          "vertices": 164
+        }
+      ],
+      "samples": [
+        {
+          "progress": 0,
+          "camera_position": [
+            1040,
+            960,
+            110
+          ],
+          "focus_interest": [
+            -278,
+            10.82075,
+            5
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                0.013930406579735547,
+                0.07410175449515846
+              ],
+              "y": [
+                0.7851733669891633,
+                0.8851757804091955
+              ]
+            },
+            "median_depth": 1592.120199796299
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 5,
+            "external_blockers": {
+              "B.987": 5,
+              "新楔形塔身": 4,
+              "街区pad": 4,
+              "B.989": 3,
+              "B.983": 2,
+              "城市地面": 2,
+              "底层后墙.001": 2,
+              "B.1162": 1
+            }
+          }
+        },
+        {
+          "progress": 0.25,
+          "camera_position": [
+            916.0454,
+            888.5176,
+            100.125015
+          ],
+          "focus_interest": [
+            -278,
+            10.82075,
+            5
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                0.01023122920962203,
+                0.07613379475936728
+              ],
+              "y": [
+                0.7707831718456288,
+                0.8805754979811828
+              ]
+            },
+            "median_depth": 1452.9949673344242
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 6,
+            "external_blockers": {
+              "新楔形塔身": 7,
+              "B.989": 5,
+              "街区pad": 5,
+              "B.987": 3,
+              "底层后墙.001": 2,
+              "B.983": 1,
+              "二层墙.002": 1,
+              "城市地面": 1
+            }
+          }
+        },
+        {
+          "progress": 0.5,
+          "camera_position": [
+            441.27597,
+            582.44586,
+            62.301952
+          ],
+          "focus_interest": [
+            -278,
+            10.82075,
+            5
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.014313943717615555,
+                0.09143209655048368
+              ],
+              "y": [
+                0.66263379133231,
+                0.8409940584172408
+              ]
+            },
+            "median_depth": 902.4821049247894
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 0,
+            "external_blockers": {
+              "新楔形塔身": 27,
+              "B.989": 3,
+              "西侧竖向石肋": 2
+            }
+          }
+        },
+        {
+          "progress": 0.75,
+          "camera_position": [
+            -33.493484,
+            195.50256,
+            24.478893
+          ],
+          "focus_interest": [
+            -278,
+            10.82075,
+            5
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.12857813401994647,
+                0.18100015973215985
+              ],
+              "y": [
+                0.13992261597859343,
+                0.6660162600211458
+              ]
+            },
+            "median_depth": 301.72301564242713
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 3,
+            "external_blockers": {
+              "B.983": 6,
+              "B.990": 6,
+              "二层墙.002": 6,
+              "B.984": 3,
+              "B.985": 3,
+              "屋顶女儿墙.002": 2,
+              "B.1195": 1,
+              "屋顶女儿墙.003": 1
+            }
+          }
+        },
+        {
+          "progress": 1,
+          "camera_position": [
+            -157.44807,
+            86.05,
+            14.603908
+          ],
+          "focus_interest": [
+            -278,
+            10.82075,
+            5
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.31552628133144583,
+                0.34298799634956284
+              ],
+              "y": [
+                -0.6033922951099754,
+                0.5312478572113315
+              ]
+            },
+            "median_depth": 138.52376396663993
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 3,
+            "external_blockers": {
+              "B.985": 18,
+              "城市地面": 6,
+              "B.1184": 5
+            }
+          }
+        }
+      ]
+    },
+    "警察局": {
+      "camera": "Camera_警察局",
+      "root_position": [
+        332.0,
+        1.0499999523162842,
+        -54.0
+      ],
+      "world_visible_mesh_count": 195,
+      "world_visible_vertex_count": 1664,
+      "largest_exterior_meshes": [
+        {
+          "name": "办公楼檐冠",
+          "dimensions": [
+            21.11663818359375,
+            0.3400001525878906,
+            16.165016174316406
+          ],
+          "projected_area_rank": 341.3507977849804,
+          "vertices": 8
+        },
+        {
+          "name": "办公楼基座",
+          "dimensions": [
+            21.06903076171875,
+            0.5,
+            16.149757385253906
+          ],
+          "projected_area_rank": 340.2597351442091,
+          "vertices": 8
+        },
+        {
+          "name": "办公楼主体",
+          "dimensions": [
+            20.25360107421875,
+            12.100000381469727,
+            15.204856872558594
+          ],
+          "projected_area_rank": 307.9531054873951,
+          "vertices": 8
+        },
+        {
+          "name": "附楼平屋顶",
+          "dimensions": [
+            18.115234375,
+            0.25,
+            10.930503845214844
+          ],
+          "projected_area_rank": 198.00863899290562,
+          "vertices": 8
+        },
+        {
+          "name": "后侧附楼",
+          "dimensions": [
+            17.7685546875,
+            6.199999809265137,
+            10.648521423339844
+          ],
+          "projected_area_rank": 189.20883525162935,
+          "vertices": 8
+        }
+      ],
+      "samples": [
+        {
+          "progress": 0,
+          "camera_position": [
+            1040,
+            960,
+            110
+          ],
+          "focus_interest": [
+            332,
+            19.55,
+            -54
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.19643449617001804,
+                -0.16300324939981795
+              ],
+              "y": [
+                -0.45863632108423197,
+                -0.37338212276897775
+              ]
+            },
+            "median_depth": 1186.5933600684584
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 0,
+            "external_blockers": {
+              "郊野地面_东": 32
+            }
+          }
+        },
+        {
+          "progress": 0.25,
+          "camera_position": [
+            977.30023,
+            883.23975,
+            95.47633
+          ],
+          "focus_interest": [
+            332,
+            19.55,
+            -54
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.19441700699320993,
+                -0.1579706364684569
+              ],
+              "y": [
+                -0.45685211975441264,
+                -0.36407007415660286
+              ]
+            },
+            "median_depth": 1087.6224454582346
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 0,
+            "external_blockers": {
+              "郊野地面_东": 32
+            }
+          }
+        },
+        {
+          "progress": 0.5,
+          "camera_position": [
+            737.14844,
+            565.92676,
+            39.84793
+          ],
+          "focus_interest": [
+            332,
+            19.55,
+            -54
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.1858834079050056,
+                -0.12866224234159415
+              ],
+              "y": [
+                -0.44933216429100603,
+                -0.3032890510744828
+              ]
+            },
+            "median_depth": 689.9280568487874
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 0,
+            "external_blockers": {
+              "郊野地面_东": 32
+            }
+          }
+        },
+        {
+          "progress": 0.75,
+          "camera_position": [
+            496.99655,
+            190.22469,
+            -15.780464
+          ],
+          "focus_interest": [
+            332,
+            19.55,
+            -54
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.17308726236762043,
+                -0.01594910229618666
+              ],
+              "y": [
+                -0.4824142306127159,
+                -0.021340038968901062
+              ]
+            },
+            "median_depth": 245.79508247700687
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 32,
+            "external_blockers": {}
+          }
+        },
+        {
+          "progress": 1,
+          "camera_position": [
+            434.2968,
+            86.05,
+            -30.304134
+          ],
+          "focus_interest": [
+            332,
+            19.55,
+            -54
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.14037523770085986,
+                0.1574477250589836
+              ],
+              "y": [
+                -0.6157355696337239,
+                0.35913319935773375
+              ]
+            },
+            "median_depth": 127.7164261688063
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 32,
+            "external_blockers": {}
+          }
+        }
+      ]
+    },
+    "诊所": {
+      "camera": "Camera_诊所",
+      "root_position": [
+        318.0,
+        1.0499999523162842,
+        -240.0
+      ],
+      "world_visible_mesh_count": 191,
+      "world_visible_vertex_count": 1540,
+      "largest_exterior_meshes": [
+        {
+          "name": "楼身内核",
+          "dimensions": [
+            9.63787841796875,
+            13.800000667572021,
+            10.176544189453125
+          ],
+          "projected_area_rank": 140.4363166080293,
+          "vertices": 8
+        },
+        {
+          "name": "分层檐口.001",
+          "dimensions": [
+            11.62042236328125,
+            0.20000076293945312,
+            11.81280517578125
+          ],
+          "projected_area_rank": 137.26978543773293,
+          "vertices": 8
+        },
+        {
+          "name": "西侧墙",
+          "dimensions": [
+            2.2359619140625,
+            13.800000667572021,
+            9.439117431640625
+          ],
+          "projected_area_rank": 130.25982685793133,
+          "vertices": 8
+        },
+        {
+          "name": "东侧墙",
+          "dimensions": [
+            2.2359619140625,
+            13.800000667572021,
+            9.439117431640625
+          ],
+          "projected_area_rank": 130.25982685793133,
+          "vertices": 8
+        },
+        {
+          "name": "分层檐口.002",
+          "dimensions": [
+            11.2259521484375,
+            0.20000076293945312,
+            11.495330810546875
+          ],
+          "projected_area_rank": 129.04603360965848,
+          "vertices": 8
+        }
+      ],
+      "samples": [
+        {
+          "progress": 0,
+          "camera_position": [
+            1040,
+            960,
+            110
+          ],
+          "focus_interest": [
+            318,
+            6.45,
+            -240
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.5413021233565392,
+                -0.51788718329284
+              ],
+              "y": [
+                -0.35270355244365437,
+                -0.3117499359890324
+              ]
+            },
+            "median_depth": 1211.9917459946246
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 0,
+            "external_blockers": {
+              "郊野地面_东": 32
+            }
+          }
+        },
+        {
+          "progress": 0.25,
+          "camera_position": [
+            969.9423,
+            879.11456,
+            76.03853
+          ],
+          "focus_interest": [
+            318,
+            6.45,
+            -240
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.5343643805514858,
+                -0.50867309394812
+              ],
+              "y": [
+                -0.3496054135800899,
+                -0.3046935605784612
+              ]
+            },
+            "median_depth": 1103.9810933515505
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 0,
+            "external_blockers": {
+              "郊野地面_东": 32
+            }
+          }
+        },
+        {
+          "progress": 0.5,
+          "camera_position": [
+            701.6083,
+            543.33496,
+            -54.0403
+          ],
+          "focus_interest": [
+            318,
+            6.45,
+            -240
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.5020624260076303,
+                -0.46005533115673436
+              ],
+              "y": [
+                -0.33069279899400966,
+                -0.25629147261366686
+              ]
+            },
+            "median_depth": 670.0251829695824
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 32,
+            "external_blockers": {}
+          }
+        },
+        {
+          "progress": 0.75,
+          "camera_position": [
+            433.27423,
+            142.48622,
+            -184.11913
+          ],
+          "focus_interest": [
+            318,
+            6.45,
+            -240
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.4328960657709329,
+                -0.289596175807744
+              ],
+              "y": [
+                -0.2816508508291574,
+                0.008329071453008544
+              ]
+            },
+            "median_depth": 184.80340996639154
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 32,
+            "external_blockers": {}
+          }
+        },
+        {
+          "progress": 1,
+          "camera_position": [
+            363.21658,
+            31.05,
+            -218.0806
+          ],
+          "focus_interest": [
+            318,
+            6.45,
+            -240
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.13313391657699208,
+                0.27167074176963
+              ],
+              "y": [
+                -0.4114662501639315,
+                0.5846212267867468
+              ]
+            },
+            "median_depth": 57.20039795140548
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 32,
+            "external_blockers": {}
+          }
+        }
+      ]
+    },
+    "老街酒馆": {
+      "camera": "Camera_老街酒馆",
+      "root_position": [
+        196.0,
+        1.0499999523162842,
+        -22.0
+      ],
+      "world_visible_mesh_count": 196,
+      "world_visible_vertex_count": 6138,
+      "largest_exterior_meshes": [
+        {
+          "name": "旧人行道",
+          "dimensions": [
+            28.873489379882812,
+            0.24000000953674316,
+            27.776488304138184
+          ],
+          "projected_area_rank": 802.004140059973,
+          "vertices": 8
+        },
+        {
+          "name": "酒馆地坪",
+          "dimensions": [
+            20.491531372070312,
+            0.20000004768371582,
+            19.967230796813965
+          ],
+          "projected_area_rank": 409.15913628628186,
+          "vertices": 16
+        },
+        {
+          "name": "楼层边沿",
+          "dimensions": [
+            20.491531372070312,
+            0.2200002670288086,
+            19.967230796813965
+          ],
+          "projected_area_rank": 409.15913628628186,
+          "vertices": 16
+        },
+        {
+          "name": "平屋顶.001",
+          "dimensions": [
+            20.491531372070312,
+            0.19999980926513672,
+            19.967230796813965
+          ],
+          "projected_area_rank": 409.15913628628186,
+          "vertices": 16
+        },
+        {
+          "name": "屋顶雕塑_抽象马头",
+          "dimensions": [
+            6.92120361328125,
+            9.997095108032227,
+            9.683521270751953
+          ],
+          "projected_area_rank": 96.80708312436036,
+          "vertices": 1602
+        }
+      ],
+      "samples": [
+        {
+          "progress": 0,
+          "camera_position": [
+            1040,
+            960,
+            110
+          ],
+          "focus_interest": [
+            195.44875,
+            10.625,
+            -20.07748
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.09054278938038171,
+                -0.06465771646488681
+              ],
+              "y": [
+                -0.10190498219898414,
+                -0.06141141836673564
+              ]
+            },
+            "median_depth": 1281.3374673871986
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 0,
+            "external_blockers": {
+              "B.494": 30,
+              "街区pad": 2
+            }
+          }
+        },
+        {
+          "progress": 0.25,
+          "camera_position": [
+            959.2899,
+            879.5369,
+            97.56905
+          ],
+          "focus_interest": [
+            195.44875,
+            10.625,
+            -20.07748
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.09031133018727808,
+                -0.06187983234946444
+              ],
+              "y": [
+                -0.104100802469732,
+                -0.059573227526414196
+              ]
+            },
+            "median_depth": 1167.0408793799263
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 0,
+            "external_blockers": {
+              "B.494": 30,
+              "街区pad": 2
+            }
+          }
+        },
+        {
+          "progress": 0.5,
+          "camera_position": [
+            650.1549,
+            544.88666,
+            49.9562
+          ],
+          "focus_interest": [
+            195.44875,
+            10.625,
+            -20.07748
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.091273946079716,
+                -0.044355992797388534
+              ],
+              "y": [
+                -0.12024866428224529,
+                -0.046237391811041764
+              ]
+            },
+            "median_depth": 709.6285299662231
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 0,
+            "external_blockers": {
+              "B.494": 30,
+              "街区pad": 2
+            }
+          }
+        },
+        {
+          "progress": 0.75,
+          "camera_position": [
+            341.01996,
+            143.94342,
+            2.3433428
+          ],
+          "focus_interest": [
+            195.44875,
+            10.625,
+            -20.07748
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.12135674104792205,
+                0.04775751737500753
+              ],
+              "y": [
+                -0.2272319928068351,
+                0.04073646797499973
+              ]
+            },
+            "median_depth": 203.2133127418577
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 0,
+            "external_blockers": {
+              "B.1250": 31,
+              "街区pad": 1
+            }
+          }
+        },
+        {
+          "progress": 1,
+          "camera_position": [
+            260.30984,
+            32.354996,
+            -10.0876
+          ],
+          "focus_interest": [
+            195.44875,
+            10.625,
+            -20.07748
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.18313763265322508,
+                0.30756522498473765
+              ],
+              "y": [
+                -0.5475210787438485,
+                0.4790132881964958
+              ]
+            },
+            "median_depth": 72.06240518496375
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 32,
+            "external_blockers": {}
+          }
+        }
+      ]
+    },
+    "码头居民区": {
+      "camera": "Camera_码头居民区",
+      "root_position": [
+        188.0,
+        0.6499999761581421,
+        108.0
+      ],
+      "world_visible_mesh_count": 27,
+      "world_visible_vertex_count": 48416,
+      "largest_exterior_meshes": [
+        {
+          "name": "屋顶杂物",
+          "dimensions": [
+            155.72596740722656,
+            26.274247646331787,
+            107.52175903320312
+          ],
+          "projected_area_rank": 16743.929942772258,
+          "vertices": 4604
+        },
+        {
+          "name": "窗光_grey.001",
+          "dimensions": [
+            136.76690673828125,
+            5.200000286102295,
+            106.2959213256836
+          ],
+          "projected_area_rank": 14537.76435860945,
+          "vertices": 244
+        },
+        {
+          "name": "街区之间",
+          "dimensions": [
+            121.36051940917969,
+            12.179795145988464,
+            101.74876022338867
+          ],
+          "projected_area_rank": 12348.282389950531,
+          "vertices": 864
+        },
+        {
+          "name": "窗光_blue.001",
+          "dimensions": [
+            123.7608642578125,
+            5.200000286102295,
+            80.85781860351562
+          ],
+          "projected_area_rank": 10007.033512372524,
+          "vertices": 32
+        },
+        {
+          "name": "窗光_white.001",
+          "dimensions": [
+            75.31938171386719,
+            1.700000286102295,
+            77.110107421875
+          ],
+          "projected_area_rank": 5807.885614905506,
+          "vertices": 28
+        }
+      ],
+      "samples": [
+        {
+          "progress": 0,
+          "camera_position": [
+            1040,
+            960,
+            110
+          ],
+          "focus_interest": [
+            188,
+            6.65,
+            108
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                0.0734889772468175,
+                0.2318647264010181
+              ],
+              "y": [
+                -0.22877453315541915,
+                0.03640539067419896
+              ]
+            },
+            "median_depth": 1272.25258899748
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 32,
+            "external_blockers": {}
+          }
+        },
+        {
+          "progress": 0.25,
+          "camera_position": [
+            976.80426,
+            891.5101,
+            109.851654
+          ],
+          "focus_interest": [
+            188,
+            6.65,
+            108
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                0.06218952316477677,
+                0.23291382299055094
+              ],
+              "y": [
+                -0.23620460889690525,
+                0.05017192287073325
+              ]
+            },
+            "median_depth": 1179.4774187011785
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 32,
+            "external_blockers": {}
+          }
+        },
+        {
+          "progress": 0.5,
+          "camera_position": [
+            734.7525,
+            607.5825,
+            109.28346
+          ],
+          "focus_interest": [
+            188,
+            6.65,
+            108
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.00493080086161409,
+                0.24348661334195784
+              ],
+              "y": [
+                -0.2844559823803432,
+                0.13093280048986405
+              ]
+            },
+            "median_depth": 808.0157444741096
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 32,
+            "external_blockers": {}
+          }
+        },
+        {
+          "progress": 0.75,
+          "camera_position": [
+            492.7008,
+            269.54507,
+            108.71526
+          ],
+          "focus_interest": [
+            188,
+            6.65,
+            108
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.2066693240837159,
+                0.2964530968129924
+              ],
+              "y": [
+                -0.434590309481462,
+                0.3280427104470987
+              ]
+            },
+            "median_depth": 399.60433799972645
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 32,
+            "external_blockers": {}
+          }
+        },
+        {
+          "progress": 1,
+          "camera_position": [
+            429.50504,
+            175.65001,
+            108.56692
+          ],
+          "focus_interest": [
+            188,
+            6.65,
+            108
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.36033833583224095,
+                0.334350360522229
+              ],
+              "y": [
+                -0.5237296541795815,
+                0.41168431053867705
+              ]
+            },
+            "median_depth": 292.4830997314624
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 32,
+            "external_blockers": {}
+          }
+        }
+      ]
+    },
+    "公园": {
+      "camera": "Camera_公园",
+      "root_position": [
+        510.0,
+        0.6499999761581421,
+        -140.0
+      ],
+      "world_visible_mesh_count": 1,
+      "world_visible_vertex_count": 4006,
+      "largest_exterior_meshes": [
+        {
+          "name": "公园主体",
+          "dimensions": [
+            92.83639526367188,
+            21.99999964237213,
+            91.990966796875
+          ],
+          "projected_area_rank": 8540.109754242003,
+          "vertices": 4006
+        }
+      ],
+      "samples": [
+        {
+          "progress": 0,
+          "camera_position": [
+            1040,
+            960,
+            110
+          ],
+          "focus_interest": [
+            510,
+            7.8706074,
+            -140
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 0.7990514228657014,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.5069348941700166,
+                -0.3498104122954139
+              ],
+              "y": [
+                -1.061927395929737,
+                -0.8020725292898031
+              ]
+            },
+            "median_depth": 1080.9229770713973
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 26,
+            "tested_in_frame_points": 26,
+            "unblocked_by_other_meshes": 0,
+            "external_blockers": {
+              "郊野地面_东": 26
+            }
+          }
+        },
+        {
+          "progress": 0.25,
+          "camera_position": [
+            1005.375,
+            886.46387,
+            93.667465
+          ],
+          "focus_interest": [
+            510,
+            7.8706074,
+            -140
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 0.8884173739390914,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.5047019784395419,
+                -0.33561228655612885
+              ],
+              "y": [
+                -1.0339129134521239,
+                -0.7559887013551474
+              ]
+            },
+            "median_depth": 1003.8856755987846
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 27,
+            "tested_in_frame_points": 27,
+            "unblocked_by_other_meshes": 0,
+            "external_blockers": {
+              "郊野地面_东": 27
+            }
+          }
+        },
+        {
+          "progress": 0.5,
+          "camera_position": [
+            872.7549,
+            585.22705,
+            31.110767
+          ],
+          "focus_interest": [
+            510,
+            7.8706074,
+            -140
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.4941394817309358,
+                -0.2498365346291746
+              ],
+              "y": [
+                -0.8778749451226544,
+                -0.4929023288935971
+              ]
+            },
+            "median_depth": 692.2621674092672
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 0,
+            "external_blockers": {
+              "郊野地面_东": 32
+            }
+          }
+        },
+        {
+          "progress": 0.75,
+          "camera_position": [
+            740.1347,
+            234.93854,
+            -31.44593
+          ],
+          "focus_interest": [
+            510,
+            7.8706074,
+            -140
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.4256034793349209,
+                0.05997863992503555
+              ],
+              "y": [
+                -0.484840256530307,
+                0.13175430874771482
+              ]
+            },
+            "median_depth": 348.76486892173136
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 32,
+            "external_blockers": {}
+          }
+        },
+        {
+          "progress": 1,
+          "camera_position": [
+            705.5097,
+            138.372,
+            -47.778465
+          ],
+          "focus_interest": [
+            510,
+            7.8706074,
+            -140
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.31316648069341413,
+                0.3417836885758415
+              ],
+              "y": [
+                -0.2684381273600857,
+                0.4057087875470311
+              ]
+            },
+            "median_depth": 263.5455249312289
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 32,
+            "external_blockers": {}
+          }
+        }
+      ]
+    },
+    "家": {
+      "camera": "Camera_家",
+      "root_position": [
+        205.0,
+        1.0499999523162842,
+        268.0
+      ],
+      "world_visible_mesh_count": 493,
+      "world_visible_vertex_count": 4157,
+      "largest_exterior_meshes": [
+        {
+          "name": "旧公寓石基座",
+          "dimensions": [
+            23.139404296875,
+            0.440000057220459,
+            18.89410400390625
+          ],
+          "projected_area_rank": 437.1983113735914,
+          "vertices": 8
+        },
+        {
+          "name": "屋顶板",
+          "dimensions": [
+            22.79296875,
+            0.25,
+            18.54766845703125
+          ],
+          "projected_area_rank": 422.756427526474,
+          "vertices": 8
+        },
+        {
+          "name": "楼面.003",
+          "dimensions": [
+            22.215606689453125,
+            0.15999984741210938,
+            17.97027587890625
+          ],
+          "projected_area_rank": 399.2205810267478,
+          "vertices": 8
+        },
+        {
+          "name": "楼面.002",
+          "dimensions": [
+            22.215606689453125,
+            0.15999984741210938,
+            17.97027587890625
+          ],
+          "projected_area_rank": 399.2205810267478,
+          "vertices": 8
+        },
+        {
+          "name": "楼面.001",
+          "dimensions": [
+            22.215606689453125,
+            0.15999984741210938,
+            17.97027587890625
+          ],
+          "projected_area_rank": 399.2205810267478,
+          "vertices": 8
+        }
+      ],
+      "samples": [
+        {
+          "progress": 0,
+          "camera_position": [
+            1040,
+            960,
+            110
+          ],
+          "focus_interest": [
+            206.41608,
+            11.19815,
+            268.02634
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                0.4369996369628837,
+                0.4710890223702115
+              ],
+              "y": [
+                -0.2056719829695751,
+                -0.13349071952583966
+              ]
+            },
+            "median_depth": 1250.6499072390056
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 32,
+            "external_blockers": {}
+          }
+        },
+        {
+          "progress": 0.25,
+          "camera_position": [
+            960.10345,
+            879.21576,
+            125.14635
+          ],
+          "focus_interest": [
+            206.41608,
+            11.19815,
+            268.02634
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                0.42865018070008165,
+                0.4660612130644353
+              ],
+              "y": [
+                -0.20606305804149563,
+                -0.1266887616560732
+              ]
+            },
+            "median_depth": 1139.0557979900532
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 32,
+            "external_blockers": {}
+          }
+        },
+        {
+          "progress": 0.5,
+          "camera_position": [
+            654.0847,
+            543.32983,
+            183.15973
+          ],
+          "focus_interest": [
+            206.41608,
+            11.19815,
+            268.02634
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                0.3832143247939082,
+                0.44440610053773966
+              ],
+              "y": [
+                -0.21072965268554836,
+                -0.0798384873612495
+              ]
+            },
+            "median_depth": 691.6264696719185
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 32,
+            "external_blockers": {}
+          }
+        },
+        {
+          "progress": 0.75,
+          "camera_position": [
+            348.06598,
+            141.13712,
+            241.17311
+          ],
+          "focus_interest": [
+            206.41608,
+            11.19815,
+            268.02634
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                0.21101209231080473,
+                0.41754394222390145
+              ],
+              "y": [
+                -0.28440176370436854,
+                0.1612525517257607
+              ]
+            },
+            "median_depth": 194.73489776907311
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 32,
+            "external_blockers": {}
+          }
+        },
+        {
+          "progress": 1,
+          "camera_position": [
+            268.16946,
+            29.221027,
+            256.31946
+          ],
+          "focus_interest": [
+            206.41608,
+            11.19815,
+            268.02634
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.2987673973929461,
+                0.2914140416232707
+              ],
+              "y": [
+                -0.5931455646737869,
+                0.5200097347146374
+              ]
+            },
+            "median_depth": 68.53856825874891
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 32,
+            "external_blockers": {}
+          }
+        }
+      ]
+    },
+    "布告栏": {
+      "camera": "Camera_布告栏",
+      "root_position": [
+        210.0,
+        1.0499999523162842,
+        -98.0
+      ],
+      "world_visible_mesh_count": 1,
+      "world_visible_vertex_count": 1212,
+      "largest_exterior_meshes": [
+        {
+          "name": "布告栏主体",
+          "dimensions": [
+            9.892898559570312,
+            9.120000123977661,
+            3.4393310546875
+          ],
+          "projected_area_rank": 90.22323608977968,
+          "vertices": 1212
+        }
+      ],
+      "samples": [
+        {
+          "progress": 0,
+          "camera_position": [
+            1040,
+            960,
+            110
+          ],
+          "focus_interest": [
+            210.08932,
+            5.7888403,
+            -97.93406
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.22695221023778864,
+                -0.22369116597878647
+              ],
+              "y": [
+                -0.1144299691634291,
+                -0.08613542044852619
+              ]
+            },
+            "median_depth": 1274.6658093212363
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 0,
+            "external_blockers": {
+              "郊野地面_东": 32
+            }
+          }
+        },
+        {
+          "progress": 0.25,
+          "camera_position": [
+            956.58453,
+            878.75165,
+            89.10026
+          ],
+          "focus_interest": [
+            210.08932,
+            5.7888403,
+            -97.93406
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.22421300564117624,
+                -0.22062365510758847
+              ],
+              "y": [
+                -0.11523928215488166,
+                -0.0841296545038361
+              ]
+            },
+            "median_depth": 1157.5121066593567
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 0,
+            "external_blockers": {
+              "郊野地面_东": 32
+            }
+          }
+        },
+        {
+          "progress": 0.5,
+          "camera_position": [
+            637.0875,
+            540.29926,
+            9.050316
+          ],
+          "focus_interest": [
+            210.08932,
+            5.7888403,
+            -97.93406
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.2112830576271385,
+                -0.20527168083904054
+              ],
+              "y": [
+                -0.1214782604737095,
+                -0.06966082228206387
+              ]
+            },
+            "median_depth": 688.7863242878303
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 0,
+            "external_blockers": {
+              "郊野地面_东": 32
+            }
+          }
+        },
+        {
+          "progress": 0.75,
+          "camera_position": [
+            317.59058,
+            133.56367,
+            -70.999626
+          ],
+          "focus_interest": [
+            210.08932,
+            5.7888403,
+            -97.93406
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.18750889034866083,
+                -0.163421257203907
+              ],
+              "y": [
+                -0.18315584172935648,
+                0.02916471189593865
+              ]
+            },
+            "median_depth": 167.92041676904228
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 32,
+            "external_blockers": {}
+          }
+        },
+        {
+          "progress": 1,
+          "camera_position": [
+            234.17511,
+            20.255543,
+            -91.89937
+          ],
+          "focus_interest": [
+            210.08932,
+            5.7888403,
+            -97.93406
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 0.9942244224422442,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.06907588445129387,
+                0.09249881977701484
+              ],
+              "y": [
+                -0.692899395183477,
+                0.5426185573610263
+              ]
+            },
+            "median_depth": 28.286116954842704
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 32,
+            "external_blockers": {}
+          }
+        }
+      ]
+    },
+    "雕像": {
+      "camera": "Camera_雕像",
+      "root_position": [
+        238.0,
+        0.6499999761581421,
+        -108.0
+      ],
+      "world_visible_mesh_count": 6,
+      "world_visible_vertex_count": 13788,
+      "largest_exterior_meshes": [
+        {
+          "name": "雕像_台阶1",
+          "dimensions": [
+            18.00006103515625,
+            0.8000000715255737,
+            18.00006103515625
+          ],
+          "projected_area_rank": 324.0021972693503,
+          "vertices": 8
+        },
+        {
+          "name": "雕像_台阶2",
+          "dimensions": [
+            14.400054931640625,
+            0.7999999523162842,
+            14.400054931640625
+          ],
+          "projected_area_rank": 207.36158203426749,
+          "vertices": 8
+        },
+        {
+          "name": "雕像_本体",
+          "dimensions": [
+            7.250946044921875,
+            12.000001907348633,
+            13.546844482421875
+          ],
+          "projected_area_rank": 162.5621596276178,
+          "vertices": 13748
+        },
+        {
+          "name": "雕像_基座",
+          "dimensions": [
+            8.000030517578125,
+            13.0,
+            8.000030517578125
+          ],
+          "projected_area_rank": 104.00039672851562,
+          "vertices": 8
+        },
+        {
+          "name": "雕像_檐口",
+          "dimensions": [
+            9.200042724609375,
+            0.8000001907348633,
+            9.200027465820312
+          ],
+          "projected_area_rank": 84.64064575312659,
+          "vertices": 8
+        }
+      ],
+      "samples": [
+        {
+          "progress": 0,
+          "camera_position": [
+            1040,
+            960,
+            110
+          ],
+          "focus_interest": [
+            -664.807,
+            2.07578,
+            563.3131
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.26367449642921126,
+                -0.2480722742416682
+              ],
+              "y": [
+                -0.1349580561226167,
+                -0.12277316490194787
+              ]
+            },
+            "median_depth": 1245.1817936493776
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 0,
+            "external_blockers": {
+              "郊野地面_东": 32
+            }
+          }
+        },
+        {
+          "progress": 0.25,
+          "camera_position": [
+            965.0547,
+            877.7627,
+            81.42972
+          ],
+          "focus_interest": [
+            -664.807,
+            2.07578,
+            563.3131
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.3969180751246202,
+                -0.3794508220875058
+              ],
+              "y": [
+                -0.39063312198795824,
+                -0.3768218380465898
+              ]
+            },
+            "median_depth": 1118.813335484515
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 0,
+            "external_blockers": {
+              "郊野地面_东": 32
+            }
+          }
+        },
+        {
+          "progress": 0.5,
+          "camera_position": [
+            678.0001,
+            536.21735,
+            -27.999863
+          ],
+          "focus_interest": [
+            -664.807,
+            2.07578,
+            563.3131
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 0.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.8879565780857243,
+                -0.8535279310313061
+              ],
+              "y": [
+                -1.8996845244151752,
+                -1.864190025493558
+              ]
+            },
+            "median_depth": 588.1169000110107
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 0,
+            "tested_in_frame_points": 0,
+            "unblocked_by_other_meshes": 0,
+            "external_blockers": {}
+          }
+        },
+        {
+          "progress": 0.75,
+          "camera_position": [
+            390.9455,
+            128.1297,
+            -137.42944
+          ],
+          "focus_interest": [
+            -664.807,
+            2.07578,
+            563.3131
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 0.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.9798987765516524,
+                -0.8548217154239642
+              ],
+              "y": [
+                -2.5015655208203555,
+                -2.315054745652085
+              ]
+            },
+            "median_depth": 154.8104789078399
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 0,
+            "tested_in_frame_points": 0,
+            "unblocked_by_other_meshes": 0,
+            "external_blockers": {}
+          }
+        },
+        {
+          "progress": 1,
+          "camera_position": [
+            316.0002,
+            14.65,
+            -165.99973
+          ],
+          "focus_interest": [
+            -664.807,
+            2.07578,
+            563.3131
+          ],
+          "body_projection": {
+            "in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.08809442129107689,
+                0.0651176928355566
+              ],
+              "y": [
+                0.2470485765565353,
+                0.49188281581760873
+              ]
+            },
+            "median_depth": 97.80290607470171
+          },
+          "external_occlusion": {
+            "sampled_surface_points": 32,
+            "in_frame_points": 32,
+            "tested_in_frame_points": 32,
+            "unblocked_by_other_meshes": 32,
+            "external_blockers": {}
+          }
+        }
+      ]
+    }
+  },
+  "limitations": "Routes are authored-center samples, not arbitrary player-pan starts. Geometry checks sample camera center, near-plane perimeter and corner sweeps; not a continuous proof. Body bounds use actual descendant exterior meshes with layer=interior excluded; external ray checks use up to 32 surface vertices per landmark and do not replace Blender image review or Unity visibility."
+}

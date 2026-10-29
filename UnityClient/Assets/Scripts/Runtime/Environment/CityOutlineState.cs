@@ -152,7 +152,16 @@ namespace SSNoir
 
                     var interior = descendants.FirstOrDefault(t => t.name == InteriorPrefix + prefabName);
 
-                    var view = new PrefabView(prefabName, focus.GetComponentsInChildren<Renderer>(true), world,
+                    // 动画部件的描线挂在部件下，不能只收静态 focus 根的子节点。
+                    // 随卡节点仍由父对象控制在场，部件的缩放/动画仍由 PropMotion 控制。
+                    var focusRenderers = focus.GetComponentsInChildren<Renderer>(true)
+                        .Concat(focus.parent.GetComponentsInChildren<Renderer>(true)
+                            .Where(r => r.name.StartsWith("描线_", StringComparison.Ordinal)
+                                && !r.name.StartsWith(FocusOutlinePrefix, StringComparison.Ordinal)
+                                && !r.name.StartsWith(WorldOutlinePrefix, StringComparison.Ordinal)
+                                && OwnsOutline(focus.parent, r.transform)))
+                        .Distinct().ToArray();
+                    var view = new PrefabView(prefabName, focusRenderers, world,
                         interior != null ? interior.gameObject : null);
                     view.SetWeights(0,1,_fade);
                     views.Add(view);
@@ -292,6 +301,17 @@ namespace SSNoir
                 return false;
             string placeName = transform.name.Substring(FocusOutlinePrefix.Length);
             return transform.parent != null && string.Equals(transform.parent.name, placeName, StringComparison.Ordinal);
+        }
+
+        private static bool OwnsOutline(Transform prefab, Transform outline)
+        {
+            for (var node = outline.parent; node != null; node = node.parent)
+            {
+                if (node == prefab) return true;
+                // 嵌套 Prefab 有自己的交接权重，不让外层重复接管它的部件线。
+                if (node.Find(FocusOutlinePrefix + node.name) != null) return false;
+            }
+            return false;
         }
 
         private static InvalidOperationException ContractError(string message)

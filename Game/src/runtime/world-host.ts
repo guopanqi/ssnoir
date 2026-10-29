@@ -78,7 +78,7 @@ export async function createWorldHostRuntime(random:()=>number=Math.random):Prom
       };
       try{
         const node=await director.worldActions.enterPlace(name);
-        // An arrival may open an scenario; only that mode transition needs
+        // An arrival may open a scenario; only that mode transition needs
         // a different interpreter's render tree after flush().
         await director.flush();
         const modeChanged=director.mode!==beforeMode;
@@ -97,14 +97,14 @@ export async function createWorldHostRuntime(random:()=>number=Math.random):Prom
       return root;
     },
     async endDay(){
-      if(director.mode!=="world")throw new Error("cannot end the city day during an scenario");
+      if(director.mode!=="world")throw new Error("cannot end the city day during a scenario");
       const result=await new WorldTurnController(director.state,director.world).endDay(random);
       await director.flush();
       root=await director.render();
       return result;
     },
     async save(){
-      if(director.mode!=="world")throw new Error("cannot save inside an scenario");
+      if(director.mode!=="world")throw new Error("cannot save inside a scenario");
       const data=await new WorldSaveController(director.state,director.world).capture();
       return WorldSaveController.encode(data);
     },

@@ -1,0 +1,5 @@
+OUTLINE| 巷子里在打人   w=0.00m 共享线=0 壳=3 暗线=16 远景=无 内部=31
+TIMING| partial_prefabs 6.599s
+TIMING| export City.fbx 3.652s
+TIMING| export 巷子里在打人.fbx 14.098s
+BUILD| partial=巷子里在打人 total=33.144s; 其他地点与城市填充复用基线

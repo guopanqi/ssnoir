@@ -1,0 +1,427 @@
+[
+  {
+    "place": "三号货栈工棚",
+    "progress": 0,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/三号货栈工棚-0.png"
+  },
+  {
+    "place": "三号货栈工棚",
+    "progress": 0.25,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/三号货栈工棚-25.png"
+  },
+  {
+    "place": "三号货栈工棚",
+    "progress": 0.5,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/三号货栈工棚-50.png"
+  },
+  {
+    "place": "三号货栈工棚",
+    "progress": 0.75,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/三号货栈工棚-75.png"
+  },
+  {
+    "place": "三号货栈工棚",
+    "progress": 1,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/三号货栈工棚-100.png"
+  },
+  {
+    "place": "公园",
+    "progress": 0,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/公园-0.png"
+  },
+  {
+    "place": "公园",
+    "progress": 0.25,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/公园-25.png"
+  },
+  {
+    "place": "公园",
+    "progress": 0.5,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/公园-50.png"
+  },
+  {
+    "place": "公园",
+    "progress": 0.75,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/公园-75.png"
+  },
+  {
+    "place": "公园",
+    "progress": 1,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/公园-100.png"
+  },
+  {
+    "place": "剧院",
+    "progress": 0,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/剧院-0.png"
+  },
+  {
+    "place": "剧院",
+    "progress": 0.25,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/剧院-25.png"
+  },
+  {
+    "place": "剧院",
+    "progress": 0.5,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/剧院-50.png"
+  },
+  {
+    "place": "剧院",
+    "progress": 0.75,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/剧院-75.png"
+  },
+  {
+    "place": "剧院",
+    "progress": 1,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/剧院-100.png"
+  },
+  {
+    "place": "勒索信",
+    "progress": 0,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/勒索信-0.png"
+  },
+  {
+    "place": "勒索信",
+    "progress": 0.25,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/勒索信-25.png"
+  },
+  {
+    "place": "勒索信",
+    "progress": 0.5,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/勒索信-50.png"
+  },
+  {
+    "place": "勒索信",
+    "progress": 0.75,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/勒索信-75.png"
+  },
+  {
+    "place": "勒索信",
+    "progress": 1,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/勒索信-100.png"
+  },
+  {
+    "place": "家",
+    "progress": 0,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/家-0.png"
+  },
+  {
+    "place": "家",
+    "progress": 0.25,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/家-25.png"
+  },
+  {
+    "place": "家",
+    "progress": 0.5,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/家-50.png"
+  },
+  {
+    "place": "家",
+    "progress": 0.75,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/家-75.png"
+  },
+  {
+    "place": "家",
+    "progress": 1,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/家-100.png"
+  },
+  {
+    "place": "尾随取件人",
+    "progress": 0,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/尾随取件人-0.png"
+  },
+  {
+    "place": "尾随取件人",
+    "progress": 0.25,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/尾随取件人-25.png"
+  },
+  {
+    "place": "尾随取件人",
+    "progress": 0.5,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/尾随取件人-50.png"
+  },
+  {
+    "place": "尾随取件人",
+    "progress": 0.75,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/尾随取件人-75.png"
+  },
+  {
+    "place": "尾随取件人",
+    "progress": 1,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/尾随取件人-100.png"
+  },
+  {
+    "place": "布告栏",
+    "progress": 0,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/布告栏-0.png"
+  },
+  {
+    "place": "布告栏",
+    "progress": 0.25,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/布告栏-25.png"
+  },
+  {
+    "place": "布告栏",
+    "progress": 0.5,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/布告栏-50.png"
+  },
+  {
+    "place": "布告栏",
+    "progress": 0.75,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/布告栏-75.png"
+  },
+  {
+    "place": "布告栏",
+    "progress": 1,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/布告栏-100.png"
+  },
+  {
+    "place": "报社",
+    "progress": 0,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/报社-0.png"
+  },
+  {
+    "place": "报社",
+    "progress": 0.25,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/报社-25.png"
+  },
+  {
+    "place": "报社",
+    "progress": 0.5,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/报社-50.png"
+  },
+  {
+    "place": "报社",
+    "progress": 0.75,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/报社-75.png"
+  },
+  {
+    "place": "报社",
+    "progress": 1,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/报社-100.png"
+  },
+  {
+    "place": "格兰德酒店",
+    "progress": 0,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/格兰德酒店-0.png"
+  },
+  {
+    "place": "格兰德酒店",
+    "progress": 0.25,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/格兰德酒店-25.png"
+  },
+  {
+    "place": "格兰德酒店",
+    "progress": 0.5,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/格兰德酒店-50.png"
+  },
+  {
+    "place": "格兰德酒店",
+    "progress": 0.75,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/格兰德酒店-75.png"
+  },
+  {
+    "place": "格兰德酒店",
+    "progress": 1,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/格兰德酒店-100.png"
+  },
+  {
+    "place": "码头",
+    "progress": 0,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/码头-0.png"
+  },
+  {
+    "place": "码头",
+    "progress": 0.25,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/码头-25.png"
+  },
+  {
+    "place": "码头",
+    "progress": 0.5,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/码头-50.png"
+  },
+  {
+    "place": "码头",
+    "progress": 0.75,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/码头-75.png"
+  },
+  {
+    "place": "码头",
+    "progress": 1,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/码头-100.png"
+  },
+  {
+    "place": "码头居民区",
+    "progress": 0,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/码头居民区-0.png"
+  },
+  {
+    "place": "码头居民区",
+    "progress": 0.25,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/码头居民区-25.png"
+  },
+  {
+    "place": "码头居民区",
+    "progress": 0.5,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/码头居民区-50.png"
+  },
+  {
+    "place": "码头居民区",
+    "progress": 0.75,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/码头居民区-75.png"
+  },
+  {
+    "place": "码头居民区",
+    "progress": 1,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/码头居民区-100.png"
+  },
+  {
+    "place": "老街酒馆",
+    "progress": 0,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/老街酒馆-0.png"
+  },
+  {
+    "place": "老街酒馆",
+    "progress": 0.25,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/老街酒馆-25.png"
+  },
+  {
+    "place": "老街酒馆",
+    "progress": 0.5,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/老街酒馆-50.png"
+  },
+  {
+    "place": "老街酒馆",
+    "progress": 0.75,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/老街酒馆-75.png"
+  },
+  {
+    "place": "老街酒馆",
+    "progress": 1,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/老街酒馆-100.png"
+  },
+  {
+    "place": "街角咖啡馆",
+    "progress": 0,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/街角咖啡馆-0.png"
+  },
+  {
+    "place": "街角咖啡馆",
+    "progress": 0.25,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/街角咖啡馆-25.png"
+  },
+  {
+    "place": "街角咖啡馆",
+    "progress": 0.5,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/街角咖啡馆-50.png"
+  },
+  {
+    "place": "街角咖啡馆",
+    "progress": 0.75,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/街角咖啡馆-75.png"
+  },
+  {
+    "place": "街角咖啡馆",
+    "progress": 1,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/街角咖啡馆-100.png"
+  },
+  {
+    "place": "警察局",
+    "progress": 0,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/警察局-0.png"
+  },
+  {
+    "place": "警察局",
+    "progress": 0.25,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/警察局-25.png"
+  },
+  {
+    "place": "警察局",
+    "progress": 0.5,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/警察局-50.png"
+  },
+  {
+    "place": "警察局",
+    "progress": 0.75,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/警察局-75.png"
+  },
+  {
+    "place": "警察局",
+    "progress": 1,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/警察局-100.png"
+  },
+  {
+    "place": "诊所",
+    "progress": 0,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/诊所-0.png"
+  },
+  {
+    "place": "诊所",
+    "progress": 0.25,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/诊所-25.png"
+  },
+  {
+    "place": "诊所",
+    "progress": 0.5,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/诊所-50.png"
+  },
+  {
+    "place": "诊所",
+    "progress": 0.75,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/诊所-75.png"
+  },
+  {
+    "place": "诊所",
+    "progress": 1,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/诊所-100.png"
+  },
+  {
+    "place": "货运公司",
+    "progress": 0,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/货运公司-0.png"
+  },
+  {
+    "place": "货运公司",
+    "progress": 0.25,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/货运公司-25.png"
+  },
+  {
+    "place": "货运公司",
+    "progress": 0.5,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/货运公司-50.png"
+  },
+  {
+    "place": "货运公司",
+    "progress": 0.75,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/货运公司-75.png"
+  },
+  {
+    "place": "货运公司",
+    "progress": 1,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/货运公司-100.png"
+  },
+  {
+    "place": "雕像",
+    "progress": 0,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/雕像-0.png"
+  },
+  {
+    "place": "雕像",
+    "progress": 0.25,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/雕像-25.png"
+  },
+  {
+    "place": "雕像",
+    "progress": 0.5,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/雕像-50.png"
+  },
+  {
+    "place": "雕像",
+    "progress": 0.75,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/雕像-75.png"
+  },
+  {
+    "place": "雕像",
+    "progress": 1,
+    "path": "/Users/usr/Documents/play/ssnoir/experiments/全城镜头巡检/batches/002/frames-geometry/雕像-100.png"
+  }
+]

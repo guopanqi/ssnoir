@@ -1,0 +1,175 @@
+{
+ "fps": 30,
+ "clips": [
+  {
+   "name": "喊的人__静候",
+   "start": 1,
+   "end": 31,
+   "loop": false,
+   "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
+   "from": "",
+   "to": ""
+  },
+  {
+   "name": "喊的人__叫喊",
+   "start": 37,
+   "end": 67,
+   "loop": false,
+   "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
+   "from": "",
+   "to": ""
+  },
+  {
+   "name": "喊的人__退开",
+   "start": 73,
+   "end": 103,
+   "loop": false,
+   "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
+   "from": "",
+   "to": ""
+  },
+  {
+   "name": "喊的人__静候到叫喊",
+   "start": 109,
+   "end": 212,
+   "loop": false,
+   "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
+   "from": "静候",
+   "to": "叫喊"
+  },
+  {
+   "name": "喊的人__静候到退开",
+   "start": 218,
+   "end": 280,
+   "loop": false,
+   "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
+   "from": "静候",
+   "to": "退开"
+  },
+  {
+   "name": "喊的人__叫喊到静候",
+   "start": 286,
+   "end": 298,
+   "loop": false,
+   "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
+   "from": "叫喊",
+   "to": "静候"
+  },
+  {
+   "name": "喊的人__叫喊到退开",
+   "start": 304,
+   "end": 366,
+   "loop": false,
+   "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
+   "from": "叫喊",
+   "to": "退开"
+  },
+  {
+   "name": "喊的人__退开到静候",
+   "start": 372,
+   "end": 434,
+   "loop": false,
+   "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
+   "from": "退开",
+   "to": "静候"
+  },
+  {
+   "name": "喊的人__退开到叫喊",
+   "start": 440,
+   "end": 593,
+   "loop": false,
+   "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
+   "from": "退开",
+   "to": "叫喊"
+  },
+  {
+   "name": "前排工人__静候",
+   "start": 599,
+   "end": 629,
+   "loop": false,
+   "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
+   "from": "",
+   "to": ""
+  },
+  {
+   "name": "前排工人__退开",
+   "start": 635,
+   "end": 665,
+   "loop": false,
+   "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
+   "from": "",
+   "to": ""
+  },
+  {
+   "name": "前排工人__静候到退开",
+   "start": 671,
+   "end": 733,
+   "loop": false,
+   "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
+   "from": "静候",
+   "to": "退开"
+  },
+  {
+   "name": "前排工人__退开到静候",
+   "start": 739,
+   "end": 801,
+   "loop": false,
+   "once": false,
+   "ambient": false,
+   "participants": [],
+   "travelSeconds": 0,
+   "from": "退开",
+   "to": "静候"
+  }
+ ],
+ "parts": [
+  {
+   "prop": "喊的人",
+   "names": [
+    "老街_喊的人"
+   ]
+  },
+  {
+   "prop": "前排工人",
+   "names": [
+    "老街_前排工人"
+   ]
+  }
+ ]
+}

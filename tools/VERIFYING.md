@@ -124,6 +124,12 @@ the same project"。先 `pgrep -lf "Unity.app/Contents/MacOS/Unity"` 看一眼�
 
 ## Unity 验证边界
 
+- 3D场景与动画的日常设计循环在 Blender 完成。由 Agent 审查朝向、接触、穿插、首尾姿态、描线跟随和循环；Unity 不作为每轮修改的前置检查。
+- 普通内容修改默认以 Blender / 共享 C# / 内容校验器及发布物检查结束；内容成立或写入 Unity 资源目录，不自动触发 Unity 核对。独立 Stage、Portal、机位、通行空间沿用已验证契约时也遵守此规则。
+- Unity 核对按证据缺口触发：新增或修改导出/导入契约（轴向、单位、FOV、组件绑定、序列化）、修改 Unity 专有渲染（Shader、URP、光照）、出现 Blender 与游戏不一致，或用户明确要求。选最小输入和代表路径核对一次；同一契约校准后，普通数值和内容调整不逐次重复。发布版本的抽样试玩可合并进行。
+- 需要引擎证据时才选 [正式预览工具](citybox-unity-preview/README.md#动画固定帧)，不默认全量 `--verify-play`。开播、跳过、返回机位、恢复操作及重入等功能流程，默认提供简短人工路径；没有实际运行就说明未运行，不把它们扩成每次内容交付的强制工序。
+- Blender 正确而 Unity 不一致，或预览进程启动/退出卡住，归为导出、导入、运行时或工具的功能缺陷，单独用最小复现定位。修共同管线，再复核受影响路径；不靠反复改资产、启动预览或录屏补救。用户明确要求自动交互验证时再展开。
+
 - 默认不要为了验证而调用 `computer-use` 操作 Unity。Unity 的场景状态、Play Mode 和焦点不稳定，自动操作的成本与证据质量通常不匹配。
 - 用户没有明确要求 Codex 操作 Unity 时，完成静态审阅并提供简短的人工核验路径，让用户在 Unity 中确认编译、画面和手感。
 - 只有用户明确要求 Codex 使用 Unity 做实际交互验证时，才尝试用 `computer-use` 控制编辑器；操作前先保护未保存的场景和当前 Play Mode 状态。
@@ -133,9 +139,9 @@ the same project"。先 `pgrep -lf "Unity.app/Contents/MacOS/Unity"` 看一眼�
 
 新增图形、属性动画或音频生命周期时，执行 `dotnet run --project tools/content-validator/SSNoir.ContentValidator.csproj -- --test-theatre`。
 它实际加载并执行路灯与雨夜来访样板，检查解析和时间语义；Unity 侧仍需客户端编译结果。
-调整线绘演出的构图和节奏时，用 [Unity 舞台预览工具](theatre/README.md) 导出并审阅完整 GIF、对白索引及可疑时刻原图。
+仅调整线绘演出的解析、时间语义或状态推进时，优先复用正式 Engine C# 的无界面验证；需要判断实际绘制、构图和视觉节奏时，才按需使用 [Unity 舞台预览工具](theatre/README.md) 导出 GIF、对白索引及可疑时刻原图，不因普通参数微调强制启动 Unity。
 这是独立工程中的真实 GPU 绘制，不要求关闭主工程；不替代字幕 UI、实际声音和玩家点击验收。
-离屏 GPU 检查、范围与限制见 [线绘舞台](../docs/线绘舞台.md#试演与验证)。
+离屏 GPU 检查、范围与限制见 [线绘舞台](../docs/制作/线绘舞台.md#试演与验证)。
 
 ## GameTester
 
@@ -148,3 +154,11 @@ the same project"。先 `pgrep -lf "Unity.app/Contents/MacOS/Unity"` 看一眼�
 ## 第二幕V0.2独立Scenario与结果回归
 
 `dotnet run --project tools/content-validator/SSNoir.ContentValidator.csproj -- --test-second-act-v02`覆盖独立双目标Scenario、Scenario回合不推进世界日、截止日、人物在场、自然情感场景、衣箱资源与旧状态归一。精确结果只证明分支和资源契约，不代表真实概率下的难度或Unity演出已验证。
+
+## 镜头过渡与场景空间
+
+焦点过渡算法或受限空间机位修改时，按 [镜头过渡检查](camera-review/README.md) 在 Blender 中运行共享 C# 策略并检查几何。日常不启动 Unity。路线安全与画面可读性分开判断；地面兴趣点遮挡不等于主体遮挡。
+
+调整 `CameraTravelBounds_<地点>` 的尺寸或机位时，默认只做 Blender 几何检查；向游戏交付时走 CityBox 构建、契约及发布物检查，不因此额外启动 Unity。新增或修改绑定/换算实现、出现两端差异时，才用 `tools/camera-review/verify_unity.py` 做最小导入核对；目前覆盖巷战 8 台机位，不覆盖 Play Mode。共享同一份 C# 已证明的曲线计算不在 Unity 中重复验证；轴向、FOV 和导入绑定属于另一层证据。
+
+可移出 Unity 的是确定性计算和数据契约：复用正式 C# 源文件运行命令行检查，或在 Blender 检查源几何。不要在 Python、测试工具里重写正式算法来冒充等价验证。GUI 实际排版、Shader/GPU 输出、Unity 导入后的曲线及播放行为不能靠纯计算证明；只有本次确实涉及它们时才付出对应检查成本。

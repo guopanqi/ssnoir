@@ -1,0 +1,44 @@
+{
+  "routes": 6,
+  "samples_per_route": 120,
+  "elapsed_seconds": 0.5296644170011859,
+  "shared_program": "/Users/usr/Documents/play/ssnoir/tools/camera-review/bin/Debug/net9.0/CameraReview.dll",
+  "per_route": [
+    {
+      "from": "Camera_世界-偏移边界西南",
+      "to": "Camera_布告栏",
+      "returncode": 0,
+      "stdout": "Sampled 2 routes using shared runtime math."
+    },
+    {
+      "from": "Camera_世界-偏移边界西南",
+      "to": "Camera_老街酒馆",
+      "returncode": 0,
+      "stdout": "Sampled 2 routes using shared runtime math."
+    },
+    {
+      "from": "Camera_世界-偏移边界西南",
+      "to": "Camera_货运公司",
+      "returncode": 0,
+      "stdout": "Sampled 2 routes using shared runtime math."
+    },
+    {
+      "from": "Camera_世界-偏移边界东北",
+      "to": "Camera_布告栏",
+      "returncode": 0,
+      "stdout": "Sampled 2 routes using shared runtime math."
+    },
+    {
+      "from": "Camera_世界-偏移边界东北",
+      "to": "Camera_老街酒馆",
+      "returncode": 0,
+      "stdout": "Sampled 2 routes using shared runtime math."
+    },
+    {
+      "from": "Camera_世界-偏移边界东北",
+      "to": "Camera_货运公司",
+      "returncode": 0,
+      "stdout": "Sampled 2 routes using shared runtime math."
+    }
+  ]
+}

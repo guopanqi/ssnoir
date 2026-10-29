@@ -1,0 +1,1127 @@
+{
+  "source": "/Users/usr/Documents/play/ssnoir/city-box/build/city/city_build.blend",
+  "source_sha256": "2acf1f5d474595aca5798d3e64f1f312d489a4c5c05bf3a581f50a9113ef9d61",
+  "routes_sha256": "4628888972da45424c29a5ad36890a469b82bfdb82a978cb5cac10077e56e89c",
+  "elapsed_seconds": 7.758177625015378,
+  "evaluated_mesh_count": 6658,
+  "roots": {
+    "码头": {
+      "mesh_count": 4,
+      "vertex_count": 424,
+      "bounds_min": [
+        -29.148216247558594,
+        -11.100000381469727,
+        90.21207427978516
+      ],
+      "bounds_max": [
+        -1.7965068817138672,
+        35.650001525878906,
+        200.21824645996094
+      ],
+      "mesh_names": [
+        "货船_船体",
+        "货船_锚",
+        "货船_前吊杆",
+        "货船_后吊杆"
+      ]
+    },
+    "联合起吊": {
+      "mesh_count": 23,
+      "vertex_count": 1548,
+      "bounds_min": [
+        -1673.2342529296875,
+        1.137189507484436,
+        -956.25
+      ],
+      "bounds_max": [
+        -1646.7657470703125,
+        27.020055770874023,
+        -938.5398559570312
+      ],
+      "mesh_names": [
+        "重机_机体",
+        "重机_前吊杆",
+        "重机_前吊钩",
+        "重机_前吊索上",
+        "重机_前吊索下",
+        "重机_前牵顶索",
+        "重机_前兜索0a",
+        "重机_前兜索0b",
+        "重机_前兜索1a",
+        "重机_前兜索1b",
+        "重机_前导索a",
+        "重机_前导索b",
+        "重机_后吊杆",
+        "重机_后吊钩",
+        "重机_后吊索上",
+        "重机_后吊索下",
+        "重机_后牵顶索",
+        "重机_后兜索0a",
+        "重机_后兜索0b",
+        "重机_后兜索1a",
+        "重机_后兜索1b",
+        "重机_后导索a",
+        "重机_后导索b"
+      ]
+    }
+  },
+  "geometry_scope": "Complete compiled city assembly; one BVH per evaluated render-visible mesh after preview/proxy/outline exclusions, rebuilt at each exact steady animation clip state used for each route. Camera path checks sample all 120 Program frames. Body bounds use actual motion subject meshes (重机_* for 联合起吊; 货船_* for 码头), with up to 32 representative vertices and external rays at 0/25/50/75/100 percent.",
+  "clip_state_mesh_counts": {
+    "重机__Hold": 6658,
+    "重机__Suspended": 6658,
+    "重机__Landed": 6658,
+    "货船__Offshore": 6658,
+    "货船__Berthed": 6658
+  },
+  "routes": [
+    {
+      "from": "Camera_联合起吊",
+      "to": "Camera_联合起吊-起吊",
+      "target_root": "联合起吊",
+      "clip_state": "重机__Hold",
+      "blender_frame": 1,
+      "path": "DirectApproach",
+      "duration": 1.128647,
+      "crossfade": false,
+      "center_path_crossings": [],
+      "near_plane_hits": [],
+      "body_samples": [
+        {
+          "progress": 0,
+          "camera_position": [
+            -1680,
+            17,
+            -916
+          ],
+          "target_interest": [
+            -1660,
+            5.8,
+            -948.5
+          ],
+          "target_root": "联合起吊",
+          "body_projection": {
+            "sampled_body_vertices": 32,
+            "sampled_in_front_fraction": 1.0,
+            "in_frame_fraction": 0.875,
+            "visible_mesh_points_tested": 28,
+            "other_root_blockers": {},
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.11841992501201194,
+                0.2996133443967497
+              ],
+              "y": [
+                -0.1981173099619925,
+                1.9757313219220292
+              ]
+            },
+            "median_depth": 45.73132545333352
+          }
+        },
+        {
+          "progress": 0.25,
+          "camera_position": [
+            -1677.2051,
+            16.326094,
+            -917.65625
+          ],
+          "target_interest": [
+            -1660,
+            5.8,
+            -948.5
+          ],
+          "target_root": "联合起吊",
+          "body_projection": {
+            "sampled_body_vertices": 32,
+            "sampled_in_front_fraction": 1.0,
+            "in_frame_fraction": 0.875,
+            "visible_mesh_points_tested": 28,
+            "other_root_blockers": {},
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.11356296114862692,
+                0.2935004031583277
+              ],
+              "y": [
+                -0.20267664343204278,
+                1.9155085137822618
+              ]
+            },
+            "median_depth": 42.954179056775416
+          }
+        },
+        {
+          "progress": 0.5,
+          "camera_position": [
+            -1666.5,
+            13.025057,
+            -924
+          ],
+          "target_interest": [
+            -1660,
+            5.8,
+            -948.5
+          ],
+          "target_root": "联合起吊",
+          "body_projection": {
+            "sampled_body_vertices": 32,
+            "sampled_in_front_fraction": 1.0,
+            "in_frame_fraction": 0.875,
+            "visible_mesh_points_tested": 28,
+            "other_root_blockers": {},
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.13399318239975241,
+                0.27510777711536
+              ],
+              "y": [
+                -0.25977397172839756,
+                1.8484335636540232
+              ]
+            },
+            "median_depth": 33.21592160947949
+          }
+        },
+        {
+          "progress": 0.75,
+          "camera_position": [
+            -1655.7949,
+            7.9206243,
+            -930.34375
+          ],
+          "target_interest": [
+            -1660,
+            5.8,
+            -948.5
+          ],
+          "target_root": "联合起吊",
+          "body_projection": {
+            "sampled_body_vertices": 32,
+            "sampled_in_front_fraction": 1.0,
+            "in_frame_fraction": 0.875,
+            "visible_mesh_points_tested": 28,
+            "other_root_blockers": {},
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.2649211862608773,
+                0.09797930684459215
+              ],
+              "y": [
+                -0.43350298355198025,
+                1.5926797141692612
+              ]
+            },
+            "median_depth": 25.20327570937428
+          }
+        },
+        {
+          "progress": 1,
+          "camera_position": [
+            -1653,
+            6.4,
+            -932
+          ],
+          "target_interest": [
+            -1660,
+            5.8,
+            -948.5
+          ],
+          "target_root": "联合起吊",
+          "body_projection": {
+            "sampled_body_vertices": 32,
+            "sampled_in_front_fraction": 1.0,
+            "in_frame_fraction": 0.90625,
+            "visible_mesh_points_tested": 29,
+            "other_root_blockers": {},
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.31097265750113035,
+                0.021912688754118316
+              ],
+              "y": [
+                -0.48349589862075565,
+                1.387331867266171
+              ]
+            },
+            "median_depth": 24.356739053486386
+          }
+        }
+      ]
+    },
+    {
+      "from": "Camera_联合起吊-起吊",
+      "to": "Camera_联合起吊",
+      "target_root": "联合起吊",
+      "clip_state": "重机__Suspended",
+      "blender_frame": 36,
+      "path": "DirectApproach",
+      "duration": 1.128647,
+      "crossfade": false,
+      "center_path_crossings": [],
+      "near_plane_hits": [],
+      "body_samples": [
+        {
+          "progress": 0,
+          "camera_position": [
+            -1653,
+            6.4,
+            -932
+          ],
+          "target_interest": [
+            -1660,
+            4,
+            -952
+          ],
+          "target_root": "联合起吊",
+          "body_projection": {
+            "sampled_body_vertices": 32,
+            "sampled_in_front_fraction": 1.0,
+            "in_frame_fraction": 0.90625,
+            "visible_mesh_points_tested": 29,
+            "other_root_blockers": {},
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.24554868500260638,
+                0.22554304416232648
+              ],
+              "y": [
+                -0.08950385043171039,
+                1.7069755799569195
+              ]
+            },
+            "median_depth": 17.006255848704882
+          }
+        },
+        {
+          "progress": 0.25,
+          "camera_position": [
+            -1655.7949,
+            7.9206243,
+            -930.34375
+          ],
+          "target_interest": [
+            -1660,
+            4,
+            -952
+          ],
+          "target_root": "联合起吊",
+          "body_projection": {
+            "sampled_body_vertices": 32,
+            "sampled_in_front_fraction": 1.0,
+            "in_frame_fraction": 0.875,
+            "visible_mesh_points_tested": 28,
+            "other_root_blockers": {},
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.2666910601428638,
+                0.26667571348813024
+              ],
+              "y": [
+                -0.12445012499175756,
+                1.946003544775192
+              ]
+            },
+            "median_depth": 17.222105114617094
+          }
+        },
+        {
+          "progress": 0.5,
+          "camera_position": [
+            -1666.5,
+            13.025057,
+            -924
+          ],
+          "target_interest": [
+            -1660,
+            4,
+            -952
+          ],
+          "target_root": "联合起吊",
+          "body_projection": {
+            "sampled_body_vertices": 32,
+            "sampled_in_front_fraction": 1.0,
+            "in_frame_fraction": 0.875,
+            "visible_mesh_points_tested": 28,
+            "other_root_blockers": {},
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.29876423881642505,
+                0.2346246420547547
+              ],
+              "y": [
+                -0.0765276317808485,
+                1.9452158778048303
+              ]
+            },
+            "median_depth": 24.468539049595606
+          }
+        },
+        {
+          "progress": 0.75,
+          "camera_position": [
+            -1677.2051,
+            16.326094,
+            -917.65625
+          ],
+          "target_interest": [
+            -1660,
+            4,
+            -952
+          ],
+          "target_root": "联合起吊",
+          "body_projection": {
+            "sampled_body_vertices": 32,
+            "sampled_in_front_fraction": 1.0,
+            "in_frame_fraction": 0.875,
+            "visible_mesh_points_tested": 28,
+            "other_root_blockers": {},
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.34676268518926945,
+                0.12704457682864673
+              ],
+              "y": [
+                0.005347651025708472,
+                1.8411869790325113
+              ]
+            },
+            "median_depth": 34.74483191860759
+          }
+        },
+        {
+          "progress": 1,
+          "camera_position": [
+            -1680,
+            17,
+            -916
+          ],
+          "target_interest": [
+            -1660,
+            4,
+            -952
+          ],
+          "target_root": "联合起吊",
+          "body_projection": {
+            "sampled_body_vertices": 32,
+            "sampled_in_front_fraction": 1.0,
+            "in_frame_fraction": 0.875,
+            "visible_mesh_points_tested": 28,
+            "other_root_blockers": {},
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.3697220237808832,
+                0.10474895075272547
+              ],
+              "y": [
+                0.023669420421980253,
+                1.8758415802812862
+              ]
+            },
+            "median_depth": 37.66384044750872
+          }
+        }
+      ]
+    },
+    {
+      "from": "Camera_联合起吊",
+      "to": "Camera_联合起吊-落地",
+      "target_root": "联合起吊",
+      "clip_state": "重机__Suspended",
+      "blender_frame": 36,
+      "path": "DirectApproach",
+      "duration": 0.9,
+      "crossfade": false,
+      "center_path_crossings": [],
+      "near_plane_hits": [],
+      "body_samples": [
+        {
+          "progress": 0,
+          "camera_position": [
+            -1680,
+            17,
+            -916
+          ],
+          "target_interest": [
+            -1660,
+            3.5,
+            -943.5
+          ],
+          "target_root": "联合起吊",
+          "body_projection": {
+            "sampled_body_vertices": 32,
+            "sampled_in_front_fraction": 1.0,
+            "in_frame_fraction": 0.875,
+            "visible_mesh_points_tested": 28,
+            "other_root_blockers": {},
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.3697220237808832,
+                0.10474895075272547
+              ],
+              "y": [
+                0.023669420421980253,
+                1.8758415802812862
+              ]
+            },
+            "median_depth": 37.66384044750872
+          }
+        },
+        {
+          "progress": 0.25,
+          "camera_position": [
+            -1679.0684,
+            15.969214,
+            -917.03516
+          ],
+          "target_interest": [
+            -1660,
+            3.5,
+            -943.5
+          ],
+          "target_root": "联合起吊",
+          "body_projection": {
+            "sampled_body_vertices": 32,
+            "sampled_in_front_fraction": 1.0,
+            "in_frame_fraction": 0.90625,
+            "visible_mesh_points_tested": 29,
+            "other_root_blockers": {},
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.3396720661148195,
+                0.1316076499327811
+              ],
+              "y": [
+                0.05848148936357436,
+                1.8949355388817315
+              ]
+            },
+            "median_depth": 36.08895686709997
+          }
+        },
+        {
+          "progress": 0.5,
+          "camera_position": [
+            -1675.5,
+            11.626459,
+            -921
+          ],
+          "target_interest": [
+            -1660,
+            3.5,
+            -943.5
+          ],
+          "target_root": "联合起吊",
+          "body_projection": {
+            "sampled_body_vertices": 32,
+            "sampled_in_front_fraction": 1.0,
+            "in_frame_fraction": 0.90625,
+            "visible_mesh_points_tested": 29,
+            "other_root_blockers": {},
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.23759878045732447,
+                0.24113538653797006
+              ],
+              "y": [
+                0.1755454347212401,
+                2.020016375712322
+              ]
+            },
+            "median_depth": 30.10685072754029
+          }
+        },
+        {
+          "progress": 0.75,
+          "camera_position": [
+            -1671.9316,
+            6.2949963,
+            -924.96484
+          ],
+          "target_interest": [
+            -1660,
+            3.5,
+            -943.5
+          ],
+          "target_root": "联合起吊",
+          "body_projection": {
+            "sampled_body_vertices": 32,
+            "sampled_in_front_fraction": 1.0,
+            "in_frame_fraction": 0.875,
+            "visible_mesh_points_tested": 28,
+            "other_root_blockers": {},
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.13719389479826502,
+                0.36436273781912326
+              ],
+              "y": [
+                0.25395318846569126,
+                2.0989342479575805
+              ]
+            },
+            "median_depth": 24.898168674427144
+          }
+        },
+        {
+          "progress": 1,
+          "camera_position": [
+            -1671,
+            4.8,
+            -926
+          ],
+          "target_interest": [
+            -1660,
+            3.5,
+            -943.5
+          ],
+          "target_root": "联合起吊",
+          "body_projection": {
+            "sampled_body_vertices": 32,
+            "sampled_in_front_fraction": 1.0,
+            "in_frame_fraction": 0.875,
+            "visible_mesh_points_tested": 28,
+            "other_root_blockers": {},
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.10782290780277363,
+                0.39526529132767463
+              ],
+              "y": [
+                0.2535603504286208,
+                2.0611439700116096
+              ]
+            },
+            "median_depth": 23.742747711282625
+          }
+        }
+      ]
+    },
+    {
+      "from": "Camera_联合起吊-落地",
+      "to": "Camera_联合起吊",
+      "target_root": "联合起吊",
+      "clip_state": "重机__Landed",
+      "blender_frame": 71,
+      "path": "DirectApproach",
+      "duration": 0.9,
+      "crossfade": false,
+      "center_path_crossings": [],
+      "near_plane_hits": [],
+      "body_samples": [
+        {
+          "progress": 0,
+          "camera_position": [
+            -1671,
+            4.8,
+            -926
+          ],
+          "target_interest": [
+            -1660,
+            4,
+            -952
+          ],
+          "target_root": "联合起吊",
+          "body_projection": {
+            "sampled_body_vertices": 32,
+            "sampled_in_front_fraction": 1.0,
+            "in_frame_fraction": 0.90625,
+            "visible_mesh_points_tested": 29,
+            "other_root_blockers": {},
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.4366890320875347,
+                0.21750606684051338
+              ],
+              "y": [
+                -0.43309652504204926,
+                1.802831677153819
+              ]
+            },
+            "median_depth": 18.14095775298962
+          }
+        },
+        {
+          "progress": 0.25,
+          "camera_position": [
+            -1671.9316,
+            6.2949963,
+            -924.96484
+          ],
+          "target_interest": [
+            -1660,
+            4,
+            -952
+          ],
+          "target_root": "联合起吊",
+          "body_projection": {
+            "sampled_body_vertices": 32,
+            "sampled_in_front_fraction": 1.0,
+            "in_frame_fraction": 0.90625,
+            "visible_mesh_points_tested": 29,
+            "other_root_blockers": {},
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.45384041592697827,
+                0.17290173209052434
+              ],
+              "y": [
+                -0.4514824599923135,
+                1.7430126284709297
+              ]
+            },
+            "median_depth": 19.695984475633033
+          }
+        },
+        {
+          "progress": 0.5,
+          "camera_position": [
+            -1675.5,
+            11.626459,
+            -921
+          ],
+          "target_interest": [
+            -1660,
+            4,
+            -952
+          ],
+          "target_root": "联合起吊",
+          "body_projection": {
+            "sampled_body_vertices": 32,
+            "sampled_in_front_fraction": 1.0,
+            "in_frame_fraction": 0.90625,
+            "visible_mesh_points_tested": 29,
+            "other_root_blockers": {},
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.5207541362078926,
+                0.0393537336427648
+              ],
+              "y": [
+                -0.572036835738351,
+                1.4167634206945061
+              ]
+            },
+            "median_depth": 25.77513214760547
+          }
+        },
+        {
+          "progress": 0.75,
+          "camera_position": [
+            -1679.0684,
+            15.969214,
+            -917.03516
+          ],
+          "target_interest": [
+            -1660,
+            4,
+            -952
+          ],
+          "target_root": "联合起吊",
+          "body_projection": {
+            "sampled_body_vertices": 32,
+            "sampled_in_front_fraction": 1.0,
+            "in_frame_fraction": 0.875,
+            "visible_mesh_points_tested": 28,
+            "other_root_blockers": {},
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.6150900679096514,
+                -0.06843730849310727
+              ],
+              "y": [
+                -0.7230769090082642,
+                1.170908448396161
+              ]
+            },
+            "median_depth": 32.04766300567188
+          }
+        },
+        {
+          "progress": 1,
+          "camera_position": [
+            -1680,
+            17,
+            -916
+          ],
+          "target_interest": [
+            -1660,
+            4,
+            -952
+          ],
+          "target_root": "联合起吊",
+          "body_projection": {
+            "sampled_body_vertices": 32,
+            "sampled_in_front_fraction": 1.0,
+            "in_frame_fraction": 0.875,
+            "visible_mesh_points_tested": 28,
+            "other_root_blockers": {},
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.6468517612656952,
+                -0.0964723898967276
+              ],
+              "y": [
+                -0.7701546959538275,
+                1.1235954671293027
+              ]
+            },
+            "median_depth": 33.669072264068106
+          }
+        }
+      ]
+    },
+    {
+      "from": "Camera_码头",
+      "to": "Camera_码头-靠岸",
+      "target_root": "码头",
+      "clip_state": "货船__Offshore",
+      "blender_frame": 1,
+      "path": "DirectApproach",
+      "duration": 2.5955992,
+      "crossfade": false,
+      "center_path_crossings": [],
+      "near_plane_hits": [],
+      "body_samples": [
+        {
+          "progress": 0,
+          "camera_position": [
+            -34.62868,
+            80.65,
+            138.78313
+          ],
+          "target_interest": [
+            -38.745384,
+            0,
+            75.77479
+          ],
+          "target_root": "码头",
+          "body_projection": {
+            "sampled_body_vertices": 32,
+            "sampled_in_front_fraction": 1.0,
+            "in_frame_fraction": 0.0,
+            "visible_mesh_points_tested": 0,
+            "other_root_blockers": {},
+            "ndc_bounds_p05_p95": {
+              "x": [
+                10.362408555091509,
+                17.89501420987382
+              ],
+              "y": [
+                -5.400492408539851,
+                -3.2341870258641943
+              ]
+            },
+            "median_depth": 56.27837871652784
+          }
+        },
+        {
+          "progress": 0.25,
+          "camera_position": [
+            -30.1867,
+            73.94639,
+            143.14017
+          ],
+          "target_interest": [
+            -38.745384,
+            0,
+            75.77479
+          ],
+          "target_root": "码头",
+          "body_projection": {
+            "sampled_body_vertices": 32,
+            "sampled_in_front_fraction": 1.0,
+            "in_frame_fraction": 0.0,
+            "visible_mesh_points_tested": 0,
+            "other_root_blockers": {},
+            "ndc_bounds_p05_p95": {
+              "x": [
+                6.476348700618038,
+                9.016456855710208
+              ],
+              "y": [
+                -0.707818844919411,
+                -0.24247350464006706
+              ]
+            },
+            "median_depth": 84.57623715063565
+          }
+        },
+        {
+          "progress": 0.5,
+          "camera_position": [
+            -13.173078,
+            46.151024,
+            159.82849
+          ],
+          "target_interest": [
+            -38.745384,
+            0,
+            75.77479
+          ],
+          "target_root": "码头",
+          "body_projection": {
+            "sampled_body_vertices": 32,
+            "sampled_in_front_fraction": 1.0,
+            "in_frame_fraction": 0.0,
+            "visible_mesh_points_tested": 0,
+            "other_root_blockers": {},
+            "ndc_bounds_p05_p95": {
+              "x": [
+                0.3474173406163698,
+                0.41875789556158083
+              ],
+              "y": [
+                1.5548539661615255,
+                1.7359811319221263
+              ]
+            },
+            "median_depth": 261.7160596308201
+          }
+        },
+        {
+          "progress": 0.75,
+          "camera_position": [
+            3.8405457,
+            13.046385,
+            176.5168
+          ],
+          "target_interest": [
+            -38.745384,
+            0,
+            75.77479
+          ],
+          "target_root": "码头",
+          "body_projection": {
+            "sampled_body_vertices": 32,
+            "sampled_in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "visible_mesh_points_tested": 32,
+            "other_root_blockers": {
+              "河面": 24
+            },
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.3160910670788168,
+                -0.28506084989143954
+              ],
+              "y": [
+                0.13941495024271416,
+                0.20665737853657543
+              ]
+            },
+            "median_depth": 321.51972620556916
+          }
+        },
+        {
+          "progress": 1,
+          "camera_position": [
+            8.282526,
+            3.85,
+            180.87384
+          ],
+          "target_interest": [
+            -38.745384,
+            0,
+            75.77479
+          ],
+          "target_root": "码头",
+          "body_projection": {
+            "sampled_body_vertices": 32,
+            "sampled_in_front_fraction": 1.0,
+            "in_frame_fraction": 1.0,
+            "visible_mesh_points_tested": 32,
+            "other_root_blockers": {
+              "桥_y30": 24
+            },
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.34131123400599217,
+                -0.3138330924295508
+              ],
+              "y": [
+                0.021126819302007417,
+                0.08095148315603404
+              ]
+            },
+            "median_depth": 321.16939268693477
+          }
+        }
+      ]
+    },
+    {
+      "from": "Camera_码头-靠岸",
+      "to": "Camera_码头",
+      "target_root": "码头",
+      "clip_state": "货船__Berthed",
+      "blender_frame": 36,
+      "path": "AuthoredArc",
+      "duration": 2,
+      "crossfade": false,
+      "center_path_crossings": [],
+      "near_plane_hits": [],
+      "body_samples": [
+        {
+          "progress": 0,
+          "camera_position": [
+            8.282524,
+            3.8499997,
+            180.87384
+          ],
+          "target_interest": [
+            35.92716,
+            0,
+            144.9809
+          ],
+          "target_root": "码头",
+          "body_projection": {
+            "sampled_body_vertices": 32,
+            "sampled_in_front_fraction": 0.96875,
+            "in_frame_fraction": 0.6875,
+            "visible_mesh_points_tested": 22,
+            "other_root_blockers": {},
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.1748320855783515,
+                5.24521382165981
+              ],
+              "y": [
+                -6.306250388173732,
+                1.8794011331344773
+              ]
+            },
+            "median_depth": 52.324942933860044
+          }
+        },
+        {
+          "progress": 0.25,
+          "camera_position": [
+            -16.308407,
+            18.275238,
+            198.57257
+          ],
+          "target_interest": [
+            35.92716,
+            0,
+            144.9809
+          ],
+          "target_root": "码头",
+          "body_projection": {
+            "sampled_body_vertices": 32,
+            "sampled_in_front_fraction": 1.0,
+            "in_frame_fraction": 0.8125,
+            "visible_mesh_points_tested": 26,
+            "other_root_blockers": {},
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.5488538334873564,
+                0.44034125598887885
+              ],
+              "y": [
+                -2.8645998487911677,
+                0.6993813222844736
+              ]
+            },
+            "median_depth": 59.64033387092251
+          }
+        },
+        {
+          "progress": 0.5,
+          "camera_position": [
+            -59.7585,
+            47.57447,
+            192.31161
+          ],
+          "target_interest": [
+            35.92716,
+            0,
+            144.9809
+          ],
+          "target_root": "码头",
+          "body_projection": {
+            "sampled_body_vertices": 32,
+            "sampled_in_front_fraction": 1.0,
+            "in_frame_fraction": 0.8125,
+            "visible_mesh_points_tested": 26,
+            "other_root_blockers": {},
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -0.9781348576060444,
+                0.25640134184331875
+              ],
+              "y": [
+                -1.675868500442159,
+                0.7058002537409175
+              ]
+            },
+            "median_depth": 76.32258513563909
+          }
+        },
+        {
+          "progress": 0.75,
+          "camera_position": [
+            -54.897247,
+            71.79328,
+            153.30794
+          ],
+          "target_interest": [
+            35.92716,
+            0,
+            144.9809
+          ],
+          "target_root": "码头",
+          "body_projection": {
+            "sampled_body_vertices": 32,
+            "sampled_in_front_fraction": 1.0,
+            "in_frame_fraction": 0.46875,
+            "visible_mesh_points_tested": 15,
+            "other_root_blockers": {},
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -1.0999171221919068,
+                1.0578782848115857
+              ],
+              "y": [
+                -1.862883079708676,
+                0.1071939662966193
+              ]
+            },
+            "median_depth": 70.82696993387155
+          }
+        },
+        {
+          "progress": 1,
+          "camera_position": [
+            -34.628674,
+            80.65001,
+            138.78313
+          ],
+          "target_interest": [
+            35.92716,
+            0,
+            144.9809
+          ],
+          "target_root": "码头",
+          "body_projection": {
+            "sampled_body_vertices": 32,
+            "sampled_in_front_fraction": 1.0,
+            "in_frame_fraction": 0.0,
+            "visible_mesh_points_tested": 0,
+            "other_root_blockers": {},
+            "ndc_bounds_p05_p95": {
+              "x": [
+                -1.5184972201737816,
+                1.543529580143508
+              ],
+              "y": [
+                -2.8898509498817146,
+                -1.430847897021592
+              ]
+            },
+            "median_depth": 65.21911371233233
+          }
+        }
+      ]
+    }
+  ],
+  "limitations": "For each route, compiled animation is evaluated only at its corresponding steady state (Hold, Suspended, Landed, Offshore, or Berthed); transition-clip frames and Unity runtime visibility are not tested. Near-plane checks sweep camera center and near-plane edges across sampled route frames; not a continuous proof. Body projection samples representative subject mesh vertices at the steady state and does not replace final rendered image review."
+}

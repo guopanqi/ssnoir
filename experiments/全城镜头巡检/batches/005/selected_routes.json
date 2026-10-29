@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "scope": "只检查第二幕的三组实际3D镜头对，每组双向共享路线；排除第二章。",
+  "pairs": [
+    {"sequence": "联合起吊进入Suspended演出及返回", "from": "Camera_联合起吊", "to": "Camera_联合起吊-起吊", "trigger": "大船靠岸（联合起吊）.scm 准备完成后的 play-motion!；play-motion结束返回当时Camera_联合起吊"},
+    {"sequence": "联合起吊Landed演出及返回", "from": "Camera_联合起吊", "to": "Camera_联合起吊-落地", "trigger": "大船靠岸（联合起吊）.scm 安全落货的 play-motion!；play-motion结束返回当时Camera_联合起吊"},
+    {"sequence": "第二幕货船Berthed入港演出及返回", "from": "Camera_码头", "to": "Camera_码头-靠岸", "trigger": "第二幕节奏.scm 入场时第二幕-大船入港 play-motion!；结束返回当时码头相机"}
+  ]
+}

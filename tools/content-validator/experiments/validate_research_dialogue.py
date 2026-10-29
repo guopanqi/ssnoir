@@ -5,7 +5,7 @@ import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[3]
-BASE = ROOT / "docs/实验/机制研究"
+BASE = ROOT / "experiments/抽象决策关系研究"
 REQUESTS = BASE / "研究沟通.json"
 INBOX = BASE / "反馈/questions"
 FILENAME = re.compile(r"SSNoir-dialogue-(RQ-[A-Z0-9-]+)-[0-9]{8}-[0-9]{6}-[a-f0-9]{12}\.json$")

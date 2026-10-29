@@ -6,7 +6,7 @@ on:
     paths:
       - '.github/workflows/ssnoir-r430-r437.yml'
       - 'tools/content-validator/experiments/r430_r437_private_contingent.py'
-      - 'docs/实验/机制研究/批次/R430-R437-隐藏偏好与条件承诺/**'
+      - 'experiments/抽象决策关系研究/批次/R430-R437-隐藏偏好与条件承诺/**'
 permissions:
   contents: read
 jobs:

@@ -3,7 +3,7 @@
 /* Offline DOM simulation of action rights, branch consequences and 3 decisions.
    Does not claim human comprehension, visual accessibility or narrative quality. */
 const assert=require("node:assert/strict"),fs=require("node:fs"),vm=require("node:vm"),path=require("node:path");
-const html=fs.readFileSync(path.resolve(__dirname,"../../../docs/实验/机制研究/批次/2026-10-13-情境选择与注意力验证/证词与时限.html"),"utf8");
+const html=fs.readFileSync(path.resolve(__dirname,"../../../experiments/抽象决策关系研究/批次/2026-10-13-情境选择与注意力验证/证词与时限.html"),"utf8");
 const src=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)];
 assert.equal(src.length,1);
 new vm.Script(src[0][1]);

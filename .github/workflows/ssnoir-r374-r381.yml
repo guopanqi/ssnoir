@@ -6,7 +6,7 @@ on:
     paths:
       - '.github/workflows/ssnoir-r374-r381.yml'
       - 'tools/content-validator/experiments/r374_r381_shared_norm.py'
-      - 'docs/实验/机制研究/批次/R374-R381-共同规则与异议权/研究记录.md'
+      - 'experiments/抽象决策关系研究/批次/R374-R381-共同规则与异议权/研究记录.md'
 permissions:
   contents: read
 jobs:

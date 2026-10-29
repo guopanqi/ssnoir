@@ -13,45 +13,24 @@
 
 (define 第二幕
   (let ()
-    ;; 未结算状态与两个持久结果分开；所有路径共用同一份余波。
-    (define wage-state "未做")
+    ;; 第二幕保留露西夜校；艾迪工钱争执退出正式流程。
     (define lucy-state "未做")
     (define lucy-cover-clock (make-clock "去学校的时间" 4 'gauge "替她接下几段晚班，老板才肯让她去学校。还没接上的班，也可以请人代。" :beneficial-direction 'increase))
     (define lucy-result-known? #f)
     (define lucy-introduced-day 0)
     (define lucy-deadline-day 0)
-    (define wage-introduced? #f)
-    (define wage-end-day 0)
-    (define eddie-visited? #f)
     (define lucy-enrolled-day 0)
     (define lucy-school-known? #f)
     (define lucy-class-talk? #f)
     (define lucy-introduced? #f)
     (define (active?) (and (= (第一幕 'act) 2) (not (第二章 'started?))))
-    (define (wage-open?) (and (active?) (>= world-day 10) (<= world-day 11)
-      (equal? wage-state "未做")))
+
     (define (lucy-open?) (and (active?)
       (or (= lucy-deadline-day 0) (<= world-day lucy-deadline-day))
       (equal? lucy-state "未做")))
-    (define (wage-intro-open?) (and (active?) (>= world-day 10)
-      (<= world-day 11) (equal? wage-state "未做")))
-    (define (eddie-on-dock?)
-      ;; 统一停三天；恢复工作不改写曾经停班的事实。
-      (not (and (equal? wage-state "停班") (< world-day (+ wage-end-day 4)))))
+
     ;; 世界只保存Scenario结果；进展和压力属于独立Scenario的回合。
-    (define (wage-end! result)
-      (if (member? result '(上工 停班)) #t (error "工钱Scenario：非法结果"))
-      (set! wage-state (symbol->string result))
-      (set! wage-end-day world-day))
-    (define (enter-wage!)
-      (if (and (equal? wage-state "争执中") (<= world-day 11)) #t (error "工钱Scenario：窗口已结束"))
-      (start-scenario "少了十块钱" wage-end!))
-    (define (wage-nodes)
-      (if (and (equal? wage-state "争执中") (<= world-day 11))
-        (list (node "介入工钱争执" :anchor "艾迪@码头" :button-text "介入"
-          :subtitle "替工友核清工钱，进入Scenario"
-          :clocks (list (第二幕-期限钟 "收工前解决" 11 10))
-          :resolve (instant (outcome enter-wage!)))) '()))
+
     (define (lucy-at-cafe?)
       ;; 入学手续与第一堂课占两班；此后隔一天上课。不引入早晚时段。
       (if (= lucy-enrolled-day 0) #t
@@ -64,25 +43,7 @@
         ((and (equal? lucy-state "延后") lucy-result-known?)
           "她还在柜台忙碌，空时读书，准备下一期夜校。")
         (else "她在柜台后忙碌，把客人忘下的书收在一旁。")))
-    (define (start-wage!)
-      (set! wage-introduced? #t)
-      (set! wage-state "争执中")
-      (play-dialogue!
-        (line "世界" "昨夜大船靠岸，码头的人卸货到天快亮。发薪窗口前，年轻工人又数了一遍手里的钞票。艾迪站在他身后。")
-        (line "年轻工人" "昨晚多干了半班，怎么反倒少了十块？")
-        (line "工头" "单上写多少就是多少，后头还等着人。")
-        (line "艾迪" "我看见他在东边干活。把底账拿来。")
-        (line "工头" "你又不是账房。")
-        (line "艾迪" "所以才让你拿账房的记录。该给他的，一分也不能少。")
-        (line "世界" "工头把窗台上的账本抽回去，夹在胳膊底下。")))
-    (define (visit-eddie!)
-      (set! eddie-visited? #t)
-      (play-dialogue!
-        (line "世界" "食堂后门的台阶上，艾迪膝头放着一只磕扁的空饭盒。")
-        (line "艾迪" "工头停了我的班，倒有空踏实吃顿饭了。")
-        (line "尼尔" "那个年轻伙计呢？")
-        (line "艾迪" "还在扛包呢。家里几个孩子等他拿钱回去。我少挣几天，总比他丢了饭碗强。"))
-      (第二幕余波 'gloves!))
+
     (define (school-news!)
       (set! lucy-school-known? #t)
       (play-dialogue!
@@ -128,24 +89,10 @@
       (cond ((equal? lucy-state "已入学") (not lucy-class-talk?))
             ((equal? lucy-state "延后") (not lucy-result-known?))
             (else #t)))
-    (define (eddie-story-pending?)
-      (or (member? wage-state '("未做" "争执中"))
-          (not (eddie-on-dock?))
-          (and (第一幕 'eddie-met?) (not (第二幕余波 'gloves-seen?)))))
+
     (define (known-matters)
       (append
-        (if wage-introduced?
-          (list (dossier "艾迪：工棚里的争执" :kind '人物
-            :primary (eddie-story-pending?)
-            :status (if (eddie-story-pending?) '进行中 '了结)
-            :now (cond
-              ((equal? wage-state "未做") "艾迪想替工友核清少算的工钱。")
-              ((equal? wage-state "争执中")
-                (string-append "工时与签名还要核清。可以到码头介入这场争执；"
-                  (第二幕-日期 11) "收工前要有结果。"))
-              ((not (eddie-on-dock?)) "艾迪被停了三天班，在旧街食堂；之后会回码头。")
-              (else "艾迪仍在码头上工。那场争执已经过去，生活还得继续。"))
-            :where (if (eddie-on-dock?) "码头" "码头居民区"))) '())
+
         (if (or lucy-introduced? lucy-school-known? lucy-result-known?)
           (list (dossier "露西：夜校报名" :kind '人物 :primary (lucy-story-pending?)
             :status (if (lucy-story-pending?) '进行中 '了结)
@@ -166,7 +113,6 @@
             :where "街角咖啡馆")) '())))
     (define (nodes-at loc)
       (append
-        (if (and (active?) (equal? loc "码头")) (wage-nodes) '())
         (if (and (equal? loc "街角咖啡馆") (lucy-open?) lucy-introduced?)
           (list
             (clock-node "露西代班目标" (lucy-cover-clock 'render-data))
@@ -186,14 +132,7 @@
               :clocks (list (第二幕-期限钟 "报名截止" lucy-deadline-day lucy-introduced-day))
               :resolve (instant (outcome lucy-pay!)))) '())))
     ;; 熟人通过日常工作或主动交谈告诉尼尔，并不是每日进地点自动播放。
-    (define (tell-wage!)
-      (if wage-introduced? #f
-        (begin
-          (set! wage-introduced? #t)
-          (play-dialogue!
-            (line "艾迪" "新来的那个伙计，少领了十块钱。工头拿着账本，就是不肯翻给他看。")
-            (line "尼尔" "你要去找工头？")
-            (line "艾迪" "先让他拿出底账。我就不信昨晚那么多人都白干了半班。")))))
+
     (define (tell-lucy!)
       (set! lucy-introduced? #t)
       (set! lucy-introduced-day world-day)
@@ -211,10 +150,7 @@
         (line "露西" "你还得交房费呢。量力来，剩下的我再找人换。")))
     (define (arrivals-at location)
       (cond
-        ((and (equal? location "码头") (wage-open?))
-          (list (arrival "工钱争议" start-wage!)))
-        ((and (active?) (equal? location "码头居民区") (not (eddie-on-dock?)) (not eddie-visited?))
-          (list (arrival "食堂后门的艾迪" visit-eddie!)))
+
         ((and (active?) (equal? location "街角咖啡馆")
               (not (lucy-at-cafe?)) (not lucy-school-known?))
           (list (arrival "露西去上课" school-news!)))
@@ -229,30 +165,22 @@
     (define-turn-start-rule "第二幕事件期限"
       (lambda () #t)
       (lambda ()
-        (if (and (>= world-day 12) (member? wage-state '("未做" "争执中")))
-          (begin
-            (set! wage-state "停班")
-            (set! wage-end-day 11)
-            (if wage-introduced? (notify! "工钱争执已经收场，艾迪被停了班。") #f)) #f)
+
         (if (and (> lucy-deadline-day 0) (> world-day lucy-deadline-day)
                  (equal? lucy-state "未做"))
           (set! lucy-state "延后") #f)))
     (lambda args
       (cond
-        ((eq? (car args) 'wage-end-day) wage-end-day)
-        ((eq? (car args) 'eddie-visited?) eddie-visited?)
+
         ((eq? (car args) 'lucy-at-cafe?) (lucy-at-cafe?))
         ((eq? (car args) 'lucy-arrival-pending?)
           (or (and (> lucy-enrolled-day 0) (lucy-at-cafe?) (>= world-day (+ lucy-enrolled-day 3)) (not lucy-class-talk?))
               (and (equal? lucy-state "延后") (not lucy-result-known?))))
         ((eq? (car args) 'lucy-note) (lucy-note))
         ((eq? (car args) 'lucy-enrolled-day) lucy-enrolled-day)
-        ((eq? (car args) 'wage-state) wage-state)
-        ((eq? (car args) 'eddie-on-dock?) (eddie-on-dock?))
-        ((eq? (car args) 'on-dock-work!)
-          (if (and (wage-intro-open?) (第一幕 'eddie-met?)
-                   (not wage-introduced?))
-            (tell-wage!) #f))
+
+        ((eq? (car args) 'eddie-on-dock?) #t)
+
         ((eq? (car args) 'on-cafe-work!)
           (cond
             ((not (lucy-at-cafe?)) #f)
@@ -270,32 +198,25 @@
         ((eq? (car args) 'nodes-at) (nodes-at (cadr args)))
         ((eq? (car args) 'arrivals-at) (arrivals-at (cadr args)))
         ((eq? (car args) 'save)
-          (list (list "wage-end-day" wage-end-day)
-                (list "eddie-visited" eddie-visited?)
+          (list
                 (list "lucy-enrolled-day" lucy-enrolled-day)
                 (list "lucy-introduced-day" lucy-introduced-day)
                 (list "lucy-deadline-day" lucy-deadline-day)
                 (list "lucy-school-known" lucy-school-known?) (list "lucy-class-talk" lucy-class-talk?)
                 (list "version" 2)
-                (list "wage" wage-state) (list "lucy" lucy-state)
-                (list "wage-introduced" wage-introduced?)
+                (list "lucy" lucy-state)
                 (list "lucy-introduced" lucy-introduced?)
                 (list "lucy-progress" (lucy-cover-clock 'save))
                 (list "lucy-result-known" lucy-result-known?)))
         ((eq? (car args) 'load!)
           (let ((data (cadr args)))
-            (set! wage-end-day (assoc-get data "wage-end-day" 0))
-            (set! eddie-visited? (assoc-get data "eddie-visited" #f))
+
             (set! lucy-enrolled-day (assoc-get data "lucy-enrolled-day" 0))
             (set! lucy-school-known? (assoc-get data "lucy-school-known" #f))
             (set! lucy-class-talk? (assoc-get data "lucy-class-talk" #f))
-            (let ((old (assoc-get data "wage" "未做")))
-              (set! wage-state (cond
-                ((member? old '("凭证核清" "保住工作" "弗兰克调停")) "上工")
-                ((member? old '("拿回工钱" "撤出" "自行处理")) "停班")
-                (else old))))
+
             (set! lucy-state (assoc-get data "lucy" "未做"))
-            (set! wage-introduced? (assoc-get data "wage-introduced" #f))
+
             (set! lucy-introduced? (assoc-get data "lucy-introduced" #f))
             ;; 旧存档沿用原截止日；新存档记录露西提出报名的日期。
             (set! lucy-introduced-day (assoc-get data "lucy-introduced-day"
@@ -307,12 +228,9 @@
               (assoc-get data "lucy-progress" (min 4 (assoc-get data "lucy-covered" 0)))))
             (if (and (equal? lucy-state "已入学") (= lucy-enrolled-day 0))
               (set! lucy-enrolled-day (max 1 (- world-day 3))) #f)
-            ;; 未结案只恢复城市入口，具体进展属于Scenario；超过截止统一停班。
-            (if (and (>= world-day 12) (member? wage-state '("未做" "争执中")))
-              (begin (set! wage-state "停班") (set! wage-end-day 11)) #f)
+
             (set! lucy-result-known? (assoc-get data "lucy-result-known" #f))
-            (if (and (>= wage-end-day 0) (>= lucy-enrolled-day 0)
-                 (member? wage-state '("未做" "争执中" "上工" "停班"))
+            (if (and (>= lucy-enrolled-day 0)
                  (member? lucy-state '("未做" "已入学" "延后"))
                  (if (equal? lucy-state "已入学")
                    (and (lucy-cover-clock 'full?) (> lucy-enrolled-day 0))

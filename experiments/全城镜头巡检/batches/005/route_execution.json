@@ -1,0 +1,7 @@
+{
+  "routes": 6,
+  "camera_pairs": 3,
+  "samples_per_route": 120,
+  "elapsed_seconds": 0.34532920899800956,
+  "shared_program": "/Users/usr/Documents/play/ssnoir/tools/camera-review/bin/Debug/net9.0/CameraReview.dll"
+}

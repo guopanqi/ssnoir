@@ -14,7 +14,8 @@ namespace SSNoir
     ///   第一次见到（新游戏、读档、进门）→ 直接摆成那个状态，不播过渡；
     ///   状态没变（换了一张唱片仍在放）→ 什么都不做；
     ///   状态变了 → 播 from→to 的过渡 clip，接着排上目标状态 clip（循环或定格）。
-    /// 真相只有一份：游戏状态。这里不存第二份，读档、离开再进来都走同一条路。
+    /// 受游戏状态控制的道具不存第二份状态；读档、离开再进来都走同一条路。
+    /// ambient 循环只属于地点的显示生命周期：显示时播放、隐藏时停止复位，不参与存档。
     ///
     /// 道具 ↔ 游戏状态的对应写在 <see cref="SyncAll"/> 里（唱片机 ↔ 全局键 音乐；龟背竹 ↔ 全局键 龟背竹 的浇水次数）；
     /// 再多就抽成表。
@@ -28,6 +29,8 @@ namespace SSNoir
         private string _placeName = string.Empty;
         private readonly Dictionary<string, int> _layerByProp = new(StringComparer.Ordinal);
         private readonly Dictionary<string, string> _stateByProp = new(StringComparer.Ordinal);
+        private readonly Dictionary<string, string> _ambientByProp = new(StringComparer.Ordinal);
+        private readonly Dictionary<string, List<(Transform t, Vector3 p, Quaternion r, Vector3 s)>> _participantRest = new(StringComparer.Ordinal);
         // 每件道具的部件及其静止姿态（实例化那一刻 = FBX 第 1 帧 = 默认状态）。Unity 导入时会丢掉在 clip 范围内
         // 恒定的曲线，所以 Stopped 这类 clip 可能一条曲线都没有；播任何 clip 前先把部件复位到静止姿态，
         // 没被曲线驱动的通道（停播后飘在半空的音符）才回得去。
@@ -70,6 +73,7 @@ namespace SSNoir
                 // 过渡必须是 Once：ClampForever 的 state 永远不"完成"，PlayQueued(CompleteOthers) 排在它后面的
                 // 目标状态永远轮不到——表现为落针后唱片不转、音符不出。状态 clip 才定格 / 循环。
                 state.wrapMode = clip.IsTransition || clip.once ? WrapMode.Once : clip.loop ? WrapMode.Loop : WrapMode.ClampForever;
+                if (clip.ambient) _ambientByProp.Add(clip.Prop, clip.name);
             }
             var all = GetComponentsInChildren<Transform>(true);
             foreach (var group in spec.parts)
@@ -80,9 +84,46 @@ namespace SSNoir
                     var t = Array.Find(all, x => x.name == partName);
                     if (t == null)
                         throw new InvalidOperationException($"[SSNoir] '{name}' 的 clips.json 说 '{group.prop}' 有部件 '{partName}'，模型里没有。");
-                    rest.Add((t, t.localPosition, t.localRotation, t.localScale));
+                    foreach (var child in t.GetComponentsInChildren<Transform>(true))
+                        rest.Add((child, child.localPosition, child.localRotation, child.localScale));
                 }
                 _restByProp[group.prop] = rest;
+            }
+            foreach (var clip in spec.clips)
+                foreach (var partName in clip.participants)
+                {
+                    if (_participantRest.ContainsKey(partName)) continue;
+                    var root = Array.Find(all, t => t.name == partName)
+                        ?? throw new InvalidOperationException($"[SSNoir] '{placeName}' 缺少参演者 '{partName}'。");
+                    var rest = new List<(Transform, Vector3, Quaternion, Vector3)>();
+                    foreach (var t in root.GetComponentsInChildren<Transform>(true))
+                        rest.Add((t, t.localPosition, t.localRotation, t.localScale));
+                    _participantRest.Add(partName, rest);
+                }
+            foreach (var prop in _ambientByProp.Keys)
+                if (!_restByProp.TryGetValue(prop, out var parts) || parts.Count == 0)
+                    throw new InvalidOperationException($"[SSNoir] 环境循环 '{placeName}/{prop}' 缺少可见性所属的部件。");
+        }
+
+        // 环境循环属于地点的显示生命周期，不属于存档状态或阻塞过场。
+        // 细节实例根常驻，内部节点由 CityOutlineState 显式启停；只在该内部显示时播放。
+        private void Update()
+        {
+            foreach (var (prop, clip) in _ambientByProp)
+            {
+                bool visible = _restByProp[prop][0].t.gameObject.activeInHierarchy;
+                bool playing = _animation.IsPlaying(clip);
+                if (visible && !playing)
+                {
+                    ResetToRest(prop);
+                    _animation[clip].time = 0f;
+                    _animation.Play(clip, PlayMode.StopSameLayer);
+                }
+                else if (!visible && playing)
+                {
+                    _animation.Stop(clip);
+                    ResetToRest(prop);
+                }
             }
         }
 
@@ -172,6 +213,8 @@ namespace SSNoir
         /// </summary>
         public void PlayTransition(string prop, string target)
         {
+            if (_ambientByProp.ContainsKey(prop))
+                throw new InvalidOperationException($"[SSNoir] '{_placeName}/{prop}' 是随地点显示的环境循环，不能用 play-motion! 接管。");
             string requestedClip = prop + "__" + target;
             PropClips.Clip? requested = null;
             foreach (var c in _spec.clips)
@@ -199,6 +242,76 @@ namespace SSNoir
                 }
             }
             Apply(prop, target);
+        }
+
+        // 临时参演者在推镜前摆到开演姿势；状态片段只驱动道具本体，不接管参演者。
+        public void PrepareTransition(string prop, string target)
+        {
+            var requested = Requested(prop, target);
+            string current = _stateByProp.TryGetValue(prop, out var value) ? value : DefaultState(prop);
+            var clip = requested.once ? requested : Array.Find(_spec.clips,
+                c => c.Prop == prop && c.IsTransition && c.from == current && c.to == target);
+            if (clip == null || clip.participants.Length == 0) return;
+            ResetToRest(prop);
+            var state = _animation[clip.name];
+            _animation.Play(clip.name, PlayMode.StopSameLayer);
+            state.time = 0f;
+            _animation.Sample();
+            _animation.Stop(clip.name);
+        }
+
+        private PropClips.Clip Requested(string prop, string target) =>
+            Array.Find(_spec.clips, c => c.name == prop + "__" + target)
+            ?? throw new InvalidOperationException($"[SSNoir] '{_placeName}/{prop}' 没有状态 '{target}'。");
+
+        public float TravelSeconds(string prop, string target) => Requested(prop, target).travelSeconds;
+
+        private string DefaultState(string prop) =>
+            Array.Find(_spec.clips, c => c.Prop == prop && !c.IsTransition && !c.once)?.Tail
+            ?? throw new InvalidOperationException($"[SSNoir] '{_placeName}/{prop}' 没有默认状态。");
+
+        private void Snap(string prop, string target)
+        {
+            var clip = Requested(prop, target);
+            if (clip.IsTransition || clip.once)
+                throw new InvalidOperationException($"[SSNoir] '{clip.name}' 不是可保持的状态。");
+            ResetToRest(prop);
+            _animation.Play(clip.name, PlayMode.StopSameLayer);
+            _animation[clip.name].time = 0f;
+            _animation.Sample();
+            _stateByProp[prop] = target;
+        }
+
+        // 无论自然结束还是推镜途中跳过，都先兑现同一个终态，再收镜头。
+        public void CompleteTransition(string prop, string target)
+        {
+            var requested = Requested(prop, target);
+            Snap(prop, requested.once ? requested.from : target);
+        }
+
+        public void ReleaseParticipants(string prop)
+        {
+            var own = Array.Find(_spec.parts, p => p.prop == prop)?.names ?? Array.Empty<string>();
+            var released = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var clip in _spec.clips)
+                if (clip.Prop == prop)
+                    foreach (var name in clip.participants)
+                        if (Array.IndexOf(own, name) < 0 && released.Add(name))
+                            foreach (var (t, p, r, s) in _participantRest[name])
+                            { t.localPosition = p; t.localRotation = r; t.localScale = s; }
+        }
+
+        /// <summary>Scenario人物以当前渲染树中目标是否仍存在决定站立/倒地；恢复快照只摆姿势。</summary>
+        public static void SyncPresence(ISet<string> anchors)
+        {
+            foreach (var motion in All)
+                foreach (var group in motion._spec.parts)
+                    if (group.anchor.Length > 0)
+                    {
+                        string target = anchors.Contains(group.anchor) ? group.present : group.absent;
+                        if (!motion._stateByProp.TryGetValue(group.prop, out var current) || current != target)
+                            motion.Snap(group.prop, target);
+                    }
         }
 
         private void PlayOnce(string prop, PropClips.Clip clip)

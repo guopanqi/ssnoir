@@ -4,13 +4,13 @@ on:
   push:
     paths:
       - '.github/workflows/ssnoir-mechanism-feedback.yml'
-      - 'docs/实验/机制研究/反馈/inbox/**'
-      - 'docs/实验/机制研究/反馈/questions/**'
-      - 'docs/实验/机制研究/研究沟通.json'
+      - 'experiments/抽象决策关系研究/反馈/inbox/**'
+      - 'experiments/抽象决策关系研究/反馈/questions/**'
+      - 'experiments/抽象决策关系研究/研究沟通.json'
       - 'tools/content-validator/experiments/validate_research_dialogue.py'
-      - 'docs/实验/机制研究/反馈/reviews/**'
+      - 'experiments/抽象决策关系研究/反馈/reviews/**'
       - 'tools/content-validator/experiments/validate_mechanism_reviews.py'
-      - 'docs/实验/机制研究/试玩任务.json'
+      - 'experiments/抽象决策关系研究/试玩任务.json'
       - 'tools/content-validator/experiments/validate_mechanism_feedback.py'
 permissions:
   contents: read

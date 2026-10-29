@@ -5,7 +5,7 @@ on:
     paths:
       - '.github/workflows/ssnoir-r108.yml'
       - 'tools/content-validator/experiments/r108_audit.py'
-      - 'docs/实验/机制研究/批次/R108-自然线索与专门探查/r108_results.json'
+      - 'experiments/抽象决策关系研究/批次/R108-自然线索与专门探查/r108_results.json'
   workflow_dispatch:
 permissions:
   contents: read
@@ -23,7 +23,7 @@ jobs:
         run: |
           set -euo pipefail
           python3 tools/content-validator/experiments/r108_audit.py > /tmp/r108_reproduced.json
-          cmp -s /tmp/r108_reproduced.json docs/实验/机制研究/批次/R108-自然线索与专门探查/r108_results.json
+          cmp -s /tmp/r108_reproduced.json experiments/抽象决策关系研究/批次/R108-自然线索与专门探查/r108_results.json
           python3 - <<'PY'
           import json
           from fractions import Fraction as F

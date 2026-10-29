@@ -40,9 +40,9 @@ if __name__=='__main__':
   assert o['ScenarioResult']==EXPECTED[name],(name,o['ScenarioResult'])
   with tempfile.TemporaryDirectory(prefix='noir-pages-') as scratch:
    raw=Path(scratch)/'record.json';send({'command':'save','path':str(raw)})
-   directory=ROOT/'docs'/'实验'/'最后一页'/'对照记录';directory.mkdir(parents=True,exist_ok=True)
+   directory=ROOT/'experiments/Scenario候选模式对照'/'最后一页'/'对照记录';directory.mkdir(parents=True,exist_ok=True)
    with gzip.open(directory/f'{name}-7.json.gz','wb') as target:target.write(raw.read_bytes())
   send({'command':'quit'});p.wait()
   results.append({'policy':name,'seed':7,'result':o['ScenarioResult']})
   print(name,o['ScenarioResult'],flush=True)
- (ROOT/'docs'/'实验'/'最后一页'/'对照结果.json').write_text(json.dumps(results,ensure_ascii=False,indent=2)+'\n')
+ (ROOT/'experiments/Scenario候选模式对照'/'最后一页'/'对照结果.json').write_text(json.dumps(results,ensure_ascii=False,indent=2)+'\n')

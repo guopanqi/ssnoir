@@ -6,7 +6,7 @@ on:
     paths:
       - '.github/workflows/ssnoir-r454-r461.yml'
       - 'tools/content-validator/experiments/r454_r461_report_verification.py'
-      - 'docs/实验/机制研究/批次/R454-R461-托付核验与反馈时点/**'
+      - 'experiments/抽象决策关系研究/批次/R454-R461-托付核验与反馈时点/**'
 permissions:
   contents: read
 jobs:

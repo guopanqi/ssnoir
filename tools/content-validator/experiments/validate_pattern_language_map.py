@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[3]
-BASE=ROOT/"docs/实验/机制研究"
+BASE=ROOT/"experiments/抽象决策关系研究"
 
 def main():
     data=json.loads((BASE/"模式语言知识地图.json").read_text(encoding="utf-8"))

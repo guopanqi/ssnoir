@@ -30,8 +30,21 @@ python3 tools/tripo/image.py --image /absolute/path/source.png --edit 'Keep the 
 python3 tools/tripo/image.py --task-id task_xxx
 ```
 
-生图 CLI 只处理模型调用与产物。SSNoir 的年代、风格、构图和审阅标准由 `create-3d-assets` 等项目工作流决定。Tripo 图像 API 依据：[文生图](https://developers.tripo3d.ai/zh/docs/generation-text-to-image)、[图生图](https://developers.tripo3d.ai/zh/docs/generation-image-to-image)。
+生图 CLI 只处理模型调用与产物。SSNoir 的年代、风格、构图和审阅标准由 `make-3d-asset` 等项目工作流决定。Tripo 图像 API 依据：[文生图](https://developers.tripo3d.ai/zh/docs/generation-text-to-image)、[图生图](https://developers.tripo3d.ai/zh/docs/generation-image-to-image)。
 
-P1 的 `face_limit` 范围为 50–20,000；省略时由服务自适应决定。工具固定使用 P1，不暴露其他模型及其专属参数；具体选型与质量门见 `create-3d-assets/references/providers/tripo.md`。脚本只提交、查询与下载候选资产，不自动写入正式 CityBox/Unity 资源。
+P1 的 `face_limit` 范围为 50–20,000；省略时由服务自适应决定。工具固定使用 P1，不暴露其他模型及其专属参数；具体选型与质量门见 `make-3d-asset/references/providers/tripo.md`。脚本只提交、查询与下载候选资产，不自动写入正式 CityBox/Unity 资源。
 
 API 依据：[模型与版本](https://developers.tripo3d.ai/en/docs/models-and-versions)、[P 系列单图生成](https://developers.tripo3d.ai/zh/docs/generation-image-to-model/p)、[文件上传](https://developers.tripo3d.ai/en/docs/files)、[任务查询](https://developers.tripo3d.ai/en/docs/task-query)。
+
+## 人形自动绑骨
+
+`rig.py` 对已有模型先运行兼容性检查，再用 Tripo v3 人形绑骨，输出 Mixamo 命名的 FBX。检查通过不代表动作重定向、关节权重或画面质量已经合格；需要在 Blender 和目标镜头中检查。绑骨会消耗账户额度，任务中断后使用任务 ID 续查，避免重复提交。
+
+```bash
+python3 tools/tripo/rig.py --model-file /absolute/path/character.fbx --check-only
+python3 tools/tripo/rig.py --model-file /absolute/path/character.fbx
+python3 tools/tripo/rig.py --input task_xxx
+python3 tools/tripo/rig.py --task-id task_xxx
+```
+
+结果保存在 `tmp/tripo-rig/<task_id>/`。依据：[兼容性检查](https://developers.tripo3d.com/en/docs/animations-rig-check)、[自动绑骨](https://developers.tripo3d.com/en/docs/animations-rig)。
