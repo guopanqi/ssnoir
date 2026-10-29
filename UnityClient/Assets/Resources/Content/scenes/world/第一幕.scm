@@ -253,6 +253,9 @@
           ((eq? msg 'theater-open?) (>= act 2))
           ((eq? msg 'rehearsal-seen?) rehearsal-seen?)
           ((eq? msg 'act) act)
+           ((eq? msg 'begin-third-act!)
+            (if (= act 2) (set! act 3)
+              (error "第一幕：第三幕只能从第二幕进入")))
           ((eq? msg 'eddie-met?) (> eddie-stage 0))
           ((eq? msg 'eddie-stage) eddie-stage)
           ((eq? msg 'lucy-met?) (> lucy-stage 0))
@@ -334,7 +337,7 @@
              (set! act (assoc-get data "act" 1))
              ;; 第二幕已发生D6必经相识；旧档向前修复，不保留陌生人彩排剧本。
              (if (and (= act 2) (= singer-stage 0)) (set! singer-stage 1) #f)
-             (if (and (member? act '(1 2))
+             (if (and (member? act '(1 2 3))
                       (member? lucy-stage '(0 1 2))
                       (member? eddie-stage '(0 1 2 3))
                       (member? singer-stage '(0 1 2 3))
