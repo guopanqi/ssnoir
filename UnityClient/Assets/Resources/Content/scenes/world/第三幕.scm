@@ -1,6 +1,13 @@
 ;; 第一章第三幕《银色打火机》：城市事件与人物自主进展。
 ;; 四场 Scenario 的玩法结构尚待设计；这里仅保留入口、结果契约与剧情承接。
 ;; 所有城市行动使用现有骰子/金钱/冷静系统；不另建任务或日程系统。
+;; 普通配角在所属事件模块就近声明；对白不依赖尚不存在的配音资产。
+(define 第三幕-旅馆店员 (speaker "第三幕旅馆店员" :name "旅馆店员" :appearance '成年男性))
+(define 第三幕-罗科 (speaker "第三幕罗科" :name "罗科" :appearance '成年男性))
+(define 第三幕-码头搬运工 (speaker "第三幕码头搬运工" :name "搬运工" :appearance '成年男性))
+(define 第三幕-工头 (speaker "第三幕工头" :name "工头" :appearance '成年男性))
+(define 第三幕-收购代表 (speaker "第三幕收购代表" :name "收购代表" :appearance '成年男性))
+(define 第三幕-汤米 (speaker "第三幕汤米" :name "汤米" :appearance '成年男性))
 (define 第三幕
  (let ()
   (define started? #f)
@@ -31,7 +38,6 @@
   (define tommy-hosted? #f)
   (define tommy-advanced? #f)
   (define tommy-after? #f)
-  (define stage-reached? #f)
   (define (active?) (and started? (not (第二章 'started?))))
   (define (elapsed) (- world-day start-day))
   (define (case-open?) (and (active?) (equal? case-state "调查")))
@@ -58,12 +64,12 @@
     (ensure-case!)
     (if (eq? grade '坏)
       (begin (spend-composure! 1)
-        (play-dialogue! (line "旅馆店员" "这里每天进进出出几十个人。我可不替你记脸。")))
+        (play-dialogue! (line 第三幕-旅馆店员 "这里每天进进出出几十个人。我可不替你记脸。")))
       (begin (set! rocco-hotel? #t)
         (play-dialogue!
-          (line "旅馆店员" "那只银打火机？见过。他租了后面的房间，常去货栈那条街。")
+          (line 第三幕-旅馆店员 "那只银打火机？见过。他租了后面的房间，常去货栈那条街。")
           (line "尼尔" "他通常什么时候回来？")
-          (line "旅馆店员" (if (eq? grade '好)
+          (line 第三幕-旅馆店员 (if (eq? grade '好)
             "天黑前。最近还有个男人替他搬纸箱，车停在侧巷。"
             "说不准。他交钱的时候总是很准时。"))))))
   (define (learn-contract!)
@@ -94,15 +100,15 @@
         (play-dialogue!
           (line "世界" "散场后，一个穿黑大衣的男人从街角走出，朝夜莺的汽车走去。")
           (line "尼尔" "罗科。别靠近她。")
-          (line "罗科" "我没碰她。我只想要属于我的钱。")
+          (line 第三幕-罗科 "我没碰她。我只想要属于我的钱。")
           (line "世界" "罗科退回人群。尼尔记下了他出现的时间，也看见他刚才拦住司机的动作。")))))
   (define (learn-warehouse!)
     (ensure-case!)
     (set! rocco-warehouse? #t)
     (play-dialogue!
-      (line "码头搬运工" "罗科？那是以前替歌手运箱子的。旧货栈里还租着一间小库房。")
+      (line 第三幕-码头搬运工 "罗科？那是以前替歌手运箱子的。旧货栈里还租着一间小库房。")
       (line "尼尔" "最近有货出门？")
-      (line "码头搬运工" "有几箱纸和衣服。白天有人来问过运费。那人想把东西带走。")))
+      (line 第三幕-码头搬运工 "有几箱纸和衣服。白天有人来问过运费。那人想把东西带走。")))
   ;; C1 接口：将来可由 Scenario 用真实结果调用此消息。
   (define (night-watch-finish! result)
     (if (and (case-open?) (not watched?)
@@ -125,7 +131,7 @@
     (set! case-state "结案")
     (play-dialogue!
       (line "世界" "货栈里码着旧演出海报和巡回演出的衣箱。罗科把一沓账单摊在灯下。")
-      (line "罗科" "我替她跑过多少地方？那些旅费和房钱是谁付的？她说不要我，就不要我了？")
+      (line 第三幕-罗科 "我替她跑过多少地方？那些旅费和房钱是谁付的？她说不要我，就不要我了？")
       (line "尼尔" "你付过钱。她也还过。你交出的清单里少了一笔。")
       (line "世界" (if rocco-ledger?
         "尼尔把旧酒馆的付款记录放在桌上。那一笔钱，罗科亲手签收。"
@@ -133,7 +139,7 @@
       (line "尼尔" (if rocco-threat?
         "旧账可以算清。至于你守在侧门拦她的事，也有人看见。继续纠缠，她会正式追究。"
         "旧账可以算清。但你必须停止在剧院等她，之后的接触只通过见证人办理。"))
-      (line "罗科" "你替她把账算完，倒像你从前也跟着我们跑过戏班。")
+      (line 第三幕-罗科 "你替她把账算完，倒像你从前也跟着我们跑过戏班。")
       (line "世界" "双方随后在见证下核清真实余额，结束旧代理关系。罗科放弃不成立的索款，承诺停止接近夜莺，并离开本城。")
       (line "尼尔" "他走了。我会再查一次车站记录。")))
   (define (confirm-report!)
@@ -170,7 +176,7 @@
     (play-dialogue!
       (line "世界" "吊机在半空停住。工头催促恢复作业，艾迪蹲在控制箱旁，指给尼尔看那根磨损的制动索。")
       (line "艾迪" "不能开。货还吊着，刹车咬不住。")
-      (line "工头" "停一天，工人就少一天钱。")
+      (line 第三幕-工头 "停一天，工人就少一天钱。")
       (line "艾迪" "那就先卸掉吊重，再换绳。我来负责机器，尼尔帮我找人把下面清出来。")
       (line "世界" "尼尔和工人移开货物，艾迪完成检修。工头盯着试车运转，终于在记录上签了字。")
       (line "艾迪" "谢谢你。要是让我看着它出事，我以后也不敢说自己会修机器。")))
@@ -221,9 +227,9 @@
     (set! frank-met? #t)
     (play-dialogue!
       (line "世界" "西装男人站在黑鸥号的舷梯边，把一份表格垫在公文包上。")
-      (line "收购代表" "我们买的是泊位使用权，不是您的船。价钱已经比隔壁几家厚道了。")
+      (line 第三幕-收购代表 "我们买的是泊位使用权，不是您的船。价钱已经比隔壁几家厚道了。")
       (line "弗兰克" "我在这儿停了几十年，你们写几张纸，就说这里闲置？")
-      (line "收购代表" "将来泊位管理费可能提高。今天签，还有补偿。")
+      (line 第三幕-收购代表 "将来泊位管理费可能提高。今天签，还有补偿。")
       (line "弗兰克" "船我不卖，地方也不让。拿着你的表格下去。")
       (line "世界" "隔壁船主却拿了协议。他说钱够他搬到儿子家附近，不想再守旧码头。")))
   (define (frank-debate!)
@@ -238,17 +244,17 @@
   (define (tommy-meet!)
     (set! tommy-met? #t)
     (play-dialogue!
-      (line "汤米" "瞧见我的鞋了吗？真皮的。店老板说穿上它，人家就会把我当回事。")
+      (line 第三幕-汤米 "瞧见我的鞋了吗？真皮的。店老板说穿上它，人家就会把我当回事。")
       (line "尼尔" "你把半个月工钱穿脚上了？")
-      (line "汤米" "今晚我要接待几位贵客。要是办得漂亮，老板以后就让我坐进里间。")
-      (line "汤米" "你要是有空，来喝一杯。我正缺个敢开口说话的朋友。")))
+      (line 第三幕-汤米 "今晚我要接待几位贵客。要是办得漂亮，老板以后就让我坐进里间。")
+      (line 第三幕-汤米 "你要是有空，来喝一杯。我正缺个敢开口说话的朋友。")))
   (define (tommy-intel!)
     (set! tommy-intel? #t)
     (play-dialogue!
       (line "世界" "尼尔从跑腿人那里听说，有位外街债权人打算不请自来，在牌桌前让一名贵客难堪。")
-      (line "汤米" "他不是来打牌的，是来讨脸面的。让他当着所有人嚷出来，咱们这晚就毁了。")
+      (line 第三幕-汤米 "他不是来打牌的，是来讨脸面的。让他当着所有人嚷出来，咱们这晚就毁了。")
       (line "尼尔" "那就别让他们在牌桌前谈。")
-      (line "汤米" "好。给他一张安静的桌子，再让该还钱的那位自己走进去。")))
+      (line 第三幕-汤米 "好。给他一张安静的桌子，再让该还钱的那位自己走进去。")))
   ;; C3 临时剧情接线；未来 Scenario 的具体成本由其脚本拥有。
   (define (tommy-finish! result)
     (if (and (active?) (not tommy-hosted?) (member? result '(保住牌局 闹出麻烦)))
@@ -256,16 +262,16 @@
     (set! tommy-hosted? #t)
     (play-dialogue!
       (line "世界" "外街来的人闯进俱乐部。汤米没有退回门边，而是径直迎上去。")
-      (line "汤米" "先生，您的事当然得有个说法。可您要让他还钱，总得先让他听得见您说话。")
+      (line 第三幕-汤米 "先生，您的事当然得有个说法。可您要让他还钱，总得先让他听得见您说话。")
       (line "世界" "汤米把两边请进侧间，仍让牌桌照常开局。事情没有全部解决，但今晚至少没有砸场。")
       (line "尼尔" "你刚才不怕他动手？")
-      (line "汤米" "怕。可我要是一辈子站在门口，比挨一拳还难受。")))
+      (line 第三幕-汤米 "怕。可我要是一辈子站在门口，比挨一拳还难受。")))
   (define (tommy-after!)
     (set! tommy-after? #t)
     (play-dialogue!
       (line "世界" "里间的门开了。汤米坐在以前只敢站着看的那张桌旁，领带打得格外整齐。")
-      (line "汤米" "兄弟！过来坐。这回酒算我的。")
-      (line "汤米" (if tommy-hosted?
+      (line 第三幕-汤米 "兄弟！过来坐。这回酒算我的。")
+      (line 第三幕-汤米 (if tommy-hosted?
         "那晚要不是你在，我也不敢保证能把场子稳住。往后有事，你尽管开口。"
         "老板终于让我管几个人了。你看，下次咱们就能到更好的地方喝酒。"))))
   (define (on-day!)
@@ -319,7 +325,7 @@
             :requires (list (req-die)) :resolve (instant (outcome learn-warehouse!)))) '())
         (if (and (equal? loc "码头") (case-open?) (>= (elapsed) 3)
                  (or rocco-warehouse? rocco-hotel? rocco-ledger? rocco-contract?))
-          (list (node "货栈交锋" :subtitle "Scenario 待设计；暂以剧情结案"
+          (list (node "货栈交锋" :subtitle "到货栈与罗科当面对质"
             :resolve (instant (outcome
               (lambda () (warehouse-finish! '完成结案)))))) '())
         (if (and (equal? loc "剧院") (equal? case-state "结案") (not report?))
@@ -365,7 +371,7 @@
             :requires (list (req-die)) :resolve (instant (outcome tommy-intel!)))) '())
         (if (and (equal? loc "夜总会") tommy-met? (not tommy-hosted?)
                  (not tommy-advanced?) (>= (elapsed) 3))
-          (list (node "今晚的贵客" :subtitle "Scenario 待设计；暂以剧情承接"
+          (list (node "今晚的贵客" :subtitle "协助汤米应付不速之客"
             :resolve (instant (outcome
               (lambda () (tommy-finish! '保住牌局)))))) '())
         (if (and (equal? loc "夜总会") tommy-advanced? (not tommy-after?))
