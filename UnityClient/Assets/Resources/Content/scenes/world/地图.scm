@@ -39,6 +39,9 @@
     (地点 residential-district (lambda () (or (>= (第一幕 'act) 2) (第二章 'started?))))
     (地点 theater (lambda () (or (第一幕 'theater-open?) (第二章 'started?))))
     (地点 board             (lambda () #f))
+    ;; 第三幕开放的室内地点先以网格内容呈现；模型与Scenario表现另行迭代。
+    (地点 old-hotel (lambda () (第三幕 'started?)))
+    (地点 private-club (lambda () (第三幕 'started?)))
     ;; ── 第二章开出来的地方 ─────────────────────────
     ;; 旧照片委托已退役；酒店保留旧第二章的独立调试入口。
     (地点 grand-hotel     (lambda () (第二章 'started?)))
@@ -58,3 +61,6 @@
             (筛地点 (cdr entries))))))
 
 (define (current-locations) (筛地点 (地图)))
+
+(define old-hotel (纯投射地点 "旧旅馆"))
+(define private-club (纯投射地点 "夜总会"))
