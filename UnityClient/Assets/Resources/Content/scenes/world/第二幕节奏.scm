@@ -50,11 +50,7 @@
     (第二幕-新城海报))
   (define (next-job!)
     (set! invitation? #t)
-    (play-dialogue!
-      (line "经理" "尼尔！兄弟，有件更像样的调查想请你帮忙。")
-      (line "尼尔" "什么事？")
-      (line "经理" "有人不愿意让夜莺顺利登台。线索也许就在旧港。")
-      (line "经理" "我开得出更好的价钱。这回真得靠你。")))
+    (第三幕 'start!))
   (define (arrivals-at loc)
     (if (not (active?)) '()
       (append
