@@ -1,5 +1,6 @@
 ;; 赞助人试唱结束后进入；保留独立演示入口。第一阶段无截止；第二阶段三回合。
 ;; 两条预写路线每次选一条为真；错误路线满格给正确路线2格，不重复发放。
+;; 中途 Dialogue 只交付路线发现、局面变化或必要提示；重复情报收益仅用效果条反馈。
 (define 公共踪迹 (make-clock "公共走廊踪迹" 4 'gauge "询问或搜寻；两格获得局部发现，满格确认路线。" :beneficial-direction 'increase))
 (define 后台踪迹 (make-clock "工作通道踪迹" 4 'gauge "询问或搜寻；两格获得局部发现，满格确认路线。" :beneficial-direction 'increase))
 (define 离场 (make-clock "离场去向" 6 'gauge "满格立刻追出侧门，结束搜索，取得车辆线索。" :beneficial-direction 'increase))
@@ -47,11 +48,7 @@
   (refresh-scenario-dice!)
   (收工 'load! 3)
   (play-dialogue!
-    (line "世界" "（上层平台。楼梯尽头，黑大衣刚推开一道窄门。）")
-    (line "尼尔" "喂！等一下！")
-    (line "世界" "（男人回头一瞥，随即下楼。岔口两边没有标牌，他径直推开藏在布景背后的门。）")
-    (line "尼尔" "他怎么知道那后面还有路……")
-    (line "世界" "（尼尔绕过布景，来到下层后台。试唱已经结束，场务推着道具往侧门走。）")
+    (line "世界" "（黑大衣推开布景背后的门，沿内部通道下楼。尼尔跟到下层后台，发现通道连着侧门。）")
     (line 门卫 "借过，先生。我们收工了，侧门一会儿就锁。")
     (line "尼尔" "刚才有个穿黑大衣的人从这里经过？")
     (line 门卫 "问问外头装车的伙计。我得先把这些东西放出去。")))
@@ -120,8 +117,7 @@
       (begin
         (set! 出口发现? #t)
         (play-dialogue!
-          (line 门卫 "有人替他打电话叫了车。是哪一家我没听清，装车的伙计在门外见过他。")
-          (line "尼尔" "那我得赶紧问问。"))) #f)))
+          (line 门卫 "有人替他打电话叫了车。是哪一家我没听清，装车的伙计在门外见过他。"))) #f)))
 (define (听消息! amount)
   (let ((total (+ (消息 'current) amount)))
     (消息 'advance! amount)
@@ -132,13 +128,8 @@
         (消息 'set! (- total 4))
         (if (= 情报数 1)
           (play-dialogue!
-            (line 场工 "换景机又响了。上星期报上去，到现在也没人换那只磨坏的轮子。")
-            (line "尼尔" "不是检查过了？")
-            (line 场工 "检查过。修没修好是另一回事。"))
-          (play-dialogue!
-            (line 场工 "报社的人来过两趟了，还没开演就要我们讲后台的事。")
-            (line "尼尔" "你告诉他们了？")
-            (line 场工 "我让他们先问问，这月加班费什么时候发。")))) #f)))
+            (line 场工 "换景机那只轮子磨坏了。上星期报过修，到现在还没换。"))
+          #f)) #f)))
 
 (define-opponent-rule "剧院逐渐收工"
   (lambda () (and (= 阶段 2) (not 结束?)))
@@ -168,7 +159,7 @@
   (let ((clock (路线钟 route)))
     (if (clock 'full?)
       (note-node (string-append title "结论") title "这里没有通向他的踪迹；连接口已找到。")
-      (container title (list
+      (node title :anchor (if (eq? route '公共) "球形剧场-公共走廊" "球形剧场-工作通道") :children (list
         (clock-node (string-append title "进度") (clock 'render-data))
         (node (string-append title "询问") :name (if (eq? route '公共) "询问引座员" "询问搬运工")
           :subtitle "失败无进展；中1格，好2格"
@@ -178,7 +169,7 @@
             (outcome (lambda () (搜寻! route 1)))
             (outcome (lambda () (搜寻! route 2)))))
         (node (string-append title "搜寻") :name (if (eq? route '公共) "沿走廊寻找" "穿过工作通道")
-          :subtitle "失败冷静−1；中2格，好3格"
+          :subtitle "失败心情−1；中2格，好3格"
           :risk '冒险 :risk-target (list 'composure "player")
           :progress-target (list 'clock (if (eq? route '公共) "公共走廊踪迹" "工作通道踪迹"))
           :requires (list (req-die)) :resolve (roll 'sharpness
@@ -186,8 +177,9 @@
             (outcome (lambda () (搜寻! route 2)))
             (outcome (lambda () (搜寻! route 3))))))))))
 (define (get-render-data)
-  (container "最后一排的观众"
-    (if (= 阶段 1)
+  (node "球形剧场" :name "最后一排的观众"
+    :anchor (if (= 阶段 1) "球形剧场" "球形剧场-后台")
+    :children (if (= 阶段 1)
       (list
         (note-node "末排目标" "目标" "查清黑大衣走了哪条路。两路各四格，两格获得局部发现；本阶段没有截止时间。")
         (路线节点 '公共 "公共走廊")
@@ -197,14 +189,14 @@
           (clock-node "收工期限" (收工 'render-data))
           (clock-node "离场调查进度" (离场 'render-data))
           (clock-node "后台消息进度" (消息 'render-data))
-          (node "打听离场去向" :subtitle "失败冷静−1；中1格，好2格"
+          (node "打听离场去向" :anchor "球形剧场-后巷" :subtitle "失败心情−1；中1格，好2格"
             :risk '冒险 :risk-target (list 'composure "player")
             :progress-target (list 'clock "离场去向")
             :requires (list (req-die)) :resolve (roll 'social
               (outcome (lambda () (spend-composure! 1)))
               (outcome (lambda () (查去向! 1)))
               (outcome (lambda () (查去向! 2)))))
-          (node "打听后台消息" :subtitle "失败冷静−1；中1格，好2格；每满4格情报+1"
+          (node "打听后台消息" :anchor "球形剧场-后台" :subtitle "失败心情−1；中1格，好2格；每满4格情报+1"
             :risk '冒险 :risk-target (list 'composure "player")
             :progress-target (list 'clock "后台消息")
             :requires (list (req-die)) :resolve (roll 'sharpness

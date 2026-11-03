@@ -5,9 +5,9 @@
     (define promised? #f)
     (define private-seen? #f)
     (define performance-seen? #f)
-    (define aftermath-seen? #f)
     (define audience-result "未发生")
     (define audience-intel 0)
+    (define performance-day 0)
     (define (on-audience-result! result)
       (if (and (list? result) (= (length result) 2)
                (member? (car result) '(车辆线索 错失车辆 倒下))
@@ -38,6 +38,7 @@
     (define (performance!)
       (if performance-seen? (error "赞助人试唱：不可重复观看") #t)
       (set! performance-seen? #t)
+      (set! performance-day world-day)
       (play-dialogue!
         (line "世界" "赞助人刚坐好，监督就举起了手。夜莺没有等尼尔为她说话，自己走上舞台。")
         (line "夜莺" "时间不多，我明白。但我想让你们真正听见我。")
@@ -50,17 +51,8 @@
         (line "经理" "当然！一个从旧港走到新城的姑娘，整个城市都会爱她。")
         (line "世界" "夜莺听见了，但没马上纠正。她仍望着方才为她鼓掌的观众席。"))
       (start-scenario "最后一排的观众" on-audience-result!))
-    (define (aftermath!)
-      (set! aftermath-seen? #t)
-      (play-dialogue!
-        (line "夜莺" "那天唱得真痛快。他们还问我愿不愿意多唱几场。")
-        (line "尼尔" "他们说你是从旧港的苦日子里逃出来的。")
-        (line "夜莺" "他们把故事讲得比我还会唱。不过这次，我想先把歌唱好。")))
     (define (arrivals-at loc)
-      (if (and (active?) (equal? loc "剧院") (第一幕 'rehearsal-seen?))
-        (append
-          (if (and (= world-day 13) (not performance-seen?)) (list (arrival "赞助人试唱" performance!)) '())
-          (if (and (>= world-day 14) performance-seen? (not aftermath-seen?)) (list (arrival "试唱余音" aftermath!)) '())) '()))
+      '())
     (define (nodes-at loc)
       (if (and (active?) (equal? loc "剧院"))
         (append
@@ -78,6 +70,12 @@
               "夜莺的试演时间被压缩，但她仍让赞助人记住了这首歌。"))) '())) '()))
     (lambda args
       (cond
+        ((eq? (car args) 'audience-result) audience-result)
+        ((eq? (car args) 'case-followup-ready?)
+          (if performance-seen?
+            (and (> world-day performance-day)
+                 (not (equal? audience-result "未发生")))
+            (> world-day 13)))
         ((eq? (car args) 'promise-trial!) (promise-trial!))
         ((eq? (car args) 'trial-pending?) (and (= world-day 13) (not performance-seen?)))
         ((eq? (car args) 'nodes-at) (nodes-at (cadr args)))
@@ -92,6 +90,8 @@
                   "赞助人今天来剧院听试唱。你答应了到场，去后台侧幕找她。")
                 (performance-seen?
                   "她只获得简短演出时间，却仍唱得出色。试唱已经结束。")
+                ((> world-day 13)
+                  "试唱已经结束，你没能赶上和夜莺的约定。")
                 ((not (第一幕 'rehearsal-seen?))
                   (if (= world-day 7)
                     "明天她在剧院正式彩排。你答应了到场，来侧门找她。"
@@ -107,10 +107,16 @@
                       ((equal? audience-result "错失车辆") "黑大衣熟悉剧院内部通道，从侧门坐车离开。没记下车牌，身份尚未查明。")
                       (else "试唱后追查后排的黑大衣，途中倒下，未能查清他的离场去向。"))
                     (if (> audience-intel 0) "另听说换景机的磨损部件报修后仍未更换。" ""))
+                  :steps (list (step
+                    (if (<= world-day performance-day)
+                      "明天回剧院，和夜莺、经理谈谈黑影的事。"
+                      "回剧院找夜莺和经理，接着谈黑影的事。")
+                    (第二幕节奏 'case-offered?)))
                   :where "剧院")))) '()))
         ((eq? (car args) 'save) (list (list "version" 2) (list "promised" promised?)
-          (list "private" private-seen?) (list "performance" performance-seen?) (list "aftermath" aftermath-seen?)
+          (list "private" private-seen?) (list "performance" performance-seen?)
           (list "audience-result" audience-result) (list "audience-intel" audience-intel)
+          (list "performance-day" performance-day)
           ))
         ((eq? (car args) 'load!)
           (let ((d (cadr args)))
@@ -124,8 +130,8 @@
             (set! private-seen? (assoc-get d "private" (assoc-get d "care" #f)))
             (set! performance-seen? (assoc-get d "performance"
               (member? (assoc-get d "sponsor-result" "未参与") '("修好设备" "替代伴奏" "争取清唱" "她自己唱完"))))
-            (set! aftermath-seen? (assoc-get d "aftermath" (assoc-get d "sponsor-aftermath" #f)))
+            (set! performance-day (assoc-get d "performance-day" (if performance-seen? 13 0)))
             (if (and (boolean? promised?) (boolean? private-seen?)
-                     (boolean? performance-seen?) (boolean? aftermath-seen?)) #t
+                     (boolean? performance-seen?)) #t
               (error "剧院：非法演出状态"))))
         (else (error "第二幕剧院：未知消息"))))))

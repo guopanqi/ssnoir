@@ -8,6 +8,7 @@ namespace SSNoir.Core
     public class GameState
     {
         private readonly Dictionary<string, object> _states = new Dictionary<string, object>();
+        public Dictionary<string, int> ActionUseDays { get; } = new(StringComparer.Ordinal);
         private IReadOnlyList<RestBlocker> _restBlockers = Array.Empty<RestBlocker>();
 
         public TeamState Team { get; } = new TeamState();
@@ -40,6 +41,7 @@ namespace SSNoir.Core
             Failure = GameFailure.None;
             _restBlockers = Array.Empty<RestBlocker>();
             _states.Clear();
+            ActionUseDays.Clear();
             Team.ResetForNewGame();
             Inventory.ApplySaveData(new Dictionary<string, int>());
             NotificationCenter.Clear();
@@ -130,7 +132,7 @@ namespace SSNoir.Core
             {
                 Inventory.SetCount("金钱", cash - CollapseTreatmentFee);
                 PendingHospitalization = new Hospitalization(
-                    $"你在人行道上醒过来，已经躺在诊所里了。账单 {CollapseTreatmentFee} 金，先收后问。"
+                    $"你在诊所的病床上醒来。账单 {CollapseTreatmentFee} 金，先收后问。"
                     + ScarNotice(scar));
             }
             else

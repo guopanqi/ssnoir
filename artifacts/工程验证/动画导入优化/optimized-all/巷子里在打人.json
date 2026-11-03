@@ -1,0 +1,155 @@
+{
+    "asset": "Assets/Resources/City/Places/巷子里在打人.fbx",
+    "clips": [
+        {
+            "name": "__preview__City",
+            "length": 29.066667556762697,
+            "frameRate": 30.0,
+            "legacy": true,
+            "loopTime": false,
+            "wrapMode": 0,
+            "curves": [],
+            "objectCurvesAndEvents": ""
+        },
+        {
+            "name": "击倒卷袖子__倒地",
+            "length": 1.0,
+            "frameRate": 30.0,
+            "legacy": true,
+            "loopTime": false,
+            "wrapMode": 8,
+            "curves": [],
+            "objectCurvesAndEvents": ""
+        },
+        {
+            "name": "击倒卷袖子__出拳",
+            "length": 3.9000015258789064,
+            "frameRate": 30.0,
+            "legacy": true,
+            "loopTime": false,
+            "wrapMode": 8,
+            "curves": [],
+            "objectCurvesAndEvents": ""
+        },
+        {
+            "name": "击倒卷袖子__站立",
+            "length": 1.0000001192092896,
+            "frameRate": 30.0,
+            "legacy": true,
+            "loopTime": false,
+            "wrapMode": 8,
+            "curves": [],
+            "objectCurvesAndEvents": ""
+        },
+        {
+            "name": "击倒卷袖子__重拳",
+            "length": 3.1000022888183595,
+            "frameRate": 30.0,
+            "legacy": true,
+            "loopTime": false,
+            "wrapMode": 8,
+            "curves": [],
+            "objectCurvesAndEvents": ""
+        },
+        {
+            "name": "击倒毡帽__倒地",
+            "length": 1.0,
+            "frameRate": 30.0,
+            "legacy": true,
+            "loopTime": false,
+            "wrapMode": 8,
+            "curves": [],
+            "objectCurvesAndEvents": ""
+        },
+        {
+            "name": "击倒毡帽__出拳",
+            "length": 3.90000057220459,
+            "frameRate": 30.0,
+            "legacy": true,
+            "loopTime": false,
+            "wrapMode": 8,
+            "curves": [],
+            "objectCurvesAndEvents": ""
+        },
+        {
+            "name": "击倒毡帽__站立",
+            "length": 1.0000001192092896,
+            "frameRate": 30.0,
+            "legacy": true,
+            "loopTime": false,
+            "wrapMode": 8,
+            "curves": [],
+            "objectCurvesAndEvents": ""
+        },
+        {
+            "name": "击倒毡帽__重拳",
+            "length": 3.100001335144043,
+            "frameRate": 30.0,
+            "legacy": true,
+            "loopTime": false,
+            "wrapMode": 8,
+            "curves": [],
+            "objectCurvesAndEvents": ""
+        },
+        {
+            "name": "击倒皮夹克__倒地",
+            "length": 1.0,
+            "frameRate": 30.0,
+            "legacy": true,
+            "loopTime": false,
+            "wrapMode": 8,
+            "curves": [],
+            "objectCurvesAndEvents": ""
+        },
+        {
+            "name": "击倒皮夹克__出拳",
+            "length": 3.900001049041748,
+            "frameRate": 30.0,
+            "legacy": true,
+            "loopTime": false,
+            "wrapMode": 8,
+            "curves": [],
+            "objectCurvesAndEvents": ""
+        },
+        {
+            "name": "击倒皮夹克__站立",
+            "length": 1.0000001192092896,
+            "frameRate": 30.0,
+            "legacy": true,
+            "loopTime": false,
+            "wrapMode": 8,
+            "curves": [],
+            "objectCurvesAndEvents": ""
+        },
+        {
+            "name": "击倒皮夹克__重拳",
+            "length": 3.1000006198883058,
+            "frameRate": 30.0,
+            "legacy": true,
+            "loopTime": false,
+            "wrapMode": 8,
+            "curves": [],
+            "objectCurvesAndEvents": ""
+        },
+        {
+            "name": "开场__围殴",
+            "length": 4.5,
+            "frameRate": 30.0,
+            "legacy": true,
+            "loopTime": false,
+            "wrapMode": 8,
+            "curves": [],
+            "objectCurvesAndEvents": ""
+        },
+        {
+            "name": "开场__撑住",
+            "length": 1.0000001192092896,
+            "frameRate": 30.0,
+            "legacy": true,
+            "loopTime": false,
+            "wrapMode": 8,
+            "curves": [],
+            "objectCurvesAndEvents": ""
+        }
+    ]
+}

@@ -1,0 +1,18 @@
+[first-act] OK: 新档从旅馆清晨开始
+[first-act] OK: 开场不消耗行动骰或偷换日期
+[first-act] OK: 开场暂时只使用 Dialogue
+[first-act] OK: 酒馆亮相前不开放工作地图
+[first-act] OK: 首次酒馆入场对白不标成必须处理，不留下空的强制入口
+[first-act] OK: 首次进酒馆仍自动播放入场对白
+[first-act] OK: 酒馆入场对白播完不重复出现
+[first-act] OK: 固定亮相后直接开放三份工作
+[first-act] OK: 没有旧探索前置与旧开场
+[first-act] OK: 第一次看场不提前触发两桌争吵
+[first-act] OK: 看场后进入两桌争吵的检查场景
+[first-act] OK: 争吵必须处理，不能继续看场或睡觉跳过
+[first-act] OK: 读档恢复必须处理事件与休息阻塞
+[first-act] OK: 酒馆Scenario没有主动失败按钮
+System.Exception: [first-act] 醉客起身报告先说明，再声明导航落点
+   at SSNoir.Testing.FirstActChecks.Assert(Boolean ok, String message) in /Users/usr/Documents/play/ssnoir/tools/content-validator/FirstActChecks.cs:line 14
+   at SSNoir.Testing.FirstActChecks.Run() in /Users/usr/Documents/play/ssnoir/tools/content-validator/FirstActChecks.cs:line 89
+   at SSNoir.Program.Main(String[] args) in /Users/usr/Documents/play/ssnoir/tools/content-validator/Program.cs:line 41

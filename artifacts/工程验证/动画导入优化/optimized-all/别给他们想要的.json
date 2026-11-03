@@ -1,0 +1,145 @@
+{
+    "asset": "Assets/Resources/City/Places/别给他们想要的.fbx",
+    "clips": [
+        {
+            "name": "__preview__City",
+            "length": 26.700000762939454,
+            "frameRate": 30.0,
+            "legacy": true,
+            "loopTime": false,
+            "wrapMode": 0,
+            "curves": [],
+            "objectCurvesAndEvents": ""
+        },
+        {
+            "name": "前排工人__退开",
+            "length": 1.0000019073486329,
+            "frameRate": 30.0,
+            "legacy": true,
+            "loopTime": false,
+            "wrapMode": 8,
+            "curves": [],
+            "objectCurvesAndEvents": ""
+        },
+        {
+            "name": "前排工人__退开到静候",
+            "length": 2.0666675567626955,
+            "frameRate": 30.0,
+            "legacy": true,
+            "loopTime": false,
+            "wrapMode": 8,
+            "curves": [],
+            "objectCurvesAndEvents": ""
+        },
+        {
+            "name": "前排工人__静候",
+            "length": 1.0,
+            "frameRate": 30.0,
+            "legacy": true,
+            "loopTime": false,
+            "wrapMode": 8,
+            "curves": [],
+            "objectCurvesAndEvents": ""
+        },
+        {
+            "name": "前排工人__静候到退开",
+            "length": 2.0666675567626955,
+            "frameRate": 30.0,
+            "legacy": true,
+            "loopTime": false,
+            "wrapMode": 8,
+            "curves": [],
+            "objectCurvesAndEvents": ""
+        },
+        {
+            "name": "喊的人__叫喊",
+            "length": 1.0,
+            "frameRate": 30.0,
+            "legacy": true,
+            "loopTime": false,
+            "wrapMode": 8,
+            "curves": [],
+            "objectCurvesAndEvents": ""
+        },
+        {
+            "name": "喊的人__叫喊到退开",
+            "length": 2.0666675567626955,
+            "frameRate": 30.0,
+            "legacy": true,
+            "loopTime": false,
+            "wrapMode": 8,
+            "curves": [],
+            "objectCurvesAndEvents": ""
+        },
+        {
+            "name": "喊的人__叫喊到静候",
+            "length": 0.39999961853027346,
+            "frameRate": 30.0,
+            "legacy": true,
+            "loopTime": false,
+            "wrapMode": 8,
+            "curves": [],
+            "objectCurvesAndEvents": ""
+        },
+        {
+            "name": "喊的人__退开",
+            "length": 1.0,
+            "frameRate": 30.0,
+            "legacy": true,
+            "loopTime": false,
+            "wrapMode": 8,
+            "curves": [],
+            "objectCurvesAndEvents": ""
+        },
+        {
+            "name": "喊的人__退开到叫喊",
+            "length": 5.100001335144043,
+            "frameRate": 30.0,
+            "legacy": true,
+            "loopTime": false,
+            "wrapMode": 8,
+            "curves": [],
+            "objectCurvesAndEvents": ""
+        },
+        {
+            "name": "喊的人__退开到静候",
+            "length": 2.0666675567626955,
+            "frameRate": 30.0,
+            "legacy": true,
+            "loopTime": false,
+            "wrapMode": 8,
+            "curves": [],
+            "objectCurvesAndEvents": ""
+        },
+        {
+            "name": "喊的人__静候",
+            "length": 1.0000001192092896,
+            "frameRate": 30.0,
+            "legacy": true,
+            "loopTime": false,
+            "wrapMode": 8,
+            "curves": [],
+            "objectCurvesAndEvents": ""
+        },
+        {
+            "name": "喊的人__静候到叫喊",
+            "length": 3.4333336353302,
+            "frameRate": 30.0,
+            "legacy": true,
+            "loopTime": false,
+            "wrapMode": 8,
+            "curves": [],
+            "objectCurvesAndEvents": ""
+        },
+        {
+            "name": "喊的人__静候到退开",
+            "length": 2.066667079925537,
+            "frameRate": 30.0,
+            "legacy": true,
+            "loopTime": false,
+            "wrapMode": 8,
+            "curves": [],
+            "objectCurvesAndEvents": ""
+        }
+    ]
+}

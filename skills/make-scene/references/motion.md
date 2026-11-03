@@ -27,7 +27,7 @@
 4. **审**：`blender -b --python pipeline/preview.py -- <名> --game --motion <道具> [--gif]`
    Agent 先读 `build/prefabs/<名>_motion_<道具>.png` 帧带，逐段核对起点、中间、终点的形体、位置、描线与状态；再读每段 `<clip>.png` 的全分辨率代表帧检查细节。帧带是抽样图，不等于每一帧都通过；有突变、穿插或构图疑点时用 `--frames 秒,秒` 补查相邻时刻，剧情演出还要从指定 `--cam` 的整帧看主体在画面里的位置。
    `--gif` 产出 10fps、低分辨率的节奏预览，适合给用户看动作和停顿，也可辅助 Agent 判断时间感；不要只凭 GIF 判断描线、几何和构图。日常以 Blender 的静态帧与动画节奏完成审片；游戏内播放留到最终接入。
-5. **发布**：`./build.sh` 照常；`places/<名>.clips.json` 随 FBX 一起进 Unity，导入器切成 Legacy clip `道具__状态`。
+5. **发布**：日常动作修改交付 Blender 源与审片，不自动导出到 Unity。用户明确要求当次接入／发布或到了其指定空闲时段，再按 [CityBox 交付](citybox-delivery.md) 选择局部或完整构建；`places/<名>.clips.json` 随 FBX 一起进 Unity，导入器切成 Legacy clip `道具__状态`。
 6. **谁负责播放**，按动画的职责选择：
    - **场景环境循环**（追车街景等，不由游戏状态切换）：在唯一循环状态上声明 `ambient: true`，例如
      `"行驶": {"pose": {...}, "loop": {...}, "ambient": true}`。地点内部显示时自动开始，隐藏时停止并复位，重新进入从头播放；

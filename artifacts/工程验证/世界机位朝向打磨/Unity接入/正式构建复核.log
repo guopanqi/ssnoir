@@ -1,0 +1,19 @@
+00:00.527  blend            | Read blend: "/Users/usr/Documents/play/ssnoir/city-box/build/city/city_build.blend"
+00:02.024  reports          | Read library: '/Users/usr/Documents/play/ssnoir/city-box/prefabs/世界.blend', '//../../prefabs/世界.blend', parent '<direct>'
+Blender 5.2.3 LTS (hash e13b728c6880 built 2026-10-22 01:31:22)
+00:02.034  reports          | Read library: '/Users/usr/Documents/play/ssnoir/city-box/prefabs/别给他们想要的.blend', '//../../prefabs/别给他们想要的.blend', parent '<direct>'
+00:02.147  reports          | Read library: '/Users/usr/Documents/play/ssnoir/city-box/prefabs/剧院.blend', '//../../prefabs/剧院.blend', parent '<direct>'
+00:02.163  reports          | Read library: '/Users/usr/Documents/play/ssnoir/city-box/prefabs/晚宴.blend', '//../../prefabs/晚宴.blend', parent '<direct>'
+00:02.171  reports          | Read library: '/Users/usr/Documents/play/ssnoir/city-box/prefabs/码头.blend', '//../../prefabs/码头.blend', parent '<direct>'
+00:02.197  reports          | Read library: '/Users/usr/Documents/play/ssnoir/city-box/prefabs/码头居民区.blend', '//../../prefabs/码头居民区.blend', parent '<direct>'
+Sampled 2 routes using shared runtime math.
+Sampled 2 routes using shared runtime math.
+Sampled 2 routes using shared runtime math.
+Sampled 2 routes using shared runtime math.
+Sampled 2 routes using shared runtime math.
+Sampled 2 routes using shared runtime math.
+Sampled 2 routes using shared runtime math.
+Sampled 2 routes using shared runtime math.
+CITY_APPROACH_REVIEW /Users/usr/Documents/play/ssnoir/artifacts/工程验证/世界机位朝向打磨/Unity接入/正式构建复核
+
+Blender quit

@@ -323,8 +323,7 @@ namespace SSNoir.Core
         /// （勒索信 → 三封信的 on-delivery-result），它讲的是那一夜的结局；而倒下是那个结局
         /// 的**原因**。按追加顺序播，玩家先读到"你跟丢了他、钱一分没剩"——听起来像是他没追上，
         /// 然后才被告知自己其实是被撂倒了、已经躺在诊所。因果反过来，那条失败叙述就变成了假话。
-        /// 因而把送医与倒下展示放在世界回调之前；旧Scenario演出结束后先采纳世界快照，
-        /// 再按“诊所醒来 → 你倒下了 → 那一夜的结局”播放。
+        /// 现场先确认倒下，黑场中采纳新日快照并落到诊所，醒来后再交代治疗与退场回调。
         /// </summary>
         private void ResolvePendingHospitalization(
             ActionReport report,
@@ -370,11 +369,13 @@ namespace SSNoir.Core
 
             var hospitalization = _gameState.ConsumeHospitalization();
 
-            // 先采纳世界快照并抵达诊所，再讲倒下与退场回调；旧Scenario的演出在此前结束。
-            report.PostSceneBlockingSteps.Insert(0,
-                BlockingStoryStep.ForEnterPlace("诊所"));
-            report.PostSceneBlockingSteps.Insert(1, BlockingStoryStep.ForSpotlight(
-                new SpotlightCard { Title = "你倒下了", Subtitle = hospitalization.Text }));
+            // 倒下先在现场确认；诊所落点及新日快照在黑场中提交。
+            report.TurnEnded = true;
+            report.WakePlaceName = "诊所";
+            report.BlockingStorySteps.Add(BlockingStoryStep.ForSpotlight(
+                new SpotlightCard { Title = "你倒下了", Subtitle = "身体再也撑不住了。眼前的街灯和人影渐渐模糊，你失去了意识。" }));
+            report.PostSceneBlockingSteps.Insert(0, BlockingStoryStep.ForSpotlight(
+                new SpotlightCard { Title = "在诊所醒来", Subtitle = "已经是第二天了。伤口经过处理，身体恢复了，但这次倒下留下了疤痕。\n" + hospitalization.Text }));
 
             _stashedWorldDice = null;
             if (advanceWorldTurnRules)
@@ -398,6 +399,18 @@ namespace SSNoir.Core
             // 可能已经挂起过一次“回世界”的场景骰，那次只是过渡，明确取消，避免随后覆盖新日骰池。
             _hasPendingSceneDiceRoll = false;
             _gameState.Team.RollActionDice(isInScenario: false);
+            RunWorldDayStart(report, _worldInterpreter
+                ?? throw new InvalidOperationException("Hospitalization requires the world interpreter."));
+        }
+
+        private void RunWorldDayStart(ActionReport report, SchemeInterpreter world)
+        {
+            var start = new ActionReport { Type = ActionType.Instant };
+            var previous = _gameState.CurrentActionReport;
+            _gameState.CurrentActionReport = start;
+            try { world.Eval("(on-turn-start)"); }
+            finally { _gameState.CurrentActionReport = previous; }
+            if (HasVisibleResult(start)) report.TurnStartReport = start;
         }
 
         private void RegisterScenarioBridges(SchemeInterpreter interpreter)
@@ -412,7 +425,7 @@ namespace SSNoir.Core
                     if (_isEnteringPlace && _gameState.CurrentActionReport?.Effects.Count > 0)
                         throw new InvalidOperationException(
                             $"入场节拍在 start-scenario（\"{name}\"）之前产生了动作结算效果。"
-                            + "Arrival 只能先播叙事，再把 start-scenario 放在最后。");
+                            + "已结算资源的入场遭遇不能同时启动另一场Scenario；跨场入场只编排出发叙事。");
                     _scenarioCallback = args.Count > 1 ? args[1] as Procedure : null;
                     StartScenario(name);
                     return new None();
@@ -598,6 +611,7 @@ namespace SSNoir.Core
                 Team      = _gameState.Team.Serialize(),
                 Inventory = new Dictionary<string, int>(_gameState.Inventory.Items),
                 WorldData = _worldInterpreter?.Eval("(world-save)"),
+                ActionUseDays = new Dictionary<string, int>(_gameState.ActionUseDays),
                 SaveTime  = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
             };
             SaveManager.Write(filePath, data);
@@ -640,12 +654,21 @@ namespace SSNoir.Core
             //    render tree is rebuilt explicitly at the end of this method.
             _gameState.ReplacePureGlobals(data.Globals);
 
+            _gameState.ActionUseDays.Clear();
+
             // 6. Restore Scheme world state (must run after C# state is fully set)
             if (data.WorldData != null)
             {
                 _worldInterpreter.RawInterpreter.DefineGlobal(
                     Symbol.FromString("__world-load-data"), data.WorldData);
                 _worldInterpreter.Eval("(world-load! __world-load-data)");
+            }
+            int loadedWorldDay = _gameState.Get<int>("世界日", 0);
+            foreach (var entry in data.ActionUseDays)
+            {
+                if (string.IsNullOrWhiteSpace(entry.Key) || entry.Value < 1 || entry.Value > loadedWorldDay)
+                    throw new InvalidOperationException("Invalid action-use history in save data.");
+                _gameState.ActionUseDays.Add(entry.Key, entry.Value);
             }
 
             // 7. 读档后骰池以存档为准，旧的暂存一律作废。
@@ -712,6 +735,23 @@ namespace SSNoir.Core
             RebuildRenderTree();
         }
 
+        private void ApplyActionUseLimits(GameNode node)
+        {
+            if (node.UseLimit.HasValue)
+            {
+                if (!IsWorldScene(CurrentSceneName))
+                    throw new InvalidOperationException($"Node '{node.Id}': daily-once is only valid for city actions.");
+                int day = _gameState.Get<int>("世界日", 0);
+                if (day < 1) throw new InvalidOperationException("daily-once requires a valid world day.");
+                if (_gameState.ActionUseDays.TryGetValue(node.Id, out int usedDay) && usedDay == day)
+                {
+                    node.Disabled = true;
+                    node.Subtitle = GameLanguage.Tr("今天已使用，明天再来。", "Used today. Available tomorrow.");
+                }
+            }
+            foreach (var child in node.Children) ApplyActionUseLimits(child);
+        }
+
         public void RebuildRenderTree()
         {
             var active = ActiveInterpreter;
@@ -721,6 +761,7 @@ namespace SSNoir.Core
                 if (root.Clocks.Count > 0)
                     throw new InvalidOperationException("根容器不能挂 :clocks：请改用 clock-node。");
                 AssertUniqueNodeIds(root);
+                ApplyActionUseLimits(root);
                 AssertPlacesWellFormed(root, IsWorldScene(CurrentSceneName));
                 return root;
             }
@@ -883,6 +924,7 @@ namespace SSNoir.Core
                 RootNode = rootNode,
                 CarryNodes = CurrentCarryNodes,
                 InjurySeverity = _gameState.Team.Injury.Severity,
+                InjuryResetSequence = _gameState.Team.Injury.ResetSequence,
                 InjuryPart = _gameState.Team.Injury.Part,
                 InjuryBandName = Injury.BandName(_gameState.Team.Injury.Band),
                 InjurySkillName = _gameState.Team.Injury.SkillName,
@@ -955,6 +997,8 @@ namespace SSNoir.Core
 
             if (isWorldScene)
                 return;
+            if (rootNode.Arrivals.Count > 0)
+                throw new InvalidOperationException("Scenario根不能声明世界入场事件。");
 
             foreach (var child in rootNode.Children)
             {
@@ -966,6 +1010,8 @@ namespace SSNoir.Core
 
         private static void AssertNoPlaceBelow(GameNode node, string containerName)
         {
+            if (node.Arrivals.Count > 0 && !node.IsPlace)
+                throw new InvalidOperationException($"入场事件只能属于世界根或直接地点：{node.Id}");
             foreach (var child in node.Children)
             {
                 if (child.IsPlace)
@@ -1052,13 +1098,13 @@ namespace SSNoir.Core
                     // 日期已经推进，不能再跑一遍。Scenario EndTurn 则还需要补跑一次世界日终。
                     ResolvePendingHospitalization(report, turnInterpreter, advanceWorldTurnRules: false);
                     report.AddEffect(
-                        ActionEffectKind.Composure, "冷静", automaticComposureDelta,
+                        ActionEffectKind.Composure, "心情", automaticComposureDelta,
                         automaticComposureDelta > 0 ? ActionEffectTone.Positive : ActionEffectTone.Negative);
                     report.AddEffect(
                         ActionEffectKind.Injury, "伤势", automaticInjuryDelta,
                         automaticInjuryDelta > 0 ? ActionEffectTone.Negative : ActionEffectTone.Positive);
                     if (automaticInjuryDelta > 0)
-                        report.AddSupplement("冷静击穿：你的手在抖，身体先一步承受了代价。");
+                        report.AddSupplement("心情 耗尽：你的手在抖，身体先一步承受了代价。");
 
                     RebuildRenderTree();
                     if (ownsReport)
@@ -1083,23 +1129,11 @@ namespace SSNoir.Core
 
                     // 新日事件必须和旧日动作的表现分开。否则 on-turn-start 里的早报、电话
                     // 会先作为 BlockingStoryStep 播完，客户端才有机会落下睡眠黑幕。
-                    var turnStartReport = new ActionReport { Type = ActionType.Instant };
-                    var previousReport = _gameState.CurrentActionReport;
-                    _gameState.CurrentActionReport = turnStartReport;
-                    try
-                    {
-                        turnInterpreter.Eval("(on-turn-start)");
-                    }
-                    finally
-                    {
-                        _gameState.CurrentActionReport = previousReport;
-                    }
-                    if (HasVisibleResult(turnStartReport))
-                        report.TurnStartReport = turnStartReport;
+                    RunWorldDayStart(report, turnInterpreter);
                 }
 
                 report.AddEffect(
-                    ActionEffectKind.Composure, "冷静", automaticComposureDelta,
+                    ActionEffectKind.Composure, "心情", automaticComposureDelta,
                     automaticComposureDelta > 0 ? ActionEffectTone.Positive : ActionEffectTone.Negative);
 
                 // 伤势的正负与其他资源相反：数值涨上去是坏事。
@@ -1108,7 +1142,7 @@ namespace SSNoir.Core
                     automaticInjuryDelta > 0 ? ActionEffectTone.Negative : ActionEffectTone.Positive);
                 if (automaticInjuryDelta > 0)
                 {
-                    report.AddSupplement("冷静击穿：你的手在抖，身体先一步承受了代价。");
+                    report.AddSupplement("心情 耗尽：你的手在抖，身体先一步承受了代价。");
                 }
 
                 RebuildRenderTree();
@@ -1176,13 +1210,13 @@ namespace SSNoir.Core
                             int injuryDelta = _gameState.HasPendingHospitalization
                                 ? Injury.MaxSeverity - injuryBefore
                                 : _gameState.Team.Injury.Severity - injuryBefore;
-                            _gameState.CurrentActionReport!.AddEffect(ActionEffectKind.Composure, "冷静", composureDelta,
+                            _gameState.CurrentActionReport!.AddEffect(ActionEffectKind.Composure, "心情", composureDelta,
                                 composureDelta > 0 ? ActionEffectTone.Positive : ActionEffectTone.Negative);
                             _gameState.CurrentActionReport!.AddEffect(ActionEffectKind.Injury, "伤势", injuryDelta,
                                 injuryDelta > 0 ? ActionEffectTone.Negative : ActionEffectTone.Positive);
                             if (injuryDelta > 0)
                                 _gameState.CurrentActionReport!.AddSupplement(
-                                    "冷静击穿：你的手在抖，身体先一步承受了代价。");
+                                    "心情 耗尽：你的手在抖，身体先一步承受了代价。");
                         });
                         RebuildRenderTree();
                         _roundTransitionPhase = RoundTransitionPhase.OpponentRules;
@@ -1336,15 +1370,16 @@ namespace SSNoir.Core
             target.PostSceneBlockingSteps.AddRange(source.PostSceneBlockingSteps);
             target.Banter.AddRange(source.Banter);
             target.NarrationIds.AddRange(source.NarrationIds);
+            if (!string.IsNullOrEmpty(source.WakePlaceName)) target.WakePlaceName = source.WakePlaceName;
+            if (source.TurnStartReport != null) target.TurnStartReport = source.TurnStartReport;
             foreach (var step in source.BlockingStorySteps)
                 if (step.ResolvedReport != null)
                     MergeReport(target, step.ResolvedReport);
         }
 
         /// <summary>
-        /// 玩家真的走进一个地点。只在两条真实移动路径上调用：从世界层点开地点卡，
-        /// 以及主动「回家」。返回上一层、恢复导航栈、读档重建、快照刷新都不算到达，
-        /// 睡醒仍在家里也不算——那些路径不要调这个方法。
+        /// 玩家走进地点或退回世界地图时执行入场；自然睡醒后也检查当前地点的新日事件。
+        /// 中间层返回、读档重建和快照刷新不重复执行。送医落点只播放送医报告，不触发此入口。
         ///
         /// 按名字取节点而不是收客户端手里的对象：客户端持有的是它自己那份快照里的
         /// 节点，未必是引擎当前树里的那一个。节点 ID 全局唯一（AssertUniqueNodeIds），
@@ -1367,16 +1402,9 @@ namespace SSNoir.Core
             if (root == null)
                 return null;
 
-            // 退回世界层也算一次到达：世界根自己不是子地点，但「你离开过这里」
-            // 这类规则（家里的睡觉锁）要听见它。根没有入场节拍，只跑钩子并重建。
-            if (root.Id == placeName)
-            {
-                ActiveInterpreter.Eval($"(on-enter-place \"{placeName}\")");
-                RebuildRenderTree();
-                return null;
-            }
-
-            var place = root.Children.Find(child => child.IsPlace && child.Id == placeName);
+            // 世界地图与实际地点共用 arrival 报告和一次性事实，不走即时广播。
+            var place = root.Id == placeName ? root
+                : root.Children.Find(child => child.IsPlace && child.Id == placeName);
             if (place == null)
                 return null;
 
@@ -1414,14 +1442,8 @@ namespace SSNoir.Core
                 _gameState.CurrentActionReport = null;
             }
 
-            // Arrival 只负责叙事。写进 Effects 的东西（result-supplement!、加钟、资源增减）
-            // 会让入场长得像一次动作结算——「这件事存在」必须在玩家走进来之前
-            // 就由日终规则或某个动作建立好。
-            if (report.Effects.Count > 0)
-                throw new InvalidOperationException(
-                    $"地点 \"{placeName}\" 的入场节拍产生了动作结算效果（钟／标注／资源变化）。"
-                    + "Arrival 只能播叙事：把状态变更移回日终规则或动作里。");
-
+            // 入场遭遇可以在同一报告中完成对白、资源与地点状态结算。
+            // 客户端播完这次事件才采用余额和地点的新快照，不能将扣款提前拆进日终。
             // start-scenario 会在入场报告仍被持有时准备好Scenario快照；客户端继续显示
             // 刚进入的地点，直到报告中的 dialogue / animation 播完才 adopt 新快照。
             // 没有切场景的普通 arrival 则照常重建世界树并校验地点仍存在。
@@ -1430,7 +1452,8 @@ namespace SSNoir.Core
 
             RebuildRenderTree();
 
-            var stillThere = CurrentRootNode?.Children.Find(child => child.IsPlace && child.Id == placeName);
+            var stillThere = CurrentRootNode?.Id == placeName ? CurrentRootNode
+                : CurrentRootNode?.Children.Find(child => child.IsPlace && child.Id == placeName);
             if (stillThere == null)
                 throw new InvalidOperationException(
                     $"地点 \"{placeName}\" 的入场节拍把玩家刚走进来的地点从世界里移掉了。");
@@ -1442,6 +1465,25 @@ namespace SSNoir.Core
 
         public ActionReport ExecuteAction(GameNode node, List<SlottedResource?> slots)
         {
+            int? limitedActionDay = null;
+            if (node.UseLimit.HasValue)
+            {
+                if (!IsWorldScene(CurrentSceneName)) throw new InvalidOperationException("daily-once is only valid for city actions.");
+                RebuildRenderTree();
+                GameNode? FindCurrent(GameNode root)
+                {
+                    if (root.Id == node.Id) return root;
+                    foreach (var child in root.Children) { var found = FindCurrent(child); if (found != null) return found; }
+                    return null;
+                }
+                var current = FindCurrent(CurrentRootNode!) ?? throw new InvalidOperationException($"Action '{node.Id}' no longer exists.");
+                if (current.UseLimit != node.UseLimit) throw new InvalidOperationException($"Action '{node.Id}' changed its use-limit declaration.");
+                node = current;
+                limitedActionDay = _gameState.Get<int>("世界日", 0);
+                if (limitedActionDay < 1) throw new InvalidOperationException("daily-once requires a valid world day.");
+                if (_gameState.ActionUseDays.TryGetValue(node.Id, out int usedDay) && usedDay == limitedActionDay)
+                    throw new InvalidOperationException($"Action '{node.Id}' has already been used today.");
+            }
             if (node.Disabled)
                 throw new InvalidOperationException($"Node '{node.Id}' is disabled and cannot be executed.");
             Debug.Assert(node.Resolve != null, "Cannot execute action on a node that has no resolve");
@@ -1634,6 +1676,9 @@ namespace SSNoir.Core
                         }
                     }
                 };
+
+                // Reserve after all resource validation, before effects can switch scenes or advance the day.
+                if (limitedActionDay.HasValue) _gameState.ActionUseDays[node.Id] = limitedActionDay.Value;
 
                 if (node.Resolve.Type == ResolveType.Instant)
                 {

@@ -1,0 +1,29 @@
+{
+  "main_importer": "UnityClient/Assets/Editor/Pipeline/SSNoirModelImporter.cs",
+  "main_sha256": "b20605755f14d07d9b711ded9f73500fac5cbaf99babbc086c8861951064f7d4",
+  "importer_version": 22,
+  "joint_lift_baseline_import_seconds": 89.551359,
+  "joint_lift_optimized_import_seconds": 3.433759,
+  "baseline_callback_ms": 86967.668,
+  "optimized_callback_ms": 1361.7710000000002,
+  "other_optimized_callback_count": 110,
+  "other_optimized_callback_ms": 2326.2350000000006,
+  "equivalence": [
+    {
+      "asset": "Assets/Resources/City/Places/联合起吊.fbx",
+      "clips": 8,
+      "curves": 38093,
+      "keys": 8087985,
+      "exact": true,
+      "differences": [],
+      "difference_count": 0
+    }
+  ],
+  "main_editor_project_build": {
+    "result": "passed",
+    "errors": 0,
+    "existing_warnings": 4,
+    "output_path": "/tmp/ssnoir-animation-import-build"
+  },
+  "main_editor_auto_refresh_observed": false
+}

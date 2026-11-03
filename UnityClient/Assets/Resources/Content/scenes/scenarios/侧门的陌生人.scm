@@ -1,7 +1,7 @@
 ;; 独立演示：人物机会限时，调查本身不限回合；始终可艰难地自行查记录。
 ;; 直接询问无修正；场务帮忙3格、仅第一回合：查记录修正−3→0。
 ;; 独立观察修正+1，但坏结果冷静−1。帮忙不直接给线索，不锁其他路线。
-(define 时间 (make-clock "距离交班结束" 3 'countdown "每回合末减1、冷静−1；第1回合末关闭交班帮忙，第2回合末门房与夜莺离开，第3回合末场务下班，仍可自行查簿。" :beneficial-direction 'increase))
+(define 时间 (make-clock "距离交班结束" 3 'countdown "每回合末减1、心情−1；第1回合末关闭交班帮忙，第2回合末门房与夜莺离开，第3回合末场务下班，仍可自行查簿。" :beneficial-direction 'increase))
 (define 线索 (make-clock "跟踪线索" 8 'gauge "汇集外貌、出没时间与去向；填满取得可继续追查的地点，不确认身份。" :beneficial-direction 'increase))
 (define 交班工作 (make-clock "整理交班" 3 'gauge "仅第一回合可帮忙；满格后场务陪查到第3回合末，期间查记录修正由−3变为0。" :beneficial-direction 'increase))
 (define 已结束? #f)
@@ -76,7 +76,7 @@
     :children (append
       (list
         (note-node "侧门目标" "目标" "调查陌生人的外貌、时间与去向，取得一处可以继续追查的地点。")
-        (note-node "侧门窗口" "调查窗口" "第1回合末交班帮忙关闭；第2回合末询问与观察关闭；第3回合末场务下班，仍可自行查簿。每回合末冷静−1。"))
+        (note-node "侧门窗口" "调查窗口" "第1回合末交班帮忙关闭；第2回合末询问与观察关闭；第3回合末场务下班，仍可自行查簿。每回合末心情−1。"))
       (clock-nodes (线索 'render-data))
       (if (时间 'empty?) '() (clock-nodes (时间 'render-data)))
       (if (> (时间 'current) 1)
@@ -90,7 +90,7 @@
                 (outcome (lambda () (调查! 1 '门房)))
                 (outcome (lambda () (调查! 2 '门房)))))
             (node "侧门外观察" :clocks (list (窗口标签 "观察剩余" 1))
-              :subtitle "观察修正+1；坏冷静−1，中1，好2"
+              :subtitle "观察修正+1；坏心情−1，中1，好2"
               :risk '冒险 :risk-target (list 'composure "player")
               :progress-target (list 'clock "跟踪线索") :requires (list (req-die))
               :resolve (roll 'sharpness (lambda () (list (modifier 1 "直接目击")))
@@ -98,7 +98,7 @@
                 (outcome (lambda () (调查! 1 '观察)))
                 (outcome (lambda () (调查! 2 '观察)))))) '())
       (if 场务离开?
-        (list (note-node "场务已离开" "值班簿留在桌上" "可不限回合自行查阅，判定−3；每回合结束仍消耗1冷静。"))
+        (list (note-node "场务已离开" "值班簿留在桌上" "可不限回合自行查阅，判定−3；每回合结束仍消耗1心情。"))
         (if (交班工作 'full?)
         (list (note-node "场务配合" "场务陪你查阅" "查记录修正为0，协助持续到第3回合末；之后仍可自行查簿。"))
         (if (= (时间 'current) 3)

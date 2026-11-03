@@ -48,7 +48,7 @@ foreach (var source in input.Cameras)
         var frames = new List<object>();
         for (int i = 0; i <= input.Samples; i++)
         {
-            float progress = i / (float)input.Samples, t = FocusTravelMath.Ease(progress, plan.Path);
+            float progress = i / (float)input.Samples, t = FocusTravelMath.Ease(progress, plan.Path, plan.EaseOut);
             plan.Sample(progress, out var p, out var q);
             if (!float.IsFinite(p.X + p.Y + p.Z + q.X + q.Y + q.Z + q.W)) throw new Exception("Non-finite pose");
             frames.Add(new

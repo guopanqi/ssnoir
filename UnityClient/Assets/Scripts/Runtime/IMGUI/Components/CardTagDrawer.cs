@@ -39,7 +39,6 @@ namespace SSNoir.IMGUI
         {
             var items = new List<Item>();
             var labels = new HashSet<string>();
-            bool hasRequired = false;
             if (node.Risk != null)
             {
                 Color riskColor = node.Risk.Level switch
@@ -51,21 +50,21 @@ namespace SSNoir.IMGUI
                 items.Add(new Item(node.Risk.Label, accent: riskColor));
                 labels.Add(node.Risk.Label);
             }
+            if (node.UseLimit == ActionUseLimit.DailyOnce)
+            {
+                string label = UiText.Get("每日一次");
+                labels.Add(label);
+                items.Add(new Item(label));
+            }
             foreach (var tag in node.Tags)
             {
-                if (string.IsNullOrWhiteSpace(tag) || tag == "人物" || tag == "地点") continue;
-                string shown = tag switch
-                {
-                    "工作" or "紧急" or "必须处理" or "高风险" or "低风险" or "Scenario" => UiText.Get(tag),
-                    _ => tag,
-                };
-                if (tag == "必须处理") hasRequired = true;
-                if (labels.Add(shown)) items.Add(new Item(shown, tag == "紧急" || tag == "必须处理"));
+                string shown = UiText.Get(tag);
+                if (labels.Add(shown)) items.Add(new Item(shown));
             }
             if (node.Resolve != null)
                 foreach (var mod in node.Resolve.DifficultyModifiers)
                     items.Add(new Item($"{mod.Reason} {(mod.Value > 0 ? "+" : "")}{mod.Value}"));
-            if (mustHandle && !hasRequired)
+            if (mustHandle)
                 items.Add(new Item(UiText.Get("必须处理"), attention: true));
             foreach (var clock in clocks ?? node.Clocks)
                 if (clock.Priority == ClockPriority.Secondary)

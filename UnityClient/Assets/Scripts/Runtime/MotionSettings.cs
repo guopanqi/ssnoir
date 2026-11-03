@@ -18,7 +18,7 @@ namespace SSNoir
     /// 两者由 <c>SSNoirGameManager.LastSnapshotChangedRoot</c> 分辨（见 <c>StageTransitionController</c>）。
     /// 过夜黑场本来就不动镜头，两种模式一个节奏。
     ///
-    /// 随游戏存档保存；旧存档没有该字段时默认使用减少镜头动画。
+    /// 随游戏存档保存；旧存档没有该字段时默认使用正常镜头动画。
     /// </summary>
     public static class MotionSettings
     {
@@ -31,8 +31,12 @@ namespace SSNoir
         /// <summary>低动画下灯标平移的时长，对应正常模式的 0.42 秒。</summary>
         public const float ReducedNavigationDuration = 0.18f;
 
-        public const bool DefaultReduceMotion = true;
+        public const bool DefaultReduceMotion = false;
         public static bool ReduceMotion { get; set; } = DefaultReduceMotion;
+
+        // 起止缓动为默认值；速度固定为截图中的 2 倍，不再提供玩家选项。
+        public static bool FocusEaseOut { get; set; } = false;
+        public const float FocusSpeedMultiplier = 2f;
 
     }
 }

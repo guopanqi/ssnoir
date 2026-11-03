@@ -30,7 +30,8 @@
       (工作 "联络货主" '稳妥 'social
         (outcome (lambda () (add-item! "金钱" 10)))
         (outcome (lambda () (add-item! "金钱" 6)))
-        (outcome (lambda () (spend-composure! 1)))))
+        (outcome (lambda () (spend-composure! 1)))
+        "替货运公司联络有货要运的货主。"))
 
     (define (unlock-agent-project!)
       (if (not (= agent-stage 1))
@@ -168,36 +169,15 @@
           '()))
 
     (define (company-children)
-      (map anchor-at-office
-        (append
-          (list (node-contract-work)
-                (node "货运代理"
-                  :subtitle agent-identity
-                  :resolve (observe (agent-description))))
-          ;; 代理人认的是沃尔特的引荐，不是哪个圈子的名声：这里开门就说明他引荐过了。
-          (if (= agent-stage 0)
-              (list (node-entertain-agent))
-              '())
-          (if (= agent-stage 1) (list (node-review-agent-terms)) '())
-          (if (and (>= agent-stage 2) (equal? project-state "无"))
-              (list (node-assess-project))
-              '())
-          (if (equal? project-state "已考察")
-              (list (node-negotiate-project) (node-invest))
-              '())
-          (if (equal? project-state "已谈判")
-              (list (node-invest))
-              '())
-          (地点节点 "货运公司"))))
+      ;; 暂时隐藏原有商业工作节点，保留投资状态与结算逻辑；公司只投射故事节点。
+      (map anchor-at-office (地点节点 "货运公司")))
 
     (lambda args
       (let ((msg (car args)))
         (cond
           ((equal? msg 'render-data)
-           (list (place "货运公司"
-                   :children (company-children)
-                   :clocks (investment-clocks)
-                   :arrivals (walter-reference-arrivals))))
+           (list (place "货运公司" :name "货运联合公司"
+                   :children (company-children))))
           ((equal? msg 'save)
            (list
              (list "agent-stage" agent-stage)

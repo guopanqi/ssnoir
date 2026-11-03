@@ -58,22 +58,22 @@ namespace SSNoir.IMGUI
             new TutorialEntry
             {
                 Id = Composure,
-                Title = "冷静与伤势",
+                Title = "心情 与 健康",
                 Paragraphs = new[]
                 {
-                    "冷静耗尽后继续承受压力，会转成身体伤势。",
-                    "去家里花一颗骰子静坐，或在酒馆花钱喝酒可以恢复冷静；睡觉不自动恢复。",
+                    "心情耗尽后继续承受压力，会转成身体伤势。",
+                    "去家里花一颗骰子静坐，或在酒馆花钱喝酒可以恢复心情；睡觉不自动恢复。",
                 },
                 Highlight = TutorialHighlight.Vitals,
             },
             new TutorialEntry
             {
                 Id = Injury,
-                Title = "伤势影响行动次数",
+                Title = "健康 影响行动次数",
                 Paragraphs = new[]
                 {
-                    "伤势到 2、5 点时，各封锁一个行动位。手中已经抽到的骰子不会消失。",
-                    "睡两晚可缓和 1 点伤势，也可以在诊所治疗、用药或主动养伤。",
+                    "健康 降至 5、2 点时，各封锁一个行动位。手中已经抽到的骰子不会消失。",
+                    "睡觉不恢复健康；只能在诊所治疗，或花钱买药品回家用药。",
                     "受伤、治疗都从下一次发骰起影响骰子数量；当前这一手保持不变。",
                 },
                 Highlight = TutorialHighlight.Vitals,
@@ -86,7 +86,7 @@ namespace SSNoir.IMGUI
                 Paragraphs = new[]
                 {
                     "在家中点击「睡觉」结束这一天；在外面时，可以先点右下角的「回家」。",
-                    "新的一天会刷新行动骰、推进时间，也可能带来新的事件。睡觉不会自动恢复冷静。",
+                    "新的一天会刷新行动骰、推进时间，也可能带来新的事件。睡觉不会自动恢复心情。",
                 },
                 Highlight = TutorialHighlight.RestCard,
             },

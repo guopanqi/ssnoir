@@ -47,7 +47,7 @@
   (node title :subtitle subtitle :requires (list (req-die))
     :resolve (instant (outcome effect))))
 (define (climb-node)
-  (node "爬上树" :subtitle "成功后可在树上拍摄；失手消耗1冷静"
+  (node "爬上树" :subtitle "成功后可在树上拍摄；失手消耗1心情"
     :requires (list (req-die))
     :resolve (roll 'violence
       (outcome (lambda () (spend-composure! 1)))
@@ -55,7 +55,7 @@
       (outcome (lambda () (set! tree-access? #t) (set! position '树上) (set! stay-turns 0))))))
 (define (photo-node near?)
   (node (if near? "树上拍摄" "车内拍摄")
-    :tags (list (if near? "高风险" "低风险"))
+    :risk (if near? '危险 '冒险)
     :subtitle (if near? "俯视餐桌，能拍清面孔与亲昵动作" "隔着车窗拍；角度受限，成果较少")
     :requires (list (req-die))
     :resolve (roll 'sharpness

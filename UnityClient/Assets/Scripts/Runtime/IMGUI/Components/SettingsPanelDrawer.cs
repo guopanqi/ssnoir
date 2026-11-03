@@ -17,7 +17,7 @@ namespace SSNoir.IMGUI
         private const float HeaderH = IMGUIStyles.ModalContentTop;
         private const float BlockTitleH = 20f;
         private const float TitleToControl = 8f;
-        private const float BlockGap = 22f;
+        private const float BlockGap = 12f;
         private const float BottomPad = 24f;
 
         private static float ControlH => UIScale.TouchHeight(30f);
@@ -64,16 +64,27 @@ namespace SSNoir.IMGUI
             float contentX = panelX + 24f;
             float contentW = panelW - 48f;
             float y = panelY + HeaderH;
+            float halfW = (contentW - 16f) / 2f;
 
             // ── 界面尺寸 ──
             var presets = new[] { UISizePreset.Compact, UISizePreset.Standard, UISizePreset.Large };
             int presetIndex = System.Array.IndexOf(presets, UIScale.SizePreset);
             int pickedPreset = DrawSetting(
-                new Rect(contentX, y, contentW, BlockH),
+                new Rect(contentX, y, halfW, BlockH),
                 "界面尺寸",
                 new[] { "紧凑", "标准", "放大" }, Mathf.Max(0, presetIndex), ui);
             if (pickedPreset >= 0)
                 UIScale.SizePreset = presets[pickedPreset];
+            // ── 教程提示 ──
+            // 「关」之后什么都不会弹（帮助面板照样能翻）。从关切回开会把「看过」的记录清掉，
+            // 于是换一个人坐下来试玩，教程会从头再走一遍——demo 阶段这是最常用的一个动作。
+            int pickedTutorial = DrawSetting(
+                new Rect(contentX + halfW + 16f, y, halfW, BlockH),
+                "教程提示",
+                new[] { "开", "关" }, TutorialState.Enabled ? 0 : 1, ui);
+            if (pickedTutorial >= 0)
+                TutorialState.Enabled = pickedTutorial == 0;
+
             y += BlockH + BlockGap;
 
             // ── 镜头动画 ──
@@ -81,7 +92,6 @@ namespace SSNoir.IMGUI
             // 按钮说的却是当前状态，两句话方向相反，读的人得在脑子里绕一圈。
             // 现在和上面一项同构：标题是这项设置的名字，控件直接摆出两个可选的档。
             // 镜头与骰子配色并排，共用这一行，面板高度保持在安全区内。
-            float halfW = (contentW - 16f) / 2f;
             bool reduceMotion = MotionSettings.ReduceMotion;
             int pickedMotion = DrawSetting(
                 new Rect(contentX, y, halfW, BlockH),
@@ -97,15 +107,12 @@ namespace SSNoir.IMGUI
                 HandPanelDrawer.ColorDicePipsOnly = pickedDice == 1;
             y += BlockH + BlockGap;
 
-            // ── 教程提示 ──
-            // 「关」之后什么都不会弹（帮助面板照样能翻）。从关切回开会把「看过」的记录清掉，
-            // 于是换一个人坐下来试玩，教程会从头再走一遍——demo 阶段这是最常用的一个动作。
-            int pickedTutorial = DrawSetting(
-                new Rect(contentX, y, contentW, BlockH),
-                "教程提示",
-                new[] { "开", "关" }, TutorialState.Enabled ? 0 : 1, ui);
-            if (pickedTutorial >= 0)
-                TutorialState.Enabled = pickedTutorial == 0;
+            // 缓动单独占一行；镜头速度固定为较快档，保持运镜节奏一致。
+            int pickedCurve = DrawSetting(
+                new Rect(contentX, y, contentW, BlockH), "镜头缓动",
+                new[] { "起止", "终点" }, MotionSettings.FocusEaseOut ? 1 : 0, ui);
+            if (pickedCurve >= 0)
+                MotionSettings.FocusEaseOut = pickedCurve == 1;
             y += BlockH + BlockGap;
 
             // ── 背景音乐 / 音效 / 对白 ──
@@ -204,7 +211,7 @@ namespace SSNoir.IMGUI
             IMGUIStyles.ApplyStrongFont(style);
             IMGUIStyles.DrawLabel(rect, label, style);
 
-            if (interactable && ui.WasTapped(rect))
+            if (interactable && ui.WasClicked(rect))
             {
                 Event.current.Use();
                 return true;

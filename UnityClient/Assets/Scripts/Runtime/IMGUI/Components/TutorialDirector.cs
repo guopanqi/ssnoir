@@ -259,7 +259,9 @@ namespace SSNoir.IMGUI
             IMGUIStyles.ApplyStrongFont(style);
             IMGUIStyles.DrawLabel(rect, label, style);
 
-            return enabled && ui.WasTapped(rect);
+            if (!enabled || !ui.WasClicked(rect)) return false;
+            Event.current.Use();
+            return true;
         }
     }
 }

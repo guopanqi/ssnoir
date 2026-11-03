@@ -1,7 +1,7 @@
 ;; 研究原型的显示与结算；不实现骰子、概率或回合结算。
 (define 完了? #f)
 (define 进度 (make-clock "目标" 目标上限 'gauge "达到上限自动完成；期限满则失败。"))
-(define 期限 (make-clock "已过回合" 回合上限 'gauge "回合末加1；每回合另由引擎花1冷静。"))
+(define 期限 (make-clock "已过回合" 回合上限 'gauge "回合末加1；每回合另由引擎花1心情。"))
 (define (研究附记) '())
 (define (研究结果 status)
   (list status (进度 'current) (min 回合上限 (+ 1 (期限 'current)))

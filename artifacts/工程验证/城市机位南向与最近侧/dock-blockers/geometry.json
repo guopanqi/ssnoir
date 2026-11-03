@@ -1,0 +1,149 @@
+{
+  "source": "/Users/usr/Documents/play/ssnoir/city-box/build/city/city_build.blend",
+  "rotations": [],
+  "moves": [],
+  "camera_scales": [],
+  "returns": [
+    {
+      "place": "码头",
+      "path": "AuthoredArc",
+      "body_crossings": []
+    }
+  ],
+  "scope": "current assembled exterior geometry; representative world start; dominant mass probes; own-root occlusion excluded; no dynamic visibility or near-plane sweep proof",
+  "places": [
+    {
+      "place": "码头",
+      "path": "AuthoredArc",
+      "south_deviation": 95.02009504778849,
+      "masses": [
+        "货轮",
+        "栈桥2",
+        "栈桥6"
+      ],
+      "body_crossings": [],
+      "external_occlusion": [
+        {
+          "progress": 0.3,
+          "blockers": {
+            "世界/郊野地面_西": 3,
+            "世界/驳岸": 1
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.35,
+          "blockers": {
+            "世界/郊野地面_西": 3,
+            "世界/驳岸": 1
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.4,
+          "blockers": {
+            "世界/郊野地面_西": 2,
+            "世界/驳岸": 2
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.45,
+          "blockers": {
+            "世界/郊野地面_西": 2,
+            "世界/驳岸": 2
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.5,
+          "blockers": {
+            "世界/郊野地面_西": 2,
+            "世界/驳岸": 2
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.55,
+          "blockers": {
+            "世界/郊野地面_西": 2,
+            "世界/驳岸": 2
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.6,
+          "blockers": {
+            "世界/郊野地面_西": 2,
+            "世界/驳岸": 2
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.65,
+          "blockers": {
+            "世界/郊野地面_西": 2,
+            "世界/驳岸": 2
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.7,
+          "blockers": {
+            "世界/郊野地面_西": 2,
+            "世界/驳岸": 2
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.75,
+          "blockers": {
+            "世界/郊野地面_西": 2,
+            "世界/驳岸": 2
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.8,
+          "blockers": {
+            "世界/郊野地面_西": 3,
+            "世界/驳岸": 1
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.85,
+          "blockers": {
+            "世界/郊野地面_西": 3,
+            "世界/驳岸": 1
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.9,
+          "blockers": {
+            "世界/郊野地面_西": 3,
+            "世界/驳岸": 1
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.95,
+          "blockers": {
+            "世界/郊野地面_西": 3,
+            "世界/驳岸": 1
+          },
+          "probes": 27
+        },
+        {
+          "progress": 1,
+          "blockers": {
+            "世界/郊野地面_西": 3,
+            "世界/驳岸": 1
+          },
+          "probes": 27
+        }
+      ]
+    }
+  ]
+}

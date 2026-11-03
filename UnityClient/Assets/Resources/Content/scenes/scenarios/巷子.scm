@@ -237,7 +237,7 @@
 (define (node-state-consequence)
   (node "把后果说到底"
     :subtitle "社会；今晚不解决，明天来的就不是你"
-    :tags (list "高风险")
+    :risk '冒险
     :requires (list (req-die))
     :resolve (roll 'social
       (outcome (lambda () (answer-failed! 2)))
@@ -336,7 +336,7 @@
 (define (node-letters)
   (node "摊开那两封信"
     :subtitle "见识；低风险，纸就在口袋里，他认得自己的字"
-    :tags (list "低风险")
+    :risk '稳妥
     :requires (list (req-die))
     :resolve (roll 'knowledge
       (outcome (lambda () (spend-composure! 1)))
@@ -348,7 +348,6 @@
     :subtitle (if cigs-used?
                   "烟盒已经在桌上了"
                   "低风险；不掷骰，他知道这半包从哪儿来的")
-    :tags (list "低风险")
     :disabled cigs-used?
     :requires (list (req-item "半包「老金牌」香烟" 1))
     :resolve (instant
@@ -362,7 +361,7 @@
 (define (node-her-now)
   (node "提她现在的样子"
     :subtitle "社会；高风险，失败才惊动老街，最快的一手"
-    :tags (list "高风险")
+    :risk '冒险
     :requires (list (req-die))
     :resolve (roll 'social
       (outcome (lambda () (spend-composure! 2) (crowd+ 1)))
@@ -373,7 +372,7 @@
 (define (node-listen)
   (node "听他说完"
     :subtitle "社会；低风险，不打断，这条街当没听见"
-    :tags (list "低风险")
+    :risk '稳妥
     :requires (list (req-die))
     :resolve (roll 'social
       (outcome (lambda () (spend-composure! 1)))
@@ -383,7 +382,7 @@
 (define (node-that-line)
   (node "追问那句话"
     :subtitle "见识；低风险，追问信上那句河边的暗语"
-    :tags (list "低风险")
+    :risk '稳妥
     :requires (list (req-die))
     :resolve (roll 'knowledge
       (outcome (lambda () (spend-composure! 1)))
@@ -393,7 +392,7 @@
 (define (node-strip)
   (node "拆穿他的委屈"
     :subtitle "社会；高风险，失败才惊动老街；说破他的委屈"
-    :tags (list "高风险")
+    :risk '冒险
     :requires (list (req-die))
     :resolve (roll 'social
       (outcome (lambda () (spend-composure! 2) (crowd+ 1)))
@@ -403,7 +402,7 @@
 (define (node-workbench)
   (node "逼近工作台"
     :subtitle "力量；高风险，失败才惊动老街；逼近工作台"
-    :tags (list "高风险")
+    :risk '冒险
     :requires (list (req-die))
     :resolve (roll 'violence
       (outcome (lambda () (spend-composure! 2) (crowd+ 2)))
@@ -414,7 +413,7 @@
 (define (node-leave-him-a-way-out)
   (node "给他留条路"
     :subtitle "社会；低风险，承认他有旧账，但这件事到今晚为止"
-    :tags (list "低风险")
+    :risk '稳妥
     :requires (list (req-die))
     :resolve (roll 'social
       (outcome (lambda () (spend-composure! 1)))
@@ -424,7 +423,7 @@
 (define (node-name-the-price)
   (node "说清该留下什么"
     :subtitle "见识；低风险，照片能留下，威胁和底片不能"
-    :tags (list "低风险")
+    :risk '稳妥
     :requires (list (req-die))
     :resolve (roll 'knowledge
       (outcome (lambda () (spend-composure! 1)))
@@ -434,7 +433,7 @@
 (define (node-reach-for-the-box)
   (node "伸手拿铁盒"
     :subtitle "力量；高风险，失败才惊动老街；逼他松手"
-    :tags (list "高风险")
+    :risk '冒险
     :requires (list (req-die))
     :resolve (roll 'violence
       (outcome (lambda () (spend-composure! 2) (crowd+ 2)))

@@ -9,7 +9,6 @@
     (define watch-count 0)
     (define watch-trouble-day 0)
     (define watch-trouble "")
-    (define watch-reward 5)
 
     (define (watch-work! pay bad?)
       (if (> pay 0) (add-item! "金钱" pay) #f)
@@ -20,12 +19,11 @@
         (begin
           (set! watch-trouble "醉客互相叫骂")
           (set! watch-trouble-day world-day)
-          (set! watch-reward (if watch-first? 10 5))
           (set! watch-first? #f)
 
           (play-dialogue!
             (line "世界" "两桌醉客隔桌骂起来，旁边的客人端着杯子让开。")
-            (line "调酒师" "尼尔，让他们都冷静下来。办妥了另给你工钱。"))) #f)
+            (line "调酒师" "尼尔，让他们都冷静下来。"))) #f)
       ;; 她每天都在酒馆唱歌。打工后的相遇，不额外收一枚骰子。
       (第一幕 'on-tavern-work! "看场"))
     (define (on-watch-result result)
@@ -33,14 +31,13 @@
       (set! watch-trouble "")
 
       (if (eq? result 'success)
-        (begin (add-item! "金钱" watch-reward)
-          (play-dialogue! (line "调酒师" "行，省了一场麻烦。这是你的。")))
+        (play-dialogue! (line "调酒师" "行，省了一场麻烦。"))
         (play-dialogue! (line "调酒师" "歇会儿吧，我来收拾。")))
       (第一幕 'on-tavern-work! "看场"))
     (define (watch-nodes)
       (append
         (list (node "看场子" :anchor "老街酒馆-工作"
-          :subtitle (if (equal? watch-trouble "") "维持秩序；解决闹事可获额外报酬" "先平息两桌争吵")
+          :subtitle (if (equal? watch-trouble "") "在酒馆维持秩序。碰上有人闹事得出面摆平。" "先平息两桌争吵")
           :disabled (not (equal? watch-trouble ""))
           :requires (list (req-die))
           :resolve (roll 'social
@@ -49,18 +46,18 @@
             (outcome (lambda () (watch-work! 14 #f))))))
         (if (equal? watch-trouble "") '()
           (list (node "醉客互相叫骂" :anchor "老街酒馆"
-            :subtitle "让两桌人都冷静下来，另付工钱"
+            :subtitle "让两桌人都冷静下来"
             :required-before-rest "先平息两桌醉客的争吵"
             :resolve (instant (outcome (lambda ()
               (start-scenario "醉客互相叫骂" on-watch-result)))))))))
-    ;; Scenario超时后两桌醉客自然散场，额外报酬随之失效。
+    ;; Scenario超时后两桌醉客自然散场。
     (define-turn-start-rule "酒馆闹事自然散场"
       (lambda () (not (equal? watch-trouble "")))
       (lambda ()
         (if (>= (- world-day watch-trouble-day) 2)
           (begin
             (set! watch-trouble "")
-            (notify! "那两桌醉客已经散了，额外报酬没有了。"))
+            (notify! "那两桌醉客已经散了。"))
           #f)))
     (define closed-days 0)
     (define closed-days-max 2)
@@ -149,7 +146,7 @@
     (define tavern-trouble "无")
     (define tavern-trouble-clk
       (make-clock "打烊前" 1 'countdown
-        "今晚打烊前不处理：冷静 −2，职级考核 −2。"))
+        "今晚打烊前不处理：心情 −2，职级考核 −2。"))
 
     ;; 麻烦当天的收场，日终统一结算职级（见「领班麻烦结算」）。
     ;;   "未了"   还压在手里（也是结算完的静止态）
@@ -376,7 +373,7 @@
     (define (node-borrow-loan)
       (node "借一笔钱周转"
         :subtitle "借40美元，五天后还60美元；逾期利滚利"
-        :tags (list "非法" "高利贷")
+        :tags (list "非法")
         :resolve (instant
           (outcome (lambda ()
               (add-item! "金钱" loan-principal)
@@ -415,7 +412,7 @@
     ;; ── 生计工作 ──────────────────────────────────
     ;; 酒馆这两张是**稳的那一头**：钱的上限低于码头，但下限不是零——
     ;; 砸了一晚也照样有一晚的工钱，坏结果只扣 1 点冷静。码头反过来：
-    ;; 顶上去更高，掉下来是空手加两点冷静。
+    ;; 顶上去更高，掉下来照样拿 6 块辛苦钱，但要多挨一点冷静（艾迪每天能救一次）。
     ;; 于是骰子有了去处：烂骰面来酒馆保底，好骰面留给搬运和夜班。
     ;; 这才是「低风险」这个标签原来应该意味着的东西——在这以前它是句空话，
     ;; 领班的坏结果和高风险的搬运一样疼。
@@ -461,7 +458,7 @@
             (if character-stories-open? (change-tavern-rank! -1) #f)
             (meet-or-echo!)))
         ;; 副标题保持一行以内：标题只说了"服务员"，得有一句说清干什么、图什么。
-        "端盘子跑堂，挣一晚上的钱"
+        "在酒馆端盘子、招呼客人。有时能收到小费。"
         :anchor "老街酒馆-工作"))
 
     ;; 领班这张卡以前是**全是坏处**的：钱没比搬运高，考核会掉，还要额外
@@ -491,7 +488,7 @@
             (change-tavern-rank! -1)
             (maybe-start-tavern-trouble!)
             (if (equal? tavern-trouble "无") (meet-or-echo!) #f)))
-        "带班收钱，但现场麻烦也得由你收拾"
+        "替老板带班，安排酒馆里的活儿。出了麻烦也得负责。"
         :anchor "老街酒馆-工作"))
 
     ;; 收拾麻烦这张卡**当场不动职级**。职级是「今天这一班带得怎么样」，那是打烊时
@@ -539,11 +536,12 @@
     ;; 当场点酒不限次数；drank-today? 只记录当天首次喝酒，供招待和特殊表现使用。
     ;; :resolve 用 outcome 包一层，结果才会像判定一样以锚定卡片弹出，而不是只飘过一条 notify!。
     (define (drink-subtitle)
-      "恢复4点冷静")
+      "恢复3点心情")
     (define (node-drink-here)
-      (node "点一杯酒"
+      (node "点一杯酒" :name "喝杯啤酒"
         :anchor "老街酒馆-购买"
         :subtitle (drink-subtitle)
+        :progress-target (list 'composure "player")
         :requires (list (req-item "金钱" 15))
         :resolve (instant
           (outcome (lambda ()
@@ -574,7 +572,7 @@
     (define (node-eat)
       (node "吃点东西"
         :anchor "老街酒馆-购买"
-        :subtitle (if (ate-today?) "今天已经吃过了" "老街熟人价，恢复 2 点冷静")
+        :subtitle (if (ate-today?) "今天已经吃过了" "老街熟人价，恢复 2 点心情")
         :disabled (ate-today?)
         :requires (list (req-item "金钱" 6))
         :resolve (instant
@@ -593,7 +591,7 @@
         (outcome (lambda ()
             (add-item! "金钱" 4)
             (spend-composure! 1)))
-        "替弗兰克的人守一夜仓库；太平的一夜也是歇着"))
+        "替弗兰克的人守一夜仓库。太平的时候也能歇歇。"))
 
     (define (node-run-errand)
       (工作 "替人跑一趟" '稳妥 'social
@@ -602,7 +600,7 @@
         (outcome (lambda ()
             (add-item! "金钱" 3)
             (spend-composure! 1)))
-        "老街有人要送东西、带句话"))
+        "替老街的人送东西、带口信。"))
 
     ;; 他多数日子里没有事给你做。空容器读起来像坏了，所以放一条标注说清他此刻在干什么。
     (define (node-frank-in-back-room)
@@ -704,7 +702,7 @@
                     ;; 日终规则不在行动结算里，只需改钟和通知。
                     (change-tavern-rank! -2)
                     (notify! (string-append tavern-trouble
-                                            "拖到打烊。你失了冷静，职级考核退了两格。当前职级："
+                                            "拖到打烊。你的 心情 变差了，职级考核退了两格。当前职级："
                                             tavern-rank "。"))
                     (resolve-tavern-trouble! "未了"))
                   #f)))))
@@ -729,7 +727,6 @@
            (list (list "watch-first?" watch-first?)
                  (list "watch-count" watch-count)
                  (list "watch-trouble-day" watch-trouble-day) (list "watch-trouble" watch-trouble)
-                 (list "watch-reward" watch-reward)
                  (list "opening-talk-heard?" opening-talk-heard?)
                  (list "closed-days" closed-days)
                  (list "closed-days-max" closed-days-max)
@@ -755,9 +752,6 @@
                (error "看场存档：看场次数非法"))
              (set! watch-trouble-day (assoc-get data "watch-trouble-day" 0))
              (set! watch-trouble (assoc-get data "watch-trouble" ""))
-             (set! watch-reward (assoc-get data "watch-reward" 5))
-             (if (member? watch-reward '(5 10)) #t
-               (error "看场存档：麻烦报酬非法"))
              (if (member? watch-trouble '("" "醉客互相叫骂")) #t
                (error "看场存档：麻烦类型非法；旧版请使用归档版本读取"))
              (set! opening-talk-heard? (assoc-get data "opening-talk-heard?" #f))

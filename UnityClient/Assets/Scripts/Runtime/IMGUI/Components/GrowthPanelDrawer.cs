@@ -181,8 +181,8 @@ namespace SSNoir.IMGUI
         {
             var lines = new List<string>();
             lines.Add(snapshot.InjurySeverity == 0
-                ? $"伤势  0/{snapshot.InjuryMaxSeverity} · 完好"
-                : $"伤势  {snapshot.InjurySeverity}/{snapshot.InjuryMaxSeverity} · {snapshot.InjuryPart}伤 · {snapshot.InjuryBandName}");
+                ? $"健康  {snapshot.InjuryMaxSeverity}/{snapshot.InjuryMaxSeverity} · 完好"
+                : $"健康  {snapshot.InjuryMaxSeverity-snapshot.InjurySeverity}/{snapshot.InjuryMaxSeverity} · {snapshot.InjuryPart}伤 · {snapshot.InjuryBandName}");
             lines.Add($"下一手封锁 {snapshot.InjuryActionDieLoss} 个行动位");
             if (snapshot.ScarModifiers.Count == 0)
                 lines.Add("旧伤  无");
@@ -304,7 +304,7 @@ namespace SSNoir.IMGUI
                 style.normal.textColor = IMGUIStyles.PaperTextDisabled;
             }
             IMGUIStyles.DrawLabel(btn, maxed ? "满" : $"+{cost}", style);
-            if (enabled && ui.WasTapped(btn))
+            if (enabled && ui.WasClicked(btn))
             {
                 gameManager.UpgradeActorStat(actor.Id, statKey);
                 Event.current.Use();
@@ -468,7 +468,7 @@ namespace SSNoir.IMGUI
                 ty += 24f;
                 IMGUIStyles.DrawLabel(new Rect(tx, ty, tw, card.yMax - CardPad - ty), e.Description, DescStyle());
 
-                if (canPick && ui.WasTapped(screen))
+                if (canPick && ui.WasClicked(screen))
                 {
                     picked = e.Id;
                     Event.current.Use();

@@ -26,6 +26,7 @@
 
     ;; 未开始 / 等你 / 成功 / 失败 / 缺席
     (define 状态 "未开始")
+    (define 已告知状态 "未开始")
     (define journal (make-journal))
 
     (define (等你?) (equal? 状态 "等你"))
@@ -36,21 +37,13 @@
     (define (捎话!)
       (set! 状态 "等你")
       (frank 'on-mediation-summoned!)
-      (play-remote-dialogue!
-        (line "世界" "天没亮透就有人敲门。门外是个码头上见过的年轻人。")
-        (line "码头工人" "弗兰克让我带句话。他在酒馆后屋，让你过去一趟。")
-        (line "尼尔" "什么事？")
-        (line "码头工人" "他没说。他只说，让你过去。"))
-      (journal 'add! "弗兰克让人捎话，让你去酒馆后屋。")
-      (spotlight! "弗兰克叫你"
-        "报纸把莱恩和老街写成了一回事。弗兰克让人捎话，让你去老街酒馆的后屋。"))
+      (journal 'add! "弗兰克让人捎话，让你去酒馆后屋。"))
 
     (define (缺席!)
       (set! 状态 "缺席")
       (frank 'on-mediation-result! "缺席")
       (journal 'add! "你没去老街。警察在酒馆门口带人，有人先动了手。第二天头版是那张照片。")
-      (spotlight! "老街暴徒袭击警方"
-        "你没去。警察在酒馆门口带走一个年轻人，有人扔了东西。第二天报纸上是那张照片。"))
+      #t)
 
     (define (on-day-start!)
       (cond
@@ -162,13 +155,22 @@
       (let ((msg (car args)))
         (cond
           ((equal? msg 'nodes-at) (nodes-at (cadr args)))
-          ((equal? msg 'arrivals-at) '())
+          ((equal? msg 'arrivals-at)
+           (if (and (equal? (cadr args) "世界") (member? 状态 '("等你" "缺席"))
+                    (not (equal? 已告知状态 状态)))
+             (list (arrival "弗兰克捎话与老街近况" (lambda ()
+               (set! 已告知状态 状态)
+               (if (等你?)
+                 (play-dialogue! (line "世界" "一个码头工人在街口叫住尼尔。")
+                   (line "码头工人" "弗兰克让我带句话。他在酒馆后屋，让你过去一趟。"))
+                 (spotlight! "老街暴徒袭击警方" "你没去。警察在酒馆门口带走一个年轻人，有人扔了东西。报纸上登出了那张照片。"))))) '()))
           ((equal? msg 'dossier) (dossier-entry))
           ((equal? msg 'on-day-start!) (on-day-start!))
           ((equal? msg 'state) 状态)
-          ((equal? msg 'save) (list (list "state" 状态) (list "journal" (journal 'save))))
+          ((equal? msg 'save) (list (list "news-state" 已告知状态) (list "state" 状态) (list "journal" (journal 'save))))
           ((equal? msg 'load!)
            (let ((data (cadr args)))
+             (set! 已告知状态 (assoc-get data "news-state" "未开始"))
              (set! 状态 (assoc-get data "state" "未开始"))
              (journal 'load! (assoc-get data "journal" '()))
              (if (member? 状态 (list "未开始" "等你" "成功" "失败" "缺席"))

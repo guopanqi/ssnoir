@@ -3,6 +3,7 @@
 
 (define 晚宴
   (let ()
+    (define 宴会提醒已读? #f)
     (define 结果 "未开始") ; 未开始 / 进行中 / 已结束
 
     (define (开始了?) (第二章 'started?))
@@ -73,7 +74,7 @@
       (node "赴晚宴" :required-before-rest (tr "今晚她在酒店等你" "She is waiting at the hotel tonight")
         :name (tr "赴晚宴" "Go to the Banquet")
         :anchor "格兰德酒店"
-        :tags (list "Scenario")
+
         :resolve (instant (lambda ()
           (if (equal? 结果 "未开始") #t (error "晚宴：只能进场一次"))
           (set! 结果 "进行中")
@@ -85,26 +86,19 @@
           (list (node-go))
           '()))
 
-    (define (on-day-start!)
-      (if (开始了?)
-          (begin
-
-            (if (今天?)
-                (spotlight! (tr "今晚" "Tonight")
-                  (tr "晚宴在格兰德酒店。她说过只等你一次。"
-                      "The banquet is at the Grand Hotel. She said she would wait only once."))
-                #f))
-          #f))
-
     (lambda args
       (let ((msg (car args)))
         (cond
           ((equal? msg 'nodes-at) (nodes-at (cadr args)))
-          ((equal? msg 'arrivals-at) '())
+          ((equal? msg 'arrivals-at)
+           (if (and (equal? (cadr args) "世界") (今天?) (equal? 结果 "未开始") (not 宴会提醒已读?))
+             (list (arrival "今晚的晚宴" (lambda () (set! 宴会提醒已读? #t)
+               (spotlight! (tr "今晚" "Tonight")
+                 (tr "晚宴在格兰德酒店。她说过只等你一次。" "The banquet is at the Grand Hotel. She said she would wait only once."))))) '()))
           ((equal? msg 'dossier) '())
           ((equal? msg 'done?) (not (还没结?)))
           ((equal? msg 'steps) (list (step (tr "去格兰德酒店陪夜莺赴宴" "Accompany Nightingale to the Grand Hotel banquet") (not (还没结?)))))
-          ((equal? msg 'on-day-start!) (on-day-start!))
+          ((equal? msg 'on-day-start!) #f)
 
           ((equal? msg 'demo-entry) (演示入场节点))
           ((equal? msg 'debug-settle!) (set! 结果 "已结束") )
@@ -112,6 +106,8 @@
           ((equal? msg 'where) (where))
           ((equal? msg 'clocks) (clocks))
           ((equal? msg 'result) 结果)
-          ((equal? msg 'save) (list (list "result" 结果)))
-          ((equal? msg 'load!) (set! 结果 (assoc-get (cadr args) "result" "未开始")))
+          ((equal? msg 'save) (list (list "reminder-read" 宴会提醒已读?) (list "result" 结果)))
+          ((equal? msg 'load!)
+           (set! 宴会提醒已读? (assoc-get (cadr args) "reminder-read" #f))
+           (set! 结果 (assoc-get (cadr args) "result" "未开始")))
           (else (error "晚宴：收到未知消息")))))))

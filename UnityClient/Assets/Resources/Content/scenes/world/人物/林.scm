@@ -292,7 +292,7 @@
         (outcome (lambda () (add-item! "金钱" 8) (mark-participated!) (rail-clk 'tick!)))
         (outcome (lambda () (add-item! "金钱" 6) (mark-participated!) (rail-clk 'tick!)))
         (outcome (lambda () (add-item! "金钱" 4) (spend-composure! 1)))
-        "累计式；每一格都让测试夜的轨道那一处轻一点"
+        "帮林校正机器的旧轨道，为测试做准备。"
         :anchor workshop-rail-anchor
         :clocks (list (rail-clk 'render-data))))
 
@@ -354,7 +354,7 @@
     (define (node-part)
       (node "做控制器零件"
         :anchor workshop-part-anchor
-        :tags (list "工作" "低风险")
+        :tags (list "工作") :risk '危险
         :subtitle (string-append "交件才结钱；已交 "
                                  (number->string (+ parts-good parts-fair))
                                  "/" (number->string parts-max)
@@ -409,7 +409,7 @@
     (define (node-test)
       (node "今晚：无人班次"
         :anchor workshop-test-anchor
-        :tags (list "Scenario")
+
         :subtitle "四批货，没有人上手。今晚跑完就没有下一次了"
         :resolve (instant (lambda ()
           (set-global! '准备-轨道 (rail-clk 'current))

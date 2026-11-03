@@ -10,6 +10,11 @@ namespace SSNoir
         {
             try
             {
+                if (args.Length == 1 && args[0] == "--test-day-arrivals")
+                {
+                    DayArrivalChecks.Run();
+                    return;
+                }
                 if (args.Length > 0 && args[0] == "--validate")
                 {
                     if (args.Length > 2 || (args.Length == 2 && args[1] != "en" && args[1] != "zh-CN"))

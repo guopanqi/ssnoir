@@ -225,7 +225,6 @@
   (node "很熟"
     :anchor (cand-zone c)
     :subtitle "踩点时见过，直接排除老邮差"
-    :tags (list "不花骰子")
     :resolve (instant
       (outcome (lambda ()
           (clear! (cand-name c))
@@ -315,7 +314,7 @@
      (node "跟进那条黑巷"
        :anchor (act2-zone)
        :subtitle "看不见路，但这是最短的一条"
-       :tags (list "高风险")
+       :risk '冒险
        :requires (list (req-die))
        :resolve (roll 'sharpness
          (outcome (lambda () (spend-composure! 2)))
@@ -325,7 +324,7 @@
      (node "扑上去"
        :anchor (act2-zone)
        :subtitle "扑得着人，也可能只扑着一件外套"
-       :tags (list "高风险")
+       :risk '危险
        :requires (list (req-die))
        :resolve (roll 'violence
          (outcome (lambda () (injure!)))
@@ -339,7 +338,7 @@
      (node "绕过去"
        :anchor (act2-zone)
        :subtitle "绕过障碍，步子稳些"
-       :tags (list "低风险")
+       :risk '稳妥
        :requires (list (req-die))
        :resolve (roll 'sharpness
          (outcome (lambda () (spend-composure! 1)))
@@ -349,7 +348,7 @@
      (node "贴着货堆推进"
        :anchor (act2-zone)
        :subtitle "推开货箱，保持脚下稳当"
-       :tags (list "低风险")
+       :risk '稳妥
        :requires (list (req-die))
        :resolve (roll 'violence
          (outcome (lambda () (spend-composure! 1)))
@@ -359,7 +358,7 @@
      (node "喊住他"
        :anchor (act2-zone)
        :subtitle "整条街都会记得今晚是谁在这儿喊"
-       :tags (list "低风险")
+       :risk '稳妥
        :requires (list (req-die))
        :resolve (roll 'social
          (outcome (lambda () (spend-composure! 1)))
@@ -374,7 +373,7 @@
   (node "从货栈边门包抄"
     :anchor (act2-zone)
     :subtitle "只有摸熟这一片的人才知道这扇门"
-    :tags (list "高风险")
+    :risk '冒险
     :requires (list (req-die))
     :resolve (roll 'sharpness
       (outcome (lambda () (spend-composure! 2)))

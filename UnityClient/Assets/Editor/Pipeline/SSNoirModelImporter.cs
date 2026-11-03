@@ -105,48 +105,79 @@ namespace SSNoir.Editor
         {
             if (!assetPath.Replace('\\', '/').Contains("/Resources/" + CityPlaces.ResourcesFolder))
                 return;
-            // 对着 clips.json 核对切出来的长度：帧数对不上就是 take 起点和 Blender 帧号没对齐
             var bindings = AnimationUtility.GetCurveBindings(clip);
             var sidecar = Path.ChangeExtension(assetPath, null) + ".clips.json";
             var spec = PropClips.Parse(File.ReadAllText(sidecar));
             var declared = spec.clips.FirstOrDefault(c => c.name == clip.name);
-            if (declared != null)
-            {
-                var group = spec.parts.FirstOrDefault(p => p.prop == declared.Prop);
-                var allowed = declared.participants.Length > 0 ? declared.participants : group?.names;
-                if (allowed != null && allowed.Length > 0)
-                    foreach (var binding in bindings)
-                        if (!binding.path.Split('/').Any(segment => allowed.Contains(segment)))
-                            AnimationUtility.SetEditorCurve(clip, binding, null);
-                bindings = AnimationUtility.GetCurveBindings(clip);
-            }
-            // 生成描线是部件的刚性子节点。FBX在父节点缩为0时无法求逆，
-            // 会烘出子节点位置/缩放的补偿曲线；Unity再精简/插值这些曲线，
-            // 恢复显示时描线会从部件原点向外扩张。只让父部件控制它，
-            // 保留模型中的固定局部TRS。骨骼曲线和真正的部件曲线不受影响。
-            var partNames = new System.Collections.Generic.HashSet<string>(spec.parts.SelectMany(p => p.names));
+            var group = declared != null ? spec.parts.FirstOrDefault(p => p.prop == declared.Prop) : null;
+            var allowedNames = declared != null && declared.participants.Length > 0 ? declared.participants : group?.names;
+            var allowed = allowedNames != null && allowedNames.Length > 0
+                ? new System.Collections.Generic.HashSet<string>(allowedNames, StringComparer.Ordinal) : null;
+            var partNames = new System.Collections.Generic.HashSet<string>(
+                spec.parts.SelectMany(p => p.names), StringComparer.Ordinal);
+            var retained = new System.Collections.Generic.List<EditorCurveBinding>(bindings.Length);
+            var changedBindings = new System.Collections.Generic.List<EditorCurveBinding>();
+            var changedCurves = new System.Collections.Generic.List<AnimationCurve?>();
+
+            // 先判定所有删除项，最后与修改项一起提交，避免每删一条就重新后处理整个 clip。
             foreach (var binding in bindings)
             {
                 var segments = binding.path.Split('/');
-                if (binding.type == typeof(Transform) && segments.Length >= 2
+                bool unrelated = allowed != null && !segments.Any(allowed.Contains);
+                // 生成描线保持部件下的固定局部 TRS；不能保留 FBX 在父缩放归零时烘出的补偿曲线。
+                bool rigidOutline = binding.type == typeof(Transform) && segments.Length >= 2
                     && segments[segments.Length - 1].StartsWith("描线_", StringComparison.Ordinal)
-                    && partNames.Contains(segments[segments.Length - 2]))
-                    AnimationUtility.SetEditorCurve(clip, binding, null);
-            }
-            bindings = AnimationUtility.GetCurveBindings(clip);
-            // FBX 已按30fps烘焙。Unity自动平滑会让 1→0→0→1 的隐藏段在两个0之间
-            // 下冲成负缩放，循环复位中的对象便会反向闪现。线性连接烘焙样本，保留明确的0平台。
-            foreach (var binding in bindings.Where(b => b.propertyName.StartsWith("m_LocalScale.", StringComparison.Ordinal)))
-            {
-                var curve = AnimationUtility.GetEditorCurve(clip, binding);
-                for (int i = 0; i < curve.length; i++)
+                    && partNames.Contains(segments[segments.Length - 2]);
+                if (unrelated || rigidOutline)
                 {
-                    AnimationUtility.SetKeyBroken(curve, i, true);
-                    AnimationUtility.SetKeyLeftTangentMode(curve, i, AnimationUtility.TangentMode.Linear);
-                    AnimationUtility.SetKeyRightTangentMode(curve, i, AnimationUtility.TangentMode.Linear);
+                    changedBindings.Add(binding);
+                    changedCurves.Add(null);
                 }
-                AnimationUtility.SetEditorCurve(clip, binding, curve);
+                else
+                {
+                    retained.Add(binding);
+                }
             }
+
+            // 仍保留原有线性缩放规则：1→0→0→1 的隐藏段不能被自动平滑成负缩放。
+            // 已经 broken + Linear 的关键帧不重复设置，整条曲线没变就不重新提交。
+            foreach (var binding in retained)
+            {
+                if (!binding.propertyName.StartsWith("m_LocalScale.", StringComparison.Ordinal))
+                    continue;
+                var curve = AnimationUtility.GetEditorCurve(clip, binding);
+                if (curve == null)
+                    throw new InvalidOperationException($"[SSNoir] '{clip.name}' 缺少缩放曲线 '{binding.path}/{binding.propertyName}'。");
+                bool changed = false;
+                int keyCount = curve.length;
+                for (int i = 0; i < keyCount; i++)
+                {
+                    if (!AnimationUtility.GetKeyBroken(curve, i))
+                    {
+                        AnimationUtility.SetKeyBroken(curve, i, true);
+                        changed = true;
+                    }
+                    if (AnimationUtility.GetKeyLeftTangentMode(curve, i) != AnimationUtility.TangentMode.Linear)
+                    {
+                        AnimationUtility.SetKeyLeftTangentMode(curve, i, AnimationUtility.TangentMode.Linear);
+                        changed = true;
+                    }
+                    if (AnimationUtility.GetKeyRightTangentMode(curve, i) != AnimationUtility.TangentMode.Linear)
+                    {
+                        AnimationUtility.SetKeyRightTangentMode(curve, i, AnimationUtility.TangentMode.Linear);
+                        changed = true;
+                    }
+                }
+                if (changed)
+                {
+                    changedBindings.Add(binding);
+                    changedCurves.Add(curve);
+                }
+            }
+            if (changedBindings.Count > 0)
+                AnimationUtility.SetEditorCurves(clip, changedBindings.ToArray(), changedCurves.ToArray());
+
+            bindings = AnimationUtility.GetCurveBindings(clip);
             var byPath = bindings.GroupBy(b => b.path.Substring(b.path.LastIndexOf('/') + 1))
                 .Select(g => $"{g.Key}[{string.Join(",", g.Select(b => b.propertyName.Replace("m_Local", "")).Distinct())}]");
             Debug.Log($"[SSNoir] ModelImporter: clip '{clip.name}' length={clip.length * clip.frameRate:F1}f @{clip.frameRate}fps loop={clip.isLooping} curves: {string.Join(" ", byPath)}");

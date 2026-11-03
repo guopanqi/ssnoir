@@ -15,7 +15,7 @@ namespace SSNoir.IMGUI
         {
             bool isInteractable = enabled && !ui.IsLocked;
             bool isHovered = isInteractable && ui.CanHover(rect);
-            bool isClicked = isInteractable && ui.WasTapped(rect);
+            bool isClicked = isInteractable && ui.WasClicked(rect);
 
             // Buttons own the pointer event they report. Without consuming it
             // here, a caller that changes the view (for example, Back) leaves
@@ -69,7 +69,7 @@ namespace SSNoir.IMGUI
                 style.fontSize--;
             IMGUIStyles.DrawLabel(rect, label, style);
 
-            if (interactable && ui.WasTapped(rect))
+            if (interactable && ui.WasClicked(rect))
             {
                 Event.current.Use();
                 return true;
@@ -97,7 +97,7 @@ namespace SSNoir.IMGUI
         {
             bool isInteractable = enabled && !ui.IsLocked;
             bool isHovered = isInteractable && ui.CanHover(rect);
-            bool isClicked = isInteractable && ui.WasTapped(rect);
+            bool isClicked = isInteractable && ui.WasClicked(rect);
 
             if (isClicked)
             {

@@ -35,4 +35,4 @@ description: 为 SSNoir 制作、加工和修复单件 3D 资产，包括代码�
 
 `skills/make-3d-asset/scripts/` 提供 `audit_mesh_quality.py`、`validate_blend_asset.py`、`align_camera_to_pivot.py`、`frame_and_render_preview.py`。按资产用途选择参数，不默认所有物件都要 Anchor、Camera 或描线。城市源保存净几何，构建生成描线，因此校验不使用 `--require-outline`。
 
-日常形体、网格和动作迭代在 Blender 完成，后台网格检查不能代替视觉审阅。普通资产交付不自动启动 Unity；只有导出/导入契约、Unity 专有渲染改变、两端出现差异或用户明确要求时，才按 [验证边界](../../tools/VERIFYING.md#unity-验证边界) 做最小核对。若 Blender 正确而 Unity 不一致，按共同管线的功能缺陷定位，不靠逐轮启动 Unity 或修改正确资产绕过。
+日常形体、网格和动作迭代在 Blender 完成，后台网格检查不能代替视觉审阅。普通资产修改默认交付 Blender 源、制作侧资产与预览，不自动覆盖 Unity Assets；用户明确要求当次接入／发布或指定空闲时段后，再走对应交付入口。获得当次接入／发布授权后直接完成，不因 Unity 重导入追加确认。发布不自动启动 Unity；只有导出/导入契约、Unity 专有渲染改变、两端出现差异或用户明确要求时，才按 [验证边界](../../tools/VERIFYING.md#unity-验证边界) 做最小核对。若 Blender 正确而 Unity 不一致，按共同管线的功能缺陷定位，不靠逐轮启动 Unity 或修改正确资产绕过。

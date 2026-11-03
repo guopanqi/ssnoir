@@ -1,0 +1,42 @@
+{
+  "callback_count": 110,
+  "callback_ms": 2326.2350000000006,
+  "imports": [
+    [
+      0.003286,
+      "Assets/Editor/AnimationImportBenchmark.cs"
+    ],
+    [
+      0.585123,
+      "Assets/Resources/City/Places/雨夜追车.fbx"
+    ],
+    [
+      0.10547,
+      "Assets/Resources/City/Places/格兰德酒店.fbx"
+    ],
+    [
+      1.811623,
+      "Assets/Resources/City/Places/巷子里在打人.fbx"
+    ],
+    [
+      0.077993,
+      "Assets/Resources/City/Places/首演之夜.fbx"
+    ],
+    [
+      0.281747,
+      "Assets/Resources/City/Places/租屋.fbx"
+    ],
+    [
+      1.26363,
+      "Assets/Resources/City/Places/醉客互相叫骂.fbx"
+    ],
+    [
+      1.213523,
+      "Assets/Resources/City/Places/别给他们想要的.fbx"
+    ],
+    [
+      0.37577,
+      "Assets/Resources/City/Places/码头.fbx"
+    ]
+  ]
+}

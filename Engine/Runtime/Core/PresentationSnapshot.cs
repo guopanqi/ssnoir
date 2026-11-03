@@ -13,6 +13,7 @@ namespace SSNoir.Core
         public IReadOnlyList<GameNode> CarryNodes { get; init; } = new List<GameNode>();
         // 伤势：0 为完好。部位名与档位一起决定面板那一行怎么写，客户端不自己算档位。
         public int InjurySeverity { get; init; }
+        public int InjuryResetSequence { get; init; }
         public int InjuryMaxSeverity { get; init; } = Injury.MaxSeverity;
         public string InjuryPart { get; init; } = string.Empty;
         public string InjuryBandName { get; init; } = string.Empty;

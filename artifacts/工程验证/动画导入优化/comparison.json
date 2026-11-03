@@ -1,0 +1,361 @@
+{
+  "comparisons": [
+    {
+      "asset": "Assets/Resources/City/Places/联合起吊.fbx",
+      "clips": 8,
+      "curves": 38093,
+      "keys": 8087985,
+      "exact": true,
+      "differences": [],
+      "difference_count": 0
+    }
+  ],
+  "baseline": {
+    "callback_ms": {
+      "setup_ms": 87.197,
+      "participants_ms": 71.78999999999999,
+      "outlines_ms": 4063.722,
+      "scale_ms": 82717.087,
+      "logging_ms": 27.844,
+      "total_ms": 86967.668
+    },
+    "imports": [
+      {
+        "asset": "Packages/com.ssnoir.engine/Runtime/Scripting/NodeConverter.cs",
+        "seconds": 0.006228
+      },
+      {
+        "asset": "Assets/Scripts/Runtime/IMGUI/IMGUIStyles.cs",
+        "seconds": 0.000472
+      },
+      {
+        "asset": "Packages/com.ssnoir.engine/Runtime/Core/ActionReport.cs",
+        "seconds": 0.000407
+      },
+      {
+        "asset": "Assets/Scripts/Runtime/IMGUI/Components/GrowthPanelDrawer.cs",
+        "seconds": 0.000366
+      },
+      {
+        "asset": "Packages/com.ssnoir.engine/Runtime/Core/Injury.cs",
+        "seconds": 0.000393
+      },
+      {
+        "asset": "Assets/Scripts/Runtime/IMGUI/Components/AnnotationDrawer.cs",
+        "seconds": 0.000527
+      },
+      {
+        "asset": "Assets/Scripts/Runtime/IMGUI/Components/SettingsPanelDrawer.cs",
+        "seconds": 0.000422
+      },
+      {
+        "asset": "Assets/Scripts/Runtime/IMGUI/IMGUIInteractionContext.cs",
+        "seconds": 0.000399
+      },
+      {
+        "asset": "Assets/Scripts/Runtime/StageTransitionController.cs",
+        "seconds": 0.000321
+      },
+      {
+        "asset": "Assets/Editor/Pipeline/SSNoirModelImporter.cs",
+        "seconds": 0.000355
+      },
+      {
+        "asset": "Assets/Scripts/Runtime/SSNoirGameManager.cs",
+        "seconds": 0.000273
+      },
+      {
+        "asset": "Assets/Scripts/Runtime/IMGUI/Components/TutorialLibrary.cs",
+        "seconds": 0.000241
+      },
+      {
+        "asset": "Assets/Scripts/Runtime/IMGUI/Components/VitalHintDrawer.cs",
+        "seconds": 0.000227
+      },
+      {
+        "asset": "Assets/Scripts/Runtime/IMGUI/Components/ClockPulse.cs",
+        "seconds": 0.000244
+      },
+      {
+        "asset": "Assets/Scripts/Runtime/IMGUI/Components/HandPanelDrawer.cs",
+        "seconds": 0.000261
+      },
+      {
+        "asset": "Assets/Editor/AnimationImportBenchmark.cs",
+        "seconds": 0.000546
+      },
+      {
+        "asset": "Assets/Scripts/Runtime/IMGUI/Components/ImportantNodeBeaconDrawer.cs",
+        "seconds": 0.000249
+      },
+      {
+        "asset": "Assets/Scripts/Runtime/IMGUI/Components/ActionNodeDrawer.cs",
+        "seconds": 0.000237
+      },
+      {
+        "asset": "Assets/Scripts/Runtime/IMGUI/IMGUIWorldRenderer.cs",
+        "seconds": 0.000247
+      },
+      {
+        "asset": "Packages/com.ssnoir.engine/Runtime/Core/PresentationSnapshot.cs",
+        "seconds": 0.000372
+      },
+      {
+        "asset": "Assets/Scripts/Runtime/SSNoirCameraManager.cs",
+        "seconds": 0.000312
+      },
+      {
+        "asset": "Assets/Scripts/Runtime/IMGUI/Components/SceneDropdownDrawer.cs",
+        "seconds": 0.000223
+      },
+      {
+        "asset": "Assets/Scripts/Runtime/IMGUI/Components/TutorialDirector.cs",
+        "seconds": 0.000219
+      },
+      {
+        "asset": "Assets/Scripts/Runtime/FocusTravelMath.cs",
+        "seconds": 0.000328
+      },
+      {
+        "asset": "Packages/com.ssnoir.engine/Runtime/Core/GameClock.cs",
+        "seconds": 0.000367
+      },
+      {
+        "asset": "Packages/com.ssnoir.engine/Runtime/Core/SceneManager.cs",
+        "seconds": 0.00046
+      },
+      {
+        "asset": "Assets/Scripts/Runtime/MotionSettings.cs",
+        "seconds": 0.000266
+      },
+      {
+        "asset": "Assets/Scripts/Runtime/IMGUI/Components/FeedbackPanelDrawer.cs",
+        "seconds": 0.000224
+      },
+      {
+        "asset": "Packages/com.ssnoir.engine/Runtime/Core/GameState.cs",
+        "seconds": 0.000345
+      },
+      {
+        "asset": "Assets/Scripts/Runtime/IMGUI/Components/DossierPanelDrawer.cs",
+        "seconds": 0.00035
+      },
+      {
+        "asset": "Assets/Scripts/Runtime/TitleScreen.cs",
+        "seconds": 0.000297
+      },
+      {
+        "asset": "Assets/Scripts/Runtime/IMGUI/IMGUIButton.cs",
+        "seconds": 0.000345
+      },
+      {
+        "asset": "Assets/Scripts/Runtime/IMGUI/Components/DebugPanelDrawer.cs",
+        "seconds": 0.000228
+      },
+      {
+        "asset": "Assets/Scripts/Runtime/IMGUI/Components/CardDrawer.cs",
+        "seconds": 0.000246
+      },
+      {
+        "asset": "Assets/Resources/Models/Environment/river.blend",
+        "seconds": 6.258151
+      },
+      {
+        "asset": "Assets/Resources/Models/Vehicles/railway-way.blend",
+        "seconds": 0.73197
+      },
+      {
+        "asset": "Assets/Resources/City/Places/联合起吊.fbx",
+        "seconds": 89.551359
+      },
+      {
+        "asset": "Packages/com.unity.render-pipelines.core/Runtime/RenderPipelineResources/Mesh/UnityMaterialBall.fbx",
+        "seconds": 0.045511
+      },
+      {
+        "asset": "Assets/Resources/Models/Buildings/city_block.blend",
+        "seconds": 1.818533
+      },
+      {
+        "asset": "Packages/com.unity.render-pipelines.core/Editor/Resources/DebugProbe.fbx",
+        "seconds": 0.008089
+      },
+      {
+        "asset": "Assets/Resources/Content/scenes/scenarios/老板的金表.scm",
+        "seconds": 0.002548
+      },
+      {
+        "asset": "Assets/Resources/Content/scenes/scenarios/大船靠岸（联合起吊）.scm",
+        "seconds": 0.001103
+      },
+      {
+        "asset": "Assets/Resources/Content/scenes/scenarios/雨夜跟车（车距版）.scm",
+        "seconds": 0.000685
+      },
+      {
+        "asset": "Assets/Resources/Content/scenes/world/第二章/机器进入老街.scm",
+        "seconds": 0.000676
+      },
+      {
+        "asset": "Assets/Resources/Content/scenes/scenarios/雨夜跟车.scm",
+        "seconds": 0.000665
+      },
+      {
+        "asset": "Assets/Resources/Content/scenes/world/home.scm",
+        "seconds": 0.000745
+      },
+      {
+        "asset": "Assets/Resources/Content/scenes/scenarios/货栈之夜.scm",
+        "seconds": 0.000558
+      },
+      {
+        "asset": "Assets/Resources/Content/scenes/world/第二章/人物事件/艾迪的培训.scm",
+        "seconds": 0.000565
+      },
+      {
+        "asset": "Assets/Resources/Content/scenes/scenarios/货运大楼潜入.scm",
+        "seconds": 0.000517
+      },
+      {
+        "asset": "Assets/Resources/Content/scenes/world/地图.scm",
+        "seconds": 0.000497
+      },
+      {
+        "asset": "Assets/Resources/Content/scenes/world/老街酒馆.scm",
+        "seconds": 0.000816
+      },
+      {
+        "asset": "Assets/Resources/Content/scenes/world/第二章/晚宴.scm",
+        "seconds": 0.000504
+      },
+      {
+        "asset": "Assets/Resources/Content/scenes/world/第二章/追查.scm",
+        "seconds": 0.000507
+      },
+      {
+        "asset": "Assets/Resources/Content/scenes/scenarios/雨夜跟车（识别版）.scm",
+        "seconds": 0.000577
+      },
+      {
+        "asset": "Assets/Resources/Content/scenes/world/world.scm",
+        "seconds": 0.000552
+      },
+      {
+        "asset": "Assets/Resources/Content/scenes/world/货运公司.scm",
+        "seconds": 0.000532
+      },
+      {
+        "asset": "Assets/Resources/Content/scenes/world/第二章/人物事件/别给他们想要的.scm",
+        "seconds": 0.000476
+      },
+      {
+        "asset": "Assets/Resources/Content/scenes/world/第二幕.scm",
+        "seconds": 0.000465
+      },
+      {
+        "asset": "Assets/Resources/Content/scenes/world/第二章/谁把她卖给了报纸.scm",
+        "seconds": 0.000454
+      },
+      {
+        "asset": "Assets/Resources/Content/scenes/world/第三幕.scm",
+        "seconds": 0.000562
+      },
+      {
+        "asset": "Assets/Resources/City/World.visual.json",
+        "seconds": 0.00049
+      },
+      {
+        "asset": "Assets/Resources/Content/scenes/scenarios/第一次彩排（短钟版）.scm",
+        "seconds": 0.000646
+      },
+      {
+        "asset": "Assets/Resources/Content/scenes/world/第一幕.scm",
+        "seconds": 0.000465
+      },
+      {
+        "asset": "Assets/Resources/Content/scenes/world/第二幕剧院.scm",
+        "seconds": 0.000639
+      },
+      {
+        "asset": "Assets/Resources/Content/scenes/scenarios/第一次彩排.scm",
+        "seconds": 0.000521
+      },
+      {
+        "asset": "Assets/Resources/Content/scenes/world/第二章/人物事件/林的机器.scm",
+        "seconds": 0.0005
+      },
+      {
+        "asset": "Assets/Resources/Content/scripts/engine.scm",
+        "seconds": 0.000748
+      },
+      {
+        "asset": "Assets/Resources/Content/scenes/world/第二章/第二章.scm",
+        "seconds": 0.000687
+      },
+      {
+        "asset": "Assets/Resources/DemoScenarios.json",
+        "seconds": 0.000432
+      },
+      {
+        "asset": "Assets/Resources/Content/scenes/world/第二幕节奏.scm",
+        "seconds": 0.000584
+      },
+      {
+        "asset": "Assets/Resources/Content/scenes/world/模块清单.scm",
+        "seconds": 0.000431
+      },
+      {
+        "asset": "Assets/Scenes/railway-way.prefab",
+        "seconds": 0.019178
+      }
+    ]
+  },
+  "optimized": {
+    "callback_ms": {
+      "setup_ms": 129.881,
+      "filter_ms": 81.303,
+      "scale_ms": 937.147,
+      "commit_ms": 159.583,
+      "logging_ms": 53.836999999999996,
+      "total_ms": 1361.7710000000002
+    },
+    "imports": [
+      {
+        "asset": "Assets/Editor/Pipeline/SSNoirModelImporter.cs",
+        "seconds": 0.003701
+      },
+      {
+        "asset": "Assets/Editor/AnimationImportBenchmark.cs",
+        "seconds": 0.000507
+      },
+      {
+        "asset": "Assets/Resources/Models/Environment/river.blend",
+        "seconds": 2.322053
+      },
+      {
+        "asset": "Assets/Resources/Models/Vehicles/railway-way.blend",
+        "seconds": 0.724172
+      },
+      {
+        "asset": "Assets/Resources/City/Places/联合起吊.fbx",
+        "seconds": 3.433759
+      },
+      {
+        "asset": "Packages/com.unity.render-pipelines.core/Runtime/RenderPipelineResources/Mesh/UnityMaterialBall.fbx",
+        "seconds": 0.040044
+      },
+      {
+        "asset": "Assets/Resources/Models/Buildings/city_block.blend",
+        "seconds": 0.73764
+      },
+      {
+        "asset": "Packages/com.unity.render-pipelines.core/Editor/Resources/DebugProbe.fbx",
+        "seconds": 0.008071
+      },
+      {
+        "asset": "Assets/Scenes/railway-way.prefab",
+        "seconds": 0.012153
+      }
+    ]
+  }
+}

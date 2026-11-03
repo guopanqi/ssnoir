@@ -35,7 +35,7 @@
       (clock-nodes (钱袋 'render-data) (脱身 'render-data) (追兵 'render-data))
       (list (note-node "标注：脚力" "这一趟能跑"
         (string-append "好：" (number->string (- 5 (钱袋 'current))) "步；中："
-          (number->string (- 4 (钱袋 'current))) "步；坏：停步、花1冷静。")))
+          (number->string (- 4 (钱袋 'current))) "步；坏：停步、花1心情。")))
       (if (钱袋 'empty?) '()
           (list (instant-action "扔下一袋" (lambda () (钱袋 'advance! -1)))))
       (if 走过? '()

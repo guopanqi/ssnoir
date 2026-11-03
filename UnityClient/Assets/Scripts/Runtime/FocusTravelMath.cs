@@ -11,8 +11,12 @@ namespace SSNoir
     {
         public const float DirectLift = .04f;
         private const float Radians = (float)Math.PI / 180f;
-        public static float Ease(float t, FocusTravelPath path) => path == FocusTravelPath.DirectApproach
-            ? t * t * t * (t * (t * 6f - 15f) + 10f) : t * t * (3f - 2f * t);
+        // 进入和返回都从较快速度出发，在各自终点明显减速；默认所有路径共用三次 ease-out；也可选择原有起止缓动。
+        public static float Ease(float t, FocusTravelPath path = FocusTravelPath.DirectApproach, bool easeOut = true)
+            => easeOut ? 1f - (1f - t) * (1f - t) * (1f - t)
+                : path == FocusTravelPath.DirectApproach
+                    ? t * t * t * (t * (t * 6f - 15f) + 10f)
+                    : t * t * (3f - 2f * t);
         private static float Lerp(float a, float b, float t) => a + (b - a) * t;
         private static float Clamp(float v, float a, float b) => Math.Max(a, Math.Min(b, v));
         public static float Angle(Quaternion a, Quaternion b) => 2f * (float)Math.Acos(Clamp(Math.Abs(Quaternion.Dot(a, b)), 0, 1)) / Radians;
@@ -75,7 +79,7 @@ namespace SSNoir
             if (!hasA) a = b; if (!hasB) b = a; return true;
         }
         public static bool DirectLosesTarget(Vector3 start, Vector3 end, Quaternion startRotation, Quaternion endRotation,
-            Vector3 a, Vector3 b, float startFov, float endFov)
+            Vector3 a, Vector3 b, float startFov, float endFov, bool easeOut = true)
         {
             Quaternion startAim = AimOffset(start, startRotation, a), endAim = AimOffset(end, endRotation, b), previous = startRotation;
             int missed = 0;
@@ -83,7 +87,7 @@ namespace SSNoir
             const int samples = 20;
             for (int i = 0; i <= samples; i++)
             {
-                float progress = i / (float)samples, t = Ease(progress, FocusTravelPath.DirectApproach);
+                float progress = i / (float)samples, t = Ease(progress, FocusTravelPath.DirectApproach, easeOut);
                 DirectPosition(start, end, a, b, t, out var interest, out var p);
                 Vector3 target = b - p; if (target.LengthSquared() < .0001f) return true;
                 Quaternion rotation = AimedAt(p, interest, Quaternion.Slerp(startAim, endAim, t), Quaternion.Slerp(startRotation, endRotation, t));
@@ -113,12 +117,13 @@ namespace SSNoir
             public Quaternion StartRotation, EndRotation;
             public FocusTravelPath Path;
             public float Duration;
+            public bool EaseOut = true;
             public bool Fits(TravelVolume volume, float startFov, float endFov, float startNear, float endNear, float aspect = 16f / 9f)
             {
                 const int samples = 120;
                 for (int i = 0; i <= samples; i++)
                 {
-                    float progress = i / (float)samples, t = Ease(progress, Path);
+                    float progress = i / (float)samples, t = Ease(progress, Path, EaseOut);
                     Sample(progress, out var p, out var q);
                     if (!volume.Contains(p)) return false;
                     float near = Lerp(startNear, endNear, t);
@@ -133,7 +138,7 @@ namespace SSNoir
             }
             public void Sample(float progress, out Vector3 position, out Quaternion rotation)
             {
-                float t = Ease(progress, Path);
+                float t = Ease(progress, Path, EaseOut);
                 Vector3 interest = Vector3.Lerp(A, B, t);
                 if (Path == FocusTravelPath.DirectApproach) DirectPosition(Start, End, A, B, t, out interest, out position);
                 else position = ArcPosition(A, B, Polar(Start - A), Polar(End - B), t);
@@ -143,7 +148,7 @@ namespace SSNoir
         public static Plan? Create(Vector3 start, Quaternion startRotation, Vector3 end, Quaternion endRotation,
             Vector3? sourceInterest, Vector3? targetInterest, bool targetOrbit, bool targetPan,
             float minPitch, float maxPitch, float modelScale, float startFov, float endFov,
-            FocusTravelPath requested, float defaultDuration, bool redirected)
+            FocusTravelPath requested, float defaultDuration, bool redirected, bool easeOut = true)
         {
             bool automatic = requested == FocusTravelPath.Default;
             var path = automatic ? FocusTravelPath.DirectApproach : requested;
@@ -175,11 +180,11 @@ namespace SSNoir
                 if (!sourceInterest.HasValue && !redirected && GroundInterest(start, startRotation, b.Y, float.PositiveInfinity, out var groundA)) a = groundA;
                 if (!targetInterest.HasValue && targetPan && GroundInterest(end, endRotation, b.Y, float.PositiveInfinity, out var groundB)) b = groundB;
                 duration = Math.Max(Clamp(Vector3.Distance(start, end) / modelScale * .0012f, .9f, 1.5f), Angle(startRotation, endRotation) * 1.875f / 90f);
-                if (automatic && DirectLosesTarget(start, end, startRotation, endRotation, a, b, startFov, endFov))
+                if (automatic && DirectLosesTarget(start, end, startRotation, endRotation, a, b, startFov, endFov, easeOut))
                 { path = FocusTravelPath.AuthoredArc; a = authoredA; b = authoredB; duration = defaultDuration; }
             }
             if ((end - b).LengthSquared() < .0001f || (start - a).LengthSquared() < .0001f) return null;
-            return new Plan { Start = start, End = end, StartRotation = startRotation, EndRotation = endRotation, A = a, B = b, Path = path, Duration = duration };
+            return new Plan { Start = start, End = end, StartRotation = startRotation, EndRotation = endRotation, A = a, B = b, Path = path, Duration = duration, EaseOut = easeOut };
         }
     }
 }

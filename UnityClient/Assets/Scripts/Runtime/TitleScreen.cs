@@ -83,6 +83,7 @@ namespace SSNoir
         // 推导存档目录的（槽位文件名由它的 dirname 拼出来），本身从来没有人往里写过。
         private string? _latestSlotPath;
         private string _latestSaveTime = string.Empty;
+        private int? _latestSaveDay;
 
         public TitleScreen(SSNoirGameManager gameManager)
         {
@@ -108,16 +109,19 @@ namespace SSNoir
             _isActive = true;
             _latestSlotPath = null;
             _latestSaveTime = string.Empty;
+            _latestSaveDay = null;
 
             for (int slot = 1; slot <= SaveManager.SlotCount; slot++)
             {
                 string path = SaveManager.GetSlotFilePath(slot);
-                string time = SaveManager.GetSaveTime(path);   // 没有存档时返回空串
+                var summary = SaveManager.GetSaveSummary(path);
+                string time = summary.SaveTime;   // 没有存档时返回空串
                 if (string.IsNullOrEmpty(time)
                     || string.CompareOrdinal(time, _latestSaveTime) <= 0)
                     continue;
 
                 _latestSaveTime = time;
+                _latestSaveDay = summary.WorldDay;
                 _latestSlotPath = path;
             }
         }
@@ -245,7 +249,7 @@ namespace SSNoir
             // 存档时间收在读档选项右侧，以较小字号形成次级信息。
             if (DrawItem(new Rect(menuX, itemY, menuWidth, ItemHeight),
                     UiText.Get("从存档加载"), ui,
-                    enabled: _latestSlotPath != null, hint: _latestSaveTime))
+                    enabled: _latestSlotPath != null, hint: _latestSaveDay.HasValue ? UiText.Day(_latestSaveDay.Value) + " · " + _latestSaveTime : _latestSaveTime))
             {
                 BeginLeave(false, UiText.Get("从存档加载"));
                 return;
@@ -320,7 +324,7 @@ namespace SSNoir
                     new Rect(rect.x + 20f, rect.y, rect.width - 36f, rect.height), hint, hintStyle);
             }
 
-            if (!enabled || !ui.WasTapped(rect))
+            if (!enabled || !ui.WasClicked(rect))
                 return false;
 
             // 吃掉这次点击：菜单下面就是世界，漏过去会当成一次世界点击。

@@ -31,12 +31,12 @@
   (信息推进! 方向 1))
 (define (信息动作 名字 方向)
   (list
-    (node (string-append "稳做" 名字) :subtitle "坏：冷静−1；中：无变化；好：进度+1。"
+    (node (string-append "稳做" 名字) :subtitle "坏：心情−1；中：无变化；好：进度+1。"
       :requires (list (req-die))
       :resolve (roll 'knowledge
         (outcome 信息坏!) (outcome (lambda () #f))
         (outcome (lambda () (信息推进! 方向 1)))))
-    (node (string-append "快做" 名字) :subtitle "坏：冷静−1；中：冷静−1、进度+1；好：进度+2。"
+    (node (string-append "快做" 名字) :subtitle "坏：心情−1；中：心情−1、进度+1；好：进度+2。"
       :requires (list (req-die))
       :resolve (roll 'knowledge
         (outcome 信息坏!) (outcome (lambda () (信息风险中! 方向)))

@@ -1,0 +1,353 @@
+{
+  "source": "/Users/usr/Documents/play/ssnoir/city-box/build/city/city_build.blend",
+  "rotations": [],
+  "moves": [],
+  "camera_scales": [],
+  "returns": [
+    {
+      "place": "格兰德酒店",
+      "path": "AuthoredArc",
+      "body_crossings": []
+    },
+    {
+      "place": "报社",
+      "path": "AuthoredArc",
+      "body_crossings": []
+    },
+    {
+      "place": "街角咖啡馆",
+      "path": "AuthoredArc",
+      "body_crossings": []
+    },
+    {
+      "place": "货运公司",
+      "path": "AuthoredArc",
+      "body_crossings": []
+    },
+    {
+      "place": "剧院",
+      "path": "AuthoredArc",
+      "body_crossings": []
+    },
+    {
+      "place": "警察局",
+      "path": "AuthoredArc",
+      "body_crossings": []
+    },
+    {
+      "place": "诊所",
+      "path": "AuthoredArc",
+      "body_crossings": []
+    },
+    {
+      "place": "老街酒馆",
+      "path": "AuthoredArc",
+      "body_crossings": []
+    },
+    {
+      "place": "码头居民区",
+      "path": "AuthoredArc",
+      "body_crossings": []
+    },
+    {
+      "place": "公园",
+      "path": "AuthoredArc",
+      "body_crossings": []
+    },
+    {
+      "place": "布告栏",
+      "path": "AuthoredArc",
+      "body_crossings": []
+    },
+    {
+      "place": "家",
+      "path": "AuthoredArc",
+      "body_crossings": []
+    },
+    {
+      "place": "雕像",
+      "path": "DirectApproach",
+      "body_crossings": []
+    },
+    {
+      "place": "码头",
+      "path": "AuthoredArc",
+      "body_crossings": []
+    }
+  ],
+  "scope": "current assembled exterior geometry; representative world start; dominant mass probes; own-root occlusion excluded; no dynamic visibility or near-plane sweep proof",
+  "places": [
+    {
+      "place": "格兰德酒店",
+      "path": "DirectApproach",
+      "south_deviation": 32.47119229084849,
+      "masses": [
+        "酒店建筑_主体_bright_hard_edges",
+        "酒店建筑_主体_dim_none",
+        "酒店建筑_主体_dim_hard_edges"
+      ],
+      "body_crossings": [],
+      "external_occlusion": []
+    },
+    {
+      "place": "报社",
+      "path": "DirectApproach",
+      "south_deviation": 26.963758902900718,
+      "masses": [
+        "报社建筑_主体_dim_hard_edges_shell",
+        "报社建筑_主体_bright_hard_edges_shell",
+        "报社建筑_主体_dim_none_shell"
+      ],
+      "body_crossings": [],
+      "external_occlusion": []
+    },
+    {
+      "place": "街角咖啡馆",
+      "path": "DirectApproach",
+      "south_deviation": -128.8351454991865,
+      "masses": [
+        "底层后墙.001",
+        "二层墙.002",
+        "底层后墙"
+      ],
+      "body_crossings": [],
+      "external_occlusion": []
+    },
+    {
+      "place": "货运公司",
+      "path": "AuthoredArc",
+      "south_deviation": 106.75367638381607,
+      "masses": [
+        "外形壳体_转角柱",
+        "外形壳体_完整大楼外墙",
+        "外形壳体_正立面上层墙"
+      ],
+      "body_crossings": [],
+      "external_occlusion": []
+    },
+    {
+      "place": "剧院",
+      "path": "DirectApproach",
+      "south_deviation": -62.57337560934121,
+      "masses": [
+        "完整球形穹顶",
+        "底座实体",
+        "后台楼体"
+      ],
+      "body_crossings": [],
+      "external_occlusion": []
+    },
+    {
+      "place": "警察局",
+      "path": "DirectApproach",
+      "south_deviation": 27.23831397841593,
+      "masses": [
+        "办公楼主体",
+        "后侧附楼",
+        "主塔暗墙"
+      ],
+      "body_crossings": [],
+      "external_occlusion": []
+    },
+    {
+      "place": "诊所",
+      "path": "AuthoredArc",
+      "south_deviation": 43.1914139303914,
+      "masses": [
+        "楼身内核",
+        "东侧墙",
+        "西侧墙"
+      ],
+      "body_crossings": [],
+      "external_occlusion": []
+    },
+    {
+      "place": "老街酒馆",
+      "path": "DirectApproach",
+      "south_deviation": 47.12247252232673,
+      "masses": [
+        "屋顶雕塑_抽象马头",
+        "侧巷底层墙",
+        "后墙.002"
+      ],
+      "body_crossings": [],
+      "external_occlusion": []
+    },
+    {
+      "place": "码头居民区",
+      "path": "DirectApproach",
+      "south_deviation": 28.24146960327861,
+      "masses": [
+        "屋顶杂物",
+        "街区之间",
+        "地块_00"
+      ],
+      "body_crossings": [],
+      "external_occlusion": []
+    },
+    {
+      "place": "公园",
+      "path": "DirectApproach",
+      "south_deviation": 41.71075699333741,
+      "masses": [
+        "公园主体",
+        "公园描边",
+        "公园描边.001"
+      ],
+      "body_crossings": [],
+      "external_occlusion": []
+    },
+    {
+      "place": "布告栏",
+      "path": "AuthoredArc",
+      "south_deviation": 41.276180474528054,
+      "masses": [
+        "布告栏主体"
+      ],
+      "body_crossings": [],
+      "external_occlusion": []
+    },
+    {
+      "place": "家",
+      "path": "DirectApproach",
+      "south_deviation": 38.94312033519539,
+      "masses": [
+        "消防梯边梁",
+        "消防梯边梁.001",
+        "消防梯边梁.002"
+      ],
+      "body_crossings": [],
+      "external_occlusion": []
+    },
+    {
+      "place": "雕像",
+      "path": "DirectApproach",
+      "south_deviation": -126.63389940411462,
+      "masses": [
+        "雕像_本体",
+        "雕像_基座",
+        "雕像_座脚"
+      ],
+      "body_crossings": [],
+      "external_occlusion": []
+    },
+    {
+      "place": "码头",
+      "path": "AuthoredArc",
+      "south_deviation": 95.02009504778849,
+      "masses": [
+        "货轮",
+        "栈桥2",
+        "栈桥6"
+      ],
+      "body_crossings": [],
+      "external_occlusion": [
+        {
+          "progress": 0.3,
+          "blockers": {
+            "世界": 4
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.35,
+          "blockers": {
+            "世界": 4
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.4,
+          "blockers": {
+            "世界": 4
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.45,
+          "blockers": {
+            "世界": 4
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.5,
+          "blockers": {
+            "世界": 4
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.55,
+          "blockers": {
+            "世界": 4
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.6,
+          "blockers": {
+            "世界": 4
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.65,
+          "blockers": {
+            "世界": 4
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.7,
+          "blockers": {
+            "世界": 4
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.75,
+          "blockers": {
+            "世界": 4
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.8,
+          "blockers": {
+            "世界": 4
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.85,
+          "blockers": {
+            "世界": 4
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.9,
+          "blockers": {
+            "世界": 4
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.95,
+          "blockers": {
+            "世界": 4
+          },
+          "probes": 27
+        },
+        {
+          "progress": 1,
+          "blockers": {
+            "世界": 4
+          },
+          "probes": 27
+        }
+      ]
+    }
+  ]
+}

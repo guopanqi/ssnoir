@@ -28,6 +28,7 @@ namespace SSNoir.Core
                 ["team"]      = WriteTeam(data.Team),
                 ["inventory"] = WriteInventory(data.Inventory),
                 ["worldData"] = WriteScheme(data.WorldData, "worldData"),
+                ["actionUseDays"] = JObject.FromObject(data.ActionUseDays),
             };
 
             string temporaryPath = filePath + ".tmp";
@@ -68,6 +69,16 @@ namespace SSNoir.Core
             foreach (var prop in ((JObject)root["inventory"]!).Properties())
                 data.Inventory[prop.Name] = prop.Value.Value<int>();
 
+            if (root.TryGetValue("actionUseDays", out var useHistory))
+            {
+                if (useHistory is not JObject days) throw new InvalidDataException("actionUseDays must be an object.");
+                foreach (var entry in days.Properties())
+                {
+                    if (string.IsNullOrWhiteSpace(entry.Name) || entry.Value.Type != JTokenType.Integer)
+                        throw new InvalidDataException("actionUseDays requires stable action IDs and integer world days.");
+                    data.ActionUseDays.Add(entry.Name, entry.Value.Value<int>());
+                }
+            }
             data.WorldData = ReadScheme(root["worldData"]!, "worldData");
 
             return data;
@@ -158,6 +169,7 @@ namespace SSNoir.Core
                     ["stats"]             = stats,
                     ["actionDice"]        = new JArray(a.ActionDice),
                     ["actionDiceSlotIds"] = new JArray(a.ActionDiceSlotIds),
+                    ["issuedInjuryDieLoss"] = a.IssuedInjuryDieLoss,
                 });
             }
             var scars = new JArray();
@@ -263,6 +275,7 @@ namespace SSNoir.Core
                     PermanentDiePenaltyLabel = ao["permanentDiePenaltyLabel"]?.Value<string>() ?? string.Empty,
                     PermanentDiePenalty = ao["permanentDiePenalty"]?.Value<int>() ?? 0,
                     SpentGrowthPoints = ao["spentGrowthPoints"]!.Value<int>(),
+                    IssuedInjuryDieLoss = ao["issuedInjuryDieLoss"]?.Value<int>() ?? 0,
                 };
                 foreach (var stat in ((JObject)ao["stats"]!).Properties())
                     a.Stats[stat.Name] = stat.Value.Value<int>();
@@ -295,30 +308,30 @@ namespace SSNoir.Core
             return Path.Combine(dir, filename);
         }
 
-        public static string GetSaveTime(string filePath)
+        public static string GetSaveTime(string filePath) => GetSaveSummary(filePath).SaveTime;
+
+        // Read the saved world's calendar, never the currently running game's day.
+        public static (string SaveTime, int? WorldDay) GetSaveSummary(string filePath)
         {
-            if (!File.Exists(filePath))
-                return "";
+            if (!File.Exists(filePath)) return ("", null);
             try
             {
-                var content = File.ReadAllText(filePath);
-                var root = JObject.Parse(content);
-                var saveTime = root["saveTime"]?.Value<string>();
-                if (!string.IsNullOrEmpty(saveTime))
-                    return saveTime;
-
-                return File.GetLastWriteTime(filePath).ToString("yyyy-MM-dd HH:mm");
+                var root = JObject.Parse(File.ReadAllText(filePath));
+                int? day = null;
+                if (root["worldData"] is JArray world)
+                    foreach (var entry in world)
+                        if (entry is JArray pair && pair.Count == 2 &&
+                            pair[0].Type == JTokenType.String && pair[0].Value<string>() == "day" &&
+                            pair[1].Type == JTokenType.Integer && pair[1].Value<int>() >= 1)
+                            day = pair[1].Value<int>();
+                string? time = root["saveTime"]?.Value<string>();
+                return (string.IsNullOrEmpty(time)
+                    ? File.GetLastWriteTime(filePath).ToString("yyyy-MM-dd HH:mm") : time!, day);
             }
             catch
             {
-                try
-                {
-                    return File.GetLastWriteTime(filePath).ToString("yyyy-MM-dd HH:mm");
-                }
-                catch
-                {
-                    return "";
-                }
+                try { return (File.GetLastWriteTime(filePath).ToString("yyyy-MM-dd HH:mm"), null); }
+                catch { return ("", null); }
             }
         }
     }

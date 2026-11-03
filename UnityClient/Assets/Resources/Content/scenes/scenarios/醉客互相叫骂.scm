@@ -1,6 +1,6 @@
 ;; 两桌愤怒归零完成；只支付引擎已有回合冷静消耗，不另设失败钟。
 (define 东边 (make-clock "东桌愤怒值" 5 'countdown "归零后仍可能被另一桌激怒。" :beneficial-direction 'decrease))
-(define 西边 (make-clock "西桌愤怒值" 5 'countdown "两桌同时冷静才结束。" :beneficial-direction 'decrease))
+(define 西边 (make-clock "西桌愤怒值" 5 'countdown "两桌同时心情才结束。" :beneficial-direction 'decrease))
 (define 骂人者 (make-clock "叫骂者愤怒值" 2 'countdown "每回合让对方愤怒值加1。" :beneficial-direction 'decrease))
 (define 骂人位置 "")
 (define 出现次数 0)
@@ -57,7 +57,7 @@
         :risk '冒险 :risk-target (list 'composure "player")
         :progress-target (list 'clock (if (equal? id "东边这桌") "东桌愤怒值" "西桌愤怒值"))
         :disabled (clock 'empty?)
-        :subtitle (if (clock 'empty?) "已经冷静下来" "好降3，中降1；坏冷静-2")
+        :subtitle (if (clock 'empty?) "已经冷静下来" "好降3，中降1；坏心情-2")
         :resolve (roll 'violence
           (outcome (lambda () (spend-composure! 2)))
           (outcome (lambda () (劝! clock 1 位置)))
@@ -81,14 +81,14 @@
       (node "羞辱他" :anchor anchor :requires (list (req-die))
         :risk '冒险 :risk-target (list 'composure "player")
         :progress-target (list 'clock "叫骂者愤怒值")
-        :subtitle "好降2，中降1；坏冷静-1"
+        :subtitle "好降2，中降1；坏心情-1"
         :resolve (roll 'social
           (outcome (lambda () (spend-composure! 1)))
           (outcome (lambda () (压住! 1))) (outcome (lambda () (压住! 2)))))
       (node "拦住他" :anchor anchor :requires (list (req-die))
         :risk '危险 :risk-target (list 'composure "player")
         :progress-target (list 'clock "叫骂者愤怒值")
-        :subtitle "好降2，中降1且冷静-1；坏冷静-2"
+        :subtitle "好降2，中降1且心情-1；坏心情-2"
         :resolve (roll 'violence
           (outcome (lambda () (spend-composure! 2)))
           (outcome (lambda () (spend-composure! 1) (压住! 1)))

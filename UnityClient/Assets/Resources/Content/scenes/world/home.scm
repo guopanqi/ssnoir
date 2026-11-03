@@ -3,16 +3,15 @@
 ;;
 ;; 起点为长期住宿的廉价旅馆；保留住所存档身份与后续搬家系统。
 ;; 日常添置的是可搬走的个人物品；公寓仍是后续另一处住所。
-;; 冷静不自动恢复：静坐判定：坏0、中+1、好+2；酒馆花 15 美元喝酒 +4。
-;; 健康按伤势 0–7 表示：伤势到 2、5 点时各封锁一个行动位；睡两夜在屋里缓和 1 点伤势。
-;; 诊所花钱和骰子；药品花较多钱省骰子；床垫仅改善夜间养伤。
+;; 冷静不自动恢复：静坐判定：坏0、中+1、好+2；酒馆花 15 美元喝啤酒 +3。
+;; 健康按伤势 0–7 表示：伤势到 2、5 点时各封锁一个行动位。睡觉不恢复伤势；
+;; 房间里没有免费的养伤路——恢复只有用药和看医生，都花钱。床垫已可购买但暂时没有效果。
 
 (define home
   (let ()
     ;; ── Local State ────────────────────────────────
     (define residence "租的房间")    ; "租的房间" / "公寓"
     (define has-flower? #f)
-    (define 养伤夜数 0)  ; 连续两个在屋里睡过的受伤夜晚，慢慢养好一格
     (define has-mattress? #f)
     (define has-phone? #f)
     (define has-gramophone? #f)
@@ -21,11 +20,11 @@
     (define medicated-today? #f)
     (define 老板来过? #f) ; 老板第一次上门收租：问候只走那一趟，也是「添置家具」的开闸点
 
-    ;; 住宿费（仅租房时）：每 4 天自动收取 40 金。钱不够就立即锁门，补清后才能回来。
+    ;; 住宿费（仅租房时）：每 4 天到期，回旅馆时收取 40 金。钱不够就锁门，补清后才能回来。
     (define rent-cycle 4)
     (define rent-amount 40)
     (define rent-clk
-      (make-clock "旅馆房费到期" rent-cycle 'countdown "每四天收取一次房费，40美元。" :beneficial-direction 'increase))
+      (make-clock "旅馆房费到期" rent-cycle 'countdown "每四天到期；回旅馆时交40美元续住。" :beneficial-direction 'increase))
     (define flower-price 40)
     (define mattress-price 60)
     (define apartment-price 200)
@@ -33,6 +32,8 @@
     (define evicted? #f)
 
     (define (renting?) (equal? residence "租的房间"))
+    (define (rent-due?) (and (renting?) (rent-clk 'empty?)))
+    (define (room-available?) (and (not evicted?) (not (rent-due?))))
 
     (define (required-field data key)
       (let ((value (assoc-get data key 'missing)))
@@ -59,49 +60,33 @@
     (define (rent-money-ready?)
       (>= (item-count "金钱") rent-amount))
 
-    ;; 老板第一次上门才顺口聊两句近况；那点人情用完就没了，往后他上门只谈钱。
-    ;; 这一趟同时也是「添置家具」的开闸点：老板露过面，玩家才开始往住处添自己的东西。
-    (define (first-visit-lines)
-      (if 老板来过?
-          '()
-          (list (line "旅馆老板" "尼尔，这阵子没怎么见你，有活儿吗？"))))
-
-    ;; 收租与补交，都只在对白里交代。日终规则跑不出结算行
-    ;; （result-supplement! 只在动作结算内有效），扣钱本身又是静默的——不写进对白，
-    ;; 玩家就只看见金钱方块少了一截，不知道是谁拿走的、下次什么时候再来。
+    ;; 到期是时间事实，收款是回旅馆时发生的同一场事件；不预扣，不在世界地图通知。
     (define (collect-rent!)
+      (if (rent-due?) #t (error "收租：房费尚未到期"))
+      (set! 老板来过? #t)
       (if (rent-money-ready?)
-          (begin
-            (apply play-dialogue!
-              (append
-                (first-visit-lines)
-                (list
-                  (line "尼尔" "这是这几天的房费。最近还行。")
-                  (line "世界" (string-append "他点了两遍，钱进了外套内袋。下一次收租在 "
-                                              (number->string rent-cycle) " 天后。")))))
-            (set! 老板来过? #t)
-            (remove-item! "金钱" rent-amount)
-            (reset-rent-cycle!))
-          (begin
-            (apply play-dialogue!
-              (append
-                (first-visit-lines)
-                (list
-                  (line "旅馆老板" "四天到了，尼尔。房钱呢？")
-                  (line "尼尔" "我还差一点。")
-                  (line "旅馆老板" "那我只能把门锁上。凑齐了再来。"))))
-            (set! 老板来过? #t)
-            (evict!))))
+        (begin
+          (play-dialogue!
+            (line "旅馆老板" "尼尔，房费到期了。续住四天，四十美元。")
+            (line "尼尔" "给你。")
+            (line "世界" "老板点清四十美元，把钥匙递回来。房间还能住四天。"))
+          (remove-item! "金钱" rent-amount)
+          (reset-rent-cycle!))
+        (begin
+          (play-dialogue!
+            (line "旅馆老板" "房费到期了。四十美元，尼尔。")
+            (line "尼尔" "我现在不够。")
+            (line "旅馆老板" "那房间先锁着。凑齐了再来，东西我替你留着。"))
+          (evict!))))
+    (define (rent-arrivals location)
+      (if (and (equal? location "家") (rent-due?)
+               (or (not evicted?) (rent-money-ready?)))
+        (list (arrival "旅馆收租" collect-rent!)) '()))
 
-    ;; 锁门后停止计租；补清这期房费时，重新开始四天租期。
+    ;; 到期后停在零，直到回旅馆处理；不叠加新债，不提前判断届时付不付得起。
     (define-turn-rule "住宿费流逝"
-      (lambda () (and (renting?) (not evicted?)))
-      (lambda ()
-        (rent-clk 'advance! -1)
-        (if (rent-clk 'empty?)
-            (collect-rent!)
-            (if (= (rent-clk 'current) 1)
-                (notify! "旅馆老板明晚来收住宿费。") #f))))
+      (lambda () (and (renting?) (not (rent-clk 'empty?))))
+      (lambda () (rent-clk 'advance! -1)))
 
     (define-turn-rule "每日恢复次数重置"
       (lambda () (or drank-today? medicated-today? flower-today?))
@@ -111,13 +96,13 @@
         (set! flower-today? #f)))
 
     ;; ── 恢复类 ──────────────────────────────────────
-    ;; 白天静坐花骰子，喝酒花金钱；睡觉只刷新骰子，不自动回复冷静。
+    ;; 白天静坐花骰子，喝酒花金钱；睡觉只刷新骰子，不自动回复冷静，也不恢复伤势。
     ;; 喝酒不占骰子，走“花钱买酒”这条线：当场大量恢复冷静。
     ;; 效果只写这一份：酒馆当场点酒（'drink! 消息）与家中喝自带的酒共用同一次“当天第一杯”。
-    ;; 15 美元回 4 点：花钱买更快的恢复，不结束这一天，也不附加宿醉。
+    ;; 15 美元回 3 点：花钱买更快的恢复，不结束这一天，也不附加宿醉。
     (define (apply-drink-effect!)
       (set! drank-today? #t)
-      (restore-actor-composure! 'player 4))
+      (restore-actor-composure! 'player 3))
 
     ;; 家里曾有一张「喝酒」：喝掉从酒馆打回来的那一壶。买酒的卡删掉之后（见
     ;; 老街酒馆.scm），「酒」这件物品没有来路了，这张卡只会一直灰在客厅里。
@@ -128,7 +113,7 @@
       (node "静坐"
         :anchor "租屋-床边"
         :subtitle (if (= (actor-composure 'player) 5)
-                      "冷静已满"
+                      "心情已满"
                       "静坐平复心绪；中恢复1，好恢复2")
         :disabled (= (actor-composure 'player) 5)
         :requires (list (req-die))
@@ -137,7 +122,7 @@
           (outcome (lambda () (restore-actor-composure! 'player 1)))
           (outcome (lambda () (restore-actor-composure! 'player 2))))))
 
-    ;; 用药：在住所中上药休养，不占用行动骰，压 2 点伤势。
+    ;; 用药：在住所中上药休养，不占用行动骰，恢复 2 点 Health。
     ;; 它是"花钱买时间"的那条路——不占骰子，但药得先花 25 金从诊所买回来。
     ;; 一天只能用一份，避免连续用药快速抹掉Scenario造成的伤势。
     (define (node-use-medicine anchor)
@@ -146,7 +131,7 @@
         :subtitle (cond
                     ((equal? (injury-band) '完好) "身上没有需要处理的伤")
                     (medicated-today? "一天上一次药就够了，伤口需要时间")
-                    (#t "不占行动骰，压 2 点伤势；一天只能用一份"))
+                    (#t "不占行动骰，恢复 2 点 健康；一天只能用一份"))
         :disabled (or medicated-today? (equal? (injury-band) '完好))
         :requires (list (req-item "药品" 1))
         :resolve (instant
@@ -154,12 +139,6 @@
               (set! medicated-today? #t)
               (heal-injury! 2))))))
 
-    ;; 旧版主动养伤不再提供。床垫现在只改善跨夜康复。
-    ;;   养伤   1 骰、0 金、−1
-    ;;   用药   0 骰、25 金、−2（每天一份）
-    ;;   看医生 1 骰、20 金、−2
-    ;; 床垫不被动治伤：它只让玩家可以把今天的一颗骰换成一点康复。
-    ;; 不设每日上限——骰子本身就是上限，多躺一颗骰就是少做一份工。
     ;; 浇水投入一颗行动骰，每天一次，暂时没有数值收益。它是在家里花掉一点时间，
     ;; 换来的只有植物一天天长大；以后如果要加收益，也从这张卡扩展，不另开一条照料系统。
     ;;
@@ -194,34 +173,15 @@
 
     (define (note-mattress)
       (node "标注：弹簧床垫" :anchor "租屋-床边" :resolve
-        (note "弹簧床垫" "受伤时在室内睡过一晚，缓和1点伤势；不额外消耗行动。")))
+        (note "弹簧床垫" "暂时没有效果；养伤的规则还在重新考虑。")))
 
-    (define (rest-tags)
-      ;; 睡觉卡上只说锁的原因，不指去哪：具体去哪处理由边缘信标和卷宗主线指。
-      ;; 事件自己的那句（"机器今天上岸"这类）是写给信标指路的，贴在卡上像谜语。
-      (if (rest-blocked?)
-          (list "不可休息" "存在还未处理的事件")
-          '()))
-
-    ;; 普通床也能缓慢康复：每两个在室内度过的受伤夜晚，伤势减少一格。
-    ;; 门外露宿不计养伤。醒来后如已无伤则清空进度，不把旧夜数带到下次受伤。
-    (define (sleep-mend!)
-      (if (> (injury-severity) 0)
-          (begin
-            (set! 养伤夜数 (+ 养伤夜数 1))
-            (if (>= 养伤夜数 (if has-mattress? 1 2))
-                (begin
-                  (heal-injury! 1)
-                  (set! 养伤夜数 0))
-                #f))
-          (set! 养伤夜数 0)))
+    ;; 普通床的缓慢康复也撤了：睡觉不恢复伤势，房间里的恢复只剩花钱的两条路。
+    ;; 养伤作为一套机制之后重新设计；露宿、睡觉都不再动伤势刻度。
 
     ;; 连睡锁：睡过一觉，要先出过门才能再睡。手滑连点两下睡觉就是两天没了，
     ;; 而「出门再回来」是玩家有意识做的事，误触不会碰到它。家里能做的事本来就少，
     ;; 所以不拿「做过任何别的动作」当解锁条件——那一条还是可能被连点绕过。
     (define 刚睡过? #f)
-    (define (sleep-tags)
-      (append (rest-tags) (if 刚睡过? (list "先出门走走") '())))
     (define (sleep-locked?) (or (rest-blocked?) 刚睡过?))
     (define-enter-place-rule "出门后才能再睡"
       ;; 退回世界层也算出门：place-name 是 "世界"，本来就不等于 "家"。
@@ -233,22 +193,21 @@
         :anchor "床边"
         :subtitle (cond
                     (刚睡过? "刚醒。出门走走再回来睡")
-                    (else "重置每天的骰子；缓慢恢复伤势"))
+                    ((rest-blocked?) "还有必须处理的事，暂时不能休息。")
+                    (else "重置每天的骰子"))
         :disabled (sleep-locked?)
-        :tags (sleep-tags)
         :resolve (instant
           (outcome (lambda ()
-              ;; 睡眠只有日历推进与缓慢养伤，不再自动恢复冷静。
-              (sleep-mend!)
+              ;; 睡眠只推进日历，不恢复冷静，也不恢复伤势。
               (set! 刚睡过? #t)
               (end-turn!))))))
 
     (define (node-sleep-at-door)
       (node "蜷缩在门口"
         :anchor "门口"
-        :subtitle (if 刚睡过? "刚醒。出门走走再回来" "")
+        :subtitle (cond (刚睡过? "刚醒。出门走走再回来")
+                        ((rest-blocked?) "还有必须处理的事，暂时不能休息。") (else ""))
         :disabled (sleep-locked?)
-        :tags (sleep-tags)
         :resolve (instant
           (outcome (lambda ()
               ;; 露宿不回复冷静，但也不再伤身，免得把玩家推向击穿受伤的死亡循环。
@@ -277,6 +236,7 @@
            (note "房门已锁"
              (string-append "欠下的 " (number->string rent-amount) " 块补清，"
                             "旅馆老板才会重新开门。"))))
+        ((rent-due?) (note-node "标注：住宿费" "房费到期" "回旅馆时交40美元续住。"))
         (else
          (node "标注：住宿费" :anchor "床边" :resolve (clock (rent-clk 'render-data))))))
 
@@ -287,7 +247,7 @@
 
     ;; 买东西的卡全挂在屋里的书桌上（翻着报纸广告页下单）。**不能挂在买回来的东西自己的
     ;; 锚点上**：花盆、唱片机按 presence 契约"有卡挂着就出现"，买之前把卡挂过去，东西就提前长出来了。
-    ;; 买回来之后的卡（浇水、放唱片、养伤）才各自落到东西真正摆的位置。
+    ;; 买回来之后的卡（浇水、放唱片）才各自落到东西真正摆的位置。
     (define (node-buy-flower)
       (node "买一盆龟背竹"
         :anchor "租屋-书桌"
@@ -299,7 +259,7 @@
     (define (node-buy-mattress)
       (node "买弹簧床垫"
         :anchor "租屋-书桌"
-        :subtitle "受伤时睡一晚缓和1点伤势；不能白天反复养伤"
+        :subtitle "暂时没有效果；先买回去摆着"
         :requires (list (req-item "金钱" mattress-price))
         :resolve (instant
           (outcome (lambda () (set! has-mattress? #t))))))
@@ -408,7 +368,7 @@
     ;;   ├ 租屋 …………………………… 门卡挂「床边」（301 窗）；点进去穿门，进 Stage 租屋（郊野那排的独立 Prefab）
     ;;   │  ├ 标注：屋里 …………… 什么都没添时的唯一一条
     ;;   │  ├ 浇水 / 唱片机 / 放唱片 … 买回来才有；龟背竹和唱片机的模型按 presence 契约随这些卡出现
-    ;;   │  ├ 用药 / 养伤 ……………… 租屋-床边
+    ;;   │  ├ 用药 / 静坐 ……………… 租屋-床边
     ;;   │  ├ 电话 …………………………… 租屋-门（线从楼道接进来）
     ;;   │  └ 添置家具 …………………… 租屋-书桌；买的卡都在这儿，不挂到要买的东西头上
     ;;   ├ 住宿费标注 / 补交 …………… 家的第一层，挂 301 窗
@@ -459,29 +419,31 @@
     (define (home-body)
       (append
         (地点节点 "家")
-        (if evicted? '() (list (node-room)))
+        (if (room-available?) (list (node-room)) '())
         (if (renting?) (rent-nodes) '())
         (upgrade-nodes)
-        (list (if evicted? (node-sleep-at-door) (node-sleep)))))
+        (list (if (room-available?) (node-sleep) (node-sleep-at-door)))))
 
     ;; 容器名固定为"家"（导航按名字定位，不能随住所变），住所等级放 subtitle 显示。
     (define (residence-container)
       (place "家"
         :name (if (renting?) (tr "旅馆" "Hotel") (tr "家" "Home"))
         :subtitle (if (equal? residence "公寓") (tr "公寓" "Apartment") (tr "旅馆客房" "Hotel Room"))
+        :arrivals (地点入场 "家")
         :children (home-body)))
 
     ;; ── Message Passing Interface ─────────────────
     (lambda args
       (let ((msg (car args)))
         (cond
+          ((equal? msg 'arrivals-at) (rent-arrivals (cadr args)))
           ((equal? msg 'dossier)
            (if (renting?)
                (list (dossier "旅馆房费"
                  :kind '城市 :primary #t
                  :status '进行中
-                 :now "每四天收取40美元房费；钱不够会被锁门，补清后才能回来。"
-                 :where (if evicted? "家" "")
+                 :now "每四天房费到期；回旅馆交40美元续住，钱不够就不能进房。"
+                 :where (if (rent-due?) "家" "")
                  :clocks (cond (evicted? '())
                                (#t (list (rent-clk 'render-data))))
                  :log '()))
@@ -511,7 +473,6 @@
              (list "drank-today?" drank-today?)
              (list "flower-today?" flower-today?)
              (list "medicated-today?" medicated-today?)
-             (list "sleep-mend-nights" 养伤夜数)
              (list "boss-visited?"   老板来过?)
              (list "rent-left"      (rent-clk 'save))
              (list "evicted?"       evicted?)
@@ -528,17 +489,12 @@
              (set! drank-today?   (required-field data "drank-today?"))
              (set! flower-today?  (required-field data "flower-today?"))
              (set! medicated-today? (required-field data "medicated-today?"))
-             (set! 养伤夜数 (assoc-get data "sleep-mend-nights" 0))
-             (if (and (number? 养伤夜数) (>= 养伤夜数 0) (<= 养伤夜数 1))
-                 #t (error "住所存档错误：养伤夜数非法"))
              ;; 一次性改名迁移：老板第一次上门这件事，旧档记在 apartment-offer-known? 名下。
              ;; 显式写在这儿而不是让 required-field 静默放行；等旧档不再需要就删掉这一段。
              (set! 老板来过? (assoc-get data "boss-visited?"
                                     (assoc-get data "apartment-offer-known?" #f)))
              (rent-clk 'load!     (required-field data "rent-left"))
-             ;; 旧档若已欠租（到期钟归零），同样立即锁门，不延续旧宽限。
-             (set! evicted? (or (required-field data "evicted?")
-                                (and (renting?) (rent-clk 'empty?))))
+             (set! evicted? (required-field data "evicted?"))
              ;; 旧档没有这一项：当作没锁，读档醒来能直接睡。等旧档不再需要就换回 required-field。
              (set! 刚睡过?        (assoc-get data "just-slept?" #f))
              ;; 一次性改名迁移：起点从「旅馆」改叫「租的房间」（同一个东西，换了说法）。
@@ -560,9 +516,8 @@
                (evicted?
                 (if (rent-clk 'empty?)
                     #t (error "住所存档错误：锁门状态仍残留住宿费倒计时")))
-               (else
-                (if (not (rent-clk 'empty?))
-                    #t (error "住所存档错误：正常租期的倒计时不一致"))))
+               ;; 未锁门且倒计时为零：到期待收，尚未遇到老板，不是假定已经付款。
+               (else #t))
              #t))
 
           (#t #f))))))

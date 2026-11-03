@@ -126,7 +126,7 @@
 
 (define (node-let-it)
   (node "让它自己处理"
-    :tags (list "高风险")
+    :risk '冒险
     :subtitle "林说它能处理。你决定信不信"
     :requires (list (req-die))
     :resolve (roll 'knowledge
@@ -152,7 +152,7 @@
     :subtitle (if (fault-heavy? batch)
                   "这一处准备期没顾上，现在是危机"
                   "调参数、改配重，能在台上解决")
-    :tags (if (fault-heavy? batch) (list "高风险") '())
+    :risk '危险
     :requires (list (req-die))
     :resolve (roll (fault-skill batch)
       (outcome (lambda ()

@@ -19,7 +19,7 @@
 (define (分配风险中! clock) (spend-composure! 1) (分配推进! clock 1))
 (define (分配动作 clock name fast? bonus)
   (node name
-    :subtitle (if fast? "坏：冷静−1；中：冷静−1、进度+1；好：进度+2。" "坏：冷静−1；中：无变化；好：进度+1。")
+    :subtitle (if fast? "坏：心情−1；中：心情−1、进度+1；好：进度+2。" "坏：心情−1；中：无变化；好：进度+1。")
     :requires (list (req-die))
     :resolve (roll 'knowledge (lambda () (if (> bonus 0) (list (modifier bonus "熟练")) '()))
       (outcome 分配坏!)
@@ -33,8 +33,8 @@
     (append
       (list (note-node "标注：分配规则" "规则实验"
         (if (> 熟练加成 0)
-          "一回合完成两项各3格的工作，完成立即结束。乙每次判定+1；其余收益相同。结束回合另花1冷静。"
-          "一回合完成两项各3格的工作，完成立即结束。两项判定相同。结束回合另花1冷静。")))
+          "一回合完成两项各3格的工作，完成立即结束。乙每次判定+1；其余收益相同。结束回合另花1心情。"
+          "一回合完成两项各3格的工作，完成立即结束。两项判定相同。结束回合另花1心情。")))
       (clock-nodes (工作甲 'render-data) (工作乙 'render-data))
       (if (工作甲 'full?) '() (list (分配动作 工作甲 "甲稳做" #f 0) (分配动作 工作甲 "甲快做" #t 0)))
       (if (工作乙 'full?) '() (list (分配动作 工作乙 "乙稳做" #f 熟练加成) (分配动作 工作乙 "乙快做" #t 熟练加成))))))

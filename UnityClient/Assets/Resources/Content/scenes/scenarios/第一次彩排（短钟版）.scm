@@ -42,7 +42,7 @@
   (let ((总进度 (+ (消息 'current) n)))
     (消息 'advance! n)
     (if (>= 总进度 (消息 'max))
-      (begin (add-item! "情报" 1) (消息 'set! (- 总进度 (消息 'max)))) #f)))
+      (begin (add-item! "情报" 1) (消息 'reset! (- 总进度 (消息 'max)))) #f)))
 (define (交付! 项)
   (if ((car 项) 'full?)
     (play-bubble! (line "世界" (list-ref 项 4)))
@@ -79,7 +79,7 @@
       (append
         (clock-nodes (钟 'render-data))
         (if (钟 'full?) '()
-          (list (node id :subtitle "坏无进展冷静−1；中进1，好进2"
+          (list (node id :subtitle "坏无进展心情−1；中进1，好进2"
             :risk '冒险 :risk-target (list 'composure "player")
             :progress-target (list 'clock (cadr (钟 'render-data)))
             :requires (list (req-die))
@@ -97,7 +97,7 @@
         (note-node "短钟工钱" "工钱"
           (string-append "一项5／两项15／三项40美元；已按时交付"
             (number->string (已交付数)) "项。"))
-        (note-node "短钟安排" "换景安排" "第2回合交首景，第3回合交侧灯，第5回合交尾景并收场；漏项仍继续。回合结束冷静−1。"))
+        (note-node "短钟安排" "换景安排" "第2回合交首景，第3回合交侧灯，第5回合交尾景并收场；漏项仍继续。回合结束心情−1。"))
       (clock-nodes (乐段 'render-data) (消息 'render-data))
       (apply append (map 工作节点 工作表))
       (list (node "打听后台消息" :subtitle "可选，坏0／中1／好2；每满4格获情报1"

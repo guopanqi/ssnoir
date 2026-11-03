@@ -1,0 +1,22 @@
+/* 同一套设计尺寸：人物在左，骰位在上，伤势与冷静共用下方底板。 */
+#actor-hud.portrait-hud{left:24px;bottom:24px;width:426px;min-width:0;height:184px;padding:0 14px 12px 124px;background:none;border:0;display:flex;flex-direction:column;justify-content:flex-end;isolation:isolate}
+#actor-hud.portrait-hud::before{content:'';position:absolute;inset:auto 0 0;height:88px;background:linear-gradient(110deg,#10151bf5,#151c24f5);border:1px solid #9a988b99;z-index:-1;box-shadow:3px 4px 0 #0006}
+.portrait-hud .hud-portrait{position:absolute;left:0;bottom:0;width:116px;height:188px;overflow:hidden;pointer-events:none;z-index:0}
+.portrait-hud .hud-portrait img{position:absolute;width:410px;height:410px;max-width:none;left:-146px;top:-58px;object-fit:contain}
+#actor-hud.portrait-hud .actor-heading{order:0;margin:0 0 7px;padding:0;border:0;position:relative;z-index:1;min-height:23px;gap:10px}
+.portrait-hud .actor-name{font-size:18px;letter-spacing:2px;text-shadow:0 2px 5px #000}
+.portrait-hud .actor-condition{font-size:12px;white-space:nowrap}
+#actor-hud.portrait-hud .hud-dice{order:1;display:flex;gap:8px;padding:0;margin:0 0 12px;border:0;position:relative;z-index:1}
+#actor-hud.portrait-hud .hud-slot{width:48px;height:48px;padding:3px;background:#11171ff5;box-shadow:2px 3px 0 #0008}
+#actor-hud.portrait-hud .vitals{order:2;position:relative;z-index:2;padding:0;margin:0;display:flex;flex-direction:column;gap:7px}
+#actor-hud.portrait-hud .vital-row{height:23px;gap:10px;font-size:14px}
+#actor-hud.portrait-hud .vital-row>span:first-child{width:32px}
+#actor-hud.portrait-hud .vital-row .ticks{flex:1;width:auto;height:19px;gap:3px;padding:3px;background:#070b10;border:1px solid #a8a49b66}
+#actor-hud.portrait-hud .vital-row .tick{height:11px}
+#actor-hud.portrait-hud .injury-ticks .tick.injured{background:#c47565}
+#actor-hud.portrait-hud.injury-critical .injury-ticks .tick.injured{background:#e83323}
+#actor-hud.portrait-hud .injury-thresholds,#actor-hud.portrait-hud .range-cube{display:none}
+#actor-hud.portrait-hud .vital-tooltip{bottom:calc(100% + 20px);top:auto;left:0}
+.portrait-hud .hud-portrait img{mix-blend-mode:normal;mask-image:url('../assets/尼尔_抱臂_lines.png');mask-mode:luminance;mask-size:100% 100%;mask-repeat:no-repeat}
+
+#actor-hud.portrait-hud .actor-heading{display:none}

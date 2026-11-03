@@ -198,7 +198,7 @@
     "假信封拿回来了。跑腿者不知道雇主是谁，半包「老金牌」香烟是唯一物证。"))
 (define (拦截动作 cooperative?)
   (node (if cooperative? "协同拦截" "独自截人") :anchor "勒索信"
-    :subtitle (if cooperative? "帮手封住退路；好3、中2，坏不推进" "独自逼近；好2、中1，坏扣冷静1")
+    :subtitle (if cooperative? "帮手封住退路；好3、中2，坏不推进" "独自逼近；好2、中1，坏扣心情1")
     :requires (list (req-die))
     :resolve (roll 'violence
       (outcome (lambda ()
@@ -222,7 +222,7 @@
     #f))
 (define (追逐动作 risky?)
   (node (if risky? "抄近路追" "稳住踪迹") :anchor (街景锚点)
-    :subtitle (if risky? "穿过遮挡抢近路；好3、中1，坏扣冷静2" "保持视线跟进；好2、中1，坏不推进")
+    :subtitle (if risky? "穿过遮挡抢近路；好3、中1，坏扣心情2" "保持视线跟进；好2、中1，坏不推进")
     :requires (list (req-die))
     :resolve (roll (if risky? 'violence 'sharpness)
       (outcome (lambda () (if risky? (spend-composure! 2) #f)))

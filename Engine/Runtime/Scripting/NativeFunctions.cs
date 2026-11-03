@@ -197,7 +197,7 @@ namespace SSNoir.Scripting
                 bool hospitalizationBefore = gameState.HasPendingHospitalization;
                 gameState.Team.SetActorComposureSafe(actorId, n);
                 int composureDelta = actor.Composure - composureBefore;
-                string composureLabel = gameState.CurrentContext?.ActorId == actorId ? "冷静" : actor.Name + "冷静";
+                string composureLabel = gameState.CurrentContext?.ActorId == actorId ? "心情" : actor.Name + "心情";
                 gameState.CurrentActionReport?.AddEffect(
                     ActionEffectKind.Composure, composureLabel, composureDelta,
                     composureDelta > 0 ? ActionEffectTone.Positive : ActionEffectTone.Negative);
@@ -207,7 +207,7 @@ namespace SSNoir.Scripting
                     ? Injury.MaxSeverity - injuryBefore
                     : injuryDelta);
                 if (injuryDelta > 0 || collapsed)
-                    gameState.CurrentActionReport?.AddSupplement("冷静击穿：你的手在抖，身体先一步承受了代价。");
+                    gameState.CurrentActionReport?.AddSupplement("心情 耗尽：你的手在抖，身体先一步承受了代价。");
                 return new None();
             }, "__set-actor-composure!"));
 
@@ -225,7 +225,7 @@ namespace SSNoir.Scripting
                 bool hospitalizationBefore = gameState.HasPendingHospitalization;
                 gameState.Team.SpendComposure(actorId, amount);
                 int composureDelta = actor.Composure - composureBefore;
-                string composureLabel = gameState.CurrentContext?.ActorId == actorId ? "冷静" : actor.Name + "冷静";
+                string composureLabel = gameState.CurrentContext?.ActorId == actorId ? "心情" : actor.Name + "心情";
                 gameState.CurrentActionReport?.AddEffect(
                     ActionEffectKind.Composure, composureLabel, composureDelta,
                     composureDelta > 0 ? ActionEffectTone.Positive : ActionEffectTone.Negative);
@@ -236,7 +236,7 @@ namespace SSNoir.Scripting
                     ? Injury.MaxSeverity - injuryBefore
                     : injuryDelta);
                 if (injuryDelta > 0 || collapsed)
-                    gameState.CurrentActionReport?.AddSupplement("冷静击穿：你的手在抖，身体先一步承受了代价。");
+                    gameState.CurrentActionReport?.AddSupplement("心情 耗尽：你的手在抖，身体先一步承受了代价。");
                 return new None();
             }, "__spend-actor-composure!"));
 

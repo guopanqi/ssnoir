@@ -1,5 +1,5 @@
 ;; scenes/world/诊所.scm - 诊所
-;; 看医生：20美元和一枚骰子，稳定治疗2点伤势；药品更贵但不花骰子。
+;; 看医生：20美元和一枚骰子，稳定恢复2点 Health；药品更贵但不花骰子。
 
 (define clinic
   (let ()
@@ -28,7 +28,7 @@
         :anchor "诊所-服务"
         :subtitle (if (equal? (injury-band) '完好)
                       "身上没有需要处理的伤"
-                      "支付20美元及一枚骰，治疗2点伤势")
+                      "支付20美元及一枚骰，恢复2点 健康")
         :disabled (equal? (injury-band) '完好)
         :requires (list (req-item "金钱" treatment-fee) (req-die))
         :resolve (instant

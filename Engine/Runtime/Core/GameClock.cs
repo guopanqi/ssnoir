@@ -37,12 +37,20 @@ namespace SSNoir.Core
 
     public enum ClockPriority { Primary, Secondary }
 
+    // 仅供快照表现使用，不是存档状态；Sequence 区分数值相同的两轮。
+    public sealed class ClockReset
+    {
+        public int Sequence { get; init; }
+        public int From { get; init; }
+    }
+
     public class GameClock
     {
         public string Label { get; set; } = string.Empty;
         public string DisplayLabel { get; set; } = string.Empty;
         public string ShownLabel => string.IsNullOrEmpty(DisplayLabel) ? Label : DisplayLabel;
         public string Note { get; set; } = string.Empty;
+        public ClockReset Reset { get; set; } = new ClockReset();
         public int Current { get; set; }
         public int Max { get; set; }
         public ClockPriority Priority { get; set; } = ClockPriority.Primary;

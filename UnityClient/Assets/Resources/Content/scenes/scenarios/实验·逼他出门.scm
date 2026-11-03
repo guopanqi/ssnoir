@@ -48,7 +48,7 @@
               (if 出门? "他已出门。回合末会退回，堵截减1、压力减1。" "他躲在柜台后。结束回合才回应压力。"))
             (node "敲侧门" :subtitle "压力加1。" :requires (list (req-die))
               :resolve (instant (lambda () (加压! 1))))
-            (node "砸店招" :subtitle "压力加2，花1冷静。" :requires (list (req-die))
+            (node "砸店招" :subtitle "压力加2，花1心情。" :requires (list (req-die))
               :resolve (instant (lambda () (spend-actor-composure! 'player 1) (加压! 2))))
             (node "退到街角" :subtitle "压力减1；出门的机会不会立刻消失。" :requires (list (req-die))
               :resolve (instant (lambda () (压力 'advance! -1)))))

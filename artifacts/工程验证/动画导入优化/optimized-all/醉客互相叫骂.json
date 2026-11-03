@@ -1,0 +1,195 @@
+{
+    "asset": "Assets/Resources/City/Places/醉客互相叫骂.fbx",
+    "clips": [
+        {
+            "name": "__preview__City",
+            "length": 35.93333435058594,
+            "frameRate": 30.0,
+            "legacy": true,
+            "loopTime": false,
+            "wrapMode": 0,
+            "curves": [],
+            "objectCurvesAndEvents": ""
+        },
+        {
+            "name": "东桌醉客__吵嚷",
+            "length": 1.0,
+            "frameRate": 30.0,
+            "legacy": true,
+            "loopTime": false,
+            "wrapMode": 8,
+            "curves": [],
+            "objectCurvesAndEvents": ""
+        },
+        {
+            "name": "东桌醉客__吵嚷到平静",
+            "length": 2.2333335876464845,
+            "frameRate": 30.0,
+            "legacy": true,
+            "loopTime": false,
+            "wrapMode": 8,
+            "curves": [],
+            "objectCurvesAndEvents": ""
+        },
+        {
+            "name": "东桌醉客__吵嚷到起身",
+            "length": 7.433335304260254,
+            "frameRate": 30.0,
+            "legacy": true,
+            "loopTime": false,
+            "wrapMode": 8,
+            "curves": [],
+            "objectCurvesAndEvents": ""
+        },
+        {
+            "name": "东桌醉客__平静",
+            "length": 1.0000001192092896,
+            "frameRate": 30.0,
+            "legacy": true,
+            "loopTime": false,
+            "wrapMode": 8,
+            "curves": [],
+            "objectCurvesAndEvents": ""
+        },
+        {
+            "name": "东桌醉客__平静到吵嚷",
+            "length": 2.2333335876464845,
+            "frameRate": 30.0,
+            "legacy": true,
+            "loopTime": false,
+            "wrapMode": 8,
+            "curves": [],
+            "objectCurvesAndEvents": ""
+        },
+        {
+            "name": "东桌醉客__平静到起身",
+            "length": 7.4333343505859379,
+            "frameRate": 30.0,
+            "legacy": true,
+            "loopTime": false,
+            "wrapMode": 8,
+            "curves": [],
+            "objectCurvesAndEvents": ""
+        },
+        {
+            "name": "东桌醉客__起身",
+            "length": 1.000000238418579,
+            "frameRate": 30.0,
+            "legacy": true,
+            "loopTime": false,
+            "wrapMode": 8,
+            "curves": [],
+            "objectCurvesAndEvents": ""
+        },
+        {
+            "name": "东桌醉客__起身到吵嚷",
+            "length": 7.066667556762695,
+            "frameRate": 30.0,
+            "legacy": true,
+            "loopTime": false,
+            "wrapMode": 8,
+            "curves": [],
+            "objectCurvesAndEvents": ""
+        },
+        {
+            "name": "东桌醉客__起身到平静",
+            "length": 5.166667938232422,
+            "frameRate": 30.0,
+            "legacy": true,
+            "loopTime": false,
+            "wrapMode": 8,
+            "curves": [],
+            "objectCurvesAndEvents": ""
+        },
+        {
+            "name": "西桌醉客__吵嚷",
+            "length": 1.0,
+            "frameRate": 30.0,
+            "legacy": true,
+            "loopTime": false,
+            "wrapMode": 8,
+            "curves": [],
+            "objectCurvesAndEvents": ""
+        },
+        {
+            "name": "西桌醉客__吵嚷到平静",
+            "length": 2.2333335876464845,
+            "frameRate": 30.0,
+            "legacy": true,
+            "loopTime": false,
+            "wrapMode": 8,
+            "curves": [],
+            "objectCurvesAndEvents": ""
+        },
+        {
+            "name": "西桌醉客__吵嚷到起身",
+            "length": 7.433335304260254,
+            "frameRate": 30.0,
+            "legacy": true,
+            "loopTime": false,
+            "wrapMode": 8,
+            "curves": [],
+            "objectCurvesAndEvents": ""
+        },
+        {
+            "name": "西桌醉客__平静",
+            "length": 1.0000001192092896,
+            "frameRate": 30.0,
+            "legacy": true,
+            "loopTime": false,
+            "wrapMode": 8,
+            "curves": [],
+            "objectCurvesAndEvents": ""
+        },
+        {
+            "name": "西桌醉客__平静到吵嚷",
+            "length": 2.2333335876464845,
+            "frameRate": 30.0,
+            "legacy": true,
+            "loopTime": false,
+            "wrapMode": 8,
+            "curves": [],
+            "objectCurvesAndEvents": ""
+        },
+        {
+            "name": "西桌醉客__平静到起身",
+            "length": 7.4333343505859379,
+            "frameRate": 30.0,
+            "legacy": true,
+            "loopTime": false,
+            "wrapMode": 8,
+            "curves": [],
+            "objectCurvesAndEvents": ""
+        },
+        {
+            "name": "西桌醉客__起身",
+            "length": 1.000000238418579,
+            "frameRate": 30.0,
+            "legacy": true,
+            "loopTime": false,
+            "wrapMode": 8,
+            "curves": [],
+            "objectCurvesAndEvents": ""
+        },
+        {
+            "name": "西桌醉客__起身到吵嚷",
+            "length": 7.066667556762695,
+            "frameRate": 30.0,
+            "legacy": true,
+            "loopTime": false,
+            "wrapMode": 8,
+            "curves": [],
+            "objectCurvesAndEvents": ""
+        },
+        {
+            "name": "西桌醉客__起身到平静",
+            "length": 5.166667938232422,
+            "frameRate": 30.0,
+            "legacy": true,
+            "loopTime": false,
+            "wrapMode": 8,
+            "curves": [],
+            "objectCurvesAndEvents": ""
+        }
+    ]
+}

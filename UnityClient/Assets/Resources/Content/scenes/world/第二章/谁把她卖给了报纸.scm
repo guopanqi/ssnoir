@@ -14,6 +14,7 @@
 ;; 主轴的规矩照旧：必经拍不花骰。花骰的是后面那条支线上的每一次追查。
 (define 封面上的夜莺
   (let ()
+    (define 报道消息已读? #f)
     ;; 晚宴（第 3 天）次日就登报。曾经是第 6 天：晚宴之后空两天没事干，
     ;; 调查线又从第 6 天才起步，怎么走都撞进新港计划那几天。
     (define 开门-第几天 4)
@@ -33,8 +34,7 @@
             (set! 状态 "待去")
 
             (第二章 'log! "封面上的夜莺" "报纸登了一篇《逃出老街的夜莺》。里面的东西她一样也没说过。")
-            (spotlight! "《逃出老街的夜莺》"
-              "今早的报纸抢在专访前登了她的故事。写得很漂亮，也写了太多不该有人知道的事。"))
+            #t)
           #f))
 
     ;; ── 那一场 ──────────────────────────────────────
@@ -65,7 +65,10 @@
       (let ((msg (car args)))
         (cond
           ((equal? msg 'nodes-at) (nodes-at (cadr args)))
-          ((equal? msg 'arrivals-at) '())
+          ((equal? msg 'arrivals-at)
+           (if (and (equal? (cadr args) "世界") (待去?) (not 报道消息已读?))
+             (list (arrival "夜莺的报道" (lambda () (set! 报道消息已读? #t)
+               (spotlight! "《逃出老街的夜莺》" "报纸抢在专访前登了她的故事。写得很漂亮，也写了太多不该有人知道的事。")))) '()))
           ((equal? msg 'dossier) '())
           ((equal? msg 'on-day-start!) (on-day-start!))
 
@@ -80,8 +83,9 @@
                  (#t "夜莺那边这几天没有事")))
           ((equal? msg 'where) (if (待去?) "剧院" ""))
           ((equal? msg 'clocks) '())
-          ((equal? msg 'save) (list (list "state" 状态)))
+          ((equal? msg 'save) (list (list "news-read" 报道消息已读?) (list "state" 状态)))
           ((equal? msg 'load!)
+           (set! 报道消息已读? (assoc-get (cadr args) "news-read" #f))
            (let ((data (cadr args)))
              (set! 状态 (assoc-get data "state" "未开始"))))
           ;; 调试用：当作那一场已经过去，疑点已经进入卷宗。

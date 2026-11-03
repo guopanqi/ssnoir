@@ -164,7 +164,7 @@ namespace SSNoir.IMGUI
             var style = new GUIStyle(IMGUIStyles.ModalBody) { alignment = TextAnchor.MiddleCenter,
                 normal = { textColor = canInteract ? IMGUIStyles.PaperInk : IMGUIStyles.PaperTextDisabled } };
             IMGUIStyles.DrawLabel(rect, text, style);
-            if (!canInteract || !ui.WasTapped(rect)) return false;
+            if (!canInteract || !ui.WasClicked(rect)) return false;
             Event.current.Use();
             return true;
         }

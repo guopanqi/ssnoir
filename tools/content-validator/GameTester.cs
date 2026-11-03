@@ -124,6 +124,25 @@ namespace SSNoir.Testing
                 if (sceneManager.CurrentRootNode == null)
                     throw new InvalidDataException($"Scene '{sceneName}' produced an empty world.");
 
+                if (sceneName == "scenarios/第一次彩排" || sceneName == "scenarios/第一次彩排（短钟版）")
+                {
+                    string variable = sceneName == "scenarios/第一次彩排" ? "客演消息" : "消息";
+                    var report = new ActionReport();
+                    sceneManager.GameState.CurrentActionReport = report;
+                    try
+                    {
+                        var clockNode = NodeConverter.ConvertSingle(sceneManager.ActiveInterpreter.Eval(
+                            $"(begin ({variable} 'load! 3) (打听! 2) (clock-node \"兑换检查\" ({variable} 'render-data)))"),
+                            sceneManager.ActiveInterpreter.RawInterpreter);
+                        AssertEq("intelligence remainder", 1, clockNode.Resolve!.Clock!.Current);
+                        AssertEq("intelligence reset from full", 4, clockNode.Resolve.Clock.Reset.From);
+                        AssertEq("intelligence reset operation", 1, clockNode.Resolve.Clock.Reset.Sequence);
+                        AssertEq("intelligence awarded", 1, report.Effects.Single(e => e.Kind == ActionEffectKind.Item && e.Label == "情报").Delta);
+                        AssertEq("intelligence progress is positive", 1, report.Effects.Single(e => e.Kind == ActionEffectKind.Clock).Delta);
+                    }
+                    finally { sceneManager.GameState.CurrentActionReport = null; }
+                }
+
                 if (sceneName.StartsWith("scenarios/", StringComparison.Ordinal))
                     AssertScenarioCollapsePolicy(sceneManager, sceneName);
                 if (GameLanguage.Current == GameLanguage.English
@@ -262,7 +281,26 @@ namespace SSNoir.Testing
                         : direction == "increase" ? ActionEffectTone.Positive : ActionEffectTone.Neutral,
                     forward.Effects.Single().Tone);
             }
-            Console.WriteLine("[validate] clock priority / pressure DSL contract passed.");
+            var resetReport = new ActionReport();
+            scenes.GameState.CurrentActionReport = resetReport;
+            GameClock reset;
+            try
+            {
+                reset = Convert("(let ((c (make-clock \"重置检查\" 4 'gauge :beneficial-direction 'increase))) (c 'load! 3) (c 'advance! 1) (c 'reset! 1) (clock-node \"重置钟\" (clock-priority (c 'render-data) 'secondary)))").Resolve!.Clock!;
+            }
+            finally { scenes.GameState.CurrentActionReport = null; }
+            AssertEq("reset retains next round", 1, reset.Current);
+            AssertEq("reset preserves previous full value", 4, reset.Reset.From);
+            AssertEq("reset sequence survives priority", 1, reset.Reset.Sequence);
+            AssertEq("reset is not negative progress", 1, resetReport.Effects.Single().Delta);
+            var same = Convert("(let ((c (make-clock \"同值重置\" 4 'gauge))) (c 'reset!) (c 'reset!) (clock-node \"同值钟\" (c 'render-data)))").Resolve!.Clock!;
+            AssertEq("same-value resets are observable", 2, same.Reset.Sequence);
+            var loaded = Convert("(let ((c (make-clock \"读档重置\" 4 'gauge))) (c 'reset! 1) (c 'load! 3) (clock-node \"读档钟\" (c 'render-data)))").Resolve!.Clock!;
+            AssertEq("load does not replay reset", 0, loaded.Reset.Sequence);
+            AssertEq("load preserves value", 3, loaded.Current);
+            AssertThrowsAny(() => Convert("(let ((c (make-clock \"错误重置\" 4 'gauge))) (c 'reset! 5) (clock-node \"错\" (c 'render-data)))"), "reset above maximum");
+            AssertThrowsAny(() => Convert("(let ((c (make-clock \"错误重置\" 4 'gauge))) (c 'reset! 0 1) (clock-node \"错\" (c 'render-data)))"), "reset extra argument");
+            Console.WriteLine("[validate] clock priority / pressure / reset DSL contract passed.");
         }
 
         private static void AssertButtonTextDsl(SceneManager scenes)
@@ -519,7 +557,7 @@ namespace SSNoir.Testing
                 var deferredActor = deferred.Team.FindActor("player")!;
                 AssertEq("deferred initial lock", 0, deferredActor.IssuedInjuryDieLoss);
                 deferredScenes.StartScenario("失控的机械");
-                deferred.Team.Injure(1);
+                deferred.Team.Injure(Injury.FirstActionSlotLossThreshold);
                 AssertEq("scenario injury does not alter current hand", 4, deferredActor.ActionDice.Count);
                 AssertEq("scenario current hand still unlocked", 0, deferredActor.IssuedInjuryDieLoss);
                 deferredScenes.EndScenario();
@@ -536,12 +574,12 @@ namespace SSNoir.Testing
                 var deferredLoadedScenes = new SceneManager(deferredLoaded, new LocalScriptLoader());
                 deferredLoadedScenes.LoadGame(savePath);
                 var deferredLoadedActor = deferredLoaded.Team.FindActor("player")!;
-                AssertEq("pending injury persists", 1, deferredLoaded.Team.Injury.Severity);
+                AssertEq("pending injury persists", Injury.FirstActionSlotLossThreshold, deferredLoaded.Team.Injury.Severity);
                 AssertEq("pending injury does not eat restored world dice", 4, deferredLoadedActor.ActionDice.Count);
                 AssertEq("pending injury preserves hand lock", 0, deferredLoadedActor.IssuedInjuryDieLoss);
                 deferredLoaded.Team.RollActionDice(isInScenario: false);
                 AssertEq("injury applies after restored roll", 3, deferredLoadedActor.ActionDice.Count);
-                deferredLoaded.Team.HealInjury(1);
+                deferredLoaded.Team.HealInjury(Injury.FirstActionSlotLossThreshold);
                 AssertEq("healing keeps current hand locked", 1, deferredLoadedActor.IssuedInjuryDieLoss);
                 deferredLoadedScenes.SaveGame(savePath);
                 var recoveredLoaded = new GameState();
@@ -789,6 +827,13 @@ namespace SSNoir.Testing
             collapseState.Inventory.SetCount("金钱", GameState.CollapseTreatmentFee);
             collapseState.Team.Injure(Injury.MaxSeverity);
             AssertEq("injury collapse at threshold", Injury.PostCollapseSeverity, collapseState.Team.Injury.Severity);
+            AssertEq("hospitalization explicitly resets injury", 1, collapseState.Team.Injury.ResetSequence);
+            collapseState.Team.Injure(2);
+            collapseState.Team.HealInjury(2);
+            AssertEq("ordinary healing preserves reset sequence", 1, collapseState.Team.Injury.ResetSequence);
+            var restoredInjury = new Injury();
+            restoredInjury.Restore(0, "");
+            AssertEq("restored injury does not replay hospitalization", 0, restoredInjury.ResetSequence);
             AssertEq("collapse resets composure", 0, collapseState.Team.FindActor("player")!.Composure);
             AssertEq("collapse leaves permanent scar", 1, collapseState.Team.Scars.Count);
             AssertEq("injury collapse treatment fee", 0, collapseState.Inventory.GetCount("金钱"));
@@ -821,7 +866,7 @@ namespace SSNoir.Testing
             AssertEq("premature end keeps scenario active", "核赔", prematureExitManager.CurrentSceneName);
 
             // Scenario中倒下：核赔声明为可重试，所以不调用城市回调；但仍结束当天、发放新日骰池，
-            // 并按 EnterPlace → Spotlight 的顺序要求客户端在诊所醒来。
+            // 并按现场 Spotlight → 黑场落到诊所 → 醒来 Spotlight 的顺序播放。
             var scenarioCollapseState = new GameState();
             scenarioCollapseState.Inventory.SetCount("金钱", GameState.CollapseTreatmentFee);
             var scenarioCollapseManager = new SceneManager(scenarioCollapseState, new LocalScriptLoader());
@@ -840,17 +885,18 @@ namespace SSNoir.Testing
             AssertEq("collapse pending consumed", false, scenarioCollapseState.HasPendingHospitalization);
             AssertEq("collapse wakes with city dice", true,
                 scenarioCollapseState.Team.FindActor("player")!.ActionDice.Count > 0);
-            int enterPlaceIndex = hospitalizationReport.PostSceneBlockingSteps.FindIndex(
-                step => step.Kind == BlockingStoryStepKind.EnterPlace && step.PlaceName == "诊所");
-            int collapseSpotlightIndex = hospitalizationReport.PostSceneBlockingSteps.FindIndex(
+            int collapseSpotlightIndex = hospitalizationReport.BlockingStorySteps.FindIndex(
                 step => step.Kind == BlockingStoryStepKind.Spotlight && step.Spotlight?.Title == "你倒下了");
-            AssertEq("collapse report enters clinic", true, enterPlaceIndex >= 0);
+            AssertEq("collapse report enters clinic", "诊所", hospitalizationReport.WakePlaceName);
+            AssertEq("collapse spotlight remains at incident", true, collapseSpotlightIndex >= 0);
+            AssertEq("collapse uses next-day black transition", true, hospitalizationReport.TurnEnded);
             AssertEq("collapse day-end event waits for clinic", false,
                 hospitalizationReport.BlockingStorySteps.Any(
                     step => step.Spotlight?.Title == "日终事件测试"));
             AssertEq("collapse day-end event follows hospitalization", true,
                 hospitalizationReport.PostSceneBlockingSteps.FindIndex(
-                    step => step.Spotlight?.Title == "日终事件测试") > collapseSpotlightIndex);
+                    step => step.Spotlight?.Title == "日终事件测试") > hospitalizationReport.PostSceneBlockingSteps.FindIndex(
+                    step => step.Spotlight?.Title == "在诊所醒来"));
             // 调试界面用 GoToLocation 直载Scenario。结束过上一场后再直载，也必须能倒下退场。
             var directLoadState = new GameState();
             var directLoadManager = new SceneManager(directLoadState, new LocalScriptLoader());
@@ -862,7 +908,7 @@ namespace SSNoir.Testing
             directLoadState.Team.SpendComposure("player", TeamState.MaxComposure);
             directLoadManager.EndTurn();
             AssertEq("directly loaded scenario exits on collapse", "world", directLoadManager.CurrentSceneName);
-            AssertEq("collapse spotlight follows clinic", true, collapseSpotlightIndex > enterPlaceIndex);
+            AssertEq("clinic wake message follows black landing", "在诊所醒来", hospitalizationReport.PostSceneBlockingSteps[0].Spotlight!.Title);
 
             // Scenario自己的结局先在旧场景播；世界回调的话要等世界快照采纳后再播。
             var boundaryState = new GameState();

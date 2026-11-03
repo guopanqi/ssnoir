@@ -1,0 +1,17 @@
+/* 实验工作台：一次只展示一个实验的控制项。 */
+.lab-heading{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;color:#b9b5a9;font-size:12px;letter-spacing:2px}
+.lab-heading small{color:#777c81;letter-spacing:0}
+.lab-nav{display:flex;gap:8px;align-items:center;border-bottom:1px solid #45484c;padding-bottom:14px;margin-bottom:18px}
+.lab-nav a{padding:8px 13px;text-decoration:none;color:#c4c3b9}
+#dialogue-lab{display:none}
+.dialogue-mode #dialogue-lab{display:block}
+.dialogue-mode .action-only{display:none}
+.lab-settings{margin-bottom:16px;border-bottom:1px solid #35393f}
+.lab-settings summary{cursor:pointer;color:#aaa99e;padding:8px 0 12px}
+.lab-settings .toolbar{padding-top:10px}
+#viewport{overflow:clip}
+.dialogue-mode .dialogue-panel-top{display:none}
+.dialogue-mode .dialogue-panel{padding-top:16px}
+.dialogue-mode .dialogue-bottom .dialogue-panel{padding-top:22px}
+
+.lab-nav a[aria-current="page"]{color:var(--gold);border-bottom:1px solid var(--gold)}

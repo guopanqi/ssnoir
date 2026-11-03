@@ -1,0 +1,5 @@
+OK: D6不论此前相识与否都建立夜莺关系
+System.Exception: D6到D8保留固定赴约并自然出现经理机会
+   at SSNoir.Testing.SecondActV02Checks.<Run>g__Check|0_2(Boolean x, String m) in /Users/usr/Documents/play/ssnoir/tools/content-validator/SecondActV02Checks.cs:line 22
+   at SSNoir.Testing.SecondActV02Checks.Run() in /Users/usr/Documents/play/ssnoir/tools/content-validator/SecondActV02Checks.cs:line 103
+   at SSNoir.Program.Main(String[] args) in /Users/usr/Documents/play/ssnoir/tools/content-validator/Program.cs:line 35

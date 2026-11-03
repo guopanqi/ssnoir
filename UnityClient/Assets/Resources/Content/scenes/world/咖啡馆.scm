@@ -28,7 +28,7 @@
               (outcome (lambda () (work-result! 10 '好 1)))
               (outcome (lambda () (work-result! 4 '中 0)))
               (outcome (lambda () (work-result! 0 '坏 0)))
-              "一骰帮工；顺利恢复1冷静，每日一次；失手没有工资"
+              "端咖啡、收拾桌子。工资较少，但有时后厨有些点心吃。"
               :anchor "咖啡馆帮工"
               :progress-target (list 'item "金钱")))
           '()))

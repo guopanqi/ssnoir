@@ -6,7 +6,7 @@
 (define equipment (make-clock "A1：核对设备" 6 'gauge "满6取得加工结果；订单路线难度再降低1。"))
 (define permission (make-clock "B：争取查账" 6 'gauge "满6店主提供候选订单，开放订单核对；加工路线难度降低1。"))
 (define records (make-clock "B1：核对订单" 6 'gauge "满6取得订单结果；加工路线难度再降低1。"))
-(define suspicion (make-clock "店主戒心" 7 'gauge "满7结束交涉；每个坏结果扣冷静1，并增加戒心。两条路线都完成才取得来源线索。"))
+(define suspicion (make-clock "店主戒心" 7 'gauge "满7结束交涉；每个坏结果扣心情1，并增加戒心。两条路线都完成才取得来源线索。"))
 (define (a-help) (+ (if (paper 'full?) 1 0) (if (equipment 'full?) 1 0)))
 (define (b-help) (+ (if (permission 'full?) 1 0) (if (records 'full?) 1 0)))
 (define (tier)
@@ -89,8 +89,8 @@
              (append (clock-nodes (paper 'render-data))
                (list (investigation-group "照相馆-加工组内进度" "加工比对" "照相馆交涉-相纸台"
                  (paper 'render-data)
-                 (list (action-node "核对相纸" "按规格与批次比对；坏扣冷静1、戒心1" 'knowledge 'A #f)
-                       (action-node "辨认压纹" "细看背面与边缘；坏扣冷静1、戒心1" 'sharpness 'A #f))))))
+                 (list (action-node "核对相纸" "按规格与批次比对；坏扣心情1、戒心1" 'knowledge 'A #f)
+                       (action-node "辨认压纹" "细看背面与边缘；坏扣心情1、戒心1" 'sharpness 'A #f))))))
             ((not (equipment 'full?))
              (append (clock-nodes (equipment 'render-data))
                (list (investigation-group "照相馆-加工组内进度" "加工比对" "照相馆交涉-相纸台"
@@ -102,13 +102,13 @@
              (append (clock-nodes (permission 'render-data))
                (list (investigation-group "照相馆-订单组内进度" "订单追查" "照相馆交涉-柜台"
                  (permission 'render-data)
-                 (list (action-node "解释查账" "说明勒索；中戒心1，坏冷静1、戒心2" 'social 'B #t)
-                       (action-node "限定查询" "说明只查规格日期；坏冷静1、戒心1" 'knowledge 'B #f))))))
+                 (list (action-node "解释查账" "说明勒索；中戒心1，坏心情1、戒心2" 'social 'B #t)
+                       (action-node "限定查询" "说明只查规格日期；坏心情1、戒心1" 'knowledge 'B #f))))))
             ((not (records 'full?))
              (append (clock-nodes (records 'render-data))
                (list (investigation-group "照相馆-订单组内进度" "订单追查" "照相馆交涉-柜台"
                  (records 'render-data)
                  (list (action-node "核对登记" "从候选单比对数量与时间" 'knowledge 'B1 #f)
-                       (action-node "追问取件" "请店主回忆取件；中戒心1，坏冷静1、戒心2" 'social 'B1 #t))))))
+                       (action-node "追问取件" "请店主回忆取件；中戒心1，坏心情1、戒心2" 'social 'B1 #t))))))
             (else (list (note-node "标注：订单成果" "订单结果已取得" "匿名订单：小幅六张，星期二傍晚取件。取件人是染金发的年轻男人，邮务制服不合身；姓名未知。"))))
       )))

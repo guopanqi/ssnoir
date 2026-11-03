@@ -4,6 +4,7 @@
   (let ()
     ;; 未立卷 / 放消息 / 等报纸 / 待看报 / 待尾随 / 已解决 / 失败
     (define 状态 "未立卷")
+    (define 早报消息已读? #f)
     (define 已关闭? #f)
     (define 比信更早-立卷? #f)
     (define 记者已查登记? #f)
@@ -89,8 +90,7 @@
                 (begin
                   (set! 状态 "待看报")
                   (journal 'add! "两天后的早报从门缝下塞了进来。两个版本中有一个已经登了出来。")
-                  (spotlight! "等的早报到了"
-                    "两天后的早报塞在门缝下面。你还没拆开；回家看看它采用了哪个版本。"))
+                  #t)
                 #f))
           #f))
 
@@ -269,7 +269,10 @@
       (let ((msg (car args)))
         (cond
           ((equal? msg 'nodes-at) (节点 (cadr args)))
-          ((equal? msg 'arrivals-at) '())
+          ((equal? msg 'arrivals-at)
+           (if (and (member? (cadr args) '("家" "世界")) (equal? 状态 "待看报") (not 早报消息已读?))
+             (list (arrival "等的早报到了" (lambda () (set! 早报消息已读? #t)
+               (spotlight! "等的早报到了" "订的早报已经送到旅馆。可以回房间看看它采用了哪个版本。")))) '()))
           ((equal? msg 'dossier) (dossier-entries))
           ((equal? msg 'on-day-start!) (on-day-start!))
           ((equal? msg 'open!) (开卷!))
@@ -279,7 +282,7 @@
           ((equal? msg 'knows-truth?) 比信更早-立卷?)
           ((equal? msg 'mystery-open?) 比信更早-立卷?)
           ((equal? msg 'save)
-           (list (list "state" 状态)
+           (list (list "paper-news-read" 早报消息已读?) (list "state" 状态)
                  (list "theater-bait" (剧院消息 'save))
                  (list "hotel-bait" (酒店消息 'save))
                  (list "newspaper-wait" (等早报 'save))
@@ -290,6 +293,7 @@
                  (list "journal" (journal 'save))))
           ((equal? msg 'load!)
            (let ((data (cadr args)))
+             (set! 早报消息已读? (assoc-get data "paper-news-read" #f))
              (set! 状态 (assoc-get data "state" "未立卷"))
              (剧院消息 'load! (assoc-get data "theater-bait" 0))
              (酒店消息 'load! (assoc-get data "hotel-bait" 0))

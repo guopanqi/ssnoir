@@ -55,7 +55,7 @@
     (list (note-node "工钱处境" "现在的局面"
       (if 退缩? "年轻工人担心失业，不愿当面作证。你得找到其他凭证。" "先核实工时；工头正在催着关账。")))
     (if (not 退缩?)
-      (list (node "核对工时簿" :subtitle "查底账；失败冷静-1"
+      (list (node "核对工时簿" :subtitle "查底账；失败心情-1"
           :risk '稳妥 :progress-target (list 'clock "核清工时")
           :risk-target (list 'composure "player") :requires (list (req-die))
           :resolve (roll 'sharpness

@@ -16,11 +16,13 @@ CityBox 以 Blender 为唯一媒介，**Prefab 是唯一的单位**。约定与�
 
 ## 接入顺序
 
+以下构建与发布步骤只在用户明确要求当次接入／发布或指定的空闲时段执行。日常修改、修复以 Blender 源和单体预览交付，不因模型已完成就自动覆盖 Unity Assets。完成源修改、预览及必要构建后，按授权直接发布，不因 Unity 资源导入追加二次确认。
+
 1. 做出 `prefabs/<名>.blend`：带 Anchor 的 Prefab，名 = 主锚点对应的 Scheme 节点 `Id`；放 `Anchor_<名>`、`Camera_<名>`（50mm 透视，custom prop `drag = "orbit" | "pan" | "static"`）；orbit 配 `OrbitPivot_<名>`，pan 配贴地框 `PanBounds_<名>`（`pan_bounds_for`），static 什么都不配。
 2. 单体预览，直到形体和机位对：`blender -b --python pipeline/preview.py -- <名> [--clay]`。
 3. 放进城市：顶层地点在 `city.blend` 里加实例；依附别的地点的场景（酒馆后巷）在那个地点的 Prefab 里 instance，并把父 Prefab 的 `footprint`/`footprint_offset` 扩到能盖住它。
 4. 内容成立后才做整城组合审阅：`./build.sh --no-publish --render --focus <名>`；Pan 机位可加 `--pan <名>` 看四角极限画面。日常形体、动作和机位调整仍用单体 Blender 预览，不每轮导出全城。新增或改动布局要用户确认整城预览。
-5. 已有顶层 Prefab 的日常模型、动作、机位或空间声明修改，使用 `./build.sh --prefab <名...>` 局部构建发布；依赖范围与限制见 `city-box/README.md` 的「局部构建」。嵌套件指定所属顶层，共享道具指定全部受影响地点；布局、footprint、共享规则或新增/删除地点仍完整构建。
+5. 获准发布已有顶层 Prefab 的模型、动作、机位或空间声明修改时，使用 `./build.sh --prefab <名...>` 局部构建发布；依赖范围与限制见 `city-box/README.md` 的「局部构建」。嵌套件指定所属顶层，共享道具指定全部受影响地点；布局、footprint、共享规则或新增/删除地点仍完整构建。
 6. 发布已审阅且源文件未再改变的构建：`python3 pipeline/publish.py`，复用上一步产物，不再次执行 `./build.sh`。若尚未构建或源文件已改变，执行一次 `./build.sh`。发布保留 `.meta`，内容相同的文件不覆盖，减少无效重导入。
 
 ## 描线与外观

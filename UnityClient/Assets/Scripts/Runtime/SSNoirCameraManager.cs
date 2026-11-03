@@ -11,6 +11,7 @@ namespace SSNoir
         private FocusTravelPath _activeFocusPath;
 
         private const float NavigationDuration = 0.42f;
+        private bool _focusTravelEaseOut = true;
 
         // How far the pointer must travel before a press counts as taking the camera.
         // Below it the press is a click on the world, and a click must never stop a
@@ -1225,7 +1226,7 @@ namespace SSNoir
                 config != null && config.dragMode == CameraDragMode.Pan,
                 config != null ? config.minPitch : 16f, config != null ? config.maxPitch : 35f,
                 config != null && config.modelRoot != null ? config.modelRoot.lossyScale.x : 1f,
-                startFieldOfView, targetFieldOfView, path, duration, redirectedStart.HasValue);
+                startFieldOfView, targetFieldOfView, path, duration, redirectedStart.HasValue, MotionSettings.FocusEaseOut);
             if (plan == null)
                 return false;
             var travelVolume = config != null ? config.TravelVolume : null;
@@ -1241,7 +1242,9 @@ namespace SSNoir
             targetPosition = Unity(plan.End);
             targetRotation = Unity(plan.EndRotation);
             path = plan.Path;
-            duration = plan.Duration;
+            duration = plan.Duration / MotionSettings.FocusSpeedMultiplier
+                * _gameManager.FocusTravelDurationMultiplier;
+            _focusTravelEaseOut = plan.EaseOut;
             transitionDuration = duration;
             _activeFocusPath = path;
             if (durationOverride.HasValue)
@@ -1478,7 +1481,7 @@ namespace SSNoir
         private static Vector3 Unity(System.Numerics.Vector3 v) => new Vector3(v.X, v.Y, v.Z);
         private static Quaternion Unity(System.Numerics.Quaternion q) => new Quaternion(q.X, q.Y, q.Z, q.W);
 
-        private float EaseFocusTravel(float t) => FocusTravelMath.Ease(t, _activeFocusPath);
+        private float EaseFocusTravel(float t) => FocusTravelMath.Ease(t, _activeFocusPath, _focusTravelEaseOut);
 
         private static void SampleDirectApproachPose(
             Vector3 startPosition, Vector3 targetPosition,

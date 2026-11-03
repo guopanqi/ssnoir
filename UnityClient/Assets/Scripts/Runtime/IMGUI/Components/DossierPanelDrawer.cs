@@ -482,7 +482,7 @@ namespace SSNoir.IMGUI
                     normal = { textColor = isPinned ? IMGUIStyles.SealRed : IMGUIStyles.PaperTextSecondary }
                 };
                 IMGUIStyles.DrawLabel(pinRect, isPinned ? "◆" : "◇", pinStyle);
-                if (ui.WasTapped(pinScreen))
+                if (ui.WasClicked(pinScreen))
                 {
                     toggledPin = e.Id;   // 钉住 ↔ 取消
                     Event.current.Use();
@@ -543,7 +543,7 @@ namespace SSNoir.IMGUI
                     IMGUIStyles.DrawLabel(moreRect,
                         expanded ? "收起 ▴" : $"记录 {e.Log.Count} 条 ▾",
                         new GUIStyle(MetaStyle()) { alignment = TextAnchor.MiddleRight });
-                    if (ui.WasTapped(moreScreen))
+                    if (ui.WasClicked(moreScreen))
                     {
                         toggledExpand = e.Id;
                         Event.current.Use();
@@ -668,13 +668,14 @@ namespace SSNoir.IMGUI
                 // 刚退掉的那一扇先画成白的余像再淡掉：看得见是哪一块走了，不只是中心的数字换了。
                 if (ClockPulse.TryGetFadingLoss(clock, out int previous, out float ghost))
                     ShapeDrawer.DrawDial(dialRect, previous, clock.Max, new Color(1f, 1f, 1f, ghost), track);
-                ShapeDrawer.DrawDial(dialRect, clock.Current, clock.Max, activeColor,
+                ShapeDrawer.DrawDial(dialRect, ClockPulse.VisualCurrent(clock), clock.Max,
+                    new Color(activeColor.r,activeColor.g,activeColor.b,activeColor.a*ClockPulse.VisualOpacity(clock)),
                     ghost > 0f ? Color.clear : track);
 
                 var centerStyle = new GUIStyle(IMGUIStyles.ClockValue)
                 {
                     // 环细了之后中心的空大了一圈，数字可以比第一版大一号。
-                    fontSize = IMGUIStyles.FontSize(clock.Current >= 10
+                    fontSize = IMGUIStyles.FontSize(ClockPulse.VisualCurrent(clock) >= 10
                         ? (compact ? 10 : 11)
                         : (compact ? 11 : 13)),
                     alignment = TextAnchor.MiddleCenter,
@@ -682,7 +683,7 @@ namespace SSNoir.IMGUI
                     normal = { textColor = CardDrawer.ClockColor(clock) }
                 };
                 IMGUIStyles.ApplyStrongFont(centerStyle);
-                IMGUIStyles.DrawInkCenteredText(dialRect, clock.Current.ToString(), centerStyle);
+                IMGUIStyles.DrawInkCenteredText(dialRect, ClockPulse.VisualCurrent(clock).ToString(), centerStyle);
             }
             else if ((clock.Style == ClockStyle.Gauge || clock.Style == ClockStyle.Pressure))
             {
@@ -716,7 +717,7 @@ namespace SSNoir.IMGUI
                     clipping = TextClipping.Clip,
                     normal = { textColor = CardDrawer.ClockColor(clock) }
                 };
-                IMGUIStyles.DrawLabel(valueRect, $"{clock.Current}/{clock.Max}", valueStyle);
+                IMGUIStyles.DrawLabel(valueRect, $"{ClockPulse.VisualCurrent(clock)}/{clock.Max}", valueStyle);
             }
 
             if (pop > 0f)
@@ -727,7 +728,7 @@ namespace SSNoir.IMGUI
 
         private static float MeasureNodeClockValueWidth(GameClock clock, bool compact = false)
         {
-            string fraction = $"{clock.Current}/{clock.Max}";
+            string fraction = $"{ClockPulse.VisualCurrent(clock)}/{clock.Max}";
             return clock.Style switch
             {
                 ClockStyle.Countdown => compact ? CompactDialDiameter : DialDiameter,

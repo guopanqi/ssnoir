@@ -59,7 +59,8 @@
     (define 新港计划-第几天 9)
 
     ;; ── 状态 ────────────────────────────────────────
-    (define 阶段 "未开始")        ; 未开始 / A / B
+    (define 阶段 "未开始")
+    (define 计划消息已读? #f)        ; 未开始 / A / B
     (define 起始日 0)             ; 第一章结案的次日；0＝还没开始
     (define 阶段起始日 0)
     ;; 城市主轴三张卡各自一份履历；写的时候点名（'log! 标题 正文）。
@@ -89,13 +90,7 @@
             (set! 阶段起始日 world-day)
             (机器进入老街 'announce!)
             (log! "机器进入老街" "新港计划正式通过。第一批设备下周进入老码头。")
-            (play-remote-dialogue!
-              (line "世界" "天刚亮，报童的喊声从街口一直追到窗下。")
-              (line "报童" "新港计划通过！第一批机器下周就进老码头！")
-              (line "世界" "公告列出了封闭泊位、调岗和培训的日期。")
-              (line "尼尔" "以前他们谈的是计划。现在纸上有日子了。"))
-            (spotlight! "六天后"
-              "第一批设备将在六天后进入老码头。城市已经开始为那一天腾地方。"))
+            #t)
           (error "第二章：只能从 A 进入 B")))
 
     (define (进入阶段-A!)
@@ -108,7 +103,7 @@
 
     ;; ── 新日开始 ────────────────────────────────────
     ;; 世界日终先推进日期；新骰与每日额度发放后，由 on-turn-start 调到这里。
-    ;; 因此“今早 / 今天 / 今晚”的事件都在睡眠黑幕亮起后出现。
+    ;; 这里推进真实状态；消息按地点入场告知，不默认在任何醒来地点广播。
     (define (on-day-start!)
       ;; 城市主轴上的世界变化：到日子就发生，不看玩家做过什么。
       (if (and (equal? 阶段 "A")
@@ -143,7 +138,17 @@
         (cond
           ;; 三条汇总全部走事件表，章节内部不再各写一份名单。
           ((equal? msg 'nodes-at) (收集内容 (事件们) 'nodes-at (cadr args)))
-          ((equal? msg 'arrivals-at) (收集内容 (事件们) 'arrivals-at (cadr args)))
+          ((equal? msg 'arrivals-at)
+            (append
+              (if (and (equal? (cadr args) "世界") (equal? 阶段 "B") (not 计划消息已读?))
+                (list (arrival "新港计划公布消息" (lambda ()
+                  (set! 计划消息已读? #t)
+                  (play-dialogue!
+                    (line "世界" "街口的报童举着当天的报纸。")
+                    (line "报童" "新港计划通过！第一批机器要进老码头了！")
+                    (line "世界" "公告列出了封闭泊位、调岗和培训的日期。")
+                    (line "尼尔" "以前他们谈的是计划。现在纸上有日子了。"))))) '())
+              (收集内容 (事件们) 'arrivals-at (cadr args))))
           ((equal? msg 'dossier) (append (主线卷宗) (收集内容-无参 (事件们) 'dossier)))
           ((equal? msg 'on-day-start!) (on-day-start!))
           ((equal? msg 'started?) (开始了?))
@@ -183,13 +188,14 @@
           ((equal? msg 'log!) (log! (cadr args) (caddr args)))
           ((equal? msg 'save)
            (append
-             (list (list "phase" 阶段)
+             (list (list "plan-news-read" 计划消息已读?) (list "phase" 阶段)
                    (list "start-day" 起始日)
                    (list "phase-start-day" 阶段起始日)
                    (list "journals" (map (lambda (j) (list (car j) ((cadr j) 'save))) journals)))
              (map (lambda (row) (list (car row) ((cadr row) 'save))) (事件表))))
           ((equal? msg 'load!)
            (let ((data (cadr args)))
+             (set! 计划消息已读? (assoc-get data "plan-news-read" #f))
              (set! 阶段 (assoc-get data "phase" "未开始"))
              (set! 起始日 (assoc-get data "start-day" 0))
              (set! 阶段起始日 (assoc-get data "phase-start-day" 0))

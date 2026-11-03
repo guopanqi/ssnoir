@@ -10,6 +10,7 @@ namespace SSNoir.Core
         public Dictionary<string, object> Settings { get; set; } = new();
         public TeamSaveData Team { get; set; } = new();
         public Dictionary<string, int> Inventory { get; set; } = new();
+        public Dictionary<string, int> ActionUseDays { get; set; } = new();
         public object? WorldData { get; set; }
     }
 

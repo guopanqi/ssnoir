@@ -122,6 +122,10 @@ the same project"。先 `pgrep -lf "Unity.app/Contents/MacOS/Unity"` 看一眼�
 
 **4. 都不行**：静态审阅，明说"未编译验证"，请用户切回 Unity 触发一次编译。
 
+## 动画导入性能与输出等价性
+
+修改 `SSNoirModelImporter.OnPostprocessAnimation` 的性能时，先在 [动画导入对照工具](animation-import-review/README.md) 的私有缓存中测代表资源，再比对完整曲线与关键帧摘要。按导入器回调和单 FBX 导入分别计时，不能把首次启动、编译或快照写出混进动画处理耗时。输出未改变的纯性能优化不递增序列化版本来强迫全量重导。
+
 ## Unity 验证边界
 
 - 3D场景与动画的日常设计循环在 Blender 完成。由 Agent 审查朝向、接触、穿插、首尾姿态、描线跟随和循环；Unity 不作为每轮修改的前置检查。
@@ -162,3 +166,7 @@ the same project"。先 `pgrep -lf "Unity.app/Contents/MacOS/Unity"` 看一眼�
 调整 `CameraTravelBounds_<地点>` 的尺寸或机位时，默认只做 Blender 几何检查；向游戏交付时走 CityBox 构建、契约及发布物检查，不因此额外启动 Unity。新增或修改绑定/换算实现、出现两端差异时，才用 `tools/camera-review/verify_unity.py` 做最小导入核对；目前覆盖巷战 8 台机位，不覆盖 Play Mode。共享同一份 C# 已证明的曲线计算不在 Unity 中重复验证；轴向、FOV 和导入绑定属于另一层证据。
 
 可移出 Unity 的是确定性计算和数据契约：复用正式 C# 源文件运行命令行检查，或在 Blender 检查源几何。不要在 Python、测试工具里重写正式算法来冒充等价验证。GUI 实际排版、Shader/GPU 输出、Unity 导入后的曲线及播放行为不能靠纯计算证明；只有本次确实涉及它们时才付出对应检查成本。
+
+## 送医与每日入场
+
+`dotnet run --project tools/content-validator/SSNoir.ContentValidator.csproj -- --test-day-arrivals` 检查现场倒下报告、黑场诊所落点、次日骰池、新日钩子、房费到期待缴、回旅馆时按实际余额统一收租或锁门、待缴与已缴的读档接续，以及世界地图上的当天招工消息。客户端另做 Unity C# 编译；黑场、落点机位、提示顺序及新骰实际画面仍需 Play Mode 确认。

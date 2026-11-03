@@ -9,8 +9,8 @@
 (define 吊具 (make-clock "吊具检查" 3 'gauge "检查绳套、吊点与挂钩；完成后才能起吊。" :beneficial-direction 'increase))
 (define 落点 (make-clock "整理落货区域" 3 'gauge "移走杂货，留出接货和垫木的位置；完成后才能起吊。" :beneficial-direction 'increase))
 (define 防摆 (make-clock "辅助防摆准备" 2 'gauge "可选。完成后，两组工作允许相差两格；否则只允许一格。" :beneficial-direction 'increase))
-(define 前端 (make-clock "前端吊运" 8 'gauge "前端班组照顾驱动总成这一端，与后端一起起落、移运。" :beneficial-direction 'increase))
-(define 后端 (make-clock "后端吊运" 8 'gauge "后端班组照顾驱动总成另一端，与前端一起起落、移运。" :beneficial-direction 'increase))
+(define 前端 (make-clock "前端吊运" 6 'gauge "前端班组照顾驱动总成这一端，与后端一起起落、移运。" :beneficial-direction 'increase))
+(define 后端 (make-clock "后端吊运" 6 'gauge "后端班组照顾驱动总成另一端，与前端一起起落、移运。" :beneficial-direction 'increase))
 (define 摆动 (make-clock "重物摆动" 3 'pressure "满格立即紧急停吊，先重新稳定吊运，不能继续推进。" :beneficial-direction 'decrease))
 (define 危机 (make-clock "重新稳定吊运" 3 'gauge "重新检查受力、收紧导索；完成后摆动降至一格，恢复原进度。" :beneficial-direction 'increase))
 (define 时间 (make-clock "剩余工作时间" 6 'countdown "准备、吊运和停吊共用六回合。回合末减一；归零未落地则延期卸载。" :beneficial-direction 'increase))
@@ -95,8 +95,8 @@
   (lambda ()
     (摆动 'advance! 1)
     (play-motion! "联合起吊/重机"
-      (string-append (if (> (前端 'current) (后端 'current)) "FrontSway" "RearSway")
-        (number->string (摆动 'current))) "联合起吊-摆动")
+      (if (> (前端 'current) (后端 'current)) "FrontSway" "RearSway")
+      "联合起吊-摆动")
     (if (摆动 'full?) (检查吊运!)
       (play-dialogue! (line "艾迪" "慢一点！让另一边接上，别抢着拉。")))))
 (define-opponent-rule "本班时间流逝"
@@ -133,7 +133,7 @@
 (define (吊运节点 id 钟 技能 快? 锚点)
   (node id :anchor 锚点 :risk (if 快? '冒险 '稳妥)
     :disabled (钟 'full?)
-    :subtitle (if 快? "坏行动者冷静−1，中进1，好进3。" "坏无进展，中进1，好进2。")
+    :subtitle (if 快? "坏行动者心情−1，中进1，好进3。" "坏无进展，中进1，好进2。")
     :progress-target (list 'clock (cadr (钟 'render-data)))
     :requires (list (req-die))
     :resolve (roll 技能
@@ -158,7 +158,7 @@
   (append
     (clock-nodes (普通货物 'render-data))
     (list
-      (note-node "普通卸货说明" "普通劳动" "两种行动都卸同一批货，满4格进入下一阶段。此阶段不计工作时限，回合结束仍支付通常冷静代价。")
+      (note-node "普通卸货说明" "普通劳动" "两种行动都卸同一批货，满4格进入下一阶段。此阶段不计工作时限，回合结束仍支付通常心情代价。")
       (普通卸货行动 "搬运货箱" 'violence)
       (普通卸货行动 "协助挂索" 'sharpness))))
 (define (准备盘面)
@@ -207,7 +207,7 @@
         (else
           (append
             (clock-nodes (时间 'render-data))
-            (list (note-node "起吊回合规则" "工作规则" "回合结束支付通常冷静代价，剩余时间减1。准备完成立即起吊，沿用本回合剩余骰子。"))
+            (list (note-node "起吊回合规则" "工作规则" "回合结束支付通常心情代价，剩余时间减1。准备完成立即起吊，沿用本回合剩余骰子。"))
             (cond
               ((eq? 阶段 '准备) (准备盘面))
               ((eq? 阶段 '停吊) (停吊盘面))

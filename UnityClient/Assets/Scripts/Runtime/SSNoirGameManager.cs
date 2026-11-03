@@ -29,6 +29,7 @@ namespace SSNoir
     public class SSNoirGameManager : MonoBehaviour
     {
         private const string ReduceMotionSettingKey = "reduceMotion";
+        private const string FocusEaseOutSettingKey = "focusEaseOut";
         private const string DicePipsOnlySettingKey = "dicePipsOnly";
         private const string MusicVolumeSettingKey = "musicVolume";
         private const string SfxVolumeSettingKey = "sfxVolume";
@@ -60,6 +61,21 @@ namespace SSNoir
         [Header("Camera Drag Settings")]
         [Tooltip("Pan 拖拽：1 = 拖一像素地面走一像素（按视线落点距离换算），大于 1 更快。")]
         [SerializeField] private float panSpeedMultiplier = 1f;
+
+        [Header("镜头过渡")]
+        [Tooltip("进入、聚焦和返回的时长系数，越大越慢。1 保持默认 2 倍镜头速度，1.5 稍慢，2 恢复加速前时长。Play Mode 修改后，从下一次过渡生效。")]
+        [Min(0.01f)]
+        [SerializeField] private float focusTravelDurationMultiplier = 1.5f;
+        public float FocusTravelDurationMultiplier
+        {
+            get
+            {
+                if (focusTravelDurationMultiplier <= 0f || float.IsNaN(focusTravelDurationMultiplier)
+                    || float.IsInfinity(focusTravelDurationMultiplier))
+                    throw new InvalidOperationException("镜头过渡时长系数必须是大于 0 的有限数值。");
+                return focusTravelDurationMultiplier;
+            }
+        }
 
         private GameState _gameState = null!;
         private SceneManager _sceneManager = null!;
@@ -174,6 +190,7 @@ namespace SSNoir
         private readonly Dictionary<string, float> _latestVitalLossAt =
             new Dictionary<string, float>(StringComparer.OrdinalIgnoreCase);
         private int _lastInjurySeverity;
+        private int _lastInjuryResetSequence;
         private bool _vitalPulseBaselineReady;
 
         // 变化那一下整条读数的"弹"（0→1→0，给调用方缩放用）。眼睛先被条的动吸住，
@@ -262,7 +279,12 @@ namespace SSNoir
                         leadComposureQueueEnd = pulse.LastCellStartTime;
                 }
 
-                if (incoming.InjurySeverity != _lastInjurySeverity)
+                if (incoming.InjuryResetSequence != _lastInjuryResetSequence)
+                {
+                    // 送医是重置，不是治疗：清掉旧脉冲，健康直接显示恢复后的状态。
+                    _injuryPulse = null;
+                }
+                else if (incoming.InjurySeverity != _lastInjurySeverity)
                 {
                     bool worse = incoming.InjurySeverity > _lastInjurySeverity;
                     if (worse)
@@ -286,6 +308,7 @@ namespace SSNoir
             foreach (var actor in incoming.Actors)
                 _lastComposure[actor.Id] = actor.Composure;
             _lastInjurySeverity = incoming.InjurySeverity;
+            _lastInjuryResetSequence = incoming.InjuryResetSequence;
             _vitalPulseBaselineReady = true;
         }
 
@@ -632,7 +655,8 @@ namespace SSNoir
             // One owner per transition: once a Stage Portal has taken control,
             // regular navigation must not start a competing focus travel or
             // overwrite its camera priorities.
-            if (ShouldDeferFocusToPendingPortal()
+            if ((_stageController != null && _stageController.TurnDipActive)
+                || ShouldDeferFocusToPendingPortal()
                 || (_stageController != null && _stageController.IsTransitioning))
                 return;
 
@@ -1150,98 +1174,124 @@ namespace SSNoir
 
         private IEnumerator ExecuteRoutine(GameNode node)
         {
-            // 这里不再对骰子做第二道有效性检查。失效引用只在一个地方清：
-            // 采纳新快照的那一刻（AdoptLatestSnapshot → ClearUnavailableDiceReferences）。
-            // 玩家看见的卡槽和这里送出去的卡槽因此永远是同一份。
+            yield return RunPresentationFlow(ExecuteActionFlow(node), "动作结算失败");
+        }
+
+        private IEnumerator ExecuteActionFlow(GameNode node)
+        {
+            // 引擎一次完成计算；客户端随后只按本次报告和快照推进表现。
             var slots = GetSlotsForNode(node.Id) ?? new List<SlottedResource?>();
+            string sceneBefore = _sceneManager.CurrentSceneName;
+            string rootBefore = _sceneManager.CurrentRootNode?.Id ?? string.Empty;
+            var outgoingFocusCamera = CurrentFocusCamera;
+            ActionReport report = _sceneManager.ExecuteAction(node, slots);
+            var targetSnapshot = _sceneManager.LatestSnapshot;
+            var postTurnSteps = DetachPostTurnBlockingSteps(report);
+            _nodeSlots.Remove(node.Id);
+            _selectedResource = null;
+            bool contextChanged = !string.Equals(sceneBefore, _sceneManager.CurrentSceneName, StringComparison.OrdinalIgnoreCase)
+                || !string.Equals(rootBefore, targetSnapshot.RootNode?.Id ?? string.Empty, StringComparison.Ordinal);
+            if (contextChanged)
+                BeginIncomingFocusContext(outgoingFocusCamera);
 
+            // 早黑与动作表现允许并行，后面的落地步骤负责等黑幕完成。
+            bool dippedEarly = ShouldDipEarly(report);
+            if (dippedEarly)
+                StartCoroutine(_stageController.FadeOutForTurn());
+
+            yield return PlayActionPresentation(report, node.Id, node.Name);
+            yield return LandAfterTurnDip(report, dippedEarly,
+                () => CommitLatestSnapshotAtPresentationBoundary(contextChanged, targetSnapshot));
+            if (!string.IsNullOrEmpty(report.WakePlaceName)) yield return WaitForDiceSettle();
+            yield return PlaySceneEntryAfterArrival(report.PostSceneBlockingSteps);
+            if (report.TurnStartReport != null)
+                yield return PlayActionPresentation(report.TurnStartReport);
+            if (postTurnSteps.Count > 0)
+            {
+                yield return WaitForDiceSettle();
+                yield return PlayBlockingSteps(postTurnSteps);
+            }
+            if (report.TurnEnded && string.IsNullOrEmpty(report.WakePlaceName))
+                yield return PlayCurrentPlaceArrival();
+        }
+
+        private IEnumerator PlayCurrentPlaceArrival()
+        {
+            if (_displayedSnapshot.IsInScenario) yield break;
+            var place = _navigationStack.FirstOrDefault(node => node.IsPlace)?.Id ?? WorldRootNodeId;
+            var report = _sceneManager.EnterPlace(place);
+            if (report != null) yield return ArrivalFlow(report, _sceneManager.LatestSnapshot);
+            else AdoptLatestSnapshot();
+        }
+
+        // 只负责协程的锁与失败收尾，不定义新的任务或调度协议。
+        // 显式展开子协程，确保落地/等待阶段的异常也进入同一失败路径。
+        private IEnumerator RunPresentationFlow(IEnumerator flow, string failureLabel)
+        {
             _renderer.SetInputLocked(true);
-
-            bool done = false;
+            var pending = new Stack<IEnumerator>();
+            pending.Push(flow);
             try
             {
-                string sceneBefore = _sceneManager.CurrentSceneName;
-                string rootBefore = _sceneManager.CurrentRootNode?.Id ?? string.Empty;
-                var outgoingFocusCamera = CurrentFocusCamera;
-                ActionReport report = _sceneManager.ExecuteAction(node, slots);
-                var postTurnSteps = DetachPostTurnBlockingSteps(report);
-                var postSceneSteps = report.PostSceneBlockingSteps;
-                var turnStartReport = report.TurnStartReport;
-                _nodeSlots.Remove(node.Id);
-                _selectedResource = null;
-                bool sceneChanged = !string.Equals(sceneBefore, _sceneManager.CurrentSceneName, System.StringComparison.OrdinalIgnoreCase);
-                bool rootChanged = !string.Equals(rootBefore, _sceneManager.CurrentRootNode?.Id ?? string.Empty, System.StringComparison.Ordinal);
-                bool focusContextChanged = sceneChanged || rootChanged;
-                if (focusContextChanged)
-                    BeginIncomingFocusContext(outgoingFocusCamera);
-
-                // 家里的「睡觉」把 end-turn! 包在动作里，走的就是这条普通动作路径。
-                // 黑幕跟着执行一起起跑，不等演出播完。
-                bool dippedEarly = ShouldDipEarly(report);
-                if (dippedEarly)
-                    StartCoroutine(_stageController.FadeOutForTurn());
-
-                // 换了场景也照传动作名：结果停留在采纳快照之前就结束，不会漏到新场景的同名卡上；
-                // 宿主卡这时多半已经出镜，结果条会挂在屏幕中央的浮牌下。
-                _renderer.PlayPresentation(report, node.Id, node.Name, () =>
+                while (pending.Count > 0)
                 {
-                    // 对白、Spotlight、banter 等 UI 表现不会改相机；需要重新聚焦的只有两种：
-                    // 场景／阶段根节点变了，或者你所在的那个容器执行完就从树上消失了。
-                    Action land = () =>
+                    object? next = null;
+                    Exception? failure = null;
+                    bool moved = false;
+                    try
                     {
-                        // EnterPlace 阻塞步骤可能已经把快照采纳到最终落点；统一边界入口会
-                        // 识别这个情况，不重复清 UI，也不再启动第二趟镜头。
-                        CommitLatestSnapshotAtPresentationBoundary(focusContextChanged);
-                    };
-                    StartCoroutine(LandAfterTurnDip(report, dippedEarly, land, () =>
+                        moved = pending.Peek().MoveNext();
+                        if (moved) next = pending.Peek().Current;
+                    }
+                    catch (Exception ex)
                     {
-                        Action finishAfterScene = () =>
-                        {
-                            Action finish = () =>
-                            {
-                                if (postTurnSteps.Count > 0)
-                                    StartCoroutine(PlayPostTurnStepsAfterDiceSettle(postTurnSteps, () => done = true));
-                                else
-                                    done = true;
-                            };
-                            // 睡醒后的消息排在新场景内容之后，均使用已采纳的快照。
-                            if (turnStartReport != null)
-                                _renderer.PlayPresentation(turnStartReport, string.Empty, string.Empty, finish);
-                            else
-                                finish();
-                        };
-                        if (postSceneSteps.Count > 0)
-                            _renderer.PlayBlockingPresentation(postSceneSteps, finishAfterScene);
-                        else
-                            finishAfterScene();
-                    }));
-                });
+                        failure = ex;
+                    }
+                    if (failure != null)
+                    {
+                        Debug.LogError($"[Presentation] {failureLabel}: {failure}");
+                        _nodeSlots.Clear();
+                        ClearResourceDragState();
+                        _stageController.AbortTurnDip();
+                        EndIncomingFocusContext();
+                        MarkStateTainted(failureLabel, failure);
+                        yield break;
+                    }
+                    if (!moved)
+                    {
+                        (pending.Pop() as IDisposable)?.Dispose();
+                        continue;
+                    }
+                    if (next is IEnumerator nested)
+                        pending.Push(nested);
+                    else
+                        yield return next;
+                }
             }
-            catch (System.Exception ex)
+            finally
             {
-                Debug.LogError($"[ExecuteNodeAction] Exception during execution: {ex}");
-                ShowNotification($"执行异常: {ex.Message}");
-                // 异常是从引擎中途抛出来的：这一手可能已经改了一半状态（场景换了、骰池重掷了）。
-                // UI 痕迹可以清，游戏状态却不能假装已经恢复；下面会把当前会话标成 tainted，
-                // 只允许玩家从标题页重新开始或读档。
-                _nodeSlots.Clear();
-                ClearResourceDragState();
-                // 早黑是在演出之前起的；演出这头炸了，收尾那一半就永远不会跑，
-                // 不收黑幕玩家会留在一块黑屏里。
-                _stageController.AbortTurnDip();
-                // 演出没起来的话回调不会来，窗口期得在这里关掉，否则焦点相机会一直答着
-                // 那个再也不会被采纳的新场景镜头。
-                EndIncomingFocusContext();
-                MarkStateTainted("动作结算失败", ex);
-                done = true;
+                while (pending.Count > 0)
+                    (pending.Pop() as IDisposable)?.Dispose();
+                _renderer.SetInputLocked(false);
             }
+        }
 
+        private IEnumerator PlayActionPresentation(ActionReport report,
+            string actionNodeId = "", string actionName = "")
+        {
+            bool done = false;
+            _renderer.PlayPresentation(report, actionNodeId, actionName, () => done = true);
             while (!done)
-            {
                 yield return null;
-            }
+        }
 
-            _renderer.SetInputLocked(false);
+        private IEnumerator PlayBlockingSteps(IReadOnlyList<BlockingStoryStep> steps)
+        {
+            if (steps.Count == 0) yield break;
+            bool done = false;
+            _renderer.PlayBlockingPresentation(steps, () => done = true);
+            while (!done)
+                yield return null;
         }
 
         private void ResetSceneUiState()
@@ -1252,6 +1302,28 @@ namespace SSNoir
             _selectedResource = null;
             _focusedNodeId = string.Empty;
             _renderer?.ResetUiState();
+        }
+
+        // 所有空间交接都等到 Portal 和普通聚焦真正结束，才允许下一段演出接管镜头。
+        private IEnumerator WaitForSpatialArrival()
+        {
+            _stageController.ReconcileContext(storyDriven: LastSnapshotChangedRoot);
+            yield return _stageController.WaitForTransition();
+            var brain = Camera.main != null ? Camera.main.GetComponent<Cinemachine.CinemachineBrain>() : null;
+            while (_cameraManager.IsFocusTravelInFlight || (brain != null && brain.IsBlending))
+                yield return null;
+        }
+
+        private IEnumerator PlaySceneEntryAfterArrival(IReadOnlyList<BlockingStoryStep> steps)
+        {
+            yield return WaitForSpatialArrival();
+            yield return PlayBlockingSteps(steps);
+        }
+
+        private IEnumerator LandRoundPresentation(PresentationSnapshot snapshot)
+        {
+            CommitLatestSnapshotAtPresentationBoundary(true, snapshot);
+            yield return WaitForSpatialArrival();
         }
 
         /// <summary>
@@ -1346,10 +1418,12 @@ namespace SSNoir
         /// 这是一次真实的空间上下文变化，调用方必须据此重新聚焦相机：
         /// 否则人已经回到世界根，镜头还留在那个已经不存在的容器上。
         /// </returns>
-        public bool AdoptLatestSnapshot()
+        public bool AdoptLatestSnapshot() => AdoptSnapshot(_sceneManager.LatestSnapshot);
+
+        private bool AdoptSnapshot(PresentationSnapshot snapshot)
         {
             var previousInventory = _displayedSnapshot.Inventory;
-            var incomingInventory = _sceneManager.LatestSnapshot.Inventory;
+            var incomingInventory = snapshot.Inventory;
             if (_inventoryPulseBaselineReady)
             {
                 foreach (var item in incomingInventory)
@@ -1364,10 +1438,10 @@ namespace SSNoir
                 _inventoryPulseBaselineReady = true;
             }
 
-            UpdateVitalPulses(_sceneManager.LatestSnapshot);
+            UpdateVitalPulses(snapshot);
 
             string? previousRoot = _displayedSnapshot.RootNode?.Id;
-            _displayedSnapshot = _sceneManager.LatestSnapshot;
+            _displayedSnapshot = snapshot;
             LastSnapshotChangedRoot = !string.Equals(previousRoot, _displayedSnapshot.RootNode?.Id, StringComparison.Ordinal);
             ClearUnavailableDiceReferences(_displayedSnapshot);
             if (_displayedSnapshot.RootNode != null)
@@ -1529,6 +1603,7 @@ namespace SSNoir
                 _navigationStack.RemoveAt(_navigationStack.Count - 1);
                 ResolveNavigationStack();
 
+                UpdateCameraFocus();
                 // 退回世界层算一次到达（睡觉锁这类"你离开过"规则要听见它）；
                 // 中间层之间的返回不算，不要在这里调其他名字。
                 if (_navigationStack.Count == 0)
@@ -1538,9 +1613,7 @@ namespace SSNoir
                         PlayArrival(root.Id);
                 }
 
-                // The world root is a normal exploration destination: the same
-                // animated camera policy applies at every navigation depth.
-                UpdateCameraFocus();
+
             }
         }
 
@@ -1715,7 +1788,9 @@ namespace SSNoir
             {
                 var path = filePath ?? SaveManager.DefaultSavePath;
                 _sceneManager.Settings.Remove("language");
+                _sceneManager.Settings.Remove("doubleFocusSpeed");
                 _sceneManager.Settings[ReduceMotionSettingKey] = MotionSettings.ReduceMotion;
+                _sceneManager.Settings[FocusEaseOutSettingKey] = MotionSettings.FocusEaseOut;
                 _sceneManager.Settings[DicePipsOnlySettingKey] = HandPanelDrawer.ColorDicePipsOnly;
                 // Settings 只认 string/int/long/double/bool（见 SaveManager.WritePrimitive），
                 // 音量存 double，读出来也一定是 double。
@@ -1745,6 +1820,7 @@ namespace SSNoir
             {
                 ResetInventoryGainPulseBaseline();
                 _sceneManager.LoadGame(path);
+                _sceneManager.Settings.Remove("doubleFocusSpeed");
                 if (_sceneManager.Settings.TryGetValue(ReduceMotionSettingKey, out object savedReduceMotion))
                 {
                     if (savedReduceMotion is not bool reduceMotion)
@@ -1756,6 +1832,7 @@ namespace SSNoir
                 {
                     MotionSettings.ReduceMotion = MotionSettings.DefaultReduceMotion;
                 }
+                MotionSettings.FocusEaseOut = ReadBoolSetting(FocusEaseOutSettingKey, false);
                 if (_sceneManager.Settings.TryGetValue(DicePipsOnlySettingKey, out object savedDicePipsOnly))
                 {
                     if (savedDicePipsOnly is not bool dicePipsOnly)
@@ -1790,9 +1867,18 @@ namespace SSNoir
             ResetInventoryGainPulseBaseline();
             _sceneManager.ResetForNewGame();
             MotionSettings.ReduceMotion = MotionSettings.DefaultReduceMotion;
+            MotionSettings.FocusEaseOut = false;
             HandPanelDrawer.ColorDicePipsOnly = true;
             AudioVolumes.ResetToDefaults();
             _stateTainted = false;
+        }
+
+        private bool ReadBoolSetting(string key, bool fallback)
+        {
+            if (!_sceneManager.Settings.TryGetValue(key, out object saved)) return fallback;
+            if (saved is not bool value)
+                throw new System.IO.InvalidDataException($"Save setting '{key}' must be a boolean.");
+            return value;
         }
 
         private float ReadVolumeSetting(string key, float fallback)
@@ -1837,6 +1923,7 @@ namespace SSNoir
             _injuryPulse = null;
             _lastComposure.Clear();
             _lastInjurySeverity = 0;
+            _lastInjuryResetSequence = 0;
         }
 
         /// <summary>
@@ -2051,125 +2138,66 @@ namespace SSNoir
         private IEnumerator EndTurnRoutine()
         {
             _isEndingTurn = true;
-            _selectedResource = null;
-            // 一整天都翻篇了，上一次结算的残影没有理由跨过日界线。
-            // 这里不写 ?.：本方法下面就无条件用 _renderer 播休息演出，
-            // 加问号只会让可空分析认为它可能为 null，反而给那一行凭空造一条警告。
-            _renderer.ClearCardResidues();
-            // 和 ExecuteRoutine 一样锁到整段演出结束。以前这里不锁：黑幕落地之后、骰子
-            // 还在滚、auto-action 还没接管输入的那一两秒里，休息键是活的，再按一下就会在
-            // 上一回合的 auto-action 还挂着的时候再结一次回合，引擎状态从此对不上。
-            _renderer.SetInputLocked(true);
-
-            RoundTransitionFrame? frame = null;
-            Exception? failure = null;
-            try
-            {
-                frame = _sceneManager.BeginRoundTransition();
-            }
-            catch (Exception ex)
-            {
-                failure = ex;
-            }
-
-            while (failure == null && frame != null && !frame.IsFinished)
-            {
-                _activeRoundTransitionPhase = frame.Phase;
-                if (frame.Phase == RoundTransitionPhase.TimeTax)
-                {
-                    // 时间税和按下结束回合是同一拍：冷静条当场弹一下、掉一格，画面同时开始变冷。
-                    // 不等、不说话——这是你自己交出去的一手，不是别人做的事。
-                    AdoptRoundTransitionFrame();
-                    float until = Time.unscaledTime + 0.6f;
-                    while (Time.unscaledTime < until)
-                        yield return null;
-                }
-                else if (frame.Phase == RoundTransitionPhase.NewDice)
-                {
-                    AdoptRoundTransitionFrame();
-                    yield return null;
-                    while (HandPanelDrawer.HasUnsettledDice(_displayedSnapshot))
-                        yield return null;
-                }
-                else
-                {
-                    bool batchDone = false;
-                    bool landed = false;
-                    try
-                    {
-                        if (frame.Phase == RoundTransitionPhase.ForcedAction)
-                        {
-                            // 自动行动卡自己有出场、吸骰、结算的节奏；播完再落快照。
-                            _renderer.PlayBlockingPresentation(frame.Report.BlockingStorySteps, () => batchDone = true);
-                        }
-                        else
-                        {
-                            // 前置剧情结束后统一落地；同场景与换场使用相同边界。
-                            _renderer.PlayRoundBatch(frame.Report, frame.Snapshot,
-                                land: () =>
-                                {
-                                    AdoptRoundTransitionFrame();
-                                    landed = true;
-                                },
-                                done: () => batchDone = true);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        failure = ex;
-                        break;
-                    }
-                    while (!batchDone)
-                        yield return null;
-                    if (!landed)
-                        AdoptRoundTransitionFrame();
-                    if (frame.Report.PostSceneBlockingSteps.Count > 0)
-                    {
-                        bool postSceneDone = false;
-                        _renderer.PlayBlockingPresentation(frame.Report.PostSceneBlockingSteps,
-                            () => postSceneDone = true);
-                        while (!postSceneDone)
-                            yield return null;
-                    }
-                }
-
-                try
-                {
-                    frame = _sceneManager.AdvanceRoundTransition();
-                }
-                catch (Exception ex)
-                {
-                    failure = ex;
-                }
-            }
-
-            _activeRoundTransitionPhase = null;
-            _renderer.EndRoundTransitionPresentation();
-
-            if (failure != null)
-            {
-                // 同 ExecuteRoutine 的善后：引擎半途抛出来时演出回调永远不会来，
-                // 黑幕、焦点窗口、锁都得在这里亲手收掉，否则玩家留在一块黑屏里。
-                Debug.LogError($"[EndTurn] Exception during turn end: {failure}");
-                ShowNotification($"结束回合异常: {failure.Message}");
-                _nodeSlots.Clear();
-                ClearResourceDragState();
-                _stageController.AbortTurnDip();
-                EndIncomingFocusContext();
-                MarkStateTainted("回合结算失败", failure);
-            }
-
-            _renderer.SetInputLocked(false);
-            // 冷却只给城市：睡一觉是一下黑屏就过去的，手抖连点会把第二天也睡掉。
-            // Scenario的回合转换本身要走好几秒、画面一路在变，新骰落定后键就该立刻是你的。
-            if (!_displayedSnapshot.IsInScenario)
-                _restCooldownUntil = Time.unscaledTime + RestCooldownSeconds;
-            _isEndingTurn = false;
+            try { yield return RunPresentationFlow(EndTurnFlow(), "回合结算失败"); }
+            finally { _isEndingTurn = false; }
         }
 
-        private void AdoptRoundTransitionFrame()
+        private IEnumerator EndTurnFlow()
         {
-            CommitLatestSnapshotAtPresentationBoundary(resetUiOnContextChange: true);
+            _selectedResource = null;
+            _renderer.ClearCardResidues();
+            try
+            {
+                var frame = _sceneManager.BeginRoundTransition();
+                while (!frame.IsFinished)
+                {
+                    _activeRoundTransitionPhase = frame.Phase;
+                    if (frame.Phase == RoundTransitionPhase.TimeTax)
+                    {
+                        // 时间税仍与按下结束回合同拍，保留原有节奏。
+                        CommitLatestSnapshotAtPresentationBoundary(true, frame.Snapshot);
+                        float until = Time.unscaledTime + 0.6f;
+                        while (Time.unscaledTime < until)
+                            yield return null;
+                    }
+                    else if (frame.Phase == RoundTransitionPhase.NewDice)
+                    {
+                        yield return LandRoundPresentation(frame.Snapshot);
+                        yield return WaitForDiceSettle();
+                    }
+                    else
+                    {
+                        var before = _displayedSnapshot;
+                        yield return PlayBlockingSteps(frame.Report.BlockingStorySteps);
+                        yield return LandAfterTurnDip(frame.Report, false,
+                            () => CommitLatestSnapshotAtPresentationBoundary(true, frame.Snapshot));
+                        yield return WaitForSpatialArrival();
+                        if (!string.IsNullOrEmpty(frame.Report.WakePlaceName)) yield return WaitForDiceSettle();
+                        if (frame.Phase != RoundTransitionPhase.ForcedAction)
+                        {
+                            bool done = false;
+                            _renderer.PlayRoundFeedback(frame.Report, before, frame.Snapshot,
+                                () => done = true);
+                            while (!done)
+                                yield return null;
+                        }
+                        yield return PlaySceneEntryAfterArrival(frame.Report.PostSceneBlockingSteps);
+                        if (frame.Report.TurnStartReport != null)
+                            yield return PlayActionPresentation(frame.Report.TurnStartReport);
+                    }
+
+                    // 当前阶段的表现完成后，才允许引擎计算下一阶段。
+                    frame = _sceneManager.AdvanceRoundTransition();
+                }
+
+                if (!_displayedSnapshot.IsInScenario)
+                    _restCooldownUntil = Time.unscaledTime + RestCooldownSeconds;
+            }
+            finally
+            {
+                _activeRoundTransitionPhase = null;
+                _renderer.EndRoundTransitionPresentation();
+            }
         }
 
         /// <summary>
@@ -2180,17 +2208,19 @@ namespace SSNoir
         /// 回调又把旧 UI 清掉、再启动一次焦点运镜。现在边界只有一个入口，并且把“已经采纳”
         /// 作为正常的幂等结果处理。
         /// </summary>
-        private bool CommitLatestSnapshotAtPresentationBoundary(bool resetUiOnContextChange)
+        private bool CommitLatestSnapshotAtPresentationBoundary(
+            bool resetUiOnContextChange, PresentationSnapshot? targetSnapshot = null)
         {
-            if (ReferenceEquals(_displayedSnapshot, _sceneManager.LatestSnapshot))
+            var snapshot = targetSnapshot ?? _sceneManager.LatestSnapshot;
+            if (ReferenceEquals(_displayedSnapshot, snapshot))
             {
                 EndIncomingFocusContext();
                 return false;
             }
 
             string oldRoot = _displayedSnapshot.RootNode?.Id ?? string.Empty;
-            string newRoot = _sceneManager.LatestSnapshot.RootNode?.Id ?? string.Empty;
-            bool contextChanged = _displayedSnapshot.IsInScenario != _sceneManager.LatestSnapshot.IsInScenario
+            string newRoot = snapshot.RootNode?.Id ?? string.Empty;
+            bool contextChanged = _displayedSnapshot.IsInScenario != snapshot.IsInScenario
                 || !string.Equals(oldRoot, newRoot, StringComparison.Ordinal);
 
             if (resetUiOnContextChange && contextChanged)
@@ -2202,7 +2232,7 @@ namespace SSNoir
             // 采纳前记下当前焦点机位：同根换区内 :anchor（Act2 巷口→货栈）不算
             // contextChanged，但分区机位必须跟着切，否则卡钉在新锚点上而镜头留在上一段。
             var focusCamBefore = ResolveCurrentFocusCamera(GetCurrentFocusPathIds(), out _);
-            bool navigationCollapsed = AdoptLatestSnapshot();
+            bool navigationCollapsed = AdoptSnapshot(snapshot);
             EndIncomingFocusContext();
             var focusCamAfter = ResolveCurrentFocusCamera(GetCurrentFocusPathIds(), out _);
             bool zoneCamChanged = focusCamAfter != null && focusCamAfter != focusCamBefore;
@@ -2222,13 +2252,14 @@ namespace SSNoir
         ///
         /// 翻页与否报告里已经写着了（<see cref="ActionReport.TurnEnded"/>），所以不必等演出播完
         /// 才知道——睡觉这件事该在手离开按钮时就开始，那根"执行中"的进度条本来演的就是
-        /// 这一夜过去。唯一的例外是演出里还压着阻塞剧情：对白、告示卡、动画都是要人看的，
+        /// 这一夜过去。唯一的例外是动作或场景落地后还压着阻塞剧情：对白、告示卡、动画都是要人看的，
         /// 一开场就全黑等于把它们扔了。那种情况仍旧等演完再黑。
         /// </summary>
         public static bool ShouldDipEarly(ActionReport report)
             => report.TurnEnded
                 && report.Type == ActionType.Instant
-                && report.BlockingStorySteps.Count == 0;
+                && report.BlockingStorySteps.Count == 0
+                && report.PostSceneBlockingSteps.Count == 0;
 
         private static List<BlockingStoryStep> DetachPostTurnBlockingSteps(ActionReport report)
         {
@@ -2250,19 +2281,35 @@ namespace SSNoir
         /// 世界真的换成下一拍的样子是在 <c>AdoptLatestSnapshot</c> 那一下；这个换页永远
         /// 发生在全黑里。早黑的那半程在演出开始时就起跑了，这里只负责收尾；没翻页就原样落地。
         /// </summary>
-        private IEnumerator LandAfterTurnDip(ActionReport report, bool dippedEarly, Action land, Action onDone)
+        private IEnumerator LandAfterTurnDip(ActionReport report, bool dippedEarly, Action land)
         {
+            if (report.TurnEnded)
+                yield return _stageController.WaitForTransition();
+            var commit = land;
+            land = () =>
+            {
+                commit();
+                if (!report.TurnEnded) return;
+                if (!string.IsNullOrEmpty(report.WakePlaceName))
+                    EnterForcedPlace(report.WakePlaceName, updateCamera: false);
+                // 普通睡醒也可能因欠租失去房间；所有换日落点在黑场同步，不能亮起后再穿门。
+                _stageController.SynchronizeContextAtBlack();
+                var camera = ResolveCurrentFocusCamera(GetCurrentFocusPathIds(), out _)
+                    ?? throw new InvalidOperationException("醒来地点缺少机位。");
+                _cameraManager.CutFocusTo(camera);
+                PromoteFocusCamera(camera);
+            };
             if (dippedEarly)
             {
+                if (!_stageController.TurnDipActive)
+                    yield return _stageController.FadeOutForTurn();
                 yield return _stageController.FinishTurnDip(land);
-                onDone();
                 yield break;
             }
 
             if (!report.TurnEnded)
             {
                 land();
-                onDone();
                 yield break;
             }
 
@@ -2273,26 +2320,14 @@ namespace SSNoir
                 yield return _stageController.FinishTurnDip(land);
             }
             else yield return _stageController.PlayTurnDip(land);
-            onDone();
         }
 
-        private IEnumerator PlayPostTurnStepsAfterDiceSettle(
-            IReadOnlyList<BlockingStoryStep> steps, Action onDone)
+        private IEnumerator WaitForDiceSettle()
         {
-            // AdoptLatestSnapshot 在黑幕中换上新骰池；至少让手牌绘制一帧，建立滚骰状态，
-            // 再等待这一把骰子真正落定，随后才让 auto-action 出牌并捕获它们。
+            // 手牌绘制负责建立滚骰状态，先让它观察本次快照，再等待落定。
             yield return null;
             while (HandPanelDrawer.HasUnsettledDice(_displayedSnapshot))
                 yield return null;
-            _renderer.PlayBlockingPresentation(steps, onDone);
-        }
-
-        private IEnumerator WaitForPresentation(Func<bool> isDone)
-        {
-            while (!isDone())
-            {
-                yield return null;
-            }
         }
 
         public void NavigateToHome()
@@ -2334,7 +2369,7 @@ namespace SSNoir
         /// </summary>
         public void EnterForcedPlace(string placeName, bool updateCamera = true)
         {
-            AdoptLatestSnapshot();
+            CommitLatestSnapshotAtPresentationBoundary(resetUiOnContextChange: false);
             var path = FindPathToNode(placeName);
             if (path.Count == 0)
                 throw new InvalidOperationException($"剧情导航失败：找不到节点“{placeName}”。");
@@ -2360,10 +2395,7 @@ namespace SSNoir
             // 此时仍在同一串剧情中，保留尚未播放的步骤；外层完成时再清理上下文。
             CommitLatestSnapshotAtPresentationBoundary(resetUiOnContextChange: false);
             EnterForcedPlace(nodeId);
-            yield return null;
-            var brain = Camera.main != null ? Camera.main.GetComponent<Cinemachine.CinemachineBrain>() : null;
-            while (_cameraManager.IsFocusTravelInFlight || (brain != null && brain.IsBlending))
-                yield return null;
+            yield return WaitForSpatialArrival();
         }
 
         /// <summary>
@@ -2399,25 +2431,17 @@ namespace SSNoir
 
         private IEnumerator ArrivalRoutine(ActionReport report)
         {
+            var snapshot = _sceneManager.LatestSnapshot;
+            yield return RunPresentationFlow(ArrivalFlow(report, snapshot), "地点入场失败");
+        }
+
+        private IEnumerator ArrivalFlow(ActionReport report, PresentationSnapshot snapshot)
+        {
             _renderer.ClearCardResidues();
-            _renderer.SetInputLocked(true);
-
-            bool done = false;
-            // 动作名留空：这不是一次动作，没有卡片可以锚定进度与投骰演出。
-            _renderer.PlayPresentation(report, string.Empty, string.Empty, () =>
-            {
-                bool navigationCollapsed = AdoptLatestSnapshot();
-                if (navigationCollapsed)
-                    UpdateCameraFocus(storyDriven: true);
-                done = true;
-            });
-
-            while (!done)
-            {
-                yield return null;
-            }
-
-            _renderer.SetInputLocked(false);
+            yield return WaitForSpatialArrival();
+            yield return PlayActionPresentation(report);
+            CommitLatestSnapshotAtPresentationBoundary(true, snapshot);
+            yield return PlaySceneEntryAfterArrival(report.PostSceneBlockingSteps);
         }
 
 

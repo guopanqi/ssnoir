@@ -1,0 +1,260 @@
+[
+  {
+    "source": "city-box/build/city/City.fbx",
+    "target": "UnityClient/Assets/Resources/Models/Environment/City.fbx",
+    "sha256": "0dca85810177afd19de04db664d1aaabb84b37d7c4a800d84d4d28a901a1f1a7",
+    "changed": true
+  },
+  {
+    "source": "city-box/build/city/World.visual.json",
+    "target": "UnityClient/Assets/Resources/City/World.visual.json",
+    "sha256": "5a26810f64e9ae477527f7d47336908a142fa43fbfe114b48535f4fecf050477",
+    "changed": true
+  },
+  {
+    "source": "city-box/build/city/places/上午十一点零七分.fbx",
+    "target": "UnityClient/Assets/Resources/City/Places/上午十一点零七分.fbx",
+    "sha256": "e73c9d11062636bf50be60c4edaf03718cd286775a1ce97b70bf82c7d914bb03",
+    "changed": true
+  },
+  {
+    "source": "city-box/build/city/places/修理棚.fbx",
+    "target": "UnityClient/Assets/Resources/City/Places/修理棚.fbx",
+    "sha256": "2b261528f0bf8a19201192be572d9a237e4dec1f399294742da211c2d161fdea",
+    "changed": true
+  },
+  {
+    "source": "city-box/build/city/places/公园.fbx",
+    "target": "UnityClient/Assets/Resources/City/Places/公园.fbx",
+    "sha256": "fea44553aa1ce98d6892e55031373fb43ef77e22fb191faeb4cff8e0b8bbbbfc",
+    "changed": true
+  },
+  {
+    "source": "city-box/build/city/places/别给他们想要的.clips.json",
+    "target": "UnityClient/Assets/Resources/City/Places/别给他们想要的.clips.json",
+    "sha256": "89f5e154af3aca96657678345589593f1af2780a22710188d31533b6f02ba723",
+    "changed": false
+  },
+  {
+    "source": "city-box/build/city/places/别给他们想要的.fbx",
+    "target": "UnityClient/Assets/Resources/City/Places/别给他们想要的.fbx",
+    "sha256": "68e92783117a254ce4866ff518b3ff769ce3b8a617cc8c75c0dc848abb7b92dc",
+    "changed": true
+  },
+  {
+    "source": "city-box/build/city/places/剧院.fbx",
+    "target": "UnityClient/Assets/Resources/City/Places/剧院.fbx",
+    "sha256": "529ddb4ece45f430c21fd3202b9b38e628861f6b30f267c34e62e2872523f02f",
+    "changed": true
+  },
+  {
+    "source": "city-box/build/city/places/双目标跟拍.fbx",
+    "target": "UnityClient/Assets/Resources/City/Places/双目标跟拍.fbx",
+    "sha256": "fa915ac0c43bebf2497a4214667e90d6ca0b8c17f9752abc9ed098d7f86db6ed",
+    "changed": true
+  },
+  {
+    "source": "city-box/build/city/places/家.fbx",
+    "target": "UnityClient/Assets/Resources/City/Places/家.fbx",
+    "sha256": "acae6fbe0496833cdf15546724986c8a1d40814e0483b9be70275e96b387ae22",
+    "changed": true
+  },
+  {
+    "source": "city-box/build/city/places/尾随取件人.fbx",
+    "target": "UnityClient/Assets/Resources/City/Places/尾随取件人.fbx",
+    "sha256": "8b153372aac7da15d7a77f256d1551b121adcb4797b0c04ac5fbb82011db770f",
+    "changed": true
+  },
+  {
+    "source": "city-box/build/city/places/巷子.fbx",
+    "target": "UnityClient/Assets/Resources/City/Places/巷子.fbx",
+    "sha256": "f5a6235afa83b597486fc12482558125e490ead8f6622ff57ea86f1538eca8f5",
+    "changed": true
+  },
+  {
+    "source": "city-box/build/city/places/巷子里在打人.clips.json",
+    "target": "UnityClient/Assets/Resources/City/Places/巷子里在打人.clips.json",
+    "sha256": "150b20e928d498af1dfd67f58090f3abbfbc5d4089ad24aee9696b2d5404f863",
+    "changed": false
+  },
+  {
+    "source": "city-box/build/city/places/巷子里在打人.fbx",
+    "target": "UnityClient/Assets/Resources/City/Places/巷子里在打人.fbx",
+    "sha256": "49df97bfd0a966d0a8095cd24607730969f0c21a46a3ad0bc47c759727e373cc",
+    "changed": true
+  },
+  {
+    "source": "city-box/build/city/places/布告栏.fbx",
+    "target": "UnityClient/Assets/Resources/City/Places/布告栏.fbx",
+    "sha256": "f27bd8f64fe477d2bed94e836195b5d4c2b30f97cc6f91b2f6271b33f553eeeb",
+    "changed": true
+  },
+  {
+    "source": "city-box/build/city/places/报社.fbx",
+    "target": "UnityClient/Assets/Resources/City/Places/报社.fbx",
+    "sha256": "abd8f65d25a433a31fee8ffabefc4715f3f1b441e0a58d4e6770740626780e62",
+    "changed": true
+  },
+  {
+    "source": "city-box/build/city/places/晚宴.fbx",
+    "target": "UnityClient/Assets/Resources/City/Places/晚宴.fbx",
+    "sha256": "cfaea5334594f5a0159c6cbe992636c16d68a72427c00efe1aeefb1e267e3943",
+    "changed": true
+  },
+  {
+    "source": "city-box/build/city/places/格兰德酒店.clips.json",
+    "target": "UnityClient/Assets/Resources/City/Places/格兰德酒店.clips.json",
+    "sha256": "340b8126e5f82260c1f8f6f9bbd854c4c7b37d9e47dc11d49fa2ba167f151532",
+    "changed": false
+  },
+  {
+    "source": "city-box/build/city/places/格兰德酒店.fbx",
+    "target": "UnityClient/Assets/Resources/City/Places/格兰德酒店.fbx",
+    "sha256": "42df347d39847da395c8ff9563937a38304b99b9c4059266875d580ab43eac30",
+    "changed": true
+  },
+  {
+    "source": "city-box/build/city/places/照相馆交涉.fbx",
+    "target": "UnityClient/Assets/Resources/City/Places/照相馆交涉.fbx",
+    "sha256": "e72764564e080e835bca1f86e99278132d7e830fd2fb6b6dd37665c1432ce8e8",
+    "changed": true
+  },
+  {
+    "source": "city-box/build/city/places/球形剧场.fbx",
+    "target": "UnityClient/Assets/Resources/City/Places/球形剧场.fbx",
+    "sha256": "0bb421b14cc49af1bf153fb5804f11e4557baa1ba9d04717f4ae95d182ff29ef",
+    "changed": true
+  },
+  {
+    "source": "city-box/build/city/places/码头.clips.json",
+    "target": "UnityClient/Assets/Resources/City/Places/码头.clips.json",
+    "sha256": "713fd08b4ca2d4787c78307f872187a57689f789678e4537da147659c2e8bbce",
+    "changed": false
+  },
+  {
+    "source": "city-box/build/city/places/码头.fbx",
+    "target": "UnityClient/Assets/Resources/City/Places/码头.fbx",
+    "sha256": "c51fd9a03fb419debce8a4111f861b5cc84d24491d5a545ae712fa22bd8092a1",
+    "changed": true
+  },
+  {
+    "source": "city-box/build/city/places/码头居民区.fbx",
+    "target": "UnityClient/Assets/Resources/City/Places/码头居民区.fbx",
+    "sha256": "ff509b9be2a71d6a3a572a4ff8fbb08667ff789157f704e4774d3e90ac006a52",
+    "changed": true
+  },
+  {
+    "source": "city-box/build/city/places/租屋.clips.json",
+    "target": "UnityClient/Assets/Resources/City/Places/租屋.clips.json",
+    "sha256": "f15f6a7231619a1f81190a3e9330f76d141abdae80a98cd7b93d542cc771b9b9",
+    "changed": false
+  },
+  {
+    "source": "city-box/build/city/places/租屋.fbx",
+    "target": "UnityClient/Assets/Resources/City/Places/租屋.fbx",
+    "sha256": "755cd5f84e447eae0d4401793daa1ab48da3feed146f2c7f13192e31ac1ad44c",
+    "changed": true
+  },
+  {
+    "source": "city-box/build/city/places/老街酒馆.fbx",
+    "target": "UnityClient/Assets/Resources/City/Places/老街酒馆.fbx",
+    "sha256": "0096b3c382fc1badc229619a58ab186e940ebfec5f78b5af1300a0b613c00903",
+    "changed": true
+  },
+  {
+    "source": "city-box/build/city/places/联合起吊.clips.json",
+    "target": "UnityClient/Assets/Resources/City/Places/联合起吊.clips.json",
+    "sha256": "a55577ccff0478f29d41ba5981911babd2991fb392de0a691f393a8932a10fbf",
+    "changed": false
+  },
+  {
+    "source": "city-box/build/city/places/联合起吊.fbx",
+    "target": "UnityClient/Assets/Resources/City/Places/联合起吊.fbx",
+    "sha256": "47f039dc81131c2ac55ecf7c594c8eb9f54a070bf6a14beba78f2ded9bc16f8e",
+    "changed": true
+  },
+  {
+    "source": "city-box/build/city/places/街角咖啡馆.fbx",
+    "target": "UnityClient/Assets/Resources/City/Places/街角咖啡馆.fbx",
+    "sha256": "8e2e4f8c9c933403f0e491a28648ff416802b99c1d915327995e33bbb78bba2c",
+    "changed": true
+  },
+  {
+    "source": "city-box/build/city/places/警察局.fbx",
+    "target": "UnityClient/Assets/Resources/City/Places/警察局.fbx",
+    "sha256": "4be05cceeefe9a44d65219ab1552eb1d343770f177f53d36b8348ae24f9ba02b",
+    "changed": true
+  },
+  {
+    "source": "city-box/build/city/places/让他们安静.fbx",
+    "target": "UnityClient/Assets/Resources/City/Places/让他们安静.fbx",
+    "sha256": "3a1f1cd9c0db7e786a3528f7f6f33e56cd35ee89dbd785f070433a8a4c2377d5",
+    "changed": true
+  },
+  {
+    "source": "city-box/build/city/places/诊所.fbx",
+    "target": "UnityClient/Assets/Resources/City/Places/诊所.fbx",
+    "sha256": "f69fdaa45e035859507bf78ffc346f0d88b5b45c4c4a1967445a303e97fc9730",
+    "changed": true
+  },
+  {
+    "source": "city-box/build/city/places/货运公司.fbx",
+    "target": "UnityClient/Assets/Resources/City/Places/货运公司.fbx",
+    "sha256": "ec1eddcecc67d9b615c0bbc84bf50a167bb57e6b178b064b99e729641648e1a8",
+    "changed": true
+  },
+  {
+    "source": "city-box/build/city/places/货运大楼潜入.fbx",
+    "target": "UnityClient/Assets/Resources/City/Places/货运大楼潜入.fbx",
+    "sha256": "72bc9078bab5041ca0643ef6edc1fadb6ddbac281aee8b97ba5d57d092863b68",
+    "changed": true
+  },
+  {
+    "source": "city-box/build/city/places/醉客互相叫骂.clips.json",
+    "target": "UnityClient/Assets/Resources/City/Places/醉客互相叫骂.clips.json",
+    "sha256": "b715d536312fe049062d3f4eae850a54d068cdc5e14f73fa5742c010cc1fb61a",
+    "changed": false
+  },
+  {
+    "source": "city-box/build/city/places/醉客互相叫骂.fbx",
+    "target": "UnityClient/Assets/Resources/City/Places/醉客互相叫骂.fbx",
+    "sha256": "13ebab226d1f97fef3bde487c47ffc8fd71c82acaa6e211b47ab9eac164be483",
+    "changed": true
+  },
+  {
+    "source": "city-box/build/city/places/雕像.fbx",
+    "target": "UnityClient/Assets/Resources/City/Places/雕像.fbx",
+    "sha256": "58542ec60ff4d6f8b75a39c2eab93617c64f0b6b541226012864590c93c57785",
+    "changed": true
+  },
+  {
+    "source": "city-box/build/city/places/雨夜同行.fbx",
+    "target": "UnityClient/Assets/Resources/City/Places/雨夜同行.fbx",
+    "sha256": "baab9cd1f300bf8e721f5358408ba2b17632254eae387633b510201782561d2e",
+    "changed": true
+  },
+  {
+    "source": "city-box/build/city/places/雨夜追车.clips.json",
+    "target": "UnityClient/Assets/Resources/City/Places/雨夜追车.clips.json",
+    "sha256": "dc8d0e45e400af79e5881b30e6b53f89566dc103a87903ef73860f55c014c462",
+    "changed": false
+  },
+  {
+    "source": "city-box/build/city/places/雨夜追车.fbx",
+    "target": "UnityClient/Assets/Resources/City/Places/雨夜追车.fbx",
+    "sha256": "69bcf5313f655ba1c92b658b14651525a385d79e2091bf5fe8931b9f27eea945",
+    "changed": true
+  },
+  {
+    "source": "city-box/build/city/places/首演之夜.clips.json",
+    "target": "UnityClient/Assets/Resources/City/Places/首演之夜.clips.json",
+    "sha256": "5eef6150881f6f3e9713f4d5721a3b717563eb03f8f8ab95f34a2dcf1fab8567",
+    "changed": false
+  },
+  {
+    "source": "city-box/build/city/places/首演之夜.fbx",
+    "target": "UnityClient/Assets/Resources/City/Places/首演之夜.fbx",
+    "sha256": "eacb1111a4d520b4f4a8429be32575a945d2a0b1806a1297ec0333ab3a42050e",
+    "changed": true
+  }
+]

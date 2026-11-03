@@ -68,7 +68,7 @@
 
 (define (node-pull)
   (node "把他拖出去"
-    :tags (list "高风险")
+    :risk '危险
     :subtitle "武力；他会挣，因为他真的还差一点"
     :requires (list (req-die))
     :resolve (roll 'violence
@@ -80,7 +80,7 @@
 
 (define (node-brace)
   (node "替他撑住"
-    :tags (list "高风险")
+    :risk '冒险
     :subtitle "武力；顶住那节支架，让它再跑几秒"
     :requires (list (req-die))
     :resolve (roll 'violence

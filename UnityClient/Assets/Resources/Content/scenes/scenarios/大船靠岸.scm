@@ -2,7 +2,7 @@
 ;; 第二回合末固定事故，不归咎于玩家。工资由城市模块唯一结算。
 ;; 搬货立即推进；协助检修放弃眼前产出，换取玩家与艾迪更早恢复起吊。
 (define 货物 (make-clock "卸下货物" 36 'gauge "东边这批急件归本组负责，离港前必须卸齐。" :beneficial-direction 'increase))
-(define 收工钟 (make-clock "离港之前" 7 'pressure "回合结束：冷静-1、离港推进1格；满格未卸齐只领辛苦钱。" :beneficial-direction 'decrease))
+(define 收工钟 (make-clock "离港之前" 7 'pressure "回合结束：心情-1、离港推进1格；满格未卸齐只领辛苦钱。" :beneficial-direction 'decrease))
 (define 意外? #f)
 (define 停止? #f)
 (define 检修 (make-clock "恢复吊车" 6 'gauge "退出卡索、重新挂钩并试吊；完成后恢复起货。" :beneficial-direction 'increase))
@@ -92,14 +92,14 @@
       (note-node "吊车状态" "吊车"
         (if (吊车可用?) "吊车可用，每次起吊消耗一颗骰；不限制每回合次数。"
           "吊车暂停。可继续搬货，或协助艾迪检修；进度完成后恢复起吊。"))
-      (node "搬运散货" :subtitle "卸货0／1／2；失手不损失冷静"
+      (node "搬运散货" :subtitle "卸货0／1／2；失手不损失心情"
         :risk '稳妥 :progress-target (list 'clock "卸下货物")
         :requires (list (req-die))
         :resolve (roll 'violence
           (outcome (lambda () (搬运! 0)))
           (outcome (lambda () (搬运! 1)))
           (outcome (lambda () (搬运! 2)))))
-      (node "跟吊起货" :subtitle "卸货0／2／3；冷静损失2／1／0"
+      (node "跟吊起货" :subtitle "卸货0／2／3；心情损失2／1／0"
         :disabled (not (吊车可用?))
         :risk '危险 :progress-target (list 'clock "卸下货物")
         :risk-target (list 'composure "player") :requires (list (req-die))

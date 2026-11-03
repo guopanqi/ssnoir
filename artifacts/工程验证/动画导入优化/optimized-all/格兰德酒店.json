@@ -1,0 +1,35 @@
+{
+    "asset": "Assets/Resources/City/Places/格兰德酒店.fbx",
+    "clips": [
+        {
+            "name": "__preview__City",
+            "length": 25.46666717529297,
+            "frameRate": 30.0,
+            "legacy": true,
+            "loopTime": false,
+            "wrapMode": 0,
+            "curves": [],
+            "objectCurvesAndEvents": ""
+        },
+        {
+            "name": "车队__到场",
+            "length": 24.266666412353517,
+            "frameRate": 30.0,
+            "legacy": true,
+            "loopTime": false,
+            "wrapMode": 8,
+            "curves": [],
+            "objectCurvesAndEvents": ""
+        },
+        {
+            "name": "车队__空",
+            "length": 1.0000001192092896,
+            "frameRate": 30.0,
+            "legacy": true,
+            "loopTime": false,
+            "wrapMode": 8,
+            "curves": [],
+            "objectCurvesAndEvents": ""
+        }
+    ]
+}

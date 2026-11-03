@@ -38,12 +38,12 @@
   (if (or (钟 'full?) (and 已定位? (not (eq? 方向 目标位置)))) '()
     (let ((前缀 (位置名字 方向)))
       (list
-        (node (string-append 前缀 "稳做") :subtitle "坏：冷静−1；中：无变化；好：搜索+1。"
+        (node (string-append 前缀 "稳做") :subtitle "坏：心情−1；中：无变化；好：搜索+1。"
           :requires (list (req-die))
           :resolve (roll 'knowledge
             (outcome 定位坏!) (outcome (lambda () #f))
             (outcome (lambda () (定位搜索推进! 方向 1)))))
-        (node (string-append 前缀 "快做") :subtitle "坏：冷静−1；中：冷静−1、搜索+1；好：搜索+2。"
+        (node (string-append 前缀 "快做") :subtitle "坏：心情−1；中：心情−1、搜索+1；好：搜索+2。"
           :requires (list (req-die))
           :resolve (roll 'knowledge
             (outcome 定位坏!) (outcome (lambda () (定位风险中! 方向)))
@@ -66,7 +66,7 @@
         (append
           (clock-nodes (探查线索 'render-data))
           (list
-            (node "探查" :subtitle "坏：冷静−1；中：无变化；好：线索+1，定位目标。"
+            (node "探查" :subtitle "坏：心情−1；中：无变化；好：线索+1，定位目标。"
               :requires (list (req-die))
               :resolve (roll 'knowledge
                 (outcome 定位坏!) (outcome (lambda () #f))

@@ -27,6 +27,7 @@
 
     ;; 未开始 → 进行中 → 通过 / 没过。整条线由日历推动。
     (define 状态 "未开始")
+    (define 考试结果已告知? #f)
     (define 练了 0)
     (define 说过了? #f)          ; 他当面跟你说过这件事（＝你知情）
     (define journal (make-journal))
@@ -50,34 +51,27 @@
 
     (define (结算!)
       (if (够了?)
-          (begin
-            (set! 状态 "通过")
-            (eddie 'on-training-passed!)
-            (报一声! "他考过了"
-              "艾迪拿到了培训名额。机器进来的时候，他至少还站在名单上。"
-              "艾迪考过了培训。他往新机器那边挪了一步。"))
-          (begin
-            (set! 状态 "没过")
-            (报一声! "他没考过"
-              (if (> 练了 0)
-                  "艾迪差一点。他说不怪你，说他本来就不是念书的料。"
-                  "考试那天你不在。艾迪自己去的，回来什么也没说。")
-              "艾迪没考过。他还在码头上等零活。"))))
-
-    ;; 你没听说过这件事，就不会凭空知道它的结果。事情照样发生，只是没人告诉你。
-    (define (报一声! 标题 正文 履历)
+        (begin (set! 状态 "通过") (eddie 'on-training-passed!))
+        (set! 状态 "没过"))
       (if 说过了?
-          (begin
-            (journal 'add! 履历)
-            ;; 陪过他才算经历完这一节；知情却一趟没去，考试是他自己的事。
-            (if (> 练了 0) (complete-task! "陪艾迪备考") #f)
-            (spotlight! 标题 正文))
-          #f))
+        (begin
+          (journal 'add! (if (equal? 状态 "通过")
+            "艾迪考过了培训。他往新机器那边挪了一步。"
+            "艾迪没考过。他还在码头上等零活。"))
+          (if (> 练了 0) (complete-task! "陪艾迪备考") #f)) #f))
 
     ;; ── 他来找你（＝你知情）─────────────────────────
     ;; 只在窗口开着的时候说一次。晚了才走进码头，他说的话也不一样——
     ;; 事情已经往前走了，你才刚听说。
     (define (arrivals-at location)
+      (append (training-invitation-arrivals location)
+        (if (and (equal? location "码头") 说过了? (member? 状态 '("通过" "没过")) (not 考试结果已告知?))
+          (list (arrival "艾迪考试结果" (lambda () (set! 考试结果已告知? #t)
+            (spotlight! (if (equal? 状态 "通过") "他考过了" "他没考过")
+              (if (equal? 状态 "通过") "艾迪拿到了培训名额，往新机器那边挪了一步。"
+                (if (> 练了 0) "艾迪差一点。他说不怪你，说他本来就不是念书的料。"
+                  "考试那天你不在。艾迪自己去的，回来什么也没说。")))))) '())))
+    (define (training-invitation-arrivals location)
       (if (and (equal? location "码头") (进行中?) (not 说过了?))
           (list (arrival "艾迪的培训通知"
                   (lambda ()
@@ -156,11 +150,12 @@
           ((equal? msg 'on-day-start!) (on-day-start!))
           ((equal? msg 'state) 状态)
           ((equal? msg 'save)
-           (list (list "state" 状态) (list "practiced" 练了)
+           (list (list "result-news-read" 考试结果已告知?) (list "state" 状态) (list "practiced" 练了)
                  (list "told" (if 说过了? 1 0))
                  (list "journal" (journal 'save))))
           ((equal? msg 'load!)
            (let ((data (cadr args)))
+             (set! 考试结果已告知? (assoc-get data "result-news-read" #f))
              (set! 状态 (assoc-get data "state" "未开始"))
              (journal 'load! (assoc-get data "journal" '()))
              (set! 练了 (assoc-get data "practiced" 0))

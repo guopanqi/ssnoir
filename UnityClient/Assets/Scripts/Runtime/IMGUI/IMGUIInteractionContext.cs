@@ -27,12 +27,8 @@ namespace SSNoir.IMGUI
 
         // ── 按下 / 抬起：触控上「点一下」和「按下去」不是一回事 ─────────────
         //
-        // 鼠标按下几乎总是意味着「我要按这个」；手指落下时则还不知道玩家是要点它，
-        // 还是要从它身上开始滑一段。这两件事必须分开，否则任何一次滑动列表都会先把
-        // 手指底下那张卡点掉。
-        //
-        // 所以：WasClicked = 按下（用于「按住就开始拖」的骰子/物品），
-        //       WasTapped  = 一次完整的轻点（用于按钮、卡片、列表行）。
+        // 点击控件统一在按下时响应；拖拽沿用按下拿起、移动、松手落位的生命周期。
+        // WasTapped 保留完整轻点判定；按压跟踪同时用于输入锁与事件归属。
         private static Vector2 _pressOrigin;
         private static bool _pressTravelled;
         private static bool _pressActive;
@@ -173,7 +169,7 @@ namespace SSNoir.IMGUI
             return !IsLocked && !IsOccluded && rect.Contains(Mouse);
         }
 
-        // 按下：用于「按住即开始」的交互（拿起骰子/物品去拖）。
+        // 按下：用于所有点击控件，以及「按住即开始」的交互（拿起骰子/物品去拖）。
         // 不看悬停可用性——按下的那一刻手指当然在控件上。
         public bool WasClicked(Rect rect)
         {
@@ -182,9 +178,8 @@ namespace SSNoir.IMGUI
                 && Event.current.button == 0;
         }
 
-        // 轻点：按钮、卡片、列表行用这个。要求「落点在控件里 + 没滑走 + 在控件里抬起」，
-        // 滑动列表才不会顺手点掉一张卡。鼠标和手指走同一条规则——按钮在抬起时响应本来
-        // 就是两边共同的习惯，而两边同一套判定，Editor 里试出来的手感才等于真机的手感。
+        // 完整轻点判定。要求「落点在控件里 + 没滑走 + 在控件里抬起」，
+        // 滑动列表才不会顺手点掉一张卡。鼠标和手指走同一条规则，Editor 与真机保持一致。
         public bool WasTapped(Rect rect)
         {
             return Hit(rect)

@@ -1,0 +1,94 @@
+{
+  "source": "/Users/usr/Documents/play/ssnoir/city-box/build/city/city_build.blend",
+  "world_view_yaw": -84.18903686484032,
+  "rotations": [],
+  "moves": [],
+  "world_position": null,
+  "camera_distances": [
+    "警察局=85=35"
+  ],
+  "camera_yaws": [],
+  "camera_pitches": [
+    "警察局=35"
+  ],
+  "returns": [
+    {
+      "place": "警察局",
+      "path": "AuthoredArc",
+      "body_crossings": []
+    }
+  ],
+  "scope": "current assembled exterior geometry; representative world start; dominant mass probes; own-root occlusion excluded; no dynamic visibility or near-plane sweep proof",
+  "places": [
+    {
+      "place": "警察局",
+      "path": "DirectApproach",
+      "map_south_deviation": -62.76169055032383,
+      "world_view_deviation": 21.427346314516484,
+      "masses": [
+        "办公楼主体",
+        "后侧附楼",
+        "主塔暗墙"
+      ],
+      "body_crossings": [],
+      "external_occlusion": [
+        {
+          "progress": 0.65,
+          "blockers": {
+            "B.915": 1
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.7,
+          "blockers": {
+            "B.915": 1
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.75,
+          "blockers": {
+            "B.915": 1
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.8,
+          "blockers": {
+            "B.915": 1
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.85,
+          "blockers": {
+            "B.915": 1
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.9,
+          "blockers": {
+            "B.915": 1
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.95,
+          "blockers": {
+            "B.915": 2
+          },
+          "probes": 27
+        },
+        {
+          "progress": 1,
+          "blockers": {
+            "B.915": 2
+          },
+          "probes": 27
+        }
+      ]
+    }
+  ]
+}

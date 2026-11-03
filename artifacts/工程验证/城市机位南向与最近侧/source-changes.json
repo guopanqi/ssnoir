@@ -1,0 +1,109 @@
+[
+  {
+    "file": "city-box/prefabs/雕像.blend",
+    "before": "0818ee19086f55059b8c2d66677872d87c4541c0d074149f6200a1f81ef1c963",
+    "after": "2b0f156a74bbd224364b77f5e77e6a475238997848b498819e796197a8a18fe5",
+    "old": {
+      "location": [
+        58.0,
+        78.0,
+        14.0
+      ],
+      "lens": 50.0
+    },
+    "new": {
+      "location": [
+        29.0,
+        39.0,
+        14.0
+      ],
+      "lens": 35.0
+    }
+  },
+  {
+    "file": "city-box/prefabs/雕像_机器.blend",
+    "before": "fec72e43c585e5104a69a9d75a8d4a70ffb688f1efbef61b1f61260c5ae29eae",
+    "after": "a55f8b349797fbe58e3450417ac5f15c13c860f9b2db4d660cf01004b9f49f87",
+    "old": {
+      "location": [
+        58.0,
+        78.0,
+        14.0
+      ],
+      "lens": 50.0
+    },
+    "new": {
+      "location": [
+        29.0,
+        39.0,
+        14.0
+      ],
+      "lens": 35.0
+    }
+  },
+  {
+    "file": "city-box/city.blend",
+    "object": "街角咖啡馆",
+    "old": {
+      "location": [
+        -140.0,
+        115.0,
+        0.0
+      ],
+      "yaw": -90.00000250447816
+    },
+    "new": {
+      "location": [
+        -140.0,
+        115.0,
+        0.0
+      ],
+      "yaw": 0.0
+    }
+  },
+  {
+    "file": "city-box/city.blend",
+    "object": "货运公司",
+    "old": {
+      "location": [
+        68.0,
+        302.0,
+        0.0
+      ],
+      "yaw": 69.99999967119774
+    },
+    "new": {
+      "location": [
+        68.0,
+        310.0,
+        0.0
+      ],
+      "yaw": -4.99999985454646
+    }
+  },
+  {
+    "file": "city-box/city.blend",
+    "object": "雕像",
+    "old": {
+      "location": [
+        -238.0,
+        108.0,
+        0.0
+      ],
+      "yaw": 90.00020741015327
+    },
+    "new": {
+      "location": [
+        -238.0,
+        108.0,
+        0.0
+      ],
+      "yaw": 180.00000500895632
+    }
+  },
+  {
+    "file": "city-box/city.blend",
+    "before": "5300ca177c23a9a37fd98b3d243e813555b464459ff44628ef7f37ad3a2ef1b6",
+    "after": "b4b8508fdd399c895fb250037e16a8333ec79ee0e454314ebcc7187551fea7b1"
+  }
+]

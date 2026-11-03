@@ -23,9 +23,9 @@
     (define lucy-school-known? #f)
     (define lucy-class-talk? #f)
     (define lucy-introduced? #f)
-    (define (active?) (and (= (第一幕 'act) 2) (not (第二章 'started?))))
 
-    (define (lucy-open?) (and (active?)
+    (define (followup-active?) (and (>= (第一幕 'act) 2) (not (第二章 'started?))))
+    (define (lucy-open?) (and (followup-active?)
       (or (= lucy-deadline-day 0) (<= world-day lucy-deadline-day))
       (equal? lucy-state "未做")))
 
@@ -59,7 +59,7 @@
         (line "尼尔" "你把 Neil 拼成了 Niel。")
         (line "露西" "所以我才要去上课啊，大侦探。")
         (line "世界" "她把纸推过来，忍不住先笑了。")))
-    (define (lucy-fee) (* 10 (- 4 (lucy-cover-clock 'current))))
+    (define (lucy-fee) (* 5 (- 4 (lucy-cover-clock 'current))))
     (define (lucy-finish!)
       (if (and (lucy-open?) (lucy-cover-clock 'full?)) #t
         (error "夜校代班：目标尚未完成或已经结束"))
@@ -107,6 +107,7 @@
               ((equal? lucy-state "延后")
                 (if lucy-result-known? "代班没能安排齐，露西错过本期，正准备下一期。"
                   "报名截止了，还没见到露西问起后来怎么样。"))
+              ((> world-day lucy-deadline-day) "报名已经截止，代班还没安排齐。")
               (else (string-append "报名" (第二幕-日期 lucy-deadline-day) "截止。代班还差"
                 (number->string (- 4 (lucy-cover-clock 'current))) "段，可替班或付"
                 (number->string (lucy-fee)) "美元请人。")))
@@ -151,14 +152,14 @@
     (define (arrivals-at location)
       (cond
 
-        ((and (active?) (equal? location "街角咖啡馆")
+        ((and (followup-active?) (equal? location "街角咖啡馆")
               (not (lucy-at-cafe?)) (not lucy-school-known?))
           (list (arrival "露西去上课" school-news!)))
-        ((and (active?) (equal? location "街角咖啡馆") (lucy-at-cafe?)
+        ((and (followup-active?) (equal? location "街角咖啡馆") (lucy-at-cafe?)
               (> lucy-enrolled-day 0) (>= world-day (+ lucy-enrolled-day 3))
               (not lucy-class-talk?))
           (list (arrival "露西从学校回来" class-talk!)))
-        ((and (active?) (equal? location "街角咖啡馆")
+        ((and (followup-active?) (equal? location "街角咖啡馆")
               (equal? lucy-state "延后") (not lucy-result-known?))
           (list (arrival "露西没赶上本期" lucy-missed!)))
         (else '())))
@@ -174,8 +175,14 @@
 
         ((eq? (car args) 'lucy-at-cafe?) (lucy-at-cafe?))
         ((eq? (car args) 'lucy-arrival-pending?)
-          (or (and (> lucy-enrolled-day 0) (lucy-at-cafe?) (>= world-day (+ lucy-enrolled-day 3)) (not lucy-class-talk?))
+          (or (and (not (lucy-at-cafe?)) (> lucy-enrolled-day 0) (not lucy-school-known?))
+              (and (> lucy-enrolled-day 0) (lucy-at-cafe?)
+                   (>= world-day (+ lucy-enrolled-day 3)) (not lucy-class-talk?))
               (and (equal? lucy-state "延后") (not lucy-result-known?))))
+        ((eq? (car args) 'lucy-writing-day)
+          (max 14 (if (> lucy-enrolled-day 0) (+ lucy-enrolled-day 4)
+                    (if (> lucy-deadline-day 0) (+ lucy-deadline-day 2) 14))))
+        ((eq? (car args) 'lucy-class-talk?) lucy-class-talk?)
         ((eq? (car args) 'lucy-note) (lucy-note))
         ((eq? (car args) 'lucy-enrolled-day) lucy-enrolled-day)
 
@@ -184,15 +191,15 @@
         ((eq? (car args) 'on-cafe-work!)
           (cond
             ((not (lucy-at-cafe?)) #f)
-            ((and (active?) (> lucy-enrolled-day 0)
+            ((and (followup-active?) (> lucy-enrolled-day 0)
                   (>= world-day (+ lucy-enrolled-day 3)) (not lucy-class-talk?)) (class-talk!))
             ((and (lucy-open?) (第一幕 'lucy-met?)
-                   (not lucy-introduced?)) (tell-lucy!))
-            ((and (active?) (equal? lucy-state "延后") (not lucy-result-known?)) (lucy-missed!))
+                   (not (第三幕 'lucy-writing-known?)) (not lucy-introduced?)) (tell-lucy!))
+            ((and (followup-active?) (equal? lucy-state "延后") (not lucy-result-known?)) (lucy-missed!))
             (else #f)))
         ((eq? (car args) 'lucy-state) lucy-state)
         ((eq? (car args) 'dossier)
-          (if (= (第一幕 'act) 2)
+          (if (followup-active?)
             (known-matters)
             '()))
         ((eq? (car args) 'nodes-at) (nodes-at (cadr args)))

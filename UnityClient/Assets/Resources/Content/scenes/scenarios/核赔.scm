@@ -48,7 +48,7 @@
     :name (tr "替他放过这一笔" "Let the Claim Pass")
     :subtitle (tr "高风险；沃尔特的怀疑填满后将接管调查"
                   "High risk; Walter takes over if his suspicion fills")
-    :tags (list "高风险")
+    :risk '冒险
     :requires (list (req-die))
     :resolve (roll 'sharpness
       (lambda ()

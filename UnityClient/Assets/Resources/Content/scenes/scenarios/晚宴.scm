@@ -163,7 +163,7 @@
     :name title
     :anchor "晚宴-卡座"
     :subtitle subtitle
-    :tags (list "低风险")
+    :risk '稳妥
     :clocks (list (clk 'render-data))
     :disabled (clk 'full?)
     :requires (list (req-die))
@@ -178,7 +178,7 @@
     :anchor "晚宴-卡座"
     :subtitle (tr "她不浪费一句话，也不替你填沉默"
                   "She wastes no words and will not fill your silences")
-    :tags (list "高风险")
+    :risk '冒险
     :clocks (list (vera-clk 'render-data))
     :disabled (vera-clk 'full?)
     :requires (list (req-die))
@@ -195,7 +195,7 @@
     :anchor "晚宴-吧台"
     :subtitle (tr "保险公司的沃尔特。他喝得快，跟不上就是失礼；跟上了话也说得快"
                   "Walter from the insurance firm drinks fast. Keep up, and he talks fast too")
-    :tags (list "高风险")
+    :risk '冒险
     :clocks (list (walter-clk 'render-data))
     :disabled (walter-clk 'full?)
     :requires (list (req-die))
@@ -300,8 +300,8 @@
           "Keep time and let them see you") 'sharpness
         dancers-clk dancers-full-line)
       (node-rest "去露台透气" (tr "去露台透气" "Take Air")
-        "晚宴-露台" 1 (tr "花一颗行动骰，恢复 1 点冷静"
-          "Spend one die to regain 1 composure")))))
+        "晚宴-露台" 1 (tr "花一颗行动骰，恢复 1 点心情"
+          "Spend one die to regain 1 mood")))))
 
 (define (act-two-nodes)
   (append
@@ -325,8 +325,8 @@
           "He is weighing which version of the story someone would buy")
         (tr "与记者深谈" "Talk with the Reporter"))
       (node-rest "在餐桌边停下" (tr "在餐桌边停下" "Pause by the Table")
-        "晚宴-沙龙" 1 (tr "花一颗行动骰，恢复 1 点冷静"
-          "Spend one die to regain 1 composure")))))
+        "晚宴-沙龙" 1 (tr "花一颗行动骰，恢复 1 点心情"
+          "Spend one die to regain 1 mood")))))
 
 (define (get-render-data)
   ;; 根节点名就是地点名，对应 Anchor_晚宴；分幕是内部状态，不进名字。

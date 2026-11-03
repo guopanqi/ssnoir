@@ -68,7 +68,7 @@
       (play-dialogue!
         (line 剧院运货人 "顺着单子查到了。衣箱送到后台了，您进去点点数。")))
     (define (costume-action id name skill anchor)
-      (node id :name name :anchor anchor :subtitle "核对衣箱去向；坏结果损失1冷静"
+      (node id :name name :anchor anchor :subtitle "核对衣箱去向；坏结果损失1心情"
         :risk '冒险 :risk-target (list 'composure "player")
         :progress-target (list 'clock "找回演出服") :requires (list (req-die))
         :resolve (roll skill
@@ -93,6 +93,8 @@
               :primary (contract-open?) :status (if (contract-open?) '进行中 '了结)
               :now (cond
                 ((equal? contract-state "婉拒") "你婉拒了演出服调查，经理会另找人。")
+                ((and (> world-day 13) (member? contract-state '("待答复" "已接下")))
+                  "试演已经结束，这项委托过期了。")
                 ((equal? contract-state "待答复")
                   (string-append "经理提出45美元的演出服调查，" (第二幕-日期 13) "试演收工前交付。还没答应，可以接下或婉拒。"))
                 ((equal? contract-state "完成") "演出服已交付，收到45美元。经理记住了尼尔做事的能力。")
@@ -142,11 +144,11 @@
             (append
               (list
                 (node "旧街热饭" :name "吃顿热饭"
-                  :subtitle "花3美元和一枚骰子，恢复2点冷静"
+                  :subtitle "花3美元和一枚骰子，恢复2点心情"
                   :requires (list (req-die) (req-item "金钱" 3))
                   :resolve (instant (outcome meal!)))
                 (node "旧街牌桌" :name "打几手牌"
-                  :subtitle "押5美元；输牌会损失冷静"
+                  :subtitle "押5美元；输牌会损失心情"
                   :risk '冒险 :risk-target (list 'composure "player")
                   :progress-target (list 'item "金钱")
                   :requires (list (req-die) (req-item "金钱" 5))

@@ -2,7 +2,7 @@
 (define 完成? #f)
 (define 目标A (make-clock "目标A" A上限 'gauge (if (eq? 研究模式 '收尾) "必需目标；完成就结束Scenario。" "完成保留；未完成部分按本场规则结算。")))
 (define 目标B (make-clock "目标B" B上限 'gauge (if (eq? 研究模式 '收尾) "额外目标；必须在A完成之前处理。" "完成保留；未完成部分按本场规则结算。")))
-(define 期限 (make-clock "已过回合" 回合上限 'gauge "回合末加1；引擎另花1冷静。"))
+(define 期限 (make-clock "已过回合" 回合上限 'gauge "回合末加1；引擎另花1心情。"))
 (define (顺序结果 status)
   (list status (目标A 'current) (目标B 'current)
     (min 回合上限 (+ 1 (期限 'current))) (actor-composure 'player)))
@@ -29,12 +29,12 @@
 (define (顺序动作 前缀 钟)
   (if (钟 'full?) '()
     (list
-      (node (string-append "稳做" 前缀) :subtitle "坏：冷静−1；中：无变化；好：进度+1。"
+      (node (string-append "稳做" 前缀) :subtitle "坏：心情−1；中：无变化；好：进度+1。"
         :requires (list (req-die))
         :resolve (roll 'knowledge
           (outcome 顺序坏!) (outcome (lambda () #f))
           (outcome (lambda () (顺序推进! 钟 1)))))
-      (node (string-append "快做" 前缀) :subtitle "坏：冷静−1；中：冷静−1、进度+1；好：进度+2。"
+      (node (string-append "快做" 前缀) :subtitle "坏：心情−1；中：心情−1、进度+1；好：进度+2。"
         :requires (list (req-die))
         :resolve (roll 'knowledge
           (outcome 顺序坏!) (outcome (lambda () (顺序风险中! 钟)))

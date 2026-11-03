@@ -203,7 +203,7 @@
             (join-repair! 1)))
         ;; 坏结果沿用普通高风险工作的刻度：不挣钱、不推进，扣 2 点冷静。
         (outcome (lambda () (join-repair! 0) (spend-composure! 2)))
-        (string-append "急活加价。还剩 " (number->string (repair-days-left)) " 天")))
+        (string-append "临时活儿，帮忙抢修等着出航的货船。报酬较高，但失误也会遭到一顿臭骂。还剩 " (number->string (repair-days-left)) " 天")))
 
     ;; ── 船修好了却不开 ───────────────────────────────
     (define (on-hold-result! result)

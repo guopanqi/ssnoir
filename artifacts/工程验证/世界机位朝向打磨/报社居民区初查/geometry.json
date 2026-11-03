@@ -1,0 +1,53 @@
+{
+  "source": "/Users/usr/Documents/play/ssnoir/city-box/build/city/city_build.blend",
+  "world_view_yaw": -84.18903686484032,
+  "rotations": [
+    "报社=-180",
+    "码头居民区=-180"
+  ],
+  "moves": [],
+  "world_position": null,
+  "camera_scales": [],
+  "camera_yaws": [],
+  "returns": [
+    {
+      "place": "报社",
+      "path": "AuthoredArc",
+      "body_crossings": []
+    },
+    {
+      "place": "码头居民区",
+      "path": "AuthoredArc",
+      "body_crossings": []
+    }
+  ],
+  "scope": "current assembled exterior geometry; representative world start; dominant mass probes; own-root occlusion excluded; no dynamic visibility or near-plane sweep proof",
+  "places": [
+    {
+      "place": "报社",
+      "path": "DirectApproach",
+      "map_south_deviation": 26.96377365106982,
+      "world_view_deviation": 111.15281051591012,
+      "masses": [
+        "报社建筑_主体_dim_hard_edges_shell",
+        "报社建筑_主体_bright_hard_edges_shell",
+        "报社建筑_主体_dim_none_shell"
+      ],
+      "body_crossings": [],
+      "external_occlusion": []
+    },
+    {
+      "place": "码头居民区",
+      "path": "DirectApproach",
+      "map_south_deviation": 28.24145820451779,
+      "world_view_deviation": 112.43049506935813,
+      "masses": [
+        "屋顶杂物",
+        "街区之间",
+        "地块_00"
+      ],
+      "body_crossings": [],
+      "external_occlusion": []
+    }
+  ]
+}

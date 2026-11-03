@@ -1,0 +1,234 @@
+{
+  "source": "/Users/usr/Documents/play/ssnoir/city-box/build/city/city_build.blend",
+  "rotations": [
+    "街角咖啡馆=90",
+    "货运公司=-70",
+    "雕像=90"
+  ],
+  "scope": "current assembled exterior geometry; representative world start; dominant mass probes; own-root occlusion excluded; no dynamic visibility or near-plane sweep proof",
+  "places": [
+    {
+      "place": "街角咖啡馆",
+      "path": "DirectApproach",
+      "south_deviation": -38.83515336787929,
+      "masses": [
+        "底层后墙.001",
+        "二层墙.002",
+        "底层后墙"
+      ],
+      "body_crossings": [],
+      "external_occlusion": []
+    },
+    {
+      "place": "货运公司",
+      "path": "DirectApproach",
+      "south_deviation": 36.75367653270358,
+      "masses": [
+        "外形壳体_转角柱",
+        "外形壳体_完整大楼外墙",
+        "外形壳体_正立面上层墙"
+      ],
+      "body_crossings": [],
+      "external_occlusion": []
+    },
+    {
+      "place": "雕像",
+      "path": "DirectApproach",
+      "south_deviation": -36.63390144200871,
+      "masses": [
+        "雕像_本体",
+        "雕像_基座",
+        "雕像_座脚"
+      ],
+      "body_crossings": [],
+      "external_occlusion": [
+        {
+          "progress": 0.75,
+          "blockers": {
+            "B.039": 1,
+            "R.035": 3
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.8,
+          "blockers": {
+            "B.039": 5,
+            "B.045": 12
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.85,
+          "blockers": {
+            "B.045": 20
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.9,
+          "blockers": {
+            "B.045": 22
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.95,
+          "blockers": {
+            "B.045": 22
+          },
+          "probes": 27
+        },
+        {
+          "progress": 1,
+          "blockers": {
+            "B.045": 23
+          },
+          "probes": 27
+        }
+      ]
+    },
+    {
+      "place": "剧院",
+      "path": "DirectApproach",
+      "south_deviation": -62.57337560934121,
+      "masses": [
+        "完整球形穹顶",
+        "底座实体",
+        "后台楼体"
+      ],
+      "body_crossings": [],
+      "external_occlusion": []
+    },
+    {
+      "place": "老街酒馆",
+      "path": "DirectApproach",
+      "south_deviation": 47.12247252232673,
+      "masses": [
+        "屋顶雕塑_抽象马头",
+        "侧巷底层墙",
+        "后墙.002"
+      ],
+      "body_crossings": [],
+      "external_occlusion": []
+    },
+    {
+      "place": "码头",
+      "path": "AuthoredArc",
+      "south_deviation": 95.02009504778849,
+      "masses": [
+        "货轮",
+        "栈桥2",
+        "栈桥6"
+      ],
+      "body_crossings": [],
+      "external_occlusion": [
+        {
+          "progress": 0.3,
+          "blockers": {
+            "世界": 4
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.35,
+          "blockers": {
+            "世界": 4
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.4,
+          "blockers": {
+            "世界": 4
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.45,
+          "blockers": {
+            "世界": 4
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.5,
+          "blockers": {
+            "世界": 4
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.55,
+          "blockers": {
+            "世界": 4
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.6,
+          "blockers": {
+            "世界": 4
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.65,
+          "blockers": {
+            "世界": 4
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.7,
+          "blockers": {
+            "世界": 4
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.75,
+          "blockers": {
+            "世界": 4
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.8,
+          "blockers": {
+            "世界": 4
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.85,
+          "blockers": {
+            "世界": 4
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.9,
+          "blockers": {
+            "世界": 4
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.95,
+          "blockers": {
+            "世界": 4
+          },
+          "probes": 27
+        },
+        {
+          "progress": 1,
+          "blockers": {
+            "世界": 4
+          },
+          "probes": 27
+        }
+      ]
+    }
+  ]
+}

@@ -1,50 +1,61 @@
 ;; 第一章第三幕《银色打火机》：城市事件与人物自主进展。
-;; 独立 Scenario 尚待设计；当前用分段城市行动承载真实付出，不增加故事结局分支。
+;; 城市循线后：货运大楼潜入或支付150美元，各自结案；暂不启用城市期限。
 ;; 所有城市行动使用现有骰子/金钱/冷静系统；不另建任务或日程系统。
 ;; 普通配角在所属事件模块就近声明；对白不依赖尚不存在的配音资产。
-(define 第三幕-旅馆店员 (speaker "第三幕旅馆店员" :name "旅馆店员" :appearance '成年男性))
 (define 第三幕-罗科 (speaker "第三幕罗科" :name "罗科" :appearance '成年男性))
-(define 第三幕-码头搬运工 (speaker "第三幕码头搬运工" :name "搬运工" :appearance '成年男性))
-(define 第三幕-工头 (speaker "第三幕工头" :name "工头" :appearance '成年男性))
+(define 第三幕-来客 (speaker "第三幕来客" :name "来客" :appearance '成年男性))
+(define 第三幕-贵客 (speaker "第三幕贵客" :name "贵客" :appearance '成年男性))
 (define 第三幕-收购代表 (speaker "第三幕收购代表" :name "收购代表" :appearance '成年男性))
 (define 第三幕-汤米 (speaker "第三幕汤米" :name "汤米" :appearance '成年男性))
 (define 第三幕
  (let ()
   (define started? #f)
   (define start-day 0)
-  (define case-state "未开始")     ; 调查／结案
-  (define rocco-hotel? #f)
+  (define case-state "未开始")     ; 调查／补救／结案
+  (define inquiry-stage "守候") ; 守候／跟车／记录／核查／旧事／公司／已查清
+  (define inquiry-day 0)          ; 下次可守候或领取核查结果的世界日
   (define rocco-contract? #f)
   (define rocco-ledger? #f)
   (define rocco-threat? #f)
   (define rocco-warehouse? #f)
-  (define watched? #f)
-  (define watch-work (make-clock "摸清夜间行踪" 2 'gauge "先认清出入的人，再沿侧巷跟进。" :beneficial-direction 'increase))
-  (define warehouse-work (make-clock "了结罗科纠缠" 3 'gauge "当面对账、商定结算，再留下停止接触的见证记录。" :beneficial-direction 'increase))
-  (define eddie-work (make-clock "协助吊机检修" 3 'gauge "清出作业区、搬来备件，再协助艾迪试车。" :beneficial-direction 'increase))
-  (define tommy-work (make-clock "照应贵客牌局" 3 'gauge "问清来意、安排侧间，再陪汤米处理争执。" :beneficial-direction 'increase))
+  (define papers-leaked? #f)
+  (define nightingale-protected? #f)
+  (define settlement-fund 0)
+  (define manager-advance 0)
+  (define case-expense 0)
+  (define warehouse-stopped? #f)
+  (define warehouse-private-exposed? #f)
+  (define warehouse-ledger? #f)
+  (define warehouse-threat? #f)
+  (define warehouse-material? #f)
+  (define 金钱协议价 150)
+  (define tommy-work (make-clock "照应贵客牌局" 3 'gauge "问清来意，选择怎样处理讨债，再陪汤米交涉。" :beneficial-direction 'increase))
   (define report? #f)
   (define nightingale-night "未邀请") ; 未邀请／待答复／已赴约／婉拒
-  (define eddie-met? #f)
-  (define eddie-help? #f)
-  (define eddie-hired? #f)
-  (define eddie-celebrated? #f)
   (define lucy-met? #f)
-  (define lucy-read? #f)
-  (define lucy-comment? #f)
+  (define lucy-material "未谈") ; 未谈／入稿／寄后
   (define lucy-mailed? #f)
   (define lucy-after? #f)
   (define frank-met? #f)
+  (define frank-aboard? #f)
   (define frank-debate? #f)
   (define frank-refused? #f)
   (define tommy-met? #f)
+  (define tommy-met-day 0)
+  (define tommy-invited? #f)
   (define tommy-intel? #f)
   (define tommy-hosted? #f)
+  (define tommy-approach "未定") ; 未定／私下／当众
   (define tommy-advanced? #f)
   (define tommy-after? #f)
   (define (active?) (and started? (not (第二章 'started?))))
-  (define (elapsed) (- world-day start-day))
-  (define (case-open?) (and (active?) (equal? case-state "调查")))
+  (define (city-active?) (and (>= (第一幕 'act) 2) (not (第二章 'started?))))
+  ;; 城市事件各有自己的排布，暂用现有试唱、码头测绘日程附近的值；不跟接案日一起重置。
+  (define 泊位协商日 16)
+  (define 泊位答复日 19)
+  (define 贵客准备日 17)
+  (define 贵客散场日 21)
+  (define (case-open?) (and (active?) (member? case-state '("调查" "补救"))))
   (define (ensure-case!) (if (case-open?) #t (error "第三幕：案件当前不可调查")))
   (define (start!)
     (if (or started? (not (= (第一幕 'act) 2))
@@ -53,132 +64,131 @@
     (set! started? #t)
     (set! start-day world-day)
     (set! case-state "调查")
+    (set! inquiry-stage "守候")
+    (set! inquiry-day world-day)
     (第一幕 'begin-third-act!)
     (play-dialogue!
-      (line "世界" "经理关上办公室的门，把一只信封推过桌面。里面有几张字迹粗重的索款纸条。")
-      (line "经理" "尼尔，这不是找衣箱的活儿。有人在剧院侧门等她，甚至把信送进了化妆间。")
-      (line "尼尔" "她认识这个人？")
-      (line "经理" "她说是个叫罗科的旧代理人。她不肯一个人走后门。我想知道他到底想干什么。")
-      (line "夜莺" "他以前替我安排过演出。现在他拿着一张旧合同，说我一辈子都欠他的。")
-      (line "夜莺" "昨天他就在街那头站着。我不想再看见他了。")
-      (line "经理" "我付你八十块。查清是谁、手里有什么、怎样才能让他别再来。")
-      (line "尼尔" "我要看看合同和那些信。")
-      (line "经理" "在化妆间。去吧，兄弟。这次我真指望你。")))
-  (define (learn-hotel! grade)
+      (line "尼尔" "这份调查我接了。等他再来，我跟上去，记下人和车。")
+      (line "经理" "我把车借给你。查清他是谁，再想办法让他停止纠缠她。")))
+  (define (offer!)
+    (play-dialogue!
+      (line "世界" "经理关上办公室的门，指了指侧门外的街道。")
+      (line "经理" (cond
+        ((equal? (第二幕剧院 'audience-result) "车辆线索")
+          "联城车行，车牌末三位四七二。你那晚记下的我收着了，可车行的车经常换人开。得把这个人与他开的车一起认准。")
+        ((equal? (第二幕剧院 'audience-result) "倒下")
+          "听说你追那个人时受了伤。他最近还在侧门附近出现。先养好精神，我想请你把这件事查清。")
+        (else "试唱那晚的黑大衣，最近还在侧门附近出现。我想请你把这件事查清。")))
+      (line "夜莺" "门房也见过他。我不想每天散场都想着，街对面是不是还有个人。")
+      (line "经理" "八十美元。先查清他是谁，在哪里落脚，再想办法让他别来纠缠。我的车可以借你。")
+      (line "尼尔" "等他下次出现，我跟上去。")))
+  (define (preparing?) (and (case-open?) rocco-warehouse?))
+  (define (ensure-preparing!)
+    (if (preparing?) #t (error "罗科：尚未查清公司内的材料与进入机会")))
+  (define (ensure-inquiry! stage)
     (ensure-case!)
-    (if (eq? grade '坏)
-      (begin (spend-composure! 1)
-        (play-dialogue! (line 第三幕-旅馆店员 "这里每天进进出出几十个人。我可不替你记脸。")))
-      (begin (set! rocco-hotel? #t)
-        (play-dialogue!
-          (line 第三幕-旅馆店员 "那只银打火机？见过。他租了后面的房间，常去货栈那条街。")
-          (line "尼尔" "他通常什么时候回来？")
-          (line 第三幕-旅馆店员 (if (eq? grade '好)
-            "天黑前。最近还有个男人替他搬纸箱，车停在侧巷。"
-            "说不准。他交钱的时候总是很准时。"))))))
-  (define (learn-contract!)
-    (ensure-case!)
+    (if (equal? inquiry-stage stage) #t (error "第三幕：调查阶段不符")))
+  (define (tail-result! result)
+    (ensure-inquiry! "跟车")
+    (if (member? result '(取得识别线索 跟踪暴露 线索不足)) #t
+      (error "第三幕：未知跟车结果"))
+    (if (eq? result '取得识别线索)
+      (begin
+        (set! inquiry-stage "记录")
+        (play-dialogue! (line "尼尔" "车牌和人的样子都记下了。回去让经理查一查。")))
+      (begin
+        (set! inquiry-stage "守候")
+        (set! inquiry-day (+ world-day 1))
+        (play-dialogue! (line "世界" "这次没记全。尼尔把零散记录收好；今晚继续追只会更显眼，只能改天再等他出现。")))))
+  (define (wait-for-car!)
+    (ensure-inquiry! "守候")
+    (if (>= world-day inquiry-day) #t (error "第三幕：今天已错过跟车机会"))
+    (set! inquiry-stage "跟车")
+    (play-dialogue!
+      (line "世界" "尼尔把借来的车停在剧院附近。雨下起来时，黑大衣从侧门对面的屋檐下走出，坐进一辆轿车。")
+      (line "尼尔" "就是他。"))
+    (start-scenario "雨夜跟车（识别版）" tail-result!))
+  (define (give-car-record!)
+    (ensure-inquiry! "记录")
+    (set! inquiry-stage "核查")
+    (set! inquiry-day (+ world-day 1))
+    (play-dialogue!
+      (line "世界" "尼尔把车牌、车型和男子的外貌记录交给经理。")
+      (line "经理" "我去问车行和做货运的熟人。明天回来找我。")))
+  (define (manager-findings!)
+    (ensure-inquiry! "核查")
+    (if (>= world-day inquiry-day) #t (error "第三幕：核查结果尚未回来"))
+    (set! inquiry-stage "旧事")
+    (play-dialogue!
+      (line "经理" "车行核过了，车已经卖给一个叫罗科的人。人也对得上。他在货运联合公司租了办公室，收信、寄东西都走那里。")
+      (line "尼尔" "罗科。这个名字，夜莺认识吗？")
+      (line "经理" "去问问她。我把地址给你。")))
+  (define (nightingale-history!)
+    (ensure-inquiry! "旧事")
+    (set! inquiry-stage "公司")
     (set! rocco-contract? #t)
     (play-dialogue!
-      (line "世界" "旧合同有夜莺的签名。罗科付过服装和路费，作为交换，要从演出报酬里抽取一份。期限已经届满。")
-      (line "夜莺" "当时连回家的车票都是他垫的。我确实欠过他。")
-      (line "尼尔" "但这张合同不能把你以后的每一次演出都算进去。")
-      (line "夜莺" "你跟他说，他会拿出另一本账。那上面永远写着我还欠他多少。")))
-  (define (learn-ledger! grade)
-    (ensure-case!)
-    (if (eq? grade '坏)
-      (begin (spend-composure! 1)
-        (play-dialogue! (line "调酒师" "去年的账没那么好翻。你别把我这儿翻成警察局。")))
-      (begin (set! rocco-ledger? #t)
-        (play-dialogue!
-          (line "世界" "旧账簿上有一笔直接付给罗科的演出报酬，旁边留着他的收款签名。")
-          (line "调酒师" "那个月夜莺唱了好几场。钱是罗科来领的，还非让我写清楚。")
-          (line "尼尔" "他寄来的欠款清单里，没有这笔。")
-          (line "调酒师" "那你最好把这一页抄准确。那家伙记账可不是为了少收钱。")))))
-  (define (learn-threat! grade)
-    (ensure-case!)
-    (if (eq? grade '坏)
-      (begin (spend-composure! 1)
-        (play-dialogue! (line "尼尔" "人群散了，侧门什么都没留下。今晚白等。")))
-      (begin (set! rocco-threat? #t)
-        (play-dialogue!
-          (line "世界" "散场后，一个穿黑大衣的男人从街角走出，朝夜莺的汽车走去。")
-          (line "尼尔" "罗科。别靠近她。")
-          (line 第三幕-罗科 "我没碰她。我只想要属于我的钱。")
-          (line "世界" "罗科退回人群。尼尔记下了他出现的时间，也看见他刚才拦住司机的动作。")))))
-  (define (learn-warehouse!)
-    (ensure-case!)
+      (line "尼尔" "那辆车的主人叫罗科。在货运联合公司租着办公室。")
+      (line "夜莺" "罗科？是我从前的经纪人。我没看清街对面的人，没想到他已经找到这里。")
+      (line "夜莺" "他替我找过演出，垫过服装和旅费。我签过合同，也付过钱。后来只要我接到工作，他就说还有一笔账没结。")
+      (line "夜莺" "合同早到期了。他还留着我的信和旧演出的材料，说不按他的数付钱，就拿去给报社。")
+      (line "尼尔" "你还留着合同吗？")
+      (line "世界" "夜莺拿出自己的那份。代理期限已经届满，垫款和已付报酬却需要另行核对。")
+      (line "尼尔" "我去公司查查。他租了什么地方，东西放在哪里，又准备怎么寄出去。")))
+  (define (investigate-company!)
+    (ensure-inquiry! "公司")
+    (set! inquiry-stage "已查清")
     (set! rocco-warehouse? #t)
     (play-dialogue!
-      (line 第三幕-码头搬运工 "罗科？那是以前替歌手运箱子的。旧货栈里还租着一间小库房。")
-      (line "尼尔" "最近有货出门？")
-      (line 第三幕-码头搬运工 "有几箱纸和衣服。白天有人来问过运费。那人想把东西带走。")))
-  ;; C1 接口：将来可由 Scenario 用真实结果调用此消息。
-  (define (night-watch-finish! result)
-    (if (and (case-open?) (not watched?)
-             (member? result '(见到联系人 守住旅馆 跟丢)))
-      #t (error "第三幕旅馆夜守：结果或状态非法"))
-    (set! watched? #t)
-    (if (eq? result '见到联系人) (set! rocco-warehouse? #t) #f)
+      (line "世界" "尼尔以询问寄存和临时装卸为由，查了楼里的租户名录与收发安排。罗科租用三楼一间办公室，也租着旁边档案室的柜位。")
+      (line "世界" "收发处有他预约的外寄包裹：旧账、信件和准备交给小报的指控稿，封好后会由公司的货运或邮寄渠道送出。")
+      (line "尼尔" "他不是这里的老板。装卸场还在招人，搬运工核完货，要把运单送上三楼。")
+      (line "尼尔" "可以借这个机会进去找材料，再和他谈。也可以筹一百五十美元，请经理到货运公司见证签约，把钱和停止纠缠的条件一起结清。")))
+  (define (clear-case-items!)
+    (if (> settlement-fund 0) (begin
+      (remove-item! "罗科结算款" 1)
+      (add-item! "金钱" settlement-fund)
+      (set! settlement-fund 0)) #f)
+    (if (> (item-count "罗科付款凭据") 0) (remove-item! "罗科付款凭据" 1) #f)
+    (if (> (item-count "罗科恐吓证词") 0) (remove-item! "罗科恐吓证词" 1) #f))
+  (define (resolve-case!)
+    (clear-case-items!)
+    (set! warehouse-stopped? #t)
+    (set! case-state "结案"))
+  (define (money-agreement!)
+    (ensure-preparing!)
+    ;; 150美元全部由资源槽支付；不在本路线组织预支或其他筹款方式。
     (play-dialogue!
-      (line "世界" (cond
-        ((eq? result '见到联系人) "替罗科搬箱的人沿着电车线走到货栈，敲开一道侧门。")
-        ((eq? result '守住旅馆) "罗科在旅馆门口停了片刻，确认身后没有人，才往码头方向走。")
-        (else "两个人分头离开。尼尔跟丢了其中一人，但记住了他们分开的地点。")))
-      (line "尼尔" "至少知道他不是随口说说。他已经在处理那些东西了。")))
-  (define (watch-step!)
-    (ensure-case!)
-    (if watched? (error "旅馆夜守：已经完成") #t)
-    (watch-work 'advance! 1)
-    (if (watch-work 'full?)
-      (night-watch-finish! '见到联系人)
-      (play-dialogue!
-        (line "世界" "尼尔记下旅馆正门与侧巷的出入。一个替罗科搬箱的男人走进了后门。")
-        (line "尼尔" "认得他了。接下来得看他往哪里走。"))))
-  (define (case-ready?)
-    (and rocco-warehouse? rocco-contract? (or rocco-ledger? rocco-threat?)))
-  (define (warehouse-step!)
-    (ensure-case!)
-    (if (case-ready?) #t (error "货栈交锋：尚未查清去处、旧约与付款或骚扰事实"))
-    (warehouse-work 'advance! 1)
+      (line "世界" "经理来到货运公司，在罗科租用的办公室里见证双方签约。")
+      (line "经理" "一百五十美元，一次结清，解除代理关系，以后不许再纠缠。条款都写在这里。")
+      (line 第三幕-罗科 "钱到手，我签字。")
+      (line "尼尔" "收款、解除关系、停止接触，不再把私人材料交给报社。都签清楚。")
+      (line "世界" "经理在场见证。罗科签下协议，清点一百五十美元，把手里的私人材料交还，收据也签了字。"))
+    (resolve-case!))
+  (define (infiltration-result! result)
+    (ensure-preparing!)
     (cond
-      ((warehouse-work 'full?) (warehouse-finish! '完成结案))
-      ((= (warehouse-work 'current) 1)
-        (play-dialogue!
-          (line "世界" "尼尔在货栈找到罗科，把旧合同摊在桌上，逐项指出已经届满的约定。")
-          (line 第三幕-罗科 "合同是一回事，我替她垫的钱是另一回事。先把账说清楚。")))
-      (else
-        (play-dialogue!
-          (line "世界" "尼尔把有争议的款项单列出来，与罗科逐项核对，并请剧院安排见证人。")
-          (line "尼尔" "钱要有凭据。结算以后，怎样停止接触，也得写下来。")))))
-  ;; C4 结果契约；当前由三段城市交锋调用，故事结果保持简单。
-  (define (warehouse-finish! result)
-    (if (and (case-open?) (member? result '(完成结案 较差结算)))
-      #t (error "第三幕货栈：结果或状态非法"))
-    (set! case-state "结案")
-    (play-dialogue!
-      (line "世界" "见证人来到货栈。尼尔把此前逐项核过的账单与约定放在灯下。")
-      (line 第三幕-罗科 "我替她跑过多少地方？那些旅费和房钱是谁付的？她说不要我，就不要我了？")
-      (line "尼尔" (if rocco-ledger?
-        "你付过钱。她也还过。你交出的清单里少了一笔。"
-        "你主张的旧账得逐项核对。守在侧门堵人，不能让账变得更有道理。"))
-      (line "世界" (if rocco-ledger?
-        "尼尔把旧酒馆的付款记录放在桌上。那一笔钱，罗科亲手签收。"
-        "尼尔指出了需要重新核对的付款。经理安排的法律顾问会要求罗科逐项结算，不能继续照他这份清单索取。"))
-      (line "尼尔" (if rocco-threat?
-        "旧账可以算清。至于你守在侧门拦她的事，也有人看见。继续纠缠，她会正式追究。"
-        "旧账可以算清。但你必须停止在剧院等她，之后的接触只通过见证人办理。"))
-      (line 第三幕-罗科 "你替她把账算完，倒像你从前也跟着我们跑过戏班。")
-      (line "世界" "双方随后在见证下核清真实余额，结束旧代理关系。罗科放弃不成立的索款，承诺停止接近夜莺，并离开本城。")
-      (line "尼尔" "他走了。我会再查一次车站记录。")))
+      ((equal? result "问题被解决") (resolve-case!))
+      ((equal? result "失败")
+        (play-dialogue! (line "世界" "潜入没能办成，罗科的纠缠还没有结束。尼尔仍可以另找机会进入货运大楼，或筹钱来货运公司达成协议。")))
+      (else (error "货运大楼潜入：未知结果"))))
+  (define (enter-infiltration!)
+    (ensure-preparing!)
+    (start-scenario "货运大楼潜入" infiltration-result!))
   (define (confirm-report!)
     (if (and (active?) (equal? case-state "结案") (not report?))
       #t (error "第三幕：结案报告状态非法"))
     (set! report? #t)
-    (add-item! "金钱" 80)
+    (add-item! "金钱" (- 80 manager-advance case-expense))
     (play-dialogue!
       (line "世界" "罗科已经乘车离城。尼尔将他的结算记录、离城核实和调查摘要交给经理。")
-      (line "经理" "干得漂亮，尼尔！我说过你靠得住。这是约定的报酬。")
+      (line "经理" (if papers-leaked?
+        "旧代理关系总算了结了，但报社那边还得收拾。结算和补救费用扣过了，这是剩余报酬。"
+        "罗科已经离城，事情办完了。扣去预支和代付的结算款，这是剩余报酬。"))
+      (line "经理" (cond
+        (warehouse-private-exposed? "记者还记下了私人信件。报道交易停了，这部分隐私却没能保住。")
+        (papers-leaked? "已经流出的材料还得继续处理，不能说隐私已经保住。")
+        (else "私人材料没有再落到报社手里。这一点很重要。")))
       (line "尼尔" "以后如果还有类似的事，我可以帮忙。")
       (line "经理" "当然。这座城里，能把事情真正办完的人不多。")))
   (define (invite-private-night!)
@@ -207,88 +217,70 @@
       (line "尼尔" "我知道。")
       (line "夜莺" "你说，我会不会有一天走到哪儿，都有人认得我？")
       (line "世界" "河对岸的剧院亮着灯。她把纸杯递给尼尔，手指在他的手背上停了片刻。")))
-  ;; 艾迪：技术判断属于艾迪，尼尔负责帮工与争取停机条件。
-  (define (eddie-meet!)
-    (set! eddie-met? #t)
-    (play-dialogue!
-      (line "艾迪" (if eddie-hired?
-        "工头已经把那组老吊机交给我了。以后哪台出事，就先叫我。"
-        "工头想让我接一组老吊机。以后哪台出事，就先叫我。"))
-      (line "尼尔" "正式岗位？")
-      (line "艾迪" (if eddie-hired?
-        "签过字了。我买了双工作靴，想着能穿久一点。"
-        "要是这次检修做得好，就签字。我买了双工作靴，想着能穿久一点。"))))
-  (define (eddie-help!)
-    (if (and (active?) eddie-met? (not eddie-hired?) (not eddie-help?)) #t
-      (error "艾迪检修：当前不能协助"))
-    (eddie-work 'advance! 1)
-    ;; 按实际劳动逐次付钱；独立受聘不会重复发放帮工报酬。
-    (add-item! "金钱" 4)
-    (cond
-      ((= (eddie-work 'current) 1)
-        (play-dialogue!
-          (line "艾迪" "先别开机。尼尔，帮我把作业区清出来，让下面的人都离开。")
-          (line "世界" "尼尔与工人清开货物。艾迪安排卸下吊重，检查制动装置。")))
-      ((= (eddie-work 'current) 2)
-        (play-dialogue!
-          (line "艾迪" "制动索磨坏了。照这个规格去领新的，旧的也带过去。")
-          (line "世界" "尼尔从库房搬回替换件，艾迪核过尺寸，开始更换。")))
-      (else
-        (set! eddie-help? #t)
-        (play-dialogue!
-          (line "世界" "尼尔守在试车区外，确认工人都已退开，再向艾迪打出手势。")
-          (line "世界" "艾迪逐项试过制动与空载运转。工头看过记录，在检修单上签了字。")
-          (line "艾迪" "这下才算能开。谢谢你搭手。")))))
-  ;; C2 接口：未来可传 (安全修复／返工)；两种结果均保留艾迪自己的能力。
-  (define (eddie-finish! result)
-    (if (member? result '(安全修复 返工)) #t (error "第三幕艾迪：非法Scenario结果"))
-    (set! eddie-help? #t))
-  (define (eddie-celebrate!)
-    (set! eddie-celebrated? #t)
-    (play-dialogue!
-      (line "艾迪" "工资还没到手，工头先把名字写上去了。往后那几台老机器就归我管。")
-      (line "艾迪" "以前机器坏了都找我。现在总算得付我钱了！")
-      (line "尼尔" "打算怎么花第一笔？")
-      (line "艾迪" "先把靴子钱补上。剩下的存着。兴许哪天买辆自己的汽车。")))
-  ;; 露西：交流本身不收费；稿件会自行寄出。
+  ;; 写作拥有者只引用老人经历是否完成，不接管其四段进度。
+  (define (lucy-mail-day) (+ (第二幕 'lucy-writing-day) 6))
+  (define (lucy-material-pending?)
+    (and (两杯咖啡 'completed?) (equal? lucy-material "未谈")))
   (define (lucy-meet!)
     (set! lucy-met? #t)
     (play-dialogue!
-      (line "露西" "瞧瞧那边三个人。窗边那个每次都等人，却从没见过有人来。")
-      (line "尼尔" "也许他是在等老婆。")
-      (line "露西" "也许是在等债主。你看他把杯垫翻过去写字，写完又全擦掉。")
-      (line "尼尔" "你怎么什么都注意？")
-      (line "露西" "我写他们呀。等有一天他们真的来找我，我就说一切都是编的。")))
-  (define (lucy-read!)
-    (set! lucy-read? #t)
-    (play-dialogue!
-      (line "世界" (if lucy-mailed?
-        "露西从柜台下取出留存的底稿。稿纸上的侦探租着一间漏雨的办公室，靠替人打听婚外情付房租。"
-        "稿纸上的侦探租着一间漏雨的办公室，靠替人打听婚外情付房租。"))
-      (line "尼尔" "这侦探怎么跟我那么像？")
-      (line "露西" "你哪有他那么潇洒。他至少有一张自己的办公桌。")
-      (line "尼尔" "他下一页就要抓到坏人了吗？")
-      (line "露西" "也许。也许他只是终于知道，自己一开始就找错了人。")
-      (line "世界" (if lucy-mailed?
-        "露西把最后一页翻了过去，示意尼尔从头读，别急着偷看结尾。"
-        "她把稿纸抽回来，仍不肯让尼尔看最后一页。"))))
-  (define (lucy-talk!)
-    (set! lucy-comment? #t)
-    (play-dialogue!
+      (line "世界" "露西把柜台上的纸翻过来。背面是一段打过又改了的故事，已经写了好几页。")
+      (line "尼尔" (if (第二幕 'lucy-class-talk?)
+        "这回不是给我的事务所打招牌了？" "这也是打字练习？"))
+      (line "露西" (if (> (第二幕 'lucy-enrolled-day) 0)
+        "练习归练习。这几页是我自己写的故事。"
+        "课本总不能读一辈子。我自己试着写点东西，打不顺的地方就用手写。"))
       (line "露西" (if lucy-mailed?
-        "我原先写了两个结尾。寄出去的那个，他回到咖啡馆，还是只喝得起最便宜的咖啡。另一个倒是让他出了名。"
-        "我写了两个结尾。一个让侦探有了名气；另一个，他回到咖啡馆，还是只喝得起最便宜的咖啡。"))
-      (line "尼尔" "他总该赢点什么。")
-      (line "露西" "他已经认识了那么多人。难道这还不算？")
-      (line "世界" (if lucy-mailed?
-        "露西笑着把底稿收好。故事已经寄出去了，这回她没再伸手改最后一页。"
-        "露西笑着把稿纸收好。她并没有立刻决定要写哪一个。"))))
-  (define (lucy-after!)
+        "这一篇已经寄了。下一篇写什么，还没想好。"
+        "里面有个侦探。不过写着写着，就不知道该让他遇上什么人了。"))
+      (line "露西" "你在店里要是碰上什么怪事，记得讲给我听。天天端咖啡，总该有点用处。")
+      (line "尼尔" "行。我替你留意。")))
+  (define (lucy-share!)
+    (if (and (city-active?) lucy-met? (not lucy-after?)
+             (第二幕 'lucy-at-cafe?) (lucy-material-pending?))
+      #t (error "露西素材：当前不能讲述老人经历"))
+    (set! lucy-material (if lucy-mailed? "寄后" "入稿"))
+    (play-dialogue!
+      (line "尼尔" "你说要找些事情写。我见着一件。窗边那个老人，每次都要两杯咖啡。")
+      (line "世界" "尼尔说起老人让座、窗外的街道，还有那场没说清的父子争吵。")
+      (line "尼尔" "今天他儿子来了。他们什么也没说，喝完就一起走了。")
+      (line "露西" "两杯都喝完了？")
+      (line "尼尔" "都喝完了。")
+      (line "露西" (if lucy-mailed?
+        "这一篇已经寄出去了。这件事我留着，下回写。"
+        "等等，我找支铅笔。侦探在窗边看到这一幕，比我原来写的那段好。"))
+      (line "世界" "她抽过一张收据，在背面记下了几行字。")))
+  (define (lucy-finish!)
+    (if (and (city-active?) lucy-met? lucy-mailed? (not lucy-after?)
+             (第二幕 'lucy-at-cafe?) (not (lucy-material-pending?)))
+      #t (error "露西小说：尚未寄出、已经收尾、她不在店里或还有经历未讲述"))
     (set! lucy-after? #t)
     (play-dialogue!
-      (line "露西" "寄出去了。扔进邮筒以后，我才发现自己忘了把最后一页再改一遍。")
+      (line "露西" "寄出去了。这里留了一份，你想读就拿过去。")
+      (line "世界" (if (equal? lucy-material "入稿")
+        "侦探在咖啡馆坐下。窗边的老人点了两杯咖啡，每次只喝一杯。尼尔认出了那张桌子。"
+        "稿纸上的侦探租着一间漏雨的办公室，靠替人打听婚外情付房租。"))
+      (line "世界" (if (equal? lucy-material "入稿")
+        "最后几页，一个穿工装的男人在老人对面坐下。两只杯子空了，他们一起走出门。侦探没有再跟过去。"
+        "侦探终于办完了一件案子。最后，他回到咖啡馆，还是只喝得起最便宜的咖啡。"))
+      (line "尼尔" (if (equal? lucy-material "入稿") "你把那两只空杯子也写进去了。" "这侦探怎么跟我那么像？"))
+      (line "露西" (if (equal? lucy-material "入稿") "当然。你特意讲给我听的。" "你哪有他那么潇洒。他至少有一张自己的办公桌。"))
+      (line "露西" "扔进邮筒以后，我才发现自己忘了把最后一页再改一遍。")
       (line "尼尔" "你不会想去把邮差追回来吧？")
       (line "露西" "我考虑过。后来想，下一篇还可以写得更好。")))
+  (define (frank-aboard!)
+    (if (and (city-active?) (第二幕生活 'met-frank?) (not frank-aboard?)) #t
+      (error "黑鸥号：尚未相识或已搭过手"))
+    (set! frank-aboard? #t)
+    (play-dialogue!
+      (line "世界" (if (第一幕 'eddie-met?)
+        "收工后，艾迪朝黑鸥号指了指，带尼尔走上舷梯。弗兰克正对着炉边空了的煤桶皱眉。"
+        "尼尔在舷梯边又见到食堂里那位老人。弗兰克抱着一只空煤桶，问他是不是还在找活。"))
+      (line "尼尔" "搭把手？")
+      (line "弗兰克" "煤袋在下面。搬进来，别让炉子熄了。")
+      (line "世界" "尼尔把煤搬进船舱。一个工人借走扳手，另一个人端着杯子腾开位置，桌边还摊着没修完的工具。")
+      (line "弗兰克" "谁拿的扳手，走前放回来。尼尔，坐。杯子在炉子边。")
+      (line "世界" "他给尼尔倒了点酒，自己又去替一名工人找绳子。船上总有人要走，也总有人刚来。")))
   ;; 弗兰克：微缩的旧港改造，收回泊位使用权，不收购黑鸥号本身。
   (define (frank-meet!)
     (set! frank-met? #t)
@@ -305,21 +297,41 @@
       (line "尼尔" "隔壁船主说，补偿够他安安稳稳过几年。")
       (line "弗兰克" "那就让他走。人有想去的地方，不该拦着。")
       (line "尼尔" "你没有？")
-      (line "弗兰克" "有人在这儿借工具，有人在这儿等活。你数数每天登船的人，再说这泊位是不是空着。")
+      (line "弗兰克" (if frank-aboard?
+        "你搬煤那会儿，有人借工具，有人等活。你亲眼见过，再说这泊位是不是空着。"
+        "有人在这儿借工具，有人在这儿等活。你数数每天登船的人，再说这泊位是不是空着。"))
       (line "世界" "船舱里有人喝咖啡，有人修绳结。弗兰克回头又骂他们把工具丢得满地都是。")))
   ;; 汤米：第一次能自己处理大人物的麻烦，尼尔帮忙会得到真正的友情。
+  (define (tommy-return-day) (max 贵客准备日 (+ tommy-met-day 1)))
   (define (tommy-meet!)
     (set! tommy-met? #t)
+    (set! tommy-met-day world-day)
     (play-dialogue!
-      (line 第三幕-汤米 "瞧见我的鞋了吗？真皮的。店老板说穿上它，人家就会把我当回事。")
-      (line "尼尔" "你把半个月工钱穿脚上了？")
+      (line "世界" "一个年轻人把俱乐部的酒水单递给酒保，先核清箱数，又问少送的两瓶算在谁的账上。")
+      (line "调酒师" "汤米，老板让你来取货，没让你替我管账。")
+      (line 第三幕-汤米 "少两瓶，回去挨骂的是我。")
+      (line "尼尔" "你替那家俱乐部办事？")
+      (line 第三幕-汤米 "现在替他们跑腿。我叫汤米。你呢？")
+      (line "尼尔" "尼尔。")
       (line 第三幕-汤米 (if tommy-advanced?
-        "那场贵客牌局办完了。老板现在肯让我坐进里间了。"
-        "这几天我要接待几位贵客。要是办得漂亮，老板以后就让我坐进里间。"))
+        "来俱乐部找我吧，我给你讲讲那边的事。"
+        (string-append "我" (第二幕-日期 (tommy-return-day)) "还得回这儿交单。到时候碰见，给你讲讲那边的事。")))
       (line 第三幕-汤米 (if tommy-advanced?
-        "来里间喝一杯吧。让你看看我的新位子。"
-        "牌局开始前，来俱乐部搭把手。我正缺个敢开口说话的朋友。"))))
+        "记住了。现在老板肯让我管几个人了。到俱乐部来，我请你喝一杯。"
+        "记住了。总有一天，他们会让我办点比搬酒更重要的事。"))))
+  (define (tommy-invite!)
+    (set! tommy-invited? #t)
+    (play-dialogue!
+      (line "世界" "汤米把签过的酒水单交回吧台，脚上换了一双新皮鞋。")
+      (line 第三幕-汤米 "尼尔，上回那批货一瓶没少。这回老板让我接待贵客了。")
+      (line 第三幕-汤米 "牌局这几天要开。你要是愿意，来俱乐部搭把手，问问门边来客是什么事。")
+      (line 第三幕-汤米 "不来我也得自己接住。可我想让老板知道，我不只会搬酒。")))
+  (define (tommy-open?)
+    (and (city-active?) tommy-invited? (not tommy-hosted?) (not tommy-advanced?)
+         (>= world-day 贵客准备日) (< world-day 贵客散场日)))
   (define (tommy-intel!)
+    (if (and (tommy-open?) (= (tommy-work 'current) 0) (not tommy-intel?)) #t
+      (error "汤米：当前不能提前打听"))
     (set! tommy-intel? #t)
     ;; 提前打听与现场问来意是同一份工作，不重复收费。
     (if (= (tommy-work 'current) 0) (tommy-work 'advance! 1) #f)
@@ -327,30 +339,43 @@
       (line "世界" "尼尔从跑腿人那里听说，有位外街债权人打算不请自来，在牌桌前让一名贵客难堪。")
       (line 第三幕-汤米 "他不是来打牌的，是来讨脸面的。让他当着所有人嚷出来，咱们这晚就毁了。")
       (line "尼尔" "那就别让他们在牌桌前谈。")
-      (line 第三幕-汤米 "好。给他一张安静的桌子，再让该还钱的那位自己走进去。")))
+      (line 第三幕-汤米 "可以试着请他们私下谈。但贵客未必肯挪步，你到时替我看看。")))
   (define (tommy-step!)
-    (if (and (active?) tommy-met? (not tommy-hosted?) (not tommy-advanced?)) #t
-      (error "汤米牌局：当前不能协助"))
+    (if (and (tommy-open?) (or (= (tommy-work 'current) 0) (= (tommy-work 'current) 2))) #t
+      (error "汤米牌局：须先决定怎样处理来客"))
     (tommy-work 'advance! 1)
-    (cond
-      ((tommy-work 'full?) (tommy-finish! '保住牌局))
-      ((= (tommy-work 'current) 1)
+    (if (tommy-work 'full?) (tommy-finish! '保住牌局)
+      (play-dialogue!
+        (line "世界" "尼尔问清来人的目的：对方要找欠钱的贵客，当着牌桌讨个说法。贵客却不肯起身。")
+        (line 第三幕-汤米 "先请他到侧间，也许不惊动别人。可让他一直躲着，那位也不会走。你看怎么办？"))))
+  (define (tommy-choose! approach grade)
+    (if (and (tommy-open?) (= (tommy-work 'current) 1) (equal? tommy-approach "未定")) #t
+      (error "汤米牌局：当前不可选择处理方式"))
+    (if (and (equal? approach "私下") (eq? grade '坏))
+      (begin (spend-composure! 1)
+        (play-dialogue! (line 第三幕-贵客 "我这手还没打完。你们想叫谁，就自己叫去。")))
+      (begin
+        (if (equal? approach "当众") (spend-composure! 1) #f)
+        (set! tommy-approach approach)
+        (tommy-work 'advance! 1)
         (play-dialogue!
-          (line "世界" "尼尔在门边问清来人的目的。对方要找一位欠钱的贵客，当众讨个说法。")
-          (line "尼尔" "先让汤米过来。你要的是还钱，不是让所有人都听见。")))
-      (else
-        (play-dialogue!
-          (line "世界" "尼尔腾出侧间，替汤米把要找的人请离牌桌。大厅里的人继续打牌。")
-          (line 第三幕-汤米 "你陪我进去。两边坐下来，这事才有得谈。")))))
+          (line "世界" (if (equal? approach "私下")
+            "尼尔低声告诉贵客，来人已经等了很久，再不出去只会闹得更难看。他终于放下牌，跟着汤米走进侧间。"
+            "尼尔先拦住了来客的骂声，让他只说清欠款和来意。牌桌安静下来，贵客终于当着众人的面承认确有这笔账。"))
+          (line 第三幕-汤米 (if (equal? approach "私下")
+            "谢谢，给两边都留了台阶。你陪我进去，把还款的时间说清楚。"
+            "这下他不能装没听见了。不过得罪了这张桌子，后面我来接。咱们去把时间说清楚。"))))))
   ;; C3 结果契约；当前由城市接待的最后一段调用。
   (define (tommy-finish! result)
-    (if (and (active?) (not tommy-hosted?) (member? result '(保住牌局 闹出麻烦)))
+    (if (and (tommy-open?) (tommy-work 'full?) (member? result '(保住牌局 闹出麻烦)))
       #t (error "第三幕汤米：结果或状态非法"))
     (set! tommy-hosted? #t)
     (play-dialogue!
       (line "世界" "尼尔陪汤米走进侧间。来客与欠钱的贵客已经坐下，两个人都等着对方先开口。")
       (line 第三幕-汤米 "先生，您的事当然得有个说法。可您要让他还钱，总得先让他听得见您说话。")
-      (line "世界" "尼尔帮忙核对双方的话，汤米定下下一次谈账的安排。大厅的牌桌继续开着，今晚至少没有砸场。")
+      (line "世界" (if (equal? tommy-approach "当众")
+        "贵客不能再否认欠款，汤米让双方写下谈账的日期。牌局重新开了起来，贵客却不愿再与他多说话。"
+        "双方私下核清来意，汤米定下下一次谈账的安排。大厅继续打牌，贵客离开时还朝他点了点头。"))
       (line "尼尔" "你刚才不怕他动手？")
       (line 第三幕-汤米 "怕。可我要是一辈子站在门口，比挨一拳还难受。")))
   (define (tommy-after!)
@@ -361,248 +386,353 @@
         "兄弟！过来坐。这回酒算我的。"
         "尼尔！过来坐。这回酒算我的。"))
       (line 第三幕-汤米 (cond
-        (tommy-hosted? "那晚要不是你在，我也不敢保证能把场子稳住。往后有事，你尽管开口。")
+        (tommy-hosted? (if (equal? tommy-approach "当众")
+          "那晚他当众认了账，后来一阵子不肯理我。可门口的人知道，我不会只让欠钱的躲着。多谢你陪我接住。"
+          "那晚给两边留了台阶，老板也没丢脸。以后这种场面还得会办，多谢你陪我。"))
         ((> (tommy-work 'current) 0)
           (if tommy-intel?
             "你替我打听的那些话派上用场了。后面的事我自己接住了，多谢。"
             "那晚你替我搭的手，我记着呢。后面的事我自己接住了，多谢。"))
         (else "老板终于让我管几个人了。你看，下次咱们就能到更好的地方喝酒。")))))
   (define (on-day!)
-    (if (active?)
+    (if (city-active?)
       (begin
-        (if (and (>= (elapsed) 4) (not eddie-hired?)) (set! eddie-hired? #t) #f)
-        (if (and (>= (elapsed) 5) (not lucy-mailed?)) (set! lucy-mailed? #t) #f)
-        (if (and (>= (elapsed) 3) (not frank-refused?)) (set! frank-refused? #t) #f)
-        (if (and (>= (elapsed) 6) (not tommy-advanced?)) (set! tommy-advanced? #t) #f))
-      #f))
+        (if (>= world-day (lucy-mail-day)) (set! lucy-mailed? #t) #f)
+        (if (>= world-day 泊位答复日) (set! frank-refused? #t) #f)
+        (if (>= world-day 贵客散场日) (set! tommy-advanced? #t) #f)) #f))
   (define-turn-start-rule "第三幕人物生活"
     (lambda () #t) on-day!)
-  (define (opportunity-clock label end-day)
+  (define (opportunity-clock label first-day end-day)
     (clock-priority
-      (list 'clock label (max 0 (- end-day (elapsed))) end-day 'countdown
-        "换日后按剩余天数结算，期限届满由他们自行处理。")
-      'secondary))
+      (list 'clock label (max 0 (- end-day world-day)) (- end-day first-day) 'countdown
+        "期限届满由他们自行处理。") 'secondary))
+  (define (frank-news!)
+    (if frank-refused?
+      (begin
+        (set! frank-met? #t)
+        (play-dialogue!
+          (line "弗兰克" "前些天有人来收我的泊位使用权。我没签。")
+          (line "弗兰克" "船还在，人也还在。他们叫这里闲置，我倒想问他们看见过谁。")))
+      (frank-meet!)))
+  (define (arrivals-at loc)
+    (if (not (city-active?)) '()
+      (cond
+        ((and (equal? loc "街角咖啡馆") (第二幕 'lucy-at-cafe?)
+              (not (第二幕 'lucy-arrival-pending?))
+              (>= world-day (第二幕 'lucy-writing-day)) (not lucy-met?))
+          (list (arrival "露西自己的稿件" lucy-meet!)))
+        ((and (equal? loc "码头居民区") (>= world-day 泊位协商日)
+              (第二幕生活 'met-frank?) (not frank-met?))
+          (list (arrival "泊位协商的新消息" frank-news!)))
+        ((and (equal? loc "老街酒馆") (>= world-day 12) (not tommy-met?))
+          (list (arrival "替俱乐部取酒的年轻人" tommy-meet!)))
+        ((and (equal? loc "老街酒馆") tommy-met? (> world-day tommy-met-day)
+              (>= world-day 贵客准备日) (not tommy-invited?) (not tommy-advanced?))
+          (list (arrival "汤米接下贵客差事" tommy-invite!)))
+        ((and (equal? loc "剧院") report? (equal? nightingale-night "未邀请"))
+          (list (arrival "夜莺提出河边邀约" invite-private-night!)))
+        (else '()))))
   (define (nodes-at loc)
-    (if (not (active?)) '()
+    (if (not (city-active?)) '()
       (append
-        ;; 进展跨日保留；可选工作到期自动关闭，完成部分不冒认整场参与。
-        (if (and (equal? loc "旧旅馆") (case-open?) (not watched?)
-                 (or rocco-hotel? (>= (elapsed) 2)))
-          (list (clock-node "第三幕夜守进展" (watch-work 'render-data))) '())
-        (if (and (equal? loc "码头") (case-open?) (case-ready?))
-          (list (clock-node "第三幕结案进展" (warehouse-work 'render-data))) '())
-        (if (and (equal? loc "码头") eddie-met? (not eddie-hired?) (not eddie-help?) (>= (elapsed) 2))
-          (list (clock-node "第三幕检修进展" (eddie-work 'render-data))) '())
-        (if (and (equal? loc "夜总会") tommy-met? (not tommy-hosted?) (not tommy-advanced?) (>= (elapsed) 3))
+        (if (and (equal? loc "夜总会") (tommy-open?))
           (list (clock-node "第三幕接待进展" (tommy-work 'render-data))) '())
-        ;; 罗科：调查与收网
-        (if (and (equal? loc "旧旅馆") (case-open?) (not rocco-hotel?))
-          (list (node "问旅馆店员" :subtitle "确认银打火机男人的出入"
-            :risk '冒险 :risk-target (list 'composure "player")
-            :requires (list (req-die)) :resolve
-            (roll 'social
-              (outcome (lambda () (learn-hotel! '坏)))
-              (outcome (lambda () (learn-hotel! '中)))
-              (outcome (lambda () (learn-hotel! '好)))))) '())
-        (if (and (equal? loc "旧旅馆") (case-open?) (not watched?)
-                 (or rocco-hotel? (>= (elapsed) 2)))
-          (list (node "旅馆夜守" :name (if (= (watch-work 'current) 0) "认清夜间来客" "跟进搬箱人")
-            :subtitle "每段用一枚骰，共两段；可分日继续"
-            :requires (list (req-die)) :resolve (instant (outcome watch-step!)))) '())
-        (if (and (equal? loc "剧院") (case-open?) (not rocco-contract?))
-          (list (node "翻看旧合同" :subtitle "夜莺保存着签过字的旧约"
-            :requires (list (req-die)) :resolve (instant (outcome learn-contract!)))) '())
-        (if (and (equal? loc "剧院") (case-open?) (not rocco-threat?))
-          (list (node "守候侧门" :subtitle "观察跟踪者是否再次出现"
-            :risk '冒险 :risk-target (list 'composure "player")
-            :requires (list (req-die)) :resolve
-            (roll 'sharpness
-              (outcome (lambda () (learn-threat! '坏)))
-              (outcome (lambda () (learn-threat! '中)))
-              (outcome (lambda () (learn-threat! '好)))))) '())
-        (if (and (equal? loc "老街酒馆") (case-open?) (not rocco-ledger?))
-          (list (node "核对旧演出账" :subtitle "旧酒馆留下过代付记录"
-            :risk '冒险 :risk-target (list 'composure "player")
-            :requires (list (req-die)) :resolve
-            (roll 'sharpness
-              (outcome (lambda () (learn-ledger! '坏)))
-              (outcome (lambda () (learn-ledger! '中)))
-              (outcome (lambda () (learn-ledger! '好)))))) '())
-        (if (and (equal? loc "码头") (case-open?) (not rocco-warehouse?)
-                 (or rocco-hotel? watched?))
-          (list (node "打听货栈" :subtitle "罗科曾在这片货栈存物"
-            :requires (list (req-die)) :resolve (instant (outcome learn-warehouse!)))) '())
-        (if (and (equal? loc "码头") (case-open?) (case-ready?))
-          (list (node "货栈交锋"
-            :name (list-ref '("当面核对旧约" "逐项商定结算" "留下见证记录") (warehouse-work 'current))
-            :subtitle "每段用一枚骰，共三段；可分日继续"
+        ;; 调查阶段只开放当前可知的行动；地点ID与共享模型保持稳定。
+        (if (and (equal? loc "剧院") (case-open?))
+          (cond
+            ((equal? inquiry-stage "守候")
+              (if (>= world-day inquiry-day)
+                (list (node "等待黑衣人" :subtitle "守候下一次出现，借车跟上"
+                  :resolve (instant (outcome wait-for-car!))))
+                (list (note-node "跟车等待" "另找机会" "今晚已错过，明天再来剧院守候。"))))
+            ((equal? inquiry-stage "记录") (list (instant-action "交回跟车记录" give-car-record!)))
+            ((equal? inquiry-stage "核查")
+              (if (>= world-day inquiry-day)
+                (list (instant-action "询问核查结果" manager-findings!))
+                (list (note-node "经理核查中" "等待回音" "经理正在联系车行和货运熟人，明天回来找他。"))))
+            ((equal? inquiry-stage "旧事") (list (instant-action "问夜莺旧事" nightingale-history!)))
+            (else '())) '())
+        (if (and (equal? loc "货运公司") (case-open?) (equal? inquiry-stage "公司"))
+          (list (node "调查罗科租处" :subtitle "一枚骰，核对寄存与收发安排"
             :requires (list (req-die))
-            :resolve (instant (outcome warehouse-step!)))) '())
+            :resolve (instant (outcome investigate-company!)))) '())
+        (if (and (equal? loc "货运公司") (preparing?))
+          (list (node "付钱达成协议" :subtitle "支付150美元，签约结束纠缠"
+            :requires (list (req-item "金钱" 金钱协议价))
+            :resolve (instant (outcome money-agreement!)))) '())
+        (if (and (equal? loc "货运公司") (preparing?))
+          (list (note-node "罗科档案所在" "三楼档案室" "罗科把旧账和私人信件放在这里。可以潜入取回材料，也可以付150美元签约。")
+            (node "潜入货运大楼" :subtitle "进入后选择装卸或潜入，再搜查档案"
+              :resolve (instant (outcome enter-infiltration!)))) '())
         (if (and (equal? loc "剧院") (equal? case-state "结案") (not report?))
           (list (instant-action "提交调查报告" confirm-report!)) '())
-        (if (and (equal? loc "剧院") report? (equal? nightingale-night "未邀请"))
-          (list (instant-action "夜莺的邀请" invite-private-night!)) '())
         (if (and (equal? loc "剧院") report? (equal? nightingale-night "待答复"))
           (list (instant-action "和夜莺去河边" private-night!)
                 (instant-action "婉拒河边邀约" decline-private-night!)) '())
-        ;; 艾迪：本人在码头，尼尔可帮忙但不代替工程判断。
-        (if (and (equal? loc "码头") (>= (elapsed) 1) (not eddie-met?))
-          (list (instant-action "艾迪的新差事" eddie-meet!)) '())
-        (if (and (equal? loc "码头") eddie-met? (not eddie-hired?) (not eddie-help?)
-                 (>= (elapsed) 2))
-          (list (node "帮艾迪停机"
-            :name (list-ref '("清出作业区" "搬来替换件" "协助安全试车") (eddie-work 'current))
-            :subtitle "每段一枚骰，挣4美元；共三段"
-            :clocks (list (opportunity-clock "检修余日" 4))
-            :requires (list (req-die)) :resolve (instant (outcome eddie-help!)))) '())
-        (if (and (equal? loc "码头") eddie-hired? (not eddie-celebrated?))
-          (list (instant-action "艾迪的新工作靴" eddie-celebrate!)) '())
-        ;; 露西：可交流她的写作，不将文学阅读伪装成骰子判定。
-        (if (and (and (equal? loc "街角咖啡馆") (第二幕 'lucy-at-cafe?)) (>= (elapsed) 1) (not lucy-met?))
-          (list (instant-action "露西的三个客人" lucy-meet!)) '())
-        (if (and (and (equal? loc "街角咖啡馆") (第二幕 'lucy-at-cafe?)) lucy-met? (not lucy-read?))
-          (list (instant-action "读露西的小说" lucy-read!)) '())
-        (if (and (and (equal? loc "街角咖啡馆") (第二幕 'lucy-at-cafe?)) lucy-read? (not lucy-comment?))
-          (list (instant-action "聊聊小说结尾" lucy-talk!)) '())
-        (if (and (and (equal? loc "街角咖啡馆") (第二幕 'lucy-at-cafe?)) lucy-mailed? (not lucy-after?))
-          (list (instant-action "露西寄出的信" lucy-after!)) '())
+        ;; 老人经历由独立模块投卡；这里只提供回到写作的出口与合并后的收尾。
+        (if (and (equal? loc "街角咖啡馆") (第二幕 'lucy-at-cafe?)
+                 lucy-met? (not lucy-after?) (lucy-material-pending?))
+          (list (node "把故事讲给露西" :anchor "露西@咖啡馆"
+            :subtitle (if lucy-mailed? "她的稿已寄出，这段经历留给下一篇。"
+                         "把窗边老人和儿子的事讲给她。")
+            :resolve (instant (outcome lucy-share!)))) '())
+        (if (and (equal? loc "街角咖啡馆") (第二幕 'lucy-at-cafe?)
+                 lucy-met? lucy-mailed? (not lucy-after?) (not (lucy-material-pending?)))
+          (list (node "读露西的小说" :anchor "露西@咖啡馆"
+            :subtitle "看看她寄出的小说，听听投稿后的心情。"
+            :resolve (instant (outcome lucy-finish!)))) '())
+        (if (and (equal? loc "码头居民区") (第二幕生活 'met-frank?) (not frank-aboard?))
+          (list (node "上船搭把手" :subtitle "一枚骰，帮弗兰克搬煤，收工坐一会儿"
+            :requires (list (req-die)) :resolve (instant (outcome frank-aboard!)))) '())
         ;; 弗兰克：这回收的是泊位使用权，不是船。
-        (if (and (equal? loc "码头居民区") (>= (elapsed) 1) (not frank-met?)
-                 (not frank-refused?))
-          (list (instant-action "泊位收购人" frank-meet!)) '())
         (if (and (equal? loc "码头居民区") frank-met? (not frank-debate?))
           (list (instant-action "再谈那份合同" frank-debate!)) '())
-        (if (and (equal? loc "码头居民区") frank-refused? (not frank-met?))
-          (list (instant-action "黑鸥号没有签" (lambda ()
-            (set! frank-met? #t)
-            (play-dialogue!
-              (line "弗兰克" "他们来收我的泊位使用权。我没签。")
-              (line "弗兰克" "船还在，人也还在。他们叫这里闲置，我倒想问他们看见过谁。"))))) '())
         ;; 汤米：牌局没有固定在收网那天，未参与也不会停住。
-        (if (and (equal? loc "老街酒馆") (>= (elapsed) 1) (not tommy-met?))
-          (list (instant-action "汤米的新皮鞋" tommy-meet!)) '())
-        (if (and (equal? loc "老街酒馆") tommy-met? (not tommy-intel?) (= (tommy-work 'current) 0)
-                 (not tommy-advanced?) (>= (elapsed) 2))
+        (if (and (equal? loc "老街酒馆") (tommy-open?) (not tommy-intel?) (= (tommy-work 'current) 0))
           (list (node "打听牌局来客" :subtitle "一枚骰问清来意，抵去现场第一段"
-            :clocks (list (opportunity-clock "接待余日" 6))
+            :clocks (list (opportunity-clock "接待余日" 贵客准备日 贵客散场日))
             :requires (list (req-die)) :resolve (instant (outcome tommy-intel!)))) '())
-        (if (and (equal? loc "夜总会") tommy-met? (not tommy-hosted?)
-                 (not tommy-advanced?) (>= (elapsed) 3))
-          (list (node "今晚的贵客"
-            :name (list-ref '("问清来客诉求" "安排侧间会谈" "陪汤米去交涉") (tommy-work 'current))
-            :subtitle "每段一枚骰；提前打听可抵第一段"
-            :clocks (list (opportunity-clock "接待余日" 6))
-            :requires (list (req-die))
-            :resolve (instant (outcome tommy-step!)))) '())
-        (if (and (equal? loc "夜总会") tommy-advanced? (not tommy-after?))
+        (if (and (equal? loc "夜总会") (tommy-open?))
+          (if (= (tommy-work 'current) 1)
+            (list
+              (node "请到侧间" :subtitle "交际判定；私下谈账，失利耗1心情"
+                :risk '冒险 :risk-target (list 'composure "player")
+                :requires (list (req-die)) :resolve
+                (roll 'social (outcome (lambda () (tommy-choose! "私下" '坏)))
+                  (outcome (lambda () (tommy-choose! "私下" '中)))
+                  (outcome (lambda () (tommy-choose! "私下" '好)))))
+              (node "让来客说清" :subtitle "一枚骰、1心情；当众认账，会得罪贵客"
+                :risk-target (list 'composure "player")
+                :requires (list (req-die)) :resolve (instant (outcome (lambda () (tommy-choose! "当众" '好))))))
+            (list (node "今晚的贵客"
+              :name (if (= (tommy-work 'current) 0) "问清来客诉求" "陪汤米去交涉")
+              :subtitle "一枚骰；先问来意，再选处理方式，最后交涉"
+              :clocks (list (opportunity-clock "接待余日" 贵客准备日 贵客散场日))
+              :requires (list (req-die)) :resolve (instant (outcome tommy-step!))))) '())
+        (if (and (equal? loc "夜总会") tommy-met? tommy-advanced? (not tommy-after?))
           (list (instant-action "汤米坐进包厢" tommy-after!)) '()))))
+  ;; 一个人的一段事保留为同一小节；子项按经历推进，不把每张行动卡变成一条任务。
   (define (dossier-at)
-    (if (not (active?)) '()
+    (if (not (city-active?)) '()
       (append
-        (list (dossier "银色打火机" :kind '主线
+        (if started? (list (dossier "银色打火机" :kind '主线
           :primary (not report?) :status (if report? '了结 '进行中)
           :now (cond
-            (report? "罗科已结清旧账、停止纠缠并离城。经理收到报告，夜莺终于能安心出门。")
-            ((equal? case-state "结案") "罗科已办理旧账结算并离城。到剧院向经理交报告。")
-            (else (string-append
-              "查清货栈去处和旧约，再取得付款或骚扰事实之一，才能当面对质。交锋还需三次城市行动。"
-              (if (or rocco-hotel? rocco-warehouse? watched?) "码头附近也有线索。"
-                  "先到旧旅馆、剧院或旧酒馆查问。"))))
-          :where (if (equal? case-state "结案") "剧院" "旧旅馆")))
-        (if eddie-met? (list (dossier "艾迪的新岗位" :kind '人物 :primary #f
-          :now (if eddie-hired?
-            "艾迪成了旧港正式维修工，开始认真盘算自己的工资和将来。"
-            "艾迪正在检修旧吊机。可用三次城市行动协助，每次挣4美元；到期后他会自行完成。") :where "码头")) '())
-        (if lucy-met? (list (dossier "露西的小说" :kind '人物 :primary #f
-          :now (if lucy-mailed? "露西已经寄出小说，仍在店里工作，开始等待编辑的回信。"
-            "露西在咖啡馆观察客人，正写一篇有个落魄侦探的小说。")
+            (report? "已经向经理报告，罗科的纠缠结束。")
+            ((equal? case-state "结案") "结算已经落实，去剧院向经理交报告。")
+            ((equal? inquiry-stage "守候") (if (>= world-day inquiry-day)
+              "去剧院等待黑衣人再次出现，跟踪他的轿车，记下识别信息。"
+              "这次跟车没能记全信息。明天再去剧院守候。"))
+            ((equal? inquiry-stage "跟车") "正在跟踪轿车，记录车辆与驾驶人的特征。")
+            ((equal? inquiry-stage "记录") "已记下车辆与驾驶人特征，回剧院交给经理核查。")
+            ((equal? inquiry-stage "核查") (if (>= world-day inquiry-day)
+              "经理的核查已有回音，回剧院问他结果。" "经理正在核查车主与落脚地点，明天回剧院。"))
+            ((equal? inquiry-stage "旧事") "车主是罗科，在货运联合公司租着办公室。去问夜莺是否认识他。")
+            ((equal? inquiry-stage "公司") "夜莺说罗科是她的旧经纪人。去货运联合公司查明材料与收发安排。")
+            (else "她确实受过帮助，但旧账有争议。可以潜入货运大楼取得材料，也可以支付150美元达成协议。"))
+          :steps (cond
+            (report? (list (step "真实结案，已经向经理交报告。" #t)))
+            ((equal? case-state "结案") (list (step "到剧院提交调查报告。" #f)))
+            ((not rocco-warehouse?) (list (step
+              (cond
+                ((equal? inquiry-stage "守候") "到剧院等待黑衣人，再跟踪轿车记录信息。")
+                ((equal? inquiry-stage "跟车") "在暴露前记全识别信息。")
+                ((equal? inquiry-stage "记录") "将跟车记录交给经理。")
+                ((equal? inquiry-stage "核查") "次日回剧院询问经理的核查结果。")
+                ((equal? inquiry-stage "旧事") "在剧院问夜莺与罗科的旧关系。")
+                (else "到货运联合公司调查罗科租用的办公室和寄存服务。")) #f)))
+            (else (list
+              (step "已找到罗科，知道真实合同与货运大楼的档案。" #t)
+              (step "在货运公司选择一种办法：\n潜入取得材料，再与罗科谈判。\n支付150美元，直接签约结束纠缠。" #f))))
+          :where (cond ((equal? case-state "结案") "剧院") (rocco-warehouse? "货运公司") ((equal? inquiry-stage "公司") "货运公司") (else "剧院")))) '())
+        (if report? (list (dossier "案后与夜莺" :kind '人物
+          :status (cond
+            ((member? nightingale-night '("已赴约" "婉拒")) '了结)
+            (else '进行中))
+          :now (cond
+            ((equal? nightingale-night "已赴约") "和夜莺在河边度过了一个没有追踪者的夜晚。")
+            ((equal? nightingale-night "婉拒") "你婉拒了夜莺的邀请，想自己歇一会儿。")
+            ((equal? nightingale-night "待答复") "夜莺想去河边走走，等你决定是否同行。")
+            (else "案子已经结束。可以回剧院见见夜莺，听听她的近况。"))
+          :steps (if (member? nightingale-night '("已赴约" "婉拒")) '()
+            (list (step (if (equal? nightingale-night "待答复")
+                          "到剧院答复邀约：可以同行，也可以婉拒。"
+                          "下次到剧院，与夜莺见面。") #f)))
+          :where "剧院")) '())
+        (if lucy-met? (list (dossier "露西的小说" :kind '人物
+          :status (cond (lucy-after? '了结)
+                        ((and (not (equal? lucy-material "未谈")) (not lucy-mailed?)) '等着别人)
+                        (else '进行中))
+          :now (cond
+            (lucy-after? (if (equal? lucy-material "入稿")
+              "窗边父子的故事出现在她寄出的小说里。她已经开始想着下一篇。"
+              "读过她寄出的小说。她愿意继续写下去。"))
+            ((equal? lucy-material "入稿") "她把窗边父子的事写进了小说，正准备定稿。")
+            ((equal? lucy-material "寄后") "小说已经寄出。她记下窗边父子的故事，留作以后的素材。")
+            ((两杯咖啡 'completed?) "窗边的父子喝完了两杯咖啡，一起离开。可以把这件事讲给露西。")
+            (else "露西想找些事情写。咖啡馆的老人值得留意；她也会按自己的安排定稿、寄出。"))
+          :steps (append
+            (if (or lucy-after? (not (equal? lucy-material "未谈"))) '()
+              (list (step (if (两杯咖啡 'completed?)
+                  "露西当班时，把窗边老人的经历讲给她。"
+                  "可在咖啡馆留意老人：每天一次，每次一枚骰，无需判定；共四段经历。") #f)))
+            (list (step (if lucy-mailed?
+                (if (lucy-material-pending?) "先把窗边老人的故事讲给露西，再读她寄出的小说。"
+                    "露西当班时回来，读她寄出的小说。")
+                "她会自行定稿寄出，不必等老人经历完成；之后再来读稿。") lucy-after?)))
+          :clocks (if (and (not lucy-after?) (not (两杯咖啡 'completed?)))
+            (list (两杯咖啡 'clock-data)) '())
           :where "街角咖啡馆")) '())
-        (if frank-met? (list (dossier "黑鸥号的泊位" :kind '人物 :primary #f
-          :now "改造公司想收回泊位使用权，弗兰克拒绝签字。收购尚未结束。"
+        (if (第二幕生活 'met-frank?) (list (dossier "黑鸥号" :kind '人物
+          :status (if (and frank-met? frank-debate? frank-refused?) '了结 '进行中)
+          :now (cond
+            (frank-met? (if frank-refused? "弗兰克没有交出泊位。船和船上的日子还在，改造争议并未彻底解决。" "有人报价收回泊位。弗兰克不肯签，事情尚未落定。"))
+            (frank-aboard? "在黑鸥号搬过煤，收工和大家坐了一会儿。这里不只是拴船的地方。")
+            (else "在食堂认识了弗兰克。他守着黑鸥号，船上常有人来往。"))
+          :steps (list (step (cond
+            ((and frank-met? (not frank-debate?)) "码头居民区：可再谈那份报价，听听他为什么留下。")
+            ((not frank-aboard?) "可在码头居民区上船搭把手，和船上的人坐一会儿。")
+            ((and frank-met? (not frank-refused?)) "他还在处理泊位的事，不用等尼尔决定才继续。")
+            (else "继续在居民区与他碰面，听听船和泊位的近况。")) #f))
           :where "码头居民区")) '())
-        (if tommy-met? (list (dossier "汤米的新差事" :kind '人物 :primary #f
-          :now (if tommy-advanced? "汤米终于获准坐进老板的私人包厢，开始得到重用。"
-            "汤米负责接待贵客。协助共需三次城市行动，提前打听可抵第一段；到期由他自行处理。")
-          :where "夜总会")) '()))))
+        (if tommy-met? (list (dossier "汤米的新差事" :kind '人物
+          :status (cond (tommy-after? '了结)
+                        ((and (not tommy-invited?) (not tommy-advanced?) (< world-day (tommy-return-day))) '等着别人)
+                        ((and tommy-hosted? (not tommy-advanced?)) '等着别人)
+                        (else '进行中))
+          :now "认识了替俱乐部跑腿的汤米。他想接下比搬酒更重要的差事。"
+          :steps (list
+            (step (if tommy-advanced? "贵客牌局已经过去，可以听汤米说后来怎样。"
+                    (string-append
+                      (if (< world-day (tommy-return-day)) (第二幕-日期 (tommy-return-day)) "今天")
+                      "到老街酒馆，汤米要回来交单，可以听听他的后续。"))
+              (or tommy-invited? tommy-advanced?))
+            (step (cond
+              (tommy-after? "已经在俱乐部见过汤米的新处境。")
+              (tommy-advanced? "去夜总会找汤米，看看那场牌局之后他过得怎样。")
+              (tommy-hosted? "接待已经帮完。等这轮差事结束，再到夜总会见汤米。")
+              (else "可在酒馆打听或直接去夜总会；问清来意后，选私下劝谈或当众认账，再一起交涉。也可不参加。"))
+              tommy-after?))
+          :clocks (if (and tommy-invited? (not tommy-advanced?) (not tommy-hosted?))
+            (list (tommy-work 'render-data) (opportunity-clock "接待余日" 贵客准备日 贵客散场日)) '())
+          :where (if (or tommy-invited? tommy-advanced?) "夜总会" "老街酒馆"))) '()))))
   (lambda args
     (let ((msg (car args)))
       (cond
         ((eq? msg 'start!) (start!))
         ((eq? msg 'started?) started?)
+        ((eq? msg 'rocco-building-open?) (and (city-active?) (member? inquiry-stage '("旧事" "公司" "已查清")) started?))
+        ((eq? msg 'lucy-writing-known?) lucy-met?)
+        ((eq? msg 'club-known?) (or tommy-invited? (and tommy-met? tommy-advanced?)))
         ((eq? msg 'on-day!) (on-day!))
         ((eq? msg 'finished?) (and report? (member? nightingale-night '("已赴约" "婉拒"))))
         ((eq? msg 'nodes-at) (nodes-at (cadr args)))
-        ((eq? msg 'arrivals-at) '())
+        ((eq? msg 'arrivals-at) (arrivals-at (cadr args)))
+        ((eq? msg 'offer!) (offer!))
         ((eq? msg 'dossier) (dossier-at))
         ((eq? msg 'scenario-result!)
          (let ((which (cadr args)) (result (caddr args)))
            (cond
-             ((eq? which '旅馆夜班) (night-watch-finish! result))
-             ((eq? which '吊机停工) (eddie-finish! result))
              ((eq? which '今晚的贵客) (tommy-finish! result))
-             ((eq? which '货栈之夜) (warehouse-finish! result))
              (else (error "第三幕：未知Scenario接口")))))
         ((eq? msg 'save)
-         (list (list "version" 3)
-           (list "watch-work" (watch-work 'current))
-           (list "warehouse-work" (warehouse-work 'current))
-           (list "eddie-work" (eddie-work 'current))
+         (list (list "version" 11)
            (list "tommy-work" (tommy-work 'current))
            (list "started" started?) (list "start-day" start-day)
-           (list "case" case-state) (list "hotel" rocco-hotel?)
+           (list "case" case-state)
+           (list "inquiry-stage" inquiry-stage) (list "inquiry-day" inquiry-day)
            (list "contract" rocco-contract?) (list "ledger" rocco-ledger?)
            (list "threat" rocco-threat?) (list "warehouse" rocco-warehouse?)
-           (list "watch" watched?) (list "report" report?)
+           (list "papers-leaked" papers-leaked?) (list "protected" nightingale-protected?)
+           (list "settlement-fund" settlement-fund) (list "manager-advance" manager-advance) (list "case-expense" case-expense)
+           (list "warehouse-stopped" warehouse-stopped?) (list "warehouse-private-exposed" warehouse-private-exposed?)
+           (list "warehouse-ledger" warehouse-ledger?) (list "warehouse-threat" warehouse-threat?)
+           (list "warehouse-material" warehouse-material?) (list "report" report?)
            (list "night-state" nightingale-night)
-           (list "eddie-met" eddie-met?) (list "eddie-help" eddie-help?)
-           (list "eddie-hired" eddie-hired?) (list "eddie-celebrated" eddie-celebrated?)
-           (list "lucy-met" lucy-met?) (list "lucy-read" lucy-read?)
-           (list "lucy-comment" lucy-comment?) (list "lucy-mailed" lucy-mailed?)
+           (list "lucy-met" lucy-met?) (list "lucy-material" lucy-material)
+           (list "lucy-mailed" lucy-mailed?)
            (list "lucy-after" lucy-after?)
            (list "frank-met" frank-met?) (list "frank-debate" frank-debate?)
-           (list "frank-refused" frank-refused?)
-           (list "tommy-met" tommy-met?) (list "tommy-intel" tommy-intel?)
+           (list "frank-refused" frank-refused?) (list "frank-aboard" frank-aboard?)
+           (list "tommy-met" tommy-met?) (list "tommy-met-day" tommy-met-day)
+           (list "tommy-invited" tommy-invited?) (list "tommy-intel" tommy-intel?)
            (list "tommy-hosted" tommy-hosted?) (list "tommy-advanced" tommy-advanced?)
-           (list "tommy-after" tommy-after?)))
+           (list "tommy-after" tommy-after?) (list "tommy-approach" tommy-approach)))
         ((eq? msg 'load!)
          (let ((d (cadr args)))
            (set! started? (assoc-get d "started" #f))
            (set! start-day (assoc-get d "start-day" 0))
            (set! case-state (assoc-get d "case" "未开始"))
-           (set! rocco-hotel? (assoc-get d "hotel" #f))
+           (set! inquiry-stage (assoc-get d "inquiry-stage"
+             (if (assoc-get d "warehouse" #f) "已查清" "守候")))
+           (set! inquiry-day (assoc-get d "inquiry-day" 0))
+           (if (and (member? inquiry-stage '("守候" "跟车" "记录" "核查" "旧事" "公司" "已查清"))
+                    (number? inquiry-day) (>= inquiry-day 0)) #t
+             (error "第三幕存档：调查阶段非法"))
            (set! rocco-contract? (assoc-get d "contract" #f))
            (set! rocco-ledger? (assoc-get d "ledger" #f))
            (set! rocco-threat? (assoc-get d "threat" #f))
            (set! rocco-warehouse? (assoc-get d "warehouse" #f))
-           (set! watched? (assoc-get d "watch" #f))
+           (if (equal? rocco-warehouse? (equal? inquiry-stage "已查清")) #t
+             (error "第三幕存档：公司发现与调查阶段不符"))
+           (set! papers-leaked? (assoc-get d "papers-leaked" #f))
+           (set! nightingale-protected? (assoc-get d "protected" #f))
+           (set! settlement-fund (assoc-get d "settlement-fund" 0))
+           (set! manager-advance (assoc-get d "manager-advance" 0))
+           (set! case-expense (assoc-get d "case-expense" 0))
+           (if (and (member? settlement-fund '(0 40)) (member? manager-advance '(0 20))
+                    (member? case-expense '(0 20 40 60 80))
+                    (<= (+ manager-advance case-expense) 80)
+                    (or (= manager-advance 0) (= settlement-fund 40) (equal? case-state "结案")))
+             #t (error "第三幕存档：罗科既有款项非法"))
+           ;; 第7版将已经取得的筹码实体化；只升级旧档，不在每次渲染补物品。
+           (if (and (< (assoc-get d "version" 0) 7) (equal? case-state "调查"))
+             (begin
+               (if rocco-ledger? (add-item! "罗科付款凭据" 1) #f)
+               (if rocco-threat? (add-item! "罗科恐吓证词" 1) #f)
+               (if (> settlement-fund 0) (add-item! "罗科结算款" 1) #f)) #f)
+           (set! warehouse-stopped? (assoc-get d "warehouse-stopped" #f))
+           (set! warehouse-private-exposed? (assoc-get d "warehouse-private-exposed" #f))
+           (set! warehouse-ledger? (assoc-get d "warehouse-ledger" #f))
+           (set! warehouse-threat? (assoc-get d "warehouse-threat" #f))
+           (set! warehouse-material? (assoc-get d "warehouse-material" #f))
+           (if (and (member? warehouse-stopped? '(#t #f))
+                    (member? warehouse-private-exposed? '(#t #f))
+                    (member? warehouse-ledger? '(#t #f))
+                    (member? warehouse-threat? '(#t #f))
+                    (member? warehouse-material? '(#t #f))
+                    (or (not warehouse-private-exposed?) warehouse-stopped?)) #t
+             (error "货栈存档：报道与隐私事实非法"))
            (set! report? (assoc-get d "report" #f))
            (set! nightingale-night
              (assoc-get d "night-state" (if (assoc-get d "night" #f) "已赴约" "未邀请")))
            (if (member? nightingale-night '("未邀请" "待答复" "已赴约" "婉拒")) #t
              (error "第三幕存档：私人邀约状态非法"))
-           (set! eddie-met? (assoc-get d "eddie-met" #f))
-           (set! eddie-help? (assoc-get d "eddie-help" #f))
-           (set! eddie-hired? (assoc-get d "eddie-hired" #f))
-           (set! eddie-celebrated? (assoc-get d "eddie-celebrated" #f))
            (set! lucy-met? (assoc-get d "lucy-met" #f))
-           (set! lucy-read? (assoc-get d "lucy-read" #f))
-           (set! lucy-comment? (assoc-get d "lucy-comment" #f))
+           (set! lucy-material (assoc-get d "lucy-material" "未谈"))
+           (if (member? lucy-material '("未谈" "入稿" "寄后")) #t
+             (error "第三幕存档：露西素材状态非法"))
            (set! lucy-mailed? (assoc-get d "lucy-mailed" #f))
            (set! lucy-after? (assoc-get d "lucy-after" #f))
            (set! frank-met? (assoc-get d "frank-met" #f))
+           (set! frank-aboard? (assoc-get d "frank-aboard" #f))
            (set! frank-debate? (assoc-get d "frank-debate" #f))
            (set! frank-refused? (assoc-get d "frank-refused" #f))
            (set! tommy-met? (assoc-get d "tommy-met" #f))
+           (set! tommy-met-day (assoc-get d "tommy-met-day" (if tommy-met? start-day 0)))
+           (set! tommy-invited? (assoc-get d "tommy-invited" tommy-met?))
            (set! tommy-intel? (assoc-get d "tommy-intel" #f))
            (set! tommy-hosted? (assoc-get d "tommy-hosted" #f))
            (set! tommy-advanced? (assoc-get d "tommy-advanced" #f))
            (set! tommy-after? (assoc-get d "tommy-after" #f))
            ;; 旧档已有事实仍有效，已完成的帮工不重新收费或发钱。
-           (watch-work 'load! (assoc-get d "watch-work" (if watched? 2 0)))
-           (warehouse-work 'load! (assoc-get d "warehouse-work" (if (equal? case-state "结案") 3 0)))
-           (eddie-work 'load! (assoc-get d "eddie-work" (if eddie-help? 3 0)))
            (tommy-work 'load! (assoc-get d "tommy-work" (if tommy-hosted? 3 (if tommy-intel? 1 0))))
-           (if (or (and started? (> start-day 0) (member? case-state '("调查" "结案")))
+           ;; 旧版第二段明确安排过侧间，对已有事实按私下处理接续。
+           (set! tommy-approach (assoc-get d "tommy-approach" (if (>= (tommy-work 'current) 2) "私下" "未定")))
+           (if (and (member? tommy-approach '("未定" "私下" "当众"))
+                    (if (>= (tommy-work 'current) 2) (not (equal? tommy-approach "未定")) (equal? tommy-approach "未定")))
+             #t (error "汤米存档：处理方式与接待进度不一致"))
+           (if (or (and started? (> start-day 0) (member? case-state '("调查" "补救" "结案")))
                    (and (not started?) (= start-day 0) (equal? case-state "未开始")))
              #t (error "第三幕存档：开案状态非法"))))
         (else (error "第三幕：未知消息")))))))

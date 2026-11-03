@@ -148,7 +148,7 @@
         :anchor "格兰德酒店-大厅"
         :subtitle (if manifest? identity "先拿到那批货的舱单")
         :disabled (not manifest?)
-        :tags (list "Scenario")
+
         :resolve (instant (lambda () (start-scenario "核赔" on-claim-result)))))
 
     ;; ── 外勤：核赔之后的稳定活 ──────────────────────
@@ -161,13 +161,13 @@
             (outcome (lambda () (add-item! "金钱" 30) (裙带-之后! '好)))
             (outcome (lambda () (add-item! "金钱" 20) (裙带-之后! '中)))
             (outcome (lambda () (spend-composure! 1) (裙带-之后! '坏)))
-            "他派给你的都是表格太干净的那种"
+            "替沃尔特核查可疑的赔付记录。"
             :anchor "格兰德酒店-大厅")
           (工作 "替沃尔特跑外勤" '稳妥 'sharpness
             (outcome (lambda () (add-item! "金钱" 22) (裙带-之后! '好)))
             (outcome (lambda () (add-item! "金钱" 15) (裙带-之后! '中)))
             (outcome (lambda () (裙带-之后! '坏)))
-            "他派给你的都是不会出事的那种"
+            "替沃尔特做些例行核查。"
             :anchor "格兰德酒店-大厅")))
 
     ;; ── 裙带 ────────────────────────────────────────
@@ -265,8 +265,7 @@
     (define (node-sign)
       (node "签沃尔特的协议"
         :anchor "格兰德酒店-大厅"
-        :subtitle "外部调查顾问服务协议。他说你不用读"
-        :tags (list "不可撤销")
+        :subtitle "外部调查顾问协议；签署后不能撤回。"
         :resolve (instant (outcome (lambda () (签协议!))))))
 
     ;; 他本人是大堂里站着就看得见的人：banter 的气泡要落在他头上，节点名就得是「沃尔特」。

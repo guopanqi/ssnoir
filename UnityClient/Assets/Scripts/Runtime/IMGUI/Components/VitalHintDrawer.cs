@@ -50,7 +50,7 @@ namespace SSNoir.IMGUI
             ui = Interaction;
             Sources.Add(rect);
             if (ui.CanHover(rect)) { _actorId = actor.Id; _source = rect; _hoverUntil = Time.unscaledTime + .2f; }
-            if (ui.WasTapped(rect))
+            if (ui.WasClicked(rect))
             {
                 bool same = _pinnedActor == actor.Id;
                 _pinnedActor = same ? null : actor.Id;
@@ -74,10 +74,10 @@ namespace SSNoir.IMGUI
             int count = player.ActionSlotCount;
             int available = count-snapshot.InjuryActionDieLoss;
             string cadence = snapshot.IsInScenario ? "每回合" : "每天";
-            string injuryText = $"伤势到 2、5 点时各封锁一个行动位，当前{cadence}可用 {available} 个。";
+            string injuryText = $"健康 降至 5、2 点时各封锁一个行动位，当前{cadence}可用 {available} 个。";
             string composureText = actor.Role == "protagonist"
-                ? "冷静归零后，继续承受压力会转成身体伤势。"
-                : "同伴的冷静耗尽后会离开。";
+                ? "心情归零后，继续承受压力会转成身体伤势。"
+                : "同伴的心情耗尽后会离开。";
             float headingH = TextStyle(17,IMGUIStyles.Paper).lineHeight+4f;
             float injuryTextH = TextStyle(13,IMGUIStyles.Paper).CalcHeight(new GUIContent(injuryText),inner);
             float composureTextH = TextStyle(13,IMGUIStyles.Paper).CalcHeight(new GUIContent(composureText),inner);
@@ -94,10 +94,10 @@ namespace SSNoir.IMGUI
             float x=Bounds.x+16f,y=Bounds.y+16f;
             var close=new Rect(Bounds.xMax-38f,y-8f,26f,headingH);
             Label(close,"×",18,IMGUIStyles.TextSecondary);
-            if(ui.WasTapped(close)) { Close(); Event.current.Use(); return; }
-            Label(new Rect(x,y,inner-32f,headingH),"伤势",17,IMGUIStyles.Paper); y+=headingH+8f;
-            DrawMeter(new Rect(x,y,inner,meterH),snapshot.InjurySeverity,snapshot.InjuryMaxSeverity,
-                IMGUIStyles.OddsFail,IMGUIStyles.CityPlateLine);
+            if(ui.WasClicked(close)) { Close(); Event.current.Use(); return; }
+            Label(new Rect(x,y,inner-32f,headingH),"健康",17,IMGUIStyles.Paper); y+=headingH+8f;
+            DrawMeter(new Rect(x,y,inner,meterH),snapshot.InjuryMaxSeverity-snapshot.InjurySeverity,snapshot.InjuryMaxSeverity,
+                IMGUIStyles.Paper,IMGUIStyles.CityPlateLine);
             y+=meterH+14f;
             for(int i=0;i<count;i++)
             {
@@ -109,7 +109,7 @@ namespace SSNoir.IMGUI
             y+=slotSize+12f;
             Label(new Rect(x,y,inner,injuryTextH),injuryText,13,IMGUIStyles.Paper); y+=injuryTextH+16f;
             IMGUIStyles.DrawLine(new Vector2(x,y),new Vector2(x+inner,y),IMGUIStyles.CityPlateLine,1f); y+=16f;
-            Label(new Rect(x,y,inner,headingH),"冷静",17,IMGUIStyles.Paper); y+=headingH+8f;
+            Label(new Rect(x,y,inner,headingH),"心情",17,IMGUIStyles.Paper); y+=headingH+8f;
             Color tone=IMGUIStyles.Paper;
             DrawMeter(new Rect(x,y,inner,meterH),actor.Composure,actor.MaxComposure,tone,
                 new Color(tone.r,tone.g,tone.b,.25f),depleted:actor.Composure==0); y+=meterH+14f;

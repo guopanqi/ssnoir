@@ -1,0 +1,15 @@
+/Users/usr/Documents/play/ssnoir/UnityClient/Assets/Scripts/Runtime/Environment/CityNightEnvironment.cs(15,76): warning CS0649: Field 'CityNightEnvironment.Neon.size' is never assigned to, and will always have its default value [/Users/usr/Documents/play/ssnoir/UnityClient/SSNoir.Client.csproj]
+/Users/usr/Documents/play/ssnoir/UnityClient/Assets/Scripts/Runtime/Environment/CityNightEnvironment.cs(15,67): warning CS0649: Field 'CityNightEnvironment.Neon.position' is never assigned to, and will always have its default value [/Users/usr/Documents/play/ssnoir/UnityClient/SSNoir.Client.csproj]
+/Users/usr/Documents/play/ssnoir/UnityClient/Assets/Scripts/Runtime/Environment/CityNightEnvironment.cs(15,93): warning CS0649: Field 'CityNightEnvironment.Neon.palette' is never assigned to, and will always have its default value 0 [/Users/usr/Documents/play/ssnoir/UnityClient/SSNoir.Client.csproj]
+/Users/usr/Documents/play/ssnoir/UnityClient/Assets/Scripts/Runtime/Environment/CityNightEnvironment.cs(17,24): warning CS0649: Field 'CityNightEnvironment.Spec.version' is never assigned to, and will always have its default value 0 [/Users/usr/Documents/play/ssnoir/UnityClient/SSNoir.Client.csproj]
+
+Build succeeded.
+
+/Users/usr/Documents/play/ssnoir/UnityClient/Assets/Scripts/Runtime/Environment/CityNightEnvironment.cs(15,76): warning CS0649: Field 'CityNightEnvironment.Neon.size' is never assigned to, and will always have its default value [/Users/usr/Documents/play/ssnoir/UnityClient/SSNoir.Client.csproj]
+/Users/usr/Documents/play/ssnoir/UnityClient/Assets/Scripts/Runtime/Environment/CityNightEnvironment.cs(15,67): warning CS0649: Field 'CityNightEnvironment.Neon.position' is never assigned to, and will always have its default value [/Users/usr/Documents/play/ssnoir/UnityClient/SSNoir.Client.csproj]
+/Users/usr/Documents/play/ssnoir/UnityClient/Assets/Scripts/Runtime/Environment/CityNightEnvironment.cs(15,93): warning CS0649: Field 'CityNightEnvironment.Neon.palette' is never assigned to, and will always have its default value 0 [/Users/usr/Documents/play/ssnoir/UnityClient/SSNoir.Client.csproj]
+/Users/usr/Documents/play/ssnoir/UnityClient/Assets/Scripts/Runtime/Environment/CityNightEnvironment.cs(17,24): warning CS0649: Field 'CityNightEnvironment.Spec.version' is never assigned to, and will always have its default value 0 [/Users/usr/Documents/play/ssnoir/UnityClient/SSNoir.Client.csproj]
+    4 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:03.79

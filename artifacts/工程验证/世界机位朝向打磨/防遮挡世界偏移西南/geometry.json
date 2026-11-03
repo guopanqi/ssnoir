@@ -1,0 +1,227 @@
+{
+  "source": "/Users/usr/Documents/play/ssnoir/artifacts/工程验证/世界机位朝向打磨/防遮挡装配.blend",
+  "world_view_yaw": -84.18903686484032,
+  "rotations": [],
+  "moves": [],
+  "world_position": [
+    -1345.0,
+    -374.0,
+    960.0
+  ],
+  "camera_distances": [],
+  "camera_yaws": [],
+  "camera_pitches": [],
+  "returns": [
+    {
+      "place": "老街酒馆",
+      "path": "AuthoredArc",
+      "body_crossings": []
+    },
+    {
+      "place": "警察局",
+      "path": "AuthoredArc",
+      "body_crossings": []
+    },
+    {
+      "place": "诊所",
+      "path": "AuthoredArc",
+      "body_crossings": []
+    },
+    {
+      "place": "码头",
+      "path": "DirectApproach",
+      "body_crossings": []
+    }
+  ],
+  "scope": "current assembled exterior geometry; representative world start; dominant mass probes; own-root occlusion excluded; no dynamic visibility or near-plane sweep proof",
+  "places": [
+    {
+      "place": "老街酒馆",
+      "path": "DirectApproach",
+      "map_south_deviation": -42.87754421307634,
+      "world_view_deviation": 41.311492651763984,
+      "masses": [
+        "屋顶雕塑_抽象马头",
+        "侧巷底层墙",
+        "后墙.002"
+      ],
+      "body_crossings": [],
+      "external_occlusion": []
+    },
+    {
+      "place": "警察局",
+      "path": "DirectApproach",
+      "map_south_deviation": -62.76169903090325,
+      "world_view_deviation": 21.42733783393706,
+      "masses": [
+        "办公楼主体",
+        "后侧附楼",
+        "主塔暗墙"
+      ],
+      "body_crossings": [],
+      "external_occlusion": []
+    },
+    {
+      "place": "诊所",
+      "path": "DirectApproach",
+      "map_south_deviation": -46.8085860696086,
+      "world_view_deviation": 37.380450795231724,
+      "masses": [
+        "楼身内核",
+        "东侧墙",
+        "西侧墙"
+      ],
+      "body_crossings": [],
+      "external_occlusion": []
+    },
+    {
+      "place": "码头",
+      "path": "DirectApproach",
+      "map_south_deviation": -84.97991449705134,
+      "world_view_deviation": -0.7908776322110214,
+      "masses": [
+        "货轮",
+        "栈桥2",
+        "栈桥6"
+      ],
+      "body_crossings": [],
+      "external_occlusion": [
+        {
+          "progress": 0.3,
+          "blockers": {
+            "世界/干道": 3,
+            "城市地面": 3,
+            "世界/郊野地面_西": 1
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.35,
+          "blockers": {
+            "世界/干道": 3,
+            "城市地面": 3,
+            "世界/郊野地面_西": 1
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.4,
+          "blockers": {
+            "世界/干道": 3,
+            "城市地面": 3,
+            "世界/郊野地面_西": 1
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.45,
+          "blockers": {
+            "世界/干道": 3,
+            "城市地面": 3,
+            "世界/郊野地面_西": 1
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.5,
+          "blockers": {
+            "世界/干道": 3,
+            "城市地面": 3,
+            "世界/郊野地面_西": 1
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.55,
+          "blockers": {
+            "世界/干道": 3,
+            "城市地面": 3,
+            "世界/郊野地面_西": 1
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.6,
+          "blockers": {
+            "世界/干道": 3,
+            "城市地面": 3,
+            "世界/郊野地面_西": 1
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.65,
+          "blockers": {
+            "世界/干道": 3,
+            "城市地面": 3,
+            "世界/郊野地面_西": 1
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.7,
+          "blockers": {
+            "世界/干道": 3,
+            "城市地面": 3,
+            "世界/郊野地面_西": 1
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.75,
+          "blockers": {
+            "世界/干道": 3,
+            "城市地面": 3,
+            "世界/郊野地面_西": 1
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.8,
+          "blockers": {
+            "世界/干道": 3,
+            "城市地面": 3,
+            "世界/郊野地面_西": 1
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.85,
+          "blockers": {
+            "世界/干道": 3,
+            "城市地面": 3,
+            "世界/郊野地面_西": 1
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.9,
+          "blockers": {
+            "世界/干道": 3,
+            "城市地面": 3,
+            "世界/郊野地面_西": 1
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.95,
+          "blockers": {
+            "世界/干道": 3,
+            "城市地面": 3,
+            "世界/郊野地面_西": 1
+          },
+          "probes": 27
+        },
+        {
+          "progress": 1,
+          "blockers": {
+            "世界/干道": 3,
+            "城市地面": 3,
+            "世界/郊野地面_西": 1
+          },
+          "probes": 27
+        }
+      ]
+    }
+  ]
+}

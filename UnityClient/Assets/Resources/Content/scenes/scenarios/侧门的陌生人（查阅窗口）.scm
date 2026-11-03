@@ -51,11 +51,11 @@
     :children (append
       (list
         (note-node "窗口目标" "目标" "查明陌生人的去向；也可抽空打听额外消息。")
-        (note-node "门房循环" "门房的工作" "看门两回合、离开核查一回合，反复交替；离开时可私下查记录。每回合结束冷静−1。"))
+        (note-node "门房循环" "门房的工作" "看门两回合、离开核查一回合，反复交替；离开时可私下查记录。每回合结束心情−1。"))
       (clock-nodes (线索 'render-data) ((当前阶段钟) 'render-data) (消息 'render-data))
       (if 在岗? '()
         (list
-          (node "查出入记录" :subtitle "坏无进展冷静−1；中进1，好进2"
+          (node "查出入记录" :subtitle "坏无进展心情−1；中进1，好进2"
             :clocks (list (clock-priority
               (list 'clock "门房回来" (核查阶段 'remaining) (核查阶段 'max) 'countdown
                 "归零后门房回来看门，私下查阅关闭。") 'secondary))

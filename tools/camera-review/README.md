@@ -7,7 +7,7 @@
 ```sh
 blender -b city-box/prefabs/巷子里在打人.blend \
   --python-exit-code 1 --python tools/camera-review/review.py -- \
-  --out experiments/巷战镜头穿墙检查/本轮
+  --out artifacts/工程验证/巷战镜头穿墙检查/本轮
 ```
 
 需要 Blender 和 .NET 9。`--dotnet` 可指定 dotnet 路径。输出目录必须为空，避免失败时误用旧报告。`--unity-import <result.json>` 可逐台核对 Blender 与最终导入机位的位置、朝向和 FOV；`--without-travel-space` 只用于重放无空间约束的诊断基线。
@@ -34,7 +34,7 @@ CityBox 校验声明；ModelImporter 将其绑定到同根相机。中央过渡�
 日常机位或通行盒数值调整默认只做上面的 Blender 检查。仅在修改轴向、FOV、导入绑定实现、首次建立尚未验证的契约，或实际出现两端差异时，才在正式构建发布后使用独立 Unity 缓存做一次检查：
 
 ```sh
-python3 tools/camera-review/verify_unity.py --out experiments/巷战镜头穿墙检查/unity-import
+python3 tools/camera-review/verify_unity.py --out artifacts/工程验证/巷战镜头穿墙检查/unity-import
 ```
 
 此入口针对巷战 8 台机位，检查导入空间绑定、机位是否在空间内，以及共享旋转计算与 Unity 的约定是否一致；不进 Play Mode，不是实际攻击、返回或溶解的交互验收。普通独立 Stage 或空间声明沿用现有契约时也不重复跑它。首次可从已停止的正式预览缓存以 APFS clone 复用 Library；没有则正常建立缓存。检查工程仅保留 City.fbx，排除不参与此项验收的动画 FBX，避免整城动画导入阻塞语义机位核对。源工程和正式预览缓存不作删改。
@@ -51,4 +51,19 @@ Blender 用于空间及画面检查；Unity 最终核对导出/导入和交互�
 
 ## 分批全城巡检
 
-跨模型续跑的检查清单、证据分级、批次记录与下一步见 [全城镜头巡检](../../experiments/全城镜头巡检/README.md)。这是既有地点的打磨记录；固定世界起点不代表任意拖动起点，Stage Portal 也不能拿普通直飞路线代替。
+跨模型续跑的检查清单、证据分级、批次记录与下一步见 [全城镜头巡检](../../artifacts/工程验证/全城镜头巡检/README.md)。这是既有地点的打磨记录；固定世界起点不代表任意拖动起点，Stage Portal 也不能拿普通直飞路线代替。
+
+## 城市世界机位与地标主视角
+
+“同侧”以 `Camera_世界` 的水平观看方向为准，不按地理南向判断。使用完整城市装配检查指定地点：
+
+```sh
+blender -b city-box/build/city/city_build.blend --python-exit-code 1 \
+  --python tools/camera-review/city_approach_review.py -- \
+  --out artifacts/工程验证/世界机位朝向打磨/本轮 \
+  --places 老街酒馆 诊所 码头 --render
+```
+
+该工具调用共享 C# 运镜实现，返回从实际到达机位开始；记录作者主视角相对世界视角的角差、机身分段穿插、主要体量的外部遮挡采样，并可渲染 Blender 灰模过程图。`--rotate`、`--move`、`--camera-yaw` 只改变检查进程中的候选，不写源资源；`--world-position` 可检查世界 PanBounds 边界起点。参数见脚本 `--help`。
+
+遮挡采样不包含同一地点内部的自遮挡；主体包围盒采样可能落在水面或地形下，必须结合交叉对象与实际画面判读。未做近裁剪面连续扫掠、任意拖动起点、状态显隐或 Unity 实际交互验收。修改城市实例布局后，旧填充楼缓存失效，应在新装配上重新检查。

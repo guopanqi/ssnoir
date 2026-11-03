@@ -50,7 +50,7 @@
    "to": "Suspended"
   },
   {
-   "name": "重机__FrontSway1",
+   "name": "重机__FrontSway",
    "start": 327,
    "end": 441,
    "loop": false,
@@ -62,7 +62,7 @@
    "to": ""
   },
   {
-   "name": "重机__FrontSway2",
+   "name": "重机__RearSway",
    "start": 446,
    "end": 560,
    "loop": false,
@@ -74,81 +74,9 @@
    "to": ""
   },
   {
-   "name": "重机__FrontSway3",
-   "start": 565,
-   "end": 679,
-   "loop": false,
-   "once": true,
-   "ambient": false,
-   "participants": [],
-   "travelSeconds": 0,
-   "from": "Suspended",
-   "to": ""
-  },
-  {
-   "name": "重机__FrontSway4",
-   "start": 684,
-   "end": 798,
-   "loop": false,
-   "once": true,
-   "ambient": false,
-   "participants": [],
-   "travelSeconds": 0,
-   "from": "Suspended",
-   "to": ""
-  },
-  {
-   "name": "重机__RearSway1",
-   "start": 803,
-   "end": 917,
-   "loop": false,
-   "once": true,
-   "ambient": false,
-   "participants": [],
-   "travelSeconds": 0,
-   "from": "Suspended",
-   "to": ""
-  },
-  {
-   "name": "重机__RearSway2",
-   "start": 922,
-   "end": 1036,
-   "loop": false,
-   "once": true,
-   "ambient": false,
-   "participants": [],
-   "travelSeconds": 0,
-   "from": "Suspended",
-   "to": ""
-  },
-  {
-   "name": "重机__RearSway3",
-   "start": 1041,
-   "end": 1155,
-   "loop": false,
-   "once": true,
-   "ambient": false,
-   "participants": [],
-   "travelSeconds": 0,
-   "from": "Suspended",
-   "to": ""
-  },
-  {
-   "name": "重机__RearSway4",
-   "start": 1160,
-   "end": 1274,
-   "loop": false,
-   "once": true,
-   "ambient": false,
-   "participants": [],
-   "travelSeconds": 0,
-   "from": "Suspended",
-   "to": ""
-  },
-  {
    "name": "重机__Lower",
-   "start": 1279,
-   "end": 1555,
+   "start": 565,
+   "end": 841,
    "loop": false,
    "once": false,
    "ambient": false,

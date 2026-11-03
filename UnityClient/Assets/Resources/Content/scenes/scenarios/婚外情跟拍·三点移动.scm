@@ -58,7 +58,7 @@
     :subtitle (cond ((= position 0) "东侧远景：好1，中0，坏警觉1")
                     ((= position 1) "中间侧窗：好2，中1，坏警觉2")
                     (else "西侧近景：好3，中2警觉1，坏警觉3"))
-    :tags (list (if (= position 0) "低风险" "高风险"))
+    :risk (if (= position 0) '冒险 '危险)
     :requires (list (req-die))
     :resolve (roll 'sharpness
       (outcome (lambda () (shoot! '坏)))

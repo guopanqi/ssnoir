@@ -15,7 +15,7 @@ on:
       - 'tools/content-validator/experiments/mechanism_cloud_feedback.js'
       - 'tools/content-validator/experiments/mechanism_workbench.css'
       - 'tools/content-validator/experiments/mechanism_workbench.js'
-      - 'experiments/research-workbench-gpt6/**'
+      - 'experiments/研究工作台原型/**'
       - 'experiments/抽象决策关系研究/批次/2026-10-13-行动权利与自主他者/试玩.html'
       - 'tools/content-validator/experiments/test_partner_prototype.js'
       - 'tools/content-validator/experiments/test_relational_field_study.js'
@@ -70,7 +70,7 @@ jobs:
           mkdir -p pages-dist
           cp experiments/抽象决策关系研究/研究总览.html pages-dist/index.html
           mkdir -p pages-dist/open-field
-          cp experiments/research-workbench-gpt6/index.html pages-dist/open-field/index.html
+          cp experiments/研究工作台原型/index.html pages-dist/open-field/index.html
           node tools/content-validator/experiments/test_partner_prototype.js
           mkdir -p pages-dist/actor
           cp experiments/抽象决策关系研究/批次/2026-10-13-行动权利与自主他者/试玩.html pages-dist/actor/index.html

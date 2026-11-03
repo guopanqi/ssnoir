@@ -21,7 +21,7 @@
 (define (on-scenario-collapse) (collapse-result (成果结果 'collapse)))
 (define (成果动作 clock name fast?)
   (node name
-    :subtitle (if fast? "坏：冷静−1；中：冷静−1、进度+1；好：进度+2。" "坏：冷静−1；中：无变化；好：进度+1。")
+    :subtitle (if fast? "坏：心情−1；中：心情−1、进度+1；好：进度+2。" "坏：心情−1；中：无变化；好：进度+1。")
     :requires (list (req-die))
     :resolve (roll 'knowledge
       (outcome 成果坏!)
@@ -31,7 +31,7 @@
   (container "成果取舍"
     (append
       (list (note-node "标注：成果规则" "规则实验"
-        "本回合结束结算。小成果3格值1，大成果6格值2，半成品0。单人四骰无法全拿。结束回合另花1冷静。"))
+        "本回合结束结算。小成果3格值1，大成果6格值2，半成品0。单人四骰无法全拿。结束回合另花1心情。"))
       (clock-nodes (小成果 'render-data) (大成果 'render-data))
       (if (小成果 'full?) '() (list (成果动作 小成果 "小成果稳做" #f) (成果动作 小成果 "小成果快做" #t)))
       (if (大成果 'full?) '() (list (成果动作 大成果 "大成果稳做" #f) (成果动作 大成果 "大成果快做" #t))))))

@@ -20,19 +20,28 @@ namespace SSNoir.IMGUI
         {
             public readonly float Strength;   // 1 → 0
             public readonly bool Loss;        // 值在往下走
+            public readonly bool? FilledOverride;
+            public readonly float FillOpacity;
             public readonly bool Pending;     // 还没轮到它：先按旧样子画
 
-            public Cell(float strength, bool loss, bool pending)
+            public Cell(float strength, bool loss, bool pending, bool? filled = null, float fillOpacity = 1f)
             {
                 Strength = strength;
                 Loss = loss;
                 Pending = pending;
+                FilledOverride = filled;
+                FillOpacity = fillOpacity;
             }
         }
 
         private sealed class State
         {
             public int Current;
+            public int ResetSequence;
+            public bool Resetting;
+            public int BeforeReset;
+            public int ResetFrom;
+            public float ResetFillDuration;
             public int LoCell;                // 变化覆盖的格子区间 [LoCell, HiCell)
             public int HiCell;
             public bool FillingUp;
@@ -44,6 +53,8 @@ namespace SSNoir.IMGUI
         private const float LossDuration = 0.6f;
         private const float GainDuration = 0.8f;
         private const float StepDelay = 0.2f;
+        private const float ResetHold = 0.18f;
+        private const float ResetFade = 0.36f;
         // 变化那一下的弹与余像。弹要短（一下子），余像要能看清那一扇是怎么没的。
         private const float PopDuration = 0.55f;
         private const float LossGhostDuration = 0.9f;
@@ -67,13 +78,35 @@ namespace SSNoir.IMGUI
             if (!_states.TryGetValue(key, out var state))
             {
                 // 第一次见到不算「变了」，否则进场所有钟一起闪，真正的变化反而被淹掉。
-                _states[key] = new State { Current = clock.Current, SeenAt = now };
+                _states[key] = new State { Current = clock.Current, ResetSequence = clock.Reset.Sequence, SeenAt = now };
                 Prune(now);
                 return;
             }
             state.SeenAt = now;
+            if (clock.Reset.Sequence < state.ResetSequence)
+            {
+                // 读档恢复值不播放过去的操作。
+                state.Current = clock.Current;
+                state.ResetSequence = clock.Reset.Sequence;
+                state.StartTime = -1f;
+                state.Resetting = false;
+                return;
+            }
+            if (clock.Reset.Sequence != state.ResetSequence)
+            {
+                state.ResetSequence = clock.Reset.Sequence;
+                state.Resetting = true;
+                state.BeforeReset = state.Current;
+                state.ResetFrom = clock.Reset.From;
+                int gained = Mathf.Max(0, state.ResetFrom - state.Current);
+                state.ResetFillDuration = gained > 0 ? gained * StepDelay + .25f : 0f;
+                state.Current = clock.Current;
+                state.StartTime = now;
+                return;
+            }
             if (clock.Current == state.Current)
                 return;
+            state.Resetting = false;
             bool up = clock.Current > state.Current;
             state.LoCell = Mathf.Min(state.Current, clock.Current);
             state.HiCell = Mathf.Max(state.Current, clock.Current);
@@ -105,7 +138,7 @@ namespace SSNoir.IMGUI
         {
             previous = 0;
             strength = 0f;
-            if (!_states.TryGetValue(Key(clock), out var state) || state.StartTime < 0f || state.FillingUp)
+            if (!_states.TryGetValue(Key(clock), out var state) || state.StartTime < 0f || state.FillingUp || state.Resetting)
                 return false;
             float t = Time.unscaledTime - state.StartTime;
             if (t < 0f || t >= LossGhostDuration)
@@ -120,15 +153,42 @@ namespace SSNoir.IMGUI
         {
             if (!_states.TryGetValue(Key(clock), out var state) || state.StartTime < 0f)
                 return 0f;
-            float total = (state.HiCell - state.LoCell - 1) * StepDelay + (state.FillingUp ? GainDuration : LossDuration);
+            float total = state.Resetting
+                ? state.ResetFillDuration + ResetHold + ResetFade + state.Current * StepDelay + .25f
+                : (state.HiCell - state.LoCell - 1) * StepDelay + (state.FillingUp ? GainDuration : LossDuration);
             float elapsed = Time.unscaledTime - state.StartTime;
             if (elapsed >= total) return 0f;
             return 1f - Mathf.Pow(elapsed / total, 0.6f);
         }
 
+        // 所有 Clock 画法共享同一轮次时间轴：补完旧进度 → 整体淡出 → 新轮余量。
+        public static int VisualCurrent(GameClock clock)
+        {
+            if (!_states.TryGetValue(Key(clock), out var state) || !state.Resetting) return clock.Current;
+            float elapsed = Time.unscaledTime - state.StartTime;
+            if (elapsed < state.ResetFillDuration)
+                return Mathf.Min(state.ResetFrom, state.BeforeReset + Mathf.FloorToInt(elapsed / StepDelay));
+            float restart = elapsed - state.ResetFillDuration;
+            if (restart < ResetHold + ResetFade) return state.ResetFrom;
+            return Mathf.Min(clock.Current, Mathf.FloorToInt((restart - ResetHold - ResetFade) / StepDelay));
+        }
+
+        public static float VisualOpacity(GameClock clock)
+        {
+            if (!_states.TryGetValue(Key(clock), out var state) || !state.Resetting) return 1f;
+            float elapsed = Time.unscaledTime - state.StartTime - state.ResetFillDuration - ResetHold;
+            return elapsed >= 0f && elapsed < ResetFade ? 1f - elapsed / ResetFade : 1f;
+        }
+
         /// <summary>第 cellIndex 格此刻的脉冲；不在变化区间里就是空。</summary>
         public static Cell CellPulse(GameClock clock, int cellIndex)
         {
+            if (_states.TryGetValue(Key(clock), out var resetState) && resetState.Resetting)
+            {
+                float completed = Time.unscaledTime - resetState.StartTime - resetState.ResetFillDuration;
+                float flash = completed >= 0f && completed < ResetHold ? (1f - completed / ResetHold) * .35f : 0f;
+                return new Cell(flash, false, false, cellIndex < VisualCurrent(clock), VisualOpacity(clock));
+            }
             if (!_states.TryGetValue(Key(clock), out var state) || state.StartTime < 0f
                 || cellIndex < state.LoCell || cellIndex >= state.HiCell)
                 return default;
@@ -151,16 +211,22 @@ namespace SSNoir.IMGUI
         /// </summary>
         public static void DrawCell(Rect cell, bool filledNow, Color fill, Color empty, Cell pulse, System.Action<Rect>? drawEmptyOutline)
         {
-            bool filled = pulse.Pending ? !filledNow : filledNow;
-            IMGUIStyles.SetColor(filled ? fill : empty);
+            bool filled = pulse.FilledOverride ?? (pulse.Pending ? !filledNow : filledNow);
+            IMGUIStyles.SetColor(empty);
             GUI.DrawTexture(cell, Texture2D.whiteTexture);
+            if (filled)
+            {
+                if (pulse.FilledOverride.HasValue) fill.a *= pulse.FillOpacity;
+                IMGUIStyles.SetColor(fill);
+                GUI.DrawTexture(cell, Texture2D.whiteTexture);
+            }
             IMGUIStyles.ResetColor();
             if (!filled)
                 drawEmptyOutline?.Invoke(cell);
 
             if (pulse.Strength > 0f)
             {
-                Color flash = pulse.Loss ? Color.white : fill;
+                Color flash = pulse.Loss || pulse.FilledOverride.HasValue ? Color.white : fill;
                 float alpha = pulse.Strength * (pulse.Loss ? 1f : 0.7f);
                 IMGUIStyles.SetColor(new Color(flash.r, flash.g, flash.b, alpha));
                 GUI.DrawTexture(cell, Texture2D.whiteTexture);

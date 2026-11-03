@@ -1,7 +1,7 @@
 ;; 兑现当前机会会永久关闭未来机会；等待使已准备的优势衰减。
 (define 完了? #f)
 (define 本轮准备 0)
-(define 伏击 (make-clock "伏击准备" 6 'gauge "每回合最多准备两次；好2、中1、坏花1冷静。回合末丢2。"))
+(define 伏击 (make-clock "伏击准备" 6 'gauge "每回合最多准备两次；好2、中1、坏花1心情。回合末丢2。"))
 (define 来客 (make-clock "来客" 3 'readout "0无人；1送货人需准备4；2买主需准备6；3全部离开。"))
 (define (结束! result text)
   (if 完了? (error "等买主现身：重复结束") #t)
@@ -36,7 +36,7 @@
           ((= (来客 'current) 1) "抓送货人：仓库地址；等买主：货主账本，但准备会丢2。")
           (else "买主在场，准备6可抓；下一回合全部离开。"))))
       (if (< 本轮准备 2)
-        (list (node "布置伏击" :subtitle "本轮最多两次：好2、中1；坏花1冷静。"
+        (list (node "布置伏击" :subtitle "本轮最多两次：好2、中1；坏花1心情。"
           :requires (list (req-die)) :resolve (roll 'sharpness
             (outcome (lambda () (spend-actor-composure! 'player 1) (准备! 0)))
             (outcome (lambda () (准备! 1)))

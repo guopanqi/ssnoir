@@ -1,6 +1,8 @@
 ;; 林·第二章：第一章的位置决定他站在项目核心还是外围；第二章的现场事实决定他看见什么。
 (define 林的机器
   (let ()
+    (define 试运行消息已读? #f)
+    (define 培训消息已读? #f)
     (define 身份已交代? #f)
     (define 试运行状态 "未开放") ; 未开放 / 待进行 / 成功 / 失败
     (define 试运行结束日 0)
@@ -97,7 +99,7 @@
       ;; 不写清楚玩家转镜头都不知道该往哪转。
       (node "开始试运行"
         :subtitle "林和老乔在三号货栈的院子里"
-        :tags (list "Scenario")
+
         :resolve (instant (lambda () (start-scenario "码头试运行" 试运行结果!)))))
 
     (define (培训阶段)
@@ -159,12 +161,12 @@
       (if (and (phase-b?) (equal? 试运行状态 "未开放"))
           (begin
             (set! 试运行状态 "待进行")
-            (spotlight! "第一次试运行" "设备将在真实旧轨上试运行。林在机器旁边，老乔也被叫来盯现场。")) #f)
+            #t) #f)
       (if (and (试运行结束?) (equal? 培训状态 "未开放")
                (>= world-day (+ 试运行结束日 1)))
           (begin
             (set! 培训状态 "进行中")
-            (spotlight! "基础培训" "老乔收到转岗培训通知。课程不难——至少对设计课程的人来说不难。")) #f))
+            #t) #f))
 
     (define (close!)
       (if (equal? 试运行状态 "待进行") (set! 试运行状态 "失败") #f)
@@ -237,7 +239,14 @@
       (let ((msg (car args)))
         (cond
           ((equal? msg 'nodes-at) (nodes-at (cadr args)))
-          ((equal? msg 'arrivals-at) (arrivals-at (cadr args)))
+          ((equal? msg 'arrivals-at)
+            (append (arrivals-at (cadr args))
+              (if (and (equal? (cadr args) "三号货栈工棚") (equal? 试运行状态 "待进行") (not 试运行消息已读?))
+                (list (arrival "林的试运行消息" (lambda () (set! 试运行消息已读? #t)
+                  (spotlight! "第一次试运行" "设备将在真实旧轨上试运行。林在机器旁边，老乔也被叫来盯现场。")))) '())
+              (if (and (equal? (cadr args) "三号货栈工棚") (equal? 培训状态 "进行中") (not 培训消息已读?))
+                (list (arrival "老乔的培训通知" (lambda () (set! 培训消息已读? #t)
+                  (spotlight! "基础培训" "老乔收到转岗培训通知。课程不难——至少对设计课程的人来说不难。")))) '())))
           ((equal? msg 'dossier) (dossier-entry))
           ((equal? msg 'on-day-start!) (on-day-start!))
           ((equal? msg 'close!) (close!))
@@ -245,7 +254,7 @@
            ((equal? msg 'workshop-vacated?) (vacated?))
           ((equal? msg 'insight) 林的认识)
            ((equal? msg 'save)
-            (list (list "identity-shown" (if 身份已交代? 1 0))
+            (list (list "trial-news-read" 试运行消息已读?) (list "training-news-read" 培训消息已读?) (list "identity-shown" (if 身份已交代? 1 0))
                   (list "vacated-day" 搬空生效日)
                  (list "trial-state" 试运行状态) (list "trial-end-day" 试运行结束日)
                  (list "insight" 林的认识) (list "training-state" 培训状态)
@@ -255,6 +264,8 @@
                  (list "journal" (journal 'save))))
           ((equal? msg 'load!)
             (let ((data (cadr args)))
+              (set! 试运行消息已读? (assoc-get data "trial-news-read" #f))
+              (set! 培训消息已读? (assoc-get data "training-news-read" #f))
               (set! 身份已交代? (= (assoc-get data "identity-shown" 0) 1))
               (set! 搬空生效日 (assoc-get data "vacated-day" 0))
              (set! 试运行状态 (assoc-get data "trial-state" "未开放"))

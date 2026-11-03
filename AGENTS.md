@@ -16,6 +16,11 @@
 
 默认直接在 `main` 上工作，但不自动创建 Git 提交；只有用户明确要求时才提交。提交时使用有意义的简体中文提交信息。除非用户明确要求，不新建任务分支或 worktree。整合旧分支时保留提交历史与当前有效实现，确认已归入 `main` 后再删除多余分支。
 
+## Unity 发布时机
+
+- 日常模型、场景和动画修复默认在 Blender 源与预览中完成，不自动覆盖 Unity Assets。
+- 接入前完成可审阅的源修改、预览及必要构建；获得当次接入／发布授权后直接执行，不因 Unity 导入或重导入追加二次确认。
+
 ## Skill 存放约定
 
 项目 Skill 的唯一源目录是 `skills/<skill-name>/`。新增 Skill 时，把 `SKILL.md` 和所有配套文件放在该目录，再在 `.agents/skills/` 建立指向它的同名符号链接，供工具发现。`.agents/skills/` 不存放独立的 Skill 文件或副本；修改 Skill 时只编辑 `skills/` 下的源文件。Skill 中引用项目文件时，以源文件所在位置计算相对路径。
@@ -24,7 +29,8 @@
 
 ## 文档导航
 
-- **实验存放**：agent 的实验、原型与验证记录统一放在 `experiments/<具体实验名称>/`，不放进 `docs/`；新增目录以实验内容命名。
+- **原型与设计探索**：`experiments/` 只放可体验原型、设计草图、候选对照和设计研究；优先扩充已有实验，按设计问题命名，不按 agent、模型或执行批次另建顶层目录。
+- **工程验证记录**：构建、导入、镜头巡检及正式内容回归的专项证据放 `artifacts/工程验证/<检查对象>/`，不混入设计实验；公共检查工具放 `tools/`。持续维护的正式设计仍放 `docs/`，临时缓存按既有缓存目录约定处理。
 
 - **文档首页（章节、人物、制作与研究入口）**：[docs/README.md](docs/README.md)
 
@@ -34,7 +40,7 @@
 - **Schemy 解释器(库开发)**：[schemy-master/AGENTS.md](schemy-master/AGENTS.md)
 
 - **写 .scm 内容（世界观口径 + 引擎隐含行为 + 内容作者的判断）**：[skills/write-scheme/SKILL.md](skills/write-scheme/SKILL.md)
-- **抽象玩法结构研究（唯一默认研究对象：决策关系，不是剧情）**：[experiments/抽象决策关系研究/README.md](experiments/抽象决策关系研究/README.md) → [研究定位](experiments/抽象决策关系研究/研究定位与评价.md) → [实验维护契约](experiments/抽象决策关系研究/实验结构与维护契约.md)。执行方法见 [skills/research-mechanisms/SKILL.md](skills/research-mechanisms/SKILL.md)；S2/S3正式内容问题另见 [正式内容验证](experiments/第一章内容验证/README.md)。
+- **抽象玩法结构研究（唯一默认研究对象：决策关系，不是剧情）**：[experiments/抽象决策关系研究/README.md](experiments/抽象决策关系研究/README.md) → [研究定位](experiments/抽象决策关系研究/研究定位与评价.md) → [实验维护契约](experiments/抽象决策关系研究/实验结构与维护契约.md)。执行方法见 [skills/research-mechanisms/SKILL.md](skills/research-mechanisms/SKILL.md)；S2/S3正式内容问题另见 [正式内容验证](artifacts/工程验证/第一章内容验证/README.md)。
 - **制作单件 3D 资产（代码建模、已有模型加工、生成模型、网格与尺度）**：[skills/make-3d-asset/SKILL.md](skills/make-3d-asset/SKILL.md)
 - **制作游戏图片（舞台人物、姿势、2D 道具、3D 参考图）**：[skills/make-images/SKILL.md](skills/make-images/SKILL.md)
 - **地点与场景制作（地标、室内、街区、视觉组合与 CityBox 发布）**：[skills/make-scene/SKILL.md](skills/make-scene/SKILL.md) → [组合设计与审核](skills/make-scene/references/visual-language.md)；[共同视觉基准](docs/制作/城市视觉基准.md) 维护风格，[CityBox 视觉参数](city-box/docs/视觉参数.md) 维护作者声明与组合限制。

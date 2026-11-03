@@ -1,0 +1,55 @@
+{
+    "asset": "Assets/Resources/City/Places/码头.fbx",
+    "clips": [
+        {
+            "name": "__preview__City",
+            "length": 24.13333511352539,
+            "frameRate": 30.0,
+            "legacy": true,
+            "loopTime": false,
+            "wrapMode": 0,
+            "curves": [],
+            "objectCurvesAndEvents": ""
+        },
+        {
+            "name": "货船__Arrive",
+            "length": 13.600000381469727,
+            "frameRate": 30.0,
+            "legacy": true,
+            "loopTime": false,
+            "wrapMode": 8,
+            "curves": [],
+            "objectCurvesAndEvents": ""
+        },
+        {
+            "name": "货船__Berthed",
+            "length": 1.0,
+            "frameRate": 30.0,
+            "legacy": true,
+            "loopTime": false,
+            "wrapMode": 8,
+            "curves": [],
+            "objectCurvesAndEvents": ""
+        },
+        {
+            "name": "货船__Depart",
+            "length": 8.000001907348633,
+            "frameRate": 30.0,
+            "legacy": true,
+            "loopTime": false,
+            "wrapMode": 8,
+            "curves": [],
+            "objectCurvesAndEvents": ""
+        },
+        {
+            "name": "货船__Offshore",
+            "length": 1.0000001192092896,
+            "frameRate": 30.0,
+            "legacy": true,
+            "loopTime": false,
+            "wrapMode": 8,
+            "curves": [],
+            "objectCurvesAndEvents": ""
+        }
+    ]
+}

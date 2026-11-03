@@ -55,6 +55,19 @@ namespace SSNoir
         private bool _turnDipActive;
 
         public bool IsTransitioning { get; private set; }
+
+        /// <summary>
+        /// Wait until the current context transition has finished. Call after adopting the
+        /// snapshot that caused it; ReconcileContext claims transition ownership synchronously.
+        /// Post-scene blocking story steps use this boundary so a Stage's opening motion cannot
+        /// take over its camera while the Portal is still entering it.
+        /// </summary>
+        public IEnumerator WaitForTransition()
+        {
+            while (IsTransitioning)
+                yield return null;
+        }
+
         public bool TurnDipActive => _turnDipActive;
         /// <summary>穿门的城市半程正骑在焦点弧线上：主循环这时要继续 Tick 弧线，而不是把它掐断。</summary>
         public bool RidesFocusArc { get; private set; }
@@ -91,7 +104,7 @@ namespace SSNoir
         /// 玩家在世界里点进一扇门不落新快照，走的是 Update 的轮询，永远是 false。</param>
         public void ReconcileContext(bool storyDriven)
         {
-            if (_gameManager == null || IsTransitioning) return;
+            if (_gameManager == null || IsTransitioning || _turnDipActive) return;
             var newContextId = _gameManager.CurrentStageContextId;
             if (newContextId != _currentContextId)
             {
@@ -548,6 +561,15 @@ namespace SSNoir
         /// <summary>
         /// "睁眼"这半程：等黑透（演出可能比渐黑还短），在触底处翻页，然后立刻亮回来。
         /// </summary>
+        public void SynchronizeContextAtBlack()
+        {
+            if (!_turnDipActive || FadeAlpha < .99f)
+                throw new System.InvalidOperationException("换日地点只能在全黑时提交。");
+            _currentContextId = _gameManager.CurrentStageContextId;
+            _activePortal = ResolvePortal(_currentContextId);
+            if (transitionVCam != null) transitionVCam.Priority = 0;
+        }
+
         public IEnumerator FinishTurnDip(System.Action? atBlack)
         {
             if (!_turnDipActive)

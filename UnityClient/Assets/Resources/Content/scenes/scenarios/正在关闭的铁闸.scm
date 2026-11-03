@@ -96,7 +96,7 @@
       (list
         (note-node "追信：目标" "目标" "在跟丢之前截住送信人，拿到信件。")
         (note-node "追信：回合规则" "送信人不停脚"
-          "回合结束：脱逃危险+1，并支付通常的冷静代价。两钟同时满，算跟丢。"))
+          "回合结束：脱逃危险+1，并支付通常的心情代价。两钟同时满，算跟丢。"))
       (if (and (not 已试关闸?) (not (铁闸机会 'empty?)))
           (append
             (list (note-node "铁闸：效果" "可封锁的出口"
@@ -120,7 +120,7 @@
             (outcome (lambda () (紧追! 1 0)))
             (outcome (lambda () (紧追! 2 0)))))
         (node "确认去向"
-          :subtitle "辨认雨中身影：坏冷静−1，中危险减1，好减2。"
+          :subtitle "辨认雨中身影：坏心情−1，中危险减1，好减2。"
           :risk '稳妥
           :progress-target (list 'clock "脱逃危险")
           :requires (list (req-die))

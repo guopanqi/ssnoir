@@ -14,6 +14,9 @@
       (cond
         ((eq? (car args) 'gloves!) (gloves!))
         ((eq? (car args) 'gloves-seen?) gloves-seen?)
+        ((eq? (car args) 'gloves-pending?)
+          (and (= (第一幕 'act) 2) (第一幕 'eddie-met?) (not gloves-seen?)
+               (equal? (第二幕节奏 'ship-work) "已结算")))
         ((eq? (car args) 'mark-gloves-seen!) (set! gloves-seen? #t))
         ((eq? (car args) 'nodes-at) '())
         ((eq? (car args) 'arrivals-at)

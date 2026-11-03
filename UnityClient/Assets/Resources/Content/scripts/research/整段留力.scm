@@ -3,7 +3,7 @@
 (define 完成? #f)
 (define 工作甲 (make-clock "工作甲" 5 'gauge "完成后保留；未完成部分按回合规则结算。"))
 (define 工作乙 (make-clock "工作乙" 3 'gauge "完成后保留；未完成部分按回合规则结算。"))
-(define 期限 (make-clock "已过回合" 3 'gauge "第三次结束回合到期；每次另花1冷静。"))
+(define 期限 (make-clock "已过回合" 3 'gauge "第三次结束回合到期；每次另花1心情。"))
 (define (整段结果 status)
   (list status (工作甲 'current) (工作乙 'current)
     (min 3 (+ 1 (期限 'current))) (actor-composure 'player)))
@@ -25,12 +25,12 @@
 (define (整段动作 clock prefix)
   (if (clock 'full?) '()
     (list
-      (node (string-append prefix "稳做") :subtitle "坏：冷静−1；中：无变化；好：进度+1。"
+      (node (string-append prefix "稳做") :subtitle "坏：心情−1；中：无变化；好：进度+1。"
         :requires (list (req-die))
         :resolve (roll 'knowledge
           (outcome 整段坏!) (outcome (lambda () #f))
           (outcome (lambda () (整段推进! clock 1)))))
-      (node (string-append prefix "快做") :subtitle "坏：冷静−1；中：冷静−1、进度+1；好：进度+2。"
+      (node (string-append prefix "快做") :subtitle "坏：心情−1；中：心情−1、进度+1；好：进度+2。"
         :requires (list (req-die))
         :resolve (roll 'knowledge
           (outcome 整段坏!) (outcome (lambda () (整段风险中! clock)))
@@ -53,13 +53,13 @@
           (if 半成品清零?
             "甲5格、乙3格。回合末未完成进度清零，完成项保留。"
             "甲5格、乙3格。所有进度跨回合保留。"))
-        (note-node "标注：整段余力" "冷静跨回合延续"
-          "初始3，上限5。整顿花骰，好档恢复2。结束回合另花1冷静。"))
+        (note-node "标注：整段余力" "心情跨回合延续"
+          "初始3，上限5。整顿花骰，好档恢复2。结束回合另花1心情。"))
       (clock-nodes (工作甲 'render-data) (工作乙 'render-data) (期限 'render-data))
       (整段动作 工作甲 "甲") (整段动作 工作乙 "乙")
       (if (>= (actor-composure 'player) 5) '()
         (list
-          (node "整顿" :subtitle "坏：冷静−1；中：无变化；好：冷静+2，上限5。"
+          (node "整顿" :subtitle "坏：心情−1；中：无变化；好：心情+2，上限5。"
             :requires (list (req-die))
             :resolve (roll 'knowledge
               (outcome 整段坏!) (outcome (lambda () #f))

@@ -2,6 +2,7 @@
 #nullable enable
 using System;
 using System.IO;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
@@ -9,13 +10,69 @@ using UnityEngine;
 namespace SSNoir.Editor
 {
     /// <summary>正式 CityBox 模型按名字引用 Unity 共享材质；不把 Blender BSDF 覆盖到 Unity 材质。</summary>
+    [InitializeOnLoad]
     internal sealed class CitySharedMaterialImporter : AssetPostprocessor
     {
         private bool IsCityModel => assetPath == "Assets/Resources/Models/Environment/City.fbx"
             || (assetPath.StartsWith("Assets/Resources/City/Places/",StringComparison.Ordinal) && assetPath.EndsWith(".fbx",StringComparison.Ordinal));
-        public override uint GetVersion() => 10;
+        public override uint GetVersion() => 11; // 按角色契约和灯光组登记依赖，不依赖整份运行时清单。
         public override int GetPostprocessOrder() => 1000;
         private const string PalettePath = "Assets/Resources/City/WorldPalette.asset";
+        private const string VisualPath = "Assets/Resources/City/World.visual.json";
+        private const string RoleDependency = "SSNoir/CityVisual/Roles";
+        private const string LightDependencyPrefix = "SSNoir/CityVisual/Lights/";
+        private static bool _visualRefreshQueued;
+
+        static CitySharedMaterialImporter() => QueueVisualDependencyRefresh();
+
+        private static void QueueVisualDependencyRefresh()
+        {
+            if (AssetDatabase.IsAssetImportWorkerProcess() || _visualRefreshQueued) return;
+            _visualRefreshQueued = true;
+            // Unity 禁止在导入回调中注册自定义依赖；等这一轮导入完成再登记。
+            EditorApplication.delayCall += () => {
+                _visualRefreshQueued = false;
+                RegisterVisualDependencies();
+                AssetDatabase.Refresh();
+            };
+        }
+
+        internal static Dictionary<string, Hash128> VisualDependencyHashes(CityWorldVisuals.Spec spec)
+        {
+            // 哈希只包含模型导入实际消费的字段。排序避免局部构建改变声明顺序而误重导。
+            var roles = new CityWorldVisuals.Spec {
+                version = spec.version,
+                surfaceRoles = spec.surfaceRoles.OrderBy(n => n, StringComparer.Ordinal).ToArray(),
+                lineRoles = spec.lineRoles.OrderBy(n => n, StringComparer.Ordinal).ToArray(),
+                lightPalettes = spec.lightPalettes.OrderBy(n => n, StringComparer.Ordinal).ToArray()
+            };
+            var hashes = new Dictionary<string, Hash128> {
+                [RoleDependency] = Hash128.Compute(JsonUtility.ToJson(roles))
+            };
+            // 无灯的地点也登记空组；移除一组的最后一盏灯时仍能使旧依赖失效。
+            var profiles = spec.placeHashes.Select(p => p.name)
+                .Concat(spec.profiles.Select(p => p.name)).Concat(spec.lights.Select(l => l.profile))
+                .Distinct(StringComparer.Ordinal);
+            foreach (var profile in profiles)
+            {
+                var lights = new CityWorldVisuals.Spec {
+                    lights = spec.lights.Where(l => l.profile == profile)
+                        .OrderBy(l => l.name, StringComparer.Ordinal).ToArray()
+                };
+                hashes.Add(LightDependencyPrefix + profile, Hash128.Compute(JsonUtility.ToJson(lights)));
+            }
+            return hashes;
+        }
+
+        internal static void RegisterVisualDependencies()
+        {
+            if (!File.Exists(VisualPath))
+                throw new InvalidOperationException("缺少 CityBox 世界视觉声明：" + VisualPath);
+            var spec = JsonUtility.FromJson<CityWorldVisuals.Spec>(File.ReadAllText(VisualPath));
+            foreach (var dependency in VisualDependencyHashes(spec))
+                AssetDatabase.RegisterCustomDependency(dependency.Key, dependency.Value);
+        }
+
         private static CityWorldPalette? ImportedPalette()
         {
             if (!File.Exists(PalettePath))
@@ -25,6 +82,9 @@ namespace SSNoir.Editor
         }
         private static void OnPostprocessAllAssets(string[] imported, string[] deleted, string[] moved, string[] oldPaths)
         {
+            if (imported.Contains(VisualPath) || deleted.Contains(VisualPath)
+                || moved.Contains(VisualPath) || oldPaths.Contains(VisualPath))
+                QueueVisualDependencyRefresh();
             if (!imported.Contains(PalettePath)) return;
             var palette = ImportedPalette()
                 ?? throw new InvalidOperationException("世界视觉基准导入失败");
@@ -40,7 +100,7 @@ namespace SSNoir.Editor
             if (!IsCityModel) return;
             // 材质映射消费的是已导入资产；源文件依赖不能保证首次导入的先后顺序。
             context.DependsOnArtifact("Assets/Resources/City/WorldPalette.asset");
-            context.DependsOnSourceAsset("Assets/Resources/City/World.visual.json");
+            context.DependsOnCustomDependency(RoleDependency);
             var importer = (ModelImporter)assetImporter;
             var palette = ImportedPalette();
             if (palette != null)
@@ -82,12 +142,12 @@ namespace SSNoir.Editor
                 renderer.shadowCastingMode = line ? UnityEngine.Rendering.ShadowCastingMode.Off : UnityEngine.Rendering.ShadowCastingMode.On;
                 renderer.receiveShadows = !line;
             }
-            var file = "Assets/Resources/City/World.visual.json";
-            var spec = JsonUtility.FromJson<CityWorldVisuals.Spec>(File.ReadAllText(file));
+            var spec = JsonUtility.FromJson<CityWorldVisuals.Spec>(File.ReadAllText(VisualPath));
             palette.ValidateSpec(spec);
             foreach (var light in root.GetComponentsInChildren<Light>(true))
             {
                 var row = spec.lights.Single(l => l.name == light.name);
+                context.DependsOnCustomDependency(LightDependencyPrefix + row.profile);
                 CityWorldVisuals.Configure(light,row,palette);
                 light.enabled = false; // 初始为全城状态，地点聚焦由统一状态控制。
             }

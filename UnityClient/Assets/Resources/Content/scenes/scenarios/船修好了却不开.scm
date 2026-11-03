@@ -118,7 +118,7 @@
 (define (node-talk-duty)
   (node "谈清付款责任"
     :subtitle "不替公司制造清场的借口"
-    :tags (list "低风险")
+    :risk '稳妥
     :requires (list (req-die))
     :resolve (roll 'social
       (outcome (lambda () #f))
@@ -128,7 +128,7 @@
 (define (node-hold-gangway)
   (node "守住跳板"
     :subtitle "公开施压。装货的人会停手，警哨也会响"
-    :tags (list "高风险")
+    :risk '危险
     :requires (list (req-die))
     :resolve (roll 'violence
       (outcome (lambda () (guards+ 2)))
@@ -137,8 +137,8 @@
 
 (define (node-unregistered-cargo)
   (node "指出未登记货物"
-    :subtitle "货舱里有一批没有出现在舱单上的木箱"
-    :tags (list "高风险" "只用一次")
+    :subtitle "仅能指出一次；舱单上没有这批木箱"
+    :risk '危险
     :requires (list (req-die))
     :resolve (roll 'sharpness
       (outcome (lambda () (set! cargo-pointed? #t) (guards+ 2)))
@@ -162,7 +162,7 @@
 (define (node-take-cargo)
   (node "搬货抵债"
     :subtitle "成功便以货物结清这场封锁"
-    :tags (list "高风险" "非法")
+    :risk '危险 :tags (list "非法")
     :requires (list (req-die))
     :resolve (roll 'violence
       (outcome (lambda () (guards+ 2)))

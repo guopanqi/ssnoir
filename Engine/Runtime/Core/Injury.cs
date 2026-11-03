@@ -44,6 +44,8 @@ namespace SSNoir.Core
         }
 
         public int Severity { get; private set; }
+        // 仅供表现快照识别送医重置；不写入存档，普通治疗不改变此序号。
+        public int ResetSequence { get; private set; }
         public string Part { get; private set; } = string.Empty;
         public string Skill { get; private set; } = string.Empty;
         public string SkillName { get; private set; } = string.Empty;
@@ -100,12 +102,22 @@ namespace SSNoir.Core
             if (amount <= 0)
                 throw new ArgumentOutOfRangeException(nameof(amount), amount, "Heal amount must be positive.");
             Severity = Math.Max(0, Severity - amount);
-            if (Severity == 0) Reset();
+            if (Severity == 0) ClearInjury();
         }
 
-        public void ResolveCollapse() => Severity = PostCollapseSeverity;
+        public void ResolveCollapse()
+        {
+            Severity = PostCollapseSeverity;
+            ResetSequence++;
+        }
 
         public void Reset()
+        {
+            ResetSequence = 0;
+            ClearInjury();
+        }
+
+        private void ClearInjury()
         {
             Severity = 0;
             Part = string.Empty;
@@ -119,6 +131,7 @@ namespace SSNoir.Core
             if (severity < 0 || severity > MaxSeverity)
                 throw new ArgumentOutOfRangeException(nameof(severity), severity,
                     $"Injury severity must be between 0 and {MaxSeverity}.");
+            ResetSequence = 0;
             if (severity == 0)
             {
                 Reset();

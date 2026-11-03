@@ -2,7 +2,7 @@
 (set-actor-composure! 'player 初始冷静)
 (define 完成? #f)
 (define 目标 (make-clock "目标" 目标上限 'gauge "全部进度跨回合保留；完成立即结束。"))
-(define 期限 (make-clock "已过回合" 回合上限 'gauge "每次结束回合加1；引擎先花1冷静。"))
+(define 期限 (make-clock "已过回合" 回合上限 'gauge "每次结束回合加1；引擎先花1心情。"))
 (define (余力结果 status)
   (list status (目标 'current) (min 回合上限 (+ 1 (期限 'current))) (actor-composure 'player)))
 (define (余力结束! status text)
@@ -31,13 +31,13 @@
     (append
       (list
         (note-node "标注：余力规则" "规则实验"
-          (string-append "初始冷静" (number->string 初始冷静) "，上限5。三回合内达到10进度；进度和冷静跨回合保留。整顿花一颗骰，好结果恢复2冷静。每次结束回合另花1冷静。"))
-        (node "稳做" :subtitle "坏：冷静−1；中：无变化；好：进度+1。"
+          (string-append "初始心情" (number->string 初始冷静) "，上限5。三回合内达到10进度；进度和心情跨回合保留。整顿花一颗骰，好结果恢复2心情。每次结束回合另花1心情。"))
+        (node "稳做" :subtitle "坏：心情−1；中：无变化；好：进度+1。"
           :requires (list (req-die))
           :resolve (roll 'knowledge
             (outcome 余力坏!) (outcome (lambda () #f))
             (outcome (lambda () (余力推进! 1)))))
-        (node "快做" :subtitle "坏：冷静−1；中：冷静−1、进度+1；好：进度+2。"
+        (node "快做" :subtitle "坏：心情−1；中：心情−1、进度+1；好：进度+2。"
           :requires (list (req-die))
           :resolve (roll 'knowledge
             (outcome 余力坏!) (outcome 余力风险中!)
@@ -45,7 +45,7 @@
       (clock-nodes (目标 'render-data) (期限 'render-data))
       (if (>= (actor-composure 'player) 5) '()
         (list
-          (node "整顿" :subtitle "坏：冷静−1；中：无变化；好：冷静+2，上限5。"
+          (node "整顿" :subtitle "坏：心情−1；中：无变化；好：心情+2，上限5。"
             :requires (list (req-die))
             :resolve (roll 'knowledge
               (outcome 余力坏!) (outcome (lambda () #f))

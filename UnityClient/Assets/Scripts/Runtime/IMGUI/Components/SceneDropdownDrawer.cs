@@ -34,7 +34,7 @@ namespace SSNoir.IMGUI
             bool hoverBox = ui.CanHover(boxRect);
 
             // Toggle on click
-            if (ui.WasTapped(boxRect))
+            if (ui.WasClicked(boxRect))
             {
                 _isOpen = !_isOpen;
                 Event.current.Use();
@@ -113,7 +113,7 @@ namespace SSNoir.IMGUI
                         itemStyle.normal.textColor = optText;
                         IMGUIStyles.DrawLabel(new Rect(optRect.x + 12, optRect.y + 6, optRect.width - 16, 20), item.Name, itemStyle);
 
-                        if (ui.WasTapped(optRect))
+                        if (ui.WasClicked(optRect))
                         {
                             gameManager.OnSceneButtonClicked(item.SceneName);
                             _isOpen = false;

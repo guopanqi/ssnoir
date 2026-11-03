@@ -154,12 +154,14 @@ namespace SSNoir.IMGUI
             };
             IMGUIStyles.DrawLabel(new Rect(rowRect.x + 10, rowRect.y + 4, rowRect.width - 12f, rowRect.height),
                 label, rowStyle);
-            return ui.WasTapped(rowRect);
+            if (!ui.WasClicked(rowRect)) return false;
+            Event.current.Use();
+            return true;
         }
 
         private static float ContentHeight()
         {
-            float y = 8f + 20f + SaveManager.SlotCount * 28f;
+            float y = 8f + 20f + SaveManager.SlotCount * 48f;
             y += 6f + 20f + ItemH; // 雨雪预览标题与天气按钮
             y += 6f + 22f + ChapterRowCount() * ItemH; // 章节跳转（剧场试演折叠）
             y += 6f + 22f + ItemH; // 资源调试
@@ -302,16 +304,21 @@ namespace SSNoir.IMGUI
             for (int slot = 1; slot <= SaveManager.SlotCount; slot++)
             {
                 string slotPath = SaveManager.GetSlotFilePath(slot);
-                string saveTime = SaveManager.GetSaveTime(slotPath);
+                var summary = SaveManager.GetSaveSummary(slotPath);
+                string saveTime = summary.SaveTime;
                 bool hasSave = !string.IsNullOrEmpty(saveTime);
 
                 IMGUIStyles.DrawLabel(new Rect(panelX + 8f, curY + 4f, 50f, 20f), $"槽位 {slot}", labelStyle);
 
-                string timeStr = hasSave ? saveTime : "（空）";
+                string timeStr = summary.WorldDay.HasValue ? UiText.Day(summary.WorldDay.Value) : hasSave ? "" : "（空）";
                 var timeStyle = new GUIStyle(labelStyle) {
                     normal = { textColor = hasSave ? IMGUIStyles.TextPrimary : IMGUIStyles.TextDisabled }
                 };
-                IMGUIStyles.DrawLabel(new Rect(panelX + 52f, curY + 4f, 130f, 20f), timeStr, timeStyle);
+                IMGUIStyles.DrawLabel(new Rect(panelX + 58f, curY + 4f, panelW - 138f, 20f), timeStr, timeStyle);
+
+                if (hasSave)
+                    IMGUIStyles.DrawLabel(new Rect(panelX + 8f, curY + 24f, panelW - 16f, 18f),
+                        saveTime, mutedStyle);
 
                 var rectSave = new Rect(panelX + panelW - 8f - 64f, curY + 2f, 30f, 22f);
                 var rectLoad = new Rect(panelX + panelW - 8f - 30f, curY + 2f, 30f, 22f);
@@ -332,7 +339,7 @@ namespace SSNoir.IMGUI
                     return;
                 }
 
-                curY += 28f;
+                curY += 48f;
             }
 
             var leftLabelStyle = new GUIStyle(labelStyle) { alignment = TextAnchor.MiddleLeft };
@@ -482,7 +489,7 @@ namespace SSNoir.IMGUI
                 };
                 IMGUIStyles.DrawLabel(new Rect(itemRect.x + 10, itemRect.y + 4, itemRect.width, itemRect.height), row.Name, itemStyle);
 
-                if (contentUi.WasTapped(itemRect))
+                if (contentUi.WasClicked(itemRect))
                 {
                     gameManager.OnSceneButtonClicked(row.SceneName);
                     _isOpen = false;
@@ -530,8 +537,8 @@ namespace SSNoir.IMGUI
                 return;
             }
 
-            // 桌面用滚轮；手机用手指拖动。面板内的按钮都在 MouseUp 且未滑动时响应，
-            // 因此从按钮上开始滑动也不会误触。
+            // 桌面用滚轮；手机用手指拖动。面板内的按钮按下即响应，
+            // 后续拖动继续滚动，松手只结束滚动，不再次触发按钮。
             if (UIScale.HasHoverPointer)
                 return;
 

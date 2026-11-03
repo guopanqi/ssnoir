@@ -30,7 +30,7 @@
         (if (and (>= (口供 'current) 4) (假话 'empty?)) "证词已足够且没有假话。交出笔记，就能正确指认货主。" "问出能指认货主的证词：至少四格、假话为零，再交出笔记。假话会误指无辜司机。")))
       (clock-nodes (口供 'render-data) (假话 'render-data))
       (list (note-node "标注：来不及重问" "警车在路上" "本回合结束立即交稿；至少4格，且假话为0才可信。")
-        (node "听他讲完" :subtitle "坏：无进展、花1冷静；中：口供1；好：口供2。"
+        (node "听他讲完" :subtitle "坏：无进展、花1心情；中：口供1；好：口供2。"
           :requires (list (req-die)) :resolve (roll 'social
             (outcome (lambda () (spend-actor-composure! 'player 1)))
             (outcome (lambda () (口供 'advance! 1)))

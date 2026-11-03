@@ -110,7 +110,7 @@ namespace SSNoir.IMGUI
                 CardTagDrawer.Draw(rect, node, disabled, containsRestBlockerTarget, clocks);
                 if (isRestBlockerTarget)
                     IMGUIStyles.DrawGoldPulse(rect, baseAlpha: 0.72f, rings: 3, ringStep: 2.5f, speed: 2.2f);
-                if (!disabled && ui.WasTapped(rect))
+                if (!disabled && ui.WasClicked(rect))
                 {
                     interaction.CardClicked = true;
                     Event.current.Use();
@@ -136,7 +136,7 @@ namespace SSNoir.IMGUI
             if (isCharacter)
             {
                 ContainerNodeDrawer.DrawCharacter(rect, node, disabled, clocksBottomY);
-                if (!disabled && ui.WasTapped(rect))
+                if (!disabled && ui.WasClicked(rect))
                 {
                     interaction.CardClicked = true;
                     Event.current.Use();
@@ -245,7 +245,7 @@ namespace SSNoir.IMGUI
             var style=new GUIStyle(IMGUIStyles.ClockLabel){fontSize=IMGUIStyles.FontSize(compact?12:14)};
             float text=style.CalcSize(new GUIContent(clock.ShownLabel)).x;
             if(clock.Priority==ClockPriority.Secondary)
-                return style.CalcSize(new GUIContent($"{clock.ShownLabel} {clock.Current}/{clock.Max}")).x+20f;
+                return style.CalcSize(new GUIContent($"{clock.ShownLabel} {ClockPulse.VisualCurrent(clock)}/{clock.Max}")).x+20f;
             return clock.Style==ClockStyle.Countdown ? Mathf.Max(compact?174f:218f,text+(compact?76f:104f))
                 : Mathf.Max(compact?166f:210f,text+74f);
         }
@@ -265,7 +265,7 @@ namespace SSNoir.IMGUI
             {
                 label.normal.textColor=color;
                 IMGUIStyles.DrawLabel(new Rect(rect.x+8f,rect.y,rect.width-16f,rect.height),
-                    $"{clock.ShownLabel} {clock.Current}/{clock.Max}",label);
+                    $"{clock.ShownLabel} {ClockPulse.VisualCurrent(clock)}/{clock.Max}",label);
             }
             else if(clock.Style==ClockStyle.Countdown)
             {
@@ -281,13 +281,13 @@ namespace SSNoir.IMGUI
                 float labelY=graphic.yMax+7f;
                 IMGUIStyles.DrawLabel(new Rect(rect.x+10f,labelY,rect.width-74f,rect.yMax-labelY-6f),clock.ShownLabel,label);
                 label.alignment=TextAnchor.MiddleRight;label.normal.textColor=IMGUIStyles.TextSecondary;
-                IMGUIStyles.DrawLabel(new Rect(rect.xMax-64f,labelY,54f,rect.yMax-labelY-6f),$"{clock.Current} / {clock.Max}",label);
+                IMGUIStyles.DrawLabel(new Rect(rect.xMax-64f,labelY,54f,rect.yMax-labelY-6f),$"{ClockPulse.VisualCurrent(clock)} / {clock.Max}",label);
             }
             else
             {
                 IMGUIStyles.DrawLabel(new Rect(rect.x+10f,rect.y,rect.width-82f,rect.height),clock.ShownLabel,label);
                 label.alignment=TextAnchor.MiddleRight;label.normal.textColor=color;
-                IMGUIStyles.DrawLabel(new Rect(rect.xMax-72f,rect.y,62f,rect.height),$"{clock.Current}/{clock.Max}",label);
+                IMGUIStyles.DrawLabel(new Rect(rect.xMax-72f,rect.y,62f,rect.height),$"{ClockPulse.VisualCurrent(clock)}/{clock.Max}",label);
             }
         }
 
@@ -313,10 +313,11 @@ namespace SSNoir.IMGUI
                 ShapeDrawer.DrawDisc(rect,IMGUIStyles.CityPlateBg);
                 if(ClockPulse.TryGetFadingLoss(clock,out int previous,out float ghost))
                     ShapeDrawer.DrawDial(rect,previous,clock.Max,new Color(1,1,1,ghost),track);
-                ShapeDrawer.DrawDial(rect,clock.Current,clock.Max,active,ghost>0f?Color.clear:track);
+                ShapeDrawer.DrawDial(rect,ClockPulse.VisualCurrent(clock),clock.Max,
+                    new Color(active.r,active.g,active.b,active.a*ClockPulse.VisualOpacity(clock)),ghost>0f?Color.clear:track);
                 var style=new GUIStyle(IMGUIStyles.ClockValue){fontSize=IMGUIStyles.FontSize(rect.width>=70f?18:14),
                     alignment=TextAnchor.MiddleCenter,normal={textColor=IMGUIStyles.Paper}};
-                if (showValue) IMGUIStyles.DrawLabel(rect,$"{clock.Current}/{clock.Max}",style);
+                if (showValue) IMGUIStyles.DrawLabel(rect,$"{ClockPulse.VisualCurrent(clock)}/{clock.Max}",style);
                 return;
             }
             IMGUIStyles.SetColor(IMGUIStyles.CityPlateBg);GUI.DrawTexture(rect,Texture2D.whiteTexture);IMGUIStyles.ResetColor();
@@ -352,7 +353,7 @@ namespace SSNoir.IMGUI
 
             IMGUIStyles.DrawLabel(new Rect(rect.x + 8, rect.y + rect.height - 18, rect.width - 16, 14), UiText.Get("点击返回"), IMGUIStyles.FlippedTip);
 
-            if (ui.WasTapped(rect))
+            if (ui.WasClicked(rect))
             {
                 interaction.CardClicked = true;
                 Event.current.Use();
@@ -491,8 +492,10 @@ namespace SSNoir.IMGUI
         private static string EffectLine(ActionEffectRecord effect)
         {
             if(effect.Kind==ActionEffectKind.Supplement) return effect.Text;
-            string delta=effect.Delta.HasValue ? (effect.Delta.Value>0?"+":"")+effect.Delta.Value : "";
-            return string.IsNullOrEmpty(delta)?effect.DisplayLabel:delta+"  "+effect.DisplayLabel;
+            int? displayDelta=effect.Kind==ActionEffectKind.Injury ? -effect.Delta : effect.Delta;
+            string delta=displayDelta.HasValue ? (displayDelta.Value>0?"+":"")+displayDelta.Value : "";
+            string label=effect.Kind==ActionEffectKind.Injury ? "健康" : effect.DisplayLabel;
+            return string.IsNullOrEmpty(delta)?label:delta+"  "+label;
         }
 
         private static void DrawEffectRowBg(Rect row, Color accent)

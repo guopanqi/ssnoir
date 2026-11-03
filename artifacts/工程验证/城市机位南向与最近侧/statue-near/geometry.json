@@ -1,0 +1,21 @@
+{
+  "source": "/Users/usr/Documents/play/ssnoir/city-box/build/city/city_build.blend",
+  "rotations": [
+    "雕像=90"
+  ],
+  "scope": "current assembled exterior geometry; representative world start; dominant mass probes; own-root occlusion excluded; no dynamic visibility or near-plane sweep proof",
+  "places": [
+    {
+      "place": "雕像",
+      "path": "DirectApproach",
+      "south_deviation": -36.633914551356675,
+      "masses": [
+        "雕像_本体",
+        "雕像_基座",
+        "雕像_座脚"
+      ],
+      "body_crossings": [],
+      "external_occlusion": []
+    }
+  ]
+}

@@ -24,6 +24,7 @@
 
     ;; 未开始 / 已公布 / 今天 / 收场了
     (define 状态 "未开始")
+    (define 进场消息已读? #f)
     (define 到场? #f)
     (define 拦下艾迪? #f)
     (define 停了机? #f)
@@ -48,10 +49,7 @@
     (define (on-day-start!)
       (cond
         ((and (已公布?) (>= world-day (进场日)))
-         (set! 状态 "今天")
-
-         (spotlight! "今天"
-           "设备今天上岸。老街的人一早就站到了跳板两侧，警察也来了。"))
+         (set! 状态 "今天"))
         (else #f)))
 
     ;; 堵一整天，不是只堵到你露个面。主轴上的一拍是「这件事你得处理完」，
@@ -185,7 +183,10 @@
       (let ((msg (car args)))
         (cond
           ((equal? msg 'nodes-at) (nodes-at (cadr args)))
-          ((equal? msg 'arrivals-at) '())
+          ((equal? msg 'arrivals-at)
+           (if (and (equal? (cadr args) "世界") (equal? 状态 "今天") (not 进场消息已读?))
+             (list (arrival "设备上岸消息" (lambda () (set! 进场消息已读? #t)
+               (spotlight! "设备今天上岸" "老街的人一早就站到了跳板两侧，警察也来了。")))) '()))
           ((equal? msg 'dossier) '())
           ((equal? msg 'on-day-start!) (on-day-start!))
           ((equal? msg 'announce!) (公布!))
@@ -208,13 +209,14 @@
                (list (日期倒计时 "离机器进场" (进场日) 等待天数 "归零那天去码头跳板，所有人都会在。"))
                '()))
           ((equal? msg 'save)
-           (list (list "state" 状态)
+           (list (list "arrival-news-read" 进场消息已读?) (list "state" 状态)
                  (list "came" (if 到场? 1 0))
                  (list "stopped-eddie" (if 拦下艾迪? 1 0))
                  (list "halted" (if 停了机? 1 0))
                  (list "held-crowd" (if 压住人群? 1 0))))
           ((equal? msg 'load!)
            (let ((data (cadr args)))
+             (set! 进场消息已读? (assoc-get data "arrival-news-read" #f))
              (set! 状态 (assoc-get data "state" "未开始"))
              (set! 到场? (= (assoc-get data "came" 0) 1))
              (set! 拦下艾迪? (= (assoc-get data "stopped-eddie" 0) 1))

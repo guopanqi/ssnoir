@@ -7,6 +7,7 @@
 (define :requires ':requires)
 (define :resolve ':resolve)
 (define :tags ':tags)
+(define :use-limit ':use-limit)
 (define :risk ':risk)
 (define :risk-target ':risk-target)
 (define :progress-target ':progress-target)
@@ -72,6 +73,7 @@
             :requires (get-kwarg kwargs ':requires #f)
             :resolve (get-kwarg kwargs ':resolve #f)
             :tags (get-kwarg kwargs ':tags '())
+            :use-limit (get-kwarg kwargs ':use-limit #f)
             :risk (get-kwarg kwargs ':risk #f)
             :risk-target (get-kwarg kwargs ':risk-target #f)
             :progress-target (get-kwarg kwargs ':progress-target #f)
@@ -231,13 +233,14 @@
 (define (clock-priority data priority)
   (if (member? priority '(primary secondary)) #t
       (error "clock-priority: 应为 'primary / 'secondary"))
-  (if (and (list? data) (>= (length data) 5) (<= (length data) 9)
+  (if (and (list? data) (>= (length data) 5) (<= (length data) 10)
            (equal? (car data) 'clock)) #t
       (error "clock-priority: 需要 clock render-data"))
   (list 'clock (list-ref data 1) (list-ref data 2) (list-ref data 3) (list-ref data 4)
         (if (>= (length data) 6) (list-ref data 5) "")
         (if (>= (length data) 7) (list-ref data 6) (list-ref data 1))
-        priority (if (= (length data) 9) (list-ref data 8) 'neutral)))
+        priority (if (>= (length data) 9) (list-ref data 8) 'neutral)
+        (if (= (length data) 10) (list-ref data 9) (list 0 0))))
 
 ;; Clock node: id is an internal tree identity; the clock label is displayed.
 (define (clock-node id clock-data)
@@ -271,7 +274,7 @@
 (define (place id . kwargs)
   (apply node (cons id (append kwargs (list :place #t)))))
 
-;; 一拍入场叙事。没有 condition——「这一拍在不在」由拼树时决定，和 children 一样：
+;; 一次入场事件，可统一交代并结算本次遭遇的资源与地点状态。没有 condition——「这一拍在不在」由拼树时决定，和 children 一样：
 ;;   :arrivals (if (and (= stage 4) (not told?)) (list beat) '())
 ;; 一次性由内容自己置标记并跟着自己的 save 走；引擎不持有任何 arrival 状态。
 ;; 必须当场发生的遭遇可以把 start-scenario 放在 effect 的最后：客户端会先播完
@@ -401,7 +404,7 @@
   (action-with-tags id tags #f (instant effect)))
 
 (define (scenario-action id effect)
-  (instant-action-with-tags id (list "Scenario") effect))
+  (instant-action id effect))
 
 (define (observe-action id text)
   (action id #f (observe text)))
@@ -530,12 +533,12 @@
   (append
     ;; Scenario每回合自动流失 1，一根烟买回两个回合——这是它的单位。
     (if (has-item? "香烟" 1)
-        (list (随身动作 "抽烟" "香烟" 2 "恢复两点冷静" "抽了一口"
+        (list (随身动作 "抽烟" "香烟" 2 "恢复两点心情" "抽了一口"
                 (lambda () #f)))
         '())
     ;; 酒恢复 4 点冷静，代价推到明天：下一次城市骰池里有一格带宿醉。
     (if (has-item? "酒" 1)
-        (list (随身动作 "喝酒" "酒" 4 "恢复四点冷静，明日宿醉" "灌了一口"
+        (list (随身动作 "喝酒" "酒" 4 "恢复四点心情，明日宿醉" "灌了一口"
                 (lambda () (apply-hangover!))))
         '())))
 
@@ -697,9 +700,9 @@
           (run-rules (cdr list-rules)))))
   (run-rules turn-rules))
 
-;; 世界新回合钩子。旧日的期限、租金和倒计时留在 define-turn-rule；只有翻页后玩家
-;; 才看见的事情（早报、电话、今天开始的事件）登记在这里。引擎在新骰与每日额度发放后
-;; 调用，并把产生的阻塞表现放到睡眠黑幕之后播放。Scenario不执行这组规则。
+;; 世界新回合钩子。旧日的期限、租金和倒计时留在 define-turn-rule；新日状态在这里更新。
+;; 引擎在新骰与每日额度发放后调用。只有确实属于醒来当下的表现留在这里；
+;; 公共消息放世界根 arrival，人物现场消息放对应地点 arrival。普通Scenario回合不执行此组，送医换日执行。
 (define turn-start-rules '())
 
 (define (define-turn-start-rule name condition action)
@@ -774,14 +777,15 @@
 ;;   (clk 'tick!)          +1
 ;;   (clk 'advance! n)     +n，n 可负；不传 n 等同 'tick!
 ;;   (clk 'set! n)         直接置为 n
-;;   (clk 'reset!)         归零
+;;   (clk 'reset! [n])     开始新一轮，默认归零；可保留余量。不记录为进度损失。
 ;;   (clk 'current)        当前格数        (clk 'max)     上限
 ;;   (clk 'full?)          是否满格        (clk 'empty?)  是否为零
 ;;   (clk 'remaining)      距满格还差几格
 ;;   (clk 'render-data)    一条 clock tuple；:clocks 要的是列表，单个钟写 (list (clk 'render-data))
 ;;   (clk 'save)           存档值          (clk 'load! n) 读档，越界报错
 ;;
-;; 进退一律 clamp 到 0..上限，并自动写进结算效果条（动作外调用不产生结果行）。
+;; 普通进退 clamp 到 0..上限，并自动写进结算效果条（动作外调用不产生结果行）。
+;; reset! 明确开始新一轮，初始值严格校验；重置序号只用于表现，save/load! 仍只保存格数。
 (define clock-styles '(gauge pressure countdown readout))
 
 (define clock-messages
@@ -803,7 +807,9 @@
          (direction (if (null? properties) 'neutral
            (if (and (= (length properties) 2) (eq? (car properties) :beneficial-direction))
              (cadr properties) (error "make-clock: 只接受 :beneficial-direction 属性"))))
-         (current 0))
+         (current 0)
+         (reset-sequence 0)
+         (reset-from 0))
     (if (member? direction '(increase decrease neutral)) #t
       (error "make-clock: beneficial-direction 应为 'increase / 'decrease / 'neutral"))
     (if (or (string? note) (procedure? note))
@@ -827,7 +833,14 @@
       (cond
         ((equal? msg 'tick!)       (move-to! (+ current 1)))
         ((equal? msg 'advance!)    (move-to! (+ current (one-arg args 1 "'advance!"))))
-        ((equal? msg 'reset!)      (move-to! 0))
+        ((equal? msg 'reset!)
+         (let ((n (one-arg args 0 "'reset!")))
+           (if (and (number? n) (>= n 0) (<= n max) (= n (quotient n 1))) #t
+               (error (string-append "make-clock：" label " 的 reset! 初始值必须在 0..上限之间")))
+           ;; 重置不是增减，不写负数结算行；用瞬态序号让快照保留这次操作。
+           (set! reset-from current)
+           (set! current n)
+           (set! reset-sequence (+ reset-sequence 1))))
         ((equal? msg 'set!)
          (let ((n (one-arg args #f "'set!")))
            (if (number? n) #t (error (string-append "make-clock：" label " 的 'set! 需要一个数字")))
@@ -839,14 +852,16 @@
         ((equal? msg 'remaining)   (- max current))
         ((equal? msg 'render-data)
          (list 'clock label current max style
-               (if (procedure? note) (note current max) note) display-label 'primary direction))
+               (if (procedure? note) (note current max) note) display-label 'primary direction (list reset-sequence reset-from)))
         ((equal? msg 'save) current)
         ((equal? msg 'load!)
          (let ((n (one-arg args #f "'load!")))
            (if (and (number? n) (>= n 0) (<= n max))
                #t
                (error (string-append "make-clock 存档错误：" label " 的格数非法")))
-           (set! current n)))
+           (set! current n)
+           (set! reset-sequence 0)
+           (set! reset-from 0)))
         (else
          (error (string-append "make-clock：" label " 收到未知消息。可用消息："
                                clock-messages)))))))

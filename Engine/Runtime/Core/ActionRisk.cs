@@ -12,8 +12,8 @@ namespace SSNoir.Core
         public string Id { get; init; } = string.Empty;
         public string DisplayName => Kind switch
         {
-            ActionTargetKind.Composure => "冷静",
-            ActionTargetKind.Injury => "伤势",
+            ActionTargetKind.Composure => "心情",
+            ActionTargetKind.Injury => "健康",
             _ => Id,
         };
     }

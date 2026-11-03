@@ -52,7 +52,7 @@ namespace SSNoir.IMGUI
 
                 bool hovered = ui.CanHover(rect);
                 DrawBeacon(rect, beacon, hovered);
-                if (ui.WasTapped(rect))
+                if (ui.WasClicked(rect))
                 {
                     Event.current.Use();
                     return beacon.NodeId;

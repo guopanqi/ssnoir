@@ -256,51 +256,43 @@ namespace SSNoir.IMGUI
             });
         }
 
-        /// <summary>
-        /// 回合转换里的一批（对方回应、回合末收尾）。它不是玩家按下的一手，所以不走
-        /// <see cref="PlayPresentation"/> 开头那段"执行中…"进度。
-        /// 前置阻塞剧情 → 采纳快照 → 已落地状态上的气泡与脉冲 → 完成。
-        /// </summary>
-        public void PlayRoundBatch(ActionReport report, PresentationSnapshot landed, Action land, Action done)
+        /// <summary>播放已落地回合的反馈；快照提交与空间交接由 GameManager 编排。</summary>
+        public void PlayRoundFeedback(ActionReport report, PresentationSnapshot before,
+            PresentationSnapshot after, Action done)
         {
-            // 在前置步骤可能提交快照之前记录差异；表现只读旧快照。
-            var changedHosts = HostsOfChangedClocks(_gameManager.DisplayedSnapshot, landed).ToList();
+            var changedHosts = HostsOfChangedClocks(before, after).ToList();
             _pendingImmediateDialogues.Clear();
-            PlayBlockingPresentation(report.BlockingStorySteps, () =>
-            {
-                land(); // focus-node! 可能已提交；提交入口必须保持幂等。
-                _completionReport = null;
-                _completionActionNodeId = string.Empty;
-                _completionDone = done;
-                _actingNodeNames.Clear();
-                _actingNodeNames.AddRange(changedHosts);
+            _completionReport = null;
+            _completionActionNodeId = string.Empty;
+            _completionDone = done;
+            _actingNodeNames.Clear();
+            _actingNodeNames.AddRange(changedHosts);
 
-                var speech = new List<DialogueLine>();
-                ReleaseNarrations(report.NarrationIds);
-                foreach (var sequence in report.Banter)
+            var speech = new List<DialogueLine>();
+            ReleaseNarrations(report.NarrationIds);
+            foreach (var sequence in report.Banter)
+            {
+                if (sequence.AllowsRemoteParticipants || (sequence.Lines.Count > 0
+                    && sequence.Lines[0].Speaker == DialogueBubbleDrawer.NarratorSpeaker))
                 {
-                    if (sequence.AllowsRemoteParticipants || (sequence.Lines.Count > 0
-                        && sequence.Lines[0].Speaker == DialogueBubbleDrawer.NarratorSpeaker))
-                    {
-                        _banterPlayer.Enqueue(sequence);
-                        continue;
-                    }
-                    foreach (var line in sequence.Lines)
-                    {
-                        speech.Add(line);
-                        if (!_actingNodeNames.Contains(line.Speaker))
-                            _actingNodeNames.Add(line.Speaker);
-                    }
+                    _banterPlayer.Enqueue(sequence);
+                    continue;
                 }
-                bool spoken = speech.Count > 0
-                    || report.Effects.Any(effect => effect.Kind == ActionEffectKind.Composure || effect.Kind == ActionEffectKind.Injury);
-                float now = Time.unscaledTime;
-                float dwell = speech.Count > 0 ? _banterPlayer.ShowBeatLines(speech) : 0f;
-                _activeBeat = true;
-                _activeBeatUntil = now + Mathf.Max(spoken ? SpokenBeatSeconds : SilentBeatSeconds, dwell);
-                _actingSince = now;
-                _actingUntil = _activeBeatUntil + ActingFadeSeconds;
-            });
+                foreach (var line in sequence.Lines)
+                {
+                    speech.Add(line);
+                    if (!_actingNodeNames.Contains(line.Speaker))
+                        _actingNodeNames.Add(line.Speaker);
+                }
+            }
+            bool spoken = speech.Count > 0
+                || report.Effects.Any(effect => effect.Kind == ActionEffectKind.Composure || effect.Kind == ActionEffectKind.Injury);
+            float now = Time.unscaledTime;
+            float dwell = speech.Count > 0 ? _banterPlayer.ShowBeatLines(speech) : 0f;
+            _activeBeat = true;
+            _activeBeatUntil = now + Mathf.Max(spoken ? SpokenBeatSeconds : SilentBeatSeconds, dwell);
+            _actingSince = now;
+            _actingUntil = _activeBeatUntil + ActingFadeSeconds;
         }
 
         // 两份快照按卡名对齐，同名卡上同标签的钟值不同 → 这张卡在动。
@@ -505,9 +497,7 @@ namespace SSNoir.IMGUI
                         StartCoroutine(PlayFocusNodeStep(step.TargetNodeId));
                         return;
                     case BlockingStoryStepKind.EnterPlace:
-                        _gameManager.EnterForcedPlace(step.PlaceName);
-                        // 位置切换本身没有确认按钮；下一张倒下卡立刻在诊所画面上接管输入。
-                        AdvanceToBlockingPresentationOrFinish();
+                        StartCoroutine(PlayFocusNodeStep(step.PlaceName));
                         return;
                     case BlockingStoryStepKind.AutoAction:
                         _activeAutoAction = step;
@@ -765,7 +755,9 @@ namespace SSNoir.IMGUI
 
             Event e = Event.current;
             Rect rect = SkipPresentationButtonRect;
-            bool clicked = GUI.Button(rect, GUIContent.none, GUIStyle.none);
+            GUI.Button(rect, GUIContent.none, GUIStyle.none);
+            bool clicked = e.rawType == EventType.MouseDown && e.button == 0
+                && e.type == EventType.Used && rect.Contains(e.mousePosition);
             if (e.rawType == EventType.MouseDown && e.button == 0
                 && e.type == EventType.Used && rect.Contains(e.mousePosition))
                 _skipPresentationControlId = GUIUtility.hotControl;
@@ -2292,7 +2284,7 @@ namespace SSNoir.IMGUI
                 return;
             var exeRect = ActionNodeDrawer.ConsoleExecuteRect(
                 ConsoleRect(attachment));
-            if (ui.IsLocked || !ui.WasTapped(exeRect))
+            if (ui.IsLocked || !ui.WasClicked(exeRect))
                 return;
             Event.current.Use();
             _gameManager.ExecuteNodeAction(node);
@@ -2485,7 +2477,7 @@ namespace SSNoir.IMGUI
         // 手指推着卡片网格滚动。触控设备上没有滚轮，这是唯一能翻到下面那几张卡的办法。
         //
         // 只在触控上启用：桌面用滚轮，鼠标按住拖动是「拖镜头」，不该变成滚列表。
-        // 卡片的激活走 WasTapped（抬手才算），所以从卡片上开始滑不会顺手把它点掉。
+        // 卡片按下即激活；滚动仍处理后续拖动与松手事件。
         private void UpdateGridDragScroll(
             IMGUIInteractionContext ui, Rect viewport, bool pointerInViewport, float maxScroll)
         {
@@ -3037,7 +3029,7 @@ namespace SSNoir.IMGUI
                 clocks.Add(new GameClock
                 {
                     Label = clock.Label, DisplayLabel = clock.DisplayLabel, Note = clock.Note,
-                    Current = current, Max = clock.Max, Style = clock.Style,
+                    Current = current, Max = clock.Max, Style = clock.Style, Reset = clock.Reset,
                     Priority = clock.Priority, BeneficialDirection = clock.BeneficialDirection,
                 });
             }

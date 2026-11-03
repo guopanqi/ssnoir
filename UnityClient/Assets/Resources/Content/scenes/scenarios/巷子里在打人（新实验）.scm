@@ -71,15 +71,15 @@
       (outcome (lambda () (hit-enemy! title life 2))))))
 
 (define (node-coat)
-  (enemy-node "皮夹克" "出手冷静−3；站着时会指挥小弟"
+  (enemy-node "皮夹克" "出手心情−3；站着时会指挥小弟"
     coat-life coat-attack))
 
 (define (node-hat)
-  (enemy-node "毡帽" "出手冷静−1；坏冷静−1，中伤1，好伤2"
+  (enemy-node "毡帽" "出手心情−1；坏心情−1，中伤1，好伤2"
     hat-life hat-attack))
 
 (define (node-sleeves)
-  (enemy-node "卷袖子" "出手冷静−1；坏冷静−1，中伤1，好伤2"
+  (enemy-node "卷袖子" "出手心情−1；坏心情−1，中伤1，好伤2"
     sleeves-life sleeves-attack))
 
 (define (standing? life) (not (life 'empty?)))
@@ -174,7 +174,7 @@
         (list
           (note-node "领头：目标" "目标" "四轮内打退三名打手，救下艾迪。")
           (note-node "领头：出手规则" "回合结束"
-            "支付通常的冷静代价；存活敌人的出手倒计时−1，归零出手后重置。攻击坏冷静−1、中伤1、好伤2。"))
+            "支付通常的心情代价；存活敌人的出手倒计时−1，归零出手后重置。攻击坏心情−1、中伤1、好伤2。"))
         (if (and (standing? coat-life) (or (standing? hat-life) (standing? sleeves-life)))
             (list (note-node "领头：指挥规则" "皮夹克指挥"
               "正常倒计时后，尚未归零的小弟中，最接近出手的一人额外−1；平手选毡帽。随后各出手一次。"))

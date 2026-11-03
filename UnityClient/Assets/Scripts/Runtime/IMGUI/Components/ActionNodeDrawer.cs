@@ -108,7 +108,7 @@ namespace SSNoir.IMGUI
             }
 
             // ── 7. 卡片级点击（仅无 requires 的非 Instant 类型，如 Observe / Clock）──
-            if (!disabled && ui.WasTapped(rect) && node.Resolve!.Type != ResolveType.Instant)
+            if (!disabled && ui.WasClicked(rect) && node.Resolve!.Type != ResolveType.Instant)
             {
                 interaction.CardClicked = true;
                 Event.current.Use();
@@ -550,7 +550,7 @@ namespace SSNoir.IMGUI
             // 而它上面永远挂着那枚属性药丸——"属性 → 骰子"是这套判定的读法。
             //
             // <b>八角＝消耗槽</b>：交进去就没了。物品一律是它；非判定动作花掉的那颗行动骰
-            // 也是它（养伤、看花、抽烟）。切掉的四角让它一眼不是方——不会被读成"要掷"——
+            // 也是它（浇水、看花、抽烟）。切掉的四角让它一眼不是方——不会被读成"要掷"——
             // 又比圆留得住内部空间，图标和 ×N 不用为形状让路。
             //
             // 这两件事以前只能靠"有没有药丸"分辨，那是缺席在说话——玩家扫一眼卡片阵列时
@@ -615,12 +615,14 @@ namespace SSNoir.IMGUI
             {
                 if (filled)
                 {
+                    if (!judged || !DrawPreparedDie(rect, node, slotIndex, res, disabled, gameManager))
                     HandPanelDrawer.DrawDieFace(rect, res!.Value, disabled,
                         borderOverride: canPlaceHeld ? border : (Color?)null, octagon: !judged);
                 }
                 else
                 {
-                    ItemIconLibrary.DrawDiePlaceholder(rect, content, 0.56f);
+                    if (!judged || !DrawPreparedDie(rect, node, slotIndex, null, disabled, gameManager))
+                        ItemIconLibrary.DrawDiePlaceholder(rect, content, 0.56f);
                 }
             }
             else
@@ -666,6 +668,90 @@ namespace SSNoir.IMGUI
             }
 
             HandleSlotClick(rect, slotIndex, filled, disabled, canDropHeld, slotTargeted, ui, ref interaction);
+        }
+
+        // 仅保存表现进度；真实骰点始终来自资源快照，不能写回最终准备值。
+        private sealed class DieMergeVisual
+        {
+            public SlottedResource? Resource;
+            public float Started;
+        }
+        private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<GameNode, Dictionary<int, DieMergeVisual>> DieMerges = new();
+
+        private static bool DrawPreparedDie(Rect rect, GameNode node, int index, SlottedResource? resource,
+            bool disabled, SSNoirGameManager manager)
+        {
+            if (node.Resolve == null || node.Resolve.Type != ResolveType.Roll) return false;
+            if (!DieMerges.TryGetValue(node, out var slots))
+            {
+                slots = new Dictionary<int, DieMergeVisual>();
+                DieMerges.Add(node, slots);
+            }
+            if (!slots.TryGetValue(index, out var visual))
+                slots.Add(index, visual = new DieMergeVisual());
+            if (!ReferenceEquals(visual.Resource, resource))
+            {
+                visual.Resource = resource;
+                visual.Started = Time.unscaledTime;
+            }
+            if (resource == null) return false;
+            var snapshot = manager.DisplayedSnapshot;
+            var actor = snapshot.Actors.FirstOrDefault(a => a.Id == resource.ActorId)
+                ?? throw new System.InvalidOperationException($"Missing die actor {resource.ActorId}");
+            if (!actor.Stats.TryGetValue(node.Resolve.SkillName, out int level))
+                throw new System.InvalidOperationException($"Missing skill {node.Resolve.SkillName} on {actor.Id}");
+            int modifier = level + EffectiveModifiers(node, snapshot, actor.Role).Sum(m => m.Value);
+            float elapsed = Time.unscaledTime - visual.Started;
+            float progress = Mathf.Clamp01((elapsed - .08f) / .52f);
+            Color tint = modifier < 0 ? IMGUIStyles.SealRed : IMGUIStyles.Gold;
+            if (!disabled && modifier != 0 && progress < 1f)
+                DrawTurningDie(rect, resource.Value, resource.Value + modifier, progress, tint);
+            else
+                HandPanelDrawer.DrawDieFace(rect, resource.Value + modifier, disabled,
+                    borderOverride: modifier != 0 ? tint : (Color?)null, preparedValue: true);
+            return true;
+        }
+
+        // 两个完整骰面绕水平棱翻转：旧面向下离开，新面从顶部转到正面。
+        // 用同一骰面画法和仿射投影保留点阵形状，不以数字或随机滚点代替翻面。
+        private static void DrawTurningDie(Rect rect, int original, int prepared, float progress, Color tint)
+        {
+            float eased = progress * progress * (3f - 2f * progress);
+            float angle = eased * Mathf.PI * .5f;
+            float front = Mathf.Cos(angle);
+            float top = Mathf.Sin(angle);
+            float depth = front + top;
+            // 中途轻微收窄，露出两面的体积变化；始终留在原有槽位内。
+            float inset = Mathf.Sin(eased * Mathf.PI) * rect.width * .045f;
+            var body = new Rect(rect.x + inset, rect.y, rect.width - inset * 2f, rect.height);
+            float seam = body.y + body.height * top / depth;
+            DrawProjectedDieFace(new Rect(body.x, seam, body.width, body.yMax - seam),
+                rect.size, original, tint, Mathf.Lerp(1f, .48f, eased));
+            DrawProjectedDieFace(new Rect(body.x, body.y, body.width, seam - body.y),
+                rect.size, prepared, tint, Mathf.Lerp(.48f, 1f, eased));
+            IMGUIStyles.DrawOutline(body, 1f, tint);
+        }
+
+        private static void DrawProjectedDieFace(Rect projected, Vector2 faceSize, int value, Color tint, float light)
+        {
+            if (projected.height < .1f) return;
+            var matrix = GUI.matrix;
+            var color = GUI.color;
+            try
+            {
+                GUI.matrix = matrix * Matrix4x4.TRS(projected.position, Quaternion.identity,
+                    new Vector3(projected.width / faceSize.x, projected.height / faceSize.y, 1f));
+                var face = new Rect(Vector2.zero, faceSize);
+                HandPanelDrawer.DrawDieFace(face, value, borderOverride: tint, preparedValue: true);
+                // 阴面随转动变亮，让两个面有明确的朝向区别。
+                GUI.color = new Color(0f, 0f, 0f, 1f - light);
+                GUI.DrawTexture(face, Texture2D.whiteTexture);
+            }
+            finally
+            {
+                GUI.matrix = matrix;
+                GUI.color = color;
+            }
         }
 
         // 物品展签：图标说不清"是哪一件"（纸条、照片、底片在剪影里都是纸），名字必须跟着。
@@ -763,7 +849,7 @@ namespace SSNoir.IMGUI
         {
             bool isInteractable = enabled && !ui.IsLocked;
             bool isHovered = isInteractable && ui.CanHover(rect);
-            bool isClicked = isInteractable && ui.WasTapped(rect);
+            bool isClicked = isInteractable && ui.WasClicked(rect);
 
             if (isClicked)
             {
@@ -860,36 +946,12 @@ namespace SSNoir.IMGUI
             int modSum = 0;
             foreach (var m in EffectiveModifiers(node, snapshot, actorRole)) modSum += m.Value;
 
-            DrawFateStrip(rect, FateStrip.Compute(dieSlot.Value, skillLevel.Value, modSum), executeBottomY,
-                PreparedBreakdown(node.Resolve!.SkillName, dieSlot.Value, skillLevel.Value, modSum));
+            DrawFateStrip(rect, FateStrip.Compute(dieSlot.Value, skillLevel.Value, modSum), executeBottomY);
         }
 
-        // 命运条上面那一行小字。它以前写的是「1–2 坏 · 3–5 中 · 6 好」——
-        // 那正是下面那条彩色赔率条已经在画的东西，等于把同一件事说两遍。
-        // 改成算式：这颗骰几点、你的能力加几、卡上的修正加减几，最后凑出多少准备值。
-        // 这是玩家投骰前唯一算不出来的数，也是他决定"这颗骰给哪张卡"的依据。
-        private static string PreparedBreakdown(string skill, int dieValue, int skillLevel, int modSum)
+        private static void DrawFateStrip(Rect rect, RollOutcome[] strip, float executeBottomY)
         {
-            int prepared = dieValue + skillLevel + modSum;
-            var text = new System.Text.StringBuilder();
-            text.Append(UiText.Get("准备值 ")).Append(prepared)
-                .Append(UiText.Get(" ＝ 骰 ")).Append(dieValue);
-            if (skillLevel != 0)
-                text.Append(skillLevel > 0 ? " + " : " − ")
-                    .Append(UiText.SkillName(skill)).Append(' ').Append(Mathf.Abs(skillLevel));
-            if (modSum != 0)
-                text.Append(modSum > 0
-                    ? UiText.Get(" + 修正 ")
-                    : UiText.Get(" − 修正 "))
-                    .Append(Mathf.Abs(modSum));
-            return text.ToString();
-        }
-
-        private static void DrawFateStrip(Rect rect, RollOutcome[] strip, float executeBottomY, string caption)
-        {
-            var style=new GUIStyle(IMGUIStyles.CardSubtitle){fontSize=IMGUIStyles.FontSize(10),alignment=TextAnchor.MiddleLeft};
-            IMGUIStyles.DrawLabel(new Rect(rect.x,executeBottomY,rect.width,20f),caption,style);
-            DrawOddsTiles(new Rect(rect.x,executeBottomY+22f,rect.width,84f),strip);
+            DrawOddsTiles(new Rect(rect.x, executeBottomY, rect.width, 84f), strip);
         }
 
         // 非零档位按概率比例分配宽度；间隔不计入概率面积，标签随可用宽度缩小字号。

@@ -1,0 +1,11 @@
+{
+  "city-box/city.blend": "b16e23859f7cd13cf3079f58ea60dfe81c3025003bc7b9cef309232fa041dcfa",
+  "city-box/prefabs/码头.blend": "72d571d0c7da1931ffdacbf9b98f899425b6217a9d5068f9a1323dcdd7e23799",
+  "city-box/prefabs/src/码头.py": "5e80f38441a88df0f6b5df60522ab3b52d8be13b0a4da1844753ddb4435b1e3e",
+  "city-box/pipeline/view_clearance.py": "9fd1c69caf10655cf4ea09417ab0743fceb969cdd1e34230b011443018f64605",
+  "city-box/pipeline/geometry.py": "64b4b3f196bb34b841eed61c8f65f0b5c3dbd856652884fe5bd1beb239e014f4",
+  "city-box/pipeline/build.py": "4ff13d595b0fa18e0ab2829527cd43eb8d43ffec20afcbba441030c627941025",
+  "city-box/pipeline/build_partial.py": "b2b4c927f37b56c585d71d1652976c83f0a673762c9d3fa44b84fa1eaab7de3c",
+  "tools/camera-review/city_approach_review.py": "df0f136c6819b5e99d54aaea54cb141821f241bc439ea1ab6abf92296237f99a",
+  "UnityClient/Assets/Scripts/Runtime/FocusTravelMath.cs": "01acadd1b04404a07f61315cc1e39ab13a1772a25a419cee951bcf9dfea6f786"
+}

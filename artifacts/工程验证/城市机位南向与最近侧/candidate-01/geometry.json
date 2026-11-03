@@ -1,0 +1,383 @@
+{
+  "source": "/Users/usr/Documents/play/ssnoir/city-box/build/city/city_build.blend",
+  "rotations": [
+    "街角咖啡馆=90",
+    "货运公司=-70",
+    "雕像=-90"
+  ],
+  "scope": "current assembled exterior geometry; representative world start; dominant mass probes; own-root occlusion excluded; no dynamic visibility or near-plane sweep proof",
+  "places": [
+    {
+      "place": "街角咖啡馆",
+      "path": "DirectApproach",
+      "south_deviation": -38.83515336787929,
+      "masses": [
+        "转角人行道",
+        "店内地坪",
+        "层间檐带"
+      ],
+      "body_crossings": [],
+      "external_occlusion": [
+        {
+          "progress": 0.3,
+          "blockers": {
+            "街区pad": 9
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.35,
+          "blockers": {
+            "街区pad": 9
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.4,
+          "blockers": {
+            "街区pad": 9
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.45,
+          "blockers": {
+            "街区pad": 9
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.5,
+          "blockers": {
+            "街区pad": 9
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.55,
+          "blockers": {
+            "街区pad": 9
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.6,
+          "blockers": {
+            "街区pad": 9
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.65,
+          "blockers": {
+            "街区pad": 9
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.7,
+          "blockers": {
+            "街区pad": 9
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.75,
+          "blockers": {
+            "街区pad": 9
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.8,
+          "blockers": {
+            "街区pad": 9
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.85,
+          "blockers": {
+            "街区pad": 9
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.9,
+          "blockers": {
+            "街区pad": 9
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.95,
+          "blockers": {
+            "街区pad": 9
+          },
+          "probes": 27
+        },
+        {
+          "progress": 1,
+          "blockers": {
+            "街区pad": 9
+          },
+          "probes": 27
+        }
+      ]
+    },
+    {
+      "place": "货运公司",
+      "path": "DirectApproach",
+      "south_deviation": 36.75367653270358,
+      "masses": [
+        "外形壳体_转角柱",
+        "外形壳体_完整大楼外墙",
+        "外形壳体_正立面上层墙"
+      ],
+      "body_crossings": [],
+      "external_occlusion": []
+    },
+    {
+      "place": "雕像",
+      "path": "AuthoredArc",
+      "south_deviation": 143.36609581735388,
+      "masses": [
+        "雕像_台阶1",
+        "雕像_台阶2",
+        "雕像_本体"
+      ],
+      "body_crossings": [],
+      "external_occlusion": [
+        {
+          "progress": 0.4,
+          "blockers": {
+            "B.954": 3
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.45,
+          "blockers": {
+            "B.954": 18,
+            "窗光_white": 2
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.5,
+          "blockers": {
+            "B.954": 18
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.55,
+          "blockers": {
+            "B.020": 7
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.6,
+          "blockers": {
+            "B.020": 27
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.65,
+          "blockers": {
+            "B.020": 18,
+            "B.1178": 9
+          },
+          "probes": 27
+        }
+      ]
+    },
+    {
+      "place": "剧院",
+      "path": "DirectApproach",
+      "south_deviation": -62.57337560934121,
+      "masses": [
+        "圆厅台基",
+        "穹顶脚环",
+        "环厅石檐"
+      ],
+      "body_crossings": [],
+      "external_occlusion": []
+    },
+    {
+      "place": "老街酒馆",
+      "path": "DirectApproach",
+      "south_deviation": 47.12247252232673,
+      "masses": [
+        "旧人行道",
+        "酒馆地坪",
+        "楼层边沿"
+      ],
+      "body_crossings": [],
+      "external_occlusion": [
+        {
+          "progress": 0.3,
+          "blockers": {
+            "街区pad": 9
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.35,
+          "blockers": {
+            "街区pad": 9
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.4,
+          "blockers": {
+            "街区pad": 9
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.45,
+          "blockers": {
+            "街区pad": 9
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.5,
+          "blockers": {
+            "街区pad": 9
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.55,
+          "blockers": {
+            "街区pad": 9
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.6,
+          "blockers": {
+            "街区pad": 9
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.65,
+          "blockers": {
+            "街区pad": 9
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.7,
+          "blockers": {
+            "街区pad": 9
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.75,
+          "blockers": {
+            "街区pad": 9
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.8,
+          "blockers": {
+            "街区pad": 9
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.85,
+          "blockers": {
+            "街区pad": 9
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.9,
+          "blockers": {
+            "街区pad": 9
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.95,
+          "blockers": {
+            "街区pad": 9
+          },
+          "probes": 27
+        },
+        {
+          "progress": 1,
+          "blockers": {
+            "街区pad": 9
+          },
+          "probes": 27
+        }
+      ]
+    },
+    {
+      "place": "码头",
+      "path": "AuthoredArc",
+      "south_deviation": 95.02009504778849,
+      "masses": [
+        "岸口与后街",
+        "吊杆",
+        "货堆"
+      ],
+      "body_crossings": [],
+      "external_occlusion": [
+        {
+          "progress": 0.3,
+          "blockers": {
+            "世界": 12
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.35,
+          "blockers": {
+            "世界": 18
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.4,
+          "blockers": {
+            "世界": 9
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.45,
+          "blockers": {
+            "世界": 3
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.5,
+          "blockers": {
+            "世界": 9
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.55,
+          "blockers": {
+            "世界": 9
+          },
+          "probes": 27
+        }
+      ]
+    }
+  ]
+}

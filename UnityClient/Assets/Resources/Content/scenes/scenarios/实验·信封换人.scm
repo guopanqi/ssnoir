@@ -47,12 +47,12 @@
             (outcome (lambda () (谈! 0)))
             (outcome (lambda () (谈! 1)))
             (outcome (lambda () (谈! 2)))))
-        (node "冲上去抢人" :subtitle "好进3警戒1；中进1警戒2；坏警戒2、花1冷静。"
+        (node "冲上去抢人" :subtitle "好进3警戒1；中进1警戒2；坏警戒2、花1心情。"
           :requires (list (req-die)) :resolve (roll 'violence
             (outcome (lambda () (抢! 0 2)))
             (outcome (lambda () (抢! 1 2)))
             (outcome (lambda () (抢! 3 1)))))
-        (node "让枪口放低" :subtitle "坏：花1冷静；中：警戒减1；好：警戒减2。"
+        (node "让枪口放低" :subtitle "坏：花1心情；中：警戒减1；好：警戒减2。"
           :requires (list (req-die)) :resolve (roll 'social
             (outcome (lambda () (spend-actor-composure! 'player 1)))
             (outcome (lambda () (警戒 'advance! -1)))

@@ -1,0 +1,9 @@
+[
+  "ANIM_IMPORT_PROFILE|asset=Assets/Resources/City/Places/联合起吊.fbx;clip=重机__Hold;setup_ms=7.787;participants_ms=16.222;outlines_ms=268.073;scale_ms=4956.527;logging_ms=8.436;total_ms=5257.067",
+  "ANIM_IMPORT_PROFILE|asset=Assets/Resources/City/Places/联合起吊.fbx;clip=重机__Suspended;setup_ms=6.964;participants_ms=9.293;outlines_ms=245.450;scale_ms=4910.428;logging_ms=2.207;total_ms=5174.342",
+  "ANIM_IMPORT_PROFILE|asset=Assets/Resources/City/Places/联合起吊.fbx;clip=重机__Landed;setup_ms=6.274;participants_ms=9.096;outlines_ms=244.077;scale_ms=4949.139;logging_ms=3.875;total_ms=5212.462",
+  "ANIM_IMPORT_PROFILE|asset=Assets/Resources/City/Places/联合起吊.fbx;clip=重机__Rise;setup_ms=18.504;participants_ms=9.323;outlines_ms=970.199;scale_ms=19684.133;logging_ms=3.103;total_ms=20685.262",
+  "ANIM_IMPORT_PROFILE|asset=Assets/Resources/City/Places/联合起吊.fbx;clip=重机__FrontSway;setup_ms=12.089;participants_ms=9.278;outlines_ms=568.139;scale_ms=11527.218;logging_ms=3.245;total_ms=12119.969",
+  "ANIM_IMPORT_PROFILE|asset=Assets/Resources/City/Places/联合起吊.fbx;clip=重机__RearSway;setup_ms=11.882;participants_ms=9.029;outlines_ms=565.800;scale_ms=11553.194;logging_ms=3.179;total_ms=12143.084",
+  "ANIM_IMPORT_PROFILE|asset=Assets/Resources/City/Places/联合起吊.fbx;clip=重机__Lower;setup_ms=23.697;participants_ms=9.549;outlines_ms=1201.984;scale_ms=25136.448;logging_ms=3.799;total_ms=26375.482"
+]

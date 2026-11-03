@@ -44,6 +44,7 @@
         (outcome (lambda () (add-item! "金钱" 10)))
         (outcome (lambda () (add-item! "金钱" 6)))
         (outcome (lambda () (spend-composure! 1)))
+        "整理卷宗和表格，替警察局处理积压的文书。"
         :anchor "警察局-卷宗室"))
 
     ;; 贝恩斯是**人物**，不是一张观察卡。
@@ -135,7 +136,7 @@
       (node "桌上那张地址"
         :anchor "警察局-值班台"
         :subtitle "他不说是委托；他说这是你的职业"
-        :tags (list "Scenario")
+
         :resolve (instant (lambda ()
           ;; 城里已有的关系决定场内有哪几张牌——不给三个混混各写一套弱点,
           ;; 玩家能用的是他这些天真认识的人：码头＝艾迪，老街＝弗兰克。

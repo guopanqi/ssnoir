@@ -98,12 +98,7 @@
 (define (hole-bleed-every hole) (if (>= hole 2) 2 1))
 
 ;; 准备不能只活在起手格数里——玩家要在卡面上看见自己那五天干了什么，
-;; 也要看见自己没干什么。所以三档各有各的便签和各自的一句话。
-(define (hole-tags hole sealed known unknown)
-  (cond ((>= hole 2) (list sealed))
-        ((= hole 1) (list known))
-        (#t (list unknown))))
-
+;; 也要看见自己没干什么。所以三档各有一句准备说明。
 ;; 正式演出包含固定谢幕；玩家要争取的是让她安全走到那里。
 (define stage-max 10)
 
@@ -162,7 +157,7 @@
             (collect-notes (cdr notes) from to)))))
 
 (define (make-crisis id kind ring fix-need fall-need head-start bleed-every
-                     land-base prep-tags prep-note
+                     land-base prep-note
                      ease-name ease-desc ease-ab
                      low-name low-desc low-ab
                      high-name high-desc high-ab
@@ -184,7 +179,6 @@
           ((equal? msg 'ring) ring)
           ((equal? msg 'desc) desc)
           ;; 城里那五天在这张卡上长什么样。钟的起手格数是数字，这两样是玩家看得见的。
-          ((equal? msg 'prep-tags) prep-tags)
           ((equal? msg 'prep-note) prep-note)
           ((equal? msg 'ease-name) ease-name)
           ((equal? msg 'ease-desc) ease-desc)
@@ -234,7 +228,7 @@
 ;; 中央那两处永远是你自己的骰子——没有人会去她身边。
 (define mark-crisis
   (make-crisis "吊杆冲着她降" 'fall "中央台" 12 3 0 1
-    3 '() ""
+    3 ""
     "" "" 'knowledge
     "刹住吊杆" "侧台那排刹车够得到，一道一道锁住它" 'knowledge
     "拽住配重绳" "从侧台扯住下坠的配重绳，用身体吃住那股力" 'violence
@@ -249,7 +243,7 @@
 (define smoke-crisis
   (make-crisis "烟灌进看台" 'bleed "池座" 12 0
     (hole-head-start hole-vent 12) (hole-bleed-every hole-vent) 0
-    (hole-tags hole-vent "台底你封过" "台底你查过" "台底你没碰过")
+
     (cond ((>= hole-vent 2) "。你上周封过一层铁皮，烟走得慢了，但没堵死")
           ((= hole-vent 1) "。你下去看过，知道它通到哪儿、该把人往哪条侧道带")
           (#t "。台底哪条道通哪儿，你今晚现摸"))
@@ -267,7 +261,7 @@
 (define blackout-crisis
   (make-crisis "半个场子黑着" 'bleed "环廊" 14 0
     (hole-head-start hole-power 14) (hole-bleed-every hole-power) 0
-    (hole-tags hole-power "配电箱你换过" "配电箱你查过" "配电箱你没碰过")
+
     (cond ((>= hole-power 2) "。你换过后廊那只箱子，烧的是旁边那一路，没全丢")
           ((= hole-power 1) "。你开过那只箱子，记得哪一路接哪一排灯")
           (#t "。这箱子里哪根线通哪儿，你得摸黑现认"))
@@ -285,7 +279,7 @@
 
 (define rig-crisis
   (make-crisis "顶上那圈灯架松了" 'fall "中央台" 20 4 0 1
-    4 '() ""
+    4 ""
     "" "" 'violence
     "一根根绞回去" "一根钢索一根钢索地重新吃上力" 'violence
     "爬上去解扣" "上灯桥，在窄梁上把被别住的棘齿解开" 'sharpness
@@ -305,7 +299,7 @@
 ;; 烟或黑场到第四回合还挂在板上，人就往七号门挤。
 (define crush-crisis
   (make-crisis "人往七号门挤" 'bleed "七号门" 8 0 0 1
-    0 (list "前面拖出来的") "。烟和黑没按住，人就自己找门去了"
+    0 "。烟和黑没按住，人就自己找门去了"
     "喊住前几排" "站到栏杆上喊，让前面几排先别动" 'social
     "拉住要倒的" "从人流里挑出快站不住的那个，先把他拽出来" 'sharpness
     "顶住门框" "整个人卡进门框，把那股人流劈成两股" 'violence
@@ -443,13 +437,6 @@
     (say-notes! (c 'notes-in before (c 'current)))
     (if (c 'held?) (hold! c) #f)))
 
-(define (crisis-tag c)
-  (cond
-    ((c 'eased?) (list "这回合压住了"))
-    ((c 'urgent?) (list "马上就要砸下来"))
-    ;; 「它一直在扣她」已经写在副标题的第一句里，不必再挂一张牌重复一遍。
-    (#t '())))
-
 ;; 每一处危机是一个 container，里面是处理它的几种办法。
 ;;
 ;; 副标题的第一件事是**这张卡会把什么加到你身上**——每回合扣一格、
@@ -494,9 +481,9 @@
 
 (define (low-node c)
   (node (c 'low-name)
-    :subtitle (string-append "弄好 1–2 格；失手你自己掉 2 点冷静 · "
+    :subtitle (string-append "弄好 1–2 格；失手你自己掉 2 点心情 · "
                              (ability-label (c 'low-ab)) " · " (c 'low-desc))
-    :tags (list "稳当")
+    :risk '冒险
     :clocks (list ((c 'fix) 'render-data))
     :requires (list (req-die))
     :resolve (roll (c 'low-ab)
@@ -506,9 +493,9 @@
 
 (define (high-node c)
   (node (c 'high-name)
-    :subtitle (string-append "弄好 2–3 格；失手你掉 2 点冷静，夜莺再扣 1 格 · "
+    :subtitle (string-append "弄好 2–3 格；失手你掉 2 点心情，夜莺再扣 1 格 · "
                              (ability-label (c 'high-ab)) " · " (c 'high-desc))
-    :tags (list "冒险")
+    :risk '冒险
     :clocks (list ((c 'fix) 'render-data))
     :requires (list (req-die))
     :resolve (roll (c 'high-ab)
@@ -519,8 +506,9 @@
 (define (crisis-node c)
   (node (c 'id)
     :anchor (string-append "首演之夜-" (c 'ring))
-    :subtitle (string-append (crisis-effect c) " · " (c 'desc) (c 'prep-note))
-    :tags (append (crisis-tag c) (c 'prep-tags))
+    :subtitle (string-append (crisis-effect c) " · " (c 'desc) (c 'prep-note)
+      (cond ((c 'eased?) " · 这回合已压住")
+            ((c 'urgent?) " · 马上就要砸下来") (else "")))
     :clocks (clocks-of c)
     :children
     (append

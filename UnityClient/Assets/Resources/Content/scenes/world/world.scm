@@ -23,6 +23,8 @@
 (load-file "world/第二幕余波.scm")
 (load-file "world/第二幕公告.scm")
 (load-file "world/第三幕.scm")
+(load-file "world/艾迪生活.scm")
+(load-file "world/两杯咖啡.scm")
 (load-file "world/艾迪.scm")
 (load-file "world/诊所.scm")
 (load-file "world/警察局.scm")
@@ -58,8 +60,8 @@
 ;; 见那里的 README：留作写法参考，不进游戏，也不再被 --validate 解析。
 
 ;; ── 世界回合边界 ─────────────────────────────────
-;; 日终先推进日期；所有“新的一天玩家才看见”的章节事件放到 on-turn-start，
-;; 由引擎在新骰发放后调用，并在睡眠黑幕亮起后播放。
+;; 日终推进日期；on-turn-start 更新新日状态，不等玩家走出住所。
+;; 醒来经历留在新日表现中；公共消息由世界根 arrival、人物现场消息由地点 arrival 告知。
 ;; turn-rule 是头插登记的，谁先跑本来取决于文件加载顺序——同一天里
 ;; 「今天是第几天」和「今天该结算什么」的先后不能靠目录排列来决定，
 ;; 所以章节的日终由这里直接调用，而不是各自登记一条规则。
@@ -128,6 +130,7 @@
 ;; ── 世界渲染 ─────────────────────────────────────
 (define (get-render-data)
   (node "世界"
+    :arrivals (地点入场 "世界")
     :children
       (apply append (map (lambda (loc) (loc 'render-data)) (current-locations)))))
 

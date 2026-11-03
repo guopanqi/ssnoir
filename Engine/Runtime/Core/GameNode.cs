@@ -4,6 +4,8 @@ using System.Collections.Generic;
 
 namespace SSNoir.Core
 {
+    public enum ActionUseLimit { DailyOnce }
+
     public class GameNode
     {
         /// <summary>整棵渲染树内唯一、稳定的节点身份；不用于显示。</summary>
@@ -21,6 +23,7 @@ namespace SSNoir.Core
         public string? ButtonText { get; set; }
         public string? RequiredBeforeRest { get; set; }
         public bool Disabled { get; set; }
+        public ActionUseLimit? UseLimit { get; set; }
         public List<GameClock> Clocks { get; } = new List<GameClock>();
         public List<string> Tags { get; set; } = new List<string>();
         public List<GameNode> Children { get; set; } = new List<GameNode>();

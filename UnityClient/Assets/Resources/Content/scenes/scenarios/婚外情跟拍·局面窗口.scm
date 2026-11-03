@@ -65,7 +65,7 @@
   (if (and crisis? (not (eq? goal '掩饰))) (alertness 'advance! 1) #f)
   (check!))
 (define (action-node title subtitle skill goal risky?)
-  (node title :subtitle subtitle :tags (list (if risky? "高风险" "低风险"))
+  (node title :subtitle subtitle :risk (if risky? '危险 '冒险)
     :requires (list (req-die))
     :resolve (roll skill
       (outcome (lambda () (resolve! goal risky? '坏)))
@@ -125,7 +125,7 @@
         (append
           (clock-nodes (photos 'render-data) (identity 'render-data))
           (if (or (photos 'full?) (woman-away?)) '()
-            (list (action-node "隔街拍摄" "隔街取景；好2、中1，坏扣冷静1和警觉1" 'sharpness '照片 #f)
+            (list (action-node "隔街拍摄" "隔街取景；好2、中1，坏扣心情1和警觉1" 'sharpness '照片 #f)
                   (action-node "靠窗取景" "穿过人流稳住相机；好3、中2并增加警觉1" 'violence '照片 #t)))
           (if (identity 'full?) '() (identity-nodes))
           (if (or (photos 'full?) (identity 'full?))
@@ -135,5 +135,5 @@
                 (action-node "判断去向" "提前靠近入口核对；好3、中2并增加警觉1" 'knowledge '找人 #t))))
       (if crisis?
         (append (clock-nodes (disguise 'render-data))
-          (list (action-node "假装等人" "与门房攀谈；好2、中1，坏扣冷静1和警觉1" 'social '掩饰 #f)
+          (list (action-node "假装等人" "与门房攀谈；好2、中1，坏扣心情1和警觉1" 'social '掩饰 #f)
                 (action-node "借街景遮掩" "收起相机退到报摊；好2、中1" 'knowledge '掩饰 #f))) '()))))

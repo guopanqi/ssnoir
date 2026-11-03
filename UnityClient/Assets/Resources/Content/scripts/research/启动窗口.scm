@@ -3,7 +3,7 @@
 (define 完成? #f)
 (define 前置 (make-clock "前置" 3 'gauge "进度跨回合保留；完成立即开启后续。"))
 (define 后续 (make-clock "后续" 4 'gauge (if 限定窗口? "开启后须在本回合完成。" "开启后仍可跨回合保留。")))
-(define 期限 (make-clock "已过回合" 3 'gauge "第三次结束回合到期；每次另花1冷静。"))
+(define 期限 (make-clock "已过回合" 3 'gauge "第三次结束回合到期；每次另花1心情。"))
 (define (开窗结果 status)
   (list status (前置 'current) (后续 'current) (期限 'current) (actor-composure 'player)))
 (define (开窗结束! status text)
@@ -38,12 +38,12 @@
             "三回合内完成前置3与后续4。前置保留，完成立即开窗；后续必须本回合做完。多出的前置进度不转入后续。"
             "三回合内先完成前置3，再完成后续4。两段都保留；多出的前置进度不转入后续。"))
         (node (if (前置 'full?) "后续稳做" "前置稳做")
-          :subtitle "坏：冷静−1；中：无变化；好：进度+1。"
+          :subtitle "坏：心情−1；中：无变化；好：进度+1。"
           :requires (list (req-die))
           :resolve (roll 'knowledge
             (outcome 开窗坏!) (outcome (lambda () #f)) (outcome (lambda () (开窗推进! 1)))))
         (node (if (前置 'full?) "后续快做" "前置快做")
-          :subtitle "坏：冷静−1；中：冷静−1、进度+1；好：进度+2。"
+          :subtitle "坏：心情−1；中：心情−1、进度+1；好：进度+2。"
           :requires (list (req-die))
           :resolve (roll 'knowledge
             (outcome 开窗坏!) (outcome 开窗风险中!) (outcome (lambda () (开窗推进! 2))))))

@@ -156,7 +156,7 @@
     (define (node-alley)
       (node "巷子里在打人"
         :anchor "老街酒馆"
-        :tags (list "Scenario")
+
         :clocks (list (alley-clock))
         :subtitle "酒馆侧墙那条巷子。三个人围着一个，没人打算过去"
         :resolve (instant (lambda () (start-scenario "巷子里在打人" on-alley-result)))))

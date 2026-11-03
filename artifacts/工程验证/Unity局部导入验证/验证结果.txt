@@ -1,0 +1,7 @@
+单独更新 A 的 FBX：只重导 ProbeA.fbx
+仅修改地点 FBX 哈希：重导 0 个模型
+仅修改地点环境：重导 0 个模型
+仅重排声明顺序：重导 0 个模型
+修改 A 组灯光：重导 2 个模型（ProbeA.fbx,City.fbx）
+删除最后一盏灯：组哈希变化
+修改公共角色契约：重导 3 个模型（ProbeA.fbx,City.fbx,ProbeB.fbx）

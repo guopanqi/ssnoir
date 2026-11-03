@@ -1,0 +1,142 @@
+{
+  "source": "/Users/usr/Documents/play/ssnoir/city-box/build/city/city_build.blend",
+  "world_view_yaw": -84.18903686484032,
+  "rotations": [],
+  "moves": [],
+  "world_position": null,
+  "camera_distances": [
+    "老街酒馆=30=22"
+  ],
+  "camera_yaws": [],
+  "camera_pitches": [
+    "老街酒馆=32"
+  ],
+  "returns": [
+    {
+      "place": "老街酒馆",
+      "path": "AuthoredArc",
+      "body_crossings": []
+    }
+  ],
+  "scope": "current assembled exterior geometry; representative world start; dominant mass probes; own-root occlusion excluded; no dynamic visibility or near-plane sweep proof",
+  "places": [
+    {
+      "place": "老街酒馆",
+      "path": "DirectApproach",
+      "map_south_deviation": -42.87757482719674,
+      "world_view_deviation": 41.311462037643594,
+      "masses": [
+        "屋顶雕塑_抽象马头",
+        "侧巷底层墙",
+        "后墙.002"
+      ],
+      "body_crossings": [],
+      "external_occlusion": [
+        {
+          "progress": 0.3,
+          "blockers": {
+            "B.803": 1
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.45,
+          "blockers": {
+            "R.474": 1
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.5,
+          "blockers": {
+            "R.474": 1
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.55,
+          "blockers": {
+            "R.474": 1
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.6,
+          "blockers": {
+            "B.806": 1,
+            "R.474": 1,
+            "B.803": 1
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.65,
+          "blockers": {
+            "B.806": 1,
+            "R.475": 1,
+            "B.803": 1
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.7,
+          "blockers": {
+            "B.806": 2,
+            "R.475": 1,
+            "B.803": 1
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.75,
+          "blockers": {
+            "B.806": 3,
+            "R.475": 1,
+            "B.803": 1
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.8,
+          "blockers": {
+            "B.806": 6,
+            "B.803": 1
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.85,
+          "blockers": {
+            "B.806": 8,
+            "B.803": 2
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.9,
+          "blockers": {
+            "B.806": 9,
+            "B.803": 2
+          },
+          "probes": 27
+        },
+        {
+          "progress": 0.95,
+          "blockers": {
+            "B.806": 9,
+            "B.803": 3
+          },
+          "probes": 27
+        },
+        {
+          "progress": 1,
+          "blockers": {
+            "B.806": 9,
+            "B.803": 3
+          },
+          "probes": 27
+        }
+      ]
+    }
+  ]
+}

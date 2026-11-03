@@ -165,6 +165,7 @@ Orbit 相机必须满足：
 
 - 源材质名 `M_世界_<角色>` 与已有城市材质名由 `Resources/City/WorldPalette.asset` 映射到唯一共享 `.mat`。WorldPalette 同时引用正式 URP 配置，地点呈现与编辑器取景都显式使用它，避免试用场景遗留的质量级覆盖。Unity 材质是最终表现的权威；CityBox 发布不写这些 `.mat`。导入器缺少角色实现直接失败，不退回嵌入材质。河面保留下节的专用实现。
 - 地点的视觉声明发布为 `Resources/City/World.visual.json`：环境、雾、灯光用途/颜色角色、强度和模式。灯的位置/方向来自正式 City.fbx；光色角色必须由 WorldPalette 实现，缺失时校验失败。
+- 模型导入不直接依赖整份 `World.visual.json`：角色契约及各 profile 的灯光参数分别登记 Unity 自定义依赖，模型只消费角色契约和自身灯光组；地点哈希、环境参数、声明顺序的变化不应重导无关模型。`WorldPalette` 的共享材质依赖保留。原生依赖传播验证见 `artifacts/工程验证/Unity局部导入验证/`。
 - CityBox 的声明使用源资产单位；`CityWorldVisuals` 按 City 根的正值统一缩放换算灯光范围、面光尺寸和雾距离，不沿用独立试用场景的 0.1 缩放。点光/聚光强度按缩放平方换算，方向光强度保持不变。
 - `CityOutlineState` 随呈现的地点切换灯光和环境。全城机位使用 `WorldPalette.Overview` 的试验配光：共享冷白/冷边光色、侧向主光、环境光和远景雾，由 `CityWorldOverview` 实现。全城阴影距离使用正式 URP 的运行时派生实例；离开全城恢复正式 URP，不修改共享管线资产。局部地点继续使用自己的配光。实体投影、描线不投影。编辑器取景临时使用同一套配置，结束后恢复，不保存 City 子对象覆盖。
 - world/focus 描线通过 `CityOutlineFade` 错时双向交接（离开线 0–0.6 退场，目标线 0.4–1 入场），普通导航由 `BeginFocusTravel` 返回的实际时长驱动，重定向保留当前权重。`WorldPalette.OutlineFadeShader` 显式引用交接 Shader，保证发布时保留；交接材质只在运行时缓存，端点恢复各自原共享 `.mat`。固定机位预览显式完成描线与环境过渡，再验证端点实际绑定；动态透明度与中断行为须另行检查。

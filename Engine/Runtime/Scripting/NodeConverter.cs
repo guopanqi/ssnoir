@@ -63,6 +63,7 @@ namespace SSNoir.Scripting
             string? buttonText = null;
             string? requiredBeforeRest = null;
             bool disabled = false;
+            ActionUseLimit? useLimit = null;
             bool isPlace = false;
             string carryItemId = string.Empty;
             string supportId = string.Empty;
@@ -86,6 +87,12 @@ namespace SSNoir.Scripting
                 if (kwStr == ":clocks")
                 {
                     clocks = ParseClocks(val);
+                }
+                else if (kwStr == ":use-limit")
+                {
+                    if (val is bool noLimit && !noLimit) useLimit = null;
+                    else if (val is Symbol policy && policy.AsString == "daily-once") useLimit = ActionUseLimit.DailyOnce;
+                    else throw new InvalidOperationException($"Node '{id}' :use-limit only accepts 'daily-once or #f.");
                 }
                 else if (kwStr == ":tags")
                 {
@@ -197,13 +204,15 @@ namespace SSNoir.Scripting
             }
 
             // 入场节拍属于「走进一个地点」这件事，挂在别处永远不会被触发。
-            if (arrivals.Count > 0 && !isPlace)
+            if (arrivals.Count > 0 && !isPlace && id != "世界")
             {
                 throw new InvalidOperationException(
-                    $"Node '{id}' 声明了 :arrivals 却不是 place。入场节拍只能挂在地点上——" +
+                    $"Node '{id}' 声明了 :arrivals 却不是 place。入场节拍只能挂在地点或世界根上——" +
                     "把这个容器改成 (place ...)，或者把节拍搬到它所在的地点上。");
             }
 
+            if (useLimit.HasValue && (resolve == null || (resolve.Type != ResolveType.Instant && resolve.Type != ResolveType.Roll)))
+                throw new InvalidOperationException($"Node '{id}' :use-limit requires an Instant or Roll action.");
             if (buttonText != null && (resolve == null || resolve.Type == ResolveType.Note))
                 throw new InvalidOperationException($"Node '{id}' :button-text requires an actionable resolve.");
 
@@ -212,8 +221,6 @@ namespace SSNoir.Scripting
             if ((riskTarget != null || progressTarget != null)
                 && (resolve == null || (resolve.Type != ResolveType.Roll && resolve.Type != ResolveType.Instant)))
                 throw new InvalidOperationException($"Node '{id}' declares an effect target without an action.");
-            if (riskLevel.HasValue && tags.Exists(t => t == "低风险" || t == "高风险" || t == "稳妥" || t == "冒险" || t == "危险"))
-                throw new InvalidOperationException($"Node '{id}' mixes :risk with a legacy risk tag.");
 
             var node = new GameNode
             {
@@ -234,6 +241,7 @@ namespace SSNoir.Scripting
                 ButtonText = buttonText,
                 RequiredBeforeRest = requiredBeforeRest,
                 Disabled = disabled,
+                UseLimit = useLimit,
                 Tags = tags,
                 Children = children,
                 Requires = requires,
@@ -378,11 +386,14 @@ namespace SSNoir.Scripting
             {
                 if (item is string str)
                 {
+                    if (str != "工作" && str != "非法")
+                        throw new InvalidOperationException($"Unknown authored tag '{str}': only 工作 and 非法 are allowed; use rule fields for generated indicators.");
+                    if (tags.Contains(str)) throw new InvalidOperationException($"Duplicate authored tag '{str}'.");
                     tags.Add(str);
                 }
                 else if (item is Symbol sym)
                 {
-                    tags.Add(sym.AsString);
+                    throw new InvalidOperationException($"Node tags must be registered strings, not symbols: {sym.AsString}.");
                 }
                 else
                 {
@@ -767,7 +778,7 @@ namespace SSNoir.Scripting
                 note = parsedNote;
             }
 
-            if (expr.Count > 9)
+            if (expr.Count > 10)
                 throw new InvalidOperationException($"Clock '{label}' has too many fields.");
             string displayLabel = label;
             if (expr.Count >= 7)
@@ -787,9 +798,20 @@ namespace SSNoir.Scripting
                     _ => throw new InvalidOperationException($"Clock '{label}' has unknown priority '{value}' (expected primary / secondary).")
                 };
             }
+            var reset = new ClockReset();
+            if (expr.Count == 10)
+            {
+                if (expr[9] is not List<object> resetData || resetData.Count != 2)
+                    throw new InvalidOperationException($"Clock '{label}' reset data must contain sequence and previous value.");
+                int sequence = SchemeValue.ToInt(resetData[0]);
+                int from = SchemeValue.ToInt(resetData[1]);
+                if (sequence < 0 || from < 0 || from > max)
+                    throw new InvalidOperationException($"Clock '{label}' reset data is out of range.");
+                reset = new ClockReset { Sequence = sequence, From = from };
+            }
             return new GameClock { Label = label, DisplayLabel = displayLabel, Note = note, Priority = priority,
-                Current = current, Max = max, Style = style,
-                BeneficialDirection = expr.Count == 9
+                Current = current, Max = max, Style = style, Reset = reset,
+                BeneficialDirection = expr.Count >= 9
                     ? ClockSemantics.ParseDirection(expr[8] is Symbol direction ? direction.AsString : "")
                     : BeneficialDirection.Neutral };
         }

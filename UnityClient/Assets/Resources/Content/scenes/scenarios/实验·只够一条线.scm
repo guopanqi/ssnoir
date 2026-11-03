@@ -50,7 +50,7 @@
               (set! 焊死? #t) (set! 接头稳? #t) (搜线 'advance! 1)
               (if (搜线 'full?) (结束! '断线 "焊声惊动了对方。电话立刻被挂断了。") #f))))) '())
       (if 接头稳?
-          (list (node "录下交易" :subtitle "坏：停录、花1冷静；中：录1；好：录2。"
+          (list (node "录下交易" :subtitle "坏：停录、花1心情；中：录1；好：录2。"
             :requires (list (req-die)) :resolve (roll 'knowledge
               (outcome (lambda () (录! 0)))
               (outcome (lambda () (录! 1)))

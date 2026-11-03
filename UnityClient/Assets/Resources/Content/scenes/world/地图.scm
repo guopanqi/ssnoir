@@ -35,13 +35,12 @@
     (地点 test-workshop (lambda () (and (lin 'workshop-open?) (not (林的机器 'workshop-vacated?)))))
     (地点 clinic (lambda () (clinic 'visible?)))
     (地点 police-station (lambda () (第二章 'started?)))
-    (地点 freight-company (lambda () (walter 'can-arrange-berth?)))
+    (地点 freight-company (lambda () (or (walter 'can-arrange-berth?) (第三幕 'rocco-building-open?))))
     (地点 residential-district (lambda () (or (>= (第一幕 'act) 2) (第二章 'started?))))
     (地点 theater (lambda () (or (第一幕 'theater-open?) (第二章 'started?))))
     (地点 board             (lambda () #f))
     ;; 第三幕开放的室内地点先以网格内容呈现；模型与Scenario表现另行迭代。
-    (地点 old-hotel (lambda () (第三幕 'started?)))
-    (地点 private-club (lambda () (第三幕 'started?)))
+    (地点 private-club (lambda () (第三幕 'club-known?)))
     ;; ── 第二章开出来的地方 ─────────────────────────
     ;; 旧照片委托已退役；酒店保留旧第二章的独立调试入口。
     (地点 grand-hotel     (lambda () (第二章 'started?)))

@@ -30,6 +30,8 @@ namespace SSNoir.Core
         /// 客户端据此在结算落地的瞬间放一次黑场，让"下一回合"有个明确的切换。
         /// </summary>
         public bool TurnEnded { get; set; }
+        // 换日黑场中的明确落点；为空时留在当前地点。
+        public string WakePlaceName { get; set; } = string.Empty;
 
         public void AddEffect(ActionEffectKind kind, string label, int delta, ActionEffectTone tone)
         {

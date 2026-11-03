@@ -305,7 +305,7 @@ namespace SSNoir.IMGUI
                 new Vector2(panelRect.xMax - 24f, panelRect.y + 58f),
                 new Color(PaperInk.r, PaperInk.g, PaperInk.b, 0.35f), 1f);
 
-            if (ui.WasTapped(closeRect))
+            if (ui.WasClicked(closeRect))
             {
                 Event.current.Use();
                 return true;

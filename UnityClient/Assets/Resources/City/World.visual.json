@@ -335,6 +335,28 @@
       "mode": "realtime"
     },
     {
+      "name": "巷道冷光",
+      "profile": "巷子里在打人",
+      "type": "SPOT",
+      "energy": 1650.0,
+      "size": 0,
+      "spotAngle": 65.00000067042492,
+      "spotBlend": 0.6499999761581421,
+      "palette": "冷白",
+      "mode": "realtime"
+    },
+    {
+      "name": "壁灯照明",
+      "profile": "巷子里在打人",
+      "type": "POINT",
+      "energy": 180.0,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
       "name": "棚内工作光",
       "profile": "修理棚",
       "type": "SPOT",
@@ -643,10 +665,483 @@
       "mode": "realtime"
     },
     {
+      "name": "门前暖光",
+      "profile": "街角咖啡馆",
+      "type": "POINT",
+      "energy": 180.0,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "门前暖光.001",
+      "profile": "街角咖啡馆",
+      "type": "POINT",
+      "energy": 120.0,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "雨夜冷光",
+      "profile": "雨夜追车",
+      "type": "SUN",
+      "energy": 0.800000011920929,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "冷白",
+      "mode": "realtime"
+    },
+    {
+      "name": "车身轮廓光",
+      "profile": "雨夜追车",
+      "type": "SUN",
+      "energy": 0.699999988079071,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "冷边",
+      "mode": "realtime"
+    },
+    {
+      "name": "街灯暖光",
+      "profile": "雨夜追车",
+      "type": "SPOT",
+      "energy": 1800.0,
+      "size": 0,
+      "spotAngle": 100.0000005060238,
+      "spotBlend": 0.6499999761581421,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "船舷冷光",
+      "profile": "联合起吊",
+      "type": "SUN",
+      "energy": 1.399999976158142,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "冷白",
+      "mode": "realtime"
+    },
+    {
+      "name": "轮廓背光",
+      "profile": "联合起吊",
+      "type": "SUN",
+      "energy": 1.399999976158142,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "冷边",
+      "mode": "realtime"
+    },
+    {
+      "name": "码头暖工作灯",
+      "profile": "联合起吊",
+      "type": "SPOT",
+      "energy": 2600.0,
+      "size": 0,
+      "spotAngle": 100.0000005060238,
+      "spotBlend": 0.6499999761581421,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "船舷工作灯",
+      "profile": "联合起吊",
+      "type": "SPOT",
+      "energy": 1600.0,
+      "size": 0,
+      "spotAngle": 104.99999950679661,
+      "spotBlend": 0.6499999761581421,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "包厢壁灯",
+      "profile": "球形剧场",
+      "type": "POINT",
+      "energy": 95.0,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "包厢壁灯.001",
+      "profile": "球形剧场",
+      "type": "POINT",
+      "energy": 95.0,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "包厢壁灯.002",
+      "profile": "球形剧场",
+      "type": "POINT",
+      "energy": 95.0,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "包厢壁灯.003",
+      "profile": "球形剧场",
+      "type": "POINT",
+      "energy": 95.0,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "包厢壁灯.004",
+      "profile": "球形剧场",
+      "type": "POINT",
+      "energy": 95.0,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "包厢壁灯.005",
+      "profile": "球形剧场",
+      "type": "POINT",
+      "energy": 95.0,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "包厢壁灯.006",
+      "profile": "球形剧场",
+      "type": "POINT",
+      "energy": 95.0,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "包厢壁灯.007",
+      "profile": "球形剧场",
+      "type": "POINT",
+      "energy": 95.0,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "包厢壁灯.008",
+      "profile": "球形剧场",
+      "type": "POINT",
+      "energy": 95.0,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "包厢壁灯.009",
+      "profile": "球形剧场",
+      "type": "POINT",
+      "energy": 95.0,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "包厢壁灯.010",
+      "profile": "球形剧场",
+      "type": "POINT",
+      "energy": 95.0,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "包厢壁灯.011",
+      "profile": "球形剧场",
+      "type": "POINT",
+      "energy": 95.0,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "包厢壁灯.012",
+      "profile": "球形剧场",
+      "type": "POINT",
+      "energy": 95.0,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "包厢壁灯.013",
+      "profile": "球形剧场",
+      "type": "POINT",
+      "energy": 95.0,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "工作灯",
+      "profile": "球形剧场",
+      "type": "POINT",
+      "energy": 160.0,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "工作灯.001",
+      "profile": "球形剧场",
+      "type": "POINT",
+      "energy": 160.0,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "工作灯.002",
+      "profile": "球形剧场",
+      "type": "POINT",
+      "energy": 160.0,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "工作灯.003",
+      "profile": "球形剧场",
+      "type": "POINT",
+      "energy": 160.0,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "工作灯.004",
+      "profile": "球形剧场",
+      "type": "POINT",
+      "energy": 160.0,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "工作灯.005",
+      "profile": "球形剧场",
+      "type": "POINT",
+      "energy": 160.0,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "工作灯.006",
+      "profile": "球形剧场",
+      "type": "POINT",
+      "energy": 160.0,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "工作灯.007",
+      "profile": "球形剧场",
+      "type": "POINT",
+      "energy": 160.0,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "工作灯.008",
+      "profile": "球形剧场",
+      "type": "POINT",
+      "energy": 160.0,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "工作灯.009",
+      "profile": "球形剧场",
+      "type": "POINT",
+      "energy": 160.0,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "工作灯.010",
+      "profile": "球形剧场",
+      "type": "POINT",
+      "energy": 160.0,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "工作灯.011",
+      "profile": "球形剧场",
+      "type": "POINT",
+      "energy": 160.0,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "舞台灯",
+      "profile": "球形剧场",
+      "type": "POINT",
+      "energy": 500.0,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "舞台灯.001",
+      "profile": "球形剧场",
+      "type": "POINT",
+      "energy": 500.0,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "舞台灯.002",
+      "profile": "球形剧场",
+      "type": "POINT",
+      "energy": 500.0,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "预览舞台面光",
+      "profile": "球形剧场",
+      "type": "AREA",
+      "energy": 6500.0,
+      "size": 9.0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "预览后台顶光",
+      "profile": "球形剧场",
+      "type": "AREA",
+      "energy": 9500.0,
+      "size": 14.0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "预览大补光",
+      "profile": "球形剧场",
+      "type": "AREA",
+      "energy": 13000.0,
+      "size": 30.0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "冷白",
+      "mode": "realtime"
+    },
+    {
+      "name": "预览轮廓光",
+      "profile": "球形剧场",
+      "type": "AREA",
+      "energy": 6000.0,
+      "size": 20.0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "冷白",
+      "mode": "realtime"
+    },
+    {
+      "name": "预览后台正面补光",
+      "profile": "球形剧场",
+      "type": "AREA",
+      "energy": 4500.0,
+      "size": 12.0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
       "name": "西桌吊灯照明",
       "profile": "醉客互相叫骂",
       "type": "POINT",
-      "energy": 900.0,
+      "energy": 360.0,
       "size": 0,
       "spotAngle": 160,
       "spotBlend": 0.5,
@@ -657,11 +1152,22 @@
       "name": "东桌吊灯照明",
       "profile": "醉客互相叫骂",
       "type": "POINT",
-      "energy": 900.0,
+      "energy": 360.0,
       "size": 0,
       "spotAngle": 160,
       "spotBlend": 0.5,
       "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "顶面贴地柔光",
+      "profile": "醉客互相叫骂",
+      "type": "SUN",
+      "energy": 0.550000011920929,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "冷白",
       "mode": "realtime"
     },
     {
@@ -753,127 +1259,6 @@
       "mode": "realtime"
     },
     {
-      "name": "门前暖光",
-      "profile": "街角咖啡馆",
-      "type": "POINT",
-      "energy": 180.0,
-      "size": 0,
-      "spotAngle": 160,
-      "spotBlend": 0.5,
-      "palette": "暖白",
-      "mode": "realtime"
-    },
-    {
-      "name": "门前暖光.001",
-      "profile": "街角咖啡馆",
-      "type": "POINT",
-      "energy": 120.0,
-      "size": 0,
-      "spotAngle": 160,
-      "spotBlend": 0.5,
-      "palette": "暖白",
-      "mode": "realtime"
-    },
-    {
-      "name": "雨夜冷光",
-      "profile": "雨夜追车",
-      "type": "SUN",
-      "energy": 0.800000011920929,
-      "size": 0,
-      "spotAngle": 160,
-      "spotBlend": 0.5,
-      "palette": "冷白",
-      "mode": "realtime"
-    },
-    {
-      "name": "车身轮廓光",
-      "profile": "雨夜追车",
-      "type": "SUN",
-      "energy": 0.699999988079071,
-      "size": 0,
-      "spotAngle": 160,
-      "spotBlend": 0.5,
-      "palette": "冷边",
-      "mode": "realtime"
-    },
-    {
-      "name": "街灯暖光",
-      "profile": "雨夜追车",
-      "type": "SPOT",
-      "energy": 1800.0,
-      "size": 0,
-      "spotAngle": 100.0000005060238,
-      "spotBlend": 0.6499999761581421,
-      "palette": "暖白",
-      "mode": "realtime"
-    },
-    {
-      "name": "巷道冷光",
-      "profile": "巷子里在打人",
-      "type": "SPOT",
-      "energy": 1650.0,
-      "size": 0,
-      "spotAngle": 65.00000067042492,
-      "spotBlend": 0.6499999761581421,
-      "palette": "冷白",
-      "mode": "realtime"
-    },
-    {
-      "name": "壁灯照明",
-      "profile": "巷子里在打人",
-      "type": "POINT",
-      "energy": 180.0,
-      "size": 0,
-      "spotAngle": 160,
-      "spotBlend": 0.5,
-      "palette": "暖白",
-      "mode": "realtime"
-    },
-    {
-      "name": "船舷冷光",
-      "profile": "联合起吊",
-      "type": "SUN",
-      "energy": 1.399999976158142,
-      "size": 0,
-      "spotAngle": 160,
-      "spotBlend": 0.5,
-      "palette": "冷白",
-      "mode": "realtime"
-    },
-    {
-      "name": "轮廓背光",
-      "profile": "联合起吊",
-      "type": "SUN",
-      "energy": 1.399999976158142,
-      "size": 0,
-      "spotAngle": 160,
-      "spotBlend": 0.5,
-      "palette": "冷边",
-      "mode": "realtime"
-    },
-    {
-      "name": "码头暖工作灯",
-      "profile": "联合起吊",
-      "type": "SPOT",
-      "energy": 2600.0,
-      "size": 0,
-      "spotAngle": 100.0000005060238,
-      "spotBlend": 0.6499999761581421,
-      "palette": "暖白",
-      "mode": "realtime"
-    },
-    {
-      "name": "船舷工作灯",
-      "profile": "联合起吊",
-      "type": "SPOT",
-      "energy": 1600.0,
-      "size": 0,
-      "spotAngle": 104.99999950679661,
-      "spotBlend": 0.6499999761581421,
-      "palette": "暖白",
-      "mode": "realtime"
-    },
-    {
       "name": "码头冷日光",
       "profile": "码头",
       "type": "SUN",
@@ -907,58 +1292,47 @@
       "mode": "realtime"
     },
     {
-      "name": "主门厅灯",
-      "profile": "货运公司",
-      "type": "POINT",
-      "energy": 230.0,
-      "size": 0,
-      "spotAngle": 160,
-      "spotBlend": 0.5,
-      "palette": "暖白",
-      "mode": "realtime"
-    },
-    {
-      "name": "保险小门灯",
-      "profile": "货运公司",
-      "type": "POINT",
-      "energy": 90.0,
-      "size": 0,
-      "spotAngle": 160,
-      "spotBlend": 0.5,
-      "palette": "暖白",
-      "mode": "realtime"
-    },
-    {
-      "name": "剧院环厅灯_0",
+      "name": "门厅洗墙光",
       "profile": "剧院",
       "type": "AREA",
-      "energy": 900.0,
-      "size": 8.0,
+      "energy": 1543.239013671875,
+      "size": 9.527789115905762,
       "spotAngle": 160,
       "spotBlend": 0.5,
       "palette": "暖白",
       "mode": "realtime"
     },
     {
-      "name": "剧院环厅灯_1",
+      "name": "门厅左洗墙",
       "profile": "剧院",
       "type": "AREA",
-      "energy": 350.0,
-      "size": 5.0,
+      "energy": 635.4513549804688,
+      "size": 6.669452667236328,
       "spotAngle": 160,
       "spotBlend": 0.5,
       "palette": "暖白",
       "mode": "realtime"
     },
     {
-      "name": "剧院环厅灯_2",
+      "name": "门厅右洗墙",
       "profile": "剧院",
       "type": "AREA",
-      "energy": 800.0,
-      "size": 14.0,
+      "energy": 635.4513549804688,
+      "size": 6.669452667236328,
       "spotAngle": 160,
       "spotBlend": 0.5,
-      "palette": "冷边",
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "后台出口照明",
+      "profile": "剧院",
+      "type": "AREA",
+      "energy": 290.4920654296875,
+      "size": 2.8583366870880127,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "暖白",
       "mode": "realtime"
     },
     {
@@ -1236,6 +1610,18 @@
       "fogEnd": 420.0
     },
     {
+      "name": "巷子里在打人",
+      "worldLinear": {
+        "r": 0.012,
+        "g": 0.017,
+        "b": 0.026,
+        "a": 1.0
+      },
+      "fog": false,
+      "fogStart": 180.0,
+      "fogEnd": 420.0
+    },
+    {
       "name": "修理棚",
       "worldLinear": {
         "r": 0.012,
@@ -1284,18 +1670,6 @@
       "fogEnd": 180.0
     },
     {
-      "name": "醉客互相叫骂",
-      "worldLinear": {
-        "r": 0.042,
-        "g": 0.046,
-        "b": 0.058,
-        "a": 1.0
-      },
-      "fog": false,
-      "fogStart": 180.0,
-      "fogEnd": 420.0
-    },
-    {
       "name": "街角咖啡馆",
       "worldLinear": {
         "r": 0.012,
@@ -1320,7 +1694,7 @@
       "fogEnd": 110.0
     },
     {
-      "name": "巷子里在打人",
+      "name": "联合起吊",
       "worldLinear": {
         "r": 0.012,
         "g": 0.017,
@@ -1332,11 +1706,35 @@
       "fogEnd": 420.0
     },
     {
-      "name": "联合起吊",
+      "name": "球形剧场",
       "worldLinear": {
-        "r": 0.012,
-        "g": 0.017,
-        "b": 0.026,
+        "r": 0.018,
+        "g": 0.024,
+        "b": 0.035,
+        "a": 1.0
+      },
+      "fog": false,
+      "fogStart": 180.0,
+      "fogEnd": 420.0
+    },
+    {
+      "name": "货运大楼潜入",
+      "worldLinear": {
+        "r": 0.018,
+        "g": 0.022,
+        "b": 0.028,
+        "a": 1.0
+      },
+      "fog": false,
+      "fogStart": 180.0,
+      "fogEnd": 420.0
+    },
+    {
+      "name": "醉客互相叫骂",
+      "worldLinear": {
+        "r": 0.042,
+        "g": 0.046,
+        "b": 0.058,
         "a": 1.0
       },
       "fog": false,
@@ -1358,9 +1756,9 @@
     {
       "name": "货运公司",
       "worldLinear": {
-        "r": 0.012,
-        "g": 0.016,
-        "b": 0.023,
+        "r": 0.018,
+        "g": 0.022,
+        "b": 0.028,
         "a": 1.0
       },
       "fog": false,
@@ -1443,123 +1841,131 @@
   "placeHashes": [
     {
       "name": "上午十一点零七分",
-      "hash": "59f74717cc4bd66b268bb8e6de0f5427f6ee7352aa727fa8d02534d499ff8f56"
+      "hash": "e73c9d11062636bf50be60c4edaf03718cd286775a1ce97b70bf82c7d914bb03"
     },
     {
       "name": "修理棚",
-      "hash": "4c26d8fb9f0dac1e7844b4944c4f0055110cc9aa57b0fe0ac2bc9596cb912687"
+      "hash": "2b261528f0bf8a19201192be572d9a237e4dec1f399294742da211c2d161fdea"
     },
     {
       "name": "公园",
-      "hash": "fc9b6fc477c48c279c4a8fdafee4aea281b5651be0b1e9d4795915d789c032cd"
+      "hash": "fea44553aa1ce98d6892e55031373fb43ef77e22fb191faeb4cff8e0b8bbbbfc"
     },
     {
       "name": "别给他们想要的",
-      "hash": "64b6c39b415075dc41d10badfe325f8bdb00ebb0d5afa09c0341fd4a7366d94a"
+      "hash": "68e92783117a254ce4866ff518b3ff769ce3b8a617cc8c75c0dc848abb7b92dc"
     },
     {
       "name": "剧院",
-      "hash": "13f54b043ea0be1cb77344901419b39088562bf9f637d75bb760b8da58ed2fe5"
+      "hash": "529ddb4ece45f430c21fd3202b9b38e628861f6b30f267c34e62e2872523f02f"
     },
     {
       "name": "双目标跟拍",
-      "hash": "53677d46299c0798e71f2c0bfcb92eca41380f42ae266fbe9b5a9e97fd4d63d9"
+      "hash": "fa915ac0c43bebf2497a4214667e90d6ca0b8c17f9752abc9ed098d7f86db6ed"
     },
     {
       "name": "家",
-      "hash": "d6e8592ac882548c66edf8e7f51e057a6f5eebd6a67e202a56cae38d0e3a34be"
+      "hash": "acae6fbe0496833cdf15546724986c8a1d40814e0483b9be70275e96b387ae22"
     },
     {
       "name": "尾随取件人",
-      "hash": "a6851e03407cef94c7d44c422c536b8fd1f2741ea2eb93f83457dfb07652f73d"
+      "hash": "8b153372aac7da15d7a77f256d1551b121adcb4797b0c04ac5fbb82011db770f"
     },
     {
       "name": "巷子",
-      "hash": "7613e214edf4c9911049cb48c71ed74db8e14101b1f52e32910d7f054dc4e66e"
+      "hash": "f5a6235afa83b597486fc12482558125e490ead8f6622ff57ea86f1538eca8f5"
     },
     {
       "name": "巷子里在打人",
-      "hash": "32d2ab489d4da9b6a47c3d85cddda44a8d082ce5c360bd6e4c7192b9e6777bad"
+      "hash": "49df97bfd0a966d0a8095cd24607730969f0c21a46a3ad0bc47c759727e373cc"
     },
     {
       "name": "布告栏",
-      "hash": "f20a04740f38500c470d773de71042caf292c73b26e0cc6b34a74837dad7a0a5"
+      "hash": "f27bd8f64fe477d2bed94e836195b5d4c2b30f97cc6f91b2f6271b33f553eeeb"
     },
     {
       "name": "报社",
-      "hash": "e76df4d320d90597d586a956b14404ed3fbf1ca729708c9f530faada0bb88910"
+      "hash": "abd8f65d25a433a31fee8ffabefc4715f3f1b441e0a58d4e6770740626780e62"
     },
     {
       "name": "晚宴",
-      "hash": "2feabe19df4a8e2ee5526419f22d10566e1f467f1fe150cb0058734a0e3f9cf7"
+      "hash": "cfaea5334594f5a0159c6cbe992636c16d68a72427c00efe1aeefb1e267e3943"
     },
     {
       "name": "格兰德酒店",
-      "hash": "251c9b53cb2461c7ef5cadc4ec031984b6b6c64df496c4f769c94c402df605ca"
+      "hash": "42df347d39847da395c8ff9563937a38304b99b9c4059266875d580ab43eac30"
     },
     {
       "name": "照相馆交涉",
-      "hash": "8215b2c5cf94c70e71747bebcb12586468d572f0cd4d937f193169066a3bf613"
+      "hash": "e72764564e080e835bca1f86e99278132d7e830fd2fb6b6dd37665c1432ce8e8"
+    },
+    {
+      "name": "球形剧场",
+      "hash": "0bb421b14cc49af1bf153fb5804f11e4557baa1ba9d04717f4ae95d182ff29ef"
     },
     {
       "name": "码头",
-      "hash": "87d2a4ea48946f7c046c503454a545d71d6535c166053ef9b8781129fc221c2f"
+      "hash": "c51fd9a03fb419debce8a4111f861b5cc84d24491d5a545ae712fa22bd8092a1"
     },
     {
       "name": "码头居民区",
-      "hash": "9554a8bed226a9d2bc039afdc8ad802241a93ededc2d2973e331cf6e7dab7a0d"
+      "hash": "ff509b9be2a71d6a3a572a4ff8fbb08667ff789157f704e4774d3e90ac006a52"
     },
     {
       "name": "租屋",
-      "hash": "d899a641fddf045afb016e77a156f2a301dfb45445c401b0dfc7147b0b7d19c2"
+      "hash": "755cd5f84e447eae0d4401793daa1ab48da3feed146f2c7f13192e31ac1ad44c"
     },
     {
       "name": "老街酒馆",
-      "hash": "b5dab7d5cadf6bcf67d960421d28d8f43cebd0349efa86550e0b68de4dbec965"
+      "hash": "0096b3c382fc1badc229619a58ab186e940ebfec5f78b5af1300a0b613c00903"
     },
     {
       "name": "联合起吊",
-      "hash": "709604b64b1d060082699eea7463f7e98cfc8476f1f5cc0b77cdc9d2336c4b58"
+      "hash": "47f039dc81131c2ac55ecf7c594c8eb9f54a070bf6a14beba78f2ded9bc16f8e"
     },
     {
       "name": "街角咖啡馆",
-      "hash": "219517c41d2775b9677ea2421506adeab3c00485a54cd060ed8c8ab3800502d5"
+      "hash": "8e2e4f8c9c933403f0e491a28648ff416802b99c1d915327995e33bbb78bba2c"
     },
     {
       "name": "警察局",
-      "hash": "6ff147b4c068f47df75bb98a2d7737f93d924cffdcdbddb53c7ff1889088e427"
+      "hash": "4be05cceeefe9a44d65219ab1552eb1d343770f177f53d36b8348ae24f9ba02b"
     },
     {
       "name": "让他们安静",
-      "hash": "f88a29db48852fb2e964b870f67d7be3d307c951fa0e8ff436c1a75fd048c5c5"
+      "hash": "3a1f1cd9c0db7e786a3528f7f6f33e56cd35ee89dbd785f070433a8a4c2377d5"
     },
     {
       "name": "诊所",
-      "hash": "e5ba5382e29070ec86900a72cbf1819eff085d4a15ed3d402e8fdc7f7ee2c082"
+      "hash": "f69fdaa45e035859507bf78ffc346f0d88b5b45c4c4a1967445a303e97fc9730"
     },
     {
       "name": "货运公司",
-      "hash": "696dcecfa436c80b0dc90f01bb8a971d6605acfa998c501a330d43b622efc195"
+      "hash": "ec1eddcecc67d9b615c0bbc84bf50a167bb57e6b178b064b99e729641648e1a8"
+    },
+    {
+      "name": "货运大楼潜入",
+      "hash": "72bc9078bab5041ca0643ef6edc1fadb6ddbac281aee8b97ba5d57d092863b68"
     },
     {
       "name": "醉客互相叫骂",
-      "hash": "236f2cf53a9e3430c934c629f10bf9d646e04fca3e5110baa1aad9f91e0787ae"
+      "hash": "f0b358e44fd93d8a14402cca73c9f6b1b931bcbdd2c2a6689706ad821babb3c8"
     },
     {
       "name": "雕像",
-      "hash": "a24e5e99848353b619487a7db79faa52354ece57d509a65266617c0b700e17ad"
+      "hash": "58542ec60ff4d6f8b75a39c2eab93617c64f0b6b541226012864590c93c57785"
     },
     {
       "name": "雨夜同行",
-      "hash": "9ae56990fe631feae3649418cf5b91ba6cb769ac5d8518930b832ac7136c434a"
+      "hash": "baab9cd1f300bf8e721f5358408ba2b17632254eae387633b510201782561d2e"
     },
     {
       "name": "雨夜追车",
-      "hash": "e5d753204246c0a39e1fb0773a60659d884d1f588a7708afd6ea34ba8ffb97fa"
+      "hash": "69bcf5313f655ba1c92b658b14651525a385d79e2091bf5fe8931b9f27eea945"
     },
     {
       "name": "首演之夜",
-      "hash": "8ca17c2bb8009233ea6bb14e1072580d94cbdd160b428cbc728e34d4aecfdadf"
+      "hash": "eacb1111a4d520b4f4a8429be32575a945d2a0b1806a1297ec0333ab3a42050e"
     }
   ]
 }

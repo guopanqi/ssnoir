@@ -1,0 +1,70 @@
+{
+  "source": "/Users/usr/Documents/play/ssnoir/city-box/build/city/city_build.blend",
+  "rotations": [
+    "街角咖啡馆=90",
+    "货运公司=-75",
+    "雕像=90"
+  ],
+  "moves": [
+    "货运公司=68=310"
+  ],
+  "camera_scales": [
+    "雕像=.5=35"
+  ],
+  "returns": [
+    {
+      "place": "街角咖啡馆",
+      "path": "AuthoredArc",
+      "body_crossings": []
+    },
+    {
+      "place": "货运公司",
+      "path": "AuthoredArc",
+      "body_crossings": []
+    },
+    {
+      "place": "雕像",
+      "path": "DirectApproach",
+      "body_crossings": []
+    }
+  ],
+  "scope": "current assembled exterior geometry; representative world start; dominant mass probes; own-root occlusion excluded; no dynamic visibility or near-plane sweep proof",
+  "places": [
+    {
+      "place": "街角咖啡馆",
+      "path": "DirectApproach",
+      "south_deviation": -38.83515336787929,
+      "masses": [
+        "底层后墙.001",
+        "二层墙.002",
+        "底层后墙"
+      ],
+      "body_crossings": [],
+      "external_occlusion": []
+    },
+    {
+      "place": "货运公司",
+      "path": "DirectApproach",
+      "south_deviation": 31.75367462254976,
+      "masses": [
+        "外形壳体_转角柱",
+        "外形壳体_完整大楼外墙",
+        "外形壳体_正立面上层墙"
+      ],
+      "body_crossings": [],
+      "external_occlusion": []
+    },
+    {
+      "place": "雕像",
+      "path": "DirectApproach",
+      "south_deviation": -36.633914551356675,
+      "masses": [
+        "雕像_本体",
+        "雕像_基座",
+        "雕像_座脚"
+      ],
+      "body_crossings": [],
+      "external_occlusion": []
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+    "asset": "Assets/Resources/City/Places/雨夜追车.fbx",
+    "clips": [
+        {
+            "name": "__preview__City",
+            "length": 24.033334732055665,
+            "frameRate": 30.0,
+            "legacy": true,
+            "loopTime": false,
+            "wrapMode": 0,
+            "curves": [],
+            "objectCurvesAndEvents": ""
+        },
+        {
+            "name": "追车__行驶",
+            "length": 24.03333282470703,
+            "frameRate": 30.0,
+            "legacy": true,
+            "loopTime": true,
+            "wrapMode": 2,
+            "curves": [],
+            "objectCurvesAndEvents": ""
+        }
+    ]
+}

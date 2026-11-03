@@ -4,7 +4,7 @@
 (define 上次路线 '货棚)
 (define 底片完好? #t)
 (define 脱身 (make-clock "脱身" 14 'gauge "满14自动逃出；货棚保底片，踏入栈桥就会泡坏底片。"))
-(define 火力 (make-clock "火力" 3 'readout "走枪口瞄准的路，每次花当前火力的冷静；压到0本回合安全。"))
+(define 火力 (make-clock "火力" 3 'readout "走枪口瞄准的路，每次花当前火力的心情；压到0本回合安全。"))
 (define 封锁 (make-clock "封锁" 2 'gauge "每回合加1；满2出口封死，脱身失败。"))
 (define (结束! result text)
   (if 完了? (error "枪口认路：重复结束") #t)
@@ -41,19 +41,19 @@
       (clock-nodes (脱身 'render-data) (火力 'render-data) (封锁 'render-data))
       (list (note-node "标注：枪口" "枪口与回应"
         (string-append "当前盯着" (if (equal? 瞄准 '货棚) "货棚" "栈桥")
-          "；每次走这条路花" (number->string (火力 'current)) "冷静。下回合盯你最后走的路，火力加1。"))
-        (node "穿过货棚" :subtitle "保底片。坏：停步花1冷静；中进2；好进3。"
+          "；每次走这条路花" (number->string (火力 'current)) "心情。下回合盯你最后走的路，火力加1。"))
+        (node "穿过货棚" :subtitle "保底片。坏：停步花1心情；中进2；好进3。"
           :requires (list (req-die)) :resolve (roll 'sharpness
             (outcome (lambda () (走! '货棚 0)))
             (outcome (lambda () (走! '货棚 2)))
             (outcome (lambda () (走! '货棚 3)))))
-        (node "冲下栈桥" :subtitle "毁底片。坏：停步花1冷静；中进3；好进4。"
+        (node "冲下栈桥" :subtitle "毁底片。坏：停步花1心情；中进3；好进4。"
           :requires (list (req-die)) :resolve (roll 'sharpness
             (outcome (lambda () (走! '栈桥 0)))
             (outcome (lambda () (走! '栈桥 3)))
             (outcome (lambda () (走! '栈桥 4))))))
       (if (火力 'empty?) '()
-        (list (node "打落枪口" :subtitle "坏：花1冷静；中：火力减1；好：火力减2。"
+        (list (node "打落枪口" :subtitle "坏：花1心情；中：火力减1；好：火力减2。"
           :requires (list (req-die)) :resolve (roll 'violence
             (outcome (lambda () (spend-actor-composure! 'player 1)))
             (outcome (lambda () (火力 'advance! -1)))

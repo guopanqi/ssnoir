@@ -19,7 +19,7 @@
         (outcome (lambda ()
             (remove-item! "金钱" (min 赔付 (item-count "金钱")))
             (spend-composure! 2)))
-        "大厅里的委托：找东西、送口信、让人离开；办砸了要赔"
+        "替酒店客人处理不便出面的琐事。"
         :anchor "格兰德酒店-大厅"))
 
     ;; 大堂不产情报：情报只在Scenario里拿得到（见 报社.scm 卖消息那一段），

@@ -85,7 +85,7 @@
 (define (node-drag)
   (node "把他拖出去"
     :anchor "让他们安静-修车棚门口"
-    :tags (list "高风险")
+    :risk '危险
     :subtitle "武力；当着整条街的面，让他们知道下次是什么代价"
     :requires (list (req-die))
     :resolve (roll 'violence

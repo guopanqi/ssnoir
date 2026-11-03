@@ -211,7 +211,7 @@ namespace SSNoir.IMGUI
             {
                 CardDrawer.DrawClockGraphic(new Rect(rect.x,y,rect.width,26f),clock);y+=40f;
                 var valueStyle=ReadoutStyle(IMGUIStyles.TextSecondary,TextAnchor.MiddleRight);
-                LabelWithHalo(new Rect(rect.xMax-66f,y,66f,TitleRowH),$"{clock.Current}/{clock.Max}",valueStyle);
+                LabelWithHalo(new Rect(rect.xMax-66f,y,66f,TitleRowH),$"{ClockPulse.VisualCurrent(clock)}/{clock.Max}",valueStyle);
                 textWidth=Mathf.Max(48f,rect.width-72f);
             }
             titleStyle.normal.textColor=CardDrawer.ClockColor(clock);
@@ -317,7 +317,7 @@ namespace SSNoir.IMGUI
 
         private static float ReadoutWidth(GameClock clock)
         {
-            string fraction = $"{clock.Current}/{clock.Max}";
+            string fraction = $"{ClockPulse.VisualCurrent(clock)}/{clock.Max}";
             return clock.Style switch
             {
                 ClockStyle.Gauge or ClockStyle.Pressure => Mathf.Max(0f,
@@ -341,7 +341,7 @@ namespace SSNoir.IMGUI
             ClockPulse.Note(clock);
             if (ActionRiskFocus.IsClockFocused(clock)) pulse = Mathf.Max(pulse, 0.85f);
             Color active = Color.Lerp(CardDrawer.ClockColor(clock),Color.white,pulse*.6f);
-            string fraction = $"{clock.Current}/{clock.Max}";
+            string fraction = $"{ClockPulse.VisualCurrent(clock)}/{clock.Max}";
 
             if ((clock.Style == ClockStyle.Gauge || clock.Style == ClockStyle.Pressure))
             {
@@ -374,13 +374,14 @@ namespace SSNoir.IMGUI
                         dialRect.width - discInset * 2f, dialRect.height - discInset * 2f),
                     new Color(0f, 0f, 0f, 0.58f * active.a));
 
-                ShapeDrawer.DrawDial(dialRect, clock.Current, clock.Max, active,
+                ShapeDrawer.DrawDial(dialRect, ClockPulse.VisualCurrent(clock), clock.Max,
+                    new Color(active.r,active.g,active.b,active.a*ClockPulse.VisualOpacity(clock)),
                     new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, 0.30f * active.a));
 
                 // 数字落在环围出的空里，不再加光晕描边——细环加描边就糊成一团。
                 var centerStyle = ReadoutStyle(active, TextAnchor.MiddleCenter);
-                centerStyle.fontSize = IMGUIStyles.FontSize(clock.Current >= 10 ? 10 : 12);
-                IMGUIStyles.DrawInkCenteredText(dialRect, clock.Current.ToString(), centerStyle);
+                centerStyle.fontSize = IMGUIStyles.FontSize(ClockPulse.VisualCurrent(clock) >= 10 ? 10 : 12);
+                IMGUIStyles.DrawInkCenteredText(dialRect, ClockPulse.VisualCurrent(clock).ToString(), centerStyle);
                 return;
             }
 

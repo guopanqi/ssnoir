@@ -7,7 +7,7 @@
 (define 修复甲 (make-clock "修复甲" 2 'gauge "修满后不再加压；已积累压力保留。"))
 (define 修复乙 (make-clock "修复乙" 2 'gauge "修满后不再加压；已积累压力保留。"))
 (define 压力 (make-clock "压力" 5 'gauge "达到5立即失败，修复不会降低已有压力。"))
-(define 期限 (make-clock "已过回合" 3 'gauge "最多三回合；结束回合另花1冷静。"))
+(define 期限 (make-clock "已过回合" 3 'gauge "最多三回合；结束回合另花1心情。"))
 (define (未修数量)
   (+ (if (and 已生甲? (not (修复甲 'full?))) 1 0)
      (if (and 已生乙? (not (修复乙 'full?))) 1 0)))
@@ -50,13 +50,13 @@
 (define (压力动作 前缀 推进? clock)
   (list
     (node (string-append 前缀 "稳做")
-      :subtitle (if (and 推进? 即时加压?) "坏：冷静−1、压力+1；中：无；好：进度+1。" "坏：冷静−1；中：无；好：进度+1。")
+      :subtitle (if (and 推进? 即时加压?) "坏：心情−1、压力+1；中：无；好：进度+1。" "坏：心情−1；中：无；好：进度+1。")
       :requires (list (req-die))
       :resolve (roll 'knowledge
         (outcome (lambda () (压力坏! 推进?))) (outcome (lambda () #f))
         (outcome (lambda () (压力行动 1 推进? clock)))))
     (node (string-append 前缀 "快做")
-      :subtitle "中：冷静−1、进度+1；好：进度+2。坏档同稳做。"
+      :subtitle "中：心情−1、进度+1；好：进度+2。坏档同稳做。"
       :requires (list (req-die))
       :resolve (roll 'knowledge
         (outcome (lambda () (压力坏! 推进?)))

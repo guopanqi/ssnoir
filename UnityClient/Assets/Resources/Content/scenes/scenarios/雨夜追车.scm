@@ -52,7 +52,7 @@
       (list
         (note-node "追信：目标" "目标" "在跟丢之前截住送信人，拿到信件。")
         (note-node "追信：回合规则" "送信人不停车"
-          "回合结束：脱逃危险+1，并支付通常的冷静代价。两钟同时满，算跟丢。"))
+          "回合结束：脱逃危险+1，并支付通常的心情代价。两钟同时满，算跟丢。"))
       (clock-nodes (追逐进度 'render-data) (脱逃危险 'render-data))
       (list
         (node "紧追不舍"
@@ -68,7 +68,7 @@
             (outcome (lambda () (追赶! 2 0)))))
         (node "确认去向"
           :anchor "雨夜追车-前车"
-          :subtitle "辨认前车尾灯：坏冷静−1，中危险减1，好减2。"
+          :subtitle "辨认前车尾灯：坏心情−1，中危险减1，好减2。"
           :risk '稳妥
           :progress-target (list 'clock "脱逃危险")
           :requires (list (req-die))

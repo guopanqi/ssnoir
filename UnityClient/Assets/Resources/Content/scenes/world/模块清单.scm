@@ -31,6 +31,8 @@
     (list "act-two-aftermath" 第二幕余波 '(存档 入场))
     (list "act-two-announcement" 第二幕公告 '(存档 节点))
     (list "act-three" 第三幕 '(存档 卷宗 节点 入场))
+    (list "eddie-life" 艾迪生活 '(存档 卷宗 节点 入场))
+    (list "two-cups" 两杯咖啡 '(存档 节点))
     (list "cafe-work" cafe-work '(存档 节点))
     ;; 人物支线暂不投射节点、入场与卷宗；状态保留供主线及后续排布。
     (list "eddie"                eddie                '(存档))
@@ -40,7 +42,7 @@
     (list "walter"               walter               '(存档))
     (list "nightingale"          nightingale          '(存档))
     (list "chapter2"             第二章                '(存档 卷宗 节点 入场))
-    (list "home"                 home                 '(存档 卷宗))
+    (list "home"                 home                 '(存档 卷宗 入场))
     (list "dock"                 dock                 '(存档))
     (list "old-street-tavern"    old-street-tavern    '(存档))
     (list "clinic"               clinic               '(存档))

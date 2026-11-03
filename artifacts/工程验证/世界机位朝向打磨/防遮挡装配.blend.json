@@ -1,0 +1,25 @@
+{
+  "blocks": 390,
+  "buildings": 1206,
+  "windows": 2718,
+  "rooftops": 796,
+  "roads": 23,
+  "view_clearance": {
+    "subjects": 15,
+    "rejected_fillers": 38,
+    "by_subject": {
+      "码头": 7,
+      "警察局": 4,
+      "家": 2,
+      "老街酒馆": 9,
+      "剧院": 3,
+      "公园": 4,
+      "码头居民区": 4,
+      "尾随取件人": 3,
+      "街角咖啡馆": 1,
+      "货运公司": 1
+    },
+    "scope": "conservative exterior-bounds hull; authored and fixed world-side views; no runtime avoidance"
+  },
+  "scope": "Geometry review only: production layout, fillers and realized prefabs; no outlines or FBX export"
+}
