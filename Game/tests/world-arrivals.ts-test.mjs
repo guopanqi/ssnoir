@@ -56,3 +56,31 @@ test("an authored arrival may reset a clock and collect rent once without losing
   assert.equal(state.getItemCount("金钱"),5,"Collection happens once");
   assert.deepEqual(state.takeStoryEvents(),[]);
 });
+
+test("the authored Lin workshop keeps valid functional anchors through its phase-B relocation",async()=>{
+  for(const core of [false,true]){
+    const scene=await GameSceneDirector.create(sources,()=>0.5);
+    await scene.world.evaluate(core?
+      "(第二章 'debug-cast-core-lin!) (第二章 'debug-phase-b!)":
+      "(第二章 'debug-cast!) (第二章 'debug-phase-b!)");
+    let root=await scene.worldActions.prepare();
+    let workshop=root.children.find(x=>x.name==="三号货栈工棚");
+    assert(workshop&&!workshop.disabled,
+      "Phase B must leave the real workshop reachable for both original Lin histories");
+    const dice=scene.state.team.diceSnapshot();
+    await scene.worldActions.enterPlace("三号货栈工棚");
+    root=await scene.worldActions.prepare();
+    workshop=root.children.find(x=>x.name==="三号货栈工棚");
+    assert(workshop&&!workshop.disabled,
+      "An arrival must not remove its own location during the same visit");
+    const note=workshop.children.find(x=>x.name==="标注：空下来的工棚");
+    assert(note,"The actual relocation must be visible after the arrival");
+    assert.equal(note.anchor,"三号货栈工棚",
+      "Workshop explanation must have a functional anchor like every authored child");
+    assert.deepEqual(scene.state.team.diceSnapshot(),dice,
+      "Relocation is a narrative arrival, not an action that spends dice");
+    const eventText=JSON.stringify(scene.state.takeStoryEvents());
+    assert.match(eventText,core?/港务技术区/:/项目外围/,
+      "The two genuine authority histories must produce different authored dialogue");
+  }
+});
