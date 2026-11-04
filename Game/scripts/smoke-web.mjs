@@ -115,6 +115,21 @@ try {
   state=await read();
   assert.equal(state.selectedAction,"看场子");
   assert.equal(state.requiredDice,1);
+  assert(await page.getByTestId("allocation-panel").isVisible(),
+    "Action selection must explain how to use the bottom dice bar");
+  assert(await page.locator('[data-testid="game-entry"][data-node-id="看场子"]').evaluate(
+    el=>el.classList.contains("selected")),
+    "Pending action remains visually selected instead of looking unavailable");
+  const diceBeforeCancel=state.dice;
+  await page.getByTestId("cancel-action").click();
+  await settled();
+  state=await read();
+  assert.equal(state.selectedAction,null,"Cancel must clear pending allocation");
+  assert.deepEqual(state.dice,diceBeforeCancel,"Cancel must not spend any die");
+  await card.click();
+  await settled();
+  assert.equal((await read()).selectedAction,"看场子");
+
   await page.locator(".die:not([disabled])").first().click();
   await settled();
   await drainStory();

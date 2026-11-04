@@ -24,13 +24,13 @@ function Clock({ value }) {
     {value.note && <p className="clock-note">{value.note}</p>}
   </div>;
 }
-function NodeCard({ node, locked, onOpen }) {
+function NodeCard({ node, locked, selected, onOpen }) {
   const type = node.isPlace ? "地点" : node.childCount ? "进入" :
     node.action === "roll" ? (node.risk || "检定") :
     node.action === "instant" ? "行动" : node.action ? "信息" : "事件";
   const cost = node.requires.map(req =>
     req.type === "die" ? "行动骰" : req.itemId + " × " + req.qty).join(" + ");
-  return <button type="button" className="node-card" disabled={locked || node.disabled}
+  return <button type="button" className={"node-card"+(selected?" selected":"")} disabled={locked || node.disabled}
     onClick={() => onOpen(node.id)} data-testid="game-entry" data-node-id={node.id}>
     <span className="node-icon">{node.isPlace ? "◆" : node.childCount ? "◇" : "·"}</span>
     <span className="node-main">
@@ -156,10 +156,19 @@ function App() {
           <button className="back" data-testid="back" disabled={state.busy || Boolean(state.story) || (!state.path.length && !state.selectedAction)}
             onClick={() => session.back()}>返回</button>
         </div>
+        {state.selectedAction && <div className="allocation-panel" role="status" data-testid="allocation-panel">
+          <div>
+            <div className="eyebrow">CHOOSE ACTION DICE / 骰子投入</div>
+            <strong>{state.entries.find(x=>x.id===state.selectedAction)?.title || state.selectedAction}</strong>
+            <p>从下方行动骰栏投入 {state.requiredDice} 枚骰子，投入后立即执行。</p>
+          </div>
+          <button type="button" data-testid="cancel-action" disabled={locked}
+            onClick={()=>session.back()}>取消行动</button>
+        </div>}
         <div className="entries" data-testid="game-entries">
           {state.clocks.map(c => <Clock key={c.label} value={c} />)}
           {state.entries.length === 0 ? <p className="empty">这里暂时没有可以进行的行动。</p> :
-            state.entries.map(node => <NodeCard key={node.id} node={node} locked={navigationLocked}
+            state.entries.map(node => <NodeCard key={node.id} node={node} selected={state.selectedAction===node.id} locked={navigationLocked}
               onOpen={id => session.open(id)} />)}
         </div>
       </section>
