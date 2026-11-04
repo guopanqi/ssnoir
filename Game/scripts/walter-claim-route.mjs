@@ -216,7 +216,14 @@ try{
     const afterSave=await save();
     s=await load(afterSave);
     assert.equal((await dossiers()).find(x=>x.id==="陪沃尔特验货")?.status,"了结");
-    const result={choice,day:s.day,pay:s.money-pre,claim:claim.log?.at(-1)?.text};
+    // Journals render newest-first: at(-1) is the original banquet meeting,
+    // not the Scenario verdict. Require the actual authored ruling to exist.
+    const verdict=claim.log?.find(entry=>
+      /报告坐实了骗保|报告留了一处空白/.test(entry.text));
+    assert(verdict,"The genuine verdict must appear in the persistent journal");
+    assert.equal(verdict.text.includes("报告坐实了骗保"),choice==="坐实骗保",
+      "The selected verdict must match the authored journal after VM restore");
+    const result={choice,day:s.day,pay:s.money-pre,claim:verdict.text};
     outcomes.push(result);
     mkdirSync("artifacts",{recursive:true});
     writeFileSync("artifacts/web-game-walter-"+(choice==="坐实骗保"?"confirm":"mercy")+
