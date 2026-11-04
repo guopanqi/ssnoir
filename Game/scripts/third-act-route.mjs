@@ -571,6 +571,9 @@ try{
     "Original Scheme must persist progress toward retraining old dock workers");
   await page.getByTestId("save-game").click({timeout:90000});
   await settled();
+  const partiallyTrainedWorldSave=await page.evaluate(()=>
+    localStorage.getItem("ssnoir-web-v1"));
+  assert(partiallyTrainedWorldSave,"A genuine partial training save is required");
   await page.getByTestId("load-game").click({timeout:90000});
   await settled();await story();
   linDossier=await dossierInfo();
@@ -580,6 +583,54 @@ try{
   assert.deepEqual(errors,[],"Lin's real trial and training cannot log browser errors");
   console.log("PASS: chapter-two published plan -> actual workshop position -> three-anomaly trial collapse -> next-day worker training -> world die and Clock progress -> portable restore",
     JSON.stringify({trialDay,trainingPlace,trainedProgress:trainedClock.current}));
+
+
+  // First branch: the player starts helping Joe but then ignores further
+  // lessons. The independent public machine schedule must still arrive and
+  // close Lin's incomplete training honestly, without granting qualification.
+  let skipState=await read();
+  assert.equal(skipState.day,trialDay+1);
+  for(let day=skipState.day+1;day<=chapterTwoStart+14;day++){
+    skipState=await sleep();
+    assert.equal(skipState.day,day,
+      "Skipping optional training must never block an independent world day");
+  }
+  assert(skipState.restReasons.some(x=>x.node==="到跳板去"),
+    "Machines still arrive on schedule when training is abandoned");
+  skipState=await node("码头");
+  skipState=await action("到跳板去");
+  assert(skipState.entries.some(x=>x.id==="看着这一天过完"));
+  skipState=await action("看着这一天过完");
+  let abandonedTraining=await dossierInfo();
+  assert.equal(abandonedTraining?.status,"了结",
+    "The independent machine-day deadline closes unfinished training");
+  assert.equal(abandonedTraining.steps[0]?.done,true);
+  assert.equal(abandonedTraining.steps[1]?.done,true);
+  assert.equal(abandonedTraining.steps[2]?.done,false,
+    "One training die cannot be misrepresented as full qualification");
+  assert.match(JSON.stringify(abandonedTraining.log),/老乔仍没完成基础培训/,
+    "The authored record distinguishes partial participation from passing");
+  await page.getByTestId("save-game").click({timeout:90000});
+  await settled();
+  await page.getByTestId("load-game").click({timeout:90000});
+  await settled();await story();
+  abandonedTraining=await dossierInfo();
+  assert.equal(abandonedTraining.status,"了结");
+  assert.equal(abandonedTraining.steps[2].done,false,
+    "An unfinished training result persists across independent VM restoration");
+  console.log("PASS: genuine partial Lin training -> independently scheduled machine day -> unfinished qualification -> authored dossier closure and restore");
+
+  // Restore exactly the same original partial-training world for the opposite
+  // branch. No hand-edited clocks, days, or completion flags are allowed.
+  await page.evaluate(text=>localStorage.setItem("ssnoir-web-v1",text),
+    partiallyTrainedWorldSave);
+  await page.getByTestId("load-game").click({timeout:90000});
+  await settled();await story();
+  assert.equal((await read()).day,trialDay+1);
+  linDossier=await dossierInfo();
+  assert.equal(linDossier.clocks.find(c=>c.label==="基础操作")?.current,
+    trainedClock.current,
+    "The second branch must begin at the identical authentic partial checkpoint");
 
   // A genuine training effort must be able to complete before deployment.
   // No authored Clock or phase flags are injected; the player spends ordinary
