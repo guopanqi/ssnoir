@@ -153,3 +153,82 @@
 .map-location.is-current .map-location-name{background:#473d2d;color:#fff0d3;border-color:#dbbd81}
 .city-map:has(.is-current) .map-location:not(.is-current){opacity:.36}
 @media(max-width:680px){.map-location.is-current .map-pin{width:21px;height:21px}}
+
+
+/* Card-first action rail: authored actions are already expanded, not sub-pages. */
+.actions-panel{background:#171d20}
+.entries{gap:13px;padding:17px 16px 24px}
+.action-card{
+  position:relative;min-width:0;padding:16px 16px 14px;
+  border:1px solid #485352;border-left:3px solid #857558;
+  background:linear-gradient(143deg,#29302f,#202729 70%);
+  color:#efe8dd;box-shadow:0 4px 15px #0003;
+}
+.action-card.allocated{border-color:#c9a876;border-left-color:#e4c68b;box-shadow:0 0 0 1px #e6c88733}
+.action-card-heading{display:flex;justify-content:space-between;gap:12px;margin-bottom:13px}
+.action-card-copy{min-width:0;flex:1}
+.action-card-meta{display:flex;align-items:center;gap:12px;font-size:10px;letter-spacing:.1em;color:#abbbba}
+.risk-label{padding:3px 6px;border:1px solid #6a706d;color:#ebcda0;font-weight:650}
+.action-card h3{font-family:Georgia,"Songti SC",serif;font-size:20px;font-weight:500;margin:10px 0 6px;color:#f4e9d5}
+.action-card p{font-size:12px;line-height:1.65;color:#b7c0bd;margin:0}
+.action-card-mark{font-size:20px;color:#9c8d6d}
+.action-card .clock{margin:9px 0 13px}
+.action-inputs{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 13px}
+.resource-slot{
+  flex:1 1 132px;min-width:128px;min-height:51px;
+  display:flex;align-items:center;gap:9px;
+  border:1px dashed #a18d6d;background:#141d1dc9;
+  color:#e1d6c1;cursor:pointer;padding:9px 10px;
+  transition:background .12s,border-color .12s;
+}
+.resource-slot:hover,.resource-slot:focus-visible,.resource-slot.compatible{
+  border-color:#e5c78e;background:#344137;outline-offset:2px;
+}
+.resource-slot.filled{border-style:solid;background:#333d36;border-color:#d1af77}
+.slot-symbol{flex:0 0 21px;height:21px;display:grid;place-items:center;font-size:17px;color:#e3be83;border:1px solid #83775e}
+.resource-slot.filled .slot-symbol{font-size:12px;background:#d8bf8f;color:#263031}
+.slot-copy{font-size:12px;line-height:1.4;flex:1;overflow-wrap:anywhere}
+.slot-clear{font-size:20px;color:#c9c4b4}
+.risk-display{margin:6px 0 15px}
+.risk-line{display:flex;justify-content:space-between;gap:8px;font-size:11px;color:#aeb8b3;margin-bottom:8px}
+.outcome-track{height:7px;background:#101819;display:flex;gap:2px;overflow:hidden}
+.outcome-segment{height:100%;transition:width .2s}
+.outcome-segment.fail{background:#bd6b60}
+.outcome-segment.neutral{background:#b9a36b}
+.outcome-segment.success{background:#76a99c}
+.outcome-labels{display:flex;justify-content:space-between;gap:7px;color:#c5c9c0;font-size:10px;margin-top:8px}
+.action-card-footer{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.action-slot-hint{font-size:11px;line-height:1.5;color:#9caba7}
+.execute-action{flex-shrink:0;border:1px solid #d7b982;padding:10px 21px;background:#d5bb8e;color:#1c2424;font-weight:700;letter-spacing:.08em}
+.execute-action:hover:not(:disabled){background:#f1d3a0}
+.execute-action:disabled{opacity:.35;cursor:not-allowed}
+.container-heading{margin:1px 0 5px;border-top:1px solid #454c4b;padding-top:12px}
+.container-heading .node-card{padding:10px 13px;border:0;border-radius:0;background:#222b2d}
+.container-heading .node-title{font-family:Georgia,"Songti SC",serif;font-size:16px;font-weight:500}
+.passive-entry .node-card{padding:10px 12px;background:#1e2527}
+.group-breadcrumb{display:block;color:#9d977f;font-size:10px;letter-spacing:.1em;margin:1px 0 6px}
+.location-empty{padding:24px;border:1px dashed #58605d;background:#222a29}
+.location-empty h3{font:400 23px Georgia,"Songti SC",serif;color:#e8d9bb;margin:14px 0}
+.location-empty p{font-size:13px;line-height:1.8;color:#b7bfba}
+.resource-help{font-size:11px;line-height:1.5;color:#97a6a4;margin:10px 0 0}
+.hud-inventory .inventory-item{cursor:grab;color:#e8e4d9;text-align:left;font:inherit}
+.hud-inventory .inventory-item:hover:not(:disabled){border-color:#d1b680;background:#343e3a}
+.hud-dice .die{cursor:grab}
+.hud-dice .die.picked{opacity:.42}
+.die:active,.inventory-item:active{cursor:grabbing}
+.result-screen{position:fixed;inset:0;z-index:15;display:grid;place-items:center;background:#060a0bc9;padding:20px}
+.result-sheet{max-width:520px;width:100%;padding:30px 34px;background:#1d2627;border:1px solid #bda679;border-top:3px solid #e3c48c;box-shadow:0 25px 95px #000b}
+.result-sheet h2{font:400 29px Georgia,"Songti SC",serif;color:#f4e5c8;margin:14px 0}
+.result-grade{font-size:20px;color:#e1c48f;border-bottom:1px solid #555b54;padding-bottom:13px}
+.result-changes{display:grid;gap:7px;margin:19px 0}
+.result-changes>div{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 12px;background:#2b3432;color:#d6ded9;font-size:13px}
+.result-changes strong{font-size:16px;color:#e5c38b}
+.result-sheet>button{display:block;margin:24px 0 0 auto;background:#dfc596;border:1px solid #dfc596;color:#1d2727;font-weight:700;padding:10px 25px}
+@media(max-width:680px){
+  .entries{padding:12px}
+  .action-card{padding:13px}
+  .action-card h3{font-size:18px}
+  .resource-slot{min-width:120px}
+  .result-sheet{padding:23px 20px}
+}
+@media(prefers-reduced-motion:reduce){.outcome-segment,.resource-slot{transition:none}}
