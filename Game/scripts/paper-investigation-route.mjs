@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import {readFileSync,mkdirSync} from "node:fs";
+import {readFileSync,writeFileSync,mkdirSync} from "node:fs";
 import {chromium} from "playwright";
 import {createServer} from "vite";
 
@@ -377,6 +377,10 @@ try{
   const restored=(await dossier()).find(x=>x.id==="查早报供稿人");
   assert.equal(restored?.status,"了结",
     "Final paper findings must persist through an isolated fresh VM");
+  const evidenceSave=await page.evaluate(()=>localStorage.getItem("ssnoir-web-v1"));
+  assert(evidenceSave,"A genuine completed-evidence world save must be available");
+  writeFileSync("artifacts/web-game-after-paper-evidence-save.json",evidenceSave,"utf8");
+
   mkdirSync("artifacts",{recursive:true});
   await page.screenshot({path:"artifacts/web-game-early-paper-evidence.png"});
   assert.deepEqual(errors,[],"The full paper success path must not log browser errors");

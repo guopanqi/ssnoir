@@ -6,7 +6,10 @@ import {createServer} from "vite";
 // Source: the saved world immediately before the ORIGINAL dock trial, produced
 // by the long new-game -> chapter-two Chromium route. Two player approaches,
 // one authentic starting save; no direct Scheme flags, clocks or date edits.
-const fixture=readFileSync("artifacts/web-game-lin-before-trial-save.json","utf8");
+const combined=process.env.SSNOIR_LIN_FROM_EVIDENCE==="1";
+const fixture=readFileSync(combined?
+  "artifacts/web-game-after-paper-evidence-save.json":
+  "artifacts/web-game-lin-before-trial-save.json","utf8");
 const server=await createServer({configFile:"vite.config.ts",
   server:{host:"127.0.0.1",port:4177,strictPort:true}});
 let browser;
@@ -124,7 +127,20 @@ try{
   for(const scenario of cases){
     let s=await load();
     const startDay=s.day,priorMoney=s.money;
-    if(!s.path.length)s=await click("码头");
+    if(combined){
+      const startingEvidence=(await records()).find(x=>x.id==="查早报供稿人");
+      assert.equal(startingEvidence?.status,"了结",
+        "The combined scenario must start after the actual 11:07 evidence completion");
+      assert(startingEvidence.steps.every(x=>x.done));
+      while(s.day<25)s=await sleep();
+      assert.equal(s.day,25,
+        "The combined path must reach the real Phase B trial date by lodging");
+      assert(s.mapPlaces.some(x=>x.id==="三号货栈工棚"),
+        "Real evidence must not erase Lin's accessible workshop");
+      s=await click("三号货栈工棚");
+      assert.equal(s.error,"","Lin's moving-workshop arrival must remain playable");
+      s=await click("码头");
+    }else if(!s.path.length)s=await click("码头");
     assert(s.entries.some(x=>x.id==="开始试运行"));
     s=await click("开始试运行");
     assert.equal(s.mode,"scenario");
@@ -189,6 +205,13 @@ try{
     assert.equal(restored.steps[1].done,true);
     assert.equal(restored.log.map(x=>x.text).join("\n"),journal,
       "The successful trial story must survive a fresh isolated Scheme VM");
+    if(combined){
+      const evidence=(await records()).find(x=>x.id==="查早报供稿人");
+      assert.equal(evidence?.status,"了结",
+        "A successful machine trial cannot reopen completed 11:07 evidence");
+      assert(evidence.steps.every(x=>x.done));
+    }
+
     // Actual consequences cross the story boundary: Lin's response to
     // machine safety during the independent public deployment is determined
     // by what he learned from this trial, not a frontend probability label.
@@ -318,6 +341,16 @@ try{
     await settled();await story();
     assert.equal((await records()).find(x=>x.id==="林与新机器")?.status,"了结");
     assert.equal((await records()).find(x=>x.id==="机器进入老街")?.status,"了结");
+    if(combined){
+      const combinedDossiers=await records();
+      for(const id of ["谁出卖了夜莺","查早报供稿人","林与新机器","机器进入老街"]){
+        const d=combinedDossiers.find(x=>x.id===id);
+        assert.equal(d?.status,"了结",
+          "All four independent authored outcomes must survive the same isolated VM: "+id);
+        assert(d.steps.every(x=>x.done),
+          "The cross-branch checkpoint cannot forge or lose completed steps: "+id);
+      }
+    }
     assert(qualifiedEndingSave!==endingSave,
       "Optional training must produce a meaningfully distinct persisted character history");
     outcomes.push({route:scenario.route,spent,rounds,journal,
@@ -335,7 +368,9 @@ try{
   mkdirSync("artifacts",{recursive:true});
   await page.screenshot({path:"artifacts/web-game-lin-trial-success.png"});
   assert.deepEqual(errors,[],"No browser errors in the actual dock trial successes");
-  console.log("PASS: same authentic Lin pre-trial save -> parameter vs worker-experience success -> distinct authored journal -> fresh VM restore",
+  console.log(combined?
+    "PASS: single real save with 11:07 evidence -> two Lin trial successes -> Joe qualified -> machine settlement -> all four dossiers intact":
+    "PASS: same authentic Lin pre-trial save -> parameter vs worker-experience success -> distinct authored journal -> fresh VM restore",
     JSON.stringify(outcomes.map(({route,spent,rounds,safety,machineDay})=>
       ({route,spent,rounds,safety,machineDay}))));
 }finally{await browser?.close();await server.close();}
