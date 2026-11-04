@@ -296,6 +296,63 @@ try {
   assert.deepEqual(exceptions,[],"No browser errors during sponsor pursuit");
   console.log("PASS: day-thirteen sponsor performance -> evidence-directed search -> backstage deadline -> missed vehicle -> city and dossier");
 
+  // A missed plate is a legitimate outcome, not a terminal dead end.
+  // The next calendar day must still offer the manager's investigation.
+  await endDay(13);
+  state=await read();
+  assert.equal(state.day,14);
+  await node("剧院");
+  state=await read();
+  assert(state.entries.some(x=>x.id==="接下黑衣人调查"),
+    "The theatre manager must still offer the case after a failed pursuit");
+  ({s:state}=await node("接下黑衣人调查"));
+  assert.equal(state.mode,"world","Accepting a city contract must not enter a scenario yet");
+  assert(state.entries.some(x=>x.id==="等待黑衣人"),
+    "The authored third act must expose the next investigation action");
+  await page.getByTestId("dossier-toggle").click();
+  await settled();
+  state=await read();
+  const caseEntry=state.dossiers.find(x=>x.id==="银色打火机");
+  assert(caseEntry && caseEntry.status==="进行中",
+    "The accepted manager case must become an active Scheme dossier");
+  await page.getByTestId("dossier-close").click();
+  await settled();
+  const cityBeforeChase=await read();
+  await page.getByTestId("save-game").click({timeout:120000});
+  await page.waitForFunction(()=>{
+    const value=localStorage.getItem("ssnoir-web-v1");
+    return value && JSON.parse(value).state.globals["世界日"]===14;
+  },null,{timeout:90000});
+  ({s:state}=await node("等待黑衣人"));
+  assert.equal(state.mode,"scenario");
+  assert(state.entries.some(x=>x.id==="辨认车辆特征"),
+    "The original identification chase must have actionable observation cards");
+  assert(state.entries.some(x=>x.id==="钟：识别进度"),
+    "The identification clock must be visible during the new scenario");
+  const chaseDice=state.dice.length;
+  ({s:state}=await node("辨认车辆特征"));
+  assert.equal(state.selectedAction,"辨认车辆特征");
+  await page.locator(".die:not([disabled])").first().click({timeout:120000});
+  await settled();await story();
+  state=await read();
+  assert.equal(state.error,"","One genuine identification roll must resolve");
+  assert.equal(state.dice.length,chaseDice-1);
+  await page.screenshot({path:"artifacts/web-game-third-act-chase.png"});
+  // Restore a real city save, not a debug scene switch.
+  await page.getByTestId("load-game").click({timeout:180000});
+  await settled();await story();
+  state=await read();
+  assert.equal(state.error,"");
+  assert.equal(state.mode,"world");
+  assert.equal(state.day,14);
+  assert.equal(state.money,cityBeforeChase.money);
+  assert.deepEqual(state.dice,cityBeforeChase.dice);
+  assert(state.entries.some(x=>x.id==="剧院"),
+    "The restored case must return to the actual city map");
+  await page.screenshot({path:"artifacts/web-game-third-act-restored.png"});
+  assert.deepEqual(exceptions,[],"No browser error across the third-act scenario reset");
+  console.log("PASS: missed vehicle -> day-fourteen manager case -> chase work -> safe restore of accepted investigation");
+
 } finally {
   await browser?.close();
   await server.close();
