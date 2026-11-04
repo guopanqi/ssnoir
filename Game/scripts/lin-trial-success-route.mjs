@@ -139,6 +139,48 @@ try{
       s=await read();
     }
     assert.deepEqual(s.path,["家"]);
+    if(s.restReasons.some(x=>x.id==="醉客互相叫骂")){
+      // A second paid tavern shift legitimately creates a same-day duty.
+      // The combined evidence+Lin route must pay that cost as a player:
+      // clear both tables in the original Scenario, or accept its genuine
+      // collapse outcome; neither a calendar edit nor a forced flag suffices.
+      const disputeDay=s.day;
+      await page.locator('[data-testid="map-place"][data-node-id="老街酒馆"]')
+        .click({timeout:90000});
+      await settled();await story();
+      s=await click("醉客互相叫骂");
+      assert.equal(s.mode,"scenario","Tavern duty opens its native two-table encounter");
+      let tavernRounds=0,tavernDiceSpent=0;
+      for(let turn=0;turn<12&&s.mode==="scenario";turn++){
+        for(let move=0;move<8&&s.mode==="scenario"&&s.dice.length;move++){
+          const calm=["东边这桌：劝","西边这桌：劝"].find(id=>
+            s.displayCards.some(x=>x.id===id&&!x.disabled));
+          if(!calm)break;
+          const before=s.dice.length;
+          s=await roll(calm);
+          tavernDiceSpent++;
+          if(s.mode==="scenario")
+            assert.equal(s.dice.length,before-1,
+              "Tavern de-escalation must consume its actual action die");
+        }
+        if(s.mode==="scenario"){
+          s=await endRound();tavernRounds++;
+        }
+      }
+      assert.equal(s.mode,"world",
+        "The authored tavern conflict must end by actual action or hospitalization");
+      assert(!s.restReasons.some(x=>x.id==="醉客互相叫骂"),
+        "Only the native encounter callback may clear the sleep-blocking duty");
+      assert(s.day>=disputeDay&&s.day<=disputeDay+1,
+        "A tavern confrontation cannot silently skip multiple world days");
+      console.log("PASS: cross-branch tavern shift -> real two-table de-escalation -> rest released",
+        JSON.stringify({disputeDay,endedDay:s.day,tavernRounds,tavernDiceSpent}));
+      await page.locator('[data-testid="map-place"][data-node-id="家"]')
+        .click({timeout:90000});
+      await settled();await story();
+      s=await read();
+    }
+    assert.deepEqual(s.path,["家"]);
     await click("住宿");
     s=await read();
     let rest=["睡觉","蜷缩在门口"].find(id=>
