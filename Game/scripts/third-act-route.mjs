@@ -149,6 +149,71 @@ try{
   assert.equal(state.day,cafeBefore.day);
   console.log("PASS: authentic day-fourteen cafe shift -> wage + die cost -> new VM restore -> original city branch unchanged");
 
+  // Optional Eddie life: ordinary dock work introduces the person, the
+  // tavern invitation is a city arrival, and attendance/refusal branch from
+  // one unchanged legitimate day-fourteen portable save.
+  state=await node("码头");
+  assert(state.entries.some(x=>x.id==="搬运"&&!x.disabled),
+    "Eddie introduction must be reachable through actual dock work");
+  const moneyBeforeDock=state.money,diceBeforeDock=state.dice.length;
+  state=await action("搬运");
+  assert.equal(state.money,moneyBeforeDock+24,
+    "A favorable dock roll must pay the original wage");
+  assert.equal(state.dice.length,diceBeforeDock-1);
+  state=await page.locator('[data-testid="map-place"][data-node-id="老街酒馆"]')
+    .click({timeout:90000}).then(async()=>{await settled();await story();return read();});
+  assert.equal(state.path[0],"老街酒馆");
+  assert(state.entries.some(x=>x.id==="陪艾迪去舞厅"&&!x.disabled),
+    "The man met at the dock must give his authored dance invitation");
+  assert(state.entries.some(x=>x.id==="婉拒舞厅邀请"&&!x.disabled),
+    "The original no-cost refusal must also be available");
+  await page.getByTestId("save-game").click({timeout:90000});
+  await settled();
+  const invitationSave=await page.evaluate(()=>localStorage.getItem("ssnoir-web-v1"));
+  assert(invitationSave,"The actual invitation state is a portable Scheme save");
+  const invitationDice=state.dice.length;
+  const danceTrail=storyTrail.length;
+  state=await action("陪艾迪去舞厅");
+  assert.equal(state.dice.length,invitationDice-1,
+    "Going dancing is an intentional one-die opportunity cost");
+  assert(storyTrail.slice(danceTrail).some(x=>x.text.includes("舞厅里")),
+    "Attendance must deliver the original shared memory, not only flip a flag");
+  await page.getByTestId("save-game").click({timeout:90000});
+  await settled();
+  const dancingSave=await page.evaluate(()=>localStorage.getItem("ssnoir-web-v1"));
+  await page.getByTestId("load-game").click({timeout:90000});
+  await settled();await story();
+  state=await read();
+  assert.equal(state.dice.length,invitationDice-1,
+    "A shared dance and its die cost persist after an independent VM restore");
+  assert(!state.entries.some(x=>["陪艾迪去舞厅","婉拒舞厅邀请"].includes(x.id)),
+    "An accepted invitation cannot be repeated after restoring");
+  await page.evaluate(text=>localStorage.setItem("ssnoir-web-v1",text),invitationSave);
+  await page.getByTestId("load-game").click({timeout:90000});
+  await settled();await story();
+  state=await read();
+  assert.equal(state.dice.length,invitationDice,
+    "Refusal must start with the same authored invitation and resources");
+  const refusalTrail=storyTrail.length;
+  state=await action("婉拒舞厅邀请");
+  assert.equal(state.dice.length,invitationDice,
+    "The optional refusal does not cost the player's action dice");
+  assert(storyTrail.slice(refusalTrail).some(x=>x.text.includes("今晚有别的安排")),
+    "Refusal must have its own authored dialogue, not the dance memory");
+  await page.getByTestId("save-game").click({timeout:90000});
+  await settled();
+  const refusedSave=await page.evaluate(()=>localStorage.getItem("ssnoir-web-v1"));
+  assert(refusedSave!==dancingSave&&refusedSave!==invitationSave,
+    "Real opposite decisions must persist as distinct native world states");
+  await page.evaluate(text=>localStorage.setItem("ssnoir-web-v1",text),day14Save);
+  await page.getByTestId("load-game").click({timeout:90000});
+  await settled();await story();
+  state=await read();
+  assert.equal(state.day,cafeBefore.day);
+  assert.deepEqual(state.dice,cafeBefore.dice);
+  assert.equal(state.money,cafeBefore.money);
+  console.log("PASS: actual dock introduction -> tavern dance invite -> shared dance vs refusal -> distinct saves -> original day fourteen intact");
+
   await node("剧院");
   state=await action("等待黑衣人");
   assert.equal(state.mode,"scenario");
