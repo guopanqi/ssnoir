@@ -149,7 +149,7 @@ test("item slots reject wrong items, flatten container actions, and charge only 
   await session.clearSlot("吃点东西",0);
   assert.equal(session.getSnapshot().canExecute,false);
   await session.executeAction("吃点东西");
-  assert.match(session.getSnapshot().error,/资源槽尚未填满/);
+  assert.match(session.getSnapshot().error,/所有必需的槽/);
   assert.equal(performed,0);
   await session.assignToSlot("吃点东西",0,{type:"item",itemId:"金钱"});
   await session.executeAction("吃点东西");
