@@ -299,11 +299,17 @@ export class WebGameSession {
       if(this.host.mode === "world")
         throw new Error("城市换日必须在住所执行 Scheme 的睡觉行动");
       this.pending = null;
+      const before=this.host.state.snapshot();
       const frames = await this.host.director.endRound();
       await this.host.refresh();
+      const after=this.host.state.snapshot();
+      // Enemy-round consequences are real state deltas; do not infer them
+      // from story captions or add a separate UI-side gameplay rule.
+      this.lastAction=summarizeAction({
+        name:"交锋回合",mode:"instant",before,after,clockEffects:[]
+      },"回合结算",0);
       this.message = "交锋进入下一回合";
       this.feed([...frames.flatMap(x => x.events), ...this.host.state.takeStoryEvents()]);
-      this.lastAction=null;
       this.path = [];
     });
   }

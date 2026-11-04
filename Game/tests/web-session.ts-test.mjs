@@ -215,3 +215,30 @@ test("authored clock-node annotations remain visible as progress gauges",()=>{
   assert.deepEqual(view.clocks,[clock]);
   assert.equal(view.action,"note");
 });
+
+
+test("scenario opponent round reports actual composure tax and resource consequences",async()=>{
+  const host=fakeHost();
+  let composure=5,money=15;
+  host.mode="scenario";
+  host.state.team.roster=()=>[{id:"player",name:"尼尔",status:"active",composure}];
+  host.state.getItemCount=()=>money;
+  host.state.snapshot=()=>({
+    restBlockers:[],inventory:{"金钱":money},growthLevel:0,
+    injury:{severity:0},team:{actors:[{id:"player",composure}]}
+  });
+  host.director.endRound=async()=>{
+    composure-=1;money+=3;
+    return [{phase:"opponent-rule",events:[]}];
+  };
+  const game=new WebGameSession(host);
+  await game.endTurn();
+  const state=game.getSnapshot();
+  assert.equal(state.error,"");
+  assert.equal(state.actors[0].composure,4);
+  assert.equal(state.money,18);
+  assert.equal(state.lastAction.title,"回合结算");
+  assert.deepEqual(state.lastAction.changes,[
+    {label:"冷静",delta:-1},{label:"金钱",delta:3}
+  ]);
+});

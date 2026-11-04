@@ -178,3 +178,7 @@ Web NativeBridge 正式承接原脚本的 `__bubble-restore-composure`：仅将�
 ### P2 真实 Scenario 的 Clock 可读性修复
 
 原 Scheme 的 `clock-nodes` 生成带 `:resolve (clock ...)` 的标注节点，Web NodeConverter 已解析为 `resolve.noteClock`，但 WebGameSession 此前只映射 `:clocks` 数组，导致彩排的「歌曲进程」「布景就位」「灯位标记」无法显示实时进度条。本次仅修正 ViewNode 投影，兼容容器 Clock 与独立 clock-node，既不修改任何 Scheme 时钟，也不额外计算进度；在现有第八天真实 Chromium 彩排路线和 WebSession 单元测试验证可见性。
+
+### P2 对手回合成本和后果的可见反馈
+
+原 Web 的 `endTurn` 执行五回合彩排时只显示「交锋进入下一回合」，并清空此前行动反馈，玩家无法从结算提示判断冷静耗损及其他资源变化。现在对每次 `GameSceneDirector.endRound()` 前后的真实 `GameRuntimeState.snapshot()` 做同一展示层差值投影，显示冷静、伤势、金钱等实际变化；不推断或修改任何规则，也不伪造 Clock 增量（时钟仍由作者的进度条直接显示）。新增 WebSession 单测以及真实第八天彩排五回合路线断言。

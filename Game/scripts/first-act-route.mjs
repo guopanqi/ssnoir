@@ -152,6 +152,10 @@ try {
     await story();
     state=await read();
     assert.equal(state.error,"","Scenario failed on round "+round);
+    assert.equal(state.lastAction?.title,"回合结算",
+      "Round transition should expose its own authoritative consequences");
+    assert(state.lastAction.changes.some(x=>x.label==="冷静"||x.label==="伤势"),
+      "The authored time tax must be visible to the player");
     console.log("REHEARSAL ROUND",round,JSON.stringify({
       mode:state.mode,day:state.day,dice:state.dice.length,
       blockers:state.restReasons.map(x=>x.id)}));
