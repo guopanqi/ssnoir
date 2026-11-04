@@ -216,6 +216,13 @@ export class GameRuntimeState {
     this.failure = candidate.failure;
     this.injury.restore(data.injury);
     this.team.restore(data.team,true);
+    // Snapshots intentionally contain durable world state only. An action
+    // report, story queue, hospitalization or actor context is tied to the
+    // abandoned runtime execution and must never survive a restore.
     this.hospitalization=null;
+    this.clockEffects=null;
+    this.storyInAction=null;
+    this.storyReady=[];
+    this.actionContext=null;
   }
 }

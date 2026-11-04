@@ -74,6 +74,28 @@ export class GameSceneDirector {
     return self;
   }
 
+  /**
+   * Owns the complete temporary Scenario lifecycle. A failed entrance must
+   * return the director to the same idle state as a fresh world: resetting
+   * scenario references alone leaves queued end-turn/end-scenario signals
+   * that execute on the next world flush.
+   */
+  private clearScenarioLifecycle():void {
+    this.pendingStart=null;
+    this.scenario=null;
+    this.scenarioActions=null;
+    this.worldDice=null;
+    this.callback=false;
+    this.ended=false;
+    this.endValue=false;
+    this.supportUsed=false;
+    this.pendingEndTurn=false;
+    this.refreshRequested=false;
+    this.roundActive=false;
+    this.autoActions=[];
+    this.autoIndex=0;
+  }
+
   get mode():"world"|"scenario"{return this.scenario?"scenario":"world";}
   get actions():GameActionRunner {return this.scenarioActions??this.worldActions;}
   getPreparedRoot():RuntimeNode|null{return this.actions.getPreparedRoot();}
@@ -188,7 +210,7 @@ export class GameSceneDirector {
       return runner.prepare();
     }catch(error){
       this.state.restore(previous);
-      this.worldDice=null;this.callback=false;this.scenario=null;this.scenarioActions=null;
+      this.clearScenarioLifecycle();
       throw error;
     }
   }
@@ -277,7 +299,7 @@ export class GameSceneDirector {
         "(let ((cb (__ssnoir-callback))) (if cb (cb (__ssnoir-scenario-result)) #f))"
       );
     }
-    this.callback=false;this.supportUsed=false;
+    this.clearScenarioLifecycle();
     await this.worldActions.prepare();
   }
 }
