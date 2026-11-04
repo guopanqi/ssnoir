@@ -192,8 +192,15 @@ try{
   await page.getByTestId("load-game").click({timeout:90000});
   await settled();await story();
   state=await read();
+  assert.deepEqual(state.path,[],"A portable city save restores the map, not UI navigation history");
   assert.equal(state.dice.length,invitationDice,
     "Refusal must start with the same authored invitation and resources");
+  const savedInvitationReplay=storyTrail.length;
+  state=await node("老街酒馆");
+  assert(state.entries.some(x=>x.id==="婉拒舞厅邀请"&&!x.disabled),
+    "The unexpired invitation must still be selectable after entering the restored location");
+  assert(!storyTrail.slice(savedInvitationReplay).some(x=>x.text.includes("西服肩膀宽了一截")),
+    "An already-delivered invitation arrival must not repeat after a VM restore");
   const refusalTrail=storyTrail.length;
   state=await action("婉拒舞厅邀请");
   assert.equal(state.dice.length,invitationDice,
