@@ -249,9 +249,11 @@
     overflow:visible;align-content:start}
   .sidebar .hud-events{
     grid-column:1/-1;position:absolute;bottom:calc(100% + 1px);
-    right:0;width:min(430px,40vw);max-height:145px;overflow-y:auto;z-index:7;
+    left:14px;right:auto;width:min(390px,32vw);max-height:145px;overflow:hidden;z-index:7;
     background:#121b1ddf;border:1px solid #495252;
     box-shadow:0 -12px 35px #0007;padding:9px 13px;
+    /* Informational feedback must never cover / intercept card drop targets. */
+    pointer-events:none;
   }
   .hud-events>.notice,.hud-events>.action-result,.hud-events>.error{flex-basis:100%}
 }
@@ -259,3 +261,6 @@
   html,body,#app{height:auto;overflow:visible}
   .game-app{height:auto;overflow:visible}
 }
+
+/* On narrow screens feedback remains in flow; it has no controls. */
+@media(max-width:680px){.sidebar .hud-events{pointer-events:none}}
