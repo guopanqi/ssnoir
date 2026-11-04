@@ -134,3 +134,14 @@
 .allocation-panel button{flex-shrink:0;border:1px solid #ae9471;color:#f5deb6;background:#1d2425;padding:8px 12px;cursor:pointer}
 .node-card.selected:disabled{opacity:1;border-color:#d3b47b;background:#34352d}
 @media(max-width:680px){.allocation-panel{margin:12px 12px 0;padding:12px;align-items:flex-start;flex-wrap:wrap}.allocation-panel button{margin-left:auto}}
+
+/* Authored terminal failure is never swallowed by regular action panels. */
+.failure-screen{position:fixed;z-index:11;inset:0;display:grid;place-items:center;padding:24px;background:#05090be8}
+.failure-card{width:min(600px,100%);padding:42px 45px;background:#171e21;border-top:3px solid #c19673;box-shadow:0 28px 100px #000c}
+.failure-card h2{font:400 clamp(28px,4vw,45px) Georgia,"Songti SC",serif;color:#eddfc5;margin:19px 0}
+.failure-card>p{font-size:16px;line-height:1.9;white-space:pre-wrap;color:#c6c8c4}
+.failure-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:30px}
+.failure-actions button{padding:11px 15px;border:1px solid #a08e72;background:#292f31;color:#efdfc3}
+.failure-actions button:first-child{background:#e0c399;color:#161b1c}
+.failure-message{border-left:2px solid #c19673;padding:8px 12px;font-size:13px}
+@media(max-width:680px){.failure-card{padding:28px 22px}.failure-actions{flex-wrap:wrap}}

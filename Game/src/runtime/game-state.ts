@@ -180,6 +180,10 @@ export class GameRuntimeState {
     if (!title.trim() || !description.trim()) throw new Error("failure title/description must be non-empty");
     this.failure ??= { title, description };
   }
+  /** A detached projection of the authored terminal state. */
+  getFailure(): RuntimeSnapshot["failure"] {
+    return this.failure ? {...this.failure} : null;
+  }
 
   snapshot(): RuntimeSnapshot {
     return {

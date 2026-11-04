@@ -30,6 +30,7 @@ export type WebSnapshot = {
   dossierOpen: boolean;
   dossiers: DossierEntry[];
   lastAction: ActionFeedback | null;
+  failure: {title:string;description:string}|null;
 };
 type Allocation = { type: "die"; actorId: string; slotId: number } |
   { type: "item"; itemId: string; qty: number };
@@ -165,6 +166,7 @@ export class WebGameSession {
       money: this.host.state.getItemCount("金钱"),
       health: this.host.state.injury.severity,
       inventory: this.host.state.listInventory(),
+      failure: this.host.state.getFailure(),
       busy: this.busy, error: this.error,
       title: focus.title, subtitle: focus.subtitle, path: [...this.path],
       entries: entries.map(viewNode), clocks: focus.clocks.map(x => ({ ...x })),

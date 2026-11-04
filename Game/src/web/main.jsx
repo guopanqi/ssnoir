@@ -118,7 +118,7 @@ function App() {
   }
   if (fatal) return <main className="fatal"><h1>游戏启动失败</h1><pre>{fatal}</pre></main>;
   if (!state) return <main className="loading"><span>SSNoir</span><p>正在读取城市与故事…</p></main>;
-  const locked = state.busy || Boolean(state.story);
+  const locked = state.busy || Boolean(state.story) || Boolean(state.failure);
   const navigationLocked = locked || Boolean(state.selectedAction);
   const picked = new Set(state.selectedDice.map(x => x.actorId + ":" + x.slotId));
   const redundantResult = state.lastAction &&
@@ -131,7 +131,7 @@ function App() {
         <button data-testid="dossier-toggle" disabled={navigationLocked || state.mode!=="world"}
           onClick={()=>session.toggleDossier()}>卷宗</button>
         <button data-testid="save-game" disabled={navigationLocked || state.mode !== "world"} onClick={save}>存档</button>
-        <button data-testid="load-game" disabled={navigationLocked} onClick={load}>读档</button>
+        <button data-testid="load-game" disabled={state.busy || Boolean(state.story) || Boolean(state.selectedAction)} onClick={load}>读档</button>
         <button className="end-turn" disabled={navigationLocked || (state.mode === "world" && state.path[0] === "家")}
           onClick={() => state.mode === "world" ? session.goHome() : session.endTurn()} data-testid="end-turn">
           {state.mode === "world" ? "回旅馆休息" : "下一回合"}
@@ -226,6 +226,18 @@ function App() {
       </aside>
     </main>
     {state.dossierOpen && <DossierPanel entries={state.dossiers} close={()=>session.toggleDossier()} />}
+    {state.failure && !state.story && <div className="failure-screen" role="dialog" aria-modal="true" aria-label="游戏结束">
+      <div className="failure-card">
+        <div className="eyebrow">THE END / 游戏结束</div>
+        <h2>{state.failure.title}</h2>
+        <p>{state.failure.description}</p>
+        {toast && <p className="failure-message" role="status">{toast}</p>}
+        <div className="failure-actions">
+          <button type="button" data-testid="failure-restart" onClick={()=>location.reload()}>重新开始</button>
+          <button type="button" data-testid="failure-load" onClick={load} disabled={state.busy}>读取存档</button>
+        </div>
+      </div>
+    </div>}
     {state.story && <div className="story-screen" role="dialog" aria-modal="true">
       <div className="story-card">
         <div className="eyebrow">STORY · {state.story.kind}</div>

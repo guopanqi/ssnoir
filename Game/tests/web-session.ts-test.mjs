@@ -18,7 +18,7 @@ function fakeHost() {
         dice:()=>[{slotId:0,value:4}]
       },
       getGlobal:key=>key==="世界日"?1:false,
-      getItemCount:()=>15, listInventory:()=>[{id:"金钱",quantity:15}], hasRestBlockers:()=>false,
+      getItemCount:()=>15, listInventory:()=>[{id:"金钱",quantity:15}], getFailure:()=>null, hasRestBlockers:()=>false,
       takeStoryEvents:()=>[],
       snapshot:()=>({restBlockers:[],inventory:{"金钱":15}})
     },
@@ -47,6 +47,16 @@ function fakeHost() {
   };
   return host;
 }
+test("authored terminal failure is projected without exposing mutable runtime state",()=>{
+  const host=fakeHost();
+  const failure={title:"落幕",description:"所有退路都已经用完。"};
+  host.state.getFailure=()=>({...failure});
+  const game=new WebGameSession(host);
+  assert.deepEqual(game.getSnapshot().failure,failure);
+  game.getSnapshot().failure.title="被修改的副本";
+  assert.deepEqual(host.state.getFailure(),failure,
+    "UI cannot modify the authoritative terminal outcome");
+});
 test("seed controls an independent reproducible random stream",()=>{
   const a=seededRandom(42),b=seededRandom(42),c=seededRandom(43);
   assert.deepEqual(Array.from({length:10},()=>a()),Array.from({length:10},()=>b()));
