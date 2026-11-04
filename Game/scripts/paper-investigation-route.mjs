@@ -281,6 +281,10 @@ try{
     "The source's own entry action must open the archive without a debug shortcut");
   await page.getByTestId("save-game").click({timeout:90000});
   await settled();
+  const pendingArchiveSave=await page.evaluate(()=>
+    localStorage.getItem("ssnoir-web-v1"));
+  assert(pendingArchiveSave,
+    "The real reporter ledger state must be captured for another player choice");
   await page.getByTestId("load-game").click({timeout:90000});
   await settled();await story();
   view=await read();
@@ -480,6 +484,53 @@ try{
     "Ignoring the second rumor must not introduce hidden browser failures");
   console.log("PASS: one genuine rumor only -> independent published plan -> mandatory machine climax -> honestly abandoned evidence case -> saved recovery and next day",
     JSON.stringify({initialDay,partialMachineDay,followingDay:view.day}));
+  // A different legitimate branch: the courier is identified and the
+  // reporter ledger has been inspected, but the player never enters the
+  // basement. The published city climax must close an *unfinished* evidence
+  // dossier rather than manufacturing the 11:07/11:35 findings.
+  await page.evaluate(text=>localStorage.setItem("ssnoir-web-v1",text),pendingArchiveSave);
+  await page.getByTestId("load-game").click({timeout:90000});
+  await settled();await story();
+  view=await read();
+  let deferred=(await dossier()).find(x=>x.id==="查早报供稿人");
+  assert.equal(deferred?.status,"进行中");
+  assert.equal(deferred.steps[0].done,true);
+  assert.equal(deferred.steps[1].done,false);
+  let archiveDeadline=null;
+  for(let i=0;i<16;i++){
+    view=await read();
+    if(view.restReasons.some(x=>x.node==="到跳板去")){
+      archiveDeadline=view.day;break;
+    }
+    view=await sleep();
+    assert.equal(view.error,"","Declining an optional archive cannot block the main calendar");
+  }
+  assert(archiveDeadline!==null,
+    "The city must reach its machine arrival even when the archives are ignored");
+  view=await visit("码头");
+  view=await perform("到跳板去");
+  view=await perform("看着这一天过完");
+  const afterAbandon=await dossier();
+  deferred=afterAbandon.find(x=>x.id==="查早报供稿人");
+  assert.equal(deferred?.status,"了结");
+  assert.deepEqual(deferred.steps.map(x=>x.done),[true,false],
+    "The archive cannot silently finish just because the player attended the port climax");
+  assert.match(deferred.now,/没能继续追下去/);
+  assert.equal(afterAbandon.find(x=>x.id==="机器进入老街")?.status,"了结");
+  await page.getByTestId("save-game").click({timeout:90000});
+  await settled();
+  await page.getByTestId("load-game").click({timeout:90000});
+  await settled();await story();
+  deferred=(await dossier()).find(x=>x.id==="查早报供稿人");
+  assert.equal(deferred?.status,"了结");
+  assert.deepEqual(deferred.steps.map(x=>x.done),[true,false]);
+  view=await visit("报社");
+  assert(!view.displayCards.some(x=>["下废稿间","问十一点零七分"].includes(x.id)&&!x.disabled),
+    "A closed optional branch must not re-open its archive interaction after loading");
+  assert.deepEqual(errors,[],"Optional early-evidence abandonment must be browser-error-free");
+  console.log("PASS: genuine successful courier + checked ledger -> deliberately skip 11:07 basement -> machine settlement closes unresolved evidence without falsifying steps -> portable restore",
+    JSON.stringify({archiveDeadline,afterDay:view.day}));
+
 
 
 
