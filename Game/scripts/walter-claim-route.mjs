@@ -113,6 +113,7 @@ try{
   s=await sleep();
   assert.equal(s.day,beforeBanquet+1);
   s=await go("格兰德酒店");
+  const banquetDay=s.day; // The authored meeting date, not a later hospitalization date.
   s=await act("赴晚宴");
   assert.equal(s.mode,"scenario");
   // Allow the authored introductions to reach the second half. Do not
@@ -148,16 +149,27 @@ try{
   assert.equal(pending?.status,"进行中",
     "Walter must be remembered by the authored city callback: "+JSON.stringify({rolls,decisions,
       dossierIds:allDossiers.map(x=>x.id)}));
-  const banquetDay=s.day;
-  // Day four has a required Nightingale newspaper event; avoid skipping it.
-  s=await sleep();
-  assert.equal(s.day,banquetDay+1);
+  // Three real conversations can exhaust an injured detective. If the
+  // Scenario hospitalizes him on the final dance, hospitalization itself
+  // advances the calendar. It does NOT grant permission to sleep through
+  // the next day's mandatory newspaper confrontation.
+  assert(s.day===banquetDay||s.day===banquetDay+1,
+    "The banquet may advance one day only through a real hospital collapse");
+  if(s.day===banquetDay+1){
+    assert(stories.some(x=>String(x.text).includes("诊所里醒过来")),
+      "A banquet calendar jump must have an actual hospitalization narrative");
+  }else{
+    s=await sleep();
+  }
+  assert.equal(s.day,banquetDay+1,
+    "The next authored obligation belongs on the day after the banquet");
   s=await go("剧院");
   assert(s.entries.some(x=>x.id==="见夜莺"&&!x.disabled));
   s=await act("见夜莺");
   assert(!s.restReasons.some(x=>x.node==="见夜莺"));
   s=await sleep();
-  assert.equal(s.day,banquetDay+2);
+  assert.equal(s.day,banquetDay+2,
+    "Walter appears two days after the banquet, not two days after hospitalization");
   s=await go("格兰德酒店");
   assert(stories.some(x=>String(x.text).includes("沃尔特")),
     "The delayed hotel arrival must actually deliver Walter's dialogue");
