@@ -70,6 +70,32 @@ try{
   async function sleep(){
     let view=await read();
     if(view.path[0]!=="家")view=await visit("家");
+    if(view.restReasons.some(x=>x.id==="醉客互相叫骂")){
+      // This obligation is created by the player's second tavern shift.
+      // It cannot be skipped by resting; resolve the original two-desk
+      // Scenario. The outcome (including injury) remains authoritative.
+      view=await visit("老街酒馆");
+      view=await perform("醉客互相叫骂");
+      assert.equal(view.mode,"scenario");
+      for(let turn=0;turn<12&&view.mode==="scenario";turn++){
+        for(let move=0;move<8&&view.mode==="scenario"&&view.dice.length;move++){
+          const calm=["东边这桌：劝","西边这桌：劝"].find(id=>
+            view.displayCards.some(x=>x.id===id&&!x.disabled));
+          if(!calm)break;
+          view=await perform(calm);
+        }
+        if(view.mode==="scenario"){
+          await page.getByTestId("end-turn").click({timeout:90000});
+          await settled();await story();
+          view=await read();
+        }
+      }
+      assert.equal(view.mode,"world","The tavern's authored brawl must exit normally or by clinic");
+      assert(!view.restReasons.some(x=>x.id==="醉客互相叫骂"),
+        "The genuine Scenario callback must release the mandatory tavern duty");
+      console.log("PASS: optional investigation's second tavern shift -> native two-table brawl -> rest obligation released");
+      view=await visit("家");
+    }
     if(view.path.at(-1)!=="住宿"){
       await page.locator('[data-testid="game-entry"][data-node-id="住宿"]')
         .click({timeout:90000});
