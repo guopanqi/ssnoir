@@ -351,6 +351,8 @@ try{
   const preBanquet=await read();
   const banquetSave=await page.evaluate(()=>localStorage.getItem("ssnoir-web-v1"));
   assert(banquetSave,"Chapter-two city snapshot must be persistable");
+  writeFileSync("artifacts/web-game-before-banquet-save.json",banquetSave,"utf8");
+  // World day two of chapter two: save was produced by full authored new-game route.
   await page.getByTestId("load-game").click({timeout:90000});
   await settled();await story();
   state=await read();
