@@ -422,6 +422,65 @@ try{
   assert.deepEqual(errors,[],"Following the optional mystery may not break the mainline ending");
   console.log("PASS: successfully solved optional investigation -> normal independent machine day -> two settled dossiers -> portable save and next-day play",
     JSON.stringify({archiveAttempts,machineDay,followingDay:view.day}));
+  // First remaining player choice: partial participation. One rumour is
+  // genuinely completed, the other never attempted, and the rest of the
+  // chapter must follow the independent clock rather than waiting forever.
+  await page.evaluate(text=>localStorage.setItem("ssnoir-web-v1",text),paperSave);
+  await page.getByTestId("load-game").click({timeout:90000});
+  await settled();await story();
+  view=await read();
+  assert.equal(view.day,initialDay);
+  assert.equal((await dossier()).find(x=>x.id==="谁出卖了夜莺")?.status,"进行中");
+  await rumorAt("剧院","放给剧院",0);
+  let partial=(await dossier()).find(x=>x.id==="谁出卖了夜莺");
+  assert.equal(partial?.steps[0]?.done,true);
+  assert.equal(partial?.steps[1]?.done,false);
+  assert.match(partial.now,/格兰德酒店/);
+  const partialStart=view.day;
+  let partialMachineDay=null;
+  for(let i=0;i<18;i++){
+    view=await read();
+    if(view.restReasons.some(x=>x.node==="到跳板去")){
+      partialMachineDay=view.day;break;
+    }
+    view=await sleep();
+    assert.equal(view.error,"","Incomplete investigation cannot block city calendar");
+    partial=(await dossier()).find(x=>x.id==="谁出卖了夜莺");
+    assert.equal(partial?.steps[0]?.done,true);
+    assert.equal(partial?.steps[1]?.done,false);
+    assert.equal(partial?.status,"进行中",
+      "The optional case remains open until the city machine climax");
+  }
+  assert(partialMachineDay!==null,
+    "The city's machine day must arrive even if one of the two rumors was never planted");
+  view=await visit("码头");
+  view=await perform("到跳板去");
+  assert(view.entries.some(x=>x.id==="看着这一天过完"&&!x.disabled));
+  view=await perform("看着这一天过完");
+  let partialDossiers=await dossier();
+  const abandoned=partialDossiers.find(x=>x.id==="谁出卖了夜莺");
+  assert.equal(abandoned?.status,"了结",
+    "The authorized final city event must explicitly close the unfinished inquiry");
+  assert.equal(abandoned?.steps[0]?.done,true);
+  assert.equal(abandoned?.steps[1]?.done,false,
+    "Finishing the game must not pretend the player investigated the hotel");
+  assert.match(abandoned?.now??"",/没查完|断了/);
+  assert.equal(partialDossiers.find(x=>x.id==="机器进入老街")?.status,"了结");
+  await page.getByTestId("save-game").click({timeout:90000});
+  await settled();
+  await page.getByTestId("load-game").click({timeout:90000});
+  await settled();await story();
+  partialDossiers=await dossier();
+  assert.equal(partialDossiers.find(x=>x.id==="谁出卖了夜莺")?.status,"了结");
+  assert.equal(partialDossiers.find(x=>x.id==="机器进入老街")?.status,"了结");
+  view=await sleep();
+  assert.equal(view.day,partialMachineDay+1);
+  assert(!view.restReasons.some(x=>x.node==="到跳板去"));
+  assert.deepEqual(errors,[],
+    "Ignoring the second rumor must not introduce hidden browser failures");
+  console.log("PASS: one genuine rumor only -> independent published plan -> mandatory machine climax -> honestly abandoned evidence case -> saved recovery and next day",
+    JSON.stringify({initialDay,partialMachineDay,followingDay:view.day}));
+
 
 
 
