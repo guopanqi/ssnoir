@@ -333,6 +333,51 @@ try{
   console.log("PASS: genuine Koer route -> reporter ledger -> archive three stages -> 11:07 envelope and 11:35 proof -> authored evidence-before-letter close -> save/restore",
     JSON.stringify({archiveAttempts,archivePlayerTurns,day:(await read()).day}));
 
+  // Next first unverified cross-branch path: having *solved* the optional
+  // investigation must not distort the city's independent machine calendar.
+  // Sleep only through native world actions; the machine day must still
+  // impose its genuine obligation and honour the investigation history.
+  let machineDay=null;
+  for(let elapsed=0;elapsed<12;elapsed++){
+    view=await read();
+    if(view.restReasons.some(x=>x.node==="到跳板去")){
+      machineDay=view.day;break;
+    }
+    assert.equal(view.mode,"world");
+    view=await sleep();
+    assert.equal(view.error,"","Optional solved investigation cannot block unrelated city nights");
+  }
+  assert(machineDay!==null,
+    "Even with early-paper proof, the city's machine arrival must still occur on schedule");
+  const beforeMachine=(await dossier()).find(x=>x.id==="查早报供稿人");
+  assert.equal(beforeMachine?.status,"了结");
+  view=await visit("码头");
+  view=await perform("到跳板去");
+  assert(view.entries.some(x=>x.id==="看着这一天过完"&&!x.disabled),
+    "The original terminal city action remains available after a solved paper branch");
+  view=await perform("看着这一天过完");
+  assert.equal(view.day,machineDay,
+    "The machine encounter is an authored city event, not an extra world day");
+  let all=await dossier();
+  assert.equal(all.find(x=>x.id==="机器进入老街")?.status,"了结");
+  assert.equal(all.find(x=>x.id==="查早报供稿人")?.status,"了结",
+    "Independent city climax must not erase the earlier newspaper evidence");
+  await page.getByTestId("save-game").click({timeout:90000});
+  await settled();
+  await page.getByTestId("load-game").click({timeout:90000});
+  await settled();await story();
+  all=await dossier();
+  assert.equal(all.find(x=>x.id==="查早报供稿人")?.status,"了结");
+  assert.equal(all.find(x=>x.id==="机器进入老街")?.status,"了结");
+  view=await sleep();
+  assert.equal(view.day,machineDay+1);
+  assert(!view.restReasons.some(x=>x.node==="看着这一天过完"),
+    "A finished city's climactic blocker must not regenerate after the next day");
+  assert.deepEqual(errors,[],"Following the optional mystery may not break the mainline ending");
+  console.log("PASS: successfully solved optional investigation -> normal independent machine day -> two settled dossiers -> portable save and next-day play",
+    JSON.stringify({archiveAttempts,machineDay,followingDay:view.day}));
+
+
 
 }finally{
   await browser?.close();await server.close();
