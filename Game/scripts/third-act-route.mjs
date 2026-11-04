@@ -18,7 +18,7 @@ try{
   browser=await chromium.launch({headless:true,args:["--no-sandbox",
     "--enable-webgl","--enable-unsafe-swiftshader","--use-gl=angle","--use-angle=swiftshader"]});
   const page=await browser.newPage({viewport:{width:1440,height:850}});
-  const errors=[];
+  const errors=[],storyTrail=[];
   page.on("pageerror",error=>errors.push(String(error)));
   page.on("console",msg=>{if(msg.type()==="error")errors.push(msg.text());});
   const read=()=>page.evaluate(()=>window.__SSNOIR_WEB__.snapshot());
@@ -29,6 +29,7 @@ try{
     for(let i=0;i<400;i++){
       await settled();const state=await read();
       if(!state.story)return;
+      storyTrail.push({kind:state.story.kind,speaker:state.story.speaker,text:state.story.text});
       await page.getByTestId("story-continue").click({timeout:90000});
     }
     throw new Error("Authored story did not drain");
@@ -374,6 +375,12 @@ try{
   }
   assert(state.restReasons.some(x=>x.node==="到跳板去"),
     "Machine arrival must block the day until the player handles its scenes");
+  // Preserve the real city exactly before the gangway choice. This is a
+  // portable world save, not a hand-edited debug fixture.
+  await page.getByTestId("save-game").click({timeout:90000});
+  await settled();
+  const preMachineSave=await page.evaluate(()=>localStorage.getItem("ssnoir-web-v1"));
+  assert(preMachineSave,"Machine day must be saveable before its mandatory event");
   state=await node("码头");
   state=await action("到跳板去");
   assert.equal(state.mode,"world","Gangway is an authored city event, not a debug scenario");
@@ -381,15 +388,21 @@ try{
     "Arrival alone cannot silently bypass the rest of the machine-day choices");
   const availableInterventions=["拦住艾迪","跟林停机","自己查设备","劝人群退"]
     .filter(id=>state.entries.some(x=>x.id===id&&!x.disabled));
-  if(availableInterventions.length&&state.dice.length){
-    const id=availableInterventions[0];
-    const before=state.dice.length;
-    state=await action(id);
-    assert.equal(state.dice.length,before-1,
-      "A selected optional intervention has a real opportunity cost");
-  }
+  assert(availableInterventions.length&&state.dice.length,
+    "The climactic scene must offer a real optional intervention before its ending");
+  const intervention=availableInterventions[0];
+  const beforeInterventionDice=state.dice.length;
+  state=await action(intervention);
+  const interventionResult=state.lastAction?.result;
+  assert.equal(state.dice.length,beforeInterventionDice-1,
+    "An optional intervention has a real opportunity cost");
   assert(state.entries.some(x=>x.id==="看着这一天过完"&&!x.disabled));
+  const interventionEndingStart=storyTrail.length;
   state=await action("看着这一天过完");
+  const withInterventionText=storyTrail.slice(interventionEndingStart).find(x=>
+    x.kind==="spotlight"&&x.speaker==="机器留下了")?.text;
+  assert(withInterventionText&&withInterventionText.includes("机器留在老码头"),
+    "The first ending must show the actual authored consequences");
   assert.equal(state.mode,"world");
   assert.equal(state.day,chapterTwoStart+14);
   assert(!state.restReasons.some(x=>x.node==="看着这一天过完"),
@@ -405,6 +418,7 @@ try{
   await settled();
   await page.getByTestId("save-game").click({timeout:90000});
   await settled();
+  const interventionSave=await page.evaluate(()=>localStorage.getItem("ssnoir-web-v1"));
   await page.getByTestId("load-game").click({timeout:90000});
   await settled();await story();
   state=await read();
@@ -419,6 +433,55 @@ try{
   await page.screenshot({path:"artifacts/web-game-machine-arrival-resolved.png"});
   assert.deepEqual(errors,[],"No browser errors from the beginning through the machine climax");
   console.log("PASS: natural day-four leak -> phase B -> six-day deployment -> optional intervention -> machine-day finish -> restore");
+
+  // Revisit the identical authored moment via the saved world, this time
+  // watching without intervening. Verify choice-dependent narrative, replay
+  // isolation and that closing the machine day cannot fire twice.
+  await page.evaluate(text=>localStorage.setItem("ssnoir-web-v1",text),preMachineSave);
+  await page.getByTestId("load-game").click({timeout:90000});
+  await settled();await story();
+  state=await read();
+  assert.equal(state.day,chapterTwoStart+14);
+  assert(state.restReasons.some(x=>x.node==="到跳板去"),
+    "Restoring the pre-intervention save must reopen the legitimate player choice");
+  state=await node("码头");
+  state=await action("到跳板去");
+  const noInterventionEndingStart=storyTrail.length;
+  state=await action("看着这一天过完");
+  const noInterventionText=storyTrail.slice(noInterventionEndingStart).find(x=>
+    x.kind==="spotlight"&&x.speaker==="机器留下了")?.text;
+  assert(noInterventionText&&noInterventionText.includes("机器留在老码头"));
+  if(["拦住艾迪","跟林停机"].includes(intervention) ||
+     (interventionResult==="成功"&&
+       ["自己查设备","劝人群退"].includes(intervention))){
+    assert.notEqual(withInterventionText,noInterventionText,
+      "The Scheme ending must visibly differ after a consequential intervention");
+  }
+  await page.getByTestId("save-game").click({timeout:90000});
+  await settled();
+  const noInterventionSave=await page.evaluate(()=>localStorage.getItem("ssnoir-web-v1"));
+  assert.notEqual(interventionSave,noInterventionSave,
+    "An optional action and a decision not to act must produce distinct portable saves");
+  await page.getByTestId("load-game").click({timeout:90000});
+  await settled();await story();
+  state=await read();
+  await page.getByTestId("dossier-toggle").click({timeout:90000});
+  await settled();
+  state=await read();
+  assert.equal(state.dossiers.find(x=>x.id==="机器进入老街")?.status,"了结");
+  await page.getByTestId("dossier-close").click({timeout:90000});
+  await settled();
+  state=await sleep();
+  assert.equal(state.day,chapterTwoStart+15,
+    "After the climax the city must remain playable into the following day");
+  assert(!state.restReasons.some(x=>["到跳板去","看着这一天过完"].includes(x.node)),
+    "A concluded mainline must not repeat its rest blockers");
+  state=await node("码头");
+  assert(!state.entries.some(x=>["到跳板去","看着这一天过完"].includes(x.id)),
+    "The resolved machine arrival cannot be repeated after the next day");
+  assert.deepEqual(errors,[],"Both endings and the next world day must be browser-error-free");
+  console.log("PASS: saved machine day -> intervene vs stand aside -> distinct consequences / saves -> playable following day",
+    JSON.stringify({intervention,interventionResult,withInterventionText,noInterventionText}));
 }finally{
   await browser?.close();await server.close();
 }

@@ -261,3 +261,18 @@ npm run bench:runtime 在 GitHub Actions 对同一世界交替执行“原始→
 
 
 整合 main 的 `de3b2471` / `b95ac1cf` 后，已在新 VM 下通过第十五天完整续测：追车中拒绝损坏存档仍可花骰、第四回合倒下送医进入次日、重新守候并实际行动、再恢复第十四天原城市存档。新增远端断言漏掉了正式卷宗的「等待黑衣人」文案；仅校正测试匹配，实际重试按钮与骰子消费仍作独立验证，未改内容或规则。
+
+
+### P5 连续玩家通路：从新档到当前第二章主线终点（2026-11-04）
+
+- [Web Game CI #41836376130](https://github.com/guopanqi/ssnoir/actions/runs/41836376130)：75/75 个 Web 契约通过；`npm run test:route` 从第一日新档经过告别演出、彩排、试唱、错失车辆后的继续接案、十四日真实存档恢复、追车识别、罗科潜入失败送医及合法重试、结案报告与夜莺河边邀约，自然进入第二章。
+- 第二章全段继续通过真正浏览器按钮：正常过夜到格兰德酒店晚宴，6 个 Scenario 回合（前半群体社交、后半具体宾客）、晚宴散场结果回写卷宗并存读档；第 4 日《封面上的夜莺》强制会面打开独立调查；第 9 日新港计划公开改变码头可见节点；再过 6 日到码头跳板，允许介入，必须主动点「看着这一天过完」结束，主线「机器进入老街」卷宗结案，重建 VM 后仍保持。
+- 首个真实阻断不是 React，而是原始 `scenes/scenarios/晚宴.scm` 的下半场 `talk-node` 有两处多余的第七参数，三支舞后 `get-render-data` 报 arity 错误。已修正，新增直接执行原版六回合的 Scenario 契约及真实浏览器通路（`08fdc69`）。
+- 城市定位、拖放与旅馆收租已走完验证，原版第一章的强制失败、送医和合法恢复仍由 Runtime/原始 Scheme 处理。测试的 max-roll 仅控制 RNG，不直接写入任何任务进度、日期、角色或卷宗。
+- 已证明一条连续的成功路由，不表示所有玩家选择、人物线和结局变体全部通过。仍应回归不同干预结果、未参与调查的自然结算、早报追查成功/失败分支、主线终点后的正常过夜，以及 P3 的关键舞台表现。
+
+### P2/P5 公开发布性能和状态语义验收（2026-11-04）
+
+- [Pages CI #41836376178](https://github.com/guopanqi/ssnoir/actions/runs/41836376178) 在部署并核对版本 `ad136ffc` 后，由 Chromium **直接打开公开** `https://guopanqi.github.io/ssnoir/game/`，实际点击旅馆/酒馆并执行返回、重入、保存和恢复。对应单次观测：旅馆首入 124 ms、返回 93 ms、重入 162 ms；酒馆首入 258 ms、返回 99 ms、重入 103 ms；保存 91 ms、恢复 478 ms，均低于当前粗粒度 CI 预算。
+- 公布的 JSON/截图已作为 `ssnoir-public-pages-interaction-evidence` 工作流附件归档。复现：`SSNOIR_BENCH_BASE_URL=https://guopanqi.github.io/ssnoir/game/ SSNOIR_BENCH_ASSERT_BUDGET=1 SSNOIR_BENCH_OUTPUT=artifacts/public-web-interactions.json npm run bench:web`。
+- 同一正式网页还执行了真实第一日操作、消耗骰子与物品、保存、非法存档拒绝后保留现行状态及合法恢复。性能数字属于该 GitHub Actions runner/Chromium 的单次测量，不代表所有玩家设备或网络环境；网页的规则语义由单独的长通路和存读档比对共同保护。
