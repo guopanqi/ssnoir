@@ -42,6 +42,133 @@ function NodeCard({ node, locked, selected, onOpen }) {
     <span className="node-type">{type}</span>
   </button>;
 }
+
+function ActionCard({node,state,session,locked,holding,setHolding}) {
+  const selected=state.selectedAction===node.id;
+  const inputs=selected?state.selectedSlots:[];
+  const preview=selected?state.actionPreview:null;
+  const resolved=selected&&state.canExecute;
+  const startLegacy=()=>{if(!locked&&!node.disabled&&!selected)session.open(node.id);};
+  const drop=(event,index)=>{
+    event.preventDefault();event.stopPropagation();
+    const data=event.dataTransfer.getData("application/x-ssnoir-resource")||
+      event.dataTransfer.getData("text/plain");
+    try{
+      const resource=JSON.parse(data);
+      if(resource?.type!=="die"&&resource?.type!=="item")return;
+      session.assignToSlot(node.id,index,resource);
+      setHolding(null);
+    }catch{
+      // Ignore non-game drags; the session validates all native slots.
+    }
+  };
+  const useHeld=(event,index)=>{
+    event.stopPropagation();
+    if(holding){
+      session.assignToSlot(node.id,index,holding);
+      setHolding(null);
+    }else if(inputs[index]){
+      session.clearSlot(node.id,index);
+    }else startLegacy(); // Also accommodates the previous click-to-allocate route.
+  };
+  return <article className={"action-card"+(selected?" allocated":"")}
+    data-testid="game-entry" data-node-id={node.id}
+    onClick={event=>{
+      if(event.target.closest("[data-action-control]"))return;
+      startLegacy(); // Optional shortcut; dragging never requires a preliminary click.
+    }}>
+    <div className="action-card-heading">
+      <div className="action-card-copy">
+        <div className="action-card-meta">
+          <span>{node.action==="roll"?"检定行动":"行动"}</span>
+          {node.risk && <span className="risk-label">风险 · {node.risk}</span>}
+        </div>
+        <h3>{node.title}</h3>
+        {node.subtitle && <p>{node.subtitle}</p>}
+      </div>
+      <span className="action-card-mark" aria-hidden="true">✦</span>
+    </div>
+    {node.clocks.map(c=><Clock key={c.label} value={c}/>)}
+    {node.requires.length>0 && <div className="action-inputs" data-action-control="true">
+      {node.requires.map((req,index)=>{
+        const assigned=inputs[index]??null;
+        const die=assigned?.type==="die"?
+          state.dice.find(d=>d.actorId===assigned.actorId&&d.slotId===assigned.slotId):null;
+        const resourceName=assigned?.type==="die"?
+          ((die?.value??"?")+" 点行动骰"):
+          assigned?.type==="item"?assigned.itemId+" × "+assigned.qty:null;
+        const compatible=holding?.type===req.type&&
+          (req.type==="die"||holding.itemId?.toLowerCase()===req.itemId?.toLowerCase());
+        return <div key={index} className={"resource-slot"+(assigned?" filled":"")+
+          (compatible?" compatible":"")} role="button" tabIndex={locked?-1:0}
+          aria-label={assigned?"移除已放入的"+resourceName:
+            req.type==="die"?"放入一枚行动骰":"放入"+req.itemId+"×"+req.qty}
+          data-testid="resource-slot" data-node-id={node.id} data-slot-index={index}
+          onClick={event=>useHeld(event,index)}
+          onKeyDown={event=>{
+            if(event.key==="Enter"||event.key===" "){
+              event.preventDefault();useHeld(event,index);
+            }
+          }}
+          onDragOver={event=>{if(!locked){event.preventDefault();event.dataTransfer.dropEffect="copy";}}}
+          onDrop={event=>{if(!locked)drop(event,index);}}>
+          <span className="slot-symbol" aria-hidden="true">{assigned?"◆":"+"}</span>
+          <span className="slot-copy">{resourceName||
+            (req.type==="die"?"拖入行动骰":"拖入 "+req.itemId+" × "+req.qty)}</span>
+          {assigned && <span className="slot-clear" aria-hidden="true">×</span>}
+        </div>;
+      })}
+    </div>}
+    {node.action==="roll" && <div className="risk-display" aria-label="成功率与风险">
+      <div className="risk-line">
+        <span>结果概率</span>
+        <span>{preview?"投入强度 "+preview.prepared:"投入骰子后显示实际概率"}</span>
+      </div>
+      <div className="outcome-track">
+        {[
+          {kind:"fail",label:"失败",value:preview?.fail},
+          {kind:"neutral",label:"一般",value:preview?.neutral},
+          {kind:"success",label:"成功",value:preview?.success}
+        ].map(part=><div key={part.kind}
+          className={"outcome-segment "+part.kind}
+          style={{width:preview?part.value+"%":"33.333%"}}/>)}
+      </div>
+      <div className="outcome-labels">
+        <span>失败 {preview?preview.fail+"%":"—"}</span>
+        <span>一般 {preview?preview.neutral+"%":"—"}</span>
+        <span>成功 {preview?preview.success+"%":"—"}</span>
+      </div>
+    </div>}
+    <div className="action-card-footer" data-action-control="true">
+      <span className="action-slot-hint">{node.requires.length?
+        (selected?inputs.filter(Boolean).length+" / "+inputs.length+" 已投入":
+          "无需点卡片 · 直接把资源拖入槽位"):
+        "无需投入资源"}</span>
+      <button type="button" className="execute-action" data-testid="execute-action"
+        data-node-id={node.id} disabled={locked||node.disabled||
+          (node.requires.length>0&&!resolved)}
+        onClick={event=>{event.stopPropagation();session.executeAction(node.id);}}>
+        执行
+      </button>
+    </div>
+  </article>;
+}
+function ResultDialog({result,close}) {
+  return <div className="result-screen" role="dialog" aria-modal="true" aria-label="行动结果">
+    <div className="result-sheet">
+      <div className="eyebrow">ACTION RESULT / 行动结算</div>
+      <h2>{result.title}</h2>
+      <div className="result-grade">{result.result}</div>
+      {result.changes.length>0?<div className="result-changes">
+        {result.changes.map((change,i)=><div key={change.label+":"+i}>
+          <span>{change.label}</span>
+          <strong>{change.delta>0?"+":""}{change.delta}</strong>
+        </div>)}
+      </div>:<p className="muted">行动已完成。</p>}
+      <button type="button" data-testid="result-dismiss" onClick={close}>继续</button>
+    </div>
+  </div>;
+}
 function DossierPanel({ entries, close }) {
   return <div className="dossier-screen">
     <section className="dossier-sheet" role="dialog" aria-modal="true" aria-label="卷宗">
