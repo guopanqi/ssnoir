@@ -204,6 +204,7 @@ function App() {
   const [fatal, setFatal] = useState("");
   const [seed, setSeed] = useState(null);
   const [toast, setToast] = useState("");
+  const [holding, setHolding] = useState(null);
   useEffect(() => {
     let disposed = false;
     let unlisten = null;
@@ -251,6 +252,12 @@ function App() {
   const locked = state.busy || Boolean(state.story) || Boolean(state.failure);
   const navigationLocked = locked || Boolean(state.selectedAction);
   const picked = new Set(state.selectedDice.map(x => x.actorId + ":" + x.slotId));
+  const beginDrag=(event,resource)=>{
+    event.dataTransfer.setData("application/x-ssnoir-resource",JSON.stringify(resource));
+    event.dataTransfer.setData("text/plain",JSON.stringify(resource));
+    event.dataTransfer.effectAllowed="copy";
+    setHolding(resource);
+  };
   const redundantResult = state.lastAction &&
     state.message === state.lastAction.title+" · "+state.lastAction.result;
   return <div className="game-app" data-testid="game-ready">
@@ -272,8 +279,9 @@ function App() {
       <section className="scene-panel" aria-label="城市舞台">
         {state.mode === "world" ?
           <CityMap places={state.mapPlaces} activePlace={state.path[0]??null}
-            restReasons={state.restReasons} locked={navigationLocked}
-            onOpen={id=>session.open(id)}/> : <CityScene />}
+            restReasons={state.restReasons} locked={locked}
+            onOpen={id=>{setHolding(null);session.switchPlace(id);}}
+            onBackground={()=>{setHolding(null);session.closeLocation();}}/> : <CityScene />}
         <div className="scene-label">
           <div className="eyebrow">{state.mode === "world" ? "THE CITY" : "ENCOUNTER"}</div>
           <h1>{state.path.length ? state.title : state.mode === "world" ? "贝尔维尔" : state.title}</h1>
@@ -287,20 +295,23 @@ function App() {
           <button className="back" data-testid="back" disabled={state.busy || Boolean(state.story) || (!state.path.length && !state.selectedAction)}
             onClick={() => session.back()}>返回</button>
         </div>
-        {state.selectedAction && <div className="allocation-panel" role="status" data-testid="allocation-panel">
-          <div>
-            <div className="eyebrow">CHOOSE ACTION DICE / 骰子投入</div>
-            <strong>{state.entries.find(x=>x.id===state.selectedAction)?.title || state.selectedAction}</strong>
-            <p>从下方行动骰栏投入 {state.requiredDice} 枚骰子，投入后立即执行。</p>
-          </div>
-          <button type="button" data-testid="cancel-action" disabled={locked}
-            onClick={()=>session.back()}>取消行动</button>
-        </div>}
         <div className="entries" data-testid="game-entries">
-          {state.clocks.map(c => <Clock key={c.label} value={c} />)}
-          {state.entries.length === 0 ? <p className="empty">这里暂时没有可以进行的行动。</p> :
-            state.entries.map(node => <NodeCard key={node.id} node={node} selected={state.selectedAction===node.id} locked={navigationLocked}
-              onOpen={id => session.open(id)} />)}
+          {state.clocks.map(c=><Clock key={c.label} value={c}/>)}
+          {state.mode==="world"&&!state.path.length?
+            <div className="location-empty"><div className="eyebrow">THE CITY / 地点</div>
+              <h3>选择一个地点</h3><p>在地图上选择地点，这里会直接列出它的行动和所需资源槽。</p>
+            </div>:
+            state.displayCards.length===0?
+              <p className="empty">这里暂时没有可以进行的行动。</p>:
+              state.displayCards.map(node=>
+                node.action==="instant"||node.action==="roll"?
+                  <ActionCard key={node.id} node={node} state={state} session={session}
+                    locked={locked} holding={holding} setHolding={setHolding}/>:
+                  <div key={node.id} className={node.childCount?"container-heading":"passive-entry"}>
+                    {node.groupPath?.length>0&&<span className="group-breadcrumb">{node.groupPath.join(" / ")}</span>}
+                    <NodeCard node={node} selected={false} locked={navigationLocked}
+                      onOpen={id=>session.open(id)}/>
+                  </div>)}
         </div>
       </section>
       <aside className="sidebar" aria-label="行动资源与状态">
@@ -308,18 +319,22 @@ function App() {
           <div className="eyebrow">ACTION DICE / 行动资源</div>
           <div className="hud-section-head"><h2>行动骰</h2><span>{state.dice.length} 枚可用</span></div>
           {state.dice.length ? <div className="dice">
-            {state.dice.map(die => <button className={"die " + (picked.has(die.actorId + ":" + die.slotId) ? "picked" : "")}
-              key={die.actorId + ":" + die.slotId}
-              disabled={!state.selectedAction || locked || picked.has(die.actorId + ":" + die.slotId)}
-              title={die.actorName + " · " + die.value}
-              onClick={() => session.pickDie(die.actorId, die.slotId)}>
+            {state.dice.map(die=><button className={"die "+(picked.has(die.actorId+":"+die.slotId)?"picked":"")}
+              key={die.actorId+":"+die.slotId}
+              draggable={!locked&&!picked.has(die.actorId+":"+die.slotId)}
+              disabled={locked||picked.has(die.actorId+":"+die.slotId)}
+              title={die.actorName+" · "+die.value}
+              onDragStart={event=>beginDrag(event,{type:"die",actorId:die.actorId,slotId:die.slotId})}
+              onDragEnd={()=>setHolding(null)}
+              onClick={()=>{
+                if(state.selectedAction)session.pickDie(die.actorId,die.slotId);
+                else setHolding({type:"die",actorId:die.actorId,slotId:die.slotId});
+              }}>
               <strong>{die.value}</strong><small>{die.actorName}</small>
             </button>)}
           </div> : <p className="muted">今天的骰子已用完。</p>}
-          {state.selectedAction && <p className="dice-prompt" data-testid="dice-prompt">
-            为「{state.entries.find(x => x.id === state.selectedAction)?.title || state.selectedAction}」投入骰子：
-            {state.selectedDice.length} / {state.requiredDice}
-          </p>}
+          <p className="resource-help">{holding?.type==="die"?
+            "已拿起行动骰，点击或拖到右侧行动槽": "拖动骰子到右侧行动卡的空槽"}</p>
         </section>
         <section className="hud-actors">
           <div className="eyebrow">CONDITION / 人物状态</div>
@@ -332,10 +347,19 @@ function App() {
           <div className="eyebrow">INVENTORY / 物品栏</div>
           <div className="hud-section-head"><h2>随身物品</h2><span>{state.inventory.length} 类</span></div>
           {state.inventory.length ? <div className="inventory-items">
-            {state.inventory.map(item=><div className="inventory-item" key={item.id}>
+            {state.inventory.map(item=><button className="inventory-item" key={item.id}
+              type="button" draggable={!locked} disabled={locked}
+              data-testid="inventory-resource" data-item-id={item.id}
+              title={"拖动 "+item.id+" 到需要它的行动"}
+              onDragStart={event=>beginDrag(event,{type:"item",itemId:item.id})}
+              onDragEnd={()=>setHolding(null)}
+              onClick={()=>setHolding({type:"item",itemId:item.id})}>
               <span>{item.id}</span><b>× {item.quantity}</b>
-            </div>)}
+            </button>)}
           </div> : <p className="muted">背包里没有物品。</p>}
+          <p className="resource-help">{holding?.type==="item"?
+            "已拿起 "+holding.itemId+"，点击右侧匹配物品槽":
+            "物品可直接拖入需要它的行动槽"}</p>
         </section>
         {(state.restBlocked || state.lastAction || state.message || state.error || toast) &&
         <section className="hud-events" aria-live="polite">
@@ -357,6 +381,8 @@ function App() {
       </aside>
     </main>
     {state.dossierOpen && <DossierPanel entries={state.dossiers} close={()=>session.toggleDossier()} />}
+    {state.resultOpen&&state.lastAction&&!state.story&&
+      <ResultDialog result={state.lastAction} close={()=>session.dismissResult()}/>}
     {state.failure && !state.story && <div className="failure-screen" role="dialog" aria-modal="true" aria-label="游戏结束">
       <div className="failure-card">
         <div className="eyebrow">THE END / 游戏结束</div>
