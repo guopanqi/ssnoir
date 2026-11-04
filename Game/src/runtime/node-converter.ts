@@ -56,6 +56,9 @@ export interface RuntimeNode {
   arrivals: RuntimeArrival[];
   resolve: NodeResolve | null;
   risk?: RuntimeActionRisk | null;
+  display?: "page" | "inline";
+  noticeVersion?: string;
+  useLimit?: "daily-once" | null;
 }
 
 /** Bound the conversion to avoid infinite traversal of cyclic Scheme content. */
@@ -220,6 +223,19 @@ export function convertNode(value: unknown): RuntimeNode {
     const kw = symbol(expr[i]);
     const val = expr[i + 1];
     switch (kw) {
+      case ":display": {
+        const mode = symbol(val);
+        if (mode !== "page" && mode !== "inline") throw new Error(id + ": invalid display " + mode);
+        node.display = mode; break;
+      }
+      case ":notice-version":
+        node.noticeVersion = requiredText(val, id + " notice-version"); break;
+      case ":use-limit": {
+        if (val === false) node.useLimit = null;
+        else if (symbol(val) === "daily-once") node.useLimit = "daily-once";
+        else throw new Error(id + ": invalid use-limit");
+        break;
+      }
       case ":title": node.title = name(val, id + " title"); break;
       case ":name": node.title = name(val, id + " display name"); break;
       case ":required-before-rest": requiredText(val, id + " rest requirement"); break;

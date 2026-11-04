@@ -61,6 +61,11 @@ Runtime 对前端提供状态和命令；Three.js 不负责决定游戏状态，
 - 聚焦反复出现的实际痛点，逐项调整视觉、行动、反馈与内容组织。
 - 浏览器正式可玩构建、自动化核心路线及手工完整游玩均通过。
 
+## P1 解析器追平记录
+
+当前 Scheme 节点已使用 `:display`、`:notice-version`、`:use-limit`，
+Web NodeConverter 需要严格解析并保留这些字段。完整“未读”标识和 daily-once 规则消费属于 P2。
+
 ## 已识别的跨语言语义缺口（非 P1 验收）
 
 旧全量 `npm test` 的 `native-contract.test.mjs` 检查目前失败：
