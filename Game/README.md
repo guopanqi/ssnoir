@@ -1,75 +1,39 @@
-# SSNoir / Game — Shared foundation and phase-2 runtime migration
+# SSNoir / Game — Web 游戏与玩法实验
 
-他本质上是一个移植尝试，底层首先需要建立threejs - wechat - taptap 的适配，才能在顶层进行尝试
-在顶层改造之后，也许会有新的能力
-但是我们的时间有限，我不认为这是这个项目应该去做的事儿
+这是独立发展的 SSNoir Web 游戏项目，不再以 Unity → WeChat/TapTap 的移植为目标。
+长期路线见 [docs/WEB-GAME-ROADMAP.md](docs/WEB-GAME-ROADMAP.md)。
 
-This is the planned **only** game project. Legacy C#/Unity code is retained during migration as a reference, not as a second long-term client.
+## 启动
 
-## Shared architecture (real prototype)
-
-第一阶段交付物明确为：技术验证底座工程、[微信小游戏适配层](adapters/wechat/README.md)、
-[TapTap 转换/启动适配层](adapters/taptap/README.md)。复用边界和原版/修改记录见
-[适配层交付说明](adapters/README.md)。第一阶段已由开发者报告在本地验收完成；具体机型和系统信息仍以设备测试记录为准。
-
-- Browser: `src/main.ts` provides HTML Canvas and pointer events.
-- WeChat: `adapters/wechat/src/host.ts` exposes a deliberately *minimal* WX Canvas/browser compatibility surface; `src/wechat/probe.ts` installs a Pixi `DOMAdapter`.
-- **Both hosts execute the same `src/foundation/render.ts`** using Three.js, PixiJS, a single WebGL2 context, and **two isolated LIPS VMs**. The source imports original `stdlib.scm` at build time (never a second editable copy).
-- Desktop/Electron opens the exact same browser bundle via `desktop/main.cjs`.
-- Scheme is currently a compatibility probe only. **BiwaScheme 0.8.3 fails isolation across Interpreter instances**; see `docs/SCHEME-CANDIDATES.md`. The shared rendering prototype now uses **LIPS** to validate isolated world/scenario bindings and the original SSNoir `stdlib.scm` in all three host bundles. The existing `.scm` content remains in `UnityClient/Assets/Resources/Content`, without a second copy. Game rules/native functions are being migrated incrementally; the phase-2 bridge can now execute the original `engine.scm` inventory rules in the shared Web/MiniGame renderer. Full SceneManager parity is not yet complete; see [PHASE2-RUNTIME.md](docs/PHASE2-RUNTIME.md).
-
-## Test commands (from Game/)
+在 Game/ 目录执行：
 
 ```bash
-npm install
-npm run verify             # TypeScript, real stdlib / Scheme tests, browser build, WeChat bundle
-npx playwright install chromium
-npm run capture            # headless Chromium desktop click + mobile landscape touch screenshots
-npm run dev                # browser interactive preview
-npm run build:web
-npm run start:desktop      # Electron requires a graphical desktop
-npm run smoke:desktop      # Electron graphical smoke; use xvfb-run on headless Linux
-npm run smoke:wechat-harness  # run built WeChat IIFE against a browser wx-API mock
-npm run build:wechat       # import dist/wechat in WeChat DevTools as Mini Game
+npm ci
+npm run dev
 ```
 
-## Automated / manual acceptance (never conflate them)
+打开 Vite 提供的 URL。可添加 `?seed=42` 固定随机数，便于重复实验。
 
-| Gate | Implemented | Evidence required |
-|---|---|---|
-| Scheme syntax/semantics | LIPS isolated dual VMs and unchanged `stdlib.scm` in the shared render path | GitHub Actions on Web, Electron and simulated wx; full engine native API still pending |
-| Browser 3D + 2D same GL context | Yes | Playwright click succeeds, screenshot reviewed |
-| Browser resized/mobile touch | Mobile landscape test | Playwright 812x375 tap + screenshot |
-| Electron window | Browser bundle reused | CI runs Electron on Xvfb with `--no-sandbox` **only for this hosted CI process**; native Windows/macOS release smoke still pending |
-| WeChat Three + Pixi shared GL | Real shared implementation + mocked wx browser smoke | macOS DevTools render/touch/restart passed; Android and iOS real devices pending |
-| WeChat font/touch/lifecycle | Touch manually routed by WX event | Real devices pending |
-| Full `engine.scm` / `world.scm` | Not yet | Stage 2 after platform decision |
-| Game state, saves, cutscenes | Not yet | Stage 2+ |
+当前入口：`src/web/main.jsx`（React UI）和 `src/web/city-scene.jsx`（独立 Three.js 视口）。
+Runtime 从 `src/runtime/world-host.ts` 启动，原始 Scheme 内容仍只读取
+`UnityClient/Assets/Resources/Content`，没有独立的内容拷贝。
+Browser UI 通过 `src/web/session.ts` 发出命令；不直接调用 Scheme。
 
-### WeChat steps
+```bash
+npm run verify      # 类型、运行时单测、Web 生产构建
+npm run smoke:web   # 原始 world.scm 的浏览器启动、真实地点导航和截图
+npm run build:web
+```
 
-1. `npm run build:wechat`; open `Game/dist/wechat` as a **Mini Game** project (not Mini Program).
-2. Replace tourist AppID with your own before real-device tests. SDK interface support depends on the device and WeChat base library version.
-3. Confirm 3D block city **and** the 2D Pixi card are visible in **the same image**, then tap the cream card: counter should rise from 1 to 2.
-4. Check console for `[SSNoir] Three/Pixi/Scheme shared foundation mounted`; any error must be recorded, never silently work around it.
-5. Repeat on Android and iOS. A successful bundle and browser screenshot are **not** proof of actual WeChat support.
+开发环境暴露 `window.__SSNOIR_WEB__`（只为实验和 Playwright），可检查快照、进入节点或结束当天。
 
-The mocked-wx smoke executes the **actual bundled game.js** but still has Chromium browser APIs available. It cannot establish compatibility with the actual WeChat JavaScript engine, GPU, fonts or lifecycle.
+## 开发边界
 
-Important: do not alias WebGLRenderingContext to a WebGL2 constructor. PixiJS chooses a WebGL1 VAO extension path when context types are misidentified, which fails even when the same GPU supports native WebGL2 VAOs.
+- `src/web/`：新交互及独立视觉。UI 不应包含游戏规则。
+- `src/runtime/`、`src/scheme/`：原有 LIPS Scheme 运行时、动作/Scenario/存档，继续复用。
+- `src/foundation/`、`adapters/`、`platforms/`、`desktop/`：历史迁移/验证实现，不是当前 Web 入口；暂不删除，避免丢失既有研究证据。
+- 第一阶段不改动任何 .scm，先验证 Runtime 与表现分离。
+- 不能把新 Web UI 的编译成功当作真实故事完整可玩；P1 只是一段竖切片。
 
-The WeChat environment adapter uses secondary canvases when the offscreen API is unavailable. It intentionally throws for unsupported remote asset fetch or XML parsing. Fix unsupported essentials deliberately after collecting device logs; do not claim that untested APIs are supported.
-
-## Continuation
-
-CI workflow: `.github/workflows/ssnoir-game-foundation.yml`. Each run uploads browser screenshots and all build outputs as `ssnoir-game-foundation`; it publishes the `ssnoir/game-foundation` commit status with a link to its run. This makes the test/inspect/fix cycle retrievable across agents.
-
-**Do not remove Unity before Phase 2 has full game-runtime/content parity and save/scenario verification.** User reported completing local Phase 1 acceptance; automation does not independently certify device compatibility.
-
-## Phase-one acceptance record
-
-See [docs/PHASE1-ACCEPTANCE.md](docs/PHASE1-ACCEPTANCE.md) for exact automated gates, platform-specific manual sign-off, known interpretation limits, and next-agent handoff. A green CI does not claim real WeChat device approval.
-
-## TapTap as fourth target
-
-`npm run build:taptap` uses the verified user-supplied TapTap conversion tool version 2.0.5 to transform the existing WeChat Mini Game into `dist/taptap/game.zip`. `npm run smoke:taptap-harness` exercises the converted script and shared Scheme interaction in Chromium's mocked compatibility host. See [TapTap acceptance](docs/TAPTAP-ACCEPTANCE.md) for actual-client testing and limitations.
+Web 目前将 Stage/Theatre 等复杂事件以简化的故事层显示，正式演出表现属于 P3；
+完整的节点语义、卷宗和正式内容通关仍需在 P2–P5 逐步验收。

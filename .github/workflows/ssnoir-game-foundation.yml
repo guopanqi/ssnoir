@@ -1,10 +1,10 @@
-name: SSNoir Game Foundation
+name: SSNoir Web Game
 on:
   workflow_dispatch:
   push:
     paths:
       - 'Game/**'
-      - 'UnityClient/Assets/Resources/Content/scripts/stdlib.scm'
+      - 'UnityClient/Assets/Resources/Content/**'
       - '.github/workflows/ssnoir-game-foundation.yml'
   pull_request:
     paths:
@@ -12,9 +12,8 @@ on:
       - '.github/workflows/ssnoir-game-foundation.yml'
 permissions:
   contents: read
-  statuses: write
 jobs:
-  foundation:
+  web-game:
     runs-on: ubuntu-24.04
     defaults:
       run:
@@ -24,112 +23,22 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Mark foundation validation pending
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          COMMIT_SHA: ${{ github.sha }}
-          RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          REPO: ${{ github.repository }}
-        run: |
-          node --input-type=module - <<'NODE'
-          const res = await fetch(
-            `https://api.github.com/repos/${process.env.REPO}/statuses/${process.env.COMMIT_SHA}`, {
-              method: "POST",
-              headers: {
-                Authorization: `Bearer ${process.env.GH_TOKEN}`,
-                Accept: "application/vnd.github+json",
-                "X-GitHub-Api-Version": "2022-11-28"
-              },
-              body: JSON.stringify({
-                state: "pending",
-                context: "ssnoir/game-foundation",
-                description: "Foundation CI running",
-                target_url: process.env.RUN_URL
-              })
-            }
-          );
-          if (!res.ok) throw new Error(`Cannot post pending status: ${res.status} ${await res.text()}`);
-          NODE
+          cache: npm
+          cache-dependency-path: Game/package-lock.json
       - name: Install dependencies
-        run: npm install --no-audit --no-fund
-      - name: Verify foundation
+        run: npm ci --no-audit --no-fund
+      - name: Typecheck, runtime tests and production Web build
         run: npm run verify
-      - name: Convert WeChat bundle to TapTap package (official 2.0.5 converter)
-        run: npm run build:taptap
-      - name: Cache Playwright browser
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-1.55.0-${{ runner.os }}-${{ runner.arch }}
       - name: Install headless Chromium
         run: npx playwright install --with-deps chromium
-      - name: Browser smoke and capture
-        run: npm run capture
-      - name: WeChat compiled bundle on mocked wx browser host
-        run: npm run smoke:wechat-harness
-      - name: WeChat no-offscreen Canvas fallback (DevTools regression)
-        run: npm run smoke:wechat-no-offscreen
-      - name: WeChat iOS missing performance and Node-like global regression
-        env:
-          SSNOIR_GENERIC_CANVAS: '1'
-          SSNOIR_NO_PERFORMANCE: '1'
-          SSNOIR_PARTIAL_DOCUMENT: '1'
-          SSNOIR_WX_CANVAS_MODE: missing
-        run: npm run smoke:wechat-harness
-      - name: WeChat offscreen API failure fallback
-        run: npm run smoke:wechat-offscreen-throws
-      - name: TapTap converted bundle on mocked host
-        run: npm run smoke:taptap-harness
-      - name: TapTap no-offscreen Canvas fallback
-        run: npm run smoke:taptap-no-offscreen
-      - name: TapTap iOS missing Intl, text encoding and offscreen Canvas regression
-        env:
-          SSNOIR_GENERIC_CANVAS: '1'
-          SSNOIR_NO_PERFORMANCE: '1'
-          SSNOIR_NO_INTL: '1'
-          SSNOIR_NO_TEXT_ENCODING: '1'
-          SSNOIR_PARTIAL_DOCUMENT: '1'
-          SSNOIR_WX_CANVAS_MODE: missing
-        run: npm run smoke:taptap-harness
-      - name: Electron smoke (virtual display)
-        run: xvfb-run -a npm run smoke:desktop
-      - name: Publish commit validation status
-        if: always()
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RESULT: ${{ job.status }}
-          COMMIT_SHA: ${{ github.sha }}
-          RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          REPO: ${{ github.repository }}
-        run: |
-          node --input-type=module - <<'NODE'
-          const state = process.env.RESULT === "success" ? "success" : "failure";
-          const response = await fetch(
-            `https://api.github.com/repos/${process.env.REPO}/statuses/${process.env.COMMIT_SHA}`, {
-              method: "POST",
-              headers: {
-                Authorization: `Bearer ${process.env.GH_TOKEN}`,
-                Accept: "application/vnd.github+json",
-                "X-GitHub-Api-Version": "2022-11-28"
-              },
-              body: JSON.stringify({
-                state, context: "ssnoir/game-foundation",
-                description: state === "success" ? "Scheme, browser, WeChat, TapTap and desktop checks passed" : "Foundation validation failed; inspect run logs",
-                target_url: process.env.RUN_URL
-              })
-            }
-          );
-          if (!response.ok) throw new Error(`Cannot publish CI status: ${response.status} ${await response.text()}`);
-          console.log(`Published status ${state} to ${process.env.COMMIT_SHA}`);
-          NODE
-      - name: Upload build outputs
+      - name: Verify playable Web boot and capture
+        run: npm run smoke:web
+      - name: Upload Web preview and screenshots
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: ssnoir-game-foundation
+          name: ssnoir-web-game
           path: |
             Game/dist/web
-            Game/dist/wechat
-            Game/dist/taptap/game.zip
-            Game/artifacts/*.png
-          retention-days: 7
+            Game/artifacts/web-game-*.png
+          retention-days: 14
