@@ -18,7 +18,7 @@ function fakeHost() {
         dice:()=>[{slotId:0,value:4}]
       },
       getGlobal:key=>key==="世界日"?1:false,
-      getItemCount:()=>15, hasRestBlockers:()=>false,
+      getItemCount:()=>15, listInventory:()=>[{id:"金钱",quantity:15}], hasRestBlockers:()=>false,
       takeStoryEvents:()=>[],
       snapshot:()=>({restBlockers:[],inventory:{"金钱":15}})
     },
@@ -56,6 +56,7 @@ test("seed controls an independent reproducible random stream",()=>{
 test("web session visits an authored place, spends selected die through runtime, and returns",async()=>{
   const session=new WebGameSession(fakeHost());
   assert.equal(session.getSnapshot().entries[0].title,"老街酒馆");
+  assert.deepEqual(session.getSnapshot().inventory,[{id:"金钱",quantity:15}]);
   await session.open("酒馆");
   assert.deepEqual(session.getSnapshot().path,["酒馆"]);
   await session.open("work");

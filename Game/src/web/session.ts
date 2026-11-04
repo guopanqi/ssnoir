@@ -164,9 +164,7 @@ export class WebGameSession {
       mode: this.host.mode, day: typeof day === "number" ? day : 1,
       money: this.host.state.getItemCount("金钱"),
       health: this.host.state.injury.severity,
-      inventory: Object.entries(this.host.state.snapshot().inventory)
-        .filter(([,quantity]) => quantity > 0)
-        .map(([id,quantity]) => ({id,quantity})),
+      inventory: this.host.state.listInventory(),
       busy: this.busy, error: this.error,
       title: focus.title, subtitle: focus.subtitle, path: [...this.path],
       entries: entries.map(viewNode), clocks: focus.clocks.map(x => ({ ...x })),

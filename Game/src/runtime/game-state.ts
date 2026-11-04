@@ -72,6 +72,13 @@ export class GameRuntimeState {
 
   getItemCount(name: string): number { return this.inventory.get(GameRuntimeState.id(name))?.count ?? 0; }
 
+  /** UI read model; do not construct the full persistent world snapshot to show items. */
+  listInventory(): {id: string; quantity: number}[] {
+    return [...this.inventory.values()]
+      .filter(item => item.count > 0)
+      .map(item => ({id: item.name, quantity: item.count}));
+  }
+
   setItemCount(name: string, count: number): void {
     const key = GameRuntimeState.id(name);
     if (!Number.isSafeInteger(count) || count < 0) throw new Error("item count must be a non-negative integer");
