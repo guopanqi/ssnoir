@@ -87,7 +87,8 @@ test("scenario result callback can enqueue a second scenario without losing the 
   // of the finished scenario's dice, active interpreter and result closure.
   await director.flush();
   assert.equal(director.mode,"scenario");
-  assert.equal(director.getPreparedRoot()?.name,"最后一排的观众");
+  assert.equal(director.getPreparedRoot()?.name,"球形剧场");
+  assert.equal(director.getPreparedRoot()?.title,"最后一排的观众");
   director.requestEnd("错失车辆");
   await director.flush();
   assert.equal(director.mode,"world");
