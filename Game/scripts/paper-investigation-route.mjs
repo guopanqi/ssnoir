@@ -530,6 +530,45 @@ try{
   assert.deepEqual(errors,[],"Optional early-evidence abandonment must be browser-error-free");
   console.log("PASS: genuine successful courier + checked ledger -> deliberately skip 11:07 basement -> machine settlement closes unresolved evidence without falsifying steps -> portable restore",
     JSON.stringify({archiveDeadline,afterDay:view.day}));
+  // Symmetric partial-investigation choice: the player tells only the hotel
+  // the fake itinerary, and never distributes the theater version. The
+  // newspaper cannot choose between two channels, but the world still runs.
+  await page.evaluate(text=>localStorage.setItem("ssnoir-web-v1",text),paperSave);
+  await page.getByTestId("load-game").click({timeout:90000});
+  await settled();await story();
+  view=await read();
+  await rumorAt("格兰德酒店","留给酒店",1);
+  let onlyHotel=(await dossier()).find(x=>x.id==="谁出卖了夜莺");
+  assert.deepEqual(onlyHotel.steps.slice(0,2).map(x=>x.done),[false,true]);
+  let hotelMachineDay=null;
+  for(let i=0;i<18;i++){
+    view=await read();
+    if(view.restReasons.some(x=>x.node==="到跳板去")){
+      hotelMachineDay=view.day;break;
+    }
+    view=await sleep();
+    assert.equal(view.error,"","Only hotel rumor cannot stop normal days");
+  }
+  assert(hotelMachineDay!==null);
+  view=await visit("码头");
+  view=await perform("到跳板去");
+  view=await perform("看着这一天过完");
+  onlyHotel=(await dossier()).find(x=>x.id==="谁出卖了夜莺");
+  assert.equal(onlyHotel?.status,"了结");
+  assert.deepEqual(onlyHotel.steps.map(x=>x.done),[false,true,false,false],
+    "No theatre leak or invented newspaper consequence can be recorded");
+  await page.getByTestId("save-game").click({timeout:90000});
+  await settled();
+  await page.getByTestId("load-game").click({timeout:90000});
+  await settled();await story();
+  onlyHotel=(await dossier()).find(x=>x.id==="谁出卖了夜莺");
+  assert.equal(onlyHotel?.status,"了结");
+  assert.deepEqual(onlyHotel.steps.map(x=>x.done),[false,true,false,false]);
+  assert.equal((await dossier()).find(x=>x.id==="机器进入老街")?.status,"了结");
+  assert.deepEqual(errors,[],"Hotel-only deception cannot cause a runtime regression");
+  console.log("PASS: only hotel fake rumor -> no false newspaper reveal -> independent machine deadline -> faithfully incomplete dossier -> isolated save/restore",
+    JSON.stringify({hotelMachineDay}));
+
 
 
 
