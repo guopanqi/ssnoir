@@ -204,3 +204,7 @@ Web NativeBridge 正式承接原脚本的 `__bubble-restore-composure`：仅将�
 ### P2 Scenario 失败恢复的瞬态状态所有权
 
 `GameRuntimeState.snapshot()/restore()` 只负责可持久化状态；一次被撤销的行动内产生的 Clock 反馈、剧情队列、角色行动上下文和待住院结算不属于该快照，restore 必须明确清除。Scenario Director 对入场与退出的未完成信号（回合请求、结束请求、刷新请求、临时骰子与 callback）有单一清理入口，防止入场脚本执行到一半抛错后下一次 world flush 消费旧信号。新增契约测试刻意在入场脚本触发 end-turn/end-scenario 后抛错，验证玩家仍可继续打开合法 Scenario 并返回城市。此项不改变 Scheme 内容或成功路径规则。
+
+### P2 追踪行动的节点身份与显示名契约
+
+[CI #41789247392](https://github.com/guopanqi/ssnoir/actions/runs/41789247392) 已在真实浏览器通过第 13 天赴约与进入「最后一排的观众」；随后测试以显示标题「沿走廊寻找」调用动作，然而 Scheme 稳定节点 ID 是「公共走廊搜寻」（对应的另一路为「工作通道搜寻」）。UI 已正确展示标题，不是行动缺失。长通路改为以稳定 ID 调用，同时断言可见标题，使身份与表现各有明确契约。测试真正进入两阶段追踪、失败分支并通过完整 CI 前仍不标为已验收。

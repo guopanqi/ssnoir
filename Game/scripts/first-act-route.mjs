@@ -237,7 +237,10 @@ try {
   const route=evidence.includes("工作通道的窄门正在回摆")?"工作通道":
     evidence.includes("公共走廊的地毯上有新踩出的湿脚印")?"公共走廊":null;
   assert(route,"The authored route clue must be delivered before decisions");
-  const search=route==="工作通道"?"穿过工作通道":"沿走廊寻找";
+  // Authored :name supplies the player-visible title; action invocation uses
+  // the stable positional node ID. They are deliberately not interchangeable.
+  const search=route==="工作通道"?"工作通道搜寻":"公共走廊搜寻";
+  const searchTitle=route==="工作通道"?"穿过工作通道":"沿走廊寻找";
   for(let attempt=0;attempt<24;attempt++){
     state=await read();
     if(state.mode==="scenario"&&
@@ -253,6 +256,8 @@ try {
       assert.equal((await read()).error,"");
       continue;
     }
+    assert.equal(state.entries.find(x=>x.id===search)?.title,searchTitle,
+      "The authored pursuit must show the correct player-facing action title");
     const result=await node(search);
     assert.equal(result.s.selectedAction,search);
     const strongest=[...result.s.dice].sort((x,y)=>y.value-x.value)[0];
