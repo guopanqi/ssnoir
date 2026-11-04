@@ -581,6 +581,73 @@ try{
   console.log("PASS: chapter-two published plan -> actual workshop position -> three-anomaly trial collapse -> next-day worker training -> world die and Clock progress -> portable restore",
     JSON.stringify({trialDay,trainingPlace,trainedProgress:trainedClock.current}));
 
+  // A genuine training effort must be able to complete before deployment.
+  // No authored Clock or phase flags are injected; the player spends ordinary
+  // world dice and, if necessary, sleeps and returns to the same location.
+  state=await read();
+  assert.deepEqual(state.path,[],"A loaded city save should reopen at its world map");
+  state=await node(trainingPlace);
+  state=await node("陪老乔培训");
+  let progress=trainedClock.current;
+  let completedTraining=false;
+  let trainingRolls=1;
+  for(let step=0;step<14;step++){
+    linDossier=await dossierInfo();
+    if(linDossier.status==="了结"){
+      completedTraining=true;
+      break;
+    }
+    state=await read();
+    if(state.dice.length===0){
+      const beforeDay=state.day;
+      state=await sleep();
+      assert.equal(state.day,beforeDay+1);
+      assert(state.day<chapterTwoStart+14,
+        "Training must be resolved before the separate machine-arrival deadline");
+      state=await node(trainingPlace);
+      state=await node("陪老乔培训");
+    }
+    const nextTrainingAction=["逐项解释按钮","拿码头设备作比",
+      "拆开系统缩写","按真实货物还原",
+      "陪他核对步骤","让他按习惯做"].find(id=>
+        state.entries.some(x=>x.id===id&&!x.disabled));
+    assert(nextTrainingAction,
+      "Authored training phase must provide a real action while incomplete");
+    const availableBefore=state.dice.length;
+    state=await action(nextTrainingAction);
+    assert.equal(state.dice.length,availableBefore-1,
+      "Training action consumes one unmodified world die");
+    trainingRolls++;
+    linDossier=await dossierInfo();
+    if(linDossier.status!=="了结"){
+      const current=linDossier.clocks.find(c=>c.label==="基础操作")?.current;
+      assert(Number.isInteger(current)&&current>=progress&&current<=8,
+        "The original training Clock cannot lose progress unexpectedly");
+      progress=current;
+    }
+  }
+  linDossier=await dossierInfo();
+  assert.equal(linDossier.status,"了结",
+    "Player must be able to finish all three stages of worker training");
+  assert(linDossier.steps.every(x=>x.done),
+    "The original Lin dossier must mark all three authored steps complete");
+  assert(storyTrail.some(x=>String(x.text).includes("标准混装单元")),
+    "The first training threshold must deliver the terminology conflict");
+  assert(storyTrail.some(x=>String(x.text).includes("真货我会搬")),
+    "The next training threshold must expose the mismatch with real work");
+  await page.getByTestId("save-game").click({timeout:90000});
+  await settled();
+  await page.getByTestId("load-game").click({timeout:90000});
+  await settled();await story();
+  linDossier=await dossierInfo();
+  assert.equal(linDossier.status,"了结");
+  assert(linDossier.steps.every(x=>x.done),
+    "Completed training must survive the independent VM restore");
+  assert.deepEqual(errors,[],"No browser error during completed worker training");
+  console.log("PASS: partial worker training -> authored thresholds 3/6 -> qualification at 8 -> dossier closure -> portable world restore",
+    JSON.stringify({trainingRolls,finishDay:(await read()).day}));
+
+
 }finally{
   await browser?.close();await server.close();
 }
