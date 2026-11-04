@@ -1,0 +1,9 @@
+
+> ssnoir-game@0.1.0 smoke:web
+> node scripts/smoke-web.mjs
+
+BROWSER: [SSNoir] web world bootstrap 7278 ms
+WEB SMOKE: restoring saved world from day 2
+BROWSER: [SSNoir] web restore read/load {"readDatumMs":32,"moduleLoadMs":2691}
+BROWSER: [SSNoir] web restore stages {"parseMs":0,"bootstrapMs":2022,"worldLoadMs":2724,"rematerializeMs":5605,"totalMs":10351}
+PASS: real Scheme city -> hotel morning -> tavern work/die -> save -> sleep/day 2 -> reject invalid save without state loss -> restore day 1

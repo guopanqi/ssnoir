@@ -88,6 +88,7 @@ try {
   assert.equal(saved.format,"ssnoir-world");
   assert.equal(saved.state.globals["世界日"],1);
   const cashAtSave=state.money;
+  const diceAtSave=state.dice;
   await page.getByTestId("end-turn").click();
   await settled();
   await drainStory();
@@ -102,6 +103,25 @@ try {
   assert.deepEqual(state.path,[],"A new day returns to the city");
   assert(state.dice.length>oldDice-1,"The new day must roll a fresh action pool");
   await page.screenshot({path:"artifacts/web-game-next-day.png"});
+  // Exercise the real host's failed-candidate isolation before a valid restore.
+  const beforeFailedLoad=state;
+  const badSave=structuredClone(saved);
+  badSave.state.globals["世界日"]=9;
+  await page.evaluate(text=>localStorage.setItem("ssnoir-web-v1",text),JSON.stringify(badSave));
+  const errorsBeforeFailedLoad=errors.length;
+  await page.getByTestId("load-game").click({timeout:120000});
+  await page.waitForFunction(()=>{
+    const s=window.__SSNOIR_WEB__?.snapshot();
+    return s&&!s.busy&&Boolean(s.error);
+  },null,{timeout:150000});
+  state=await read();
+  assert.match(state.error,/save calendar mismatch/);
+  for(const field of ["day","money","health","dice","actors","restBlocked","restReasons","entries","path"])
+    assert.deepEqual(state[field],beforeFailedLoad[field],"A failed load must retain live "+field);
+  const expectedErrors=errors.splice(errorsBeforeFailedLoad);
+  assert.equal(expectedErrors.length,1,"Only the expected save rejection should be logged");
+  assert.match(expectedErrors[0],/^console: \[SSNoir web\].*save calendar mismatch/);
+  await page.evaluate(text=>localStorage.setItem("ssnoir-web-v1",text),JSON.stringify(saved));
   console.log("WEB SMOKE: restoring saved world from day 2");
   await page.getByTestId("load-game").click({timeout:120000});
   await page.waitForFunction(() => {
@@ -113,10 +133,11 @@ try {
   assert.equal(state.error,"");
   assert.equal(state.day,1,"Loading must restore the actual authored calendar");
   assert.equal(state.money,cashAtSave,"Loading must restore the runtime inventory");
+  assert.deepEqual(state.dice,diceAtSave,"Loading must restore unspent dice and their slot identities");
   assert.deepEqual(state.path,[]);
   await page.screenshot({path:"artifacts/web-game-restored.png"});
   assert.deepEqual(errors,[],"No runtime or browser errors");
-  console.log("PASS: real Scheme city -> hotel morning -> tavern work/die -> save -> sleep/day 2 -> restore day 1");
+  console.log("PASS: real Scheme city -> hotel morning -> tavern work/die -> save -> sleep/day 2 -> reject invalid save without state loss -> restore day 1");
 } finally {
   await browser?.close();
   await server.close();

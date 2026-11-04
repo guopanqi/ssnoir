@@ -52,6 +52,7 @@ export class GameScriptSession {
     // No runtime network or filesystem access on any host.
     await vm.bootstrapStandardLibrary(lipsStandardLibrary);
     await session.loadFile("scripts/stdlib.scm");
+    vm.accelerateContentLookups();
     await session.loadFile("scripts/engine.scm");
     return session;
   }
