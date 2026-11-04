@@ -145,3 +145,11 @@
 .failure-actions button:first-child{background:#e0c399;color:#161b1c}
 .failure-message{border-left:2px solid #c19673;padding:8px 12px;font-size:13px}
 @media(max-width:680px){.failure-card{padding:28px 22px}.failure-actions{flex-wrap:wrap}}
+
+/* A location remains anchored to the same city map; all other pins are context, not shortcuts. */
+.map-location.is-current{opacity:1!important;transform:translate(-50%,-50%)}
+.map-location.is-current .map-pin{width:28px;height:28px;border-color:#f6d79a;background:#6b4e2a;box-shadow:0 0 0 7px #a88b5970,0 0 25px #f8cf9c99}
+.map-location.is-current .map-pin:after{background:#ffe4b1}
+.map-location.is-current .map-location-name{background:#473d2d;color:#fff0d3;border-color:#dbbd81}
+.city-map:has(.is-current) .map-location:not(.is-current){opacity:.36}
+@media(max-width:680px){.map-location.is-current .map-pin{width:21px;height:21px}}

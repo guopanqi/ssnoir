@@ -25,7 +25,7 @@ function position(id,index) {
   const angle = index * 2.399963229728653;
   return [50 + 33*Math.cos(angle),50 + 30*Math.sin(angle)];
 }
-export function CityMap({places,restReasons,onOpen,locked}) {
+export function CityMap({places,activePlace=null,restReasons,onOpen,locked}) {
   const urgent=new Set(restReasons.map(reason => reason.location));
   return <div className="city-map">
     <svg className="city-map-art" viewBox="0 0 1000 700" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
@@ -63,9 +63,9 @@ export function CityMap({places,restReasons,onOpen,locked}) {
     {places.map((place,index)=>{
       const [x,y]=position(place.id,index);
       return <button key={place.id} type="button"
-        className={"map-location"+(place.disabled?" unavailable":"")+(urgent.has(place.id)?" urgent":"")}
+        className={"map-location"+(place.disabled?" unavailable":"")+(urgent.has(place.id)?" urgent":"")+(activePlace===place.id?" is-current":"")}
         style={{left:x+"%",top:y+"%"}}
-        disabled={locked||place.disabled}
+        disabled={locked||place.disabled||Boolean(activePlace)}
         onClick={()=>onOpen(place.id)}
         data-testid="map-place" data-node-id={place.id}
         title={place.subtitle ? place.title+" — "+place.subtitle : place.title}>
@@ -73,6 +73,8 @@ export function CityMap({places,restReasons,onOpen,locked}) {
         <span className="map-location-name">{place.title}</span>
       </button>;
     })}
-    <div className="map-caption">BELLEVILLE <span>城市地图 · 选择地点</span></div>
+    <div className="map-caption">BELLEVILLE <span>{activePlace
+      ? "当前位置 · "+(places.find(x=>x.id===activePlace)?.title??activePlace)
+      : "城市地图 · 选择地点"}</span></div>
   </div>;
 }

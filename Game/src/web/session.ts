@@ -21,7 +21,7 @@ export type WebSnapshot = {
   mode: "world" | "scenario";
   day: number; money: number; health: number; inventory: {id: string; quantity: number}[]; busy: boolean; error: string;
   title: string; subtitle: string; path: string[];
-  entries: ViewNode[]; clocks: RuntimeClock[];
+  entries: ViewNode[]; mapPlaces: ViewNode[]; clocks: RuntimeClock[];
   dice: DieChoice[]; selectedAction: string | null; selectedDice: DieChoice[];
   requiredDice: number; story: StoryFrame | null;
   storyCount: number; message: string; restBlocked: boolean;
@@ -169,7 +169,10 @@ export class WebGameSession {
       failure: this.host.state.getFailure(),
       busy: this.busy, error: this.error,
       title: focus.title, subtitle: focus.subtitle, path: [...this.path],
-      entries: entries.map(viewNode), clocks: focus.clocks.map(x => ({ ...x })),
+      entries: entries.map(viewNode),
+      mapPlaces: this.host.mode==="world" ?
+        this.host.root.children.filter(x=>x.isPlace).map(viewNode) : [],
+      clocks: focus.clocks.map(x => ({ ...x })),
       dice, selectedAction: this.pending?.node.name ?? null,
       selectedDice: [...(this.pending?.dice ?? [])],
       requiredDice: this.pending?.node.requires.filter(x => x.type === "die").length ?? 0,

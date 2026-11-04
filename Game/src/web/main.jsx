@@ -143,8 +143,9 @@ function App() {
     </header>
     <main className="workspace">
       <section className="scene-panel" aria-label="城市舞台">
-        {state.mode === "world" && state.path.length === 0 ?
-          <CityMap places={state.entries.filter(entry=>entry.isPlace)} restReasons={state.restReasons} locked={navigationLocked}
+        {state.mode === "world" ?
+          <CityMap places={state.mapPlaces} activePlace={state.path[0]??null}
+            restReasons={state.restReasons} locked={navigationLocked}
             onOpen={id=>session.open(id)}/> : <CityScene />}
         <div className="scene-label">
           <div className="eyebrow">{state.mode === "world" ? "THE CITY" : "ENCOUNTER"}</div>

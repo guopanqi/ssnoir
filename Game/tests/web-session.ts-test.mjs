@@ -67,6 +67,7 @@ test("web session visits an authored place, spends selected die through runtime,
   const session=new WebGameSession(fakeHost());
   assert.equal(session.getSnapshot().entries[0].title,"老街酒馆");
   assert.deepEqual(session.getSnapshot().inventory,[{id:"金钱",quantity:15}]);
+  assert.deepEqual(session.getSnapshot().mapPlaces.map(x=>x.id),["酒馆"]);
   await session.open("酒馆");
   assert.deepEqual(session.getSnapshot().path,["酒馆"]);
   await session.open("work");

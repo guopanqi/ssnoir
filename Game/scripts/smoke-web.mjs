@@ -81,6 +81,10 @@ try {
   let state=await clickNode("家");
   assert.deepEqual(state.path,["家"]);
   assert(state.entries.some(x=>x.id==="旅馆清晨"));
+  assert(await page.locator(".city-map .map-location.is-current").isVisible(),
+    "Entered location remains identifiable on the city map");
+  assert(await page.locator('[data-testid="map-place"][data-node-id="家"]').isDisabled(),
+    "An entered map pin is no longer an illegal world navigation shortcut");
   await page.screenshot({path:"artifacts/web-game-place.png"});
   state=await clickNode("旅馆清晨");
   assert.equal(state.day,1);
