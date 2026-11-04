@@ -209,6 +209,88 @@ try {
   await page.screenshot({path:"artifacts/web-game-rehearsal-finished.png"});
   assert.deepEqual(exceptions,[],"No browser exceptions through the theatre scenario");
   console.log("PASS: farewell -> day-eight required rehearsal -> scenario dice work -> restore city during scenario -> reenter -> five-round missed deliveries -> city without wages or dice contamination");
+
+  // The next required story beat is authored on day 13. Proceed by ordinary
+  // sleeping/doorway-rest actions, never by setting a Scheme global.
+  for(let day=8;day<13;day++){
+    await endDay(day);
+    state=await read();
+    console.log("ACT TWO DAY",day+1,JSON.stringify({
+      restReasons:state.restReasons.map(x=>x.id),mode:state.mode
+    }));
+  }
+  assert.equal(state.day,13);
+  assert(state.restReasons.some(x=>x.id==="赴试唱之约"),
+    "The sponsor performance must be an actual day-thirteen obligation");
+  await page.screenshot({path:"artifacts/web-game-sponsor-day13.png"});
+  await node("剧院");
+  const sponsor=await node("赴试唱之约");
+  state=sponsor.s;
+  assert.equal(state.error,"");
+  assert.equal(state.mode,"scenario","The sponsor performance must transition into pursuit");
+  assert(state.entries.some(x=>x.id==="公共走廊")&&
+         state.entries.some(x=>x.id==="工作通道"),
+    "The authored first-stage pursuit must offer two explorable routes");
+  // Choose the route indicated by the narrated evidence the player actually
+  // received; this does not inspect Scheme variables or force an outcome.
+  const evidence=sponsor.lines.join("\n");
+  const route=evidence.includes("工作通道的窄门正在回摆")?"工作通道":
+    evidence.includes("公共走廊的地毯上有新踩出的湿脚印")?"公共走廊":null;
+  assert(route,"The authored route clue must be delivered before decisions");
+  const search=route==="工作通道"?"穿过工作通道":"沿走廊寻找";
+  for(let attempt=0;attempt<24;attempt++){
+    state=await read();
+    if(state.mode==="scenario"&&
+      state.entries.some(x=>x.id==="打听离场去向"))break;
+    assert.equal(state.mode,"scenario","Pursuit must not prematurely exit phase one");
+    if(state.path.length===0){
+      await node(route);
+      state=await read();
+    }
+    if(state.dice.length===0){
+      await page.getByTestId("end-turn").click({timeout:120000});
+      await settled();await story();
+      assert.equal((await read()).error,"");
+      continue;
+    }
+    const result=await node(search);
+    assert.equal(result.s.selectedAction,search);
+    const strongest=[...result.s.dice].sort((x,y)=>y.value-x.value)[0];
+    assert(strongest,"No die available for the pursuit action");
+    await page.getByTitle(strongest.actorName+" · "+strongest.value).first()
+      .click({timeout:120000});
+    await settled();await story();
+    state=await read();
+    assert.equal(state.error,"","Pursuit search action failed");
+  }
+  state=await read();
+  assert(state.entries.some(x=>x.id==="打听离场去向"),
+    "The player must be able to reach backstage by using authored route clues");
+  await page.screenshot({path:"artifacts/web-game-pursuit-backstage.png"});
+  // Intentionally miss the departure by spending all three remaining rounds
+  // without following the car. This tests the narrative's legitimate failure.
+  for(let round=1;round<=3;round++){
+    await page.getByTestId("end-turn").click({timeout:120000});
+    await settled();await story();
+    state=await read();
+    assert.equal(state.error,"","Backstage countdown failed on round "+round);
+    if(round<3)assert.equal(state.mode,"scenario");
+  }
+  assert.equal(state.mode,"world","The missed-car result must return to the city");
+  assert.equal(state.day,13);
+  assert(!state.restReasons.some(x=>x.id==="赴试唱之约"));
+  await page.getByTestId("dossier-toggle").click({timeout:120000});
+  await settled();
+  state=await read();
+  const result=state.dossiers.find(x=>x.id==="最后一排的观众");
+  assert(result&&/没记下车牌/.test(result.now),
+    "Failed pursuit must authoritatively record the missing license plate");
+  await page.getByTestId("dossier-close").click();
+  await settled();
+  await page.screenshot({path:"artifacts/web-game-pursuit-missed.png"});
+  assert.deepEqual(exceptions,[],"No browser errors during sponsor pursuit");
+  console.log("PASS: day-thirteen sponsor performance -> evidence-directed search -> backstage deadline -> missed vehicle -> city and dossier");
+
 } finally {
   await browser?.close();
   await server.close();
