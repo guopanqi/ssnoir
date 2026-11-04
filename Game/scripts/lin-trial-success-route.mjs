@@ -196,7 +196,7 @@ try{
   ];
   for(const scenario of cases){
     let s=await load();
-    const startDay=s.day,priorMoney=s.money;
+    let startDay=s.day,priorMoney=s.money;
     if(combined){
       const startingEvidence=(await records()).find(x=>x.id==="查早报供稿人");
       assert.equal(startingEvidence?.status,"了结",
@@ -215,6 +215,14 @@ try{
       s=await read();
       assert.deepEqual(s.path,["码头"],
         "The same city day must allow a genuine map journey from Lin's workshop to the dock");
+      // The source evidence save is day 23. The required tavern brawl
+      // may hospitalize the player and legitimately advance to day 24.
+      // The authored trial is not started until day 25. Establish the
+      // Scenario's actual calendar and starting resources at its entrance,
+      // not at the earlier evidence-save checkpoint.
+      startDay=s.day;
+      priorMoney=s.money;
+      assert.equal(startDay,25,"Only the original date progression opens this trial");
     }else if(!s.path.length)s=await click("码头");
     assert(s.entries.some(x=>x.id==="开始试运行"));
     s=await click("开始试运行");
