@@ -34,7 +34,11 @@ try {
     throw new Error("Story contains more than 250 blocking frames");
   }
   async function clickNode(id){
-    const card=page.locator('[data-testid="game-entry"][data-node-id='+JSON.stringify(id)+']');
+    const current=await read();
+    const mapPlace=current.mode==="world" && current.path.length===0 &&
+      current.entries.some(entry=>entry.id===id && entry.isPlace);
+    const testId=mapPlace?"map-place":"game-entry";
+    const card=page.locator('[data-testid="'+testId+'"][data-node-id='+JSON.stringify(id)+']');
     await card.click({timeout:90000});
     await settled();
     await drainStory();
