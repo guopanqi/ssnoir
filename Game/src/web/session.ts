@@ -19,7 +19,7 @@ export interface ActionFeedback {
 }
 export type WebSnapshot = {
   mode: "world" | "scenario";
-  day: number; money: number; health: number; busy: boolean; error: string;
+  day: number; money: number; health: number; inventory: {id: string; quantity: number}[]; busy: boolean; error: string;
   title: string; subtitle: string; path: string[];
   entries: ViewNode[]; clocks: RuntimeClock[];
   dice: DieChoice[]; selectedAction: string | null; selectedDice: DieChoice[];
@@ -164,6 +164,9 @@ export class WebGameSession {
       mode: this.host.mode, day: typeof day === "number" ? day : 1,
       money: this.host.state.getItemCount("金钱"),
       health: this.host.state.injury.severity,
+      inventory: Object.entries(this.host.state.snapshot().inventory)
+        .filter(([,quantity]) => quantity > 0)
+        .map(([id,quantity]) => ({id,quantity})),
       busy: this.busy, error: this.error,
       title: focus.title, subtitle: focus.subtitle, path: [...this.path],
       entries: entries.map(viewNode), clocks: focus.clocks.map(x => ({ ...x })),
