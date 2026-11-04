@@ -339,8 +339,9 @@ try{
   state=await read();
   assert.equal(state.dossiers.find(x=>x.id==="封面上的夜莺")?.status,"了结",
     "The printed cover story must be marked settled only after the scene");
-  const inquiry=state.dossiers.find(x=>x.id.includes("追查")||x.id.includes("泄密"));
-  assert(inquiry,"The paper leak must unlock an independently playable investigation");
+  const inquiry=state.dossiers.find(x=>x.id==="谁出卖了夜莺");
+  assert.equal(inquiry?.status,"进行中",
+    "The paper leak must open the authored optional investigation by its real dossier ID");
   await page.getByTestId("dossier-close").click({timeout:90000});
   await settled();
   console.log("PASS: chapter-two fourth-day newspaper -> authored theater confrontation -> separate investigation opened");
