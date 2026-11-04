@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import {readFileSync,mkdirSync} from "node:fs";
+import {readFileSync,writeFileSync,mkdirSync} from "node:fs";
 import {chromium} from "playwright";
 import {createServer} from "vite";
 
@@ -346,6 +346,13 @@ try{
   await page.getByTestId("dossier-close").click({timeout:90000});
   await settled();
   console.log("PASS: chapter-two fourth-day newspaper -> authored theater confrontation -> separate investigation opened");
+  // A genuine player-generated chapter-two save for the independently
+  // verified investigation route; never fabricate stage flags or dates.
+  await page.getByTestId("save-game").click({timeout:90000});
+  await settled();
+  const publishedDaySave=await page.evaluate(()=>localStorage.getItem("ssnoir-web-v1"));
+  assert(publishedDaySave,"The open investigation must be serializable");
+  writeFileSync("artifacts/web-game-paper-investigation-save.json",publishedDaySave,"utf8");
 
   // P5 independent branch: the published leak allows a different legitimate
   // playthrough. Capture the unmodified city before any optional choice, then

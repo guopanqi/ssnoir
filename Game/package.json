@@ -23,7 +23,7 @@
     "smoke:web": "node scripts/smoke-web.mjs",
     "capture:web": "node scripts/smoke-web.mjs",
     "test:web": "node --experimental-strip-types --test tests/web-session.ts-test.mjs tests/rest-blockers.ts-test.mjs tests/game-nodes.ts-test.mjs tests/first-act.ts-test.mjs tests/association-lookup.ts-test.mjs tests/world-save.ts-test.mjs tests/story-player.ts-test.mjs tests/world-arrivals.ts-test.mjs tests/story-events.ts-test.mjs tests/lifecycle-integrity.ts-test.mjs tests/hospitalization-journey.ts-test.mjs tests/keyword-lookup.ts-test.mjs tests/compiled-session.ts-test.mjs tests/scenario-director.ts-test.mjs tests/scenario-round.ts-test.mjs tests/game-actions.ts-test.mjs tests/multi-actor-action.ts-test.mjs tests/scenario-carry.ts-test.mjs tests/world-navigation.ts-test.mjs tests/chase-success.ts-test.mjs",
-    "test:route": "node scripts/first-act-route.mjs && node scripts/third-act-route.mjs",
+    "test:route": "node scripts/first-act-route.mjs && node scripts/third-act-route.mjs && node scripts/paper-investigation-route.mjs",
     "bench:runtime": "node scripts/bench-world-runtime.mjs",
     "postinstall": "node scripts/build-scheme-vm.mjs",
     "bench:web": "node scripts/bench-web-interactions.mjs"
