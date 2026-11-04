@@ -36,34 +36,47 @@ async function scenario(vm,name){
 }
 const labels=node=>node.children.map(x=>x.name);
 
-test("public daily rhythm runs independently of whether Neil takes the shift",async()=>{
+
+test("the public day-nine ship announces itself independently of whether Neil takes the night shift",async()=>{
   const {vm}=await setup();
   await act(vm,7);
   assert.equal(await count(vm,`(第二幕节奏 'arrivals-at "老街酒馆")`),1);
-  assert.equal(await count(vm,`(第二幕节奏 'nodes-at "码头")`),0);
   await act(vm,9);
-  assert.equal(await count(vm,`(第二幕节奏 'arrivals-at "码头")`),1);
+  // The city first announces recruitment and then actually docks the ship.
+  assert.equal(await count(vm,`(第二幕节奏 'arrivals-at "码头")`),2);
   assert.equal(await count(vm,`(第二幕节奏 'nodes-at "码头")`),1);
+  const entry=convertNode(await vm.evaluate(`(node "码头" :children (第二幕节奏 'nodes-at "码头"))`));
+  assert(entry.children.some(x=>x.name==="参加大船夜班"),
+    "The night shift must be a genuine optional city action");
   await vm.evaluate(`(第二幕节奏 'load! (list
-    (list "ship" #t) (list "ship-work" "已结算")))`);
-  assert.equal(await count(vm,`(第二幕节奏 'nodes-at "码头")`),0);
-  await act(vm,13);
+    (list "ship" #t) (list "ship-news" #t) (list "ship-work" "已结算")))`);
+  assert.equal(await count(vm,`(第二幕节奏 'nodes-at "码头")`),0,
+    "Settled night work cannot be paid twice");
+  await act(vm,15);
   assert.equal(await count(vm,`(第二幕节奏 'arrivals-at "码头")`),1);
   assert.equal(await count(vm,`(第二幕节奏 'arrivals-at "剧院")`),1);
-  await vm.evaluate(`(第二幕节奏 'load! (list (list "dock-mark" #t) (list "poster" #t)))`);
-  assert.equal(await count(vm,`(第二幕节奏 'arrivals-at "码头")`),0);
+  await vm.evaluate(`(第二幕节奏 'load! (list
+    (list "dock-mark" #t) (list "poster" #t) (list "ship-work" "已结算")))`);
+  assert.equal(await count(vm,`(第二幕节奏 'arrivals-at "码头")`),0,
+    "The harbor survey announcement is one-shot");
 });
 
-test("cargo ship is a finite multi-round risk scenario, not a renamed wage job",async()=>{
+test("the actually linked cargo night is a finite multi-stage joint-lift scenario",async()=>{
   const {vm}=await setup();
-  const n=await scenario(vm,"大船靠岸");
-  assert.equal(n.name,"大船靠岸");
-  assert.ok(labels(n).includes("齐心卸货"));
-  assert.ok(labels(n).includes("抢卸高架货"));
-  assert.ok(labels(n).includes("收紧吊索"));
-  await vm.evaluate("(搬运! 2 0)");
-  assert.equal(await vm.evaluateNumber("(if 意外? 1 0)"),1);
-  assert.ok((await vm.evaluateNumber("(危险 'current)"))>=1);
+  const n=await scenario(vm,"大船靠岸（联合起吊）");
+  assert.equal(n.name,"联合起吊");
+  assert.ok(labels(n).includes("搬运货箱"));
+  assert.ok(labels(n).includes("协助挂索"));
+  assert.ok(!labels(n).includes("前端加快推进"),
+    "Crane controls must stay locked until normal cargo is unloaded");
+  await vm.evaluate("(卸普通货! 4)");
+  const ready=convertNode(await vm.evaluate("(get-render-data)"));
+  assert.ok(labels(ready).includes("协助检查吊具"));
+  assert.ok(labels(ready).includes("整理落货区域"));
+  assert.ok(labels(ready).includes("布置辅助防摆"));
+  assert.equal(await vm.evaluateNumber("(时间 'current)"),6,
+    "Ordinary cargo work must not consume the six-round heavy lift budget");
+  assert.equal(await vm.evaluateNumber("(if (eq? 阶段 '准备) 1 0)"),1);
 });
 
 test("Eddie risks his job when the witness backs away; only two permanent outcomes",async()=>{
@@ -80,40 +93,72 @@ test("Eddie risks his job when the witness backs away; only two permanent outcom
   assert.ok(!labels(advanced).includes("请工友对证"));
 });
 
-test("sponsor stage only contests the performance window, not who Nightingale becomes",async()=>{
+
+test("the authored sponsor performance leads to the two-stage black-coat investigation, not a retired stage scenario",async()=>{
   const {vm}=await setup();
-  const n=await scenario(vm,"赞助人试演");
-  assert.equal(n.name,"赞助人试演");
-  assert.ok(labels(n).includes("协调演出时间"));
-  assert.ok(labels(n).includes("抢留舞台空档"));
-  assert.ok(!labels(n).includes("找旧乐手救场"));
-  await vm.evaluate("(投入! 2 0)");
-  assert.equal(await vm.evaluateNumber("(if 改期? 1 0)"),1);
+  await act(vm,13);
+  const invitation=convertNode(await vm.evaluate(`(node "剧院" :children (第二幕剧院 'nodes-at "剧院"))`));
+  assert(labels(invitation).includes("赴试唱之约"),
+    "The required day-thirteen performance must remain playable");
+  const n=await scenario(vm,"最后一排的观众");
+  assert.equal(n.name,"球形剧场");
+  assert.ok(labels(n).includes("公共走廊"));
+  assert.ok(labels(n).includes("工作通道"));
+  assert.equal(await vm.evaluateNumber("(if (= 阶段 1) 1 0)"),1);
+  await vm.evaluate("(搜寻! 真路线 4)");
+  const backstage=convertNode(await vm.evaluate("(get-render-data)"));
+  assert.ok(labels(backstage).includes("打听离场去向"));
+  assert.ok(labels(backstage).includes("打听后台消息"));
+  assert.equal(await vm.evaluateNumber("(收工 'current)"),3,
+    "The three-round deadline begins only after choosing a real route");
 });
 
-test("costume contract mixes investigation dice with a decreasing-cost cash shortcut",async()=>{
+test("the authored costume job combines nested dice investigation with decreasing item-slot cash cost",async()=>{
   const {vm}=await setup();
   await act(vm,9);
-  await vm.evaluate(`(第二幕生活 'load! (list
-    (list "manager" #t) (list "contract" "已接下") (list "progress" 0)))`);
-  let n=convertNode(await vm.evaluate(`(node "剧院生活" :children (第二幕生活 'nodes-at "剧院"))`));
-  assert.ok(labels(n).includes("翻找旧库房"));
-  assert.ok(labels(n).includes("请人代找"));
-
-  assert.equal(await count(vm,`(第二幕生活 'nodes-at "剧院")`),4);
-  await vm.evaluate(`(第二幕生活 'load! (list (list "manager" #t)
-    (list "contract" "已接下") (list "progress" 2)))`);
-
-
+  await vm.evaluate(`(经理的演出服 'load! (list
+    (list "stage" "已接下") (list "appeared" 9) (list "progress" 0)))`);
+  const cards=async()=>{
+    const root=convertNode(await vm.evaluate(
+      `(node "剧院" :children (经理的演出服 'nodes-at "剧院"))`));
+    const group=root.children.find(x=>x.name==="演出服-后台搜寻组");
+    assert(group,"Costume actions must be provided by the current 城市事件 owner");
+    const search=group.children.find(x=>x.name==="旧库房找衣箱");
+    const hire=group.children.find(x=>x.name==="雇人代找衣箱");
+    assert(search&&hire,"Both original investigation and paid shortcut must remain visible");
+    assert.equal(search.requires[0]?.type,"die");
+    assert.equal(hire.requires[0]?.type,"item");
+    assert.equal(hire.requires[0]?.itemId,"金钱");
+    return {group,hire};
+  };
+  let current=await cards();
+  assert.equal(current.hire.requires[0].qty,25);
+  await vm.evaluate(`(经理的演出服 'load! (list
+    (list "stage" "已接下") (list "appeared" 9) (list "progress" 2)))`);
+  current=await cards();
+  assert.equal(current.hire.requires[0].qty,15,
+    "Progress must reduce the actual cost of the item-slot shortcut");
+  assert.equal(await count(vm,`(经理的演出服 'nodes-at "码头")`),1,
+    "The freight clerk must remain an independent alternative clue source");
 });
- 
-test("wage is after the big ship and the late-night relationship is optional",async()=>{
+
+test("the day-nine wage shift is optional and Nightingale's later dates are separate player opportunities",async()=>{
   const {vm}=await setup();
   await act(vm,9);
-  assert.equal(await count(vm,`(第二幕 'arrivals-at "码头")`),0);
+  assert.equal(await count(vm,`(第二幕节奏 'nodes-at "码头")`),1);
   await act(vm,10);
-  assert.equal(await count(vm,`(第二幕 'arrivals-at "码头")`),1);
-  assert.equal(await count(vm,`(第二幕剧院 'nodes-at "剧院")`),1);
+  assert.equal(await count(vm,`(第二幕节奏 'nodes-at "码头")`),0,
+    "An unworked night shift cannot be collected on the following day");
+  let theater=convertNode(await vm.evaluate(`(node "剧院" :children (第二幕剧院 'nodes-at "剧院"))`));
+  assert(labels(theater).includes("和夜莺吃夜宵"),
+    "The relationship meeting belongs to its own day-ten to twelve window");
+  await vm.evaluate(`(第二幕剧院 'load! (list (list "private" #t)))`);
+  theater=convertNode(await vm.evaluate(`(node "剧院" :children (第二幕剧院 'nodes-at "剧院"))`));
+  assert(!labels(theater).includes("和夜莺吃夜宵"),"The private meeting is once only");
+  await act(vm,13);
+  theater=convertNode(await vm.evaluate(`(node "剧院" :children (第二幕剧院 'nodes-at "剧院"))`));
+  assert(labels(theater).includes("赴试唱之约"),
+    "The day-thirteen required performance must remain independently available");
 });
 test("city still has activities without relationship gates",async()=>{
   const {vm}=await setup();
