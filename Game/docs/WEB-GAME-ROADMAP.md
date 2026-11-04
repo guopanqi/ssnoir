@@ -276,3 +276,11 @@ npm run bench:runtime 在 GitHub Actions 对同一世界交替执行“原始→
 - [Pages CI #41836376178](https://github.com/guopanqi/ssnoir/actions/runs/41836376178) 在部署并核对版本 `ad136ffc` 后，由 Chromium **直接打开公开** `https://guopanqi.github.io/ssnoir/game/`，实际点击旅馆/酒馆并执行返回、重入、保存和恢复。对应单次观测：旅馆首入 124 ms、返回 93 ms、重入 162 ms；酒馆首入 258 ms、返回 99 ms、重入 103 ms；保存 91 ms、恢复 478 ms，均低于当前粗粒度 CI 预算。
 - 公布的 JSON/截图已作为 `ssnoir-public-pages-interaction-evidence` 工作流附件归档。复现：`SSNOIR_BENCH_BASE_URL=https://guopanqi.github.io/ssnoir/game/ SSNOIR_BENCH_ASSERT_BUDGET=1 SSNOIR_BENCH_OUTPUT=artifacts/public-web-interactions.json npm run bench:web`。
 - 同一正式网页还执行了真实第一日操作、消耗骰子与物品、保存、非法存档拒绝后保留现行状态及合法恢复。性能数字属于该 GitHub Actions runner/Chromium 的单次测量，不代表所有玩家设备或网络环境；网页的规则语义由单独的长通路和存读档比对共同保护。
+
+### P5 第二章可选泄密调查：同源存档的两条尾随结局（2026-11-04）
+
+- [Web Game CI #41845877651](https://github.com/guopanqi/ssnoir/actions/runs/41845877651) 从第一日真实玩家按钮一路走到第二章机器到港并继续次日，75/75 项 Web 契约通过。独立可选通路从第四日产生的原始城市存档恢复，分别在剧院、格兰德酒店填充原始假消息 Clock，正常过夜两日，打开早报，尾随失手、失去线索、封卷，保存恢复仍为「了结」，不依赖开发者命令。两个机器结局可见文字、持久化状态不同，结案后下一日可操作。
+- [Web Game CI #41847302697](https://github.com/guopanqi/ssnoir/actions/runs/41847302697) 从**相同真实存档**重走另一种玩家选择：打工赚真实金钱、点酒恢复冷静、在尾随 Scenario 五段实际投骰和结束回合，成功追到报社，得到科尔姓名；卷宗「谁出卖了夜莺」结案，同时「查早报供稿人」按脚本开启。实际进入报社询问 11:07 登记，检查地下废稿间解锁，保存到新的独立 VM 后核对进度。75/75 契约及完整浏览器通路通过。
+- 上述成功不是自动解锁更深真相：科尔的送件记录与首演当天上午的稿件还需在原始 Scenario《上午十一点零七分》中继续调查，不能把开启卷宗算成拿到证据。
+- 下一条独立验收已经加入 `paper-investigation-route.mjs`：从已解锁报社开始，通过真正投骰与对手回合分清纸山、来件和稿件、四堆具体材料，集齐 11:07 封套和 11:35 第一版校样，执行「排列两件证据」。受伤中止时必须依原生医院恢复与合法重进，不修改剧情 Clock、物品、时间或任务变量；等待本轮 Web CI 实测后再标记通过。
+- 性能证据：[同轮 Web CI #41845877651](https://github.com/guopanqi/ssnoir/actions/runs/41845877651) Chromium 点击到可操作：旅馆首次187ms/重入188ms、酒馆首次450ms/重入179ms、保存108ms、恢复634ms。此前 [Pages CI #41836376178](https://github.com/guopanqi/ssnoir/actions/runs/41836376178) 已在**公开网址**完成首次/返回/重入/存读档及结果状态验收；本组较新数值为 CI 构建而不是新的公开 URL 性能数据，保持这两个证据类型的区分。
