@@ -418,9 +418,14 @@ try{
     state=await cityPlace("老街酒馆");
     if(!state.dice.length){state=await sleep();continue;}
     const earlier=state.money;
-    state=await action("服务员");
+    // The authored tavern can promote Neil from waiter to foreman. Both are
+    // real paid jobs, but only one is present according to the current career.
+    const job=state.entries.find(x=>["服务员","领班"].includes(x.id)&&!x.disabled);
+    assert(job,"A playable paid shift must be available at the tavern: "+
+      JSON.stringify(state.entries.map(x=>[x.id,x.disabled])));
+    state=await action(job.id);
     assert(state.money>earlier,
-      "Authored tavern work must earn wages before a dangerous pursuit");
+      "Authored "+job.id+" shift must earn wages before a dangerous pursuit");
     paidShifts++;
   }
   assert(state.money>=35,
