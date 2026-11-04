@@ -8,12 +8,16 @@ import {createServer} from 'vite';
 const appRoot=resolve(process.env.SSNOIR_BENCH_ROOT??'.');
 const port=Number(process.env.SSNOIR_BENCH_PORT??4174);
 const output=resolve(process.env.SSNOIR_BENCH_OUTPUT??'artifacts/web-interactions.json');
-const server=await createServer({root:appRoot,configFile:resolve(appRoot,'vite.config.ts'),
+const deployedBase=process.env.SSNOIR_BENCH_BASE_URL;
+// Measure the exact public Pages build with the same action script as CI's
+// local baseline. In public mode no development server or developer commands
+// are used; all interactions use visible browser controls.
+const server=deployedBase?null:await createServer({root:appRoot,configFile:resolve(appRoot,'vite.config.ts'),
   cacheDir:resolve(appRoot,'node_modules/.vite-perf'),
   optimizeDeps:{force:true},server:{host:'127.0.0.1',port,strictPort:true}});
 let browser;
 try{
-  await server.listen();
+  await server?.listen();
   browser=await chromium.launch({headless:true,args:['--no-sandbox','--enable-webgl',
     '--enable-unsafe-swiftshader','--use-gl=angle','--use-angle=swiftshader']});
   const page=await browser.newPage({viewport:{width:1440,height:850}});
@@ -58,7 +62,10 @@ try{
       'One UI target per authored node: '+JSON.stringify({id,selector,path:state.path}));
     await locator.click({timeout:30000});
   }
-  await page.goto(`http://127.0.0.1:${port}/?seed=42`,{waitUntil:'domcontentloaded'});
+  const gameUrl=deployedBase?
+    new URL('?seed=42',deployedBase.endsWith('/')?deployedBase:deployedBase+'/').href:
+    `http://127.0.0.1:${port}/?seed=42`;
+  await page.goto(gameUrl,{waitUntil:'domcontentloaded'});
   await page.getByTestId('game-ready').waitFor({timeout:180000});await settled();await story();
   await timed('hotel-first',()=>node('家'));
   await timed('world-return',()=>page.getByTestId('back').click());
@@ -86,4 +93,4 @@ try{
   }
   const result={environment:{browser:browser.version(),node:process.version,viewport:[1440,850]},timings,snapshots,saved,stages};
   mkdirSync(resolve(output,'..'),{recursive:true});writeFileSync(output,JSON.stringify(result,null,2)+'\n');
-}finally{await browser?.close();await server.close();}
+}finally{await browser?.close();await server?.close();}

@@ -142,3 +142,19 @@ jobs:
         env:
           SSNOIR_WEB_BASE_URL: https://guopanqi.github.io/ssnoir/game/
         run: npm run smoke:web
+      - name: Measure real location navigation, save and restore on published Pages
+        working-directory: Game
+        env:
+          SSNOIR_BENCH_BASE_URL: https://guopanqi.github.io/ssnoir/game/
+          SSNOIR_BENCH_ASSERT_BUDGET: '1'
+          SSNOIR_BENCH_OUTPUT: artifacts/public-web-interactions.json
+        run: npm run bench:web
+      - name: Preserve public Pages interaction timings and snapshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ssnoir-public-pages-interaction-evidence
+          path: |
+            Game/artifacts/public-web-interactions.json
+            Game/artifacts/public-web-interactions.png
+          if-no-files-found: warn
