@@ -182,3 +182,9 @@ Web NativeBridge 正式承接原脚本的 `__bubble-restore-composure`：仅将�
 ### P2 对手回合成本和后果的可见反馈
 
 原 Web 的 `endTurn` 执行五回合彩排时只显示「交锋进入下一回合」，并清空此前行动反馈，玩家无法从结算提示判断冷静耗损及其他资源变化。现在对每次 `GameSceneDirector.endRound()` 前后的真实 `GameRuntimeState.snapshot()` 做同一展示层差值投影，显示冷静、伤势、金钱等实际变化；不推断或修改任何规则，也不伪造 Clock 增量（时钟仍由作者的进度条直接显示）。新增 WebSession 单测以及真实第八天彩排五回合路线断言。
+
+### P2 Scenario 失败与恢复边界（浏览器回归）
+
+- [Web CI #41779148099](https://github.com/guopanqi/ssnoir/actions/runs/41779148099) 已证明从新档到第八天彩排，并完成五次原生 Scenario 回合，43/43 项 Web 测试通过。第 5 回合正确回到城市且解除必做事件。
+- 继续让真实浏览器在第八天进入剧院前保存城市，Scenario 内花骰后从 UI 读档；要求恢复为第八天世界、原骰槽和原资源，强制彩排仍待完成，旧 Scenario 的临时状态不能外泄。
+- 再次合法赴约后只执行一次布景行动，允许原 Scheme 的布景/灯位两项目标双双错过，五回合自然结束。必须零工钱、原城市骰子正确归还、必做事件解除。所有数值都从原始快照及 Scheme 状态读取，不能人为修改或直接结束 Scenario。

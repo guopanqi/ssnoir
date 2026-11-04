@@ -127,6 +127,12 @@ try {
   assert(state.restReasons.some(x=>x.id==="观看正式彩排"),
     "Day-eight first rehearsal must be an authored mandatory world action");
   await page.screenshot({path:"artifacts/web-game-rehearsal-day8.png"});
+  const cashBeforeRehearsal=state.money;
+  const diceBeforeRehearsal=state.dice.map(x=>({actorId:x.actorId,slotId:x.slotId,value:x.value}));
+  await page.getByTestId("save-game").click({timeout:120000});
+  await page.waitForFunction(()=>Boolean(localStorage.getItem("ssnoir-web-v1")),null,{timeout:90000});
+  const dayEightSave=await page.evaluate(()=>localStorage.getItem("ssnoir-web-v1"));
+  assert.equal(JSON.parse(dayEightSave).state.globals["世界日"],8);
   await node("剧院");
   ({s:state}=await node("观看正式彩排"));
   assert.equal(state.error,"","The rehearsal must enter the current authored scenario");
@@ -146,6 +152,37 @@ try {
   assert.equal(state.selectedAction,null);
   assert.equal(state.dice.length,beforeWorkDice-1,"A real rehearsal action spends a die");
   await page.screenshot({path:"artifacts/web-game-rehearsal-action.png"});
+  // The city save must be recoverable from a live Scenario without leaving
+  // scenario-only dice, actions or temporary state in the world.
+  assert(await page.getByTestId("save-game").isDisabled(),
+    "A scenario must not be saved as a normal city world snapshot");
+  assert(await page.getByTestId("load-game").isEnabled(),
+    "The player must be able to recover from a scenario with a prior save");
+  await page.getByTestId("load-game").click({timeout:180000});
+  await settled();await story();
+  state=await read();
+  assert.equal(state.error,"","Restoring during a rehearsal must succeed");
+  assert.equal(state.mode,"world","Restoring a city save abandons the active Scenario");
+  assert.equal(state.day,8);
+  assert.deepEqual(state.path,[]);
+  assert.equal(state.money,cashBeforeRehearsal);
+  assert.deepEqual(state.dice.map(x=>({actorId:x.actorId,slotId:x.slotId,value:x.value})),
+    diceBeforeRehearsal,"The saved city dice must be restored without scenario contamination");
+  assert(state.restReasons.some(x=>x.id==="观看正式彩排"),
+    "The saved mandatory rehearsal must be available again");
+  await page.screenshot({path:"artifacts/web-game-rehearsal-restored.png"});
+  // Reenter the authored Scene and deliberately miss both delivery deadlines:
+  // a single stage-work action cannot fill six scenery and eight light slots.
+  await node("剧院");
+  ({s:state}=await node("观看正式彩排"));
+  assert.equal(state.mode,"scenario","Rehearsal must be reenterable after city restore");
+  ({s:state}=await node("搬运布景"));
+  assert.equal(state.selectedAction,"搬运布景");
+  await page.locator(".die:not([disabled])").first().click({timeout:90000});
+  await settled();await story();
+  state=await read();
+  assert.equal(state.selectedAction,null);
+  assert.equal(state.error,"");
   for(let round=1;round<=5;round++){
     await page.getByTestId("end-turn").click({timeout:120000});
     await settled();
@@ -165,9 +202,13 @@ try {
   assert.equal(state.day,8,"Scenario rounds must not advance the city date");
   assert(!state.restReasons.some(x=>x.id==="观看正式彩排"),
     "Completed rehearsal must clear the mandatory visit");
+  assert.equal(state.money,cashBeforeRehearsal,
+    "Missing both original authored delivery deadlines must award no rehearsal wages");
+  assert.deepEqual(state.dice.map(x=>({actorId:x.actorId,slotId:x.slotId,value:x.value})),
+    diceBeforeRehearsal,"Scenario end must restore the saved city's action dice slots");
   await page.screenshot({path:"artifacts/web-game-rehearsal-finished.png"});
   assert.deepEqual(exceptions,[],"No browser exceptions through the theatre scenario");
-  console.log("PASS: farewell -> day-eight required rehearsal -> dice work -> five rounds -> authored scenario result -> city");
+  console.log("PASS: farewell -> day-eight required rehearsal -> scenario dice work -> restore city during scenario -> reenter -> five-round missed deliveries -> city without wages or dice contamination");
 } finally {
   await browser?.close();
   await server.close();
