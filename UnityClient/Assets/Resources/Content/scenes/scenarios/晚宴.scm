@@ -316,14 +316,12 @@
         (tr "他愿意谈程序，不愿意谈谁让程序转得更快"
           "He will discuss procedure, but not who makes it move faster") 'knowledge police-clk
         (tr "他记得每一份手续，却不肯说谁先打过电话"
-          "He remembers every form, but will not say who called first")
-        (tr "与贝恩斯深谈" "Talk with Baines"))
+          "He remembers every form, but will not say who called first"))
       (talk-node "和记者谈" (tr "和记者谈" "Talk with the Reporter")
         (tr "他明早离城，今晚只够决定要不要交换姓名"
           "He leaves tomorrow; tonight there is barely time to trade names") 'sharpness reporter-clk
         (tr "他不是在听故事；他在判断哪一种故事有人肯买"
-          "He is weighing which version of the story someone would buy")
-        (tr "与记者深谈" "Talk with the Reporter"))
+          "He is weighing which version of the story someone would buy"))
       (node-rest "在餐桌边停下" (tr "在餐桌边停下" "Pause by the Table")
         "晚宴-沙龙" 1 (tr "花一颗行动骰，恢复 1 点心情"
           "Spend one die to regain 1 mood")))))

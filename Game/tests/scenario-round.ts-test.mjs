@@ -18,3 +18,27 @@ scan("scripts");scan("scenes");test("real blackmail scenario taxes one composure
  assert.equal(director.state.team.composure("player"),initial-1);
  assert.equal(director.state.team.dice("player").length,4);
 });
+
+test("authored banquet changes from group mingling into four real guests after three dances",async()=>{
+ const director=await GameSceneDirector.create(sources,()=>0.999);
+ let room=await director.start("晚宴");
+ assert.equal(director.mode,"scenario");
+ assert(room.children.some(x=>x.name==="加入赞助人"),"First half starts with the social groups");
+ assert(director.state.team.diceSnapshot()["夜莺"],"Nightingale is recruited by authored entrance");
+ for(let turn=1;turn<=3;turn++){
+   const frames=await director.endRound();
+   assert(frames.some(x=>x.phase==="opponent-rule"),
+     "Each dance progresses by the real opponent rule");
+ }
+ room=await director.render();
+ assert.deepEqual(
+   ["和薇拉谈","陪他喝一杯","和贝恩斯谈","和记者谈"]
+     .filter(id=>room.children.some(x=>x.name===id)),
+   ["和薇拉谈","陪他喝一杯","和贝恩斯谈","和记者谈"],
+   "The complete second-half character choices must be constructible");
+ assert(!room.children.some(x=>x.name==="加入赞助人"),
+   "The player must not see first-half group actions after changing acts");
+ assert.equal(director.mode,"scenario","Entering act two is not an exit");
+ for(let turn=4;turn<=6;turn++)await director.endRound();
+ assert.equal(director.mode,"world","The sixth dance ends through the original authored countdown");
+});
