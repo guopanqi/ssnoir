@@ -433,6 +433,40 @@ try{
         assert(d.steps.every(x=>x.done),
           "The cross-branch checkpoint cannot forge or lose completed steps: "+id);
       }
+      // Next playable checkpoint after the combined machine-day victory:
+      // the city must permit another real night and preserve independent
+      // dossiers after a complete isolated Scheme VM reconstruction.
+      const closedIds=["谁出卖了夜莺","查早报供稿人","林与新机器","机器进入老街"];
+      const historyBefore=Object.fromEntries(closedIds.map(id=>{
+        const d=combinedDossiers.find(x=>x.id===id);
+        return [id,{status:d.status,steps:d.steps,log:d.log}];
+      }));
+      assert.equal((await read()).day,machineDay);
+      const tomorrow=await sleep();
+      assert.equal(tomorrow.day,machineDay+1,
+        "Only real lodging or lawful hospitalization advances the next chapter day");
+      assert.equal(tomorrow.mode,"world");
+      assert.equal(tomorrow.error,"");
+      assert(!tomorrow.restReasons.some(x=>
+        x.node==="到跳板去"||x.node==="看着这一天过完"),
+        "A settled machine-day must never leave its rest blocker active");
+      await page.getByTestId("save-game").click({timeout:90000});
+      await settled();
+      const nextDaySave=await page.evaluate(()=>localStorage.getItem("ssnoir-web-v1"));
+      assert(nextDaySave&&nextDaySave!==qualifiedEndingSave,
+        "Following-day world changes must persist in a new portable save");
+      await page.getByTestId("load-game").click({timeout:90000});
+      await settled();await story();
+      assert.equal((await read()).day,machineDay+1);
+      const historyAfter=await records();
+      for(const id of closedIds){
+        const d=historyAfter.find(x=>x.id===id);
+        assert.deepEqual({status:d?.status,steps:d?.steps,log:d?.log},historyBefore[id],
+          "Following-day progression cannot erase independently settled history: "+id);
+      }
+      console.log("PASS: original evidence + Lin safety and worker training -> "+
+        "legal following night -> all four closed histories intact on VM restore",
+        JSON.stringify({route:scenario.route,fromDay:machineDay,nextDay:tomorrow.day}));
     }
     assert(qualifiedEndingSave!==endingSave,
       "Optional training must produce a meaningfully distinct persisted character history");
