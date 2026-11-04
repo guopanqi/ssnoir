@@ -10,7 +10,7 @@ export type ViewNode = {
   id: string; title: string; subtitle: string; isPlace: boolean; disabled: boolean;
   tags: string[]; clocks: RuntimeClock[]; requires: ActionCost[];
   action: string | null; risk: string | null; childCount: number;
-  note: string | null;
+  note: string | null; groupPath?: string[];
 };
 export interface ActionFeedback {
   title: string;
@@ -21,8 +21,11 @@ export type WebSnapshot = {
   mode: "world" | "scenario";
   day: number; money: number; health: number; inventory: {id: string; quantity: number}[]; busy: boolean; error: string;
   title: string; subtitle: string; path: string[];
-  entries: ViewNode[]; mapPlaces: ViewNode[]; clocks: RuntimeClock[];
+  entries: ViewNode[]; displayCards: ViewNode[]; mapPlaces: ViewNode[]; clocks: RuntimeClock[];
   dice: DieChoice[]; selectedAction: string | null; selectedDice: DieChoice[];
+  selectedSlots: (Allocation | null)[];
+  actionPreview: {prepared:number;fail:number;neutral:number;success:number}|null;
+  canExecute:boolean; resultOpen:boolean;
   requiredDice: number; story: StoryFrame | null;
   storyCount: number; message: string; restBlocked: boolean;
   actors: { id: string; name: string; composure: number; status: string }[];
@@ -32,8 +35,27 @@ export type WebSnapshot = {
   lastAction: ActionFeedback | null;
   failure: {title:string;description:string}|null;
 };
-type Allocation = { type: "die"; actorId: string; slotId: number } |
+export type Allocation = { type: "die"; actorId: string; slotId: number } |
   { type: "item"; itemId: string; qty: number };
+export type DropResource = {type:"die";actorId:string;slotId:number} |
+  {type:"item";itemId:string};
+function descend(nodes:RuntimeNode[],id:string):RuntimeNode|undefined{
+  for(const node of nodes){
+    if(node.name===id)return node;
+    const child=descend(node.children,id);
+    if(child)return child;
+  }
+}
+function flattenCards(nodes:RuntimeNode[],groupPath:string[]=[]):ViewNode[]{
+  const result:ViewNode[]=[];
+  for(const node of nodes){
+    if(node.isPlace)continue;
+    result.push({...viewNode(node),groupPath:[...groupPath]});
+    if(node.children.length)result.push(...flattenCards(node.children,
+      [...groupPath,node.title]));
+  }
+  return result;
+}
 function viewNode(n: RuntimeNode): ViewNode {
   const kind = n.resolve?.kind ?? null;
   return {
@@ -97,7 +119,11 @@ export class WebGameSession {
   private pendingBanter:StoryFrame[]=[];
   private redeemedBubbles=new Set<number>();
   private path: string[] = [];
-  private pending: { node: RuntimeNode; dice: DieChoice[] } | null = null;
+  private pending: {
+    node:RuntimeNode;slots:(Allocation|null)[];autoCommit:boolean;
+    preview:{prepared:number;fail:number;neutral:number;success:number}|null;
+  }|null=null;
+  private resultOpen=false;
   private busy = false;
   private error = "";
   private message = "";
@@ -170,11 +196,19 @@ export class WebGameSession {
       busy: this.busy, error: this.error,
       title: focus.title, subtitle: focus.subtitle, path: [...this.path],
       entries: entries.map(viewNode),
+      displayCards:this.host.mode==="world"&&!this.path.length ? [] :
+        flattenCards(entries),
       mapPlaces: this.host.mode==="world" ?
         this.host.root.children.filter(x=>x.isPlace).map(viewNode) : [],
       clocks: focus.clocks.map(x => ({ ...x })),
       dice, selectedAction: this.pending?.node.name ?? null,
-      selectedDice: [...(this.pending?.dice ?? [])],
+      selectedDice: (this.pending?.slots??[]).filter((x):x is Extract<Allocation,{type:"die"}> =>
+        x?.type==="die").map(x=>dice.find(d=>d.actorId===x.actorId&&d.slotId===x.slotId))
+        .filter((x):x is DieChoice=>Boolean(x)),
+      selectedSlots:this.pending?.slots.map(x=>x?{...x}:null)??[],
+      actionPreview:this.pending?.preview?{...this.pending.preview}:null,
+      canExecute:Boolean(this.pending?.slots.every(x=>x!==null)),
+      resultOpen:this.resultOpen,
       requiredDice: this.pending?.node.requires.filter(x => x.type === "die").length ?? 0,
       story: this.story.current, storyCount: this.story.pendingCount(),
       message: this.message, restBlocked: this.host.state.hasRestBlockers(),
@@ -197,65 +231,192 @@ export class WebGameSession {
     }
     finally { this.busy = false; this.emit(); }
   }
-  async open(id: string): Promise<void> {
-    return this.command(async () => {
+  private availableNode(id:string):RuntimeNode {
+    const focus=this.focus();
+    const nodes=[...focus.children,
+      ...(this.host.mode==="scenario"&&focus===this.host.root ?
+        this.host.runner.getCarryNodes():[])];
+    const node=descend(nodes,id);
+    if(!node||node.disabled)throw new Error("不可访问的节点："+id);
+    return node;
+  }
+  private stage(node:RuntimeNode,autoCommit:boolean):void {
+    if(node.children.length||node.isPlace||
+      (node.resolve?.kind!=="instant"&&node.resolve?.kind!=="roll"))
+      throw new Error("该节点不是可以执行的行动");
+    this.pending={node,autoCommit,preview:null,
+      slots:node.requires.map(req=>req.type==="item"&&autoCommit?
+        {type:"item" as const,itemId:req.itemId!,qty:req.qty!}:null)};
+    this.resultOpen=false;
+  }
+  /** Normal UI: a card's slots are always visible; no preliminary card click. */
+  async assignToSlot(id:string,index:number,resource:DropResource):Promise<void>{
+    return this.command(async()=>{
       if(this.dossierOpen)throw new Error("请先关闭卷宗");
-      if (this.pending) throw new Error("请完成当前骰子分配，或按返回取消行动");
-      const focus = this.focus();
-      const node = [...focus.children,
-        ...(this.host.mode === "scenario" && focus === this.host.root ?
-          this.host.runner.getCarryNodes() : [])].find(x => x.name === id);
-      if (!node || node.disabled) throw new Error("不可访问的节点：" + id);
-      this.message = "";
-      this.lastAction=null;
-      if (node.isPlace) {
-        if (this.host.mode !== "world" || focus !== this.host.root) throw new Error("地点只能从城市进入");
-        await this.host.enterPlace(node.name);
-        this.path = this.host.mode === "world" ? [node.name] : [];
-        this.feed(this.host.state.takeStoryEvents());
-      } else if (node.children.length) {
-        this.path.push(node.name);
-      } else if (node.resolve?.kind === "note" || node.resolve?.kind === "observe") {
-        this.message = viewNode(node).note ?? node.title;
-      } else if (node.resolve?.kind === "instant" || node.resolve?.kind === "roll") {
-        this.pending = { node, dice: [] };
-        if (!node.requires.some(x => x.type === "die")) await this.commitAction();
+      const node=this.availableNode(id);
+      const req=node.requires[index];
+      if(!req)throw new Error("行动没有对应的资源槽");
+      if(req.type!==resource.type)throw new Error("资源类型与行动槽不匹配");
+      if(!this.pending||this.pending.node.name!==id)this.stage(node,false);
+      const pending=this.pending!;
+      const original=pending.slots.map(x=>x?{...x}:null);
+      const previousPreview=pending.preview;
+      try {
+        let allocation:Allocation;
+        if(resource.type==="die"){
+          const die=this.getSnapshot().dice.find(d=>
+            d.actorId===resource.actorId&&d.slotId===resource.slotId);
+          if(!die)throw new Error("骰子已经消耗或不可用");
+          if(pending.slots.some((x,i)=>i!==index&&x?.type==="die"&&
+             x.actorId===resource.actorId&&x.slotId===resource.slotId))
+            throw new Error("同一枚骰子不能投入两个槽");
+          allocation={type:"die",actorId:resource.actorId,slotId:resource.slotId};
+        } else {
+          if(req.itemId?.toLowerCase()!==resource.itemId.toLowerCase())
+            throw new Error("这个槽需要："+req.itemId);
+          const needed=req.qty??1;
+          const reserved=pending.slots.reduce((n,x,i)=>n+(i!==index&&x?.type==="item"&&
+            x.itemId.toLowerCase()===resource.itemId.toLowerCase()?x.qty:0),0);
+          if(this.host.state.getItemCount(resource.itemId)<reserved+needed)
+            throw new Error("物品数量不足");
+          allocation={type:"item",itemId:req.itemId!,qty:needed};
+        }
+        pending.slots[index]=allocation;
+        const first=pending.slots.find((x):x is Extract<Allocation,{type:"die"}> =>
+          x?.type==="die");
+        pending.preview=pending.node.resolve?.kind==="roll"&&first?
+          await this.host.runner.previewRoll(pending.node.name,first.actorId,first.slotId):null;
+      }catch(error){
+        pending.slots=original;pending.preview=previousPreview;
+        throw error;
       }
     });
   }
-  async pickDie(actorId: string, slotId: number): Promise<void> {
-    return this.command(async () => {
-      if (!this.pending) throw new Error("没有等待分配骰子的行动");
-      const available = this.getSnapshot().dice.find(x => x.actorId === actorId && x.slotId === slotId);
-      if (!available) throw new Error("骰子不可用");
-      if (this.pending.dice.some(x => x.actorId === actorId && x.slotId === slotId)) throw new Error("骰子不能重复");
-      this.pending.dice.push(available);
-      const needed = this.pending.node.requires.filter(x => x.type === "die").length;
-      if (this.pending.dice.length === needed) await this.commitAction();
+  async clearSlot(id:string,index:number):Promise<void>{
+    return this.command(async()=>{
+      if(!this.pending||this.pending.node.name!==id) return;
+      if(!this.pending.slots[index])return;
+      this.pending.slots[index]=null;
+      const first=this.pending.slots.find((x):x is Extract<Allocation,{type:"die"}> =>
+        x?.type==="die");
+      this.pending.preview=this.pending.node.resolve?.kind==="roll"&&first?
+        await this.host.runner.previewRoll(id,first.actorId,first.slotId):null;
     });
   }
-  private async commitAction(): Promise<void> {
-    const pending = this.pending;
-    if (!pending) throw new Error("no pending action");
-    let index = 0;
-    const slots: Allocation[] = pending.node.requires.map(req => {
-      if (req.type === "item") return { type: "item", itemId: req.itemId!, qty: req.qty! };
-      const die = pending.dice[index++];
-      if (!die) throw new Error("missing die for action");
-      return { type: "die", actorId: die.actorId, slotId: die.slotId };
+  async executeAction(id:string):Promise<void>{
+    return this.command(async()=>{
+      if(this.dossierOpen)throw new Error("请先关闭卷宗");
+      if(!this.pending||this.pending.node.name!==id)this.stage(this.availableNode(id),false);
+      if(this.pending!.slots.some(x=>x===null))
+        throw new Error("请先把骰子或物品放入所有必需的槽");
+      await this.commitAction();
     });
-    const previousMode = this.host.mode;
-    const outcome = await this.host.runner.performSlots(pending.node.name, slots);
-    this.pending = null;
+  }
+  async cancelAction():Promise<void>{
+    return this.command(async()=>{this.pending=null;this.message="";});
+  }
+  dismissResult():void{this.resultOpen=false;this.emit();}
+
+  /** Keep legacy scripted card clicks compatible; the drag UI uses assignToSlot instead. */
+  async open(id: string): Promise<void> {
+    return this.command(async () => {
+      if(this.dossierOpen)throw new Error("请先关闭卷宗");
+      if(this.pending)throw new Error("请完成当前骰子分配，或按返回取消行动");
+      const node=this.availableNode(id);
+      const focus=this.focus();
+      this.message="";this.lastAction=null;this.resultOpen=false;
+      if(node.isPlace){
+        if(this.host.mode!=="world"||focus!==this.host.root)
+          throw new Error("地点只能从城市进入");
+        await this.host.enterPlace(node.name);
+        this.path=this.host.mode==="world"?[node.name]:[];
+        this.feed(this.host.state.takeStoryEvents());
+      } else if(node.children.length){
+        // Existing containers still support semantic focus for keyboard and old saves.
+        // Direct card rendering below exposes their actions without opening them.
+        const findPath=(nodes:RuntimeNode[],id:string,prefix:string[]=[]):string[]|null=>{
+          for(const item of nodes){
+            const next=[...prefix,item.name];
+            if(item.name===id)return next;
+            const sub=findPath(item.children,id,next);
+            if(sub)return sub;
+          }
+          return null;
+        };
+        const path=findPath(focus.children,id);
+        if(!path)throw new Error("容器不属于当前节点："+id);
+        this.path.push(...path);
+      } else if(node.resolve?.kind==="note"||node.resolve?.kind==="observe"){
+        this.message=viewNode(node).note??node.title;
+      } else if(node.resolve?.kind==="instant"||node.resolve?.kind==="roll"){
+        this.stage(node,true);
+        if(!node.requires.some(x=>x.type==="die"))await this.commitAction();
+      }
+    });
+  }
+  async pickDie(actorId:string,slotId:number):Promise<void>{
+    return this.command(async()=>{
+      const pending=this.pending;
+      if(!pending)throw new Error("没有等待分配骰子的行动");
+      const index=pending.node.requires.findIndex((req,i)=>req.type==="die"&&
+        pending.slots[i]===null);
+      if(index<0)throw new Error("当前行动没有空的骰子槽");
+      const available=this.getSnapshot().dice.find(x=>
+        x.actorId===actorId&&x.slotId===slotId);
+      if(!available)throw new Error("骰子不可用");
+      if(pending.slots.some(x=>x?.type==="die"&&
+        x.actorId===actorId&&x.slotId===slotId))throw new Error("骰子不能重复");
+      pending.slots[index]={type:"die",actorId,slotId};
+      if(!pending.autoCommit&&pending.node.resolve?.kind==="roll"){
+        pending.preview=await this.host.runner.previewRoll(pending.node.name,actorId,slotId);
+      }
+      if(pending.autoCommit&&pending.slots.every(x=>x!==null))await this.commitAction();
+    });
+  }
+  private async commitAction():Promise<void>{
+    const pending=this.pending;
+    if(!pending)throw new Error("no pending action");
+    if(pending.slots.some(x=>x===null))throw new Error("行动资源槽尚未填满");
+    const slots=pending.slots as Allocation[];
+    const previousMode=this.host.mode;
+    const outcome=await this.host.runner.performSlots(pending.node.name,slots);
+    this.pending=null;
     await this.host.refresh();
-    const dayAdvance = this.host.takeDayAdvance();
-    if (this.host.mode !== previousMode || dayAdvance) this.path = [];
+    const dayAdvance=this.host.takeDayAdvance();
+    if(this.host.mode!==previousMode||dayAdvance)this.path=[];
     this.focus();
     this.lastAction=dayAdvance?null:summarizeAction(outcome,pending.node.title,
       slots.filter(x=>x.type==="die").length);
-    this.message = dayAdvance ? ("第 " + dayAdvance.after + " 日") :
-      pending.node.title + " · " + this.lastAction!.result;
-    this.feed([...(dayAdvance?.events ?? []), ...this.host.state.takeStoryEvents()]);
+    this.resultOpen=!pending.autoCommit&&Boolean(this.lastAction);
+    this.message=dayAdvance?("第 "+dayAdvance.after+" 日"):
+      pending.node.title+" · "+this.lastAction!.result;
+    this.feed([...(dayAdvance?.events??[]),...this.host.state.takeStoryEvents()]);
+  }
+  /** A map pin is authoritative navigation, even while a different location is open. */
+  async switchPlace(id:string):Promise<void>{
+    return this.command(async()=>{
+      if(this.host.mode!=="world")throw new Error("交锋中不能切换城市地点");
+      const place=this.host.getPlaces().find(x=>x.name===id&&!x.disabled);
+      if(!place)throw new Error("地点尚未开放："+id);
+      if(this.path[0]===id&&this.path.length===1){
+        this.pending=null;this.resultOpen=false;return;
+      }
+      await this.host.enterPlace(id);
+      this.pending=null;this.path=this.host.mode==="world"?[id]:[];
+      this.resultOpen=false;this.lastAction=null;this.message="";
+      this.feed(this.host.state.takeStoryEvents());
+    });
+  }
+  async closeLocation():Promise<void>{
+    return this.command(async()=>{
+      if(this.host.mode!=="world")return;
+      if(this.path.length){
+        await this.host.leavePlace();
+        this.path=[];
+        this.feed(this.host.state.takeStoryEvents());
+      }
+      this.pending=null;this.resultOpen=false;this.lastAction=null;this.message="";
+    });
   }
   async back(): Promise<void> {
     return this.command(async () => {
@@ -312,6 +473,7 @@ export class WebGameSession {
       const after=this.host.state.snapshot();
       // Enemy-round consequences are real state deltas; do not infer them
       // from story captions or add a separate UI-side gameplay rule.
+      this.resultOpen=false;
       this.lastAction=advance?null:summarizeAction({
         name:"交锋回合",mode:"instant",before,after,clockEffects:[]
       },"回合结算",0);
@@ -333,7 +495,7 @@ export class WebGameSession {
       await new Promise<void>(resolve => setTimeout(resolve, 25));
       await this.host.load(text);
       this.path = []; this.pending = null; this.message = "存档已载入";
-      this.lastAction=null;this.dossierOpen=false;this.dossiers=[];
+      this.lastAction=null;this.resultOpen=false;this.dossierOpen=false;this.dossiers=[];
       this.story = new StoryPlaybackQueue();
       this.pendingBanter=[];this.redeemedBubbles.clear();
       this.feed(this.host.state.takeStoryEvents());
