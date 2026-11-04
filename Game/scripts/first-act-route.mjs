@@ -38,7 +38,9 @@ try {
     if(card.disabled)throw new Error("Disabled authored node "+id+" at "+JSON.stringify({
       day:before.day,path:before.path,subtitle:card.subtitle,
       restReasons:before.restReasons}));
-    await page.locator('[data-testid="game-entry"][data-node-id='+JSON.stringify(id)+']')
+    const mapPlace=before.mode==="world"&&!before.path.length&&card.isPlace;
+    const testId=mapPlace?"map-place":"game-entry";
+    await page.locator('[data-testid="'+testId+'"][data-node-id='+JSON.stringify(id)+']')
       .click({timeout:90000});
     await settled();
     const lines=await story();
