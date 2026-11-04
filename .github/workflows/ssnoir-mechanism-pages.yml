@@ -113,6 +113,36 @@ jobs:
         uses: actions/upload-pages-artifact@v4
         with:
           path: pages-dist
+      # One-time reconciliation for the old timed-out Pages deployment.
+      # Its workflow reported cancellation, but the Pages backend continued to
+      # reject newer releases as "in progress". Only touch this known stale SHA;
+      # never cancel whichever deployment happens to be running concurrently.
+      - name: Reconcile orphaned Pages deployment before publishing
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          old=ac4e82368e3e3264326636beeb8465f818bb3a13
+          api="repos/$GITHUB_REPOSITORY/pages/deployments/$old"
+          status="$(gh api "$api" --jq '.status' 2>/dev/null || true)"
+          case "$status" in
+            ""|succeed|success|cancelled|canceled|failed|error)
+              echo "Previous Pages deployment is no longer active: ${status:-not found}"
+              ;;
+            *)
+              echo "Canceling confirmed stale Pages deployment $old (status: $status)"
+              gh api --method POST "$api/cancel" >/dev/null
+              for attempt in $(seq 1 20); do
+                status="$(gh api "$api" --jq '.status' 2>/dev/null || true)"
+                case "$status" in
+                  ""|succeed|success|cancelled|canceled|failed|error)
+                    echo "Previous Pages deployment released: ${status:-not found}"
+                    break ;;
+                esac
+                sleep 3
+              done
+              ;;
+          esac
       - name: Deploy research webpage
         uses: actions/deploy-pages@v4
         id: deployment
