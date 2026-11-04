@@ -57,6 +57,8 @@ export interface RuntimeNode {
   arrivals: RuntimeArrival[];
   resolve: NodeResolve | null;
   risk?: RuntimeActionRisk | null;
+  riskTarget?: RuntimeActionTarget | null;
+  progressTarget?: RuntimeActionTarget | null;
   display?: "page" | "inline";
   noticeVersion?: string;
   useLimit?: "daily-once" | null;
@@ -271,8 +273,6 @@ export function convertNode(value: unknown): RuntimeNode {
             throw new Error(id+": malformed arrival");
           return {id:name(parts[1],"arrival id"),effect:parts[2]};
         });
-        if(!node.isPlace && node.arrivals.length)
-          throw new Error(id+": arrivals only allowed on places");
         const seen=new Set<string>();
         for(const arrival of node.arrivals){
           if(seen.has(arrival.id))throw new Error(id+": duplicate arrival "+arrival.id);
@@ -287,12 +287,20 @@ export function convertNode(value: unknown): RuntimeNode {
   }
   if(riskLevel!==null&&node.resolve?.kind!=="roll")
     throw new Error(id+": :risk requires roll action");
-  if((riskTarget||progressTarget)&&riskLevel===null)
-    throw new Error(id+": risk/progress target requires :risk");
+  if((riskTarget||progressTarget)&&
+     node.resolve?.kind!=="roll"&&node.resolve?.kind!=="instant")
+    throw new Error(id+": effect target requires a Roll or Instant action");
   if(riskLevel!==null&&node.tags.some(t=>["低风险","高风险","稳妥","冒险","危险"].includes(t)))
     throw new Error(id+": :risk conflicts with old risk tag");
   node.risk=riskLevel===null?null:{level:riskLevel,riskTarget,progressTarget};
-  if (node.arrivals.length&&!node.isPlace)throw new Error(id+": arrivals require place");
+  node.riskTarget=riskTarget;
+  node.progressTarget=progressTarget;
+  if(node.useLimit&&node.resolve?.kind!=="roll"&&node.resolve?.kind!=="instant")
+    throw new Error(id+": use-limit requires an actionable resolve");
+  if(node.display==="inline"&&(node.resolve||node.isPlace||node.children.length===0))
+    throw new Error(id+": inline display requires a nonempty container");
+  if (node.arrivals.length&&!node.isPlace&&id!=="世界")
+    throw new Error(id+": arrivals require a place or world root");
   if (node.resolve && node.children.length) throw new Error(id + ": cannot have both children and resolve");
   if (node.isPlace && node.resolve) throw new Error(id + ": place cannot be an action");
   return node;
@@ -314,7 +322,7 @@ export function validateActionRiskContracts(root:RuntimeNode, carried:RuntimeNod
   };
   collect(root);
   const check=(node:RuntimeNode)=>{
-    for(const target of [node.risk?.riskTarget,node.risk?.progressTarget]){
+    for(const target of [node.riskTarget,node.progressTarget]){
       if(target?.kind!=="clock")continue;
       if(!clocks.has(target.id))throw new Error(node.name+": missing Clock "+target.id);
       if(ambiguous.has(target.id))throw new Error(node.name+": ambiguous Clock "+target.id);

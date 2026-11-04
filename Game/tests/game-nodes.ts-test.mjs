@@ -46,3 +46,19 @@ test("Scheme proper list conversion rejects improper tails without recursion", a
   const bad = await vm.evaluate("'(one . two)");
   assert.throws(() => schemeList(bad), /proper Scheme list/);
 });
+
+test("instant action can declare an effect progress target without a risk level",async()=>{
+  const vm=await create();
+  const raw=await vm.evaluate("(node \"点一杯酒\" :progress-target (list 'composure \"player\") :resolve (instant (outcome (lambda () #t))))");
+  const node=convertNode(raw);
+  assert.equal(node.risk,null);
+  assert.deepEqual(node.progressTarget,{kind:"composure",id:"player"});
+  assert.equal(node.resolve.kind,"instant");
+});
+test("authored world root can contain arrival beats although it is not a place",async()=>{
+  const vm=await create();
+  const root=convertNode(await vm.evaluate('(node "世界" :arrivals (list (arrival "晨报" (lambda () #t))))'));
+  assert.equal(root.name,"世界");
+  assert.equal(root.isPlace,false);
+  assert.equal(root.arrivals.length,1);
+});

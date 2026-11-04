@@ -108,3 +108,10 @@ P1 的 `npm run test:web` 仅检查 WebSession 和当前第一幕基础内容，
 ## 优先级原则
 架构应该为故事和玩法节省迭代时间，而不是成为独立的长期技术实验。
 完整可玩性与玩家实际体验始终高于跨平台、额外框架和表现功能数量。
+
+## P1 真实浏览器暴露的语义差异
+
+打开老街酒馆后出现的「点一杯酒」是无风险 Instant 行动，但带有 `:progress-target (list 'composure "player")`；
+C# NodeConverter 允许此组合，旧 TypeScript 错误限制了必须带 `:risk`。
+现在效果目标可独立于检定风险；世界根 `世界` 的 `:arrivals` 也按 C# 例外保留。
+这两项都属于原有 DSL 语法，不改动 Scheme。
