@@ -263,7 +263,12 @@ try{
     }
     assert.equal(s.mode,"world",
       "All three genuine correction clocks must finish before stability collapses");
-    assert.equal(s.day,startDay,"Successful Scenario does not advance the city calendar");
+    assert.equal(s.day,startDay,
+      "A successful correction must not be confused with an injury-driven " +
+      "hospitalization: "+JSON.stringify({route:scenario.route,combined,startDay,
+        endDay:s.day,health:s.health,actors:s.actors,spent,rounds,
+        lastAction:s.lastAction,restReasons:s.restReasons,
+        stories:stories.slice(-14)}));
     assert.equal(s.money,priorMoney,"Trial corrections do not pay or charge city money");
     const lin=(await records()).find(x=>x.id==="林与新机器");
     assert.equal(lin?.steps?.[1]?.done,true,
