@@ -76,6 +76,26 @@ try{
     await settled();
     return ds;
   }
+  async function sleep(){
+    let s=await read();
+    if(s.path[0]!=="家"){
+      await page.locator('[data-testid="map-place"][data-node-id="家"]')
+        .click({timeout:90000});
+      await settled();await story();
+      s=await read();
+    }
+    assert.deepEqual(s.path,["家"]);
+    await click("住宿");
+    s=await read();
+    const rest=["睡觉","蜷缩在门口"].find(id=>
+      s.entries.some(x=>x.id===id&&!x.disabled));
+    assert(rest,"The world must offer legal sleep or outdoor lodging");
+    const before=s.day;
+    s=await click(rest);
+    assert.equal(s.day,before+1,"Only original lodging advances the world day");
+    assert.deepEqual(s.path,[]);
+    return s;
+  }
   async function load(){
     await page.evaluate(text=>localStorage.setItem("ssnoir-web-v1",text),fixture);
     await page.getByTestId("load-game").click({timeout:90000});
@@ -169,13 +189,61 @@ try{
     assert.equal(restored.steps[1].done,true);
     assert.equal(restored.log.map(x=>x.text).join("\n"),journal,
       "The successful trial story must survive a fresh isolated Scheme VM");
-    outcomes.push({route:scenario.route,spent,rounds,journal});
+    // Actual consequences cross the story boundary: Lin's response to
+    // machine safety during the independent public deployment is determined
+    // by what he learned from this trial, not a frontend probability label.
+    const machineDay=startDay+6;
+    s=await read();
+    while(s.day<machineDay)s=await sleep();
+    assert.equal(s.day,machineDay);
+    assert(s.restReasons.some(x=>x.node==="到跳板去"),
+      "The public machine day must arrive independently of a successful trial");
+    if(s.path[0]!=="码头"){
+      await page.locator('[data-testid="map-place"][data-node-id="码头"]')
+        .click({timeout:90000});
+      await settled();await story();
+      s=await read();
+    }
+    s=await click("到跳板去");
+    const humane=s.entries.some(x=>x.id==="跟林停机"&&!x.disabled);
+    const investigate=s.entries.some(x=>x.id==="自己查设备"&&!x.disabled);
+    assert.notEqual(humane,investigate,
+      "The two alternative machine-safety actions must never coexist");
+    assert.equal(humane,scenario.route==="经验",
+      "The authored human-cost lesson must change Lin's machine-day choice");
+    assert.equal(investigate,scenario.route==="参数",
+      "Pure parameter success must leave riskier inspection to the detective");
+    const safety=humane?"跟林停机":"自己查设备";
+    const dieCount=s.dice.length;
+    s=await roll(safety);
+    assert.equal(s.dice.length,dieCount-1,
+      "Intervening in either safety branch consumes a real city die");
+    assert(s.entries.some(x=>x.id==="看着这一天过完"&&!x.disabled));
+    s=await click("看着这一天过完");
+    assert.equal(s.day,machineDay);
+    const resolved=(await records()).find(x=>x.id==="机器进入老街");
+    assert.equal(resolved?.status,"了结");
+    await page.getByTestId("save-game").click({timeout:90000});
+    await settled();
+    const endingSave=await page.evaluate(()=>localStorage.getItem("ssnoir-web-v1"));
+    assert(endingSave!==fixture&&endingSave!==saved);
+    await page.getByTestId("load-game").click({timeout:90000});
+    await settled();await story();
+    assert.equal((await records()).find(x=>x.id==="机器进入老街")?.status,"了结",
+      "The experience-derived machine outcome must persist across fresh VM load");
+    outcomes.push({route:scenario.route,spent,rounds,journal,
+      humane,safety,machineDay,endingSave});
   }
   assert.notDeepEqual(outcomes[0].journal,outcomes[1].journal,
     "Different ways of saving the trial must produce different durable stories");
+  assert.notEqual(outcomes[0].safety,outcomes[1].safety,
+    "Prior choices must change which original machine intervention is available");
+  assert.notEqual(outcomes[0].endingSave,outcomes[1].endingSave,
+    "The two character arcs must have genuinely distinct serialized outcomes");
   mkdirSync("artifacts",{recursive:true});
   await page.screenshot({path:"artifacts/web-game-lin-trial-success.png"});
   assert.deepEqual(errors,[],"No browser errors in the actual dock trial successes");
   console.log("PASS: same authentic Lin pre-trial save -> parameter vs worker-experience success -> distinct authored journal -> fresh VM restore",
-    JSON.stringify(outcomes.map(({route,spent,rounds})=>({route,spent,rounds}))));
+    JSON.stringify(outcomes.map(({route,spent,rounds,safety,machineDay})=>
+      ({route,spent,rounds,safety,machineDay}))));
 }finally{await browser?.close();await server.close();}
