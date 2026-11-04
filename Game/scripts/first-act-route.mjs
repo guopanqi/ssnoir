@@ -117,6 +117,50 @@ try {
   await settled();
   assert.deepEqual(exceptions,[],"No browser exceptions during the first-act path");
   console.log("PASS: first-act fresh game -> five authored sleeps -> day-five world arrival -> day-six mandatory farewell -> act 2");
+
+  // The farewell naturally opens the theatre; verify the next mandatory
+  // objective is a genuine multi-round scenario, not a dialogue-only stub.
+  await endDay(6);
+  await endDay(7);
+  state=await read();
+  assert.equal(state.day,8);
+  assert(state.restReasons.some(x=>x.id==="观看正式彩排"),
+    "Day-eight first rehearsal must be an authored mandatory world action");
+  await page.screenshot({path:"artifacts/web-game-rehearsal-day8.png"});
+  await node("剧院");
+  ({s:state}=await node("观看正式彩排"));
+  assert.equal(state.error,"","The rehearsal must enter the current authored scenario");
+  assert.equal(state.mode,"scenario","Rehearsal must start an isolated Scenario runtime");
+  assert(state.entries.some(x=>x.id==="搬运布景"),"Backstage action cards must be playable");
+  const beforeWorkDice=state.dice.length;
+  ({s:state}=await node("搬运布景"));
+  assert.equal(state.selectedAction,"搬运布景");
+  await page.locator(".die:not([disabled])").first().click({timeout:90000});
+  await settled();
+  await story();
+  state=await read();
+  assert.equal(state.error,"","Rehearsal action must settle via original Scheme");
+  assert.equal(state.selectedAction,null);
+  assert.equal(state.dice.length,beforeWorkDice-1,"A real rehearsal action spends a die");
+  await page.screenshot({path:"artifacts/web-game-rehearsal-action.png"});
+  for(let round=1;round<=5;round++){
+    await page.getByTestId("end-turn").click({timeout:120000});
+    await settled();
+    await story();
+    state=await read();
+    assert.equal(state.error,"","Scenario failed on round "+round);
+    console.log("REHEARSAL ROUND",round,JSON.stringify({
+      mode:state.mode,day:state.day,dice:state.dice.length,
+      blockers:state.restReasons.map(x=>x.id)}));
+    if(round<5)assert.equal(state.mode,"scenario","Rehearsal must last five rounds");
+  }
+  assert.equal(state.mode,"world","Authored fifth round must return to the city");
+  assert.equal(state.day,8,"Scenario rounds must not advance the city date");
+  assert(!state.restReasons.some(x=>x.id==="观看正式彩排"),
+    "Completed rehearsal must clear the mandatory visit");
+  await page.screenshot({path:"artifacts/web-game-rehearsal-finished.png"});
+  assert.deepEqual(exceptions,[],"No browser exceptions through the theatre scenario");
+  console.log("PASS: farewell -> day-eight required rehearsal -> dice work -> five rounds -> authored scenario result -> city");
 } finally {
   await browser?.close();
   await server.close();
