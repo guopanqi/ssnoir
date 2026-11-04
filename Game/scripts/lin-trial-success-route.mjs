@@ -231,8 +231,100 @@ try{
     await settled();await story();
     assert.equal((await records()).find(x=>x.id==="机器进入老街")?.status,"了结",
       "The experience-derived machine outcome must persist across fresh VM load");
+    // Second independent continuation from the SAME successful trial save:
+    // do not skip Joe's optional qualification. Complete the native 8-point
+    // Clock with actual day-limited dice and check the original machine-day
+    // character choice remains governed by Lin's earlier lived experience.
+    await page.evaluate(text=>localStorage.setItem("ssnoir-web-v1",text),saved);
+    await page.getByTestId("load-game").click({timeout:90000});
+    await settled();await story();
+    s=await read();
+    assert.equal(s.day,startDay);
+    s=await sleep();
+    assert.equal(s.day,startDay+1);
+    let training=(await records()).find(x=>x.id==="林与新机器");
+    assert(training&&training.status!=="了结",
+      "The day after a successful trial must offer real worker training");
+    const trainingPlace=training.where;
+    assert(["码头","港务技术区"].includes(trainingPlace),
+      "Lin's company status owns the authored training place");
+    s=await click(trainingPlace);
+    s=await click("陪老乔培训");
+    let trainingRolls=0,previousProgress=0;
+    for(let attempt=0;attempt<15;attempt++){
+      training=(await records()).find(x=>x.id==="林与新机器");
+      if(training.status==="了结")break;
+      s=await read();
+      if(s.dice.length===0){
+        s=await sleep();
+        assert(s.day<machineDay,
+          "The original training must be finishable before deployment");
+        s=await click(trainingPlace);
+        s=await click("陪老乔培训");
+      }
+      const realActions=["逐项解释按钮","拿码头设备作比",
+        "拆开系统缩写","按真实货物还原",
+        "陪他核对步骤","让他按习惯做"];
+      s=await read();
+      const choice=realActions.find(id=>s.entries.some(x=>x.id===id&&!x.disabled));
+      assert(choice,"Each incomplete training phase must present an authored action");
+      const beforeDice=s.dice.length;
+      s=await roll(choice);
+      trainingRolls++;
+      assert.equal(s.dice.length,beforeDice-1,
+        "Training consumes the actual city die, never free scripted progress");
+      training=(await records()).find(x=>x.id==="林与新机器");
+      const gauge=training.clocks.find(x=>x.label==="基础操作");
+      if(gauge){
+        assert(gauge.current>=previousProgress&&gauge.current<=8);
+        previousProgress=gauge.current;
+      }
+    }
+    training=(await records()).find(x=>x.id==="林与新机器");
+    assert.equal(training?.status,"了结",
+      "Training after the trial success must close the original worker dossier");
+    assert(training.steps.every(x=>x.done),
+      "Trial, training and completion must all be represented in the real dossier");
+    await page.getByTestId("save-game").click({timeout:90000});
+    await settled();
+    const qualifiedSave=await page.evaluate(()=>localStorage.getItem("ssnoir-web-v1"));
+    assert(qualifiedSave&&qualifiedSave!==saved);
+    await page.getByTestId("load-game").click({timeout:90000});
+    await settled();await story();
+    training=(await records()).find(x=>x.id==="林与新机器");
+    assert.equal(training.status,"了结",
+      "Completed worker training survives a fresh world VM");
+    s=await read();
+    while(s.day<machineDay)s=await sleep();
+    assert.equal(s.day,machineDay);
+    s=await click("码头");
+    s=await click("到跳板去");
+    const qualifiedHumane=s.entries.some(x=>x.id==="跟林停机"&&!x.disabled);
+    const qualifiedInspect=s.entries.some(x=>x.id==="自己查设备"&&!x.disabled);
+    assert.equal(qualifiedHumane,scenario.route==="经验",
+      "Finishing training cannot erase the prior lived-experience distinction");
+    assert.equal(qualifiedInspect,scenario.route==="参数",
+      "A parameter-led trial must still require Neil's riskier inspection");
+    s=await roll(qualifiedHumane?"跟林停机":"自己查设备");
+    s=await click("看着这一天过完");
+    const qualifiedEnding=(await records()).find(x=>x.id==="机器进入老街");
+    assert.equal(qualifiedEnding?.status,"了结");
+    assert.equal((await records()).find(x=>x.id==="林与新机器")?.status,"了结",
+      "A machine-day ending must not downgrade completed qualification");
+    await page.getByTestId("save-game").click({timeout:90000});
+    await settled();
+    const qualifiedEndingSave=await page.evaluate(()=>localStorage.getItem("ssnoir-web-v1"));
+    await page.getByTestId("load-game").click({timeout:90000});
+    await settled();await story();
+    assert.equal((await records()).find(x=>x.id==="林与新机器")?.status,"了结");
+    assert.equal((await records()).find(x=>x.id==="机器进入老街")?.status,"了结");
+    assert(qualifiedEndingSave!==endingSave,
+      "Optional training must produce a meaningfully distinct persisted character history");
     outcomes.push({route:scenario.route,spent,rounds,journal,
-      humane,safety,machineDay,endingSave});
+      humane,safety,machineDay,endingSave,trainingRolls,qualifiedEndingSave});
+    console.log("PASS: authentic trial success -> completed Joe qualification -> genuine machine-day safety action -> two settled dossiers -> VM restore",
+      JSON.stringify({route:scenario.route,trainingPlace,trainingRolls,machineDay,
+        safety:qualifiedHumane?"跟林停机":"自己查设备"}));
   }
   assert.notDeepEqual(outcomes[0].journal,outcomes[1].journal,
     "Different ways of saving the trial must produce different durable stories");
