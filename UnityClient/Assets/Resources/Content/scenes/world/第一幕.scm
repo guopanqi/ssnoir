@@ -231,6 +231,7 @@
                   (line "艾迪" "我叫艾迪。我也才来这儿几天，先摸熟了一点。你呢？")
                   (line "尼尔" "尼尔。这班咱们搭伙。")
                   (line "世界" "艾迪分给他一副手套，指了指绳索旁的位置。"))) #f))
+          ((eq? msg 'dock-work-count) eddie-work-count)
           ((eq? msg 'eddie-met?) (> eddie-stage 0))
           ((eq? msg 'eddie-stage) eddie-stage)
           ((eq? msg 'lucy-met?) (> lucy-stage 0))

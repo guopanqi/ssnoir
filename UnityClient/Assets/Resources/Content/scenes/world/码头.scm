@@ -1,5 +1,5 @@
 ;; 码头——第一章新版城市生计。旧《三封信》的邮箱与诱捕内容已经退役。
-;; 每次搬运消耗1心情，失败额外消耗1；三档都有工资。
+;; 反正要出汗：好结果不耗心情；中结果耗1，失败额外再耗1；三档都有工资。
 ;; 艾迪每天首次失手后恢复1心情，不修改判定概率。
 (define dock
   (let ()
@@ -8,8 +8,8 @@
 
     (define (on-haul! grade)
       (cond
-        ((eq? grade '好) (add-item! "金钱" 24) (spend-composure! 1))
-        ((eq? grade '中) (add-item! "金钱" 14) (spend-composure! 1))
+        ((eq? grade '好) (add-item! "金钱" 16))
+        ((eq? grade '中) (add-item! "金钱" 10) (spend-composure! 1))
         (else (add-item! "金钱" 6) (spend-composure! 2)))
       ;; 人物剧情先处理；第二幕矛盾通过日常搬运铺垫。
       (let ((story-played? (if (第二幕 'eddie-on-dock?)

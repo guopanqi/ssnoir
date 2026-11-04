@@ -30,6 +30,7 @@ namespace SSNoir.IMGUI
         // 半身像与状态板共用固定设计尺寸；各平台只通过统一 UIScale 缩放。
         private const float BustHeight = 140f;
         private const float PortraitColumn = 96f;
+        private const float IdentityTitleHeight = 24f;
         private const float StatusMinWidth = 200f;
         private const float StatusRightPadding = 10f;
         private const float StatusPlateHeight = 64f;
@@ -377,6 +378,8 @@ namespace SSNoir.IMGUI
             float bustHeight = isLead ? BustHeight : BustHeight * .86f;
             float bustWidth = bustHeight * (uv.width / uv.height);
             var bust = new Rect(x, baseline - bustHeight, Mathf.Min(PortraitColumn - 8f, bustWidth), bustHeight);
+            // 主角称谓占人物列底部，不挤动右侧骰池与体征条。
+            if (isLead) bust.height -= IdentityTitleHeight;
             var speakingAnchor = new Rect(bust.center.x - 12f, bust.y, 24f, 24f);
             var backdrop = new Rect(x, baseline - StatusPlateHeight, clusterW, StatusPlateHeight);
             if (drawPortraits)
@@ -396,6 +399,18 @@ namespace SSNoir.IMGUI
             GUI.DrawTexture(new Rect(contentX, backdrop.y, clusterW - PortraitColumn, backdrop.height), Texture2D.whiteTexture);
             IMGUIStyles.ResetColor();
             IMGUIStyles.DrawOutline(backdrop, 1f, Paper35);
+            if (isLead)
+            {
+                var identityStyle = new GUIStyle(IMGUIStyles.SlotLabel)
+                {
+                    fontSize = IMGUIStyles.FontSize(16),
+                    alignment = TextAnchor.MiddleCenter,
+                    wordWrap = false,
+                    normal = { textColor = IMGUIStyles.TextPrimary }
+                };
+                IMGUIStyles.DrawLabel(new Rect(x, baseline - IdentityTitleHeight,
+                    PortraitColumn - 8f, IdentityTitleHeight), snapshot.PlayerIdentityTitle, identityStyle);
+            }
             DrawComposureBar(contentX, composureY, contentWidth, actor, gameManager);
             VitalHintDrawer.Offer(new Rect(contentX, composureY, contentWidth, VitalRowH), actor, ui);
             if (isLead)

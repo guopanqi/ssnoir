@@ -273,9 +273,7 @@
       (error "黑鸥号：尚未相识或已搭过手"))
     (set! frank-aboard? #t)
     (play-dialogue!
-      (line "世界" (if (第一幕 'eddie-met?)
-        "收工后，艾迪朝黑鸥号指了指，带尼尔走上舷梯。弗兰克正对着炉边空了的煤桶皱眉。"
-        "尼尔在舷梯边又见到食堂里那位老人。弗兰克抱着一只空煤桶，问他是不是还在找活。"))
+      (line "世界" "尼尔又上了黑鸥号。弗兰克正对着炉边空了的煤桶皱眉。")
       (line "尼尔" "搭把手？")
       (line "弗兰克" "煤袋在下面。搬进来，别让炉子熄了。")
       (line "世界" "尼尔把煤搬进船舱。一个工人借走扳手，另一个人端着杯子腾开位置，桌边还摊着没修完的工具。")
@@ -421,7 +419,7 @@
               (not (第二幕 'lucy-arrival-pending?))
               (>= world-day (第二幕 'lucy-writing-day)) (not lucy-met?))
           (list (arrival "露西自己的稿件" lucy-meet!)))
-        ((and (人物线开放? "弗兰克") (equal? loc "码头居民区") (>= world-day 泊位协商日)
+        ((and (人物线开放? "弗兰克") (equal? loc "黑鸥号") (>= world-day 泊位协商日)
               (第二幕生活 'met-frank?) (not frank-met?))
           (list (arrival "泊位协商的新消息" frank-news!)))
         ((and (人物线开放? "汤米") (equal? loc "老街酒馆") (>= world-day 12) (not tommy-met?))
@@ -481,12 +479,12 @@
           (list (node "读露西的小说" :anchor "露西@咖啡馆"
             :subtitle "看看她寄出的小说，听听投稿后的心情。"
             :resolve (instant (outcome lucy-finish!)))) '())
-        (if (and (人物线开放? "弗兰克") (equal? loc "码头居民区") (第二幕生活 'met-frank?) (not frank-aboard?))
-          (list (node "上船搭把手" :subtitle "一枚骰，帮弗兰克搬煤，收工坐一会儿"
+        (if (and (人物线开放? "弗兰克") (equal? loc "黑鸥号") (第二幕生活 'met-frank?) (not frank-aboard?))
+          (list (node "上船搭把手" :anchor "码头-岸口" :subtitle "一枚骰，帮弗兰克搬煤，收工坐一会儿"
             :requires (list (req-die)) :resolve (instant (outcome frank-aboard!)))) '())
         ;; 弗兰克：这回收的是泊位使用权，不是船。
-        (if (and (人物线开放? "弗兰克") (equal? loc "码头居民区") frank-met? (not frank-debate?))
-          (list (instant-action "再谈那份合同" frank-debate!)) '())
+        (if (and (人物线开放? "弗兰克") (equal? loc "黑鸥号") frank-met? (not frank-debate?))
+          (list (node "再谈那份合同" :anchor "码头-岸口" :button-text "交谈" :resolve (instant (outcome frank-debate!)))) '())
         ;; 汤米：牌局没有固定在收网那天，未参与也不会停住。
         (if (and (equal? loc "老街酒馆") (tommy-open?) (not tommy-intel?) (= (tommy-work 'current) 0))
           (list (node "打听牌局来客" :subtitle "一枚骰问清来意，抵去现场第一段"
@@ -590,11 +588,11 @@
             (frank-aboard? "在黑鸥号搬过煤，收工和大家坐了一会儿。这里不只是拴船的地方。")
             (else "在食堂认识了弗兰克。他守着黑鸥号，船上常有人来往。"))
           :steps (list (step (cond
-            ((and frank-met? (not frank-debate?)) "码头居民区：可再谈那份报价，听听他为什么留下。")
-            ((not frank-aboard?) "可在码头居民区上船搭把手，和船上的人坐一会儿。")
+            ((and frank-met? (not frank-debate?)) "去黑鸥号再谈那份报价，听听他为什么留下。")
+            ((not frank-aboard?) "可在黑鸥号帮忙搬煤，和船上的人坐一会儿。")
             ((and frank-met? (not frank-refused?)) "他还在处理泊位的事，不用等尼尔决定才继续。")
-            (else "继续在居民区与他碰面，听听船和泊位的近况。")) #f))
-          :where "码头居民区")) '())
+            (else "去黑鸥号听听船和泊位的近况。")) #f))
+          :where (if (black-gull 'known?) "黑鸥号" "码头居民区"))) '())
         (if (and (人物线开放? "汤米") tommy-met?) (list (dossier "汤米的新差事" :kind '人物
           :status (cond (tommy-after? '了结)
                         ((and (not tommy-invited?) (not tommy-advanced?) (< world-day (tommy-return-day))) '等着别人)

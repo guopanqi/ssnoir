@@ -1,4 +1,7 @@
 [
   "obsidian-tidy-footnotes",
-  "ink"
+  "ink",
+  "mermaid-flow",
+  "advanced-canvas",
+  "mermaid-gui-editor"
 ]

@@ -13,8 +13,7 @@
         (begin
           (set! met-manager? #t)
           (set! manager-met-day world-day)
-          (set-global! '身份 "侦探")
-          (set-global! '侦探入行日 world-day)
+          (经理的演出服 'offer!)
           (play-dialogue!
             (line "夜莺" "经理，这是尼尔。酒馆里他总来听我唱歌。")
             (line "经理" "尼尔！兄弟！夜莺可跟我提过你。")
@@ -22,7 +21,7 @@
             (line "经理" "她说你靠得住。现在办事靠得住的人，比钢琴还难找！")
             (line "尼尔" "我想接些真正的调查委托。")
             (line "经理" "妙极了！年轻人就该有点盼头。")
-            (line "经理" "我得去招呼他们了。往后常来，尼尔。")))))
+            (line "经理" "有一批演出服出了岔子。我收工到你住处细说，想试试就听听。")))))
     (define (active?) (and (= (第一幕 'act) 2) (not (第二章 'started?))))
     (define (street-intro!)
       (set! visited-street? #t)
@@ -31,6 +30,8 @@
         (line "世界" "收工的人往这里走。有人端着汤找座位，有人还在打听明天的活。")))
     (define (frank-intro!)
       (set! met-frank? #t)
+      (frank 'meet!)
+      (black-gull 'discover!)
       (play-dialogue!
         (line "世界" "食堂老板把一张欠账单推到老工人的碗边。弗兰克伸手接了过去。")
         (line 旧街食堂老板 "上礼拜的还没结。弗兰克，你不能天天替人垫。")
@@ -38,7 +39,8 @@
         (line "世界" "他把钱压在单子下面，转身给尼尔让出半张长凳。")
         (line "弗兰克" "坐吧。桶里还有热豆汤。")
         (line "尼尔" "我叫尼尔。")
-        (line "弗兰克" "弗兰克。干了一天，吃饭还站着？")))
+        (line "弗兰克" "弗兰克。干了一天，吃饭还站着？")
+        (line "弗兰克" "我住在码头旁那艘黑鸥号上。有空过来坐坐。")))
     (define (meal!)
       (restore-actor-composure! 'player 2)
       (play-bubble! (line 旧街食堂老板 "豆汤在桶里，面包自己拿。吃完把盘子放木盆里。" :at "码头居民区")))
@@ -75,15 +77,20 @@
       (if (equal? location "码头居民区")
         (append
           (if (not visited-street?) (list (arrival "初到旧街" street-intro!)) '())
-          (if (and (人物线开放? "弗兰克") visited-street? (not met-frank?)) (list (arrival "食堂账单" frank-intro!)) '())) '()))
+          (if (and (人物线开放? "弗兰克") (>= world-day 10) visited-street? (not met-frank?)) (list (arrival "食堂账单" frank-intro!)) '())) '()))
     (lambda args
       (let ((msg (car args)))
         (cond
           ((eq? msg 'meet-manager!) (meet-manager!))
-          ((eq? msg 'dossier) (if met-manager? (list (dossier "身份：侦探" :kind '打算 :primary #f :now "你开始承接城市里的调查委托。" :where "剧院")) '()))
+          ((eq? msg 'dossier)
+            (if (equal? (get-global '身份) "侦探") '()
+              (list (dossier "寻找第一个客户" :kind '打算 :primary #f
+                :now (if met-manager? (经理的演出服 'career-next) "想靠私人调查谋生，先找到一个愿意付钱的客户。")
+                :where (if met-manager? "家" "")))))
           ((eq? msg 'nodes-at) (nodes-at (cadr args)))
           ((eq? msg 'arrivals-at) (arrivals-at (cadr args)))
           ((eq? msg 'met-frank?) met-frank?)
+          ((eq? msg 'meet-frank!) (set! met-frank? #t) (frank 'meet!))
           ((eq? msg 'manager-met?) met-manager?)
           ((eq? msg 'save)
             (list (list "street" visited-street?)

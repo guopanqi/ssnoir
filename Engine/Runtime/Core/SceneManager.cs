@@ -897,6 +897,9 @@ namespace SSNoir.Core
             return new PresentationSnapshot
             {
                 Weather = isInScenario ? string.Empty : _gameState.Get<string>("天气", string.Empty),
+                PlayerIdentityTitle = _gameState.Get<string>("身份", string.Empty) == "侦探"
+                    ? GameLanguage.Tr("无名侦探", "Unknown Detective")
+                    : GameLanguage.Tr("闲人", "Drifter"),
                 RootNode = rootNode,
                 CarryNodes = CurrentCarryNodes,
                 InjurySeverity = _gameState.Team.Injury.Severity,

@@ -21,7 +21,7 @@
 ;; 于是这一页可以第一个加载，地点文件也可以在任何位置引用下面的 纯投射地点。
 ;; 调试暂隐：仅关闭人物线的内容入口与自行推进，不改写已有存档事实。
 ;; 恢复时从此名单移除对应人物。
-(define 暂隐人物线 '("汤米" "弗兰克"))
+(define 暂隐人物线 '("汤米"))
 (define (人物线开放? 人物) (not (member? 人物 暂隐人物线)))
 
 (define (世界模块表)
@@ -33,6 +33,7 @@
     (list "city-events" 城市事件 '(存档 卷宗 节点))
     (list "act-two-city" 第二幕生活 '(存档 卷宗 节点 入场))
     (list "act-two-rhythm" 第二幕节奏 '(存档 卷宗 节点 入场))
+    (list "black-gull" black-gull '(存档 卷宗))
     (list "act-two-theater" 第二幕剧院 '(存档 卷宗 节点 入场))
     (list "act-two-aftermath" 第二幕余波 '(存档 入场))
     (list "act-two-announcement" 第二幕公告 '(存档 节点))

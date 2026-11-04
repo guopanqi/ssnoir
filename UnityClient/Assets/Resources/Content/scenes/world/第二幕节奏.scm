@@ -48,7 +48,8 @@
     (set! ship-work "已结算")
     (sync-ship!)
     ;; 安全落货发完整加班费与奖金；未完成（包括倒下）只发固定辛苦钱。
-    (add-item! "金钱" (if (eq? result '安全落货) (+ 36 12) 6)))
+    (add-item! "金钱" (if (eq? result '安全落货) (+ 36 12) 6))
+    (black-gull 'invite!))
   (define (join-ship!)
     (if (and (= world-day 9) (equal? ship-work "未参加")) #t
       (error "大船：不在夜班窗口"))

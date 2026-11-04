@@ -31,6 +31,7 @@
     (地点 home)
     (地点 old-street-tavern (lambda () (第一幕 'opened?)))
     (地点 dock (lambda () (第一幕 'work-open?)))
+    (地点 black-gull (lambda () (black-gull 'known?)))
     (地点 cafe (lambda () (第一幕 'work-open?)))
     (地点 test-workshop (lambda () (and (lin 'workshop-open?) (not (林的机器 'workshop-vacated?)))))
     (地点 clinic (lambda () (clinic 'visible?)))

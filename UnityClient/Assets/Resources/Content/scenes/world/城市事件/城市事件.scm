@@ -19,7 +19,7 @@
           (set! 上次检查日 world-day)
           (if (and (equal? (get-global '身份) "侦探")
                    (> world-day (get-global '侦探入行日)))
-            (let ((候选 (filter (lambda (row) ((cadr row) 'eligible?)) (清单))))
+            (let ((候选 (filter (lambda (row) (and (not (equal? (car row) "经理的演出服")) ((cadr row) 'eligible?))) (清单))))
               ;; 测试阶段必定出现一个；池空即停止，不循环、不补发。
               (if (null? 候选) #f ((cadr (random-choice 候选)) 'activate!))) #f)) #f))
     (lambda (msg . args)

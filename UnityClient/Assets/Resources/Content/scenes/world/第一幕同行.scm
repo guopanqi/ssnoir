@@ -56,9 +56,10 @@
           ((and (available?) (equal? status "未邀请"))
             (list (anchored-instant-action "夜莺在犹豫" "夜莺@酒馆" invite!)))
           ((and (available?) (equal? status "待答复"))
-            (list (at-anchor "夜莺@酒馆" (container "夜莺的邀请" (map (lambda (n) (at-anchor "夜莺@酒馆" n)) (list
-              (instant-action "陪她走回去" accept!)
-              (instant-action "今晚走不开" decline!)))))))
+            (list (node "夜莺的邀请" :display 'inline :anchor "夜莺@酒馆"
+              :children (list
+                (instant-action "陪她走回去" accept!)
+                (instant-action "今晚走不开" decline!)))))
           ;; 旧存档可能已经接受邀请、但还没点开Scenario卡；保留这条续接入口。
           ((and (available?) (equal? status "已答应"))
             (list (node "雨夜同行" :anchor "夜莺@酒馆" :required-before-rest "先履行送夜莺回家的约定" :subtitle "陪她回家，别让恐惧失控"
