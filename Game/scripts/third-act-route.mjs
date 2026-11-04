@@ -347,6 +347,110 @@ try{
   await settled();
   console.log("PASS: chapter-two fourth-day newspaper -> authored theater confrontation -> separate investigation opened");
 
+  // P5 independent branch: the published leak allows a different legitimate
+  // playthrough. Capture the unmodified city before any optional choice, then
+  // restore it after the branch. No module flags, clock values or days are
+  // fabricated by the browser test.
+  await page.getByTestId("save-game").click({timeout:90000});
+  await settled();
+  const preInvestigationSave=await page.evaluate(()=>
+    localStorage.getItem("ssnoir-web-v1"));
+  assert(preInvestigationSave,"The fourth-day case must be a portable city save");
+  async function cityPlace(id){
+    await page.locator('[data-testid="map-place"][data-node-id='+JSON.stringify(id)+']')
+      .click({timeout:90000});
+    await settled();await story();
+    const now=await read();
+    assert.deepEqual(now.path,[id],"Map transition must enter "+id);
+    assert.equal(now.error,"","City navigation to "+id);
+    return now;
+  }
+  for(let i=0;i<2;i++){
+    state=await action("放给剧院");
+    assert.equal(state.mode,"world");
+  }
+  assert(!state.entries.some(x=>x.id==="放给剧院"&&!x.disabled),
+    "Theater bait should be full after two successful authored rolls");
+  state=await cityPlace("格兰德酒店");
+  if(state.dice.length)state=await action("留给酒店");
+  if(state.entries.some(x=>x.id==="留给酒店"&&!x.disabled)){
+    state=await sleep();
+    assert.equal(state.mode,"world");
+    state=await cityPlace("格兰德酒店");
+    state=await action("留给酒店");
+  }
+  assert(!state.entries.some(x=>x.id==="留给酒店"&&!x.disabled),
+    "Hotel bait should be full before the newspaper countdown begins");
+  await page.getByTestId("dossier-toggle").click({timeout:90000});
+  await settled();
+  state=await read();
+  const bait=state.dossiers.find(x=>x.id==="谁出卖了夜莺");
+  assert(bait?.clocks?.some(x=>x.label==="等早报"),
+    "Two distinct planted rumors must begin the two-day Scheme clock");
+  await page.getByTestId("dossier-close").click({timeout:90000});
+  await settled();
+  const baitDay=state.day;
+  state=await sleep();
+  assert.equal(state.day,baitDay+1);
+  state=await sleep();
+  assert.equal(state.day,baitDay+2);
+  state=await cityPlace("家");
+  assert(state.entries.some(x=>x.id==="看早报"&&!x.disabled),
+    "The two-day wait must produce the original morning paper");
+  state=await action("看早报");
+  assert.equal(state.mode,"world");
+  state=await cityPlace("剧院");
+  assert(state.entries.some(x=>x.id==="等取件人"&&!x.disabled),
+    "The letter source must be pursued from the theater's back alley");
+  state=await action("等取件人");
+  assert.equal(state.mode,"scenario");
+  for(const [segment,successes] of [3,2,3,2,3].entries()){
+    const needed=[3,2,3,2,3][segment];
+    for(let i=0;i<needed;i++){
+      state=await action("跟紧");
+      assert.equal(state.error,"");
+      assert.equal(state.mode,"scenario",
+        "Reaching the progress clock cannot advance the segment before opponent time");
+    }
+    state=await nextRound();
+    if(segment<4)assert.equal(state.mode,"scenario",
+      "A tracked courier progresses through each of the five authored districts");
+  }
+  assert.equal(state.mode,"world",
+    "Following through five segments must call the original Scheme callback");
+  await page.getByTestId("dossier-toggle").click({timeout:90000});
+  await settled();
+  state=await read();
+  const followed=state.dossiers.find(x=>x.id==="谁出卖了夜莺");
+  assert.equal(followed?.status,"了结");
+  assert(followed.log?.some(x=>JSON.stringify(x).includes("科尔")),
+    "Courier's name must come from the actual successful scenario result");
+  const followup=state.dossiers.find(x=>x.id==="查早报供稿人");
+  assert.equal(followup?.status,"进行中",
+    "Successful tracking must unlock the separate morning-delivery mystery");
+  await page.getByTestId("dossier-close").click({timeout:90000});
+  await settled();
+  console.log("PASS: two real bait clocks -> two natural nights -> newspaper -> five-stage courier success -> independent dossier",JSON.stringify({baitDay,day:state.day}));
+
+  await page.evaluate(text=>localStorage.setItem("ssnoir-web-v1",text),
+    preInvestigationSave);
+  await page.getByTestId("load-game").click({timeout:90000});
+  await settled();await story();
+  state=await read();
+  assert.equal(state.day,chapterTwoStart+3);
+  assert.equal(state.mode,"world");
+  assert.equal(state.error,"");
+  await page.getByTestId("dossier-toggle").click({timeout:90000});
+  await settled();
+  state=await read();
+  assert.equal(state.dossiers.find(x=>x.id==="谁出卖了夜莺")?.status,"进行中");
+  assert(!state.dossiers.some(x=>x.id==="查早报供稿人"),
+    "The isolated restore cannot leak a successful branch into the original one");
+  await page.getByTestId("dossier-close").click({timeout:90000});
+  await settled();
+  console.log("PASS: optional investigation VM replay leaves original city's public calendar and dossier intact");
+
+
   // The new harbor plan is a public calendar event independent of whether
   // the player pursues the optional investigation or supporting cast.
   for(let index=4;index<=8;index++){
