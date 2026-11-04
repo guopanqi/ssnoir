@@ -31,8 +31,15 @@ try {
     throw new Error("More than 350 story frames during an authored beat");
   }
   async function node(id){
+    const before=await read();
+    const card=before.entries.find(x=>x.id===id);
+    if(!card)throw new Error("Missing authored node "+id+" at "+JSON.stringify({
+      day:before.day,path:before.path,entries:before.entries.map(x=>x.id)}));
+    if(card.disabled)throw new Error("Disabled authored node "+id+" at "+JSON.stringify({
+      day:before.day,path:before.path,subtitle:card.subtitle,
+      restReasons:before.restReasons}));
     await page.locator('[data-testid="game-entry"][data-node-id='+JSON.stringify(id)+']')
-      .click({timeout:120000});
+      .click({timeout:90000});
     await settled();
     const lines=await story();
     const s=await read();
@@ -51,8 +58,15 @@ try {
   }
   async function endDay(day){
     await goHome();
-    await node("住宿");
-    const finished=await node("睡觉");
+    const lodging=await node("住宿");
+    // On rent arrears, the authored game allows sleeping at the locked door.
+    // Do not grant money or force an unavailable bed.
+    const sleep=lodging.s.entries.find(x=>
+      (x.id==="睡觉"||x.id==="蜷缩在门口")&&!x.disabled);
+    assert(sleep,"No playable sleep action after entering lodging on day "+day+
+      ": "+JSON.stringify(lodging.s.entries.map(x=>({
+        name:x.id,disabled:x.disabled,subtitle:x.subtitle}))));
+    const finished=await node(sleep.id);
     assert.equal(finished.s.day,day+1,"Authored sleep must advance only one calendar day");
     assert.equal(finished.s.mode,"world");
     assert.deepEqual(finished.s.path,[],"New day returns to the city");

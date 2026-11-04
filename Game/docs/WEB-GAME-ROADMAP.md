@@ -157,3 +157,10 @@ C# NodeConverter 允许此组合，旧 TypeScript 错误限制了必须带 `:ris
 ### P2 对话语义修复
 
 Web StoryPlaybackQueue 现在识别现行 `engine.scm` 的 `line` 七字段结构（identity、text、voice、dwell、stage、display、anchor）以及带额外 appearance 的八字段结构。显示说话人使用 `display`，对白内容只使用 `text`，而不是把声音、舞台指示、锚点和文本拼成一行。原有旧格式 `line` 标签测试仍保持兼容；这只更正表现解析，不改台词脚本或结算。
+
+### P2 第一幕新档至告别演出通路
+
+- 新增 `Game/scripts/first-act-route.mjs`，Chromium 从原始 Scheme 清晨新档逐日睡觉至第 6 日，检查第 5 日告别公告、第 6 日必做的告别演出与 `act=2` 对应的卷宗结束。
+- 首次 [Web CI #41776575103](https://github.com/guopanqi/ssnoir/actions/runs/41776575103) 实测：第 2 天再次进入旅馆，「睡觉」仍 disabled。原因是新日仅刷新世界节点，未执行 `on-enter-place \"世界\"`，未解除原脚本的「出门才能再睡」锁；这是真实客户端缺陷。
+- 修复沿用 Engine `SceneManager.EnterPlace` 的现有契约：世界根与地点共用入场动作，自然醒来和返回地图均执行 root arrival，使连睡锁正确解除，同时播放第 5 日一次性告别公告。
+- 若房租不足，长通路使用原脚本提供的「蜷缩在门口」合法过夜，不注入金钱、跳日或篡改 Scheme。

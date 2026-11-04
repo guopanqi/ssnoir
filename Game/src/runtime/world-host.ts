@@ -98,16 +98,23 @@ export async function createWorldHostRuntime(random:()=>number=Math.random):Prom
     },
     async leavePlace(){
       if(director.mode!=="world")throw new Error("leave place requires city mode");
-      await director.world.evaluate('(on-enter-place "世界")');
+      await director.worldActions.enterPlace("世界");
       await director.flush();
-      root=await director.render();
+      root=director.getPreparedRoot()??await director.render();
     },
     takeDayAdvance(){const advance=lastDayAdvance;lastDayAdvance=null;return advance;},
     async refresh(){
-      if(director.consumeWorldTurnRequest())
+      const woke=director.consumeWorldTurnRequest();
+      if(woke)
         lastDayAdvance=await new WorldTurnController(director.state,director.world).endDay(random);
       await director.flush();
-      root=await director.render();
+      if(woke&&director.mode==="world"){
+        // Natural waking is a world-map arrival, not merely a render refresh.
+        // One-shot authored notices must be delivered before the player acts.
+        await director.worldActions.enterPlace("世界");
+        await director.flush();
+        root=director.getPreparedRoot()??await director.render();
+      }else root=await director.render();
       return root;
     },
     async endDay(){
@@ -115,7 +122,11 @@ export async function createWorldHostRuntime(random:()=>number=Math.random):Prom
       if(director.mode!=="world")throw new Error("cannot end the city day during a scenario");
       const result=await new WorldTurnController(director.state,director.world).endDay(random);
       await director.flush();
-      root=await director.render();
+      if(director.mode==="world"){
+        await director.worldActions.enterPlace("世界");
+        await director.flush();
+        root=director.getPreparedRoot()??await director.render();
+      }else root=await director.render();
       return result;
     },
     async save(){

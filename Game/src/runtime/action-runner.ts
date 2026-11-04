@@ -36,7 +36,9 @@ const DISPATCH = `
             '())))))
 (define (__ssnoir-run-place-arrivals! place-name)
   (let ((place (__ssnoir-find-node __ssnoir-active-render-root place-name)))
-    (if (or (not place) (not (get-kwarg (cddr place) ':place #f)))
+    (if (or (not place)
+            (and (not (eq? place __ssnoir-active-render-root))
+                 (not (get-kwarg (cddr place) ':place #f))))
         (error "invalid place arrival destination")
         (for-each (lambda (beat)
           (if (and (pair? beat) (equal? (car beat) 'arrival) (= (length beat) 3))
@@ -147,13 +149,17 @@ export class GameActionRunner {
   getPreparedRoot():RuntimeNode|null {return this.root;}
   getCarryNodes():RuntimeNode[]{return [...this.carry];}
 
-  /** World navigation is not an action; it never consumes a die or advances a day. */
+  /** World map and direct place entry share the authored arrival contract.
+   * The root can carry one-shot announcements on waking or returning to the map.
+   * Navigation never consumes a die or advances the authored calendar.
+   */
   async enterPlace(name:string):Promise<RuntimeNode>{
     if(!this.root)await this.prepare();
     if(!this.root)throw new Error("world tree missing");
     const world=this.root;
-    const requested=world.children.find(x=>x.name===name);
-    if(!requested||!requested.isPlace||requested.disabled)throw new Error("unavailable world place: "+name);
+    const requested=world.name===name?world:world.children.find(x=>x.name===name);
+    if(!requested||(requested!==world&&!requested.isPlace)||requested.disabled)
+      throw new Error("unavailable world place: "+name);
     const before=this.state.snapshot();
     const previous=this.root;
     this.state.beginActionReport();
@@ -161,8 +167,9 @@ export class GameActionRunner {
       await this.scripts.evaluate("(on-enter-place "+JSON.stringify(name)+")");
       // on-enter-place can change which arrival beats are present.
       const refreshed=await this.prepare();
-      const place=refreshed.children.find(x=>x.name===name);
-      if(!place||!place.isPlace||place.disabled)throw new Error("place disappeared during entry");
+      const place=refreshed.name===name?refreshed:refreshed.children.find(x=>x.name===name);
+      if(!place||(place!==refreshed&&!place.isPlace)||place.disabled)
+        throw new Error("place disappeared during entry");
       // If there are no arrivals, the first post-entry materialization is
       // already authoritative. Re-evaluating get-render-data is redundant
       // and can cost seconds for the full chapter-one city content.
@@ -174,8 +181,9 @@ export class GameActionRunner {
       if(report.length)throw new Error("arrival produced action clock costs");
       if(!place.arrivals.length)return place;
       const updated=await this.prepare();
-      const result=updated.children.find(x=>x.name===name);
-      if(!result||!result.isPlace)throw new Error("entered place removed itself");
+      const result=updated.name===name?updated:updated.children.find(x=>x.name===name);
+      if(!result||(result!==updated&&!result.isPlace))
+        throw new Error("entered place removed itself");
       return result;
     }catch(error){
       this.state.cancelActionReport();
