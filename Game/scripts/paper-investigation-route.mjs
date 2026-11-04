@@ -171,6 +171,80 @@ try{
   assert.deepEqual(errors,[],"No browser errors in the optional investigation route");
   console.log("PASS: authentic day-four chapter-two save -> both forged rumors -> two world days -> newspaper -> five-stage courier scene -> lawful failed trail -> portable restore",
     JSON.stringify({initialDay,plantedDay,encounterDay,endedDay:view.day}));
+
+  // The same genuine portable city snapshot now follows the contrasting
+  // successful path. No authored flags, dates, clocks or injury are injected.
+  // Preparing with paid tavern work and a drink is a PLAYER choice needed to
+  // survive five rounds when the day-four save has low composure and injuries.
+  await page.evaluate(text=>localStorage.setItem("ssnoir-web-v1",text),paperSave);
+  await page.getByTestId("load-game").click({timeout:90000});
+  await settled();await story();
+  view=await read();
+  assert.equal(view.day,initialDay);
+  await rumorAt("剧院","放给剧院",0);
+  await rumorAt("格兰德酒店","留给酒店",1);
+  for(let i=0;i<2;i++)await sleep();
+  await visit("家");
+  await perform("看早报");
+  view=await visit("老街酒馆");
+  for(let attempt=0;attempt<3&&view.money<15;attempt++){
+    assert(view.entries.some(x=>x.id==="看场子"&&!x.disabled),
+      "The city must offer a legal paid shift before costly recovery");
+    view=await perform("看场子");
+  }
+  assert(view.money>=15,"Two ordinary paid shifts must fund a recovery drink");
+  const beforeDrink={money:view.money,composure:view.actors.find(x=>x.id==="player")?.composure};
+  view=await perform("点一杯酒");
+  assert.equal(view.money,beforeDrink.money-15);
+  assert(view.actors.find(x=>x.id==="player")?.composure>beforeDrink.composure,
+    "A real purchased drink restores composure before five dangerous rounds");
+  view=await visit("剧院");
+  view=await perform("等取件人");
+  assert.equal(view.mode,"scenario");
+  const successfulTrailStart=view.day;
+  for(let round=1;round<=5&&view.mode==="scenario";round++){
+    let moves=0;
+    while(moves<3&&view.mode==="scenario"&&view.dice.length>0){
+      view=await perform("跟紧");
+      moves++;
+    }
+    assert.equal(view.error,"","Successful trail cannot produce a runtime error");
+    if(view.mode==="scenario"){
+      await page.getByTestId("end-turn").click({timeout:90000});
+      await settled();await story();
+      view=await read();
+      assert.equal(view.error,"","Five-stage courier transition must succeed");
+    }
+    console.log("COURIER SUCCESS ROUND",JSON.stringify({
+      round,mode:view.mode,day:view.day,health:view.health,composure:view.actors.find(x=>x.id==="player")?.composure}));
+  }
+  assert.equal(view.mode,"world","Following the real courier must finish after five authored stages");
+  const successDossier=(await dossier()).find(x=>x.id==="谁出卖了夜莺");
+  assert.equal(successDossier?.status,"了结");
+  assert.match(successDossier.now,/科尔|渠道已经查清/,
+    "A real successful tail must identify the source and preserve its journal");
+  const sequel=(await dossier()).find(x=>x.id==="查早报供稿人");
+  assert.equal(sequel?.status,"进行中",
+    "Courier success opens the earlier-paper investigation, not a fake solved state");
+  view=await visit("报社");
+  assert(view.entries.some(x=>x.id==="问十一点零七分"),
+    "The original report desk must expose the follow-up action");
+  view=await perform("问十一点零七分");
+  assert(view.entries.some(x=>x.id==="下废稿间"),
+    "The source's own entry action must open the archive without a debug shortcut");
+  await page.getByTestId("save-game").click({timeout:90000});
+  await settled();
+  await page.getByTestId("load-game").click({timeout:90000});
+  await settled();await story();
+  view=await read();
+  assert.equal(view.mode,"world");
+  assert.equal((await dossier()).find(x=>x.id==="查早报供稿人")?.status,"进行中");
+  mkdirSync("artifacts",{recursive:true});
+  await page.screenshot({path:"artifacts/web-game-paper-trail-success.png"});
+  assert.deepEqual(errors,[],"Both player outcomes must be browser-error-free");
+  console.log("PASS: same authored save -> paid preparation -> five courier stages -> identified Koer -> earlier-paper investigation opens -> portable restore",JSON.stringify({
+    initialDay,successfulTrailStart,finishedDay:view.day,remainingMoney:view.money}));
+
 }finally{
   await browser?.close();await server.close();
 }
