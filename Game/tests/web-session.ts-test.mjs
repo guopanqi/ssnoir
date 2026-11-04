@@ -78,6 +78,86 @@ test("web session visits an authored place, spends selected die through runtime,
   await session.back();
   assert.deepEqual(session.getSnapshot().path,[]);
 });
+test("dragged die stages a real roll preview, and explicit execution alone spends resources",async()=>{
+  const host=fakeHost();
+  let performed=0;
+  host.runner.previewRoll=async(name,actorId,slotId)=>{
+    assert.equal(name,"work");assert.equal(actorId,"player");assert.equal(slotId,0);
+    return {prepared:4,fail:30,neutral:50,success:20};
+  };
+  host.runner.performSlots=async(name,slots)=>{
+    performed++;
+    assert.equal(name,"work");
+    assert.deepEqual(slots,[{type:"die",actorId:"player",slotId:0}]);
+    return {mode:"roll",outcome:"success",clockEffects:[]};
+  };
+  const session=new WebGameSession(host);
+  await session.switchPlace("酒馆");
+  assert.deepEqual(session.getSnapshot().path,["酒馆"]);
+  await session.assignToSlot("work",0,{type:"die",actorId:"player",slotId:0});
+  let view=session.getSnapshot();
+  assert.equal(performed,0,"placing a die cannot execute the action");
+  assert.deepEqual(view.selectedSlots,[{type:"die",actorId:"player",slotId:0}]);
+  assert.deepEqual(view.actionPreview,{prepared:4,fail:30,neutral:50,success:20});
+  assert.equal(view.canExecute,true);
+  await session.switchPlace("酒馆");
+  view=session.getSnapshot();
+  assert.equal(view.selectedAction,null,"map focus cancels uncommitted allocation");
+  assert.equal(performed,0);
+  await session.assignToSlot("work",0,{type:"die",actorId:"player",slotId:0});
+  await session.executeAction("work");
+  view=session.getSnapshot();
+  assert.equal(performed,1);
+  assert.equal(view.selectedAction,null);
+  assert.equal(view.resultOpen,true);
+  assert.equal(view.lastAction.result,"成功");
+  session.dismissResult();
+  assert.equal(session.getSnapshot().resultOpen,false);
+});
+test("item slots reject wrong items, flatten container actions, and charge only after execution",async()=>{
+  const host=fakeHost();
+  const place=host.root.children[0];
+  const itemAction={name:"吃点东西",title:"吃点东西",subtitle:"补充精神",anchor:null,
+    isPlace:false,disabled:false,tags:[],requires:[{type:"item",itemId:"金钱",qty:6}],
+    clocks:[],children:[],arrivals:[],resolve:{kind:"instant"}};
+  const group={...place,name:"购买",title:"购买",isPlace:false,children:[itemAction]};
+  host.enterPlace=async()=>{host.root={...host.root,children:[{...place,children:[group]}]};};
+  let balance=15,performed=0;
+  host.state.getItemCount=id=>id==="金钱"?balance:0;
+  host.state.listInventory=()=>[{id:"金钱",quantity:balance}];
+  host.runner.performSlots=async(name,slots)=>{
+    performed++;
+    assert.equal(name,"吃点东西");
+    assert.deepEqual(slots,[{type:"item",itemId:"金钱",qty:6}]);
+    const before={team:{actors:[]},injury:{severity:0},inventory:{"金钱":balance},growthLevel:0};
+    balance-=6;
+    return {mode:"instant",before,
+      after:{...before,inventory:{"金钱":balance}},clockEffects:[]};
+  };
+  const session=new WebGameSession(host);
+  await session.switchPlace("酒馆");
+  let view=session.getSnapshot();
+  assert(view.displayCards.some(x=>x.id==="吃点东西"&&x.groupPath.includes("购买")),
+    "Group actions appear directly on the location rail");
+  await session.assignToSlot("吃点东西",0,{type:"item",itemId:"药品"});
+  assert.match(session.getSnapshot().error,/这个槽需要/);
+  assert.equal(balance,15);
+  await session.assignToSlot("吃点东西",0,{type:"item",itemId:"金钱"});
+  view=session.getSnapshot();
+  assert.deepEqual(view.selectedSlots,[{type:"item",itemId:"金钱",qty:6}]);
+  assert.equal(view.canExecute,true);
+  await session.clearSlot("吃点东西",0);
+  assert.equal(session.getSnapshot().canExecute,false);
+  await session.executeAction("吃点东西");
+  assert.match(session.getSnapshot().error,/资源槽尚未填满/);
+  assert.equal(performed,0);
+  await session.assignToSlot("吃点东西",0,{type:"item",itemId:"金钱"});
+  await session.executeAction("吃点东西");
+  assert.equal(performed,1);assert.equal(balance,9);
+  assert.equal(session.getSnapshot().resultOpen,true);
+  assert.deepEqual(session.getSnapshot().lastAction.changes,[{label:"金钱",delta:-6}]);
+});
+
 test("view-only note does not consume dice or mutate the runtime",async()=>{
   const host=fakeHost();
   host.root.children.push({
