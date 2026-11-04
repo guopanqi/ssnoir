@@ -149,3 +149,7 @@ C# NodeConverter 允许此组合，旧 TypeScript 错误限制了必须带 `:ris
 - 每次真实 ActionRunner 结算用 `ActionResult.before/after` 计算冷静、伤势、物品和成长的实际变化，并用原始 `clockEffects` 显示 Clock 的增减；骰子投入也显示为实际行动资源成本。成功/一般/失败会翻译为中文，不再展示内部 `fail` 字符串。
 - 所有结果只是展示层投影，不能写入游戏数值、改变结果或推进情节。与新视觉面板相对应的 WebSession 单测及 Playwright 现实内容烟测必须通过。
 - 尚未支持复杂 Stage/Theatre 的实际动画演出、未读变化、完整第一幕通关等，仍按长期路线逐项验收。
+
+### P2 权威节点建树优化：原生基础 membership helper
+
+继续沿用 Scheme 的 `get-render-data` 作为唯一生成入口，**不缓存、裁剪或跳过 authored 节点**。由于世界场景及人物会反复执行项目 stdlib 的递归 `member?`，Web LIPS 桥接只对字符串及 Symbol 成员判断执行原地链表遍历；复合值、数字与布尔值全部交回原 Scheme 原函数处理。输入始终读取实时节点，不会因人物状态或列表修改而使用过期缓存。配套测试覆盖 Symbol 与字符串不同类型、复合键匹配及可变列表。真实浏览器全路径与 CI 基准决定是否保留此优化。

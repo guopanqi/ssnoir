@@ -7,7 +7,7 @@ async function setup() {
   const vm = new LipsSession("association-lookup");
   await vm.bootstrapStandardLibrary(readFileSync("node_modules/lips/dist/std.xcb"));
   await vm.evaluate(readFileSync("../UnityClient/Assets/Resources/Content/scripts/stdlib.scm", "utf8"));
-  await vm.evaluate("(define reference-assoc-get assoc-get)");
+  await vm.evaluate("(define reference-assoc-get assoc-get) (define reference-member? member?)");
   vm.accelerateContentLookups();
   return vm;
 }
@@ -60,4 +60,39 @@ test("malformed traversed associations fail while matching rows retain short cir
   await vm.evaluate('(define cycle (list (list "a" 1))) (set-cdr! cycle cycle)');
   await assert.rejects(vm.evaluate('(assoc-get cycle "x" 0)'), /cyclic/);
   await assert.rejects(vm.evaluate('(assoc-get \'() "x")'), /3 arguments/);
+});
+
+
+test("accelerated membership matches authored primitive and composite semantics", async () => {
+  const vm = await setup();
+  const cases = [
+    ["\"酒馆\"", "'(\"码头\" \"酒馆\" \"旅馆\")"],
+    ["\"酒馆\"", "'(\"码头\" \"旅馆\")"],
+    ["'存档", "'(卷宗 存档 节点)"],
+    ["'存档", "'(卷宗 节点)"],
+    ["\"存档\"", "'(存档 \"存档\")"],
+    ["'存档", "'(\"存档\" 卷宗)"],
+    ["17", "'(1 17 3)"],
+    ["'(x y)", "'((a b) (x y) (z))"],
+    ["#f", "'(#t #f)"],
+    ["'()", "'(() (a))"],
+    ["\"\"", "'(\"\" \"x\")"]
+  ];
+  for(const [needle,haystack] of cases)
+    assert.equal(await vm.evaluate(
+      "(equal? (member? "+needle+" "+haystack+") (reference-member? "+needle+" "+haystack+"))"
+    ), true, needle+" "+haystack);
+});
+
+test("accelerated membership observes authored in-place list mutations", async () => {
+  const vm = await setup();
+  await vm.evaluate('(define names (list "home" "tavern"))');
+  assert.equal(await vm.evaluate('(member? "tavern" names)'),true);
+  await vm.evaluate('(set-car! (cdr names) "dock")');
+  assert.equal(await vm.evaluate('(member? "tavern" names)'),false);
+  assert.equal(await vm.evaluate('(member? "dock" names)'),true);
+  await vm.evaluate('(set-cdr! names (list "home" "market"))');
+  assert.equal(await vm.evaluate('(member? "market" names)'),true);
+  await vm.evaluate('(define names-cycle (list "a")) (set-cdr! names-cycle names-cycle)');
+  await assert.rejects(vm.evaluate('(member? "not-there" names-cycle)'),/cyclic/);
 });

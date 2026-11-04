@@ -31,3 +31,32 @@ export function accelerateAssociationLookup(original: Lookup): Lookup {
     return fallback;
   };
 }
+
+
+/**
+ * Authored member? is a recursive Scheme list walk. On the world render path,
+ * symbol/string membership checks run repeatedly while producing location and
+ * character cards. Fast-path only scalar values whose Scheme equal? relation
+ * is an exact same-kind text comparison; delegate all other types unchanged.
+ * Reading live Pair links on each invocation keeps mutated authored data valid.
+ */
+export function accelerateMembershipLookup(original: Lookup): Lookup {
+  return (...args: unknown[]): unknown => {
+    if (args.length !== 2) return original(...args);
+    const [needle, haystack] = args;
+    const kind = type(needle);
+    if (kind !== "string" && kind !== "symbol") return original(...args);
+    const value = String(needle);
+    const visited = new Set<Pair>();
+    let cursor = haystack;
+    while (cursor !== nil) {
+      if (!(cursor instanceof Pair)) throw new Error("member?: expected proper list");
+      if (visited.has(cursor)) throw new Error("member?: cyclic list");
+      visited.add(cursor);
+      const item = cursor.car;
+      if (type(item) === kind && String(item) === value) return true;
+      cursor = cursor.cdr;
+    }
+    return false;
+  };
+}

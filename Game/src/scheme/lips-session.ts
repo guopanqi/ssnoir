@@ -1,5 +1,5 @@
 import { Interpreter, env as lipsEnv, unserialize_bin } from "lips";
-import { accelerateAssociationLookup } from "./association-lookup.ts";
+import { accelerateAssociationLookup, accelerateMembershipLookup } from "./association-lookup.ts";
 
 /**
  * Stage-one Scheme candidate: a persistent per-scene LIPS VM.
@@ -30,6 +30,9 @@ export class LipsSession {
     const original = this.interpreter.get("assoc-get");
     if (typeof original !== "function") throw new Error("Content assoc-get helper is not initialized");
     this.interpreter.set("assoc-get", accelerateAssociationLookup(original as (...args: unknown[]) => unknown));
+    const member = this.interpreter.get("member?");
+    if (typeof member !== "function") throw new Error("Content member? helper is not initialized");
+    this.interpreter.set("member?", accelerateMembershipLookup(member as (...args: unknown[]) => unknown));
   }
 
   async evaluateNumber(source: string): Promise<number> {
