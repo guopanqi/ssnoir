@@ -406,29 +406,52 @@ try{
     "The two-day wait must produce the original morning paper");
   state=await action("看早报");
   assert.equal(state.mode,"world");
-  // The previous six-round banquet and long cargo chase can leave wounds.
-  // Enter the pursuit as a legitimate prepared player: spend actual money
-  // and dice at the clinic rather than resetting or editing injury in a save.
-  console.log("COURIER PREP",JSON.stringify({
-    day:state.day,health:state.health,money:state.money,dice:state.dice.length
-  }));
-  let clinicVisits=0;
-  while(state.health>0&&state.money>=20&&clinicVisits<6){
-    assert(state.mapPlaces.some(x=>x.id==="诊所"),
-      "The native clinic must unlock when a character is injured");
-    if(state.dice.length===0)state=await sleep();
+  // The playable route enters with injury and no money because it paid
+  // normal chapter-one rent and endured the banquet. The intended economy
+  // supports preparation: real paid tavern shifts, then a clinic visit and
+  // one real purchase of composure before a long, hazardous pursuit.
+  const beforePreparation={day:state.day,health:state.health,money:state.money,
+    composure:state.actors.find(a=>a.id==="player")?.composure};
+  console.log("COURIER PREP",JSON.stringify(beforePreparation));
+  let paidShifts=0,clinicVisits=0;
+  while(state.money<35&&paidShifts<12){
+    state=await cityPlace("老街酒馆");
+    if(!state.dice.length){state=await sleep();continue;}
+    const earlier=state.money;
+    state=await action("服务员");
+    assert(state.money>earlier,
+      "Authored tavern work must earn wages before a dangerous pursuit");
+    paidShifts++;
+  }
+  assert(state.money>=35,
+    "Normal tavern jobs must finance a clinic visit and a drink");
+  while(state.health>0&&clinicVisits<5){
+    if(!state.dice.length)state=await sleep();
     state=await cityPlace("诊所");
     const beforeClinic={health:state.health,money:state.money,dice:state.dice.length};
+    assert(beforeClinic.money>=20,"Doctor must be paid with actual earned money");
     state=await action("看医生");
     assert.equal(state.health,Math.max(0,beforeClinic.health-2),
-      "Real clinic action heals exactly the authored two injury points");
+      "A real clinic action heals two injury points");
     assert.equal(state.money,beforeClinic.money-20,
-      "Real clinic action charges twenty dollars");
+      "A real clinic action charges twenty dollars");
     assert.equal(state.dice.length,beforeClinic.dice-1);
     clinicVisits++;
   }
+  assert.equal(state.health,0,
+    "The player must deliberately treat injuries before five stages of tracking");
+  state=await cityPlace("老街酒馆");
+  const beforeDrink=state.money;
+  const moodBefore=state.actors.find(a=>a.id==="player")?.composure;
+  assert(beforeDrink>=15,"The player must afford the real tavern drink");
+  state=await action("点一杯酒");
+  assert.equal(state.money,beforeDrink-15);
+  assert(state.actors.find(a=>a.id==="player")?.composure>=Math.min(5,moodBefore+3),
+    "The purchased drink must apply its real composure restoration");
   console.log("COURIER PREPARED",JSON.stringify({
-    day:state.day,health:state.health,money:state.money,dice:state.dice.length,clinicVisits
+    day:state.day,health:state.health,money:state.money,
+    composure:state.actors.find(a=>a.id==="player")?.composure,
+    dice:state.dice.length,paidShifts,clinicVisits
   }));
   state=await cityPlace("剧院");
   assert(state.entries.some(x=>x.id==="等取件人"&&!x.disabled),
