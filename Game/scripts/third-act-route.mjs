@@ -220,8 +220,107 @@ try{
   await page.getByTestId("dossier-close").click({timeout:90000});
   await settled();
   await page.screenshot({path:"artifacts/web-game-natural-chapter2.png"});
-  assert.deepEqual(errors,[],"No browser errors in the native third-act success route");
   console.log("PASS: real day-14 save -> original Rocco case -> manager report -> Nightingale river invitation -> natural next-day chapter-two opening");
+
+  // FIRST UNSIGNED PLAYER PATH AFTER THE PREVIOUSLY ACCEPTED CHAPTER-ONE ROUTE:
+  // let the actual city calendar announce the banquet, enter through the map,
+  // spend real dice, let the six authored opponent turns finish the event,
+  // and verify the city's resulting dossier and portable save.
+  const chapterTwoStart=state.day;
+  assert(state.dossiers.some(x=>x.id==="格兰德酒店晚宴"&&x.status==="进行中"));
+  state=await sleep();
+  assert.equal(state.day,chapterTwoStart+1,"The second chapter's second day must be real");
+  await page.getByTestId("save-game").click({timeout:90000});
+  await settled();
+  const preBanquet=await read();
+  const banquetSave=await page.evaluate(()=>localStorage.getItem("ssnoir-web-v1"));
+  assert(banquetSave,"Chapter-two city snapshot must be persistable");
+  await page.getByTestId("load-game").click({timeout:90000});
+  await settled();await story();
+  state=await read();
+  assert.equal(state.day,preBanquet.day);
+  assert.equal(state.mode,"world");
+  assert.deepEqual(state.mapPlaces,preBanquet.mapPlaces,
+    "A chapter-two save/restore must preserve the authored map and unlocks");
+  state=await sleep();
+  assert.equal(state.day,chapterTwoStart+2,"The third chapter-two day is the banquet night");
+  assert(state.restReasons.some(x=>x.location==="格兰德酒店"),
+    "The genuine banquet-night obligation must block sleeping");
+  const banquetDate=state.day;
+  await node("格兰德酒店");
+  state=await action("赴晚宴");
+  assert.equal(state.mode,"scenario","The authentic banquet entrance must open a scenario");
+  assert.equal(state.day,banquetDate,"A scene entrance cannot advance the city calendar");
+  assert(state.actors.some(x=>x.name==="夜莺"),
+    "Nightingale must be present at the beginning of the banquet");
+  assert(state.entries.some(x=>x.id==="加入赞助人"&&!x.disabled),
+    "Banquet's first phase must expose social groups");
+
+  const banquetRounds=[];
+  for(let round=1;round<=6;round++){
+    state=await read();
+    assert.equal(state.mode,"scenario","Banquet must remain active for round "+round);
+    const firstAct=["加入赞助人","加入剧院那桌","听他们谈钱","走进舞池"];
+    const secondAct=["和薇拉谈","陪他喝一杯","和贝恩斯谈","和记者谈"];
+    const choices=[...secondAct,...firstAct].filter(id=>
+      state.entries.some(x=>x.id===id&&!x.disabled));
+    assert(choices.length>0,"The banquet must offer a real decision in round "+round);
+    if(state.dice.length>0){
+      const choice=choices[(round-1)%choices.length];
+      const diceBefore=state.dice.length;
+      state=await action(choice);
+      assert.equal(state.mode,"scenario");
+      assert.equal(state.dice.length,diceBefore-1,
+        "Talking to "+choice+" must consume a genuine die");
+      banquetRounds.push({round,choice});
+      const recovery=state.entries.find(x=>
+        ["去露台透气","在餐桌边停下"].includes(x.id)&&!x.disabled);
+      if(recovery&&state.dice.length>0){
+        const health=state.health;
+        state=await action(recovery.id);
+        assert.equal(state.mode,"scenario");
+        assert(state.health<=health,
+          "A rest action cannot inflict an injury outside the authored opponent turn");
+      }
+    }
+    state=await nextRound();
+    if(round<6)assert.equal(state.mode,"scenario",
+      "The fixed six-dance countdown cannot end in an earlier round");
+  }
+  assert.equal(state.mode,"world","The original six-dance event must return to the city");
+  assert.equal(state.day,banquetDate,"The banquet is one evening, not six world days");
+  assert.equal(state.failure,null,"Completing the banquet must not end the whole game");
+  assert(state.dice.length>0,"Returning to the city must restore its saved die pool");
+  await page.getByTestId("dossier-toggle").click({timeout:90000});
+  await settled();
+  state=await read();
+  const banquetEntry=state.dossiers.find(x=>x.id==="格兰德酒店晚宴");
+  assert.equal(banquetEntry?.status,"了结",
+    "The authored Scenario result must close the city's banquet dossier");
+  assert(banquetEntry?.log?.length>0,
+    "The guest outcomes must be recorded by the city callback");
+  await page.getByTestId("dossier-close").click({timeout:90000});
+  await settled();
+  await page.getByTestId("save-game").click({timeout:90000});
+  await settled();
+  const closedBanquetSave=await page.evaluate(()=>localStorage.getItem("ssnoir-web-v1"));
+  assert(closedBanquetSave&&closedBanquetSave!==banquetSave,
+    "Banquet outcomes must enter the persistent Scheme world datum");
+  await page.getByTestId("load-game").click({timeout:90000});
+  await settled();await story();
+  state=await read();
+  assert.equal(state.mode,"world");
+  assert.equal(state.day,banquetDate);
+  await page.getByTestId("dossier-toggle").click({timeout:90000});
+  await settled();
+  state=await read();
+  assert.equal(state.dossiers.find(x=>x.id==="格兰德酒店晚宴")?.status,"了结",
+    "Banquet settlement must persist across VM isolation and reload");
+  await page.getByTestId("dossier-close").click({timeout:90000});
+  await settled();
+  await page.screenshot({path:"artifacts/web-game-banquet-finished.png"});
+  assert.deepEqual(errors,[],"Chapter-two opening and banquet produced no browser errors");
+  console.log("PASS: chapter-two natural countdown -> banquet six real rounds -> callback dossier settlement -> save/restore",JSON.stringify(banquetRounds));
 }finally{
   await browser?.close();await server.close();
 }
