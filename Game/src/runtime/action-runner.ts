@@ -176,9 +176,11 @@ export class GameActionRunner {
       if(place.arrivals.length) {
         await this.scripts.evaluate("(__ssnoir-run-place-arrivals! "+JSON.stringify(name)+")");
       }
-      // C# arrivals are a story beat, not an action report with costs.
-      const report=this.state.takeActionReport();
-      if(report.length)throw new Error("arrival produced action clock costs");
+      // Authored arrivals may legitimately change clocks: rent collection
+      // resets its countdown while charging the player's real inventory.
+      // These changes are committed, not surfaced as an action-result report.
+      // Rolling them back would leave the Scheme clock and native items apart.
+      this.state.takeActionReport();
       if(!place.arrivals.length)return place;
       const updated=await this.prepare();
       const result=updated.name===name?updated:updated.children.find(x=>x.name===name);
