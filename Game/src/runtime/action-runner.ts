@@ -4,7 +4,7 @@ import { ActionTurnState } from "./turn-state.ts";
 import { convertNode, schemeList, validateActionRiskContracts, type RuntimeNode } from "./node-converter.ts";
 import { SITES } from "./injury.ts";
 import { collectRequired, sameRequired } from "./rest-blockers.ts";
-import { resolveFate, type RollOutcome } from "./fate-strip.ts";
+import { probabilities, resolveFate, type RollOutcome } from "./fate-strip.ts";
 
 /**
  * Companion code for original Scheme-authored nodes. Functions and effect
@@ -193,6 +193,47 @@ export class GameActionRunner {
     }
   }
 
+  /**
+   * Shared, read-only roll preparation. The preview uses exactly the same
+   * authored modifiers, actor skill and injury penalties as the real action.
+   * It never draws the hidden percentile or consumes a resource.
+   */
+  private async rollModifier(name:string,actorId:string,skill:string):Promise<number>{
+    const raw=await this.scripts.evaluate(
+      "(__ssnoir-get-modifiers "+JSON.stringify(name)+")");
+    let modifier=0;
+    for(const entry of schemeList(raw,"action modifiers")){
+      const parts=schemeList(entry,"modifier");
+      if(parts.length!==3||String(parts[0])!=="modifier")throw new Error("invalid modifier");
+      const value=Number(String(parts[1]));
+      if(!Number.isSafeInteger(value))throw new Error("invalid modifier value");
+      modifier+=value;
+    }
+    const actor=this.state.team.require(actorId);
+    if(actor.role==="protagonist"){
+      if(this.state.injury.skill===skill)modifier+=this.state.injury.modifier;
+      modifier-=this.state.injury.scars.filter(s=>
+        SITES.find(p=>p.part===s.part)?.skill===skill).length;
+    }
+    return modifier;
+  }
+
+  async previewRoll(name:string,actorId:string,slotId:number):
+    Promise<{prepared:number;fail:number;neutral:number;success:number}>{
+    const node=this.root&&(findNode(this.root,name)??this.carry.find(n=>n.name===name));
+    if(!node||node.disabled||node.resolve?.kind!=="roll")
+      throw new Error("cannot preview unavailable roll "+name);
+    const actor=this.state.team.require(actorId);
+    if(actor.status!=="active")throw new Error("inactive action actor");
+    const die=this.state.team.dice(actorId).find(x=>x.slotId===slotId);
+    if(!die)throw new Error("unavailable preview die");
+    const skill=node.resolve.skill!;
+    const modifier=await this.rollModifier(name,actorId,skill);
+    const prepared=die.value+this.state.team.stat(actorId,skill)+modifier;
+    const [fail,neutral,success]=probabilities(prepared);
+    return {prepared,fail,neutral,success};
+  }
+
   /** C#-parity action slot resolution on TeamState (all actors, multi-die). */
   async performSlots(name:string,slots:(
     {type:"die";actorId:string;slotId:number}|
@@ -239,22 +280,8 @@ export class GameActionRunner {
     try{
       let roll:ReturnType<typeof resolveFate>|undefined;
       if(node.resolve.kind==="roll"){
-        const raw=await this.scripts.evaluate(
-          "(__ssnoir-get-modifiers "+JSON.stringify(name)+")");
-        let modifier=0;
-        for(const entry of schemeList(raw,"action modifiers")){
-          const parts=schemeList(entry,"modifier");
-          if(parts.length!==3||String(parts[0])!=="modifier")throw new Error("invalid modifier");
-          const value=Number(String(parts[1]));
-          if(!Number.isSafeInteger(value))throw new Error("invalid modifier value");
-          modifier+=value;
-        }
         const skill=node.resolve.skill!;
-        if(actor.role==="protagonist"){
-          if(this.state.injury.skill===skill)modifier+=this.state.injury.modifier;
-          modifier-=this.state.injury.scars.filter(s=>
-            SITES.find(p=>p.part===s.part)?.skill===skill).length;
-        }
+        const modifier=await this.rollModifier(name,actorId,skill);
         roll=resolveFate(dice[0].value,this.state.team.stat(actorId,skill),
           modifier,this.turn.rollPercentage());
       }
