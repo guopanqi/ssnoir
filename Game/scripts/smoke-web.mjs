@@ -171,21 +171,24 @@ try {
   assert.equal(state.resultOpen,true,"Explicit execute must open a consequence dialog");
   await page.getByTestId("result-dismiss").click();
   assert.equal((await read()).resultOpen,false);
-  const food=(await read()).displayCards.find(x=>x.id==="吃点东西");
-  assert(food&&food.requires.length===1&&food.requires[0].type==="item",
-    "Authored tavern food must be directly visible as an item-slot action");
-  const foodSlot=page.locator('[data-testid="resource-slot"][data-node-id="吃点东西"][data-slot-index="0"]');
-  const beforeFood=await read();
-  await page.locator('[data-testid="inventory-resource"][data-item-id="金钱"]').dragTo(foodSlot);
+  const drink=(await read()).displayCards.find(x=>x.id==="点一杯酒");
+  assert(drink&&drink.requires.length===1&&drink.requires[0].type==="item",
+    "The original first-day tavern drink must expose an item input directly");
+  const drinkCost=drink.requires[0].qty;
+  assert.equal(drinkCost,15);
+  const drinkSlot=page.locator('[data-testid="resource-slot"][data-node-id="点一杯酒"][data-slot-index="0"]');
+  const beforeDrink=await read();
+  await page.locator('[data-testid="inventory-resource"][data-item-id="金钱"]').dragTo(drinkSlot);
   await settled();
   state=await read();
-  assert.equal(state.selectedAction,"吃点东西");
-  assert.deepEqual(state.selectedSlots,[{type:"item",itemId:"金钱",qty:6}]);
-  assert.equal(state.money,beforeFood.money,"Dragging money does not pay yet");
-  await page.locator('[data-testid="execute-action"][data-node-id="吃点东西"]').click();
+  assert.equal(state.selectedAction,"点一杯酒");
+  assert.deepEqual(state.selectedSlots,[{type:"item",itemId:"金钱",qty:drinkCost}]);
+  assert.equal(state.money,beforeDrink.money,"Dragging money must not pay yet");
+  await page.locator('[data-testid="execute-action"][data-node-id="点一杯酒"]').click();
   await settled();await drainStory();
   state=await read();
-  assert.equal(state.money,beforeFood.money-6,"Native item-slot action spends exactly six gold");
+  assert.equal(state.money,beforeDrink.money-drinkCost,
+    "The native item-slot action consumes only the authored drink price");
   assert.equal(state.resultOpen,true,"Item actions use the same explicit result dialog");
   await page.getByTestId("result-dismiss").click();
   await page.screenshot({path:"artifacts/web-game-action.png"});
