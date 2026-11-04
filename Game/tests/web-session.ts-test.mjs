@@ -78,14 +78,17 @@ test("web navigation is a real exit, and shortcut returns home without advancing
   const before=host.state.getGlobal("世界日");
   host.leavePlace=async()=>{exits++;};
   const original=host.enterPlace;
-  host.enterPlace=async id=>{enters++;await original(id);};
+  host.enterPlace=async id=>{enters++;if(id==="酒馆")await original(id);else assert.equal(id,"家");};
   const game=new WebGameSession(host);
   await game.open("酒馆");
   await game.back();
   assert.equal(exits,1);
   assert.deepEqual(game.getSnapshot().path,[]);
+  host.root.children.push({...host.root.children[0],name:"家",title:"旅馆",children:[]});
+  host.getPlaces=()=>host.root.children.filter(x=>x.isPlace&&!x.disabled);
   await game.goHome();
   assert.equal(enters,2);
+  assert.deepEqual(game.getSnapshot().path,["家"]);
   assert.equal(host.state.getGlobal("世界日"),before,"navigation is never a free end-day action");
 });
 test("an authored sleep action forwards the day transition and clears old path",async()=>{
