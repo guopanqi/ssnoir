@@ -87,12 +87,25 @@ export class WorldSaveController {
     // datum. Compare BOTH saved copies before invoking that mutation, or an
     // inconsistent native date is silently overwritten and cannot be detected.
     // Read the datum only once: full content save data can be large.
+    // Separate the reader from authored module restoration for profiling.
+    // The datum is never evaluated as code; the original calendar guard remains.
+    const readStarted=performance.now();
     await fresh.session.evaluate(
-      '(let ((datum (read (open-input-string '+literal+')))) '+
-      '(if (and (number? (assoc-get datum "day" #f)) '+
-      '(= (assoc-get datum "day" #f) '+savedNativeDay+')) '+
-      '(world-load! datum) (error "save calendar mismatch: authored day differs")))'
+      '(define __ssnoir-world-restore-datum (read (open-input-string '+literal+')))'
     );
+    const readFinished=performance.now();
+    await fresh.session.evaluate(
+      '(if (and (number? (assoc-get __ssnoir-world-restore-datum "day" #f)) '+
+      '(= (assoc-get __ssnoir-world-restore-datum "day" #f) '+savedNativeDay+')) '+
+      '(world-load! __ssnoir-world-restore-datum) '+
+      '(error "save calendar mismatch: authored day differs"))'
+    );
+    const moduleFinished=performance.now();
+    await fresh.session.evaluate('(set! __ssnoir-world-restore-datum #f)');
+    console.info("[SSNoir] web restore read/load",JSON.stringify({
+      readDatumMs:Math.round(readFinished-readStarted),
+      moduleLoadMs:Math.round(moduleFinished-readFinished)
+    }));
     // world-load! owns the authored calendar, while the typed save also
     // carries its public global. Reject divergence instead of silently
     // accepting a world whose daily deadlines disagree with the native UI.
