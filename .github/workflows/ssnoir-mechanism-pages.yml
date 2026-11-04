@@ -134,3 +134,11 @@ jobs:
           done
           echo "::error::Pages artifact deployed, but the public /game/ does not match $GITHUB_SHA"
           exit 1
+      - name: Install Chromium for live game acceptance
+        working-directory: Game
+        run: npx playwright install --with-deps chromium
+      - name: Play fresh game, save, reject bad save and restore on public Pages
+        working-directory: Game
+        env:
+          SSNOIR_WEB_BASE_URL: https://guopanqi.github.io/ssnoir/game/
+        run: npm run smoke:web
