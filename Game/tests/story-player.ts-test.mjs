@@ -48,3 +48,37 @@ test("four-argument camera cut flag remains intact; old three-argument payload i
  const bad=new StoryPlaybackQueue();
  assert.throws(()=>bad.push([{kind:"camera",args:["老街酒馆",0.8,"家"],blocking:true,immediate:false}]),/invalid camera/);
 });
+
+
+test("authored seven/eight-field Scheme line is presented as speaker and text", () => {
+  const q = new StoryPlaybackQueue();
+  q.push([{
+    kind:"dialogue",blocking:true,immediate:false,
+    args:[[
+      ["neil","你好，夜莺。","",0,[],"尼尔",""],
+      ["nightingale","今晚的彩排很重要。","",0,[],"夜莺","剧院舞台","nightingale-a"]
+    ]]
+  }]);
+  assert.equal(q.current?.speaker,"尼尔");
+  assert.equal(q.current?.text,"你好，夜莺。");
+  q.advance();
+  assert.equal(q.current?.speaker,"夜莺");
+  assert.equal(q.current?.text,"今晚的彩排很重要。");
+  q.advance();
+  assert.equal(q.blocked,false);
+});
+
+test("authored banter does not show raw voice, stage and anchor metadata", () => {
+  const q = new StoryPlaybackQueue();
+  q.push([{
+    kind:"banter",blocking:false,immediate:true,
+    args:[[
+      ["尼尔","今天看上去不太妙。","voice-1",2.5,[],"尼尔","酒馆"]
+    ]]
+  }]);
+  const chatter=q.takeBanter();
+  assert.equal(chatter.length,1);
+  assert.equal(chatter[0].speaker,"尼尔");
+  assert.equal(chatter[0].text,"今天看上去不太妙。");
+  assert.equal(q.takeBanter().length,0);
+});

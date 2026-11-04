@@ -27,6 +27,16 @@ export class StoryPlaybackQueue {
       if(command.length>=3&&["line","remote-line"].includes(String(command[0])))
         return [{speaker:StoryPlaybackQueue.text(command[1]),
           text:StoryPlaybackQueue.text(command[2])}];
+      // The authoritative engine.scm (line ...) emits seven data fields:
+      // identity, text, voice, dwell, stage, display speaker, anchor.
+      // An optional eighth field records a declared speaker's appearance.
+      // Unlike legacy tagged test fixtures it has no leading 'line' token.
+      if((command.length===7||command.length===8) &&
+        typeof command[0]==="string" && typeof command[1]==="string" &&
+        typeof command[3]==="number" && Array.isArray(command[4]) &&
+        typeof command[5]==="string" && typeof command[6]==="string" &&
+        (command.length===7||typeof command[7]==="string"))
+        return [{speaker:command[5]||command[0],text:command[1]}];
       return [{speaker:"",text:StoryPlaybackQueue.text(raw)}];
     });
   }

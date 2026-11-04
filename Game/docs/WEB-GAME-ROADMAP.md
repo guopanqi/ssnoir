@@ -153,3 +153,7 @@ C# NodeConverter 允许此组合，旧 TypeScript 错误限制了必须带 `:ris
 ### P2 权威节点建树优化：原生基础 membership helper
 
 继续沿用 Scheme 的 `get-render-data` 作为唯一生成入口，**不缓存、裁剪或跳过 authored 节点**。由于世界场景及人物会反复执行项目 stdlib 的递归 `member?`，Web LIPS 桥接只对字符串及 Symbol 成员判断执行原地链表遍历；复合值、数字与布尔值全部交回原 Scheme 原函数处理。输入始终读取实时节点，不会因人物状态或列表修改而使用过期缓存。配套测试覆盖 Symbol 与字符串不同类型、复合键匹配及可变列表。真实浏览器全路径与 CI 基准决定是否保留此优化。
+
+### P2 对话语义修复
+
+Web StoryPlaybackQueue 现在识别现行 `engine.scm` 的 `line` 七字段结构（identity、text、voice、dwell、stage、display、anchor）以及带额外 appearance 的八字段结构。显示说话人使用 `display`，对白内容只使用 `text`，而不是把声音、舞台指示、锚点和文本拼成一行。原有旧格式 `line` 标签测试仍保持兼容；这只更正表现解析，不改台词脚本或结算。
