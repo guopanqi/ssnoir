@@ -3,11 +3,12 @@ import { mkdirSync } from "node:fs";
 import { chromium } from "playwright";
 import { createServer } from "vite";
 
-const server=await createServer({configFile:"vite.config.ts",
+const liveBase=process.env.SSNOIR_WEB_BASE_URL;
+const server=liveBase?null:await createServer({configFile:"vite.config.ts",
   server:{host:"127.0.0.1",port:4173,strictPort:true}});
 let browser;
 try {
-  await server.listen();
+  await server?.listen();
   browser=await chromium.launch({headless:true,args:["--no-sandbox",
     "--enable-webgl","--enable-unsafe-swiftshader","--use-gl=angle","--use-angle=swiftshader"]});
   const page=await browser.newPage({viewport:{width:1440,height:850}});
@@ -42,7 +43,9 @@ try {
     return s;
   }
   mkdirSync("artifacts",{recursive:true});
-  await page.goto("http://127.0.0.1:4173/?seed=42",{waitUntil:"domcontentloaded"});
+  const gameUrl=liveBase?new URL("?seed=42",liveBase.endsWith("/")?liveBase:liveBase+"/").href
+    :"http://127.0.0.1:4173/?seed=42";
+  await page.goto(gameUrl,{waitUntil:"domcontentloaded"});
   await page.getByTestId("game-ready").waitFor({timeout:90000});
   await drainStory();
   const initial=await read();
@@ -160,5 +163,5 @@ try {
   console.log("PASS: real Scheme city -> hotel morning -> tavern work/die -> save -> sleep/day 2 -> reject invalid save without state loss -> restore day 1");
 } finally {
   await browser?.close();
-  await server.close();
+  await server?.close();
 }
