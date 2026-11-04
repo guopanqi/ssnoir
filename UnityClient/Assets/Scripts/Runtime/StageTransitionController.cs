@@ -10,7 +10,7 @@ namespace SSNoir
     {
         [SerializeField] private Cinemachine.CinemachineVirtualCamera? transitionVCam;
 
-        // Portal 的手感全在代码里，不挂 Inspector（理由同下面的过夜黑场）。
+        // Portal 的路径与缓动在此定义；时长缩放共用 GameManager 的 Inspector 参数。
         //
         // 门有两端：A 是城市侧的 PortalIn（挂在 StagePortalConfig 上），B 是 Stage 根机位 Camera_<名>
         // （StagePortalConfig 挂在同名 Anchor 上，游戏本来就要解析它的焦点相机）。
@@ -159,6 +159,7 @@ namespace SSNoir
             Debug.Assert(portal.IntroCam != null, "[StageTransition] StagePortalConfig.IntroCam not assigned.");
             if (transitionVCam == null || portal.IntroCam == null) yield break;
 
+            float halfDuration = PortalHalfDuration * _gameManager.CameraTravelDurationScale;
             var introCam = portal.IntroCam.transform;
             var targetCamera = _gameManager.CurrentFocusCamera;
             Debug.Assert(targetCamera != null, "[StageTransition] Enter target focus camera was not resolved.");
@@ -187,7 +188,7 @@ namespace SSNoir
                     from.position, from.position + from.forward * ShotHandle(from.position, doorEnd),
                     introCam.position - introCam.forward * PortalDoorHandle, doorEnd,
                     from.rotation, introCam.rotation, LensOf(portal.IntroCam),
-                    PortalHalfDuration, AccelerateIntoBlack, FadeIntoBlack);
+                    halfDuration, AccelerateIntoBlack, FadeIntoBlack);
             }
             FadeAlpha = 1f;
 
@@ -211,7 +212,7 @@ namespace SSNoir
                     revealStart, Vector3.Lerp(revealStart, to.position, 0.35f),
                     Vector3.Lerp(revealStart, to.position, 0.65f), to.position,
                     to.rotation, to.rotation, LensOf(targetCamera),
-                    PortalHalfDuration, DecelerateOutOfBlack, FadeOutOfBlack);
+                    halfDuration, DecelerateOutOfBlack, FadeOutOfBlack);
             }
             FadeAlpha = 0f;
 
@@ -226,6 +227,7 @@ namespace SSNoir
             Debug.Assert(portal.IntroCam != null, "[StageTransition] StagePortalConfig.IntroCam not assigned.");
             if (transitionVCam == null || portal.IntroCam == null) yield break;
 
+            float halfDuration = PortalHalfDuration * _gameManager.CameraTravelDurationScale;
             var introCam = portal.IntroCam.transform;
             Cinemachine.CinemachineVirtualCamera? targetCamera = null;
 
@@ -241,7 +243,7 @@ namespace SSNoir
                 from.position, Vector3.Lerp(from.position, pushEnd, 0.35f),
                 Vector3.Lerp(from.position, pushEnd, 0.65f), pushEnd,
                 from.rotation, from.rotation, transitionVCam.m_Lens,
-                PortalHalfDuration, AccelerateIntoBlack, FadeIntoBlack);
+                halfDuration, AccelerateIntoBlack, FadeIntoBlack);
 
             // 退出Scenario时，黑场之前世界快照刚落地，送医流程可能还要把导航落到
             // 诊所。目标机位必须在这段导航完成后再解析，否则会先取到世界根机位，
@@ -273,7 +275,7 @@ namespace SSNoir
                         introCam.position, introCam.position - introCam.forward * PortalDoorHandle,
                         to.position + to.forward * ShotHandle(introCam.position, to.position), to.position,
                         introCam.rotation, to.rotation, LensOf(targetCamera),
-                        PortalHalfDuration, DecelerateOutOfBlack, FadeOutOfBlack);
+                        halfDuration, DecelerateOutOfBlack, FadeOutOfBlack);
                 }
                 targetCamera.Priority = 20;
             }

@@ -190,7 +190,6 @@
 
     (define (node-sleep)
       (node "睡觉"
-        :anchor "床边"
         :subtitle (cond
                     (刚睡过? "刚醒。出门走走再回来睡")
                     ((rest-blocked?) "还有必须处理的事，暂时不能休息。")
@@ -204,7 +203,6 @@
 
     (define (node-sleep-at-door)
       (node "蜷缩在门口"
-        :anchor "门口"
         :subtitle (cond (刚睡过? "刚醒。出门走走再回来")
                         ((rest-blocked?) "还有必须处理的事，暂时不能休息。") (else ""))
         :disabled (sleep-locked?)
@@ -217,7 +215,6 @@
     ;; ── 交易 / 布置 / 升级 ──────────────────────────
     (define (node-pay-rent)
       (node "补交住宿费"
-        :anchor "床边"
         :requires (list (req-item "金钱" rent-amount))
         :resolve (instant
           (outcome (lambda ()
@@ -226,24 +223,6 @@
                 (line "世界" "他数完，把门上那把锁摘了下来。")
                 (line "旅馆老板" "东西都还在里头。别让我锁第二次。"))
               (reset-rent-cycle!))))))
-
-    ;; 住宿费是跨导航持续跟踪的倒计时，用 clock-node 立成常驻标注，不占可交互版面；
-    ;; 补交住宿费仍是一张动作卡。被赶出后没有钟可挂，退成一段说明文字。
-    (define (rent-status-node)
-      (cond
-        (evicted?
-         (node "标注：住宿费" :anchor "床边" :resolve
-           (note "房门已锁"
-             (string-append "欠下的 " (number->string rent-amount) " 块补清，"
-                            "旅馆老板才会重新开门。"))))
-        ((rent-due?) (note-node "标注：住宿费" "房费到期" "回旅馆时交40美元续住。"))
-        (else
-         (node "标注：住宿费" :anchor "床边" :resolve (clock (rent-clk 'render-data))))))
-
-    (define (rent-nodes)
-      (append
-        (list (rent-status-node))
-        (if evicted? (list (node-pay-rent)) '())))
 
     ;; 买东西的卡全挂在屋里的书桌上（翻着报纸广告页下单）。**不能挂在买回来的东西自己的
     ;; 锚点上**：花盆、唱片机按 presence 契约"有卡挂着就出现"，买之前把卡挂过去，东西就提前长出来了。
@@ -420,9 +399,14 @@
       (append
         (地点节点 "家")
         (if (room-available?) (list (node-room)) '())
-        (if (renting?) (rent-nodes) '())
         (upgrade-nodes)
-        (list (if (room-available?) (node-sleep) (node-sleep-at-door)))))
+        (list (node "住宿" :name (tr "住宿" "Lodging") :display 'inline
+          :anchor (if (room-available?) "床边" "门口")
+          :subtitle (if evicted? (tr "房门已锁，补交40美元后恢复入住。" "The room is locked. Pay $40 to renew your stay.") "")
+          :clocks (if (renting?) (list (rent-clk 'render-data)) '())
+          :children (append
+            (if (and (renting?) evicted?) (list (node-pay-rent)) '())
+            (list (if (room-available?) (node-sleep) (node-sleep-at-door))))))))
 
     ;; 容器名固定为"家"（导航按名字定位，不能随住所变），住所等级放 subtitle 显示。
     (define (residence-container)

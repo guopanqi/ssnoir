@@ -61,7 +61,7 @@
               :clocks (list (第二幕-期限钟 "夜宵机会" 12 10))
               :resolve (instant (outcome private!)))) '())
           (if (and (= world-day 13) (not performance-seen?))
-            (list (node "赴试唱之约" :anchor "夜莺@剧院" :button-text "赴约"
+            (list (node "赴试唱之约" :anchor "夜莺@剧院" :button-text "执行"
               :required-before-rest "先看赞助人试唱并追查黑影"
               :resolve (instant (outcome performance!)))) '())
           ;; 节目单是试演时长的可见世界事实。

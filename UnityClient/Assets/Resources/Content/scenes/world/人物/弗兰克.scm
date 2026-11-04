@@ -470,18 +470,18 @@
           '()))
 
     (define-turn-rule "货船抢修期限"
-      (lambda () (and (equal? repair-state "进行中") (>= world-day repair-deadline-day)))
+      (lambda () (and (人物线开放? "弗兰克") (equal? repair-state "进行中") (>= world-day repair-deadline-day)))
       (lambda () (settle-repair! #f)))
 
     (define-turn-start-rule "旧货船改泊"
-      (lambda () (and side-story-open? (第二章 'started?) (equal? repair-state "未开放")))
+      (lambda () (and (人物线开放? "弗兰克") side-story-open? (第二章 'started?) (equal? repair-state "未开放")))
       (lambda ()
         (set! repair-state "进行中")
         (set! repair-deadline-day (+ world-day repair-days))
         (sync-globals!)))
 
     (define-turn-rule "不开的船等待合适白天"
-      (lambda () (and hold-open?
+      (lambda () (and (人物线开放? "弗兰克") hold-open?
                       (equal? hold-state "待安排")
                       (>= world-day hold-open-day)
                       (not (rest-blocked?))))
@@ -493,7 +493,7 @@
           "代理拒绝付工钱——承包人跑了。弗兰克扣下一件关键部件，让工人封住跳板；只有今天。")))
 
     (define-turn-rule "不开的船缺席结算"
-      (lambda () (and hold-open?
+      (lambda () (and (人物线开放? "弗兰克") hold-open?
                       (equal? hold-state "待处理") (> world-day hold-day)))
       (lambda ()
         (set! hold-state "缺席")
@@ -504,7 +504,7 @@
     ;; 扣船暂隐收口：旧档里残留的待安排/待处理静默记 缺席，不弹 spotlight、
     ;; 不留入口。后注册先运行，抢在上面的缺席结算之前落地。
     (define-turn-rule "扣船暂隐收口"
-      (lambda () (and (not hold-open?)
+      (lambda () (and (人物线开放? "弗兰克") (not hold-open?)
                       (member? hold-state (list "待安排" "待处理"))))
       (lambda ()
         (set! hold-state "缺席")
@@ -516,6 +516,7 @@
     (lambda args
       (let ((msg (car args)))
         (cond
+          ((and (not (人物线开放? "弗兰克")) (member? msg '(nodes-at dossier arrivals-at))) '())
           ((equal? msg 'nodes-at) (nodes-at (cadr args)))
           ((equal? msg 'dossier) (dossier-entry))
           ((equal? msg 'arrivals-at) (arrivals-at (cadr args)))

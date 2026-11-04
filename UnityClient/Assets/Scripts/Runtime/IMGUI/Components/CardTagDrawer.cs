@@ -12,10 +12,11 @@ namespace SSNoir.IMGUI
         {
             public readonly string Text;
             public readonly bool Attention;
+            public readonly bool Unread;
             public readonly GameClock? Clock;
             public readonly Color? Accent;
-            public Item(string text, bool attention = false, GameClock? clock = null, Color? accent = null)
-            { Text = text; Attention = attention; Clock = clock; Accent = accent; }
+            public Item(string text, bool attention = false, GameClock? clock = null, Color? accent = null, bool unread = false)
+            { Text = text; Attention = attention; Clock = clock; Accent = accent; Unread = unread; }
         }
 
         private const float Padding = 8f;
@@ -35,10 +36,16 @@ namespace SSNoir.IMGUI
             margin = new RectOffset()
         };
 
-        private static List<Item> BuildItems(GameNode node, bool mustHandle, List<GameClock>? clocks)
+        private static List<Item> BuildItems(GameNode node, bool mustHandle, List<GameClock>? clocks, bool unread)
         {
             var items = new List<Item>();
             var labels = new HashSet<string>();
+            if (unread)
+            {
+                string label = GameLanguage.Tr("新", "NEW");
+                items.Add(new Item(label, unread: true));
+                labels.Add(label);
+            }
             if (node.Risk != null)
             {
                 Color riskColor = node.Risk.Level switch
@@ -91,17 +98,17 @@ namespace SSNoir.IMGUI
         }
 
         public static float MeasureRise(GameNode node, float width, bool mustHandle = false,
-            List<GameClock>? clocks = null)
+            List<GameClock>? clocks = null, bool unread = false)
         {
-            var rects = Layout(width, BuildItems(node, mustHandle, clocks), Style());
+            var rects = Layout(width, BuildItems(node, mustHandle, clocks, unread), Style());
             return rects.Count == 0 ? 0f : rects[rects.Count - 1].yMax + CardGap;
         }
 
         public static void Draw(Rect card, GameNode node, bool disabled, bool mustHandle = false,
-            List<GameClock>? clocks = null)
+            List<GameClock>? clocks = null, bool unread = false)
         {
             var style = Style();
-            var items = BuildItems(node, mustHandle, clocks);
+            var items = BuildItems(node, mustHandle, clocks, unread);
             var rects = Layout(card.width, items, style);
             if (rects.Count == 0) return;
             float top = card.y - rects[rects.Count - 1].yMax - CardGap;
@@ -114,10 +121,17 @@ namespace SSNoir.IMGUI
                 Color ink = disabled ? IMGUIStyles.TextSecondary : item.Accent ?? (item.Clock != null
                     ? CardDrawer.ClockColor(item.Clock) : item.Attention ? IMGUIStyles.Gold : IMGUIStyles.Paper);
                 IMGUIStyles.DrawShadow(rect, new Vector2(2f, 2f), .35f);
-                IMGUIStyles.SetColor(IMGUIStyles.CityPlateBg);
+                // 未读使用同一标签尺寸与排布，以反白纸签区别于普通暗底标签。
+                IMGUIStyles.SetColor(item.Unread ? IMGUIStyles.Paper : IMGUIStyles.CityPlateBg);
                 GUI.DrawTexture(rect, Texture2D.whiteTexture);
                 IMGUIStyles.ResetColor();
                 IMGUIStyles.DrawOutline(rect, 1f, disabled ? IMGUIStyles.CityPlateLine : item.Accent ?? (item.Attention ? IMGUIStyles.Gold : IMGUIStyles.CityPlateLine));
+                if (item.Unread)
+                {
+                    ink = IMGUIStyles.PaperInk;
+                    float glow = 0.45f + 0.35f * (0.5f + 0.5f * Mathf.Sin(Time.unscaledTime * 2.4f));
+                    IMGUIStyles.DrawOutline(rect, 2f, new Color(IMGUIStyles.Paper.r, IMGUIStyles.Paper.g, IMGUIStyles.Paper.b, glow));
+                }
                 if (item.Attention && !disabled)
                     IMGUIStyles.DrawGoldPulse(rect, baseAlpha: .3f, rings: 1, ringStep: 1.5f, speed: 1.5f);
                 float iconWidth = item.Clock != null ? Height : 0f;

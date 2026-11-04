@@ -18,6 +18,7 @@
 (load-file "world/第一幕同行.scm")
 (load-file "world/第二幕.scm")
 (load-file "world/第二幕生活.scm")
+(load-file "world/城市事件/城市事件.scm")
 (load-file "world/第二幕节奏.scm")
 (load-file "world/第二幕剧院.scm")
 (load-file "world/第二幕余波.scm")
@@ -70,6 +71,10 @@
   (lambda ()
     (set! world-day (+ world-day 1))
     (set-global! '世界日 world-day)))
+
+(define-turn-start-rule "城市事件新日"
+  (lambda () #t)
+  (lambda () (城市事件 'on-day-start!)))
 
 (define-turn-start-rule "第二章新日"
   (lambda () #t)
@@ -156,6 +161,15 @@
     (if (and (equal? (assoc-get old-aftermath "gloves" 'missing) 'missing)
              (assoc-get old-announcement "eddie" #f))
       (第二幕余波 'mark-gloves-seen!) #f))
+  ;; 城市事件拆分前的演出服存档只在这里迁移一次，避免丢失已完成和已收款事实。
+  (if (assoc-get data "city-events" #f) #t
+    (let* ((old (assoc-get data "act-two-city" '()))
+           (stage (assoc-get old "contract" "未提起")))
+      (经理的演出服 'load! (list (list "stage" (if (equal? stage "退回") "另找他人" stage))
+        (list "progress" (assoc-get old "progress" 0))))
+      (if (第二幕生活 'manager-met?)
+        (begin (set-global! '身份 "侦探")
+          (set-global! '侦探入行日 (assoc-get old "manager-met-day" world-day))) #f)))
   ;; 涉及多个 owner 的不变量必须等各自状态都恢复后再校验。
   (frank 'validate!)
 )

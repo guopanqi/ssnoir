@@ -673,7 +673,7 @@
             (if (第二章 'started?)
                 (list (loan-shark-container))
                 '())
-            (if (frank 'back-room?)
+            (if (and (人物线开放? "弗兰克") (frank 'back-room?))
                 (list (back-room-container))
                 '())))))
 

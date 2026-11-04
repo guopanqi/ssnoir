@@ -193,7 +193,7 @@
         (if (and (equal? location "剧院") (= world-day 8)
                  (not rehearsal-seen?))
           (list (node "观看正式彩排" :name "赴彩排之约" :anchor "夜莺@剧院"
-            :button-text "赴约" :required-before-rest "先赴夜莺的彩排之约"
+            :button-text "执行" :required-before-rest "先赴夜莺的彩排之约"
             :resolve (instant (outcome rehearsal!)))) '())
         (if (and (equal? location "剧院") (>= world-day 7))
           (list (at-anchor "夜莺@剧院"

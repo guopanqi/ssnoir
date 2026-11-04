@@ -1242,8 +1242,7 @@ namespace SSNoir
             targetPosition = Unity(plan.End);
             targetRotation = Unity(plan.EndRotation);
             path = plan.Path;
-            duration = plan.Duration / MotionSettings.FocusSpeedMultiplier
-                * _gameManager.FocusTravelDurationMultiplier;
+            duration = plan.Duration * _gameManager.CameraTravelDurationScale;
             _focusTravelEaseOut = plan.EaseOut;
             transitionDuration = duration;
             _activeFocusPath = path;

@@ -73,7 +73,7 @@ namespace SSNoir.IMGUI
                 bool attachMustHandle = mustHandle;
                 DrawOrDeferEdgeAttachments(() =>
                 {
-                    CardTagDrawer.Draw(attachRect, attachNode, attachDisabled, attachMustHandle, tabClocks);
+                    CardTagDrawer.Draw(attachRect, attachNode, attachDisabled, attachMustHandle, tabClocks, gameManager.HasUnreadContentTag(attachNode.Id));
                 });
             }
 
@@ -82,7 +82,7 @@ namespace SSNoir.IMGUI
             //     判定的核心骰左侧贴技能药丸（属性 → 骰子），同一行。
             DrawRequirementSlots(rect, bodyY, bodyBottom, clockBadgesBottom, node, slotted, disabled, ui, gameManager, ref interaction);
 
-            // ── 6. 无需求的卡：执行 / 查看按钮就在正文底（实心金 / 不可用 / 执行中）。
+            // ── 6. 无需求的卡：执行 / 查看按钮就在正文底（实心金 / 禁用 / 执行进度）。
             // 有需求的卡到此为止：它的按钮在卡片下挂的操作台里，由渲染器在附件层画。
             if (hasRequires) return;
             var exeRect = new Rect(rect.center.x - ExeW / 2f, bodyBottom, ExeW, ExeH);
@@ -92,19 +92,19 @@ namespace SSNoir.IMGUI
             }
             else if (isObserve)
             {
-                if (DrawExecuteButton(exeRect, disabled ? "不可用" : node.ButtonText ?? "查 看", ui, !disabled, dead: disabled))
+                if (DrawExecuteButton(exeRect, ActionButtonText.For(node), ui, !disabled, dead: disabled))
                 {
                     interaction.CardClicked = true;
                 }
             }
             else if (!disabled)
             {
-                if (DrawExecuteButton(exeRect, node.ButtonText ?? "执 行", ui, true))
+                if (DrawExecuteButton(exeRect, ActionButtonText.For(node), ui, true))
                     interaction.ExecuteClicked = true;
             }
             else
             {
-                DrawExecuteButton(exeRect, "不可用", ui, false, dead: true);
+                DrawExecuteButton(exeRect, ActionButtonText.For(node), ui, false, dead: true);
             }
 
             // ── 7. 卡片级点击（仅无 requires 的非 Instant 类型，如 Observe / Clock）──
@@ -284,7 +284,7 @@ namespace SSNoir.IMGUI
         // 有需求的卡装填了（任一槽位放了东西，或正在执行）才长出操作台，挂在卡片下方，
         // 和判定条 / 结果条是同一个位置、同一种「附件」。它不在卡的矩形之内：卡片本身
         // 不因为放进一颗骰子而变高，排布里的位置也就不会跟着挪。
-        // 空卡只有标题、副标题和骰位——待命按钮是个什么都不能做的按钮，不值得常驻。
+        // 空卡只有标题、副标题和骰位——未装填时不常驻一个不可点击的执行按钮。
         private const float ConsolePad = 12f;
         private const float ConsoleInset = 8f;
         private const float ConsoleButtonH = 34f;
@@ -311,6 +311,11 @@ namespace SSNoir.IMGUI
 
         private static float ConsoleHeight(bool showOdds)
             => ConsoleButtonH;
+
+        // 纯测量接口：组布局无需复制操作台或结果条的内部尺寸。
+        public static float MeasureConsoleAttachmentSpace() => AttachmentGap + ConsoleHeight(false);
+        public static float MeasureResidueAttachmentSpace(float cardWidth, CardPresentationResidue residue)
+            => AttachmentGap + ResiduePanelHeight(residue, AttachmentWidth(cardWidth));
 
         public static Rect ConsoleAttachmentRect(Rect cardRect, GameNode node, IReadOnlyList<SlottedResource?> slotted,
             IReadOnlyList<ActorSnapshot>? actors, float reveal = 1f)
@@ -358,7 +363,7 @@ namespace SSNoir.IMGUI
             if (isExecuting)
                 DrawExecuteProgress(exeRect, executeProgress, executingText);
             else
-                clicked = DrawExecuteButton(exeRect, disabled ? "不可用" : ready ? node.ButtonText ?? "执 行" : "待 命",
+                clicked = DrawExecuteButton(exeRect, ActionButtonText.For(node),
                     localUi, ready && reveal >= 0.999f, dead: disabled);
             GUI.EndGroup();
             return clicked;
@@ -480,10 +485,10 @@ namespace SSNoir.IMGUI
         public static float RecommendedCardHeight(
             GameNode node,
             float cardWidth,
-            IReadOnlyList<ActorSnapshot>? actors)
+            IReadOnlyList<ActorSnapshot>? actors, List<GameClock>? displayClocks = null)
         {
             if(node.Resolve==null) return UIScale.MinTouchSize;
-            float clocks=CardDrawer.MeasureClockBadgesHeight(cardWidth,node.Clocks);
+            float clocks=CardDrawer.MeasureClockBadgesHeight(cardWidth,displayClocks ?? node.Clocks);
             float top=TitleTop(clocks,0f)+TitleH+GapTitleToBody+8f;
             bool required=node.Requires!=null && node.Requires.Count>0;
             float body=Mathf.Max(MeasureSubtitleHeight(node,cardWidth),required?PreferredRequirementSlotsHeight(node,actors):0f);
@@ -842,9 +847,8 @@ namespace SSNoir.IMGUI
         // ── 执行按钮（实心金 = 执行 / 主行动按钮）──────────────────────
 
         // DESIGN.md 强调色岗位一：实心金 = 执行。金底 + 深字 #2A2107。
-        // dead=true（"不可用"）与 enabled=false 且 dead=false（"待命"）过去共用同一副淡描边，
-        // 只靠文字区分——两者含义完全不同（"待命"还有希望，"不可用"是彻底关闭），必须分开画：
-        // 待命＝幽灵描边（还悬着）；不可用＝实心盖章灰块（已经封死），不留几乎不可见的淡边框。
+        // 投入未齐／临时输入锁：不可点击的淡描边。节点Disabled：灰色实底，与整卡禁用一致。
+        // 两者均保留原行动动词；过程中的执行／判定则由独立进度展示接管。
         private static bool DrawExecuteButton(Rect rect, string text, IMGUIInteractionContext ui, bool enabled, bool dead = false)
         {
             bool isInteractable = enabled && !ui.IsLocked;
@@ -880,14 +884,7 @@ namespace SSNoir.IMGUI
                 IMGUIStyles.DrawOutline(rect, 1f, faded);
                 style.normal.textColor = faded;
             }
-            string shownText = text switch
-            {
-                "执 行" => UiText.Get("执 行"),
-                "查 看" => UiText.Get("查 看"),
-                "不可用" => UiText.Get("不可用"),
-                "待 命" => UiText.Get("待 命"),
-                _ => text,
-            };
+            string shownText = ActionButtonText.Display(text);
             IMGUIStyles.DrawLabel(rect, shownText, style);
 
             return isClicked;

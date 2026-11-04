@@ -401,7 +401,7 @@
         (已提醒待命? (string-append (待命姓名) "尚未委派；仍要开始吗？"))
         ((null? (待命人员)) "人员已就位；开始后进入蹲守阶段")
         (else "当前为委派阶段；点岗位安排人手，再开始行动"))
-      :button-text (if 已提醒待命? "仍然开始" "开始行动")
+      :button-text (if 已提醒待命? "仍然开始" "执行")
       :resolve (instant 开始行动!)))))
 (define (get-render-data)
   (if (eq? 阶段 '部署)

@@ -63,7 +63,7 @@ namespace SSNoir
         [SerializeField] private float panSpeedMultiplier = 1f;
 
         [Header("镜头过渡")]
-        [Tooltip("进入、聚焦和返回的时长系数，越大越慢。1 保持默认 2 倍镜头速度，1.5 稍慢，2 恢复加速前时长。Play Mode 修改后，从下一次过渡生效。")]
+        [Tooltip("进入、聚焦、返回及 Portal 推进的时长系数，越大越慢。1 保持默认 2 倍镜头速度，1.5 稍慢，2 恢复加速前时长。Play Mode 修改后，从下一次过渡生效。")]
         [Min(0.01f)]
         [SerializeField] private float focusTravelDurationMultiplier = 1.5f;
         public float FocusTravelDurationMultiplier
@@ -76,6 +76,9 @@ namespace SSNoir
                 return focusTravelDurationMultiplier;
             }
         }
+
+        // 普通聚焦与 Portal 共用同一时长缩放，避免只调整城市半程。
+        public float CameraTravelDurationScale => FocusTravelDurationMultiplier / MotionSettings.FocusSpeedMultiplier;
 
         private GameState _gameState = null!;
         private SceneManager _sceneManager = null!;
@@ -377,6 +380,8 @@ namespace SSNoir
                 throw new ArgumentNullException(nameof(node));
 
             var anchor = _sceneDirectory?.GetAnchor(node.EffectiveAnchorName);
+            if (!node.HasExplicitAnchor && _displayedSnapshot.RootNode?.FindInlineParent(node.Id) is { } group)
+                anchor = ResolveAnchor(group);
             if (node.HasExplicitAnchor && anchor == null)
             {
                 string message =
@@ -499,8 +504,79 @@ namespace SSNoir
                 Debug.LogError($"[SSNoir] Missing semibold font: {SemiboldFontResourcePath}");
         }
 
+        // 只接收实际绘制、未被遮挡的卡；导航和后台建树本身不确认阅读。
+        private PresentationSnapshot? _contentExposureSnapshot;
+        private string _contentExposureContext = "";
+        private float _contentExposureSince;
+        private int _contentExposureFrame = -1;
+        private readonly HashSet<string> _contentExposureIds = new();
+        private readonly HashSet<string> _stableContentExposureIds = new();
+        public bool HasUnreadContent(string id) => _displayedSnapshot.WorldContent.MarkedNodes.Contains(id);
+
+        // Inline的未读状态只在最外层组头汇总，子行动仍保留独立的阅读记录。
+        public bool HasUnreadContentTag(string id) => HasUnreadContent(id)
+            && _displayedSnapshot.RootNode?.FindInlineParent(id) == null;
+
+        public void NoteInlineGroupPainted(GameNode group)
+        {
+            NoteWorldContentPainted(null);
+            if (ReferenceEquals(_contentExposureSnapshot, _displayedSnapshot) && _contentExposureFrame == Time.frameCount)
+                _contentExposureIds.Add(group.Id);
+        }
+
+        public void NoteWorldContentHovered(GameNode node)
+        {
+            if (_displayedSnapshot.IsInScenario || IsInputLocked || _titleScreen.IsActive || IsDraggingResource ||
+                !_renderer.CanObserveWorldContent || _cameraManager.IsFocusTravelInFlight ||
+                (_stageController != null && _stageController.IsTransitioning)) return;
+            // 只确认当前节点自身；祖先由子树汇总的提醒不能通过悬停被清空。
+            _displayedSnapshot = _sceneManager.AcknowledgeWorldContent(_displayedSnapshot, new[] { node.Id });
+        }
+
+        public void NoteWorldContentPainted(GameNode? node)
+        {
+            if (_displayedSnapshot.IsInScenario || IsInputLocked || _titleScreen.IsActive ||
+                !_renderer.CanObserveWorldContent || _cameraManager.IsFocusTravelInFlight ||
+                (_stageController != null && _stageController.IsTransitioning)) return;
+            string context = _navigationStack.Count == 0 ? WorldRootNodeId : _navigationStack[_navigationStack.Count - 1].Id;
+            if (!ReferenceEquals(_contentExposureSnapshot, _displayedSnapshot) || context != _contentExposureContext ||
+                Time.frameCount - _contentExposureFrame > 1)
+            {
+                _contentExposureSnapshot = _displayedSnapshot;
+                _contentExposureContext = context;
+                _contentExposureSince = Time.unscaledTime;
+                _stableContentExposureIds.Clear();
+            }
+            if (_contentExposureFrame != Time.frameCount) _contentExposureIds.Clear();
+            _contentExposureFrame = Time.frameCount;
+            // 进入容器确认入口自身；看见容器卡不递归确认内部。
+            _contentExposureIds.Add(context);
+            if (node != null && !node.IsContainer) _contentExposureIds.Add(node.Id);
+        }
+
+        private void ConfirmDisplayedWorldContent(bool interacting = false)
+        {
+            if (_contentExposureSnapshot == null || !ReferenceEquals(_contentExposureSnapshot, _displayedSnapshot) ||
+                Time.frameCount - _contentExposureFrame > 1 ||
+                IsInputLocked || !_renderer.CanObserveWorldContent || _titleScreen.IsActive ||
+                _cameraManager.IsFocusTravelInFlight) return;
+            string context = _navigationStack.Count == 0 ? WorldRootNodeId : _navigationStack[_navigationStack.Count - 1].Id;
+            if (context != _contentExposureContext) return;
+            if (!_stableContentExposureIds.SetEquals(_contentExposureIds))
+            {
+                _stableContentExposureIds.Clear();
+                _stableContentExposureIds.UnionWith(_contentExposureIds);
+                _contentExposureSince = Time.unscaledTime;
+                if (!interacting) return;
+            }
+            // 短暂稳定展示后确认，避免新标记只闪一帧、滚动掠过就全部已读。
+            if (!interacting && Time.unscaledTime - _contentExposureSince < 0.75f) return;
+            _displayedSnapshot = _sceneManager.AcknowledgeWorldContent(_contentExposureSnapshot, _contentExposureIds);
+        }
+
         private void Update()
         {
+            ConfirmDisplayedWorldContent();
             if (Input.GetKeyDown(KeyCode.Escape) && !_titleScreen.IsActive)
             {
                 if (_renderer != null && _renderer.TrySkipPresentation())
@@ -568,7 +644,9 @@ namespace SSNoir
 
         public void OnNodeCardClicked(GameNode node)
         {
+            ConfirmDisplayedWorldContent(interacting: true);
 
+            if (node.IsInlineGroup) return;
             if (node.IsContainer)
             {
                 _nodeSlots.Clear();
@@ -1590,6 +1668,7 @@ namespace SSNoir
 
         public void GoBackNavigation()
         {
+            ConfirmDisplayedWorldContent(interacting: true);
 
             if (!string.IsNullOrEmpty(_focusedNodeId))
             {

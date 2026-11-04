@@ -18,6 +18,8 @@
 (define :required-before-rest ':required-before-rest)
 (define :disabled ':disabled)
 (define :anchor ':anchor)
+(define :notice-version ':notice-version)
+(define :display ':display)
 (define :place ':place)
 (define :carry-item ':carry-item)
 (define :support ':support)
@@ -68,6 +70,8 @@
             id
             :name (get-kwarg kwargs ':name id)
             :subtitle (get-kwarg kwargs ':subtitle "")
+            :notice-version (get-kwarg kwargs ':notice-version "")
+            :display (get-kwarg kwargs ':display 'page)
             :clocks (get-kwarg kwargs ':clocks '())
             :children (get-kwarg kwargs ':children '())
             :requires (get-kwarg kwargs ':requires #f)

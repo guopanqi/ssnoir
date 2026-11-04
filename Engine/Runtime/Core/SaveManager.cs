@@ -29,6 +29,7 @@ namespace SSNoir.Core
                 ["inventory"] = WriteInventory(data.Inventory),
                 ["worldData"] = WriteScheme(data.WorldData, "worldData"),
                 ["actionUseDays"] = JObject.FromObject(data.ActionUseDays),
+                ["worldContent"] = data.WorldContent == null ? JValue.CreateNull() : JObject.FromObject(data.WorldContent),
             };
 
             string temporaryPath = filePath + ".tmp";
@@ -78,6 +79,11 @@ namespace SSNoir.Core
                         throw new InvalidDataException("actionUseDays requires stable action IDs and integer world days.");
                     data.ActionUseDays.Add(entry.Name, entry.Value.Value<int>());
                 }
+            }
+            if (root["worldContent"] is JToken content && content.Type != JTokenType.Null)
+            {
+                if (content is not JObject) throw new InvalidDataException("worldContent must be an object.");
+                data.WorldContent = content.ToObject<WorldContentSaveData>();
             }
             data.WorldData = ReadScheme(root["worldData"]!, "worldData");
 

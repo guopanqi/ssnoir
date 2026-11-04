@@ -154,6 +154,7 @@
     (lambda args
       (let ((msg (car args)))
         (cond
+          ((and (not (人物线开放? "弗兰克")) (member? msg '(nodes-at arrivals-at dossier))) '())
           ((equal? msg 'nodes-at) (nodes-at (cadr args)))
           ((equal? msg 'arrivals-at)
            (if (and (equal? (cadr args) "世界") (member? 状态 '("等你" "缺席"))
@@ -165,7 +166,7 @@
                    (line "码头工人" "弗兰克让我带句话。他在酒馆后屋，让你过去一趟。"))
                  (spotlight! "老街暴徒袭击警方" "你没去。警察在酒馆门口带走一个年轻人，有人扔了东西。报纸上登出了那张照片。"))))) '()))
           ((equal? msg 'dossier) (dossier-entry))
-          ((equal? msg 'on-day-start!) (on-day-start!))
+          ((equal? msg 'on-day-start!) (if (人物线开放? "弗兰克") (on-day-start!) #f))
           ((equal? msg 'state) 状态)
           ((equal? msg 'save) (list (list "news-state" 已告知状态) (list "state" 状态) (list "journal" (journal 'save))))
           ((equal? msg 'load!)

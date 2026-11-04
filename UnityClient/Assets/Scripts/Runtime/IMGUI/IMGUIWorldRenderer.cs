@@ -8,7 +8,7 @@ using SSNoir.Core;
 
 namespace SSNoir.IMGUI
 {
-    public class IMGUIWorldRenderer : MonoBehaviour
+    public partial class IMGUIWorldRenderer : MonoBehaviour
     {
         private SSNoirGameManager _gameManager = null!;
         private IMGUIAnimationPlayer _animator = null!;
@@ -694,6 +694,10 @@ namespace SSNoir.IMGUI
             || _activeActionSpotlight != null
             || _conversationPlayer.IsActive || _storyStagePlayer.IsActive || _theatrePlayer.IsActive || _activeVideoTag != null;
         public bool IsAnimationReadyToAcknowledge => _animator != null && _animator.IsReadyToAcknowledge();
+        public bool CanObserveWorldContent => !IsInputLocked && !IsPresentationActive && _cardLayerReveal >= 0.999f
+            && !_isGrowthPanelOpen && !DebugPanelDrawer.IsOpen && !DossierPanelDrawer.IsOpen
+            && !SettingsPanelDrawer.IsOpen && !HelpPanelDrawer.IsOpen;
+
         public bool IsInputLocked => (_feedback != null && _feedback.IsOpen) || IsPresentationInputLocked;
         private bool IsPresentationInputLocked => _inputLocked || _activeAutoAction != null
             || _activeActionSpotlight != null
@@ -1297,6 +1301,8 @@ namespace SSNoir.IMGUI
             // ── Node Cards (3D projected) ──
             ActionRiskFocus.BeginFrame(SelectedEffectTarget(_gameManager.DisplayedSnapshot.RootNode, _consoleDrawerHost));
             DrawCards(worldUi);
+            if (Event.current.type == EventType.Repaint && !worldUi.IsLocked && !worldUi.IsOccluded && _cardLayerReveal >= 0.999f)
+                _gameManager.NoteWorldContentPainted(null);
             var armedConsoleIds = new HashSet<string>(_cardAttachmentOverlays
                 .Where(attachment => attachment.ConsoleNode != null).Select(attachment => attachment.HostNodeId));
             foreach (var id in _consoleDrawerOpenedAt.Keys.Where(id => !armedConsoleIds.Contains(id)).ToList())
@@ -1747,7 +1753,7 @@ namespace SSNoir.IMGUI
             {
                 var node = nodes[nodeIndex];
                 bool isAutoAction = _activeAutoAction?.AutoActionNode == node;
-                if (!isAutoAction && !string.IsNullOrEmpty(focusedName) && node.Id != focusedName)
+                if (!isAutoAction && !string.IsNullOrEmpty(focusedName) && !node.ContainsNode(focusedName))
                     continue;
 
                 var containedBlocker = RestBlockerPresentation.FindContained(node, restBlockers);
@@ -1877,12 +1883,12 @@ namespace SSNoir.IMGUI
                 // 「小符号 + 地名」的牌子，不需要偏方的体量。
                 // 标注与动作卡同宽，高度完全由内容定——它没有卡框，也就没有「最小卡高」
                 // 这回事：内容只有一行就只占一行。
-                float cardWidth = isAnnotation
+                float cardWidth = item.node.IsInlineGroup ? InlinePreferredWidth(item.node) : isAnnotation
                     ? AnnotationDrawer.AnchoredWidth
                     : (focused
                         ? FocusedCardWidth
                         : (isLocation ? ContainerNodeDrawer.PreferredLocationWidth(item.node) : ActionCardDesignWidth));
-                float contentHeight = isAnnotation
+                float contentHeight = item.node.IsInlineGroup ? MeasureInlineGroup(item.node, cardWidth) : isAnnotation
                     ? AnnotationDrawer.MeasureHeight(item.node, cardWidth)
                     : CardDrawer.MeasureCardHeight(
                         item.node,
@@ -1893,7 +1899,7 @@ namespace SSNoir.IMGUI
                 float cardHeight = contentHeight;
                 bool isAction = !isAnnotation && !item.node.IsContainer;
                 Vector2 targetCenter;
-                if (isAction)
+                if (isAction || item.node.IsInlineGroup)
                 {
                     // No screen-midpoint heuristic: an object's label never
                     // chooses left/right according to where the camera has moved.
@@ -1948,7 +1954,7 @@ namespace SSNoir.IMGUI
             var requests = layouts.Select(layout => new WorldLabelLayout.Request(
                 layout.Key,
                 layout.IsAnnotation ? WorldLabelLayout.Kind.Annotation
-                    : layout.Node.IsContainer ? WorldLabelLayout.Kind.Location
+                    : layout.Node.IsContainer && !layout.Node.IsInlineGroup ? WorldLabelLayout.Kind.Location
                     : WorldLabelLayout.Kind.Action,
                 layout.AnchorPos, layout.TargetCenter + layout.AttachmentReserve * .5f,
                 new Vector2(layout.Width, layout.Height) + layout.AttachmentReserve, layout.DeclarationOrder, ProgressGroup(layout))).ToList();
@@ -2028,9 +2034,7 @@ namespace SSNoir.IMGUI
                 foreach (var layout in layouts)
                 {
                     if (layout.IsAnnotation || _gameManager.IsNodeFlipped(layout.Node.Id)) continue;
-                    if (ActionNodeDrawer.ContainsDropSlot(layout.Rect, layout.Node,
-                            CardDrawer.MeasureClockBadgesBottom(layout.Rect, ClocksForCard(layout.Node)),
-                            ui.Mouse, _gameManager))
+                    if (ContainsInlineDropSlot(layout.Node, layout.Rect, ui.Mouse))
                         dropOwner = layout;
                 }
                 if (dropOwner != null) hitOwner = dropOwner;
@@ -2122,10 +2126,16 @@ namespace SSNoir.IMGUI
                || _cardResidues.ContainsKey(node.Id);
 
         private bool IsActiveLayout(ProjectedCardLayout layout)
-            => !layout.IsAnnotation && IsActiveCard(layout.Node);
+            => !layout.IsAnnotation && (IsActiveCard(layout.Node) ||
+                (layout.Node.IsInlineGroup && layout.Node.Children.Any(IsActiveCard)));
 
         private void AddAttachmentForNode(GameNode node, Rect cardRect)
         {
+            if (node.IsInlineGroup)
+            {
+                foreach (var child in InlineChildren(node, cardRect)) AddAttachmentForNode(child.node, child.rect);
+                return;
+            }
             if (IsLocalRollOf(node.Id))
             {
                 _cardAttachmentOverlays.Add(CardAttachmentOverlay.ForLocalRoll(
@@ -2269,9 +2279,12 @@ namespace SSNoir.IMGUI
 
         // 结果条挂着期间，钟按结算后的样子显示。
         private List<GameClock> ClocksForCard(GameNode node)
-            => _cardResidues.TryGetValue(node.Id, out var residue) && residue.SettledClocks != null
-                ? residue.SettledClocks
-                : node.Clocks;
+        {
+            var clocks = _cardResidues.TryGetValue(node.Id, out var residue) && residue.SettledClocks != null
+                ? residue.SettledClocks : node.Clocks;
+            var parent = _gameManager.DisplayedSnapshot.RootNode?.FindInlineParent(node.Id);
+            return parent == null ? clocks : clocks.Where(c => !parent.Clocks.Any(p => p.Label == c.Label)).ToList();
+        }
 
         // 操作台的执行钮：视觉在附件层（物品栏之后），点击在这里（物品栏之前）接，
         // 执行钮是交互控件，需要优先命中；只读结果条不参与命中。
@@ -2434,10 +2447,10 @@ namespace SSNoir.IMGUI
             {
                 int column = i % columnCount;
                 bool mustHandle = RestBlockerPresentation.ContainsTarget(nodes[i], _gameManager.DisplayedSnapshot.RestBlockers);
-                float markerSpace = CardTagDrawer.MeasureRise(nodes[i], GridCardWidth, mustHandle, ClocksForCard(nodes[i]));
+                float markerSpace = CardTagDrawer.MeasureRise(nodes[i], GridCardWidth, mustHandle, ClocksForCard(nodes[i]), _gameManager.HasUnreadContentTag(nodes[i].Id));
                 // 每张网格卡按自身内容定高（瀑布流本来就允许列内高度不齐）。以前这里是固定
                 // 190：副标题长一点、时钟徽章多一个，内容就只能在同一个盒子里互相挤。
-                float cardHeight = CardDrawer.MeasureCardHeight(
+                float cardHeight = nodes[i].IsInlineGroup ? MeasureInlineGroup(nodes[i], GridCardWidth) : CardDrawer.MeasureCardHeight(
                     nodes[i],
                     CardDrawer.Classify(nodes[i], anchored: false),
                     GridCardWidth,
@@ -2562,6 +2575,11 @@ namespace SSNoir.IMGUI
                 }
 
                 var node = visibleNodes[i];
+                if (node.IsInlineGroup)
+                {
+                    DrawNodeCard(node, cardRect, localUi, viewport.position);
+                    continue;
+                }
                 _dialogueAnchors.RegisterNode(node.Id, new Rect(
                     cardRect.x + viewport.x,
                     cardRect.y + viewport.y,
@@ -2677,7 +2695,7 @@ namespace SSNoir.IMGUI
         private Rect? GetTutorialTargetRect()
         {
             var entry = TutorialDirector.Current;
-            foreach (var node in _gameManager.VisibleNodes)
+            foreach (var node in _gameManager.VisibleNodes.SelectMany(ExpandedInlineNodes))
             {
                 bool target = entry?.Id == TutorialLibrary.EndOfDay ? node.Id == "睡觉"
                     : entry?.Id == TutorialLibrary.ActionDice && node.Tags.Contains("工作");
@@ -2695,9 +2713,12 @@ namespace SSNoir.IMGUI
             _firstActionCardRect = screenRect;
         }
 
-        private void DrawNodeCard(GameNode node, Rect cardRect, IMGUIInteractionContext ui)
+        private void DrawNodeCard(GameNode node, Rect cardRect, IMGUIInteractionContext ui, Vector2 screenOffset = default)
         {
-            NoteActionCardRect(node, cardRect);
+            if (node.IsInlineGroup) { DrawInlineGroup(node, cardRect, ui, screenOffset); return; }
+            var screenRect = cardRect;
+            screenRect.position += screenOffset;
+            NoteActionCardRect(node, screenRect);
             bool isHovered = ui.CanHover(cardRect);
             bool isFlipped = _gameManager.IsNodeFlipped(node.Id);
             bool focused = isFocused(node.Id);

@@ -63,7 +63,7 @@
                                  "他一直望着窗外。问问他在等谁。"
                                  "窗边的老人又点了两杯咖啡。") (story-clock 'current))
             :use-limit 'daily-once
-            :button-text "留意"
+            :button-text "查看"
             :clocks (list (story-clock 'render-data))
             :requires (list (req-die))
             :progress-target (list 'clock "两杯咖啡")

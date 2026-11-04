@@ -32,8 +32,7 @@ namespace SSNoir.Core
         private bool _pendingSceneIsScenario;
         private Procedure? _scenarioCallback;
         private bool _scenarioEnded;
-        private readonly HashSet<string> _seenWorldPlaces = new HashSet<string>(StringComparer.Ordinal);
-        private bool _hasWorldPlaceBaseline;
+        private readonly WorldContentAwareness _worldContent = new();
 
         private enum RoundTransitionState { Idle, Resolving, Committed, Finishing }
 
@@ -106,7 +105,7 @@ namespace SSNoir.Core
             CurrentRootNode = null;
             CurrentClocks.Clear();
             LatestSnapshot = new PresentationSnapshot();
-            ResetWorldPlaceBaseline();
+            _worldContent.Reset();
             _gameState.ResetForNewGame();
             LoadScene("world");
         }
@@ -611,6 +610,7 @@ namespace SSNoir.Core
                 Team      = _gameState.Team.Serialize(),
                 Inventory = new Dictionary<string, int>(_gameState.Inventory.Items),
                 WorldData = _worldInterpreter?.Eval("(world-save)"),
+                WorldContent = _worldContent.Save(),
                 ActionUseDays = new Dictionary<string, int>(_gameState.ActionUseDays),
                 SaveTime  = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
             };
@@ -678,9 +678,8 @@ namespace SSNoir.Core
             if (!data.Team.HasSavedActionDice)
                 _gameState.Team.RollActionDice(isInScenario: false, consumeHangover: false);
 
-            // 8. 读档后的第一棵世界树只建立地点基线。存档里已经开放的地点
-            // 不应被误报为本次新开放。
-            ResetWorldPlaceBaseline();
+            // 8. 恢复阅读状态后再建树；旧档没有记录时只建立基线。
+            _worldContent.Load(data.WorldContent);
             RebuildRenderTree();
             OnSceneLoaded?.Invoke();
         }
@@ -777,7 +776,9 @@ namespace SSNoir.Core
                 if (!RequiredBeforeRest.Same(required, RequiredBeforeRest.Collect(rootNode, IsWorldScene(CurrentSceneName))))
                     throw new InvalidOperationException(":required-before-rest must depend on story state, not rest-blocked?.");
             }
-            TrackNewWorldPlaces(rootNode);
+            if (IsWorldScene(CurrentSceneName))
+                foreach (var placeId in _worldContent.Observe(rootNode))
+                    _gameState.NotificationCenter.Push($"新地点开放：{placeId}", NotificationKind.Info);
             CurrentRootNode = rootNode;
 
             var flatClocks = new List<GameClock>();
@@ -793,6 +794,8 @@ namespace SSNoir.Core
             CurrentSupports = BuildSupportEntries(active);
 
             LatestSnapshot = BuildPresentationSnapshot(rootNode);
+            if (IsWorldScene(CurrentSceneName))
+                LatestSnapshot = LatestSnapshot.WithWorldContent(_worldContent.Capture(rootNode));
             
             OnWorldRefreshed?.Invoke();
         }
@@ -840,41 +843,14 @@ namespace SSNoir.Core
                 CollectNodeIds(child, into);
         }
 
-        private void ResetWorldPlaceBaseline()
+        /// <summary>客户端在内容实际展示后确认，不能在建树、导航开始或读档时调用。</summary>
+        public PresentationSnapshot AcknowledgeWorldContent(PresentationSnapshot displayed, IEnumerable<string> ids)
         {
-            _seenWorldPlaces.Clear();
-            _hasWorldPlaceBaseline = false;
-        }
-
-        /// <summary>
-        /// 地点开放通知来自世界根的结构变化，不由内容模块逐条手写。
-        /// 首次建树（新游戏、读档）只建立基线；此后同一会话里第一次出现的 Place
-        /// 才通知。地点暂时隐藏后重新出现也不会重复通知。
-        /// </summary>
-        private void TrackNewWorldPlaces(GameNode rootNode)
-        {
-            if (!IsWorldScene(CurrentSceneName))
-                return;
-
-            if (!_hasWorldPlaceBaseline)
-            {
-                foreach (var child in rootNode.Children)
-                {
-                    if (child.IsPlace)
-                        _seenWorldPlaces.Add(child.Id);
-                }
-                _hasWorldPlaceBaseline = true;
-                return;
-            }
-
-            foreach (var child in rootNode.Children)
-            {
-                if (child.IsPlace && _seenWorldPlaces.Add(child.Id))
-                {
-                    _gameState.NotificationCenter.Push(
-                        $"新地点开放：{child.Id}", NotificationKind.Info);
-                }
-            }
+            if (displayed.IsInScenario || displayed.RootNode == null) return displayed;
+            if (!_worldContent.Acknowledge(displayed.WorldContent, ids)) return displayed;
+            var updated = displayed.WithWorldContent(_worldContent.Capture(displayed.RootNode, displayed.WorldContent.Revisions));
+            if (ReferenceEquals(LatestSnapshot.RootNode, displayed.RootNode)) LatestSnapshot = updated;
+            return updated;
         }
 
         // 带上限的物品（现在只有烟）。表在 engine.scm，取一次记下来：它是内容层的常量，

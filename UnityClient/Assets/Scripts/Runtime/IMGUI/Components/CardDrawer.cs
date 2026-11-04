@@ -62,12 +62,12 @@ namespace SSNoir.IMGUI
         // 压住、副标题被截掉、按钮贴着骰位的根因：内容变了，盒子不跟着变。
         // 高度只由内容决定，不随装填 / 执行 / 结算状态变化：那些都是卡片下挂的附件。
         public static float MeasureCardHeight(
-            GameNode node, CardKind kind, float cardWidth, IReadOnlyList<ActorSnapshot>? actors)
+            GameNode node, CardKind kind, float cardWidth, IReadOnlyList<ActorSnapshot>? actors, List<GameClock>? displayClocks = null)
         {
             if (kind == CardKind.Action)
-                return ActionNodeDrawer.RecommendedCardHeight(node, cardWidth, actors);
+                return ActionNodeDrawer.RecommendedCardHeight(node, cardWidth, actors, displayClocks);
 
-            float clocksHeight = MeasureClockBadgesHeight(cardWidth, node.Clocks);
+            float clocksHeight = MeasureClockBadgesHeight(cardWidth, displayClocks ?? node.Clocks);
             return kind switch
             {
                 CardKind.Character => ContainerNodeDrawer.MeasureCharacterHeight(node, cardWidth, clocksHeight),
@@ -93,6 +93,7 @@ namespace SSNoir.IMGUI
             {
                 DrawFlippedCard(rect, node, backText, isHovered && !disabled, ui, ref interaction);
                 if (disabled) interaction.CardClicked = false;
+                NoteContentPainted(rect, node, ui, gameManager);
                 return interaction;
             }
 
@@ -107,7 +108,7 @@ namespace SSNoir.IMGUI
                 ClockPulse.BeginHost(node.Id);
                 DrawClockBadges(rect, clocks);
                 ClockPulse.EndHost();
-                CardTagDrawer.Draw(rect, node, disabled, containsRestBlockerTarget, clocks);
+                CardTagDrawer.Draw(rect, node, disabled, containsRestBlockerTarget, clocks, gameManager.HasUnreadContentTag(node.Id));
                 if (isRestBlockerTarget)
                     IMGUIStyles.DrawGoldPulse(rect, baseAlpha: 0.72f, rings: 3, ringStep: 2.5f, speed: 2.2f);
                 if (!disabled && ui.WasClicked(rect))
@@ -115,6 +116,7 @@ namespace SSNoir.IMGUI
                     interaction.CardClicked = true;
                     Event.current.Use();
                 }
+                NoteContentPainted(rect, node, ui, gameManager);
                 return interaction;
             }
 
@@ -153,14 +155,24 @@ namespace SSNoir.IMGUI
             // 重要性是卡片最上层的状态标记，必须在动作内容与结果附件之后绘制。
             // 动作卡的「必须处理」已并进顶部书签（CardTagDrawer.Draw），这里只剩金光。
             if (isCharacter)
-                CardTagDrawer.Draw(rect, node, disabled, containsRestBlockerTarget, clocks);
+                CardTagDrawer.Draw(rect, node, disabled, containsRestBlockerTarget, clocks, gameManager.HasUnreadContentTag(node.Id));
             if (isRestBlockerTarget)
                 IMGUIStyles.DrawGoldPulse(rect, baseAlpha: 0.72f, rings: 3, ringStep: 2.5f, speed: 2.2f);
 
             if (isCharacter && isFocused)
                 GUI.matrix = oldMatrix;
 
+            NoteContentPainted(rect, node, ui, gameManager);
             return interaction;
+        }
+
+        private static void NoteContentPainted(Rect rect, GameNode node, IMGUIInteractionContext ui, SSNoirGameManager manager)
+        {
+            if (Event.current.type == EventType.Repaint && !ui.IsLocked && !ui.IsOccluded)
+            {
+                manager.NoteWorldContentPainted(node);
+                if (ui.CanHover(rect)) manager.NoteWorldContentHovered(node);
+            }
         }
 
         // ── 共享卡框架 ─────────────────────────────────────────────────
@@ -201,7 +213,7 @@ namespace SSNoir.IMGUI
             => LayoutClockBadges(rect,clocks,false);
         public static float MeasureClockBadgesHeight(float cardWidth,List<GameClock>? clocks)
             => LayoutClockBadges(new Rect(0,0,cardWidth,0),clocks,false);
-        private static void DrawClockBadges(Rect rect,List<GameClock>? clocks)
+        public static void DrawClockBadges(Rect rect,List<GameClock>? clocks)
             => LayoutClockBadges(rect,clocks,true);
 
         private static float ClockHeight(GameClock clock,bool compact)

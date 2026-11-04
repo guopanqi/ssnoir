@@ -327,7 +327,7 @@
       (line 第三幕-汤米 "牌局这几天要开。你要是愿意，来俱乐部搭把手，问问门边来客是什么事。")
       (line 第三幕-汤米 "不来我也得自己接住。可我想让老板知道，我不只会搬酒。")))
   (define (tommy-open?)
-    (and (city-active?) tommy-invited? (not tommy-hosted?) (not tommy-advanced?)
+    (and (人物线开放? "汤米") (city-active?) tommy-invited? (not tommy-hosted?) (not tommy-advanced?)
          (>= world-day 贵客准备日) (< world-day 贵客散场日)))
   (define (tommy-intel!)
     (if (and (tommy-open?) (= (tommy-work 'current) 0) (not tommy-intel?)) #t
@@ -398,8 +398,8 @@
     (if (city-active?)
       (begin
         (if (>= world-day (lucy-mail-day)) (set! lucy-mailed? #t) #f)
-        (if (>= world-day 泊位答复日) (set! frank-refused? #t) #f)
-        (if (>= world-day 贵客散场日) (set! tommy-advanced? #t) #f)) #f))
+        (if (and (人物线开放? "弗兰克") (>= world-day 泊位答复日)) (set! frank-refused? #t) #f)
+        (if (and (人物线开放? "汤米") (>= world-day 贵客散场日)) (set! tommy-advanced? #t) #f)) #f))
   (define-turn-start-rule "第三幕人物生活"
     (lambda () #t) on-day!)
   (define (opportunity-clock label first-day end-day)
@@ -421,12 +421,12 @@
               (not (第二幕 'lucy-arrival-pending?))
               (>= world-day (第二幕 'lucy-writing-day)) (not lucy-met?))
           (list (arrival "露西自己的稿件" lucy-meet!)))
-        ((and (equal? loc "码头居民区") (>= world-day 泊位协商日)
+        ((and (人物线开放? "弗兰克") (equal? loc "码头居民区") (>= world-day 泊位协商日)
               (第二幕生活 'met-frank?) (not frank-met?))
           (list (arrival "泊位协商的新消息" frank-news!)))
-        ((and (equal? loc "老街酒馆") (>= world-day 12) (not tommy-met?))
+        ((and (人物线开放? "汤米") (equal? loc "老街酒馆") (>= world-day 12) (not tommy-met?))
           (list (arrival "替俱乐部取酒的年轻人" tommy-meet!)))
-        ((and (equal? loc "老街酒馆") tommy-met? (> world-day tommy-met-day)
+        ((and (人物线开放? "汤米") (equal? loc "老街酒馆") tommy-met? (> world-day tommy-met-day)
               (>= world-day 贵客准备日) (not tommy-invited?) (not tommy-advanced?))
           (list (arrival "汤米接下贵客差事" tommy-invite!)))
         ((and (equal? loc "剧院") report? (equal? nightingale-night "未邀请"))
@@ -481,11 +481,11 @@
           (list (node "读露西的小说" :anchor "露西@咖啡馆"
             :subtitle "看看她寄出的小说，听听投稿后的心情。"
             :resolve (instant (outcome lucy-finish!)))) '())
-        (if (and (equal? loc "码头居民区") (第二幕生活 'met-frank?) (not frank-aboard?))
+        (if (and (人物线开放? "弗兰克") (equal? loc "码头居民区") (第二幕生活 'met-frank?) (not frank-aboard?))
           (list (node "上船搭把手" :subtitle "一枚骰，帮弗兰克搬煤，收工坐一会儿"
             :requires (list (req-die)) :resolve (instant (outcome frank-aboard!)))) '())
         ;; 弗兰克：这回收的是泊位使用权，不是船。
-        (if (and (equal? loc "码头居民区") frank-met? (not frank-debate?))
+        (if (and (人物线开放? "弗兰克") (equal? loc "码头居民区") frank-met? (not frank-debate?))
           (list (instant-action "再谈那份合同" frank-debate!)) '())
         ;; 汤米：牌局没有固定在收网那天，未参与也不会停住。
         (if (and (equal? loc "老街酒馆") (tommy-open?) (not tommy-intel?) (= (tommy-work 'current) 0))
@@ -509,7 +509,7 @@
               :subtitle "一枚骰；先问来意，再选处理方式，最后交涉"
               :clocks (list (opportunity-clock "接待余日" 贵客准备日 贵客散场日))
               :requires (list (req-die)) :resolve (instant (outcome tommy-step!))))) '())
-        (if (and (equal? loc "夜总会") tommy-met? tommy-advanced? (not tommy-after?))
+        (if (and (人物线开放? "汤米") (equal? loc "夜总会") tommy-met? tommy-advanced? (not tommy-after?))
           (list (instant-action "汤米坐进包厢" tommy-after!)) '()))))
   ;; 一个人的一段事保留为同一小节；子项按经历推进，不把每张行动卡变成一条任务。
   (define (dossier-at)
@@ -583,7 +583,7 @@
           :clocks (if (and (not lucy-after?) (not (两杯咖啡 'completed?)))
             (list (两杯咖啡 'clock-data)) '())
           :where "街角咖啡馆")) '())
-        (if (第二幕生活 'met-frank?) (list (dossier "黑鸥号" :kind '人物
+        (if (and (人物线开放? "弗兰克") (第二幕生活 'met-frank?)) (list (dossier "黑鸥号" :kind '人物
           :status (if (and frank-met? frank-debate? frank-refused?) '了结 '进行中)
           :now (cond
             (frank-met? (if frank-refused? "弗兰克没有交出泊位。船和船上的日子还在，改造争议并未彻底解决。" "有人报价收回泊位。弗兰克不肯签，事情尚未落定。"))
@@ -595,7 +595,7 @@
             ((and frank-met? (not frank-refused?)) "他还在处理泊位的事，不用等尼尔决定才继续。")
             (else "继续在居民区与他碰面，听听船和泊位的近况。")) #f))
           :where "码头居民区")) '())
-        (if tommy-met? (list (dossier "汤米的新差事" :kind '人物
+        (if (and (人物线开放? "汤米") tommy-met?) (list (dossier "汤米的新差事" :kind '人物
           :status (cond (tommy-after? '了结)
                         ((and (not tommy-invited?) (not tommy-advanced?) (< world-day (tommy-return-day))) '等着别人)
                         ((and tommy-hosted? (not tommy-advanced?)) '等着别人)
@@ -623,7 +623,7 @@
         ((eq? msg 'started?) started?)
         ((eq? msg 'rocco-building-open?) (and (city-active?) (member? inquiry-stage '("旧事" "公司" "已查清")) started?))
         ((eq? msg 'lucy-writing-known?) lucy-met?)
-        ((eq? msg 'club-known?) (or tommy-invited? (and tommy-met? tommy-advanced?)))
+        ((eq? msg 'club-known?) (and (人物线开放? "汤米") (or tommy-invited? (and tommy-met? tommy-advanced?))))
         ((eq? msg 'on-day!) (on-day!))
         ((eq? msg 'finished?) (and report? (member? nightingale-night '("已赴约" "婉拒"))))
         ((eq? msg 'nodes-at) (nodes-at (cadr args)))

@@ -4,6 +4,8 @@ using System.Collections.Generic;
 
 namespace SSNoir.Core
 {
+    public enum ContainerDisplay { Page, Inline }
+
     public enum ActionUseLimit { DailyOnce }
 
     public class GameNode
@@ -13,6 +15,8 @@ namespace SSNoir.Core
         /// <summary>玩家可见名称，可重复；内容构造时默认使用 Id。</summary>
         public string Name { get; set; } = string.Empty;
         public string? AnchorName { get; set; }
+        /// <summary>同一节点值得重新提醒的内容阶段；普通数值变化不修改它。</summary>
+        public string NoticeVersion { get; set; } = string.Empty;
         public string Subtitle { get; set; } = string.Empty;
         /// <summary>Design-time risk preview; actual effects are authored in roll outcomes.</summary>
         public ActionRisk? Risk { get; set; }
@@ -53,6 +57,26 @@ namespace SSNoir.Core
         /// 地点内部的子容器因此结构性地不会触发入场，不需要逐个特判。
         /// </summary>
         public bool IsPlace { get; set; }
+        public ContainerDisplay Display { get; set; }
+        public bool IsInlineGroup => IsContainer && Display == ContainerDisplay.Inline;
+
+        public GameNode? FindInlineParent(string id)
+        {
+            foreach (var child in Children)
+            {
+                var deeper = child.FindInlineParent(id);
+                if (deeper != null) return deeper;
+                if (IsInlineGroup && child.ContainsNode(id)) return this;
+            }
+            return null;
+        }
+
+        public bool ContainsNode(string id)
+        {
+            if (Id == id) return true;
+            foreach (var child in Children) if (child.ContainsNode(id)) return true;
+            return false;
+        }
 
         /// <summary>走进这个 Place 时按顺序执行的入场节拍。见 ArrivalBeat。</summary>
         public List<ArrivalBeat> Arrivals { get; set; } = new List<ArrivalBeat>();

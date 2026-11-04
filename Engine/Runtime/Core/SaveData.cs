@@ -11,6 +11,7 @@ namespace SSNoir.Core
         public TeamSaveData Team { get; set; } = new();
         public Dictionary<string, int> Inventory { get; set; } = new();
         public Dictionary<string, int> ActionUseDays { get; set; } = new();
+        public WorldContentSaveData? WorldContent { get; set; }
         public object? WorldData { get; set; }
     }
 

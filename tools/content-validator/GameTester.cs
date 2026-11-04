@@ -321,6 +321,12 @@ namespace SSNoir.Testing
                 "button text on a container");
             AssertThrowsAny(() => Convert("(node \"标注按钮\" :button-text \"委派\" :resolve (note \"提示\" \"正文\"))"),
                 "button text on a note");
+            AssertEq("dialogue action button", "交谈",
+                Convert("(node \"委托对话\" :button-text \"交谈\" :resolve (instant (lambda () #t)))").ButtonText);
+            AssertThrowsAny(() => Convert("(node \"未知动词\" :button-text \"随便写个按钮\" :resolve (instant (lambda () #t)))"),
+                "unknown button verb");
+            AssertThrowsAny(() => Convert("(node \"系统状态\" :button-text \"不可用\" :resolve (instant (lambda () #t)))"),
+                "content cannot override button system states");
             Console.WriteLine("[validate] node :button-text DSL contract passed.");
         }
 

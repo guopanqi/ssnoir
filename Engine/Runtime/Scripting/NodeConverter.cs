@@ -59,12 +59,14 @@ namespace SSNoir.Scripting
             ActionTarget? progressTarget = null;
             string? anchorName = null;
             string subtitle = string.Empty;
+            string noticeVersion = string.Empty;
             string name = id;
             string? buttonText = null;
             string? requiredBeforeRest = null;
             bool disabled = false;
             ActionUseLimit? useLimit = null;
             bool isPlace = false;
+            ContainerDisplay display = ContainerDisplay.Page;
             string carryItemId = string.Empty;
             string supportId = string.Empty;
             List<ArrivalBeat> arrivals = new List<ArrivalBeat>();
@@ -87,6 +89,19 @@ namespace SSNoir.Scripting
                 if (kwStr == ":clocks")
                 {
                     clocks = ParseClocks(val);
+                }
+                else if (kwStr == ":display")
+                {
+                    display = val is Symbol mode ? mode.AsString switch
+                    {
+                        "page" => ContainerDisplay.Page,
+                        "inline" => ContainerDisplay.Inline,
+                        _ => throw new InvalidOperationException("Unknown container display: " + mode.AsString)
+                    } : throw new InvalidOperationException(":display requires 'page or 'inline.");
+                }
+                else if (kwStr == ":notice-version")
+                {
+                    noticeVersion = val as string ?? throw new InvalidOperationException("notice-version must be a string.");
                 }
                 else if (kwStr == ":use-limit")
                 {
@@ -136,6 +151,7 @@ namespace SSNoir.Scripting
                 {
                     if (!(val is string parsedButtonText) || string.IsNullOrWhiteSpace(parsedButtonText))
                         throw new InvalidOperationException($"Node '{id}' :button-text must be a non-empty string.");
+                    ActionButtonText.Validate(parsedButtonText);
                     buttonText = parsedButtonText;
                 }
                 else if (kwStr == ":anchor")
@@ -222,16 +238,21 @@ namespace SSNoir.Scripting
                 && (resolve == null || (resolve.Type != ResolveType.Roll && resolve.Type != ResolveType.Instant)))
                 throw new InvalidOperationException($"Node '{id}' declares an effect target without an action.");
 
+            if (display == ContainerDisplay.Inline && (resolve != null || isPlace || children.Count == 0))
+                throw new InvalidOperationException($"Node '{id}': inline display requires a nonempty, non-place Container.");
+
             var node = new GameNode
             {
                 Id = id,
                 Name = name,
                 IsPlace = isPlace,
+                Display = display,
                 CarryItemId = carryItemId,
                 SupportId = supportId,
                 Arrivals = arrivals,
                 AnchorName = anchorName,
                 Subtitle = subtitle,
+                NoticeVersion = noticeVersion,
                 Risk = riskLevel.HasValue ? new ActionRisk
                 {
                     Level = riskLevel.Value

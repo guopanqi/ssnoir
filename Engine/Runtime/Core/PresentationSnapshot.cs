@@ -5,6 +5,13 @@ namespace SSNoir.Core
 {
     public sealed class PresentationSnapshot
     {
+        public WorldContentView WorldContent { get; private set; } = new();
+        public PresentationSnapshot WithWorldContent(WorldContentView view)
+        {
+            var copy = (PresentationSnapshot)MemberwiseClone();
+            copy.WorldContent = view;
+            return copy;
+        }
         public string Weather { get; init; } = string.Empty;
         public GameNode? RootNode { get; init; }
         // 随身动作（烟、酒）：玩家自己带进这一场的东西，不在渲染树里。
