@@ -1,0 +1,109 @@
+import assert from "node:assert/strict";
+import {mkdirSync} from "node:fs";
+import {chromium} from "playwright";
+import {createServer} from "vite";
+
+const server=await createServer({configFile:"vite.config.ts",
+  server:{host:"127.0.0.1",port:4174,strictPort:true}});
+let browser;
+try {
+  await server.listen();
+  browser=await chromium.launch({headless:true,args:["--no-sandbox",
+    "--enable-webgl","--enable-unsafe-swiftshader","--use-gl=angle","--use-angle=swiftshader"]});
+  const page=await browser.newPage({viewport:{width:1440,height:850}});
+  const exceptions=[];
+  page.on("pageerror",e=>exceptions.push("pageerror: "+String(e)));
+  page.on("console",msg=>{if(msg.type()==="error")exceptions.push("console: "+msg.text());});
+  const read=()=>page.evaluate(()=>window.__SSNOIR_WEB__.snapshot());
+  const settled=()=>page.waitForFunction(()=>{
+    const state=window.__SSNOIR_WEB__?.snapshot();
+    return state&&!state.busy;
+  },null,{timeout:90000});
+  async function story(){
+    const lines=[];
+    for(let i=0;i<350;i++){
+      await settled();
+      const state=await read();
+      if(!state.story)return lines;
+      lines.push(state.story.speaker+": "+state.story.text);
+      await page.getByTestId("story-continue").click();
+    }
+    throw new Error("More than 350 story frames during an authored beat");
+  }
+  async function node(id){
+    await page.locator('[data-testid="game-entry"][data-node-id='+JSON.stringify(id)+']')
+      .click({timeout:120000});
+    await settled();
+    const lines=await story();
+    const s=await read();
+    assert.equal(s.error,"","Authored action "+id+" failed");
+    return {s,lines};
+  }
+  async function goHome(){
+    const state=await read();
+    if(state.path[0]==="家"){
+      if(state.path.length!==1)throw new Error("Expected hotel root, got "+state.path);
+    }else{
+      await page.getByTestId("end-turn").click();
+      await settled();await story();
+      assert.deepEqual((await read()).path,["家"]);
+    }
+  }
+  async function endDay(day){
+    await goHome();
+    await node("住宿");
+    const finished=await node("睡觉");
+    assert.equal(finished.s.day,day+1,"Authored sleep must advance only one calendar day");
+    assert.equal(finished.s.mode,"world");
+    assert.deepEqual(finished.s.path,[],"New day returns to the city");
+    return finished.lines;
+  }
+  mkdirSync("artifacts",{recursive:true});
+  await page.goto("http://127.0.0.1:4174/?seed=42",{waitUntil:"domcontentloaded"});
+  await page.getByTestId("game-ready").waitFor({timeout:90000});
+  await story();
+  let state=await read();
+  assert.equal(state.day,1);
+  assert(state.restReasons.some(x=>x.id==="旅馆清晨"),"First morning is obligatory");
+  await node("家");
+  ({s:state}=await node("旅馆清晨"));
+  assert.equal(state.restBlocked,false);
+  const dayStories={};
+  for(let day=1;day<6;day++){
+    const lines=await endDay(day);
+    dayStories[day+1]=lines;
+    const snapshot=await read();
+    console.log("FIRST ACT DAY",day+1,
+      JSON.stringify({restReasons:snapshot.restReasons,stories:lines.length,
+        events:lines.filter(x=>x.includes("告别")||x.includes("告示"))}));
+    if(day+1===5){
+      await page.screenshot({path:"artifacts/web-game-first-act-day5.png"});
+      assert(lines.some(x=>x.includes("明晚是夜莺在这里的最后一场演出")),
+        "Day-5 world-root arrival must announce Nightingale's farewell");
+    }
+  }
+  state=await read();
+  assert.equal(state.day,6);
+  assert(state.restReasons.some(x=>x.id==="夜莺最后一场演出"),
+    "The authored final tavern show must block rest on day six");
+  await node("老街酒馆");
+  ({s:state}=await node("夜莺最后一场演出"));
+  assert.equal(state.restBlocked,false,
+    "Attending the farewell must clear day-six mandatory obligation");
+  assert.equal(state.day,6);
+  await page.screenshot({path:"artifacts/web-game-first-act-finale.png"});
+  await page.getByTestId("dossier-toggle").click();
+  await settled();
+  state=await read();
+  assert.equal(state.error,"");
+  const first=state.dossiers.find(x=>x.id==="活下去");
+  assert(first&&first.status==="了结",
+    "Farewell's authored transition must close the first-act dossier");
+  await page.getByTestId("dossier-close").click();
+  await settled();
+  assert.deepEqual(exceptions,[],"No browser exceptions during the first-act path");
+  console.log("PASS: first-act fresh game -> five authored sleeps -> day-five world arrival -> day-six mandatory farewell -> act 2");
+} finally {
+  await browser?.close();
+  await server.close();
+}
