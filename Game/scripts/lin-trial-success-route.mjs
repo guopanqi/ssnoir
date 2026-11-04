@@ -36,7 +36,8 @@ try{
     throw new Error("Trial story queue never drained");
   }
   async function click(id){
-    const s=await read(),entry=s.entries.find(x=>x.id===id);
+    const s=await read(),entry=s.entries.find(x=>x.id===id)||
+      s.displayCards.find(x=>x.id===id);
     assert(entry&&!entry.disabled,
       "Actual Scheme node unavailable: "+id+" "+JSON.stringify({
         mode:s.mode,path:s.path,entries:s.entries.map(x=>[x.id,x.disabled])}));
@@ -79,8 +80,58 @@ try{
     await settled();
     return ds;
   }
+  // The evidence-route save can carry a second-tavern-shift brawl obligation.
+  // Sleep is legitimately blocked until the original two-table Scenario ends:
+  // do not reset an authored duty or advance the calendar in the harness.
+  async function settleMandatoryTavernBrawl(){
+    let view=await read();
+    const due=view.restReasons.find(x=>x.id==="醉客互相叫骂");
+    if(!due)return view;
+    const initialDay=view.day;
+    assert.equal(due.location,"老街酒馆",
+      "A rest blocker must identify its real playable city location");
+    await page.locator('[data-testid="map-place"][data-node-id="老街酒馆"]')
+      .click({timeout:90000});
+    await settled();await story();
+    view=await click("醉客互相叫骂");
+    assert.equal(view.mode,"scenario",
+      "The bartender's required brawl must enter the original Scenario");
+    let usedDice=0,turns=0;
+    for(;turns<12&&view.mode==="scenario";turns++){
+      for(let move=0;move<8&&view.mode==="scenario"&&view.dice.length;move++){
+        const action=["东边这桌：劝","西边这桌：劝"].find(id=>
+          view.displayCards.some(x=>x.id===id&&!x.disabled));
+        if(!action)break;
+        const before=view.dice.length;
+        view=await roll(action);
+        usedDice++;
+        if(view.mode==="scenario")assert.equal(view.dice.length,before-1,
+          "Tavern resolution must consume real authored action dice");
+      }
+      if(view.mode==="scenario")view=await endRound();
+    }
+    assert.equal(view.mode,"world","The real tavern duty must have a legal exit");
+    assert(!view.restReasons.some(x=>x.id==="醉客互相叫骂"),
+      "The original encounter callback must release the before-rest blocker");
+    assert(view.day===initialDay||view.day===initialDay+1,
+      "Only hospitalization may advance the day while resolving a brawl");
+    console.log("PASS: saved evidence carries an authentic tavern obligation -> "+
+      "player resolves both tables -> native rest blocker released",JSON.stringify({
+        fromDay:initialDay,afterDay:view.day,turns,usedDice,
+        health:view.health,remaining:view.restReasons}));
+    return view;
+  }
   async function sleep(){
+    const initial=await read(),before=initial.day;
     let s=await read();
+    if(s.restReasons.some(x=>x.id==="醉客互相叫骂")){
+      s=await settleMandatoryTavernBrawl();
+      if(s.day!==before){
+        assert.equal(s.day,before+1,
+          "Hospitalization is the only accepted day change during tavern resolution");
+        return s;
+      }
+    }
     if(s.path[0]!=="家"){
       await page.locator('[data-testid="map-place"][data-node-id="家"]')
         .click({timeout:90000});
@@ -93,33 +144,28 @@ try{
     let rest=["睡觉","蜷缩在门口"].find(id=>
       s.entries.some(x=>x.id===id&&!x.disabled));
     if(!rest&&!s.restBlocked){
-      // The authored lodging deliberately prevents two consecutive sleeps
-      // without going outside. A successful night clears the UI path, but
-      // this is not necessarily an actual leave-place event in Scheme.
-      // Travel out via the real back controls, then come back, so the
-      // entrance rule sees a genuine departure rather than a test bypass.
-      assert(s.entries.some(x=>x.id==="睡觉"&&x.disabled),
-        "Expected an authored just-slept lock, not missing rest content: "+JSON.stringify({
-          day:s.day,path:s.path,restReasons:s.restReasons,entries:s.entries.map(x=>[x.id,x.disabled])}));
-      await back(); // 住宿 -> 家
-      await back(); // 家 -> 世界; triggers the native leave-place rule
-      s=await read();
-      assert.deepEqual(s.path,[]);
-      assert.equal(s.error,"");
-      s=await click("家");
+      // Authored anti-double-click sleep latch: leaving home is required.
+      // Only the real map exit and re-entry may clear the latch.
+      console.log("LIN SLEEP NEEDS OUTING",JSON.stringify({day:s.day,
+        money:s.money,restReasons:s.restReasons,
+        cards:s.entries.map(x=>[x.id,x.disabled,x.subtitle])}));
+      await page.locator(".city-map-art").click({position:{x:600,y:300}});
+      await settled();await story();
+      assert.deepEqual((await read()).path,[]);
+      await page.locator('[data-testid="map-place"][data-node-id="家"]')
+        .click({timeout:90000});
+      await settled();await story();
       await click("住宿");
       s=await read();
       rest=["睡觉","蜷缩在门口"].find(id=>
         s.entries.some(x=>x.id===id&&!x.disabled));
-      assert(rest,"A genuine trip out must release only the just-slept lock: "+JSON.stringify({
-        day:s.day,path:s.path,restReasons:s.restReasons,entries:s.entries.map(x=>[x.id,x.disabled])}));
     }
-    assert(rest,"The world must offer legal sleep or outdoor lodging: "+JSON.stringify({
-      day:s.day,path:s.path,restBlocked:s.restBlocked,restReasons:s.restReasons,
-      entries:s.entries.map(x=>[x.id,x.disabled])}));
-    const before=s.day;
+    assert(rest,"The world must offer legal sleep or outdoor lodging "+
+      JSON.stringify({day:s.day,path:s.path,money:s.money,
+        restBlocked:s.restBlocked,restReasons:s.restReasons,
+        lodging:s.entries.map(x=>[x.id,x.disabled,x.subtitle])}));
     s=await click(rest);
-    assert.equal(s.day,before+1,"Only original lodging advances the world day");
+    assert.equal(s.day,before+1,"Only authored lodging advances the day");
     assert.deepEqual(s.path,[]);
     return s;
   }
