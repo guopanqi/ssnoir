@@ -698,6 +698,69 @@ try{
   console.log("PASS: partial worker training -> authored thresholds 3/6 -> qualification at 8 -> dossier closure -> portable world restore",
     JSON.stringify({trainingRolls,finishDay:(await read()).day}));
 
+  // Cross-branch regression: graduating Joe does NOT stop the public schedule.
+  // Continue the actual completed-training save, let the independent machine
+  // arrival happen, and ensure this settled character dossier stays settled.
+  const graduateDay=(await read()).day;
+  assert(graduateDay<chapterTwoStart+14,
+    "The qualification path must leave time before machine deployment");
+  for(let day=graduateDay+1;day<=chapterTwoStart+14;day++){
+    state=await sleep();
+    assert.equal(state.day,day,
+      "Machine day after qualification must arrive through normal calendar play");
+  }
+  assert(state.restReasons.some(x=>x.node==="到跳板去"),
+    "Qualifying Joe must not skip the independent dock climax");
+  linDossier=await dossierInfo();
+  assert.equal(linDossier.status,"了结");
+  assert(linDossier.steps.every(x=>x.done),
+    "Qualified Joe must remain qualified at the independently scheduled climax");
+  state=await node("码头");
+  state=await action("到跳板去");
+  assert(state.entries.some(x=>x.id==="看着这一天过完"&&!x.disabled),
+    "The dock must still offer its original explicit end-of-day decision");
+  const qualifiedEndingStart=storyTrail.length;
+  state=await action("看着这一天过完");
+  const qualifiedEndingText=storyTrail.slice(qualifiedEndingStart).find(x=>
+    x.kind==="spotlight"&&x.speaker==="机器留下了")?.text;
+  assert(qualifiedEndingText?.includes("机器留在老码头"),
+    "The qualified-worker branch must actually play the machine-day ending");
+  linDossier=await dossierInfo();
+  assert.equal(linDossier.status,"了结");
+  assert(linDossier.steps.every(x=>x.done),
+    "Machine-day closure must not overwrite the earned graduation");
+  assert(!linDossier.log.some(x=>x.text?.includes("老乔仍没完成基础培训")),
+    "A qualified Joe must not receive the abandoned-training account");
+  const qualifiedMachine=await dossierInfo();
+  await page.getByTestId("dossier-toggle").click({timeout:90000});
+  await settled();
+  state=await read();
+  assert.equal(state.dossiers.find(x=>x.id==="机器进入老街")?.status,"了结");
+  await page.getByTestId("dossier-close").click({timeout:90000});
+  await settled();
+  await page.getByTestId("save-game").click({timeout:90000});
+  await settled();
+  const qualifiedEndSave=await page.evaluate(()=>localStorage.getItem("ssnoir-web-v1"));
+  assert(qualifiedEndSave,"Completed-training ending must have a portable save");
+  await page.getByTestId("load-game").click({timeout:90000});
+  await settled();await story();
+  linDossier=await dossierInfo();
+  assert.equal(linDossier.status,"了结");
+  assert(linDossier.steps.every(x=>x.done));
+  state=await sleep();
+  assert.equal(state.day,chapterTwoStart+15);
+  linDossier=await dossierInfo();
+  assert.equal(linDossier.status,"了结");
+  assert(linDossier.steps.every(x=>x.done),
+    "The completed worker's diploma must persist to the playable next day");
+  assert(!state.restReasons.some(x=>["到跳板去","看着这一天过完"].includes(x.node)),
+    "Machine-day rest blockers cannot survive into the next world day");
+  assert.deepEqual(errors,[],"The graduate-to-machine day route must be browser-error-free");
+  await page.screenshot({path:"artifacts/web-game-lin-qualified-after-machine.png"});
+  console.log("PASS: authentic Lin qualification -> independent machine arrival -> completed dossier unchanged -> isolated save and next-day play",
+    JSON.stringify({graduateDay,machineDay:chapterTwoStart+14,followingDay:state.day}));
+
+
 
 }finally{
   await browser?.close();await server.close();
