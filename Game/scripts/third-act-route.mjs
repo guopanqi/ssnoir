@@ -80,11 +80,14 @@ try{
   async function sleep(){
     let state=await read();
     if(state.path[0]!=="家"){
-      await page.getByTestId("end-turn").click({timeout:90000});
+      // The location board is now a direct route: no intermediate world exit.
+      await page.locator('[data-testid="map-place"][data-node-id="家"]')
+        .click({timeout:90000});
       await settled();await story();
       state=await read();
     }
-    assert.deepEqual(state.path,["家"]);
+    assert.equal(state.error,"","Going to lodging through the city board must succeed");
+    assert.deepEqual(state.path,["家"],"City map must open the authored home directly");
     state=await node("住宿");
     const rest=state.entries.find(x=>
       (x.id==="睡觉"||x.id==="蜷缩在门口")&&!x.disabled);
