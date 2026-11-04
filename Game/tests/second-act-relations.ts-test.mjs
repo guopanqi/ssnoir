@@ -5,6 +5,7 @@ import {join} from "node:path";
 import {GameScriptSession} from "../src/runtime/script-session.ts";
 import {GameRuntimeState} from "../src/runtime/game-state.ts";
 import {convertNode} from "../src/runtime/node-converter.ts";
+import {GameSceneDirector} from "../src/runtime/scene-director.ts";
 
 const root="../UnityClient/Assets/Resources/Content",sources={};
 function scan(dir){
@@ -61,22 +62,33 @@ test("the public day-nine ship announces itself independently of whether Neil ta
     "The harbor survey announcement is one-shot");
 });
 
+
 test("the actually linked cargo night is a finite multi-stage joint-lift scenario",async()=>{
-  const {vm}=await setup();
-  const n=await scenario(vm,"大船靠岸（联合起吊）");
-  assert.equal(n.name,"联合起吊");
-  assert.ok(labels(n).includes("搬运货箱"));
-  assert.ok(labels(n).includes("协助挂索"));
-  assert.ok(!labels(n).includes("前端加快推进"),
+  const director=await GameSceneDirector.create(sources,()=>0.999);
+  let room=await director.start("大船靠岸（联合起吊）");
+  assert.equal(room.name,"联合起吊");
+  assert.ok(labels(room).includes("搬运货箱"));
+  assert.ok(labels(room).includes("协助挂索"));
+  assert.ok(!labels(room).includes("前端加快推进"),
     "Crane controls must stay locked until normal cargo is unloaded");
-  await vm.evaluate("(卸普通货! 4)");
-  const ready=convertNode(await vm.evaluate("(get-render-data)"));
-  assert.ok(labels(ready).includes("协助检查吊具"));
-  assert.ok(labels(ready).includes("整理落货区域"));
-  assert.ok(labels(ready).includes("布置辅助防摆"));
-  assert.equal(await vm.evaluateNumber("(时间 'current)"),6,
+  // Resolve two genuine 2-point die actions; phase changes through the real
+  // ActionRunner, which owns focus-node! and the action's committed Clock.
+  for(const slotId of [0,1]){
+    const effect=await director.actions.performSlots("搬运货箱",[
+      {type:"die",actorId:"player",slotId}
+    ]);
+    assert.equal(effect.mode,"roll");
+    assert.equal(effect.outcome,"success");
+  }
+  room=await director.render();
+  assert.ok(labels(room).includes("协助检查吊具"));
+  assert.ok(labels(room).includes("整理落货区域"));
+  assert.ok(labels(room).includes("布置辅助防摆"));
+  assert.equal(await director.scenario.evaluateNumber("(时间 'current)"),6,
     "Ordinary cargo work must not consume the six-round heavy lift budget");
-  assert.equal(await vm.evaluateNumber("(if (eq? 阶段 '准备) 1 0)"),1);
+  assert.equal(await director.scenario.evaluateNumber("(if (eq? 阶段 '准备) 1 0)"),1);
+  assert.equal(director.state.team.dice("player").length,2,
+    "The scene must consume only the two genuinely used dice");
 });
 
 test("Eddie risks his job when the witness backs away; only two permanent outcomes",async()=>{
@@ -94,23 +106,36 @@ test("Eddie risks his job when the witness backs away; only two permanent outcom
 });
 
 
+
 test("the authored sponsor performance leads to the two-stage black-coat investigation, not a retired stage scenario",async()=>{
   const {vm}=await setup();
   await act(vm,13);
   const invitation=convertNode(await vm.evaluate(`(node "剧院" :children (第二幕剧院 'nodes-at "剧院"))`));
   assert(labels(invitation).includes("赴试唱之约"),
     "The required day-thirteen performance must remain playable");
-  const n=await scenario(vm,"最后一排的观众");
-  assert.equal(n.name,"球形剧场");
-  assert.ok(labels(n).includes("公共走廊"));
-  assert.ok(labels(n).includes("工作通道"));
-  assert.equal(await vm.evaluateNumber("(if (= 阶段 1) 1 0)"),1);
-  await vm.evaluate("(搜寻! 真路线 4)");
-  const backstage=convertNode(await vm.evaluate("(get-render-data)"));
-  assert.ok(labels(backstage).includes("打听离场去向"));
-  assert.ok(labels(backstage).includes("打听后台消息"));
-  assert.equal(await vm.evaluateNumber("(收工 'current)"),3,
+
+  const director=await GameSceneDirector.create(sources,()=>0.999);
+  let room=await director.start("最后一排的观众");
+  assert.equal(room.name,"球形剧场");
+  assert.ok(labels(room).includes("公共走廊"));
+  assert.ok(labels(room).includes("工作通道"));
+  assert.equal(await director.scenario.evaluateNumber("(if (= 阶段 1) 1 0)"),1);
+  const route=String(await director.scenario.evaluate("真路线"));
+  const actionId=route==="公共"?"公共走廊搜寻":"工作通道搜寻";
+  assert(["公共","后台"].includes(route),"Only the two original routes are legitimate");
+  for(const slotId of [0,1]){
+    const effect=await director.actions.performSlots(actionId,[
+      {type:"die",actorId:"player",slotId}
+    ]);
+    assert.equal(effect.mode,"roll");
+    assert.equal(effect.outcome,"success");
+  }
+  room=await director.render();
+  assert.ok(labels(room).includes("打听离场去向"));
+  assert.ok(labels(room).includes("打听后台消息"));
+  assert.equal(await director.scenario.evaluateNumber("(收工 'current)"),3,
     "The three-round deadline begins only after choosing a real route");
+  assert.equal(director.mode,"scenario");
 });
 
 test("the authored costume job combines nested dice investigation with decreasing item-slot cash cost",async()=>{
