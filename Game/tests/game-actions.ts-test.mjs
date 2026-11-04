@@ -10,7 +10,6 @@ import {fateStrip,resolveFate} from "../src/runtime/fate-strip.ts";
 const src=path=>readFileSync("../UnityClient/Assets/Resources/Content/"+path,"utf8");
 const sources={"scripts/stdlib.scm":src("scripts/stdlib.scm"),
  "scripts/engine.scm":src("scripts/engine.scm"),"scripts/theatre.scm":src("scripts/theatre.scm")};
-const binary=readFileSync("node_modules/lips/dist/std.xcb");
 
 test("A+ percentage rows match C# and every percentile resolves consistently",()=>{
  const rows=[
@@ -44,7 +43,7 @@ test("fixed dice slots survive spending without index confusion",()=>{
 });
 test("authored instant and roll actions execute live Scheme effects on shared state",async()=>{
  const state=new GameRuntimeState();
- const vm=await GameScriptSession.create("action-smoke",state,sources,binary);
+ const vm=await GameScriptSession.create("action-smoke",state,sources);
  const turn=new ActionTurnState(()=>0.99);
  const runner=await GameActionRunner.create(vm,state,turn);
  const root=await runner.prepare(`(node "世界" :children (list
@@ -68,7 +67,7 @@ test("authored instant and roll actions execute live Scheme effects on shared st
 });
 test("validation before effects preserves inventory/dice on failure",async()=>{
  const state=new GameRuntimeState();
- const vm=await GameScriptSession.create("action-negative",state,sources,binary);
+ const vm=await GameScriptSession.create("action-negative",state,sources);
  const turn=new ActionTurnState(()=>0.5);
  const runner=await GameActionRunner.create(vm,state,turn);
  await runner.prepare(`(node "世界" :children (list

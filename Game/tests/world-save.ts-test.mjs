@@ -15,11 +15,10 @@ function walk(path) {
  }
 }
 walk("scripts");walk("scenes");
-const std=readFileSync("node_modules/lips/dist/std.xcb");
 let index=0;
 async function makeWorld(){
  const state=new GameRuntimeState();
- const session=await GameScriptSession.create("world-save-"+(++index),state,sources,std);
+ const session=await GameScriptSession.create("world-save-"+(++index),state,sources);
  await session.loadFile("scenes/world/world.scm");
  return {state,session};
 }

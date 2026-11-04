@@ -13,8 +13,7 @@ function scan(dir){for(const entry of readdirSync(join(base,dir),{withFileTypes:
   else if(key.endsWith(".scm"))sources[key]=readFileSync(join(base,key),"utf8");
 }}
 scan("scripts");scan("scenes");
-const std=readFileSync("node_modules/lips/dist/std.xcb");
-const ts=await GameSceneDirector.create(sources,std,()=>.42);
+const ts=await GameSceneDirector.create(sources,()=>.42);
 const tsRoot=await ts.render();
 function pathTo(node,name,parents=[]){
   if(node.name===name)return [...parents,node.name];

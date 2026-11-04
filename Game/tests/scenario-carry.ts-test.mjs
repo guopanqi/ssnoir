@@ -13,8 +13,7 @@ function scan(dir){
   }
 }
 scan("scripts");scan("scenes");
-const std=readFileSync("node_modules/lips/dist/std.xcb");
-const build=()=>GameSceneDirector.create(sources,std,()=>0.45);
+const build=()=>GameSceneDirector.create(sources,()=>0.45);
 
 test("real blackmail scenario exposes original carry item, not inside the authored scene tree",async()=>{
   const director=await build();

@@ -16,10 +16,9 @@ function scan(dir){
   }
 }
 scan("scripts");scan("scenes");
-const standard=readFileSync("node_modules/lips/dist/std.xcb");
 async function setup(){
   const state=new GameRuntimeState();
-  const vm=await GameScriptSession.create("act-two-refactor",state,sources,standard);
+  const vm=await GameScriptSession.create("act-two-refactor",state,sources);
   await vm.loadFile("scenes/world/world.scm");
   return {vm,state};
 }

@@ -1,0 +1,998 @@
+{
+  "environment": {
+    "browser": "140.0.7339.16",
+    "node": "v24.22.1",
+    "viewport": [
+      1440,
+      850
+    ]
+  },
+  "timings": [
+    {
+      "label": "hotel-first",
+      "ms": 115
+    },
+    {
+      "label": "world-return",
+      "ms": 82
+    },
+    {
+      "label": "hotel-reentry",
+      "ms": 98
+    },
+    {
+      "label": "tavern-first",
+      "ms": 161
+    },
+    {
+      "label": "tavern-return",
+      "ms": 99
+    },
+    {
+      "label": "tavern-reentry",
+      "ms": 100
+    },
+    {
+      "label": "save",
+      "ms": 80
+    },
+    {
+      "label": "restore",
+      "ms": 311
+    }
+  ],
+  "snapshots": [
+    {
+      "label": "hotel-first",
+      "state": {
+        "mode": "world",
+        "day": 1,
+        "money": 15,
+        "health": 0,
+        "dice": [
+          {
+            "actorId": "player",
+            "actorName": "尼尔",
+            "slotId": 0,
+            "value": 2
+          },
+          {
+            "actorId": "player",
+            "actorName": "尼尔",
+            "slotId": 1,
+            "value": 4
+          },
+          {
+            "actorId": "player",
+            "actorName": "尼尔",
+            "slotId": 2,
+            "value": 6
+          },
+          {
+            "actorId": "player",
+            "actorName": "尼尔",
+            "slotId": 3,
+            "value": 3
+          }
+        ],
+        "actors": [
+          {
+            "id": "player",
+            "name": "尼尔",
+            "composure": 5,
+            "status": "active"
+          }
+        ],
+        "restBlocked": true,
+        "restReasons": [
+          {
+            "id": "旅馆清晨",
+            "reason": "先起床看看",
+            "location": "家",
+            "node": "旅馆清晨"
+          }
+        ],
+        "entries": [
+          {
+            "id": "旅馆清晨",
+            "title": "旅馆清晨",
+            "subtitle": "",
+            "isPlace": false,
+            "disabled": false,
+            "tags": [],
+            "clocks": [],
+            "requires": [],
+            "action": "instant",
+            "risk": null,
+            "childCount": 0,
+            "note": null
+          },
+          {
+            "id": "租屋",
+            "title": "房间",
+            "subtitle": "",
+            "isPlace": false,
+            "disabled": false,
+            "tags": [],
+            "clocks": [],
+            "requires": [],
+            "action": null,
+            "risk": null,
+            "childCount": 3,
+            "note": null
+          },
+          {
+            "id": "住宿",
+            "title": "住宿",
+            "subtitle": "",
+            "isPlace": false,
+            "disabled": false,
+            "tags": [],
+            "clocks": [
+              {
+                "label": "旅馆房费到期",
+                "current": 4,
+                "max": 4,
+                "style": "countdown",
+                "note": "每四天到期；回旅馆时交40美元续住。",
+                "displayLabel": "旅馆房费到期",
+                "priority": "primary",
+                "beneficialDirection": "increase",
+                "reset": {
+                  "sequence": 0,
+                  "from": 0
+                }
+              }
+            ],
+            "requires": [],
+            "action": null,
+            "risk": null,
+            "childCount": 1,
+            "note": null
+          }
+        ],
+        "path": [
+          "家"
+        ]
+      }
+    },
+    {
+      "label": "world-return",
+      "state": {
+        "mode": "world",
+        "day": 1,
+        "money": 15,
+        "health": 0,
+        "dice": [
+          {
+            "actorId": "player",
+            "actorName": "尼尔",
+            "slotId": 0,
+            "value": 2
+          },
+          {
+            "actorId": "player",
+            "actorName": "尼尔",
+            "slotId": 1,
+            "value": 4
+          },
+          {
+            "actorId": "player",
+            "actorName": "尼尔",
+            "slotId": 2,
+            "value": 6
+          },
+          {
+            "actorId": "player",
+            "actorName": "尼尔",
+            "slotId": 3,
+            "value": 3
+          }
+        ],
+        "actors": [
+          {
+            "id": "player",
+            "name": "尼尔",
+            "composure": 5,
+            "status": "active"
+          }
+        ],
+        "restBlocked": true,
+        "restReasons": [
+          {
+            "id": "旅馆清晨",
+            "reason": "先起床看看",
+            "location": "家",
+            "node": "旅馆清晨"
+          }
+        ],
+        "entries": [
+          {
+            "id": "家",
+            "title": "旅馆",
+            "subtitle": "旅馆客房",
+            "isPlace": true,
+            "disabled": false,
+            "tags": [],
+            "clocks": [],
+            "requires": [],
+            "action": null,
+            "risk": null,
+            "childCount": 3,
+            "note": null
+          }
+        ],
+        "path": []
+      }
+    },
+    {
+      "label": "hotel-reentry",
+      "state": {
+        "mode": "world",
+        "day": 1,
+        "money": 15,
+        "health": 0,
+        "dice": [
+          {
+            "actorId": "player",
+            "actorName": "尼尔",
+            "slotId": 0,
+            "value": 2
+          },
+          {
+            "actorId": "player",
+            "actorName": "尼尔",
+            "slotId": 1,
+            "value": 4
+          },
+          {
+            "actorId": "player",
+            "actorName": "尼尔",
+            "slotId": 2,
+            "value": 6
+          },
+          {
+            "actorId": "player",
+            "actorName": "尼尔",
+            "slotId": 3,
+            "value": 3
+          }
+        ],
+        "actors": [
+          {
+            "id": "player",
+            "name": "尼尔",
+            "composure": 5,
+            "status": "active"
+          }
+        ],
+        "restBlocked": true,
+        "restReasons": [
+          {
+            "id": "旅馆清晨",
+            "reason": "先起床看看",
+            "location": "家",
+            "node": "旅馆清晨"
+          }
+        ],
+        "entries": [
+          {
+            "id": "旅馆清晨",
+            "title": "旅馆清晨",
+            "subtitle": "",
+            "isPlace": false,
+            "disabled": false,
+            "tags": [],
+            "clocks": [],
+            "requires": [],
+            "action": "instant",
+            "risk": null,
+            "childCount": 0,
+            "note": null
+          },
+          {
+            "id": "租屋",
+            "title": "房间",
+            "subtitle": "",
+            "isPlace": false,
+            "disabled": false,
+            "tags": [],
+            "clocks": [],
+            "requires": [],
+            "action": null,
+            "risk": null,
+            "childCount": 3,
+            "note": null
+          },
+          {
+            "id": "住宿",
+            "title": "住宿",
+            "subtitle": "",
+            "isPlace": false,
+            "disabled": false,
+            "tags": [],
+            "clocks": [
+              {
+                "label": "旅馆房费到期",
+                "current": 4,
+                "max": 4,
+                "style": "countdown",
+                "note": "每四天到期；回旅馆时交40美元续住。",
+                "displayLabel": "旅馆房费到期",
+                "priority": "primary",
+                "beneficialDirection": "increase",
+                "reset": {
+                  "sequence": 0,
+                  "from": 0
+                }
+              }
+            ],
+            "requires": [],
+            "action": null,
+            "risk": null,
+            "childCount": 1,
+            "note": null
+          }
+        ],
+        "path": [
+          "家"
+        ]
+      }
+    },
+    {
+      "label": "tavern-first",
+      "state": {
+        "mode": "world",
+        "day": 1,
+        "money": 15,
+        "health": 0,
+        "dice": [
+          {
+            "actorId": "player",
+            "actorName": "尼尔",
+            "slotId": 0,
+            "value": 2
+          },
+          {
+            "actorId": "player",
+            "actorName": "尼尔",
+            "slotId": 1,
+            "value": 4
+          },
+          {
+            "actorId": "player",
+            "actorName": "尼尔",
+            "slotId": 2,
+            "value": 6
+          },
+          {
+            "actorId": "player",
+            "actorName": "尼尔",
+            "slotId": 3,
+            "value": 3
+          }
+        ],
+        "actors": [
+          {
+            "id": "player",
+            "name": "尼尔",
+            "composure": 5,
+            "status": "active"
+          }
+        ],
+        "restBlocked": false,
+        "restReasons": [],
+        "entries": [
+          {
+            "id": "夜莺驻唱",
+            "title": "夜莺驻唱",
+            "subtitle": "",
+            "isPlace": false,
+            "disabled": false,
+            "tags": [],
+            "clocks": [],
+            "requires": [],
+            "action": "note",
+            "risk": null,
+            "childCount": 0,
+            "note": "夜莺 — 今晚还在这里唱歌；再过几天，她就要去大剧院了。"
+          },
+          {
+            "id": "听夜莺唱歌",
+            "title": "听夜莺唱歌",
+            "subtitle": "花一枚行动骰，稳定恢复1点心情；每天一次",
+            "isPlace": false,
+            "disabled": false,
+            "tags": [],
+            "clocks": [],
+            "requires": [
+              {
+                "type": "die"
+              }
+            ],
+            "action": "instant",
+            "risk": null,
+            "childCount": 0,
+            "note": null
+          },
+          {
+            "id": "看场子",
+            "title": "看场子",
+            "subtitle": "在酒馆维持秩序。碰上有人闹事得出面摆平。",
+            "isPlace": false,
+            "disabled": false,
+            "tags": [],
+            "clocks": [],
+            "requires": [
+              {
+                "type": "die"
+              }
+            ],
+            "action": "roll",
+            "risk": null,
+            "childCount": 0,
+            "note": null
+          },
+          {
+            "id": "点一杯酒",
+            "title": "喝杯啤酒",
+            "subtitle": "恢复3点心情",
+            "isPlace": false,
+            "disabled": false,
+            "tags": [],
+            "clocks": [],
+            "requires": [
+              {
+                "type": "item",
+                "itemId": "金钱",
+                "qty": 15
+              }
+            ],
+            "action": "instant",
+            "risk": null,
+            "childCount": 0,
+            "note": null
+          }
+        ],
+        "path": [
+          "老街酒馆"
+        ]
+      }
+    },
+    {
+      "label": "tavern-return",
+      "state": {
+        "mode": "world",
+        "day": 1,
+        "money": 15,
+        "health": 0,
+        "dice": [
+          {
+            "actorId": "player",
+            "actorName": "尼尔",
+            "slotId": 0,
+            "value": 2
+          },
+          {
+            "actorId": "player",
+            "actorName": "尼尔",
+            "slotId": 1,
+            "value": 4
+          },
+          {
+            "actorId": "player",
+            "actorName": "尼尔",
+            "slotId": 2,
+            "value": 6
+          },
+          {
+            "actorId": "player",
+            "actorName": "尼尔",
+            "slotId": 3,
+            "value": 3
+          }
+        ],
+        "actors": [
+          {
+            "id": "player",
+            "name": "尼尔",
+            "composure": 5,
+            "status": "active"
+          }
+        ],
+        "restBlocked": false,
+        "restReasons": [],
+        "entries": [
+          {
+            "id": "家",
+            "title": "旅馆",
+            "subtitle": "旅馆客房",
+            "isPlace": true,
+            "disabled": false,
+            "tags": [],
+            "clocks": [],
+            "requires": [],
+            "action": null,
+            "risk": null,
+            "childCount": 2,
+            "note": null
+          },
+          {
+            "id": "老街酒馆",
+            "title": "老街酒馆",
+            "subtitle": "",
+            "isPlace": true,
+            "disabled": false,
+            "tags": [],
+            "clocks": [],
+            "requires": [],
+            "action": null,
+            "risk": null,
+            "childCount": 4,
+            "note": null
+          },
+          {
+            "id": "码头",
+            "title": "码头",
+            "subtitle": "",
+            "isPlace": true,
+            "disabled": false,
+            "tags": [],
+            "clocks": [],
+            "requires": [],
+            "action": null,
+            "risk": null,
+            "childCount": 2,
+            "note": null
+          },
+          {
+            "id": "街角咖啡馆",
+            "title": "街角咖啡馆",
+            "subtitle": "",
+            "isPlace": true,
+            "disabled": false,
+            "tags": [],
+            "clocks": [],
+            "requires": [],
+            "action": null,
+            "risk": null,
+            "childCount": 2,
+            "note": null
+          }
+        ],
+        "path": []
+      }
+    },
+    {
+      "label": "tavern-reentry",
+      "state": {
+        "mode": "world",
+        "day": 1,
+        "money": 15,
+        "health": 0,
+        "dice": [
+          {
+            "actorId": "player",
+            "actorName": "尼尔",
+            "slotId": 0,
+            "value": 2
+          },
+          {
+            "actorId": "player",
+            "actorName": "尼尔",
+            "slotId": 1,
+            "value": 4
+          },
+          {
+            "actorId": "player",
+            "actorName": "尼尔",
+            "slotId": 2,
+            "value": 6
+          },
+          {
+            "actorId": "player",
+            "actorName": "尼尔",
+            "slotId": 3,
+            "value": 3
+          }
+        ],
+        "actors": [
+          {
+            "id": "player",
+            "name": "尼尔",
+            "composure": 5,
+            "status": "active"
+          }
+        ],
+        "restBlocked": false,
+        "restReasons": [],
+        "entries": [
+          {
+            "id": "夜莺驻唱",
+            "title": "夜莺驻唱",
+            "subtitle": "",
+            "isPlace": false,
+            "disabled": false,
+            "tags": [],
+            "clocks": [],
+            "requires": [],
+            "action": "note",
+            "risk": null,
+            "childCount": 0,
+            "note": "夜莺 — 今晚还在这里唱歌；再过几天，她就要去大剧院了。"
+          },
+          {
+            "id": "听夜莺唱歌",
+            "title": "听夜莺唱歌",
+            "subtitle": "花一枚行动骰，稳定恢复1点心情；每天一次",
+            "isPlace": false,
+            "disabled": false,
+            "tags": [],
+            "clocks": [],
+            "requires": [
+              {
+                "type": "die"
+              }
+            ],
+            "action": "instant",
+            "risk": null,
+            "childCount": 0,
+            "note": null
+          },
+          {
+            "id": "看场子",
+            "title": "看场子",
+            "subtitle": "在酒馆维持秩序。碰上有人闹事得出面摆平。",
+            "isPlace": false,
+            "disabled": false,
+            "tags": [],
+            "clocks": [],
+            "requires": [
+              {
+                "type": "die"
+              }
+            ],
+            "action": "roll",
+            "risk": null,
+            "childCount": 0,
+            "note": null
+          },
+          {
+            "id": "点一杯酒",
+            "title": "喝杯啤酒",
+            "subtitle": "恢复3点心情",
+            "isPlace": false,
+            "disabled": false,
+            "tags": [],
+            "clocks": [],
+            "requires": [
+              {
+                "type": "item",
+                "itemId": "金钱",
+                "qty": 15
+              }
+            ],
+            "action": "instant",
+            "risk": null,
+            "childCount": 0,
+            "note": null
+          }
+        ],
+        "path": [
+          "老街酒馆"
+        ]
+      }
+    },
+    {
+      "label": "save",
+      "state": {
+        "mode": "world",
+        "day": 1,
+        "money": 15,
+        "health": 0,
+        "dice": [
+          {
+            "actorId": "player",
+            "actorName": "尼尔",
+            "slotId": 0,
+            "value": 2
+          },
+          {
+            "actorId": "player",
+            "actorName": "尼尔",
+            "slotId": 1,
+            "value": 4
+          },
+          {
+            "actorId": "player",
+            "actorName": "尼尔",
+            "slotId": 2,
+            "value": 6
+          },
+          {
+            "actorId": "player",
+            "actorName": "尼尔",
+            "slotId": 3,
+            "value": 3
+          }
+        ],
+        "actors": [
+          {
+            "id": "player",
+            "name": "尼尔",
+            "composure": 5,
+            "status": "active"
+          }
+        ],
+        "restBlocked": false,
+        "restReasons": [],
+        "entries": [
+          {
+            "id": "夜莺驻唱",
+            "title": "夜莺驻唱",
+            "subtitle": "",
+            "isPlace": false,
+            "disabled": false,
+            "tags": [],
+            "clocks": [],
+            "requires": [],
+            "action": "note",
+            "risk": null,
+            "childCount": 0,
+            "note": "夜莺 — 今晚还在这里唱歌；再过几天，她就要去大剧院了。"
+          },
+          {
+            "id": "听夜莺唱歌",
+            "title": "听夜莺唱歌",
+            "subtitle": "花一枚行动骰，稳定恢复1点心情；每天一次",
+            "isPlace": false,
+            "disabled": false,
+            "tags": [],
+            "clocks": [],
+            "requires": [
+              {
+                "type": "die"
+              }
+            ],
+            "action": "instant",
+            "risk": null,
+            "childCount": 0,
+            "note": null
+          },
+          {
+            "id": "看场子",
+            "title": "看场子",
+            "subtitle": "在酒馆维持秩序。碰上有人闹事得出面摆平。",
+            "isPlace": false,
+            "disabled": false,
+            "tags": [],
+            "clocks": [],
+            "requires": [
+              {
+                "type": "die"
+              }
+            ],
+            "action": "roll",
+            "risk": null,
+            "childCount": 0,
+            "note": null
+          },
+          {
+            "id": "点一杯酒",
+            "title": "喝杯啤酒",
+            "subtitle": "恢复3点心情",
+            "isPlace": false,
+            "disabled": false,
+            "tags": [],
+            "clocks": [],
+            "requires": [
+              {
+                "type": "item",
+                "itemId": "金钱",
+                "qty": 15
+              }
+            ],
+            "action": "instant",
+            "risk": null,
+            "childCount": 0,
+            "note": null
+          }
+        ],
+        "path": [
+          "老街酒馆"
+        ]
+      }
+    },
+    {
+      "label": "restore",
+      "state": {
+        "mode": "world",
+        "day": 1,
+        "money": 15,
+        "health": 0,
+        "dice": [
+          {
+            "actorId": "player",
+            "actorName": "尼尔",
+            "slotId": 0,
+            "value": 2
+          },
+          {
+            "actorId": "player",
+            "actorName": "尼尔",
+            "slotId": 1,
+            "value": 4
+          },
+          {
+            "actorId": "player",
+            "actorName": "尼尔",
+            "slotId": 2,
+            "value": 6
+          },
+          {
+            "actorId": "player",
+            "actorName": "尼尔",
+            "slotId": 3,
+            "value": 3
+          }
+        ],
+        "actors": [
+          {
+            "id": "player",
+            "name": "尼尔",
+            "composure": 5,
+            "status": "active"
+          }
+        ],
+        "restBlocked": false,
+        "restReasons": [],
+        "entries": [
+          {
+            "id": "家",
+            "title": "旅馆",
+            "subtitle": "旅馆客房",
+            "isPlace": true,
+            "disabled": false,
+            "tags": [],
+            "clocks": [],
+            "requires": [],
+            "action": null,
+            "risk": null,
+            "childCount": 2,
+            "note": null
+          },
+          {
+            "id": "老街酒馆",
+            "title": "老街酒馆",
+            "subtitle": "",
+            "isPlace": true,
+            "disabled": false,
+            "tags": [],
+            "clocks": [],
+            "requires": [],
+            "action": null,
+            "risk": null,
+            "childCount": 4,
+            "note": null
+          },
+          {
+            "id": "码头",
+            "title": "码头",
+            "subtitle": "",
+            "isPlace": true,
+            "disabled": false,
+            "tags": [],
+            "clocks": [],
+            "requires": [],
+            "action": null,
+            "risk": null,
+            "childCount": 2,
+            "note": null
+          },
+          {
+            "id": "街角咖啡馆",
+            "title": "街角咖啡馆",
+            "subtitle": "",
+            "isPlace": true,
+            "disabled": false,
+            "tags": [],
+            "clocks": [],
+            "requires": [],
+            "action": null,
+            "risk": null,
+            "childCount": 2,
+            "note": null
+          }
+        ],
+        "path": []
+      }
+    }
+  ],
+  "saved": {
+    "format": "ssnoir-world",
+    "version": 1,
+    "state": {
+      "globals": {
+        "location": "world",
+        "chapter": 0,
+        "弗兰克认可": false,
+        "货船在泊": false,
+        "林-技术负责人": false,
+        "林-人文关怀": false,
+        "林-测试结果": "",
+        "开场动作": "旅馆清晨",
+        "抢卸货船在泊": false,
+        "抢卸夜班亲历": false,
+        "世界日": 1
+      },
+      "inventory": {
+        "金钱": 15,
+        "情报": 0,
+        "药品": 1,
+        "酒": 0,
+        "香烟": 2
+      },
+      "growthLevel": 0,
+      "restBlockers": [],
+      "notifications": [],
+      "failure": null,
+      "injury": {
+        "severity": 0,
+        "part": "",
+        "scars": []
+      },
+      "team": {
+        "actors": [
+          {
+            "id": "player",
+            "name": "尼尔",
+            "role": "protagonist",
+            "status": "active",
+            "composure": 5,
+            "stats": {
+              "violence": -1,
+              "knowledge": 1,
+              "sharpness": 0,
+              "social": 0
+            },
+            "actionSlotCount": 4,
+            "fixedDieValue": null,
+            "fixedDieLabel": "",
+            "spentGrowthPoints": 0,
+            "isDrunk": false,
+            "hangoverSlotId": null,
+            "permanentDiePenalty": 0,
+            "permanentDiePenaltyLabel": "",
+            "actionDice": [
+              2,
+              4,
+              6,
+              3
+            ],
+            "actionDiceSlotIds": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "temporary": false
+          }
+        ],
+        "supports": [],
+        "carriedSupport": ""
+      }
+    },
+    "worldDatum": "((\"day\" 1) (\"first-act\" ((\"opened\" #t) (\"tavern\" #t) (\"lucy\" 0) (\"eddie\" 0) (\"singer\" 0) (\"lucy-day\" 0) (\"eddie-day\" 0) (\"singer-day\" 0) (\"listened-day\" 0) (\"listen-count\" 0) (\"singer-mistake-heard\" #f) (\"singer-care-seen\" #f) (\"singer-contact-day\" 0) (\"singer-contact-days\" 0) (\"eddie-count\" 0) (\"lucy-count\" 0) (\"farewell-seen\" #f) (\"farewell-done\" #f) (\"rehearsal-seen\" #f) (\"rehearsal-done\" #f) (\"notice\" #f) (\"farewell-notice\" #f) (\"act\" 1))) (\"first-act-walk\" ((\"status\" \"未邀请\") (\"result\" \"\") (\"ignored?\" #f) (\"cared?\" #f) (\"final-fear\" 0))) (\"act-two\" ((\"lucy-enrolled-day\" 0) (\"lucy-introduced-day\" 0) (\"lucy-deadline-day\" 0) (\"lucy-school-known\" #f) (\"lucy-class-talk\" #f) (\"version\" 2) (\"lucy\" \"未做\") (\"lucy-introduced\" #f) (\"lucy-progress\" 0) (\"lucy-result-known\" #f))) (\"city-events\" ((\"last-day\" 0) (\"events\" ((\"乔的手提箱\" ((\"stage\" \"未出现\") (\"progress\" 0))) (\"经理的演出服\" ((\"stage\" \"未提起\") (\"appeared\" 0) (\"progress\" 0))) (\"海伦的委托\" ((\"stage\" \"未出现\") (\"accepted\" 0) (\"deadline\" 0) (\"result\" \"\") (\"track\" 0) (\"investigate\" 0))))))) (\"act-two-city\" ((\"street\" #f) (\"frank\" #f) (\"manager\" #f) (\"manager-met-day\" 0) (\"version\" 3))) (\"act-two-rhythm\" ((\"tavern\" #f) (\"ship\" #f) (\"ship-news\" #f) (\"ship-work\" \"未参加\") (\"dock-mark\" #f) (\"poster\" #f) (\"invitation\" #f) (\"case-offered\" #f))) (\"act-two-theater\" ((\"version\" 2) (\"promised\" #f) (\"private\" #f) (\"performance\" #f) (\"audience-result\" \"未发生\") (\"audience-intel\" 0) (\"performance-day\" 0))) (\"act-two-aftermath\" ((\"gloves\" #f))) (\"act-two-announcement\" ((\"eddie\" #f) (\"lucy\" #f) (\"singer\" #f))) (\"act-three\" ((\"version\" 11) (\"tommy-work\" 0) (\"started\" #f) (\"start-day\" 0) (\"case\" \"未开始\") (\"inquiry-stage\" \"守候\") (\"inquiry-day\" 0) (\"contract\" #f) (\"ledger\" #f) (\"threat\" #f) (\"warehouse\" #f) (\"papers-leaked\" #f) (\"protected\" #f) (\"settlement-fund\" 0) (\"manager-advance\" 0) (\"case-expense\" 0) (\"warehouse-stopped\" #f) (\"warehouse-private-exposed\" #f) (\"warehouse-ledger\" #f) (\"warehouse-threat\" #f) (\"warehouse-material\" #f) (\"report\" #f) (\"night-state\" \"未邀请\") (\"lucy-met\" #f) (\"lucy-material\" \"未谈\") (\"lucy-mailed\" #f) (\"lucy-after\" #f) (\"frank-met\" #f) (\"frank-debate\" #f) (\"frank-refused\" #f) (\"frank-aboard\" #f) (\"tommy-met\" #f) (\"tommy-met-day\" 0) (\"tommy-invited\" #f) (\"tommy-intel\" #f) (\"tommy-hosted\" #f) (\"tommy-advanced\" #f) (\"tommy-after\" #f) (\"tommy-approach\" \"未定\"))) (\"eddie-life\" ((\"dance\" \"未邀请\") (\"job-known\" #f) (\"celebrated\" #f) (\"home-known\" #f) (\"moved-with\" #f) (\"visited\" #f) (\"clearance\" \"未决定\") (\"ending-seen\" #f))) (\"two-cups\" ((\"progress\" 0))) (\"cafe-work\" ((\"calm-rest-day\" 0))) (\"eddie\" ((\"stage\" 0) (\"way-out\" 0) (\"crushed\" 0) (\"shared-drink\" 0) (\"journal\" ()) (\"alley-day\" 0) (\"next-fight-day\" 0) (\"bet-odds\" 0) (\"night\" 0) (\"shut-day\" 0) (\"bet-side\" 0) (\"bet-amount\" 0) (\"warmup-seen\" 0) (\"ringside-seen\" 0) (\"talked\" 0) (\"watched\" 0) (\"awaiting-signal\" 0) (\"signal\" \"\") (\"result-line\" \"\") (\"tip\" 0) (\"hand-bad\" 0) (\"heat\" 0))) (\"frank\" ((\"approved?\" #f) (\"mediation\" \"未发生\") (\"at-table?\" #f) (\"alley-settled?\" #f) (\"met?\" #f) (\"repair-state\" \"未开放\") (\"repair-deadline-day\" 0) (\"repair-joined?\" #f) (\"repair-arrival-viewed?\" #f) (\"repair-result\" \"未结算\") (\"repair-progress\" 0) (\"hold-state\" \"未发生\") (\"hold-open-day\" 0) (\"hold-day\" 0) (\"hold-paid?\" #f) (\"hold-payment\" 0) (\"distribution-viewed?\" #f) (\"paper-seen?\" #f))) (\"lin\" ((\"stage\" 0) (\"journal\" ()) (\"zone-announced\" 0) (\"met-route\" \"\") (\"test-day\" 0) (\"workers-asked\" 0) (\"test-result\" \"\") (\"manual-used\" 0) (\"participated\" 0) (\"authority\" 0) (\"humane\" 0) (\"invited\" 0) (\"rail\" 0) (\"part-int\" 0) (\"part-flaw\" 0) (\"part-bonus\" 0) (\"parts-good\" 0) (\"parts-fair\" 0) (\"last-flaw\" \"\"))) (\"baines\" ((\"quiet-stage\" 0) (\"receipt\" 0) (\"route\" \"\") (\"owed\" 0) (\"off-duty-seen\" 0) (\"street-seen\" 0) (\"street-day\" 0) (\"dock-seen\" 0) (\"registration\" \"未开放\"))) (\"walter\" ((\"stage\" 0) (\"met-day\" 0) (\"manifest?\" 0) (\"manifest-progress\" 0) (\"claim-result\" \"无\") (\"交情\" 0) (\"裙带\" 0) (\"journal\" ()))) (\"nightingale\" ((\"together\" 0))) (\"chapter2\" ((\"plan-news-read\" #f) (\"phase\" \"未开始\") (\"start-day\" 0) (\"phase-start-day\" 0) (\"journals\" ((\"格兰德酒店晚宴\" ()) (\"封面上的夜莺\" ()) (\"机器进入老街\" ()))) (\"banquet\" ((\"reminder-read\" #f) (\"result\" \"未开始\"))) (\"new-harbor-plan\" ()) (\"eddie-training\" ((\"result-news-read\" #f) (\"state\" \"未开始\") (\"practiced\" 0) (\"told\" 0) (\"journal\" ()))) (\"lin-machine\" ((\"trial-news-read\" #f) (\"training-news-read\" #f) (\"identity-shown\" 0) (\"vacated-day\" 0) (\"trial-state\" \"未开放\") (\"trial-end-day\" 0) (\"insight\" \"尚未动摇\") (\"training-state\" \"未开放\") (\"training-progress\" 0) (\"training-orders\" 0) (\"training-simulation\" 0) (\"journal\" ()))) (\"frank-mediation\" ((\"news-state\" \"未开始\") (\"state\" \"未开始\") (\"journal\" ()))) (\"newspaper\" ((\"news-read\" #f) (\"state\" \"未开始\"))) (\"investigation\" ((\"paper-news-read\" #f) (\"state\" \"未立卷\") (\"theater-bait\" 0) (\"hotel-bait\" 0) (\"newspaper-wait\" 0) (\"mystery-open\" 0) (\"reporter-checked-ledger\" 0) (\"morning-material-proved\" 0) (\"closed\" 0) (\"journal\" ()))) (\"machines-arrive\" ((\"arrival-news-read\" #f) (\"state\" \"未开始\") (\"came\" 0) (\"stopped-eddie\" 0) (\"halted\" 0) (\"held-crowd\" 0))))) (\"home\" ((\"residence\" \"租的房间\") (\"has-flower?\" #f) (\"has-mattress?\" #f) (\"has-phone?\" #f) (\"has-gramophone?\" #f) (\"drank-today?\" #f) (\"flower-today?\" #f) (\"medicated-today?\" #f) (\"boss-visited?\" #f) (\"rent-left\" 4) (\"evicted?\" #f) (\"just-slept?\" #f))) (\"dock\" ((\"help-day\" 0))) (\"old-street-tavern\" ((\"watch-first?\" #t) (\"watch-count\" 0) (\"watch-trouble-day\" 0) (\"watch-trouble\" \"\") (\"opening-talk-heard?\" #f) (\"closed-days\" 0) (\"closed-days-max\" 2) (\"loan-owed\" 0) (\"loan-days\" 0) (\"tavern-rank\" \"服务员\") (\"tavern-rank-progress\" 0) (\"tavern-trouble\" \"无\") (\"tavern-trouble-time\" 0) (\"tavern-trouble-outcome\" \"未了\") (\"ruth-stage\" 0) (\"ruth-quota\" 0) (\"echoes\" ((1 ()) (2 ()) (3 ()))) (\"regulars\" ((\"莫里斯\" (0 0 0 #f)) (\"帕克\" (0 0 0 #f)) (\"科尔\" (0 0 0 #f)))) (\"tip-scenes-seen\" 0) (\"ate-day\" 0))) (\"clinic\" ((\"discovered\" 0))) (\"police-station\" ()) (\"freight-company\" ((\"agent-stage\" 0) (\"walter-reference-seen?\" #f) (\"project-state\" \"无\") (\"project-quality\" 0) (\"investment-days\" 0))) (\"residential-district\" ()) (\"theater\" ()) (\"board\" ((\"active-missions\" ((\"替人带话\" 2) (\"代查一笔账\" 2))) (\"refresh-days\" 0))) (\"grand-hotel\" ()) (\"port-technical-zone\" ()) (\"newsroom\" ()))",
+    "settings": {}
+  },
+  "stages": [
+    "[SSNoir] web world bootstrap 235 ms",
+    "[SSNoir] enter place 家 {\"durationMs\":13,\"materializations\":1,\"modeChanged\":false}",
+    "[SSNoir] enter place 家 {\"durationMs\":8,\"materializations\":1,\"modeChanged\":false}",
+    "[SSNoir] enter place 老街酒馆 {\"durationMs\":72,\"materializations\":2,\"modeChanged\":false}",
+    "[SSNoir] enter place 老街酒馆 {\"durationMs\":13,\"materializations\":1,\"modeChanged\":false}",
+    "[SSNoir] web save stages {\"captureMs\":4,\"encodeMs\":0,\"bytes\":7777}",
+    "[SSNoir] web restore read/load {\"readDatumMs\":1,\"moduleLoadMs\":18}",
+    "[SSNoir] web restore stages {\"parseMs\":0,\"bootstrapMs\":184,\"worldLoadMs\":21,\"rematerializeMs\":27,\"totalMs\":232}"
+  ]
+}

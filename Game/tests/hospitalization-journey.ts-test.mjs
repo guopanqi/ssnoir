@@ -14,10 +14,9 @@ function scan(dir){
   }
 }
 scan("scripts");scan("scenes");
-const std=readFileSync("node_modules/lips/dist/std.xcb");
 
 test("rehearsal time tax can hospitalize a player without leaving a stuck scenario",async()=>{
-  const director=await GameSceneDirector.create(sources,std,()=>0.5);
+  const director=await GameSceneDirector.create(sources,()=>0.5);
   const day=director.state.getGlobal("世界日");
   director.state.team.require("player").composure=0;
   director.state.injury.restore({severity:6,part:"手",scars:[]});
@@ -41,7 +40,7 @@ test("rehearsal time tax can hospitalize a player without leaving a stuck scenar
 });
 
 test("hospitalization can advance an authored world day despite a mandatory rest blocker",async()=>{
-  const director=await GameSceneDirector.create(sources,std,()=>0.5);
+  const director=await GameSceneDirector.create(sources,()=>0.5);
   assert(director.state.hasRestBlockers(),"The first morning has a mandatory authored action");
   const original=director.state.getGlobal("世界日");
   director.state.applyInjury(7,()=>0.5);
@@ -61,7 +60,7 @@ test("invalid authored collapse policy is rejected without consuming the hospita
   ].join("\n");
   const director=await GameSceneDirector.create({
     ...sources,"scenes/scenarios/倒下策略非法.scm":badSource
-  },std,()=>0.5);
+  },()=>0.5);
   await director.start("倒下策略非法");
   director.state.applyInjury(7,()=>0.5);
   await assert.rejects(director.resolveHospitalization(),/invalid authored scenario collapse policy/);

@@ -91,3 +91,5 @@ __pycache__/
 # SSNoir TypeScript game generated distributions
 /Game/dist/
 /Game/artifacts/
+
+/Game/.generated/

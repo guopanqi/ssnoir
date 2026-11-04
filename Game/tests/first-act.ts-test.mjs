@@ -15,10 +15,9 @@ function scan(dir){
   }
 }
 scan("scripts");scan("scenes");
-const standard=readFileSync("node_modules/lips/dist/std.xcb");
 async function setup(){
  const state=new GameRuntimeState();
- const vm=await GameScriptSession.create("first-act-current",state,sources,standard);
+ const vm=await GameScriptSession.create("first-act-current",state,sources);
  await vm.loadFile("scenes/world/world.scm");
  return {state,vm};
 }

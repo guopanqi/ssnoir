@@ -9,9 +9,8 @@ function scan(p){for(const x of readdirSync(join(root,p),{withFileTypes:true})){
  if(x.isDirectory())scan(path);
  else if(path.endsWith(".scm"))sources[path]=readFileSync(join(root,path),"utf8");
 }}
-scan("scripts");scan("scenes");const std=readFileSync("node_modules/lips/dist/std.xcb");
-test("real blackmail scenario taxes one composure and executes ordered opponent rules before reroll",async()=>{
- const director=await GameSceneDirector.create(sources,std,()=>0.5);
+scan("scripts");scan("scenes");test("real blackmail scenario taxes one composure and executes ordered opponent rules before reroll",async()=>{
+ const director=await GameSceneDirector.create(sources,()=>0.5);
  await director.start("勒索信");
  const initial=director.state.team.composure("player");
  const report=await director.endRound();

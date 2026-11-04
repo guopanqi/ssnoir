@@ -1,5 +1,3 @@
-import compiledStdBase64 from "virtual:ssnoir-lips-stdlib";
-import { base64Bytes } from "./base64";
 import { GameScriptSession } from "./script-session";
 import { GameRuntimeState } from "./game-state";
 import { GameActionRunner } from "./action-runner";
@@ -50,8 +48,8 @@ export interface WorldHost {
 }
 export async function createWorldHostRuntime(random:()=>number=Math.random):Promise<WorldHost> {
   const bootstrapAt=performance.now();
-  const authored=sources(),stdlib=base64Bytes(compiledStdBase64);
-  let director=await GameSceneDirector.create(authored,stdlib,random);
+  const authored=sources();
+  let director=await GameSceneDirector.create(authored,random);
   // GameSceneDirector.create already materializes the initial world tree.
   let root=director.getPreparedRoot()??await director.render();
   console.info("[SSNoir] web world bootstrap",Math.round(performance.now()-bootstrapAt),"ms");
@@ -151,7 +149,7 @@ export async function createWorldHostRuntime(random:()=>number=Math.random):Prom
       const t0=performance.now();
       const snapshot=WorldSaveController.parse(text);
       const t1=performance.now();
-      const candidate=await GameSceneDirector.create(authored,stdlib,random,false);
+      const candidate=await GameSceneDirector.create(authored,random,false);
       const t2=performance.now();
       await WorldSaveController.restore(snapshot,async()=>({
         state:candidate.state,session:candidate.world

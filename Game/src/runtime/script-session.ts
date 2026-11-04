@@ -1,4 +1,4 @@
-import { LipsSession } from "../scheme/lips-session.ts";
+import { CompiledSession } from "../scheme/compiled-session.ts";
 import { GameRuntimeState } from "./game-state.ts";
 import { createNativeBridge } from "./native-bridge.ts";
 
@@ -13,11 +13,11 @@ export interface ScriptSources { [canonicalPath: string]: string }
 export class GameScriptSession {
   readonly name: string;
   readonly state: GameRuntimeState;
-  private readonly vm: LipsSession;
+  private readonly vm: CompiledSession;
   private readonly sources: ScriptSources;
   private readonly loading = new Set<string>();
 
-  private constructor(name: string, state: GameRuntimeState, vm: LipsSession, sources: ScriptSources) {
+  private constructor(name: string, state: GameRuntimeState, vm: CompiledSession, sources: ScriptSources) {
     this.name = name;
     this.state = state;
     this.vm = vm;
@@ -25,7 +25,7 @@ export class GameScriptSession {
   }
 
   static async create(
-    name: string, state: GameRuntimeState, sources: ScriptSources, lipsStandardLibrary: Uint8Array,
+    name: string, state: GameRuntimeState, sources: ScriptSources,
     extraGlobals:Record<string,(...args:unknown[])=>unknown>={},
     random:()=>number=Math.random
   ): Promise<GameScriptSession> {
@@ -38,23 +38,15 @@ export class GameScriptSession {
         if (args.length !== 1 || args[0] === null || args[0] === undefined) {
           throw new Error("load-file expects a single path string");
         }
-        // LIPS supplies a boxed Scheme string at the JavaScript native boundary.
         const path = String(args[0]);
         if (!path || path === "[object Object]") throw new Error("load-file expects a string path");
         return session.loadFile(path);
       }
     };
-    const vm = new LipsSession(name, globals);
+    const vm = new CompiledSession(name, globals);
     session = new GameScriptSession(name, state, vm, sources);
-    if (!lipsStandardLibrary.length) throw new Error("LIPS compiled standard library is required");
-    // Evaluate the pinned precompiled std.xcb in the shared parent environment.
-    // The compiled AST preserves reader syntax unavailable to cold std.scm.
-    // No runtime network or filesystem access on any host.
-    await vm.bootstrapStandardLibrary(lipsStandardLibrary);
     await session.loadFile("scripts/stdlib.scm");
-    vm.accelerateContentLookups();
     await session.loadFile("scripts/engine.scm");
-    vm.accelerateEngineKeywords();
     return session;
   }
 
@@ -73,25 +65,9 @@ export class GameScriptSession {
     if (this.loading.has(name)) throw new Error("Circular content load: " + [...this.loading, name].join(" -> "));
     this.loading.add(name);
     try {
-      const source = this.sources[name];
-      // C# Schemy load-file runs as a synchronous top-level Scheme statement.
-      // A JS async native call into another Interpreter.exec can break that
-      // sequential evaluation: definitions after the first dependency vanish.
-      // Execute literal, column-zero top-level loads in order from JS instead.
-      // Contents stay unchanged on disk, and nonliteral runtime load-file calls
-      // still use the registered native entry.
-      const topLevelLoad = /^\(load-file\s+"([^"\r\n]+)"\)\s*(?:;[^\r\n]*)?$/gm;
-      let start = 0;
-      let result: unknown;
-      for (const match of source.matchAll(topLevelLoad)) {
-        const prefix = source.slice(start, match.index);
-        if (prefix.trim()) result = await this.vm.evaluate(prefix);
-        await this.loadFile(match[1]);
-        start = match.index! + match[0].length;
-      }
-      const suffix = source.slice(start);
-      if (suffix.trim()) result = await this.vm.evaluate(suffix);
-      return result;
+      // The VM suspends for async load-file and keeps a separate execution
+      // stack for the dependency. Scheme itself owns order and side effects.
+      return await this.vm.evaluate(this.sources[name]);
     } catch (error) {
       throw new Error("Scheme load failed (" + name + "): " + String(error), { cause: error });
     } finally {
@@ -109,11 +85,6 @@ export class GameScriptSession {
       this.state.restore(snapshot);
       throw error;
     }
-  }
-
-  /** Diagnostic toggle for a same-VM original-vs-accelerated render comparison. */
-  setFastKeywordLookup(enabled:boolean):void {
-    this.vm.setFastKeywordLookup(enabled);
   }
 
   async evaluateNumber(code: string): Promise<number> {

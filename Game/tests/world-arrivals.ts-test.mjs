@@ -15,10 +15,9 @@ function scan(directory){
   }
 }
 scan("scripts");scan("scenes");
-const standard=readFileSync("node_modules/lips/dist/std.xcb");
 
 test("day-five world root arrival announces the farewell once without changing dice",async()=>{
-  const scene=await GameSceneDirector.create(sources,standard,()=>0.5);
+  const scene=await GameSceneDirector.create(sources,()=>0.5);
   const dice=scene.state.team.diceSnapshot();
   await scene.world.evaluate("(set! world-day 5) (set-global! '世界日 5)");
   const root=await scene.worldActions.enterPlace("世界");

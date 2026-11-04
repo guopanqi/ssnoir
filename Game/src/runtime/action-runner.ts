@@ -8,7 +8,7 @@ import { resolveFate, type RollOutcome } from "./fate-strip.ts";
 
 /**
  * Companion code for original Scheme-authored nodes. Functions and effect
- * closures stay in their originating LIPS VM; JavaScript never evals closures
+ * closures stay in their originating Scheme VM; JavaScript never evals closures
  * or tries to serialize live procedures.
  */
 const DISPATCH = `

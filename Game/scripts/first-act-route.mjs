@@ -425,7 +425,7 @@ try {
   assert.equal(state.error,"");
   const failedCase=state.dossiers.find(x=>x.id==="银色打火机");
   assert(failedCase && failedCase.status==="进行中" &&
-    /跟车|守候|明天/.test(failedCase.now),
+    /跟车|守候|等待黑衣人/.test(failedCase.now),
     "A failed chase must preserve an active, retryable investigation");
   await page.getByTestId("dossier-close").click({timeout:120000});
   await settled();

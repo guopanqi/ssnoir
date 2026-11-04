@@ -16,7 +16,6 @@ function scan(relative){
   }
 }
 scan("scripts");scan("scenes");
-const std=readFileSync("node_modules/lips/dist/std.xcb");
 
 test("restoring durable state discards abandoned action contexts, reports and story events",()=>{
   const state=new GameRuntimeState();
@@ -48,7 +47,7 @@ test("a failed scenario entrance rolls back native state AND pending lifecycle s
     "  (node \"失败进场\" :children (list (note-node \"回声\" \"错误\" \"不应出现\"))))"
   ].join("\n");
   const contents={...sources,"scenes/scenarios/失败进场.scm":failureFixture};
-  const director=await GameSceneDirector.create(contents,std,()=>0.5);
+  const director=await GameSceneDirector.create(contents,()=>0.5);
   const initial=director.state.snapshot();
   const dice=director.state.team.diceSnapshot();
   await assert.rejects(director.start("失败进场"),/进场故意失败/);
@@ -73,7 +72,7 @@ test("a failed scenario entrance rolls back native state AND pending lifecycle s
 
 
 test("scenario result callback can enqueue a second scenario without losing the world transition",async()=>{
-  const director=await GameSceneDirector.create(sources,std,()=>0.5);
+  const director=await GameSceneDirector.create(sources,()=>0.5);
   await director.world.evaluate(
     '(start-scenario "第一次彩排" (lambda (result) (start-scenario "最后一排的观众")))'
   );

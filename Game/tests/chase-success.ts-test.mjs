@@ -14,16 +14,15 @@ function scan(dir){
   }
 }
 scan("scripts");scan("scenes");
-const std=readFileSync("node_modules/lips/dist/std.xcb");
 
 test("five genuine high-success recognition rolls resolve the original car identification scenario",async()=>{
   // This deterministic controller test supplies a repeatable die/random stream,
   // but uses the unmodified authored scenario, its clocks and real slot costs.
-  const director=await GameSceneDirector.create(sources,std,()=>0.999);
+  const director=await GameSceneDirector.create(sources,()=>0.999);
   const originalDay=director.state.getGlobal("世界日");
   const originalDice=director.state.team.diceSnapshot();
   await director.world.evaluate(
-    "(start-scenario \"雨夜跟车（识别版）\" (lambda (result) (set-global! '跟车回调结果 result)))"
+    "(start-scenario \"雨夜跟车（识别版）\" (lambda (result) (set-global! '跟车回调结果 (symbol->string result))))"
   );
   await director.flush();
   assert.equal(director.mode,"scenario");

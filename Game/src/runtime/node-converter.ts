@@ -1,4 +1,4 @@
-import { unbox } from "lips";
+import { unbox } from "../scheme/values.ts";
 
 interface SchemePair { car: unknown; cdr: unknown }
 function isSchemePair(value: unknown): value is SchemePair {
@@ -9,7 +9,7 @@ function isEmptyList(value: unknown): boolean {
 }
 
 /**
- * Port of Engine/Runtime/Scripting/NodeConverter.cs for LIPS value objects.
+ * Port of Engine/Runtime/Scripting/NodeConverter.cs for Scheme value objects.
  * No presentation, random choices or effects run while materializing a node.
  */
 export interface ActionCost { type: "die" | "item"; itemId?: string; qty?: number }
@@ -87,7 +87,7 @@ function name(value: unknown, where: string): string {
   throw new Error(where + ": expected nonempty string");
 }
 function symbol(value: unknown): string {
-  // LIPS symbols have stable toString regardless of class-name minification.
+  // Scheme symbols have stable toString regardless of class-name minification.
   return String(value);
 }
 function optionalList(value: unknown, label: string): unknown[] {

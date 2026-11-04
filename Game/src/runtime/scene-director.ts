@@ -19,7 +19,6 @@ export class GameSceneDirector {
   scenario:GameScriptSession|null=null;
   scenarioActions:GameActionRunner|null=null;
   private readonly sources:ScriptSources;
-  private readonly std:Uint8Array;
   private readonly random:()=>number;
   private pendingStart:{name:string;callback:unknown}|null=null;
   private ended=false;
@@ -37,17 +36,17 @@ export class GameSceneDirector {
   private autoIndex=0;
 
   private constructor(state:GameRuntimeState,world:GameScriptSession,
-    actions:GameActionRunner,sources:ScriptSources,std:Uint8Array,random:()=>number){
+    actions:GameActionRunner,sources:ScriptSources,random:()=>number){
     this.state=state;this.world=world;this.worldActions=actions;
-    this.sources=sources;this.std=std;this.random=random;
+    this.sources=sources;this.random=random;
   }
 
-  static async create(sources:ScriptSources,std:Uint8Array,
+  static async create(sources:ScriptSources,
     random:()=>number=Math.random,
     prepareInitialRoot=true):Promise<GameSceneDirector> {
     const state=new GameRuntimeState();
     let self:GameSceneDirector|undefined;
-    const world=await GameScriptSession.create("ssnoir-world-director",state,sources,std,{
+    const world=await GameScriptSession.create("ssnoir-world-director",state,sources,{
       "start-scenario":(...args)=>{
         if(!self)throw new Error("scene director uninitialized");
         if(args.length<1)throw new Error("start-scenario requires name");
@@ -65,7 +64,7 @@ export class GameSceneDirector {
     },random);
     await world.loadFile("scenes/world/world.scm");
     const actions=await GameActionRunner.create(world,state,new ActionTurnState(random));
-    self=new GameSceneDirector(state,world,actions,sources,std,random);
+    self=new GameSceneDirector(state,world,actions,sources,random);
     // A save restore supplies its own native dice and immediately rebuilds the
     // authored tree after world-load!. Avoid a redundant initial materialization.
     if(prepareInitialRoot){
@@ -149,7 +148,7 @@ export class GameSceneDirector {
       this.supportUsed=false;
       this.ended=false;
       const scenario=await GameScriptSession.create(
-        "ssnoir-scenario-"+name,this.state,this.sources,this.std,{
+        "ssnoir-scenario-"+name,this.state,this.sources,{
         "end-scenario":(...args)=>{
           if(!this.scenario||this.ended)throw new Error("invalid end-scenario");
           if(this.state.hasPendingHospitalization())throw new Error("cannot end while collapsed");

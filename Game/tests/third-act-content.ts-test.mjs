@@ -17,12 +17,11 @@ function scan(dir) {
   }
 }
 scan("scripts"); scan("scenes");
-const std = readFileSync("node_modules/lips/dist/std.xcb");
 let sequence = 0;
 
 async function setup() {
   const state = new GameRuntimeState();
-  const vm = await GameScriptSession.create("third-act-" + (++sequence), state, sources, std);
+  const vm = await GameScriptSession.create("third-act-" + (++sequence), state, sources);
   await vm.loadFile("scenes/world/world.scm");
   await vm.evaluate("(第一幕 'load! (list (list \"opened\" #t) (list \"tavern\" #t) (list \"act\" 2) (list \"singer\" 2) (list \"rehearsal-seen\" #t)))");
   await vm.evaluate("(第二幕生活 'load! (list (list \"manager\" #t) (list \"manager-met-day\" 8)))");

@@ -10,9 +10,8 @@ const sources = {
   "scripts/engine.scm": file("scripts/engine.scm"),
   "scripts/theatre.scm": file("scripts/theatre.scm")
 };
-const standardLibrary = readFileSync("node_modules/lips/dist/std.xcb");
 const create = (name, state = new GameRuntimeState()) =>
-  GameScriptSession.create(name, state, sources, standardLibrary);
+  GameScriptSession.create(name, state, sources);
 
 test("stage 2 boots exact unedited engine.scm, its theatre library and stdlib.scm", async () => {
   const session = await create("phase2-boot");
@@ -89,7 +88,7 @@ test("script loader rejects path traversal and missing content instead of readin
 
 test("native random-choice uses the same injectable deterministic RNG as C# Fate outcomes",async()=>{
   const state=new GameRuntimeState();
-  const session=await GameScriptSession.create("random-parity",state,sources,standardLibrary,{},()=>0.75);
+  const session=await GameScriptSession.create("random-parity",state,sources,{},()=>0.75);
   assert.equal(String(await session.evaluate("(random-choice '(red green blue amber))")),"amber");
   const result=await session.evaluate("(random-choice '())");
   assert.equal(result,null);

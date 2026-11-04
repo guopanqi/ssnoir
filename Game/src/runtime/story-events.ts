@@ -1,4 +1,4 @@
-import { unbox } from "lips";
+import { unbox } from "../scheme/values.ts";
 import { schemeList } from "./node-converter.ts";
 
 /** Presentation intent, not rendered UI. Used by Web, Electron and both Mini Game hosts. */
