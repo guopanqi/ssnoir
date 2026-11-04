@@ -57,7 +57,14 @@ try{
     let s=await click(id);
     if(s.selectedAction===id){
       assert(s.dice.length>0,"Trial action must have its real available die");
-      await page.locator(".die:not([disabled])").first().click({timeout:90000});
+      // Successful corrections require thoughtful allocation, not whichever
+      // die happens to appear first in the HUD. Choose the best currently
+      // available player die, exactly as a human can do through the interface.
+      const options=s.dice.map((die,index)=>({...die,index}))
+        .filter(die=>die.actorId==="player");
+      assert(options.length>0,"Trial has no available player die");
+      const best=options.reduce((a,b)=>b.value>a.value?b:a);
+      await page.locator(".die:not([disabled])").nth(best.index).click({timeout:90000});
       await settled();await story();
       s=await read();
       assert.equal(s.error,"","Authoritative trial action failed");
