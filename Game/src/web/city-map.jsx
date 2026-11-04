@@ -25,9 +25,13 @@ function position(id,index) {
   const angle = index * 2.399963229728653;
   return [50 + 33*Math.cos(angle),50 + 30*Math.sin(angle)];
 }
-export function CityMap({places,activePlace=null,restReasons,onOpen,locked}) {
+export function CityMap({places,activePlace=null,restReasons,onOpen,onBackground,locked}) {
   const urgent=new Set(restReasons.map(reason => reason.location));
-  return <div className="city-map">
+  return <div className="city-map"
+    onClick={event=>{
+      if(event.target.closest(".map-location"))return;
+      if(!locked)onBackground?.();
+    }} title="点击地图空白处返回城市总览">
     <svg className="city-map-art" viewBox="0 0 1000 700" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
       <defs>
         <pattern id="blocks" width="83" height="71" patternUnits="userSpaceOnUse" patternTransform="rotate(-13)">
@@ -65,8 +69,9 @@ export function CityMap({places,activePlace=null,restReasons,onOpen,locked}) {
       return <button key={place.id} type="button"
         className={"map-location"+(place.disabled?" unavailable":"")+(urgent.has(place.id)?" urgent":"")+(activePlace===place.id?" is-current":"")}
         style={{left:x+"%",top:y+"%"}}
-        disabled={locked||place.disabled||Boolean(activePlace)}
-        onClick={()=>onOpen(place.id)}
+        disabled={locked||place.disabled}
+        aria-current={activePlace===place.id?"location":undefined}
+        onClick={event=>{event.stopPropagation();onOpen(place.id);}}
         data-testid="map-place" data-node-id={place.id}
         title={place.subtitle ? place.title+" — "+place.subtitle : place.title}>
         <span className="map-pin" aria-hidden="true"/>
