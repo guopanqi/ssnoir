@@ -389,6 +389,87 @@ try {
   assert.deepEqual(exceptions,[],"No browser error across the third-act scenario reset");
   console.log("PASS: missed vehicle -> day-fourteen manager case -> chase work -> safe restore of accepted investigation");
 
+  // The failed sponsor pursuit cannot permanently trap the manager case.
+  // Enter the genuine city chase again, spend no dice and allow its authored
+  // four-round warning clock OR the protagonist's cumulative injury to end it.
+  // The latter uses the existing scenario collapse -> clinic -> next-day
+  // world path; neither result may leave a zombie scenario or consume a save.
+  await node("剧院");
+  ({s:state}=await node("等待黑衣人"));
+  assert.equal(state.mode,"scenario","The saved case must be re-enterable");
+  const chaseFailureDialogue=[];
+  for(let round=1;round<=4 && state.mode==="scenario";round++){
+    await page.getByTestId("end-turn").click({timeout:120000});
+    await settled();
+    chaseFailureDialogue.push(...await story());
+    state=await read();
+    assert.equal(state.error,"","Failed chase transition or collapse at round "+round);
+    console.log("FAILED CHASE ROUND",round,JSON.stringify({
+      mode:state.mode,day:state.day,health:state.health,
+      composure:state.actors.find(x=>x.id==="player")?.composure
+    }));
+  }
+  assert.equal(state.mode,"world",
+    "Four rounds without identification must exit via authored scenario timeout or collapse");
+  assert([14,15].includes(state.day),
+    "The failed chase must not jump the world calendar more than one day");
+  if(state.day===15)
+    assert(chaseFailureDialogue.some(x=>x.includes("在诊所醒来")),
+      "Forced clinic wake-up must be visible and authored before resuming");
+  else
+    assert(chaseFailureDialogue.some(x=>x.includes("线索不足")),
+      "The normal timeout must announce insufficient identifying evidence");
+  await page.getByTestId("dossier-toggle").click({timeout:120000});
+  await settled();
+  state=await read();
+  assert.equal(state.error,"");
+  const failedCase=state.dossiers.find(x=>x.id==="银色打火机");
+  assert(failedCase && failedCase.status==="进行中" &&
+    /跟车|守候|明天/.test(failedCase.now),
+    "A failed chase must preserve an active, retryable investigation");
+  await page.getByTestId("dossier-close").click({timeout:120000});
+  await settled();
+  await page.screenshot({path:"artifacts/web-game-chase-failure.png"});
+
+  // The next legal day must reopen the actual chase. No debug clock
+  // increment, direct Scheme state edit, or local status substitution.
+  if(state.day===14) await endDay(14);
+  state=await read();
+  assert.equal(state.day,15);
+  await node("剧院");
+  state=await read();
+  assert(state.entries.some(x=>x.id==="等待黑衣人" && !x.disabled),
+    "The theatre must offer another genuine surveillance opportunity after failure");
+  ({s:state}=await node("等待黑衣人"));
+  assert.equal(state.mode,"scenario");
+  const retryDice=state.dice.length;
+  ({s:state}=await node("辨认车辆特征"));
+  assert.equal(state.selectedAction,"辨认车辆特征");
+  await page.locator(".die:not([disabled])").first().click({timeout:120000});
+  await settled();await story();
+  state=await read();
+  assert.equal(state.error,"","A new chase attempt must perform a genuine roll");
+  assert.equal(state.selectedAction,null);
+  assert.equal(state.dice.length,retryDice-1,
+    "An ordinary new attempt must spend a real scenario die");
+  await page.screenshot({path:"artifacts/web-game-chase-retry.png"});
+
+  // Even after a timeout or hospitalization and a fresh scenario start, the
+  // old day-fourteen city save must remain independently valid.
+  await page.getByTestId("load-game").click({timeout:180000});
+  await settled();await story();
+  state=await read();
+  assert.equal(state.error,"");
+  assert.equal(state.mode,"world");
+  assert.equal(state.day,14);
+  assert.deepEqual(state.dice,cityBeforeChase.dice);
+  assert.equal(state.money,cityBeforeChase.money);
+  assert(state.entries.some(x=>x.id==="剧院"));
+  assert.deepEqual(exceptions,[],
+    "A failed pursuit and a subsequent retry must leave no client errors");
+  console.log("PASS: genuine day-fourteen chase failure / clinic recovery -> day-fifteen retry -> new roll -> restore original city save");
+
+
 } finally {
   await browser?.close();
   await server.close();
