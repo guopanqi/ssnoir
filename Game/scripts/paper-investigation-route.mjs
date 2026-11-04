@@ -49,7 +49,8 @@ try{
   }
   async function perform(id){
     const prior=await read();
-    const node=prior.entries.find(x=>x.id===id&&!x.disabled);
+    const node=(prior.entries.find(x=>x.id===id&&!x.disabled)??
+      prior.displayCards.find(x=>x.id===id&&!x.disabled));
     assert(node,"Unopened native action "+id+" at "+JSON.stringify({
       day:prior.day,path:prior.path,entries:prior.entries.map(x=>[x.id,x.disabled])}));
     await page.locator('[data-testid="game-entry"][data-node-id='+JSON.stringify(id)+']')
@@ -244,6 +245,94 @@ try{
   assert.deepEqual(errors,[],"Both player outcomes must be browser-error-free");
   console.log("PASS: same authored save -> paid preparation -> five courier stages -> identified Koer -> earlier-paper investigation opens -> portable restore",JSON.stringify({
     initialDay,successfulTrailStart,finishedDay:view.day,remainingMoney:view.money}));
+
+  // Continue from the same accepted save through the entire original
+  // "11:07" paper archive. Its three stages only advance after opponent
+  // turns; the two different final evidence piles must BOTH be recovered.
+  // If already injured, a lawful clinic collapse is not a dead end: the
+  // authored case remains open, and the player may try again the next day.
+  let archiveComplete=false,archiveAttempts=0,archivePlayerTurns=0;
+  const paperClock=(v,label)=>{
+    const matches=v.displayCards.flatMap(x=>x.clocks).filter(c=>
+      c.label===label||c.displayLabel===label);
+    assert(matches.length===1,
+      "Every archive objective must expose one authoritative Clock "+label+
+      " "+JSON.stringify(v.displayCards.map(x=>[x.id,x.clocks.map(c=>c.label)])));
+    return matches[0];
+  };
+  for(let attempt=1;attempt<=3&&!archiveComplete;attempt++){
+    archiveAttempts=attempt;
+    view=await visit("报社");
+    assert(view.entries.some(x=>x.id==="下废稿间"),
+      "The journal's real archive entry must survive clinic recovery");
+    view=await perform("下废稿间");
+    assert.equal(view.mode,"scenario","The original basement must open in its own Scheme VM");
+    const entryDay=view.day;
+    for(let step=0;step<70&&view.mode==="scenario";step++){
+      const available=id=>view.displayCards.some(x=>x.id===id&&!x.disabled);
+      let goal=null,clockLabel=null;
+      if(available("按日期整理")){
+        goal="按日期整理";clockLabel="理清这批废稿";
+      }else if(available("核对收件章")){
+        const inbound=paperClock(view,"分清外来材料");
+        const outgoing=paperClock(view,"分清报社稿件");
+        goal=inbound.current<inbound.max?"核对收件章":"按稿号归档";
+        clockLabel=inbound.current<inbound.max?"分清外来材料":"分清报社稿件";
+        if(outgoing.current===outgoing.max&&inbound.current===inbound.max)goal=null;
+      }else if(available("查首演日收件章")){
+        const envelope=paperClock(view,"剧院酒店来件");
+        const proof=paperClock(view,"四号桌校样");
+        goal=envelope.current<envelope.max?"查首演日收件章":"寻找稿号四一七";
+        clockLabel=envelope.current<envelope.max?"剧院酒店来件":"四号桌校样";
+        if(envelope.current===envelope.max&&proof.current===proof.max)goal=null;
+      }
+      if(available("排列两件证据")){
+        view=await perform("排列两件证据");
+        archiveComplete=view.mode==="world";
+        break;
+      }
+      if(goal&&paperClock(view,clockLabel).current<paperClock(view,clockLabel).max&&
+          view.dice.length>0){
+        view=await perform(goal);
+      }else{
+        await page.getByTestId("end-turn").click({timeout:90000});
+        await settled();await story();
+        view=await read();
+        archivePlayerTurns++;
+      }
+      assert.equal(view.error,"","The original archive must never fail a normal action");
+    }
+    if(archiveComplete)break;
+    assert.equal(view.mode,"world",
+      "An incomplete injured attempt must exit via the authored clinic collapse");
+    assert.equal(view.day,entryDay+1,
+      "Only a genuine hospitalization may leave the archive without evidence");
+    const open=(await dossier()).find(x=>x.id==="查早报供稿人");
+    assert.equal(open?.status,"进行中",
+      "A collapsed investigation cannot fake a completed evidence chain");
+    console.log("ARCHIVE CLINIC RECOVERY",JSON.stringify({attempt,day:view.day,health:view.health}));
+  }
+  assert(archiveComplete,"The player must be able to finish the full archive after lawful recovery");
+  let earlyEvidence=(await dossier()).find(x=>x.id==="查早报供稿人");
+  assert.equal(earlyEvidence?.status,"了结",
+    "Both 11:07 and 11:35 papers must complete the real authored investigation");
+  assert(earlyEvidence.steps.every(x=>x.done),
+    "The journal should show a checked reporter ledger AND identified archive evidence");
+  assert.match(earlyEvidence.now,/早于|供稿人|已经证实|已证实/,
+    "The final dossier must distinguish evidence-before-letter from the anonymous source");
+  await page.getByTestId("save-game").click({timeout:90000});
+  await settled();
+  await page.getByTestId("load-game").click({timeout:90000});
+  await settled();await story();
+  const restored=(await dossier()).find(x=>x.id==="查早报供稿人");
+  assert.equal(restored?.status,"了结",
+    "Final paper findings must persist through an isolated fresh VM");
+  mkdirSync("artifacts",{recursive:true});
+  await page.screenshot({path:"artifacts/web-game-early-paper-evidence.png"});
+  assert.deepEqual(errors,[],"The full paper success path must not log browser errors");
+  console.log("PASS: genuine Koer route -> reporter ledger -> archive three stages -> 11:07 envelope and 11:35 proof -> authored evidence-before-letter close -> save/restore",
+    JSON.stringify({archiveAttempts,archivePlayerTurns,day:(await read()).day}));
+
 
 }finally{
   await browser?.close();await server.close();
