@@ -531,6 +531,13 @@ try{
   state=await read();
   assert(state.entries.some(x=>x.id==="开始试运行"&&!x.disabled),
     "The first test must remain at the dock regardless of Lin's authority");
+  // Genuine chapter-two trial fixture: only save the actual world before
+  // starting the authored Scenario, never inject outcomes or clocks.
+  await page.getByTestId("save-game").click({timeout:90000});
+  await settled();
+  const authenticTrialSave=await page.evaluate(()=>localStorage.getItem("ssnoir-web-v1"));
+  assert(authenticTrialSave,"Trial must be reproducible from a real world save");
+  writeFileSync("artifacts/web-game-lin-before-trial-save.json",authenticTrialSave,"utf8");
   state=await action("开始试运行");
   assert.equal(state.mode,"scenario");
   const trialDay=state.day;
