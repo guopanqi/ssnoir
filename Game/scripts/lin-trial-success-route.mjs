@@ -139,7 +139,12 @@ try{
         "Real evidence must not erase Lin's accessible workshop");
       s=await click("三号货栈工棚");
       assert.equal(s.error,"","Lin's moving-workshop arrival must remain playable");
-      s=await click("码头");
+      await page.locator('[data-testid="map-place"][data-node-id="码头"]')
+        .click({timeout:90000});
+      await settled();await story();
+      s=await read();
+      assert.deepEqual(s.path,["码头"],
+        "The same city day must allow a genuine map journey from Lin's workshop to the dock");
     }else if(!s.path.length)s=await click("码头");
     assert(s.entries.some(x=>x.id==="开始试运行"));
     s=await click("开始试运行");
