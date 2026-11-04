@@ -70,3 +70,25 @@ test("a failed scenario entrance rolls back native state AND pending lifecycle s
   assert.equal(director.mode,"world");
   assert.deepEqual(director.state.team.diceSnapshot(),dice);
 });
+
+
+test("scenario result callback can enqueue a second scenario without losing the world transition",async()=>{
+  const director=await GameSceneDirector.create(sources,std,()=>0.5);
+  await director.world.evaluate(
+    '(start-scenario "第一次彩排" (lambda (result) (start-scenario "最后一排的观众")))'
+  );
+  await director.flush();
+  assert.equal(director.mode,"scenario");
+  director.requestEnd("无交付");
+  await director.flush();
+  assert.equal(director.mode,"world",
+    "First scenario has completed before the queued new scenario starts");
+  // The world callback scheduled the next transition. It must survive cleanup
+  // of the finished scenario's dice, active interpreter and result closure.
+  await director.flush();
+  assert.equal(director.mode,"scenario");
+  assert.equal(director.getPreparedRoot()?.name,"最后一排的观众");
+  director.requestEnd("错失车辆");
+  await director.flush();
+  assert.equal(director.mode,"world");
+});

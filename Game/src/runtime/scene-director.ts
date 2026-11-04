@@ -81,7 +81,8 @@ export class GameSceneDirector {
    * that execute on the next world flush.
    */
   private clearScenarioLifecycle():void {
-    this.pendingStart=null;
+    // pendingStart belongs to the world transition queue, not the closing
+    // scenario: its result callback may legitimately request another scenario.
     this.scenario=null;
     this.scenarioActions=null;
     this.worldDice=null;
