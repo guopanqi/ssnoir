@@ -406,22 +406,60 @@ try{
     "The two-day wait must produce the original morning paper");
   state=await action("看早报");
   assert.equal(state.mode,"world");
+  // The previous six-round banquet and long cargo chase can leave wounds.
+  // Enter the pursuit as a legitimate prepared player: spend actual money
+  // and dice at the clinic rather than resetting or editing injury in a save.
+  console.log("COURIER PREP",JSON.stringify({
+    day:state.day,health:state.health,money:state.money,dice:state.dice.length
+  }));
+  let clinicVisits=0;
+  while(state.health>0&&state.money>=20&&clinicVisits<6){
+    assert(state.mapPlaces.some(x=>x.id==="诊所"),
+      "The native clinic must unlock when a character is injured");
+    if(state.dice.length===0)state=await sleep();
+    state=await cityPlace("诊所");
+    const beforeClinic={health:state.health,money:state.money,dice:state.dice.length};
+    state=await action("看医生");
+    assert.equal(state.health,Math.max(0,beforeClinic.health-2),
+      "Real clinic action heals exactly the authored two injury points");
+    assert.equal(state.money,beforeClinic.money-20,
+      "Real clinic action charges twenty dollars");
+    assert.equal(state.dice.length,beforeClinic.dice-1);
+    clinicVisits++;
+  }
+  console.log("COURIER PREPARED",JSON.stringify({
+    day:state.day,health:state.health,money:state.money,dice:state.dice.length,clinicVisits
+  }));
   state=await cityPlace("剧院");
   assert(state.entries.some(x=>x.id==="等取件人"&&!x.disabled),
     "The letter source must be pursued from the theater's back alley");
   state=await action("等取件人");
   assert.equal(state.mode,"scenario");
-  for(const [segment,successes] of [3,2,3,2,3].entries()){
-    const needed=[3,2,3,2,3][segment];
+  for(const [segment,needed] of [3,2,3,2,3].entries()){
+    console.log("COURIER SEGMENT",JSON.stringify({
+      segment,day:state.day,health:state.health,
+      dice:state.dice.length,clocks:state.clocks,
+      notes:state.entries.map(x=>x.id).filter(x=>x.startsWith("标注"))
+    }));
     for(let i=0;i<needed;i++){
       state=await action("跟紧");
+      console.log("COURIER ACTION",JSON.stringify({
+        segment,attempt:i+1,mode:state.mode,health:state.health,
+        dice:state.dice.length,result:state.lastAction?.result,
+        clocks:state.clocks,error:state.error
+      }));
       assert.equal(state.error,"");
       assert.equal(state.mode,"scenario",
-        "Reaching the progress clock cannot advance the segment before opponent time");
+        "Pursuit unexpectedly terminated during segment "+segment+
+        " action "+(i+1)+"; see genuine state above");
     }
     state=await nextRound();
+    console.log("COURIER ROUND",JSON.stringify({
+      segment,mode:state.mode,day:state.day,health:state.health,
+      clocks:state.clocks,error:state.error
+    }));
     if(segment<4)assert.equal(state.mode,"scenario",
-      "A tracked courier progresses through each of the five authored districts");
+      "A tracked courier must progress through five authored districts");
   }
   assert.equal(state.mode,"world",
     "Following through five segments must call the original Scheme callback");
