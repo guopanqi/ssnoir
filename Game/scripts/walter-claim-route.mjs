@@ -233,6 +233,30 @@ try{
     "The two lawful verdicts must have different authored journals");
   assert.notEqual(outcomes[0].pay,outcomes[1].pay,
     "Confirming vs sparing the claimant changes the actual paid work");
+  // Continue the genuine mercy-claim save instead of stopping at the verdict.
+  // Relationship advancement is earned through another real paid assignment:
+  // the first two good jobs should unlock Walter's blank expense form.
+  s=await state();
+  if(s.dice.length===0)s=await sleep();
+  s=await go("格兰德酒店");
+  const beforeAnotherJob=s.money;
+  s=await act("替沃尔特跑外勤");
+  assert(s.money>beforeAnotherJob,
+    "The second genuine fieldwork action must pay, rather than granting progress");
+  const patronage=(await dossiers()).find(x=>x.id==="跑沃尔特的外勤");
+  assert(patronage&&patronage.status==="进行中",
+    "Walter's expense-form relationship is a separate visible active dossier");
+  assert(patronage.steps[0]?.done,
+    "The original relationship threshold must award the blank expense form");
+  assert(patronage.log.some(x=>x.text.includes("空白的报销单")),
+    "The authored Walter dialogue/journal must explain the new reimbursement privilege");
+  const patronageSave=await save();
+  s=await load(patronageSave);
+  const restoredPatronage=(await dossiers()).find(x=>x.id==="跑沃尔特的外勤");
+  assert.deepEqual(restoredPatronage,patronage,
+    "Relationship milestone and logs must survive isolated VM restore");
+  writeFileSync("artifacts/web-game-walter-reimbursement-save.json",patronageSave,"utf8");
+  console.log("PASS: genuine Walter mercy verdict -> two real paid assignments -> blank expense form -> restored character dossier");
   assert.deepEqual(errors,[],"No console/page errors along either Walter route");
   await page.screenshot({path:"artifacts/web-game-walter-claim.png"});
   console.log("PASS: authentic banquet Walter relationship -> delayed hotel meeting -> "+
