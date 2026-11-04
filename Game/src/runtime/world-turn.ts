@@ -17,10 +17,11 @@ export class WorldTurnController {
   readonly state:GameRuntimeState;
   readonly world:GameScriptSession;
   constructor(state:GameRuntimeState,world:GameScriptSession) {this.state=state;this.world=world;}
-  async endDay(random:()=>number=Math.random):Promise<DayAdvance>{
+  async endDay(random:()=>number=Math.random,forcedHospitalization=false):Promise<DayAdvance>{
     if(this.inTransition)throw new Error("world turn already transitioning");
     if(this.state.getGlobal("location")!=="world")throw new Error("world turn cannot end inside scenario");
-    if(this.state.hasRestBlockers())throw new Error("unfinished mandatory rest blockers");
+    if(this.state.hasRestBlockers()&&!forcedHospitalization)
+      throw new Error("unfinished mandatory rest blockers");
     if(this.state.hasPendingHospitalization())throw new Error("hospitalization must be settled first");
     const before=this.state.getGlobal("世界日");
     if(typeof before!=="number"||!Number.isSafeInteger(before)||before<1)throw new Error("invalid world day");

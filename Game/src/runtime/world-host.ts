@@ -104,11 +104,14 @@ export async function createWorldHostRuntime(random:()=>number=Math.random):Prom
     },
     takeDayAdvance(){const advance=lastDayAdvance;lastDayAdvance=null;return advance;},
     async refresh(){
-      const woke=director.consumeWorldTurnRequest();
-      if(woke)
+      const hospitalized=director.state.hasPendingHospitalization();
+      const woke=!hospitalized&&director.consumeWorldTurnRequest();
+      if(hospitalized)
+        lastDayAdvance=await director.resolveHospitalization();
+      else if(woke)
         lastDayAdvance=await new WorldTurnController(director.state,director.world).endDay(random);
       await director.flush();
-      if(woke&&director.mode==="world"){
+      if((woke||hospitalized)&&director.mode==="world"){
         // Natural waking is a world-map arrival, not merely a render refresh.
         // One-shot authored notices must be delivered before the player acts.
         await director.worldActions.enterPlace("世界");

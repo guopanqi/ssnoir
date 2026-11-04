@@ -4,6 +4,7 @@ import {GameActionRunner} from "./action-runner.ts";
 import {ActionTurnState} from "./turn-state.ts";
 import {schemeList,type RuntimeNode} from "./node-converter.ts";
 import {storyArguments} from "./story-events.ts";
+import {WorldTurnController,type DayAdvance} from "./world-turn.ts";
 
 /**
  * One state, two isolated Scheme interpreters; original C# SceneManager
@@ -238,7 +239,7 @@ export class GameSceneDirector {
         if(overflow>0)this.state.applyInjury(overflow);
         this.state.takeActionReport();capture("time-tax");
       }catch(error){this.state.cancelActionReport();throw error;}
-      if(this.state.hasPendingHospitalization())throw new Error("hospitalization must resolve before opponent rules");
+      if(this.state.hasPendingHospitalization())return frames;
       await this.scenario.evaluate("(__begin-opponent-rules!)");
       for(let step=0;step<1024;step++){
         if(this.ended||!this.scenario)break;
@@ -249,7 +250,7 @@ export class GameSceneDirector {
           await this.scenario.evaluate("(__run-next-opponent-rule!)");
           this.state.takeActionReport();capture("opponent-rule");
         }catch(error){this.state.cancelActionReport();throw error;}
-        if(this.state.hasPendingHospitalization())throw new Error("hospitalization must resolve before next rule");
+        if(this.state.hasPendingHospitalization())return frames;
         await this.scenarioActions.prepare();
         if(step===1023)throw new Error("opponent rules exceed 1024");
       }
@@ -275,6 +276,7 @@ export class GameSceneDirector {
           this.state.takeActionReport();
           capture("forced-action");
         }catch(error){this.state.cancelActionReport();throw error;}
+        if(this.state.hasPendingHospitalization())return frames;
         if(this.ended){await this.flush();break;}
       }
       if(this.scenarioActions&&this.scenario)await this.scenarioActions.prepare();
@@ -284,14 +286,51 @@ export class GameSceneDirector {
     }
   }
 
+  /**
+   * A collapsed player cannot be left inside a Scene with a pending hospital
+   * event: that state would reject every subsequent action and end-of-round.
+   * Honor the authored collapse-result/retry policy, cancel stored city dice,
+   * and force the normal Scheme calendar to the next day. This path is never
+   * available as a UI command to skip ordinary rest obligations.
+   */
+  async resolveHospitalization():Promise<DayAdvance|null>{
+    if(!this.state.hasPendingHospitalization())return null;
+    const earlier=this.state.takeStoryEvents();
+    if(this.scenario){
+      const policy=schemeList(await this.scenario.evaluate("(on-scenario-collapse)"),
+        "scenario collapse policy");
+      const kind=String(policy[0]??"");
+      if(kind==="collapse-result"&&policy.length===2){
+        await this.finish(policy[1],false);
+      }else if(kind==="collapse-retry"&&policy.length===1){
+        this.state.team.dismissTemporary();
+        this.state.setGlobal("location","world");
+        this.clearScenarioLifecycle();
+        await this.worldActions.prepare();
+      }else throw new Error("invalid authored scenario collapse policy");
+      if(this.scenario||this.pendingStart)
+        throw new Error("hospitalization must return to the city without starting another scenario");
+    }
+    const callbackStory=this.state.takeStoryEvents();
+    const hospital=this.state.consumeHospitalization();
+    // The collapse happens before the scene result callback in the story,
+    // then the new day and clinic bill are shown before that callback's talk.
+    const heading={kind:"spotlight" as const,blocking:true,immediate:false,
+      args:["你倒下了","身体再也撑不住了。眼前的街灯和人影渐渐模糊，你失去了意识。"]};
+    const waking={kind:"spotlight" as const,blocking:true,immediate:false,
+      args:["在诊所醒来","已经是第二天了。伤口经过处理，身体恢复了，但这次倒下留下了疤痕。\n"+hospital.message]};
+    const advance=await new WorldTurnController(this.state,this.world).endDay(this.random,true);
+    return {...advance,events:[...earlier,heading,waking,...callbackStory,...advance.events]};
+  }
+
   requestEnd(result:unknown=false):void {
     if(!this.scenario||this.ended)throw new Error("no active scenario to end");
     this.ended=true;this.endValue=result;
   }
-  private async finish(result:unknown):Promise<void>{
+  private async finish(result:unknown,restoreCityDice=true):Promise<void>{
     if(!this.scenario||!this.worldDice)throw new Error("no scenario to end");
     this.state.team.dismissTemporary();
-    this.state.team.restoreDice(this.worldDice);
+    if(restoreCityDice)this.state.team.restoreDice(this.worldDice);
     this.state.setGlobal("location","world");
     this.scenario=null;this.scenarioActions=null;this.worldDice=null;
     if(this.callback!==false&&this.callback!==undefined&&this.callback!==null){

@@ -302,14 +302,17 @@ export class WebGameSession {
       const before=this.host.state.snapshot();
       const frames = await this.host.director.endRound();
       await this.host.refresh();
+      const advance=this.host.takeDayAdvance();
       const after=this.host.state.snapshot();
       // Enemy-round consequences are real state deltas; do not infer them
       // from story captions or add a separate UI-side gameplay rule.
-      this.lastAction=summarizeAction({
+      this.lastAction=advance?null:summarizeAction({
         name:"交锋回合",mode:"instant",before,after,clockEffects:[]
       },"回合结算",0);
-      this.message = "交锋进入下一回合";
-      this.feed([...frames.flatMap(x => x.events), ...this.host.state.takeStoryEvents()]);
+      this.message = advance?("第 "+advance.after+" 日 · 在诊所醒来"):
+        "交锋进入下一回合";
+      this.feed([...frames.flatMap(x => x.events),...(advance?.events??[]),
+        ...this.host.state.takeStoryEvents()]);
       this.path = [];
     });
   }
