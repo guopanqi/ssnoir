@@ -11,7 +11,7 @@
     "build:web": "vite build --outDir dist/web",
     "build:wechat": "vite build --config vite.wechat.config.ts && node --check dist/wechat/game.js && node scripts/package-wechat.mjs",
     "start:desktop": "electron .",
-    "verify": "npm run typecheck && npm test && npm run build:web",
+    "verify": "npm run typecheck && npm run test:web && npm run build:web",
     "capture": "node scripts/capture.mjs",
     "smoke:desktop": "node scripts/smoke-desktop.mjs",
     "smoke:wechat-harness": "node scripts/smoke-wechat-harness.mjs",
@@ -21,7 +21,8 @@
     "smoke:wechat-offscreen-throws": "SSNOIR_WX_CANVAS_MODE=throws npm run smoke:wechat-harness",
     "smoke:taptap-no-offscreen": "SSNOIR_WX_CANVAS_MODE=missing npm run smoke:taptap-harness",
     "smoke:web": "node scripts/smoke-web.mjs",
-    "capture:web": "node scripts/smoke-web.mjs"
+    "capture:web": "node scripts/smoke-web.mjs",
+    "test:web": "node --experimental-strip-types --test tests/web-session.ts-test.mjs tests/first-act.ts-test.mjs"
   },
   "dependencies": {
     "biwascheme": "0.8.3",

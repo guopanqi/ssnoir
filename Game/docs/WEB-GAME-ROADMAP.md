@@ -61,6 +61,16 @@ Runtime 对前端提供状态和命令；Three.js 不负责决定游戏状态，
 - 聚焦反复出现的实际痛点，逐项调整视觉、行动、反馈与内容组织。
 - 浏览器正式可玩构建、自动化核心路线及手工完整游玩均通过。
 
+## 已识别的跨语言语义缺口（非 P1 验收）
+
+旧全量 `npm test` 的 `native-contract.test.mjs` 检查目前失败：
+C# 新增 `__bubble-restore-composure`，TypeScript 的 NativeBridge 没有对应实现。
+该能力的 C# 语义是在气泡台词真正展示时恢复冷静，不是在脚本读取时立即恢复；
+禁止只补一个空壳注册来欺骗测试。P2 需要连同气泡播放生命周期正确实现。
+
+P1 的 `npm run test:web` 仅检查 WebSession 和当前第一幕基础内容，
+不声称跨语言完整 parity。旧 `npm test` 保留为未消除的兼容性诊断。
+
 ## P1 明确不做
 - 不调整任何 .scm 剧情/规则。
 - 不为微信/TapTap/Electron 解决平台问题。
