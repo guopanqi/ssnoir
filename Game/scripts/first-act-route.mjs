@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import {mkdirSync} from "node:fs";
+import {mkdirSync,writeFileSync} from "node:fs";
 import {chromium} from "playwright";
 import {createServer} from "vite";
 
@@ -342,6 +342,8 @@ try {
   // candidate interpreter is discarded, while the current chase remains
   // playable with its original dice, nodes and clocks.
   const goodDay14Save=await page.evaluate(()=>localStorage.getItem("ssnoir-web-v1"));
+  writeFileSync("artifacts/web-game-day14-save.json",goodDay14Save,
+    "utf8"); // Real chapter progress, never a hand-authored save fixture.
   assert(goodDay14Save,"The accepted city investigation must have a valid save");
   const beforeRejectedLoad=await read();
   await page.evaluate(saved=>{

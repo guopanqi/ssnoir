@@ -82,7 +82,10 @@ function App() {
     let unlisten = null;
     const boot = async () => {
       const nextSeed = randomSeed();
-      const host = await createWorldHostRuntime(seededRandom(nextSeed));
+      // Gameplay Lab fixture: deterministic input, never present in the production build.
+      const fixture = import.meta.env.DEV &&
+        new URLSearchParams(location.search).get("fixture") === "max-roll";
+      const host = await createWorldHostRuntime(fixture ? () => 0.999 : seededRandom(nextSeed));
       if (disposed) return;
       const game = new WebGameSession(host);
       unlisten = game.subscribe(() => setState(game.getSnapshot()));
