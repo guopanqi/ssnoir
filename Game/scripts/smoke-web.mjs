@@ -15,7 +15,7 @@ try {
   page.on("pageerror",error=>errors.push("pageerror: "+String(error)));
   page.on("console",msg=>{
     if(msg.type()==="error")errors.push("console: "+msg.text());
-    if(msg.text().startsWith("[SSNoir] web "))
+    if(msg.text().startsWith("[SSNoir] web ") || msg.text().startsWith("[SSNoir] enter place"))
       console.log("BROWSER: "+msg.text());
   });
   const read=()=>page.evaluate(()=>window.__SSNOIR_WEB__.snapshot());

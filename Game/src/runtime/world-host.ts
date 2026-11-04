@@ -134,8 +134,16 @@ export async function createWorldHostRuntime(random:()=>number=Math.random):Prom
     },
     async save(){
       if(director.mode!=="world")throw new Error("cannot save inside a scenario");
+      const started=performance.now();
       const data=await new WorldSaveController(director.state,director.world).capture();
-      return WorldSaveController.encode(data);
+      const captured=performance.now();
+      const text=WorldSaveController.encode(data);
+      console.info("[SSNoir] web save stages",JSON.stringify({
+        captureMs:Math.round(captured-started),
+        encodeMs:Math.round(performance.now()-captured),
+        bytes:text.length
+      }));
+      return text;
     },
     async load(text:string){
       // Do not swap the active world until the fresh interpreter and every

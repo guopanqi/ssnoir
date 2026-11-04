@@ -42,3 +42,14 @@ test("fast get-kwarg is equivalent to authored Scheme for missing, duplicate and
   assert.equal(String(await vm.evaluate('(get-kwarg test-kwargs :b #f)')),"9",
     "keyword lookups must read live mutable Scheme lists");
 });
+
+
+test("bundled Scenario paths accept authored Unicode punctuation but never traversal",async()=>{
+  const virtualSources={...sources,
+    "scenes/scenarios/雨夜跟车（识别版）.scm":'(define __unicode_scenario_path_test 17)'};
+  const vm=await GameScriptSession.create("unicode-content-path",
+    new GameRuntimeState(),virtualSources,std);
+  await vm.loadFile("scenes/scenarios/雨夜跟车（识别版）.scm");
+  assert.equal(await vm.evaluateNumber("__unicode_scenario_path_test"),17);
+  await assert.rejects(vm.loadFile("scenes/../world/world.scm"),/Invalid content script path/);
+});

@@ -60,7 +60,7 @@ export class GameScriptSession {
 
   private static canonicalPath(path: string): string {
     const normalized = path.startsWith("scripts/") || path.startsWith("scenes/") ? path : "scenes/" + path;
-    if (!/^(scripts|scenes)\/[\w\p{L}\p{N}\/.-]+\.scm$/u.test(normalized) ||
+    if (!/^(scripts|scenes)\/[\w\p{L}\p{N}\p{P}\/.-]+\.scm$/u.test(normalized) ||
         normalized.split("/").some(part => part === ".." || part === ".")) {
       throw new Error("Invalid content script path: " + path);
     }
