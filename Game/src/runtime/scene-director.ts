@@ -42,7 +42,8 @@ export class GameSceneDirector {
   }
 
   static async create(sources:ScriptSources,std:Uint8Array,
-    random:()=>number=Math.random):Promise<GameSceneDirector> {
+    random:()=>number=Math.random,
+    prepareInitialRoot=true):Promise<GameSceneDirector> {
     const state=new GameRuntimeState();
     let self:GameSceneDirector|undefined;
     const world=await GameScriptSession.create("ssnoir-world-director",state,sources,std,{
@@ -64,8 +65,12 @@ export class GameSceneDirector {
     await world.loadFile("scenes/world/world.scm");
     const actions=await GameActionRunner.create(world,state,new ActionTurnState(random));
     self=new GameSceneDirector(state,world,actions,sources,std,random);
-    state.team.rollDice(random,false,true,state.injury.actionSlotLoss);
-    await actions.prepare();
+    // A save restore supplies its own native dice and immediately rebuilds the
+    // authored tree after world-load!. Avoid a redundant initial materialization.
+    if(prepareInitialRoot){
+      state.team.rollDice(random,false,true,state.injury.actionSlotLoss);
+      await actions.prepare();
+    }
     return self;
   }
 

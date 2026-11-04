@@ -129,7 +129,7 @@ export async function createWorldHostRuntime(random:()=>number=Math.random):Prom
       const t0=performance.now();
       const snapshot=WorldSaveController.parse(text);
       const t1=performance.now();
-      const candidate=await GameSceneDirector.create(authored,stdlib,random);
+      const candidate=await GameSceneDirector.create(authored,stdlib,random,false);
       const t2=performance.now();
       await WorldSaveController.restore(snapshot,async()=>({
         state:candidate.state,session:candidate.world
