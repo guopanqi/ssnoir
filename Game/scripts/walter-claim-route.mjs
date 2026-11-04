@@ -124,6 +124,7 @@ try{
   assert(s.entries.some(x=>x.id==="陪他喝一杯"&&!x.disabled),
     "Walter must be a real second-half social card");
   let rolls=0;
+  const decisions=[];
   for(let turn=4;turn<=6;turn++){
     for(let n=0;n<8;n++){
       s=await state();
@@ -131,14 +132,22 @@ try{
       if(!card||card.disabled||s.dice.length===0)break;
       s=await act("陪他喝一杯");
       rolls++;
+      const clock=s.entries.find(x=>x.id==="陪他喝一杯")?.clocks?.[0];
+      decisions.push({turn,outcome:s.lastAction?.result,dice:s.dice.length,
+        clock,disabled:s.entries.find(x=>x.id==="陪他喝一杯")?.disabled});
     }
     s=await round();
   }
   assert.equal(s.mode,"world");
   assert(rolls>=3,"The six-point Walter connection costs real action dice");
-  const pending=(await dossiers()).find(x=>x.id==="陪沃尔特验货");
+  const allDossiers=await dossiers();
+  const pending=allDossiers.find(x=>x.id==="陪沃尔特验货");
+  console.log("WALTER BANQUET TRACE",JSON.stringify({rolls,decisions,
+    dossiers:allDossiers.map(x=>({id:x.id,status:x.status})),
+    finalStory:stories.slice(-12)}));
   assert.equal(pending?.status,"进行中",
-    "Walter must be remembered by the authored city callback");
+    "Walter must be remembered by the authored city callback: "+JSON.stringify({rolls,decisions,
+      dossierIds:allDossiers.map(x=>x.id)}));
   const banquetDay=s.day;
   // Day four has a required Nightingale newspaper event; avoid skipping it.
   s=await sleep();
