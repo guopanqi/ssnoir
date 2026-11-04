@@ -31,6 +31,7 @@ on:
       - 'experiments/抽象决策关系研究/批次/2026-10-13-目标生成与生产性发现/试玩.html'
       - 'tools/content-validator/experiments/test_productive_discovery_prototype.js'
       - 'Game/**'
+      - 'UnityClient/Assets/Resources/Content/**'
 permissions:
   contents: read
   pages: write
