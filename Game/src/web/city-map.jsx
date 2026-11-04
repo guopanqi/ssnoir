@@ -25,7 +25,8 @@ function position(id,index) {
   const angle = index * 2.399963229728653;
   return [50 + 33*Math.cos(angle),50 + 30*Math.sin(angle)];
 }
-export function CityMap({places,onOpen,locked}) {
+export function CityMap({places,restReasons,onOpen,locked}) {
+  const urgent=new Set(restReasons.map(reason => reason.location));
   return <div className="city-map">
     <svg className="city-map-art" viewBox="0 0 1000 700" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
       <defs>
@@ -62,7 +63,7 @@ export function CityMap({places,onOpen,locked}) {
     {places.map((place,index)=>{
       const [x,y]=position(place.id,index);
       return <button key={place.id} type="button"
-        className={"map-location"+(place.disabled?" unavailable":"")}
+        className={"map-location"+(place.disabled?" unavailable":"")+(urgent.has(place.id)?" urgent":"")}
         style={{left:x+"%",top:y+"%"}}
         disabled={locked||place.disabled}
         onClick={()=>onOpen(place.id)}

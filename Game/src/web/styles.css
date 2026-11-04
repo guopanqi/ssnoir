@@ -118,3 +118,11 @@
  .sidebar .hud-events{grid-column:1/-1}
  .hud-inventory .inventory-items{grid-template-columns:1fr}
 }
+
+/* Current authored must-do visits; this reads rest-blocker location data only. */
+.map-location.urgent .map-pin{border-color:#f8c983;box-shadow:0 0 0 5px #a85c3266,0 0 22px #f8ba6a99}
+.map-location.urgent .map-location-name{border-color:#d8a36b;color:#ffdfaf}
+.map-location.urgent .map-location-name:before{content:"●";font-size:8px;color:#f5a25f;margin-right:5px}
+@media(prefers-reduced-motion:reduce){
+  .map-location{transition:none}
+}

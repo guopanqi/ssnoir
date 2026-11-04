@@ -89,14 +89,16 @@ function App() {
       setSession(game);
       setState(game.getSnapshot());
       setSeed(nextSeed);
-      if (import.meta.env.DEV) {
-        window.__SSNOIR_WEB__ = {
-          snapshot: () => game.getSnapshot(),
-          open: id => game.open(id),
-          endTurn: () => game.endTurn(),
-          seed: nextSeed
-        };
-      }
+      // Production acceptance reads the current, displayed projection only.
+      // Never expose native hosts, Scheme handles, or mutation commands on Pages.
+      window.__SSNOIR_WEB__ = import.meta.env.DEV ? {
+        snapshot: () => game.getSnapshot(),
+        open: id => game.open(id),
+        endTurn: () => game.endTurn(),
+        seed: nextSeed
+      } : Object.freeze({
+        snapshot: () => structuredClone(game.getSnapshot())
+      });
     };
     boot().catch(error => { if (!disposed) setFatal(String(error?.stack || error)); });
     return () => { disposed = true; unlisten?.(); delete window.__SSNOIR_WEB__; };
@@ -139,7 +141,7 @@ function App() {
     <main className="workspace">
       <section className="scene-panel" aria-label="城市舞台">
         {state.mode === "world" && state.path.length === 0 ?
-          <CityMap places={state.entries.filter(entry=>entry.isPlace)} locked={navigationLocked}
+          <CityMap places={state.entries.filter(entry=>entry.isPlace)} restReasons={state.restReasons} locked={navigationLocked}
             onOpen={id=>session.open(id)}/> : <CityScene />}
         <div className="scene-label">
           <div className="eyebrow">{state.mode === "world" ? "THE CITY" : "ENCOUNTER"}</div>

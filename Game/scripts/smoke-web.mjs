@@ -57,6 +57,26 @@ try {
   assert.equal(initial.day,1);
   assert(initial.entries.some(x=>x.id==="家"&&x.isPlace),"Original city must contain the hotel");
   assert(initial.restBlocked,"The authored first-morning event must block resting");
+  const worldPlaces=initial.entries.filter(x=>x.isPlace);
+  assert.equal(await page.getByTestId("map-place").count(),worldPlaces.length,
+    "Map pins must be exactly the authored current locations");
+  const mapPin=page.locator('[data-testid="map-place"][data-node-id="家"]');
+  assert(await mapPin.isVisible(),"The actual hotel must be visible on the board");
+  assert(await mapPin.evaluate(el=>el.classList.contains("urgent")),
+    "The required first-morning visit is visibly marked on the map");
+  const diceLayout=await page.locator(".hud-dice").boundingBox();
+  const mapLayout=await page.locator(".city-map").boundingBox();
+  const inventoryLayout=await page.locator(".hud-inventory").boundingBox();
+  assert(diceLayout&&mapLayout&&inventoryLayout);
+  assert(diceLayout.y>=mapLayout.y+mapLayout.height-3,
+    "Dice should be docked below the city surface");
+  assert(inventoryLayout.x>diceLayout.x,
+    "Inventory belongs at the right side of the resource HUD");
+  assert.deepEqual(
+    await page.locator(".hud-inventory .inventory-item").allTextContents(),
+    initial.inventory.map(item=>item.id+"× "+item.quantity),
+    "The inventory HUD must reflect native item quantities");
+
   await page.screenshot({path:"artifacts/web-game-city.png"});
   let state=await clickNode("家");
   assert.deepEqual(state.path,["家"]);
@@ -102,6 +122,13 @@ try {
   assert.equal(state.error,"","Tavern work must be resolved by the original Scheme runtime");
   assert.equal(state.selectedAction,null);
   assert.equal(state.dice.length,oldDice-1,"One player die must be spent");
+  assert.equal(await page.locator(".hud-dice .die").count(),state.dice.length,
+    "Action HUD must remove the spent native slot");
+  assert.deepEqual(
+    await page.locator(".hud-inventory .inventory-item").allTextContents(),
+    state.inventory.map(item=>item.id+"× "+item.quantity),
+    "Inventory HUD must update after a genuine Scheme action");
+
   assert(state.money>=oldMoney,"Original first tavern job cannot remove cash");
   assert.equal(state.lastAction?.title,"看场子","Action consequence card must identify the authored action");
   assert(["成功","一般","失败"].includes(state.lastAction?.result),"Action outcome must be localized");
