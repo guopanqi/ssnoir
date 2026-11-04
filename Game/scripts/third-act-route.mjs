@@ -192,8 +192,33 @@ try{
   await settled();
   mkdirSync("artifacts",{recursive:true});
   await page.screenshot({path:"artifacts/web-game-rocco-resolved.png"});
+  // The first chapter must lead into chapter two by regular authored actions,
+  // not by calling the debugging preset or editing the calendar.
+  await page.getByTestId("back").click({timeout:90000});
+  await settled();await story();
+  assert.deepEqual((await read()).path,[]);
+  state=await node("剧院");
+  assert(state.entries.some(x=>x.id==="和夜莺去河边"&&!x.disabled),
+    "The manager report must lead to the original Nightingale invitation");
+  state=await action("和夜莺去河边");
+  assert.equal(state.mode,"world");
+  assert(!state.mapPlaces.some(x=>x.id==="格兰德酒店"),
+    "Chapter two must not start before the next authored world day");
+  const firstChapterFinalDay=state.day;
+  state=await sleep();
+  assert.equal(state.day,firstChapterFinalDay+1);
+  assert(state.mapPlaces.some(x=>x.id==="格兰德酒店"),
+    "A natural sleep after completing chapter one must unlock chapter-two locations");
+  await page.getByTestId("dossier-toggle").click({timeout:90000});
+  await settled();
+  state=await read();
+  assert(state.dossiers.some(x=>x.id==="格兰德酒店晚宴"&&x.primary),
+    "Chapter-two opening must expose its real banquet dossier");
+  await page.getByTestId("dossier-close").click({timeout:90000});
+  await settled();
+  await page.screenshot({path:"artifacts/web-game-natural-chapter2.png"});
   assert.deepEqual(errors,[],"No browser errors in the native third-act success route");
-  console.log("PASS: real day-14 save -> five original recognition rolls -> manager verification -> night -> cargo archives -> Rocco agreement -> manager report -> authored dossier closed");
+  console.log("PASS: real day-14 save -> original Rocco case -> manager report -> Nightingale river invitation -> natural next-day chapter-two opening");
 }finally{
   await browser?.close();await server.close();
 }
