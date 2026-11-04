@@ -496,6 +496,91 @@ try{
   assert.deepEqual(errors,[],"Both endings and the next world day must be browser-error-free");
   console.log("PASS: saved machine day -> intervene vs stand aside -> distinct consequences / saves -> playable following day",
     JSON.stringify({intervention,interventionResult,withInterventionText,noInterventionText}));
+  // First uncovered chapter-two supporting-character path. The mechanic's
+  // trial is optional, but its outcome must own a durable training window.
+  // Reuse the genuine fourth-day save; only normal rest and the player's
+  // actual map/actions advance the world. The deliberately failed trial
+  // resolves via its own three simultaneous anomaly clocks.
+  await page.evaluate(text=>localStorage.setItem("ssnoir-web-v1",text),publishedDaySave);
+  await page.getByTestId("load-game").click({timeout:90000});
+  await settled();await story();
+  state=await read();
+  assert.equal(state.day,chapterTwoStart+3);
+  for(let i=4;i<=8;i++){
+    state=await sleep();
+    assert.equal(state.day,chapterTwoStart+i);
+  }
+  assert(state.mapPlaces.some(x=>x.id==="三号货栈工棚"),
+    "A newly published harbor plan must leave the real Lin workshop visit available");
+  state=await node("三号货栈工棚");
+  assert.equal(state.error,"");
+  const dossierInfo=async()=>{
+    await page.getByTestId("dossier-toggle").click({timeout:90000});
+    await settled();
+    const records=(await read()).dossiers;
+    await page.getByTestId("dossier-close").click({timeout:90000});
+    await settled();
+    return records.find(x=>x.id==="林与新机器");
+  };
+  let linDossier=await dossierInfo();
+  assert(linDossier?.steps?.[0]?.done,
+    "Workshop visit must establish Lin's true company position through its arrival");
+  await page.locator('[data-testid="map-place"][data-node-id="码头"]')
+    .click({timeout:90000});
+  await settled();await story();
+  state=await read();
+  assert(state.entries.some(x=>x.id==="开始试运行"&&!x.disabled),
+    "The first test must remain at the dock regardless of Lin's authority");
+  state=await action("开始试运行");
+  assert.equal(state.mode,"scenario");
+  const trialDay=state.day;
+  for(let i=0;i<5&&state.mode==="scenario";i++)state=await nextRound();
+  assert.equal(state.mode,"world","The genuine uncorrected three-anomaly trial must end");
+  assert(state.day>=trialDay&&state.day<=trialDay+1,
+    "Only genuine hospitalization may advance the city day within a trial");
+  linDossier=await dossierInfo();
+  assert.equal(linDossier?.steps?.[1]?.done,true,
+    "A failed dock test still counts as an experienced original trial");
+  if(state.day===trialDay)state=await sleep();
+  assert.equal(state.day,trialDay+1);
+  linDossier=await dossierInfo();
+  assert.equal(linDossier?.status,"进行中",
+    "The following day must create an actual old-worker training opportunity");
+  const trainingPlace=linDossier.where;
+  assert(["码头","港务技术区"].includes(trainingPlace),
+    "Lin's company standing selects the real training location: "+trainingPlace);
+  if(state.path[0]!==trainingPlace){
+    await page.locator('[data-testid="map-place"][data-node-id='+JSON.stringify(trainingPlace)+']')
+      .click({timeout:90000});
+    await settled();await story();
+    state=await read();
+  }
+  assert(state.entries.some(x=>x.id==="陪老乔培训"),
+    "The optional training container must be visible at the authored location");
+  state=await node("陪老乔培训");
+  const trainingAction=["逐项解释按钮","拿码头设备作比"].find(id=>
+    state.entries.some(x=>x.id===id&&!x.disabled));
+  assert(trainingAction,"Initial training must expose at least one real die action");
+  const trainingDice=state.dice.length;
+  state=await action(trainingAction);
+  assert.equal(state.dice.length,trainingDice-1,
+    "Helping the worker uses one genuine world die");
+  linDossier=await dossierInfo();
+  const trainedClock=linDossier.clocks.find(c=>c.label==="基础操作");
+  assert(trainedClock&&trainedClock.current>0,
+    "Original Scheme must persist progress toward retraining old dock workers");
+  await page.getByTestId("save-game").click({timeout:90000});
+  await settled();
+  await page.getByTestId("load-game").click({timeout:90000});
+  await settled();await story();
+  linDossier=await dossierInfo();
+  assert.equal(linDossier.clocks.find(c=>c.label==="基础操作")?.current,
+    trainedClock.current,
+    "Worker training cannot disappear when a separate VM restores the original save");
+  assert.deepEqual(errors,[],"Lin's real trial and training cannot log browser errors");
+  console.log("PASS: chapter-two published plan -> actual workshop position -> three-anomaly trial collapse -> next-day worker training -> world die and Clock progress -> portable restore",
+    JSON.stringify({trialDay,trainingPlace,trainedProgress:trainedClock.current}));
+
 }finally{
   await browser?.close();await server.close();
 }
