@@ -125,10 +125,10 @@ try{
     "Walter must be a real second-half social card");
   let rolls=0;
   for(let turn=4;turn<=6;turn++){
-    for(let n=0;n<3;n++){
+    for(let n=0;n<8;n++){
       s=await state();
       const card=s.entries.find(x=>x.id==="陪他喝一杯");
-      if(!card||card.disabled)break;
+      if(!card||card.disabled||s.dice.length===0)break;
       s=await act("陪他喝一杯");
       rolls++;
     }
