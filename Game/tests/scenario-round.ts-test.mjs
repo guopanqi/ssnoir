@@ -19,6 +19,24 @@ scan("scripts");scan("scenes");test("real blackmail scenario taxes one composure
  assert.equal(director.state.team.dice("player").length,4);
 });
 
+test("patient paper archive does not impose an unrelated round injury",async()=>{
+  const director=await GameSceneDirector.create(sources,()=>0.999);
+  const tree=await director.start("上午十一点零七分");
+  assert.equal(director.mode,"scenario");
+  assert(tree.children.length>0);
+  const initial=director.state.team.composure("player");
+  const injury=director.state.injury.severity;
+  for(let turn=0;turn<12;turn++){
+    const frames=await director.endRound();
+    assert.equal(frames[0].phase,"time-tax");
+    assert.equal(director.mode,"scenario");
+    assert.equal(director.state.team.composure("player"),initial,
+      "Paper sorting waits do not burn composure");
+    assert.equal(director.state.injury.severity,injury,
+      "The authored no-failure investigation cannot hospitalize a patient investigator");
+  }
+});
+
 test("authored banquet changes from group mingling into four real guests after three dances",async()=>{
  const director=await GameSceneDirector.create(sources,()=>0.999);
  let room=await director.start("晚宴");

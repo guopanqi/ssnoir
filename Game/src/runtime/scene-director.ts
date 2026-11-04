@@ -234,7 +234,11 @@ export class GameSceneDirector {
     try{
       this.state.beginActionReport();
       try{
-        const overflow=this.state.team.spend("player",1);
+        const rawCost=await this.scenario.evaluate("(scenario-time-cost)");
+        const timeCost=Number(String(rawCost));
+        if(!Number.isSafeInteger(timeCost)||timeCost<0||timeCost>10)
+          throw new Error("invalid authored scenario-time-cost");
+        const overflow=this.state.team.spend("player",timeCost);
         if(overflow>0)this.state.applyInjury(overflow);
         this.state.takeActionReport();capture("time-tax");
       }catch(error){this.state.cancelActionReport();throw error;}
