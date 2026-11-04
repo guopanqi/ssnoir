@@ -338,7 +338,43 @@ try {
   assert.equal(state.error,"","One genuine identification roll must resolve");
   assert.equal(state.dice.length,chaseDice-1);
   await page.screenshot({path:"artifacts/web-game-third-act-chase.png"});
-  // Restore a real city save, not a debug scene switch.
+  // A corrupted city save must not tear down a LIVE scenario. The failed
+  // candidate interpreter is discarded, while the current chase remains
+  // playable with its original dice, nodes and clocks.
+  const goodDay14Save=await page.evaluate(()=>localStorage.getItem("ssnoir-web-v1"));
+  assert(goodDay14Save,"The accepted city investigation must have a valid save");
+  const beforeRejectedLoad=await read();
+  await page.evaluate(saved=>{
+    const broken=JSON.parse(saved);
+    broken.state.globals["世界日"]+=1;
+    localStorage.setItem("ssnoir-web-v1",JSON.stringify(broken));
+  },goodDay14Save);
+  const previousErrorCount=exceptions.length;
+  await page.getByTestId("load-game").click({timeout:180000});
+  await settled();
+  state=await read();
+  assert.notEqual(state.error,"","A calendar-corrupt city save must be refused");
+  assert.equal(state.mode,"scenario","Rejected city restore must preserve the chase scene");
+  assert.equal(state.day,beforeRejectedLoad.day);
+  assert.deepEqual(state.dice,beforeRejectedLoad.dice,
+    "Rejected restore cannot change live scenario dice");
+  assert.deepEqual(state.entries,beforeRejectedLoad.entries,
+    "Rejected restore cannot rebuild or leak cards from the candidate world");
+  const expectedErrors=exceptions.splice(previousErrorCount);
+  assert(expectedErrors.length>=1 && expectedErrors.every(x=>x.startsWith("console: [SSNoir web]")),
+    "Only the expected refused-save error may reach the browser console");
+  await page.evaluate(saved=>localStorage.setItem("ssnoir-web-v1",saved),goodDay14Save);
+  ({s:state}=await node("拉开距离"));
+  assert.equal(state.selectedAction,"拉开距离",
+    "Rejected restore must leave the original scenario actions interactive");
+  await page.locator(".die:not([disabled])").first().click({timeout:120000});
+  await settled();await story();
+  state=await read();
+  assert.equal(state.error,"","After rejected restore, the existing chase must still resolve a die");
+  assert.equal(state.dice.length,chaseDice-2);
+  await page.screenshot({path:"artifacts/web-game-third-act-rejected-load.png"});
+  console.log("PASS: rejected calendar-corrupt save during active chase leaves original dice and actions usable");
+  // Restore the legitimate city save afterwards, not a debug scene switch.
   await page.getByTestId("load-game").click({timeout:180000});
   await settled();await story();
   state=await read();
