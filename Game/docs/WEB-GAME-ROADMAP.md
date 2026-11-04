@@ -218,3 +218,10 @@ Web NativeBridge 正式承接原脚本的 `__bubble-restore-composure`：仅将�
 Web GameRuntimeState 已有「伤势 7 点→扣诊疗费→疤痕→待送医」结算，但原 GameSceneDirector 在 Scenario 回合的时间代价触发倒下时直接抛错，导致医院事件永远无法消费，旧 Scenario 和时钟均无法继续。此次让 Director 在动作或对手回合之后消费原脚本 `(on-scenario-collapse)` 的 `collapse-result` / `collapse-retry`，不再继续该回合；退出 Scenario 时作废缓存的世界骰子，不把旧骰池当成新日骰。随后由原 `on-turn-end` / `on-turn-start` 推进真正的一个新日，按 C# 语义仅对倒下强制过夜豁免世界休息限制。倒下、诊所醒来及 Scenario 回调以阻塞剧情顺序交付，正常休息与普通失败仍保持原规则。
 
 新增原版《第一次彩排》在严重伤势下因回合代价倒下的契约测试、世界强制送医与非法 collapse 策略拒绝测试。该能力需通过完整 CI；Web 的诊所空间镜头仍是 P3 表现问题，不能将简化镜头等同完整 Unity 演出。
+
+
+### P2 底层性能根因修复：节点关键字查询
+
+旧版 engine.scm 的 node 每生成一个节点需要十多次 get-kwarg 参数查找。LIPS 原始实现逐个解释 Scheme 的递归、cdr、equal?；城市各模块反复构造地点与行动时放大为多秒。Web 在加载 engine.scm 后针对 Symbol 关键字启用原生 Pair 顺序扫描；非 Symbol、非法实参与非法列表交给原 Scheme 函数，保留原错误及相等语义。对列表不做跨调用缓存，避免修改后的数据不一致；剧情、世界装配和 Scheme 内容不变。原函数在 VM 内保留，可以直接比较。
+
+npm run bench:runtime 在 GitHub Actions 对同一世界交替执行“原始→优化→原始→优化”的完整节点树生成，检查标识、内容、禁用、Clock、入场和资源要求相同，并比较 world-save 的逐字 datum。实测快慢决定是否保留，不以画面顺滑或静态编译成功充当性能证据。存档恢复仍由新 VM 完整执行 world-load! 及校验。

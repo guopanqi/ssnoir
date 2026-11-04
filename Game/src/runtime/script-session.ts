@@ -54,6 +54,7 @@ export class GameScriptSession {
     await session.loadFile("scripts/stdlib.scm");
     vm.accelerateContentLookups();
     await session.loadFile("scripts/engine.scm");
+    vm.accelerateEngineKeywords();
     return session;
   }
 
@@ -108,6 +109,11 @@ export class GameScriptSession {
       this.state.restore(snapshot);
       throw error;
     }
+  }
+
+  /** Diagnostic toggle for a same-VM original-vs-accelerated render comparison. */
+  setFastKeywordLookup(enabled:boolean):void {
+    this.vm.setFastKeywordLookup(enabled);
   }
 
   async evaluateNumber(code: string): Promise<number> {

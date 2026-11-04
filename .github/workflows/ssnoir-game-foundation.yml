@@ -29,6 +29,8 @@ jobs:
         run: npm ci --no-audit --no-fund
       - name: Typecheck, runtime tests and production Web build
         run: npm run verify
+      - name: Compare original Scheme keyword helper with optimized Web runtime
+        run: npm run bench:runtime
       - name: Install headless Chromium
         run: npx playwright install --with-deps chromium
       - name: Verify playable Web boot and capture
