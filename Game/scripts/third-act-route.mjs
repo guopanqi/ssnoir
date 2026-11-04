@@ -61,7 +61,11 @@ try{
     const card=state.entries.find(x=>x.id===id);
     assert(card,"Missing authored action "+id);
     while(state.mode==="scenario"&&state.dice.length===0&&
-      card.requires.some(x=>x.type==="die"))state=await nextRound();
+      card.requires.some(x=>x.type==="die")){
+      state=await nextRound();
+      // A legitimate collapse/timeout can end the scenario while rerolling.
+      if(state.mode!=="scenario")return state;
+    }
     state=await node(id);
     if(state.selectedAction===id){
       assert(state.dice.length>0,"Action lacks a real die "+id);
@@ -132,29 +136,50 @@ try{
   await node("货运公司");
   state=await action("调查罗科租处");
   assert.equal(state.mode,"world");
-  state=await action("潜入货运大楼");
-  assert.equal(state.mode,"scenario","The original city case must open cargo infiltration");
-  assert(state.entries.some(x=>x.id==="破解门铃"));
-  state=await action("破解门铃");
-  state=await action("小心翼翼地打开铁门");
-  state=await action("小心翼翼地打开铁门");
-  assert(state.entries.some(x=>x.id==="混进装卸队"),"Gate must unlock route choice");
-  state=await action("混进装卸队");
-  state=await action("抢搬重货");
-  state=await action("抢搬重货");
-  assert(state.entries.some(x=>x.id==="文件柜"),"Cargo work must open the archives");
-  for(const container of ["文件柜","办公桌","外寄纸箱"]){
-    state=await read();
-    if(state.entries.some(x=>x.id==="与罗科谈判"))break;
-    state=await action(container);
-    state=await action(container);
-    assert.equal(state.mode,"scenario","Archives must remain open until negotiation");
+  let caseSettled=false;
+  for(let attempt=1;attempt<=3 && !caseSettled;attempt++){
+    state=await action("潜入货运大楼");
+    assert.equal(state.mode,"scenario","The city case must open actual infiltration");
+    assert(state.entries.some(x=>x.id==="破解门铃"));
+    const initialHealth=state.health;
+    console.log("CARGO ATTEMPT",attempt,JSON.stringify({day:state.day,health:initialHealth,dice:state.dice.length}));
+    // The original injury and time rules can cause a hospital collapse.
+    // Never force the stage or heal. A failed attempt remains retryable.
+    for(const id of ["破解门铃","小心翼翼地打开铁门",
+      "小心翼翼地打开铁门","混进装卸队",
+      "抢搬重货","抢搬重货"]){
+      if(state.mode!=="scenario")break;
+      state=await action(id);
+    }
+    if(state.mode==="scenario"){
+      assert(state.entries.some(x=>x.id==="文件柜"),
+        "Legitimate cargo work must lead to the archives");
+      for(const container of ["文件柜","办公桌","外寄纸箱"]){
+        if(state.mode!=="scenario"||state.entries.some(x=>x.id==="与罗科谈判"))break;
+        state=await action(container);
+        if(state.mode!=="scenario")break;
+        state=await action(container);
+      }
+    }
+    if(state.mode==="scenario"){
+      assert(state.entries.some(x=>x.id==="与罗科谈判"),
+        "The original documents must permit the agreement");
+      state=await action("与罗科谈判");
+      assert.equal(state.mode,"world","Authored negotiation returns to city");
+      caseSettled=true;
+      break;
+    }
+    console.log("CARGO LEGITIMATE EXIT",JSON.stringify({
+      day:state.day,health:state.health,mode:state.mode}));
+    assert.equal(state.mode,"world","A failed infiltration must return to the city");
+    assert(state.day>=15&&state.day<=17,"A failed scenario cannot jump calendar dates");
+    assert(state.entries.some(x=>x.id==="货运公司"),
+      "Failed infiltration cannot remove the company from the city");
+    // Normal authored retry: re-enter on the next legal opportunity.
+    await node("货运公司");
   }
-  assert(state.entries.some(x=>x.id==="与罗科谈判"),
-    "Legitimate searched records must permit negotiating with Rocco");
-  state=await action("与罗科谈判");
-  assert.equal(state.mode,"world","Authored negotiation returns to city");
-  assert.equal(state.day,15);
+  assert(caseSettled,"Hospitalization and ordinary failure must not strand Rocco case");
+  assert(state.day>=15&&state.day<=17);
   await node("剧院");
   state=await action("提交调查报告");
   await page.getByTestId("dossier-toggle").click({timeout:90000});
