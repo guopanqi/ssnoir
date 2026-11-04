@@ -273,13 +273,13 @@ try{
       let goal=null,clockLabel=null;
       if(available("按日期整理")){
         goal="按日期整理";clockLabel="理清这批废稿";
-      }else if(available("核对收件章")){
+      }else if(available("核对收件章")||available("按稿号归档")){
         const inbound=paperClock(view,"分清外来材料");
         const outgoing=paperClock(view,"分清报社稿件");
         goal=inbound.current<inbound.max?"核对收件章":"按稿号归档";
         clockLabel=inbound.current<inbound.max?"分清外来材料":"分清报社稿件";
         if(outgoing.current===outgoing.max&&inbound.current===inbound.max)goal=null;
-      }else if(available("查首演日收件章")){
+      }else if(available("查首演日收件章")||available("寻找稿号四一七")){
         const envelope=paperClock(view,"剧院酒店来件");
         const proof=paperClock(view,"四号桌校样");
         goal=envelope.current<envelope.max?"查首演日收件章":"寻找稿号四一七";
