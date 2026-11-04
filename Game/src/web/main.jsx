@@ -41,6 +41,35 @@ function NodeCard({ node, locked, onOpen }) {
     <span className="node-type">{type}</span>
   </button>;
 }
+function DossierPanel({ entries, close }) {
+  return <div className="dossier-screen">
+    <section className="dossier-sheet" role="dialog" aria-modal="true" aria-label="卷宗">
+      <header className="dossier-heading">
+        <div><div className="eyebrow">DOSSIER / THE CITY</div><h2>卷宗</h2></div>
+        <button type="button" data-testid="dossier-close" onClick={close}>关闭</button>
+      </header>
+      {entries.length===0 ? <p className="muted">目前没有记录中的故事。</p> :
+        <div className="dossier-entries" data-testid="dossier-entries">
+          {entries.map(entry => {
+            const next=entry.status==="了结"?null:entry.steps.find(step=>!step.done);
+            const completed=entry.steps.filter(step=>step.done).length;
+            return <article key={entry.id} className={"dossier-entry " + (entry.primary?"primary":"")}>
+              <div className="dossier-meta">
+                <span>{entry.primary?"主线":entry.kind}</span>
+                <span>{entry.status}</span>
+              </div>
+              <h3>{entry.id}</h3>
+              {entry.now && <p className="dossier-now">{entry.now}</p>}
+              {entry.where && <p className="dossier-where">地点：{entry.where}</p>}
+              {next && <p className="dossier-next">下一步：{next.text}</p>}
+              {entry.steps.length>0 && <p className="dossier-progress">已办妥 {completed} 项</p>}
+              {entry.clocks.map(c=><Clock key={c.label} value={c}/>)}
+            </article>;
+          })}
+        </div>}
+    </section>
+  </div>;
+}
 function App() {
   const [session, setSession] = useState(null);
   const [state, setState] = useState(null);
@@ -89,11 +118,15 @@ function App() {
   const locked = state.busy || Boolean(state.story);
   const navigationLocked = locked || Boolean(state.selectedAction);
   const picked = new Set(state.selectedDice.map(x => x.actorId + ":" + x.slotId));
+  const redundantResult = state.lastAction &&
+    state.message === state.lastAction.title+" · "+state.lastAction.result;
   return <div className="game-app" data-testid="game-ready">
     <header className="topbar">
       <div className="identity"><span className="brand">SSNoir</span><span className="brand-subtitle">贝尔维尔的夜晚</span></div>
       <div className="stats"><span>第 <b>{state.day}</b> 日</span><span>金钱 <b>{state.money}</b></span><span>伤势 <b>{state.health}</b></span><span>可用行动 <b>{state.dice.length}</b></span></div>
       <div className="top-actions">
+        <button data-testid="dossier-toggle" disabled={navigationLocked || state.mode!=="world"}
+          onClick={()=>session.toggleDossier()}>卷宗</button>
         <button data-testid="save-game" disabled={navigationLocked || state.mode !== "world"} onClick={save}>存档</button>
         <button data-testid="load-game" disabled={navigationLocked} onClick={load}>读档</button>
         <button className="end-turn" disabled={navigationLocked || (state.mode === "world" && state.path[0] === "家")}
@@ -150,12 +183,20 @@ function App() {
           <div className="notice" data-testid="rest-blockers"><b>今天还有必须处理的事情</b>
             {state.restReasons.map(item => <p key={item.id}>{item.reason}</p>)}
           </div>}
-        {state.message && <p className="notice" data-testid="game-message">{state.message}</p>}
+        {state.lastAction && <div className="action-result" data-testid="action-result">
+          <strong>{state.lastAction.title} · {state.lastAction.result}</strong>
+          {state.lastAction.changes.map((c,i)=>
+            <div key={c.label+":"+i} className="action-change">
+              <span>{c.label}</span><b>{c.delta>0?"+":""}{c.delta}</b>
+            </div>)}
+        </div>}
+        {state.message && !redundantResult && <p className="notice" data-testid="game-message">{state.message}</p>}
         {state.error && <p className="error" role="alert">{state.error}</p>}
         {toast && <p className="notice">{toast}</p>}
         <div className="sidebar-footer">WEB EXPERIMENT · {seed}</div>
       </aside>
     </main>
+    {state.dossierOpen && <DossierPanel entries={state.dossiers} close={()=>session.toggleDossier()} />}
     {state.story && <div className="story-screen" role="dialog" aria-modal="true">
       <div className="story-card">
         <div className="eyebrow">STORY · {state.story.kind}</div>

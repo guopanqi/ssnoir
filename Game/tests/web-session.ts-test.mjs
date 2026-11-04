@@ -26,6 +26,12 @@ function fakeHost() {
       assert.equal(name,"work");assert.deepEqual(slots,[{type:"die",actorId:"player",slotId:0}]);
       return {outcome:"success"};
     }},
+    getDossier:async()=>[{
+      id:"活下去",kind:"主线",primary:true,status:"进行中",
+      now:"挣到房租",where:"酒馆",clocks:[],
+      steps:[{text:"认识工作",done:true},{text:"赚点钱",done:false},
+        {text:"未来的事",done:false}],log:[]
+    }],
     getPlaces:()=>[host.root.children[0]],
     takeDayAdvance:()=>null,
     leavePlace:async()=>{},
@@ -115,4 +121,46 @@ test("pending dice allocation cannot silently switch to another action",async()=
   await game.open("work");
   assert.match(game.getSnapshot().error,/请完成当前骰子分配/);
   assert.equal(game.getSnapshot().selectedAction,"work");
+});
+
+test("dossier is read from the host on demand, not synthesized by the UI",async()=>{
+  const host=fakeHost();
+  const session=new WebGameSession(host);
+  assert.equal(session.getSnapshot().dossierOpen,false);
+  assert.equal(session.getSnapshot().dossiers.length,0);
+  await session.toggleDossier();
+  const opened=session.getSnapshot();
+  assert.equal(opened.error,"");
+  assert.equal(opened.dossierOpen,true);
+  assert.deepEqual(opened.dossiers.map(x=>x.id),["活下去"]);
+  assert.equal(opened.dossiers[0].steps[1].text,"赚点钱");
+  await session.toggleDossier();
+  assert.equal(session.getSnapshot().dossierOpen,false);
+});
+test("action result reports actual resource, composure, and clock effects in Chinese",async()=>{
+  const host=fakeHost();
+  const before={
+    inventory:{"金钱":15},growthLevel:0,injury:{severity:0},
+    team:{actors:[{id:"player",composure:5}]}
+  };
+  const after={
+    inventory:{"金钱":17},growthLevel:0,injury:{severity:0},
+    team:{actors:[{id:"player",composure:4}]}
+  };
+  host.runner.performSlots=async()=>({
+    mode:"roll",outcome:"fail",before,after,
+    clockEffects:[{label:"进度",displayLabel:"调查进度",delta:1}]
+  });
+  const session=new WebGameSession(host);
+  await session.open("酒馆");
+  await session.open("work");
+  await session.pickDie("player",0);
+  const report=session.getSnapshot().lastAction;
+  assert.equal(report.title,"打零工");
+  assert.equal(report.result,"失败");
+  assert.deepEqual(report.changes,[
+    {label:"冷静",delta:-1},{label:"金钱",delta:2},
+    {label:"调查进度",delta:1},{label:"行动骰",delta:-1}
+  ]);
+  assert.equal(session.getSnapshot().message,"打零工 · 失败");
 });

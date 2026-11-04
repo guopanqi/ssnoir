@@ -63,6 +63,21 @@ try {
   state=await read();
   assert.deepEqual(state.path,[],"Hotel exit should return to the city");
   assert(state.entries.some(x=>x.id==="老街酒馆"),"First-morning action should unlock the tavern");
+  await page.getByTestId("dossier-toggle").click();
+  await settled();
+  state=await read();
+  assert.equal(state.error,"","Read original Scheme dossier");
+  assert.equal(state.dossierOpen,true);
+  assert(state.dossiers.length>0,"Current authored first-act dossier must list a task");
+  const preview=state.dossiers.find(x=>x.primary)??state.dossiers[0];
+  assert(preview.id,"An authored dossier must have an id");
+  if(preview.status!=="了结"&&preview.steps.some(x=>!x.done))
+    assert(await page.getByText("下一步："+preview.steps.find(x=>!x.done).text).count()>0,
+      "UI should reveal the next authored step");
+  await page.screenshot({path:"artifacts/web-game-dossier.png"});
+  await page.getByTestId("dossier-close").click();
+  await settled();
+  assert.equal((await read()).dossierOpen,false);
   state=await clickNode("老街酒馆");
   assert.equal(state.path[0],"老街酒馆");
   assert(state.entries.some(x=>x.id==="看场子"),"Tavern must offer its real authored job");
@@ -81,6 +96,11 @@ try {
   assert.equal(state.selectedAction,null);
   assert.equal(state.dice.length,oldDice-1,"One player die must be spent");
   assert(state.money>=oldMoney,"Original first tavern job cannot remove cash");
+  assert.equal(state.lastAction?.title,"看场子","Action consequence card must identify the authored action");
+  assert(["成功","一般","失败"].includes(state.lastAction?.result),"Action outcome must be localized");
+  assert(state.lastAction?.changes.some(x=>x.label==="行动骰"&&x.delta===-1),
+    "Action consequence card must explain spent dice");
+  await page.getByTestId("action-result").waitFor();
   await page.screenshot({path:"artifacts/web-game-action.png"});
   await page.getByTestId("save-game").click();
   await page.waitForFunction(()=>Boolean(localStorage.getItem("ssnoir-web-v1")),null,{timeout:30000});

@@ -2,6 +2,8 @@ import type { WorldHost } from "../runtime/world-host";
 import type { RuntimeNode, RuntimeClock, ActionCost } from "../runtime/node-converter";
 import { StoryPlaybackQueue, type StoryFrame } from "../runtime/story-player.ts";
 import type { StoryEvent } from "../runtime/story-events";
+import type { ActionResult } from "../runtime/action-runner.ts";
+import type { DossierEntry } from "../runtime/dossier-converter.ts";
 
 export type DieChoice = { actorId: string; actorName: string; slotId: number; value: number };
 export type ViewNode = {
@@ -10,6 +12,11 @@ export type ViewNode = {
   action: string | null; risk: string | null; childCount: number;
   note: string | null;
 };
+export interface ActionFeedback {
+  title: string;
+  result: string;
+  changes: { label: string; delta: number }[];
+}
 export type WebSnapshot = {
   mode: "world" | "scenario";
   day: number; money: number; health: number; busy: boolean; error: string;
@@ -20,6 +27,9 @@ export type WebSnapshot = {
   storyCount: number; message: string; restBlocked: boolean;
   actors: { id: string; name: string; composure: number; status: string }[];
   restReasons: { id: string; reason: string; location: string; node: string }[];
+  dossierOpen: boolean;
+  dossiers: DossierEntry[];
+  lastAction: ActionFeedback | null;
 };
 type Allocation = { type: "die"; actorId: string; slotId: number } |
   { type: "item"; itemId: string; qty: number };
@@ -35,6 +45,28 @@ function viewNode(n: RuntimeNode): ViewNode {
     note: kind === "observe" ? n.resolve?.text ?? "" :
       kind === "note" ? [n.resolve?.noteTitle, n.resolve?.noteText].filter(Boolean).join(" — ") : null
   };
+}
+function summarizeAction(result: ActionResult, title: string, diceSpent: number): ActionFeedback {
+  const resultText: Record<string,string> = { success:"成功", neutral:"一般", fail:"失败" };
+  const label = result.outcome ? (resultText[result.outcome] ?? result.outcome) : "完成";
+  const changes: ActionFeedback["changes"] = [];
+  const add = (name:string, delta:number):void => {
+    if(delta)changes.push({label:name,delta});
+  };
+  if(result.before&&result.after){
+    const original=result.before,updated=result.after;
+    const first=original.team.actors.find(x=>x.id==="player");
+    const second=updated.team.actors.find(x=>x.id==="player");
+    if(first&&second)add("冷静",second.composure-first.composure);
+    add("伤势",updated.injury.severity-original.injury.severity);
+    for(const key of new Set([...Object.keys(original.inventory),...Object.keys(updated.inventory)]))
+      add(key,(updated.inventory[key]??0)-(original.inventory[key]??0));
+    add("成长",updated.growthLevel-original.growthLevel);
+  }
+  for(const effect of result.clockEffects??[])
+    add(effect.displayLabel,effect.delta);
+  if(diceSpent)add("行动骰",-diceSpent);
+  return {title,result:label,changes};
 }
 /** Stable seedable generator. All player-visible game randomness comes from one stream. */
 export function seededRandom(seed: number): () => number {
@@ -65,6 +97,9 @@ export class WebGameSession {
   private busy = false;
   private error = "";
   private message = "";
+  private dossierOpen=false;
+  private dossiers:DossierEntry[]=[];
+  private lastAction:ActionFeedback|null=null;
   constructor(host: WorldHost) {
     this.host = host;
     this.feed(host.state.takeStoryEvents());
@@ -115,7 +150,11 @@ export class WebGameSession {
       story: this.story.current, storyCount: this.story.pendingCount(),
       message: this.message, restBlocked: this.host.state.hasRestBlockers(),
       actors: roster.map(x => ({ id: x.id, name: x.name, composure: x.composure, status: x.status })),
-      restReasons: this.host.state.snapshot().restBlockers
+      restReasons: this.host.state.snapshot().restBlockers,
+      dossierOpen:this.dossierOpen,
+      dossiers:this.dossiers.map(x=>({...x,clocks:x.clocks.map(c=>({...c})),
+        steps:x.steps.map(s=>({...s})),log:x.log.map(row=>({...row}))})),
+      lastAction:this.lastAction?{...this.lastAction,changes:this.lastAction.changes.map(x=>({...x}))}:null
     };
   }
   private async command(body: () => Promise<void>): Promise<void> {
@@ -131,6 +170,7 @@ export class WebGameSession {
   }
   async open(id: string): Promise<void> {
     return this.command(async () => {
+      if(this.dossierOpen)throw new Error("请先关闭卷宗");
       if (this.pending) throw new Error("请完成当前骰子分配，或按返回取消行动");
       const focus = this.focus();
       const node = [...focus.children,
@@ -138,6 +178,7 @@ export class WebGameSession {
           this.host.runner.getCarryNodes() : [])].find(x => x.name === id);
       if (!node || node.disabled) throw new Error("不可访问的节点：" + id);
       this.message = "";
+      this.lastAction=null;
       if (node.isPlace) {
         if (this.host.mode !== "world" || focus !== this.host.root) throw new Error("地点只能从城市进入");
         await this.host.enterPlace(node.name);
@@ -181,8 +222,10 @@ export class WebGameSession {
     const dayAdvance = this.host.takeDayAdvance();
     if (this.host.mode !== previousMode || dayAdvance) this.path = [];
     this.focus();
+    this.lastAction=dayAdvance?null:summarizeAction(outcome,pending.node.title,
+      slots.filter(x=>x.type==="die").length);
     this.message = dayAdvance ? ("第 " + dayAdvance.after + " 日") :
-      pending.node.title + " · " + (outcome.outcome ?? "完成");
+      pending.node.title + " · " + this.lastAction!.result;
     this.feed([...(dayAdvance?.events ?? []), ...this.host.state.takeStoryEvents()]);
   }
   async back(): Promise<void> {
@@ -195,6 +238,17 @@ export class WebGameSession {
       }
       else if (this.path.length) this.path.pop();
       this.message = "";
+    });
+  }
+  /** Read the authoritative, current Scheme dossier on demand. Never reveal future steps. */
+  async toggleDossier():Promise<void>{
+    return this.command(async()=>{
+      if(this.host.mode!=="world")throw new Error("交锋中暂时无法打开城市卷宗");
+      if(this.pending)throw new Error("请先取消正在分配的骰子");
+      if(this.dossierOpen){this.dossierOpen=false;return;}
+      await new Promise<void>(resolve=>setTimeout(resolve,20));
+      this.dossiers=await this.host.getDossier();
+      this.dossierOpen=true;
     });
   }
   /** The toolbar only navigates to the authored lodging; the sleep node owns day advance. */
@@ -225,6 +279,7 @@ export class WebGameSession {
       await this.host.refresh();
       this.feed([...frames.flatMap(x => x.events), ...this.host.state.takeStoryEvents()]);
       this.message = "交锋进入下一回合";
+      this.lastAction=null;
       this.path = [];
     });
   }
@@ -239,6 +294,7 @@ export class WebGameSession {
       await new Promise<void>(resolve => setTimeout(resolve, 25));
       await this.host.load(text);
       this.path = []; this.pending = null; this.message = "存档已载入";
+      this.lastAction=null;this.dossierOpen=false;this.dossiers=[];
       this.story = new StoryPlaybackQueue();
       this.feed(this.host.state.takeStoryEvents());
     });
