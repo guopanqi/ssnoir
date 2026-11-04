@@ -86,16 +86,17 @@ function App() {
   }
   if (fatal) return <main className="fatal"><h1>游戏启动失败</h1><pre>{fatal}</pre></main>;
   if (!state) return <main className="loading"><span>SSNoir</span><p>正在读取城市与故事…</p></main>;
-  const locked = state.busy || Boolean(state.story) || Boolean(state.selectedAction);
+  const locked = state.busy || Boolean(state.story);
+  const navigationLocked = locked || Boolean(state.selectedAction);
   const picked = new Set(state.selectedDice.map(x => x.actorId + ":" + x.slotId));
   return <div className="game-app" data-testid="game-ready">
     <header className="topbar">
       <div className="identity"><span className="brand">SSNoir</span><span className="brand-subtitle">贝尔维尔的夜晚</span></div>
       <div className="stats"><span>第 <b>{state.day}</b> 日</span><span>金钱 <b>{state.money}</b></span><span>伤势 <b>{state.health}</b></span><span>可用行动 <b>{state.dice.length}</b></span></div>
       <div className="top-actions">
-        <button data-testid="save-game" disabled={locked || state.mode !== "world"} onClick={save}>存档</button>
-        <button data-testid="load-game" disabled={locked} onClick={load}>读档</button>
-        <button className="end-turn" disabled={locked || (state.mode === "world" && state.path[0] === "家")}
+        <button data-testid="save-game" disabled={navigationLocked || state.mode !== "world"} onClick={save}>存档</button>
+        <button data-testid="load-game" disabled={navigationLocked} onClick={load}>读档</button>
+        <button className="end-turn" disabled={navigationLocked || (state.mode === "world" && state.path[0] === "家")}
           onClick={() => state.mode === "world" ? session.goHome() : session.endTurn()} data-testid="end-turn">
           {state.mode === "world" ? "回旅馆休息" : "下一回合"}
         </button>
@@ -120,7 +121,7 @@ function App() {
         <div className="entries" data-testid="game-entries">
           {state.clocks.map(c => <Clock key={c.label} value={c} />)}
           {state.entries.length === 0 ? <p className="empty">这里暂时没有可以进行的行动。</p> :
-            state.entries.map(node => <NodeCard key={node.id} node={node} locked={locked}
+            state.entries.map(node => <NodeCard key={node.id} node={node} locked={navigationLocked}
               onOpen={id => session.open(id)} />)}
         </div>
       </section>

@@ -218,18 +218,14 @@ export class WebGameSession {
   }
   async endTurn(): Promise<void> {
     return this.command(async () => {
+      if(this.host.mode === "world")
+        throw new Error("城市换日必须在住所执行 Scheme 的睡觉行动");
       this.pending = null;
-      if (this.host.mode === "world") {
-        const result = await this.host.endDay();
-        this.feed([...result.events, ...this.host.state.takeStoryEvents()]);
-        this.message = "第 " + result.after + " 日";
-      } else {
-        const frames = await this.host.director.endRound();
-        await this.host.refresh();
-        this.feed([...frames.flatMap(x => x.events), ...this.host.state.takeStoryEvents()]);
-        this.message = "交锋进入下一回合";
-      }
-      this.path = []; // reset on a turn boundary; scripts can replace the node tree
+      const frames = await this.host.director.endRound();
+      await this.host.refresh();
+      this.feed([...frames.flatMap(x => x.events), ...this.host.state.takeStoryEvents()]);
+      this.message = "交锋进入下一回合";
+      this.path = [];
     });
   }
   async exportSave(): Promise<string> {
