@@ -19,12 +19,16 @@ function fakeHost() {
       },
       getGlobal:key=>key==="世界日"?1:false,
       getItemCount:()=>15, hasRestBlockers:()=>false,
-      takeStoryEvents:()=>[]
+      takeStoryEvents:()=>[],
+      snapshot:()=>({restBlockers:[]})
     },
     runner:{getCarryNodes:()=>[],performSlots:async(name,slots)=>{
       assert.equal(name,"work");assert.deepEqual(slots,[{type:"die",actorId:"player",slotId:0}]);
       return {outcome:"success"};
     }},
+    getPlaces:()=>[host.root.children[0]],
+    takeDayAdvance:()=>null,
+    leavePlace:async()=>{},
     enterPlace:async name=>{
       assert.equal(name,"酒馆");
       host.root={...host.root,children:[{...place,children:[action]}]};
@@ -53,7 +57,7 @@ test("web session visits an authored place, spends selected die through runtime,
   await session.pickDie("player",0);
   assert.equal(session.getSnapshot().selectedAction,null);
   assert.match(session.getSnapshot().message,/打零工/);
-  session.back();
+  await session.back();
   assert.deepEqual(session.getSnapshot().path,[]);
 });
 test("view-only note does not consume dice or mutate the runtime",async()=>{
@@ -66,4 +70,46 @@ test("view-only note does not consume dice or mutate the runtime",async()=>{
   await session.open("note");
   assert.equal(session.getSnapshot().message,"线索");
   assert.equal(session.getSnapshot().dice.length,1);
+});
+
+test("web navigation is a real exit, and shortcut returns home without advancing time",async()=>{
+  const host=fakeHost();
+  let exits=0,enters=0;
+  const before=host.state.getGlobal("世界日");
+  host.leavePlace=async()=>{exits++;};
+  const original=host.enterPlace;
+  host.enterPlace=async id=>{enters++;await original(id);};
+  const game=new WebGameSession(host);
+  await game.open("酒馆");
+  await game.back();
+  assert.equal(exits,1);
+  assert.deepEqual(game.getSnapshot().path,[]);
+  await game.goHome();
+  assert.equal(enters,2);
+  assert.equal(host.state.getGlobal("世界日"),before,"navigation is never a free end-day action");
+});
+test("an authored sleep action forwards the day transition and clears old path",async()=>{
+  const host=fakeHost();
+  let day=1;
+  let advance=null;
+  host.state.getGlobal=k=>k==="世界日"?day:false;
+  host.runner.performSlots=async()=>({outcome:"success"});
+  host.refresh=async()=>{day=2;advance={after:2,events:[]};return host.root;};
+  host.takeDayAdvance=()=>{const value=advance;advance=null;return value;};
+  const game=new WebGameSession(host);
+  await game.open("酒馆");
+  await game.open("work");
+  await game.pickDie("player",0);
+  assert.equal(game.getSnapshot().day,2);
+  assert.deepEqual(game.getSnapshot().path,[]);
+  assert.equal(game.getSnapshot().message,"第 2 日");
+});
+test("pending dice allocation cannot silently switch to another action",async()=>{
+  const host=fakeHost();
+  const game=new WebGameSession(host);
+  await game.open("酒馆");
+  await game.open("work");
+  await game.open("work");
+  assert.match(game.getSnapshot().error,/请完成当前骰子分配/);
+  assert.equal(game.getSnapshot().selectedAction,"work");
 });

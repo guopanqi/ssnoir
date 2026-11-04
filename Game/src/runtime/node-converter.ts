@@ -60,6 +60,7 @@ export interface RuntimeNode {
   display?: "page" | "inline";
   noticeVersion?: string;
   useLimit?: "daily-once" | null;
+  requiredBeforeRest?: string | null;
 }
 
 /** Bound the conversion to avoid infinite traversal of cyclic Scheme content. */
@@ -249,7 +250,7 @@ export function convertNode(value: unknown): RuntimeNode {
       }
       case ":title": node.title = name(val, id + " title"); break;
       case ":name": node.title = name(val, id + " display name"); break;
-      case ":required-before-rest": requiredText(val, id + " rest requirement"); break;
+      case ":required-before-rest": node.requiredBeforeRest = name(val, id + " rest requirement"); break;
       case ":button-text": requiredText(val, id + " button"); break;
       case ":subtitle": node.subtitle = String(scalar(val)); break;
       case ":anchor": node.anchor = name(val, id + " anchor"); break;

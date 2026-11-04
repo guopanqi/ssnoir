@@ -3,6 +3,7 @@ import { GameRuntimeState } from "./game-state.ts";
 import { ActionTurnState } from "./turn-state.ts";
 import { convertNode, schemeList, validateActionRiskContracts, type RuntimeNode } from "./node-converter.ts";
 import { SITES } from "./injury.ts";
+import { collectRequired, sameRequired } from "./rest-blockers.ts";
 import { resolveFate, type RollOutcome } from "./fate-strip.ts";
 
 /**
@@ -102,6 +103,22 @@ export class GameActionRunner {
     // Store Scheme closures in the interpreter, not in serializable game state.
     const value=await this.scripts.evaluate("(define __ssnoir-active-render-root "+source+") __ssnoir-active-render-root");
     this.root=convertNode(value);
+    if(this.state.currentMode()==="world"){
+      const required=collectRequired(this.root,true);
+      const before=this.state.snapshot().restBlockers;
+      if(!sameRequired(required,before)){
+        this.state.clearRestBlockers();
+        for(const block of required)
+          this.state.registerRestBlocker(block.id,block.reason,block.location,block.node);
+        // Rebuild once: authored rest actions may read (rest-blocked?).
+        const updated=await this.scripts.evaluate(
+          "(define __ssnoir-active-render-root "+source+") __ssnoir-active-render-root"
+        );
+        this.root=convertNode(updated);
+        if(!sameRequired(required,collectRequired(this.root,true)))
+          throw new Error(":required-before-rest depends on rest-blocked?");
+      }
+    }
     if(this.carryHooks){
       // These authored cards live beside the scenario tree, as in C# CurrentCarryNodes.
       // Keep the Scheme closures in their original scenario VM.

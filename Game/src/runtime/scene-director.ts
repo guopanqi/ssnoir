@@ -73,6 +73,12 @@ export class GameSceneDirector {
   get actions():GameActionRunner {return this.scenarioActions??this.worldActions;}
   getPreparedRoot():RuntimeNode|null{return this.actions.getPreparedRoot();}
   async render():Promise<RuntimeNode>{return this.actions.prepare();}
+  /** Take the world's Scheme rest request only after its action has returned. */
+  consumeWorldTurnRequest():boolean {
+    if(this.mode!=="world"||!this.pendingEndTurn)return false;
+    this.pendingEndTurn=false;
+    return true;
+  }
   requestStart(name:string,callback:unknown=false):void {
     if(this.scenario||this.pendingStart)throw new Error("already in scenario");
     this.pendingStart={name,callback};

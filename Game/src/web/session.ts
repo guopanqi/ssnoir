@@ -19,6 +19,7 @@ export type WebSnapshot = {
   requiredDice: number; story: StoryFrame | null;
   storyCount: number; message: string; restBlocked: boolean;
   actors: { id: string; name: string; composure: number; status: string }[];
+  restReasons: { id: string; reason: string; location: string; node: string }[];
 };
 type Allocation = { type: "die"; actorId: string; slotId: number } |
   { type: "item"; itemId: string; qty: number };
@@ -58,7 +59,7 @@ export function seededRandom(seed: number): () => number {
 export class WebGameSession {
   private readonly host: WorldHost;
   private readonly listeners = new Set<() => void>();
-  private readonly story = new StoryPlaybackQueue();
+  private story = new StoryPlaybackQueue();
   private path: string[] = [];
   private pending: { node: RuntimeNode; dice: DieChoice[] } | null = null;
   private busy = false;
@@ -113,7 +114,8 @@ export class WebGameSession {
       requiredDice: this.pending?.node.requires.filter(x => x.type === "die").length ?? 0,
       story: this.story.current, storyCount: this.story.pendingCount(),
       message: this.message, restBlocked: this.host.state.hasRestBlockers(),
-      actors: roster.map(x => ({ id: x.id, name: x.name, composure: x.composure, status: x.status }))
+      actors: roster.map(x => ({ id: x.id, name: x.name, composure: x.composure, status: x.status })),
+      restReasons: this.host.state.snapshot().restBlockers
     };
   }
   private async command(body: () => Promise<void>): Promise<void> {
@@ -129,6 +131,7 @@ export class WebGameSession {
   }
   async open(id: string): Promise<void> {
     return this.command(async () => {
+      if (this.pending) throw new Error("请完成当前骰子分配，或按返回取消行动");
       const focus = this.focus();
       const node = [...focus.children,
         ...(this.host.mode === "scenario" && focus === this.host.root ?
@@ -175,16 +178,38 @@ export class WebGameSession {
     const outcome = await this.host.runner.performSlots(pending.node.name, slots);
     this.pending = null;
     await this.host.refresh();
-    if (this.host.mode !== previousMode) this.path = [];
+    const dayAdvance = this.host.takeDayAdvance();
+    if (this.host.mode !== previousMode || dayAdvance) this.path = [];
     this.focus();
-    this.message = pending.node.title + " · " + (outcome.outcome ?? "完成");
-    this.feed(this.host.state.takeStoryEvents());
+    this.message = dayAdvance ? ("第 " + dayAdvance.after + " 日") :
+      pending.node.title + " · " + (outcome.outcome ?? "完成");
+    this.feed([...(dayAdvance?.events ?? []), ...this.host.state.takeStoryEvents()]);
   }
-  back(): void {
-    if (this.busy || this.story.blocked) return;
-    if (this.pending) this.pending = null;
-    else if (this.path.length) this.path.pop();
-    this.message = ""; this.error = ""; this.emit();
+  async back(): Promise<void> {
+    return this.command(async () => {
+      if (this.pending) this.pending = null;
+      else if (this.path.length === 1 && this.host.mode === "world") {
+        await this.host.leavePlace();
+        this.path = [];
+        this.feed(this.host.state.takeStoryEvents());
+      }
+      else if (this.path.length) this.path.pop();
+      this.message = "";
+    });
+  }
+  /** The toolbar only navigates to the authored lodging; the sleep node owns day advance. */
+  async goHome(): Promise<void> {
+    return this.command(async () => {
+      if (this.host.mode !== "world") throw new Error("交锋中不能返回旅馆");
+      if (this.pending) throw new Error("请先取消正在分配的骰子");
+      const home = this.host.getPlaces().find(x => x.name === "家" && !x.disabled);
+      if (!home) throw new Error("当前没有可进入的住所");
+      if (this.path[0] !== home.name) {
+        await this.host.enterPlace(home.name);
+        this.path = [home.name];
+        this.feed(this.host.state.takeStoryEvents());
+      } else this.path = [home.name];
+    });
   }
   continueStory(): void {
     if (!this.story.blocked) return;
@@ -208,13 +233,14 @@ export class WebGameSession {
     });
   }
   async exportSave(): Promise<string> {
-    if (this.busy || this.story.blocked) throw new Error("当前不能存档");
+    if (this.busy || this.story.blocked || this.pending) throw new Error("当前不能存档");
     return this.host.save();
   }
   async importSave(text: string): Promise<void> {
     return this.command(async () => {
       await this.host.load(text);
       this.path = []; this.pending = null; this.message = "存档已载入";
+      this.story = new StoryPlaybackQueue();
       this.feed(this.host.state.takeStoryEvents());
     });
   }

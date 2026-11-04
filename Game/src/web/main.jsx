@@ -30,7 +30,7 @@ function NodeCard({ node, locked, onOpen }) {
   const cost = node.requires.map(req =>
     req.type === "die" ? "行动骰" : req.itemId + " × " + req.qty).join(" + ");
   return <button type="button" className="node-card" disabled={locked || node.disabled}
-    onClick={() => onOpen(node.id)} data-testid="game-entry">
+    onClick={() => onOpen(node.id)} data-testid="game-entry" data-node-id={node.id}>
     <span className="node-icon">{node.isPlace ? "◆" : node.childCount ? "◇" : "·"}</span>
     <span className="node-main">
       <span className="node-title">{node.title}</span>
@@ -82,22 +82,22 @@ function App() {
     const text = localStorage.getItem(SAVE_KEY);
     if (!text) { setToast("当前浏览器没有存档"); return; }
     await session.importSave(text);
-    setToast("读档操作已完成");
+    setToast(session.getSnapshot().error ? "读档失败，请检查提示" : "游戏已从存档恢复");
   }
   if (fatal) return <main className="fatal"><h1>游戏启动失败</h1><pre>{fatal}</pre></main>;
   if (!state) return <main className="loading"><span>SSNoir</span><p>正在读取城市与故事…</p></main>;
-  const locked = state.busy || Boolean(state.story);
+  const locked = state.busy || Boolean(state.story) || Boolean(state.selectedAction);
   const picked = new Set(state.selectedDice.map(x => x.actorId + ":" + x.slotId));
   return <div className="game-app" data-testid="game-ready">
     <header className="topbar">
       <div className="identity"><span className="brand">SSNoir</span><span className="brand-subtitle">贝尔维尔的夜晚</span></div>
       <div className="stats"><span>第 <b>{state.day}</b> 日</span><span>金钱 <b>{state.money}</b></span><span>伤势 <b>{state.health}</b></span><span>可用行动 <b>{state.dice.length}</b></span></div>
       <div className="top-actions">
-        <button disabled={locked || state.mode !== "world"} onClick={save}>存档</button>
-        <button disabled={locked} onClick={load}>读档</button>
-        <button className="end-turn" disabled={locked || (state.mode === "world" && state.restBlocked)}
-          onClick={() => session.endTurn()} data-testid="end-turn">
-          {state.mode === "world" ? "结束今天" : "下一回合"}
+        <button data-testid="save-game" disabled={locked || state.mode !== "world"} onClick={save}>存档</button>
+        <button data-testid="load-game" disabled={locked} onClick={load}>读档</button>
+        <button className="end-turn" disabled={locked || (state.mode === "world" && state.path[0] === "家")}
+          onClick={() => state.mode === "world" ? session.goHome() : session.endTurn()} data-testid="end-turn">
+          {state.mode === "world" ? "回旅馆休息" : "下一回合"}
         </button>
       </div>
     </header>
@@ -114,7 +114,7 @@ function App() {
         <div className="panel-heading">
           <div><div className="eyebrow">{state.mode === "world" ? "ACTIONS & PLACES" : "SCENARIO"}</div>
             <h2>{state.path.length ? state.title : "眼前的事情"}</h2></div>
-          <button className="back" disabled={locked || (!state.path.length && !state.selectedAction)}
+          <button className="back" data-testid="back" disabled={state.busy || Boolean(state.story) || (!state.path.length && !state.selectedAction)}
             onClick={() => session.back()}>返回</button>
         </div>
         <div className="entries" data-testid="game-entries">
@@ -146,7 +146,9 @@ function App() {
           {state.selectedDice.length} / {state.requiredDice}
         </p>}
         {state.restBlocked && state.mode === "world" &&
-          <p className="notice">还有必须处理的事情，暂时不能结束今天。</p>}
+          <div className="notice" data-testid="rest-blockers"><b>今天还有必须处理的事情</b>
+            {state.restReasons.map(item => <p key={item.id}>{item.reason}</p>)}
+          </div>}
         {state.message && <p className="notice" data-testid="game-message">{state.message}</p>}
         {state.error && <p className="error" role="alert">{state.error}</p>}
         {toast && <p className="notice">{toast}</p>}

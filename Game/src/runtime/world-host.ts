@@ -41,7 +41,9 @@ export interface WorldHost {
   getPlaces():RuntimeNode[];
   getDossier():Promise<DossierEntry[]>;
   enterPlace(name:string):Promise<RuntimeNode>;
+  leavePlace():Promise<void>;
   refresh():Promise<RuntimeNode>;
+  takeDayAdvance():DayAdvance|null;
   endDay():Promise<DayAdvance>;
   save():Promise<string>;
   load(text:string):Promise<void>;
@@ -52,6 +54,7 @@ export async function createWorldHostRuntime(random:()=>number=Math.random):Prom
   // GameSceneDirector.create already materializes the initial world tree.
   let root=director.getPreparedRoot()??await director.render();
   let lastNavigation:WorldHost["lastNavigation"]=null;
+  let lastDayAdvance:DayAdvance|null=null;
   const host:WorldHost={
     get director(){return director;},
     get state(){return director.state;},
@@ -91,12 +94,22 @@ export async function createWorldHostRuntime(random:()=>number=Math.random):Prom
         director.worldActions.prepare=originalPrepare;
       }
     },
+    async leavePlace(){
+      if(director.mode!=="world")throw new Error("leave place requires city mode");
+      await director.world.evaluate('(on-enter-place "世界")');
+      await director.flush();
+      root=await director.render();
+    },
+    takeDayAdvance(){const advance=lastDayAdvance;lastDayAdvance=null;return advance;},
     async refresh(){
+      if(director.consumeWorldTurnRequest())
+        lastDayAdvance=await new WorldTurnController(director.state,director.world).endDay(random);
       await director.flush();
       root=await director.render();
       return root;
     },
     async endDay(){
+      lastDayAdvance=null;
       if(director.mode!=="world")throw new Error("cannot end the city day during a scenario");
       const result=await new WorldTurnController(director.state,director.world).endDay(random);
       await director.flush();
@@ -119,6 +132,7 @@ export async function createWorldHostRuntime(random:()=>number=Math.random):Prom
       const restoredRoot=await candidate.render();
       director=candidate;
       root=restoredRoot;
+      lastDayAdvance=null;
     }
   };
   return host;
