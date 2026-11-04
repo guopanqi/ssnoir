@@ -49,10 +49,12 @@ export interface WorldHost {
   load(text:string):Promise<void>;
 }
 export async function createWorldHostRuntime(random:()=>number=Math.random):Promise<WorldHost> {
+  const bootstrapAt=performance.now();
   const authored=sources(),stdlib=base64Bytes(compiledStdBase64);
   let director=await GameSceneDirector.create(authored,stdlib,random);
   // GameSceneDirector.create already materializes the initial world tree.
   let root=director.getPreparedRoot()??await director.render();
+  console.info("[SSNoir] web world bootstrap",Math.round(performance.now()-bootstrapAt),"ms");
   let lastNavigation:WorldHost["lastNavigation"]=null;
   let lastDayAdvance:DayAdvance|null=null;
   const host:WorldHost={
@@ -124,12 +126,24 @@ export async function createWorldHostRuntime(random:()=>number=Math.random):Prom
     async load(text:string){
       // Do not swap the active world until the fresh interpreter and every
       // authored module have restored without an exception.
+      const t0=performance.now();
       const snapshot=WorldSaveController.parse(text);
+      const t1=performance.now();
       const candidate=await GameSceneDirector.create(authored,stdlib,random);
+      const t2=performance.now();
       await WorldSaveController.restore(snapshot,async()=>({
         state:candidate.state,session:candidate.world
       }));
+      const t3=performance.now();
       const restoredRoot=await candidate.render();
+      const t4=performance.now();
+      console.info("[SSNoir] web restore stages",JSON.stringify({
+        parseMs:Math.round(t1-t0),
+        bootstrapMs:Math.round(t2-t1),
+        worldLoadMs:Math.round(t3-t2),
+        rematerializeMs:Math.round(t4-t3),
+        totalMs:Math.round(t4-t0)
+      }));
       director=candidate;
       root=restoredRoot;
       lastDayAdvance=null;

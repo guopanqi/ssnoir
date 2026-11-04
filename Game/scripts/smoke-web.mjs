@@ -13,7 +13,11 @@ try {
   const page=await browser.newPage({viewport:{width:1440,height:850}});
   const errors=[];
   page.on("pageerror",error=>errors.push("pageerror: "+String(error)));
-  page.on("console",msg=>{if(msg.type()==="error")errors.push("console: "+msg.text());});
+  page.on("console",msg=>{
+    if(msg.type()==="error")errors.push("console: "+msg.text());
+    if(msg.text().startsWith("[SSNoir] web "))
+      console.log("BROWSER: "+msg.text());
+  });
   const read=()=>page.evaluate(()=>window.__SSNOIR_WEB__.snapshot());
   const settled=()=>page.waitForFunction(()=>{
     const s=window.__SSNOIR_WEB__?.snapshot();
