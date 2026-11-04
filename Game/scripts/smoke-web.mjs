@@ -83,16 +83,24 @@ try {
   assert(state.entries.some(x=>x.id==="旅馆清晨"));
   assert(await page.locator(".city-map .map-location.is-current").isVisible(),
     "Entered location remains identifiable on the city map");
-  assert(await page.locator('[data-testid="map-place"][data-node-id="家"]').isDisabled(),
-    "An entered map pin is no longer an illegal world navigation shortcut");
+  assert(await page.locator('[data-testid="map-place"][data-node-id="家"]').isEnabled(),
+    "Map pins remain usable when a place is open, without consuming resources");
   await page.screenshot({path:"artifacts/web-game-place.png"});
   state=await clickNode("旅馆清晨");
   assert.equal(state.day,1);
   assert.equal(state.restBlocked,false,"Completing the authored morning releases rest blockers");
-  await page.getByTestId("back").click();
+  assert(state.displayCards.some(x=>x.id==="睡觉"),
+    "Nested lodging action must be directly visible without opening its container");
+  await page.locator('[data-testid="map-place"][data-node-id="老街酒馆"]').click();
+  await settled();
+  await drainStory();
+  state=await read();
+  assert.deepEqual(state.path,["老街酒馆"],"Map can switch straight from hotel to tavern");
+  assert.equal(state.error,"");
+  await page.locator(".city-map-art").click({position:{x:600,y:300}});
   await settled();
   state=await read();
-  assert.deepEqual(state.path,[],"Hotel exit should return to the city");
+  assert.deepEqual(state.path,[],"Clicking the board closes the old place's action panel");
   assert(state.entries.some(x=>x.id==="老街酒馆"),"First-morning action should unlock the tavern");
   await page.getByTestId("dossier-toggle").click();
   await settled();
@@ -113,30 +121,36 @@ try {
   assert.equal(state.path[0],"老街酒馆");
   assert(state.entries.some(x=>x.id==="看场子"),"Tavern must offer its real authored job");
   const oldDice=state.dice.length,oldMoney=state.money;
-  const card=page.locator('[data-testid="game-entry"][data-node-id="看场子"]');
-  await card.click();
+  const diceSlot=page.locator('[data-testid="resource-slot"][data-node-id="看场子"][data-slot-index="0"]');
+  assert(await diceSlot.isVisible(),"The complete action card and empty die slot must be directly visible");
+  assert(await page.locator('[data-testid="execute-action"][data-node-id="看场子"]').isDisabled(),
+    "A required die cannot be skipped");
+  await page.locator(".die:not([disabled])").first().dragTo(diceSlot);
   await settled();
   state=await read();
-  assert.equal(state.selectedAction,"看场子");
+  assert.equal(state.selectedAction,"看场子","Drag stages directly without opening the action card");
   assert.equal(state.requiredDice,1);
-  assert(await page.getByTestId("allocation-panel").isVisible(),
-    "Action selection must explain how to use the bottom dice bar");
-  assert(await page.locator('[data-testid="game-entry"][data-node-id="看场子"]').evaluate(
-    el=>el.classList.contains("selected")),
-    "Pending action remains visually selected instead of looking unavailable");
-  const diceBeforeCancel=state.dice;
-  await page.getByTestId("cancel-action").click();
-  await settled();
+  assert.equal(state.selectedSlots[0]?.type,"die");
+  assert.equal(state.dice.length,oldDice,"Drag must not execute or consume dice");
+  assert(state.actionPreview,"The exact probability is displayed on die placement");
+  assert.equal(state.actionPreview.fail+state.actionPreview.neutral+
+    state.actionPreview.success,100,"Probabilities use the authoritative fate strip");
+  assert(await page.locator('[data-testid="execute-action"][data-node-id="看场子"]').isEnabled());
+  await page.locator('[data-testid="map-place"][data-node-id="家"]').click();
+  await settled();await drainStory();
   state=await read();
-  assert.equal(state.selectedAction,null,"Cancel must clear pending allocation");
-  assert.deepEqual(state.dice,diceBeforeCancel,"Cancel must not spend any die");
-  await card.click();
+  assert.deepEqual(state.path,["家"],"Map switch closes an unexecuted allocation");
+  assert.equal(state.selectedAction,null,"Unexecuted input is cancelled by map navigation");
+  assert.equal(state.dice.length,oldDice,"Changing location cannot spend staged dice");
+  assert.equal(state.money,oldMoney,"Changing location cannot spend staged items");
+  await page.locator('[data-testid="map-place"][data-node-id="老街酒馆"]').click();
+  await settled();await drainStory();
+  assert.equal((await read()).path[0],"老街酒馆");
+  await page.locator(".die:not([disabled])").first().dragTo(diceSlot);
   await settled();
-  assert.equal((await read()).selectedAction,"看场子");
-
-  await page.locator(".die:not([disabled])").first().click();
-  await settled();
-  await drainStory();
+  assert.equal((await read()).selectedSlots[0]?.type,"die");
+  await page.locator('[data-testid="execute-action"][data-node-id="看场子"]').click();
+  await settled();await drainStory();
   state=await read();
   assert.equal(state.error,"","Tavern work must be resolved by the original Scheme runtime");
   assert.equal(state.selectedAction,null);
@@ -154,6 +168,26 @@ try {
   assert(state.lastAction?.changes.some(x=>x.label==="行动骰"&&x.delta===-1),
     "Action consequence card must explain spent dice");
   await page.getByTestId("action-result").waitFor();
+  assert.equal(state.resultOpen,true,"Explicit execute must open a consequence dialog");
+  await page.getByTestId("result-dismiss").click();
+  assert.equal((await read()).resultOpen,false);
+  const food=(await read()).displayCards.find(x=>x.id==="吃点东西");
+  assert(food&&food.requires.length===1&&food.requires[0].type==="item",
+    "Authored tavern food must be directly visible as an item-slot action");
+  const foodSlot=page.locator('[data-testid="resource-slot"][data-node-id="吃点东西"][data-slot-index="0"]');
+  const beforeFood=await read();
+  await page.locator('[data-testid="inventory-resource"][data-item-id="金钱"]').dragTo(foodSlot);
+  await settled();
+  state=await read();
+  assert.equal(state.selectedAction,"吃点东西");
+  assert.deepEqual(state.selectedSlots,[{type:"item",itemId:"金钱",qty:6}]);
+  assert.equal(state.money,beforeFood.money,"Dragging money does not pay yet");
+  await page.locator('[data-testid="execute-action"][data-node-id="吃点东西"]').click();
+  await settled();await drainStory();
+  state=await read();
+  assert.equal(state.money,beforeFood.money-6,"Native item-slot action spends exactly six gold");
+  assert.equal(state.resultOpen,true,"Item actions use the same explicit result dialog");
+  await page.getByTestId("result-dismiss").click();
   await page.screenshot({path:"artifacts/web-game-action.png"});
   await page.getByTestId("save-game").click();
   await page.waitForFunction(()=>Boolean(localStorage.getItem("ssnoir-web-v1")),null,{timeout:30000});
