@@ -64,7 +64,7 @@ Runtime 对前端提供状态和命令；Three.js 不负责决定游戏状态，
 ## P1 解析器追平记录
 
 当前 Scheme 节点已使用 `:display`、`:notice-version`、`:use-limit`，
-Web NodeConverter 需要严格解析并保留这些字段。完整“未读”标识和 daily-once 规则消费属于 P2。
+Web NodeConverter 需要严格解析并保留这些字段，并兼容最新十字段 Clock（增加 reset sequence/from）。完整“未读”标识和 daily-once 规则消费属于 P2。
 
 ## 已识别的跨语言语义缺口（非 P1 验收）
 

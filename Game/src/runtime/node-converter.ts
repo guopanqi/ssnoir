@@ -17,6 +17,7 @@ export interface RuntimeClock {
   label:string; displayLabel:string; note:string; current:number; max:number;
   style:"gauge"|"pressure"|"countdown"|"readout";
   priority?:"primary"|"secondary"; beneficialDirection?:"increase"|"decrease"|"neutral";
+  reset?:{sequence:number;from:number};
 }
 export type ResolveKind = "instant" | "roll" | "observe" | "note";
 export type ActionRiskLevel = "稳妥" | "冒险" | "危险";
@@ -100,7 +101,7 @@ function requiredText(value:unknown, context:string):string {
  */
 export function convertClock(raw:unknown):RuntimeClock {
   const parts=schemeList(raw,"clock");
-  if(parts.length<5||parts.length>9||symbol(parts[0])!=="clock")
+  if(parts.length<5||parts.length>10||symbol(parts[0])!=="clock")
     throw new Error("clock: expected (clock label current max style [note] [display label])");
   const label=requiredText(parts[1],"clock label");
   const current=Number(String(parts[2])),max=Number(String(parts[3]));
@@ -112,15 +113,25 @@ export function convertClock(raw:unknown):RuntimeClock {
   const note=parts.length>=6?requiredText(parts[5],"clock note"):"";
   const displayLabel=parts.length>=7?name(parts[6],"clock display label"):label;
   const priority=parts.length>=8?symbol(parts[7]):undefined;
-  const beneficialDirection=parts.length===9?symbol(parts[8]):undefined;
+  const beneficialDirection=parts.length>=9?symbol(parts[8]):undefined;
   if(priority!==undefined && priority!=="primary" && priority!=="secondary")
     throw new Error("clock "+label+": invalid priority "+priority);
   if(beneficialDirection!==undefined && !["increase","decrease","neutral"].includes(beneficialDirection))
     throw new Error("clock "+label+": invalid beneficial direction "+beneficialDirection);
+  let reset: {sequence:number;from:number}|undefined;
+  if(parts.length===10){
+    const data=schemeList(parts[9],"clock reset");
+    if(data.length!==2)throw new Error("clock "+label+": reset requires sequence and from");
+    const sequence=Number(String(data[0])),from=Number(String(data[1]));
+    if(!Number.isSafeInteger(sequence)||sequence<0||!Number.isSafeInteger(from)||from<0||from>max)
+      throw new Error("clock "+label+": invalid reset");
+    reset={sequence,from};
+  }
   return {
     label,current,max,style,note,displayLabel,
     ...(priority===undefined?{}:{priority:priority as "primary"|"secondary"}),
-    ...(beneficialDirection===undefined?{}:{beneficialDirection:beneficialDirection as "increase"|"decrease"|"neutral"})
+    ...(beneficialDirection===undefined?{}:{beneficialDirection:beneficialDirection as "increase"|"decrease"|"neutral"}),
+    ...(reset===undefined?{}:{reset})
   };
 }
 function clocks(value:unknown, context:string):RuntimeClock[] {
