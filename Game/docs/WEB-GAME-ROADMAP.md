@@ -174,3 +174,7 @@ Web NativeBridge 正式承接原脚本的 `__bubble-restore-composure`：仅将�
 [Web CI #41777441444](https://github.com/guopanqi/ssnoir/actions/runs/41777441444) 已通过 34/34 项测试，浏览器从原始第 1 天连续进入第 6 天，播放第 5 天一次性告别公告，完成第 6 天强制演出并核对卷宗结案。恢复后权威建树为约 5.9 秒，总读档约 11.3 秒；这些是一次 CI 环境测量，不以此替代正式交互验收。
 
 在同一浏览器通路上追加第 7/8 天的合法过夜、第一次彩排强制赴约、Scenario 分配骰子、五回合推进及场景回归，校验最初的城市循环是否能正确衔接另一种 Gameplay 形态；本部分需等新增 CI 验收，不预先宣称完成。
+
+### P2 真实 Scenario 的 Clock 可读性修复
+
+原 Scheme 的 `clock-nodes` 生成带 `:resolve (clock ...)` 的标注节点，Web NodeConverter 已解析为 `resolve.noteClock`，但 WebGameSession 此前只映射 `:clocks` 数组，导致彩排的「歌曲进程」「布景就位」「灯位标记」无法显示实时进度条。本次仅修正 ViewNode 投影，兼容容器 Clock 与独立 clock-node，既不修改任何 Scheme 时钟，也不额外计算进度；在现有第八天真实 Chromium 彩排路线和 WebSession 单元测试验证可见性。

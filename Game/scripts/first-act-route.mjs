@@ -132,6 +132,9 @@ try {
   assert.equal(state.error,"","The rehearsal must enter the current authored scenario");
   assert.equal(state.mode,"scenario","Rehearsal must start an isolated Scenario runtime");
   assert(state.entries.some(x=>x.id==="搬运布景"),"Backstage action cards must be playable");
+  assert(state.entries.some(x=>x.id==="钟：歌曲进程" &&
+    x.clocks.some(c=>c.label==="歌曲进程" && c.current===0 && c.max===5)),
+    "The authored song clock must be visible as a live gauge, not just a note label");
   const beforeWorkDice=state.dice.length;
   ({s:state}=await node("搬运布景"));
   assert.equal(state.selectedAction,"搬运布景");

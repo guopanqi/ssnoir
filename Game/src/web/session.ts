@@ -38,7 +38,8 @@ function viewNode(n: RuntimeNode): ViewNode {
   return {
     id: n.name, title: n.title, subtitle: n.subtitle,
     isPlace: n.isPlace, disabled: n.disabled, tags: [...n.tags],
-    clocks: n.clocks.map(c => ({ ...c })),
+    clocks: [...n.clocks, ...(n.resolve?.noteClock ? [n.resolve.noteClock] : [])]
+      .map(c => ({ ...c })),
     requires: n.requires.map(c => ({ ...c })),
     action: kind, risk: n.risk?.level ?? null,
     childCount: n.children.length,

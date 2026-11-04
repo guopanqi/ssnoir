@@ -199,3 +199,19 @@ test("bubble recovery pays only on visible same-day banter, once; queued during 
   new WebGameSession(other);
   assert.equal(stalePaid,0,"next-day discarded banter never heals");
 });
+
+
+test("authored clock-node annotations remain visible as progress gauges",()=>{
+  const host=fakeHost();
+  const clock={label:"歌曲进程",displayLabel:"歌曲进程",current:2,max:5,
+    style:"gauge",note:"每回合推进一段"};
+  host.root.children.push({
+    name:"钟：歌曲进程",title:"钟：歌曲进程",subtitle:"",
+    isPlace:false,disabled:false,tags:[],requires:[],clocks:[],children:[],arrivals:[],
+    resolve:{kind:"note",noteTitle:"歌曲进程",noteText:"",noteClock:clock}
+  });
+  const session=new WebGameSession(host);
+  const view=session.getSnapshot().entries.find(x=>x.id==="钟：歌曲进程");
+  assert.deepEqual(view.clocks,[clock]);
+  assert.equal(view.action,"note");
+});
