@@ -40,12 +40,13 @@
     (list "eddie-life" 艾迪生活 '(存档 卷宗 节点 入场))
     (list "two-cups" 两杯咖啡 '(存档 节点))
     (list "cafe-work" cafe-work '(存档 节点))
-    ;; 人物支线暂不投射节点、入场与卷宗；状态保留供主线及后续排布。
+    ;; 当前暂隐的人物只保留状态；已经有完整玩家入口和结算的
+    ;; 沃尔特必须同时投射卷宗、地点行动与酒店入场，不能只保存其进度。
     (list "eddie"                eddie                '(存档))
     (list "frank"                frank                '(存档))
     (list "lin"                  lin                  '(存档))
     (list "baines"               baines               '(存档))
-    (list "walter"               walter               '(存档))
+    (list "walter"               walter               '(存档 卷宗 节点 入场))
     (list "nightingale"          nightingale          '(存档))
     (list "chapter2"             第二章                '(存档 卷宗 节点 入场))
     (list "home"                 home                 '(存档 卷宗 入场))
