@@ -20,7 +20,7 @@ function fakeHost() {
       getGlobal:key=>key==="世界日"?1:false,
       getItemCount:()=>15, hasRestBlockers:()=>false,
       takeStoryEvents:()=>[],
-      snapshot:()=>({restBlockers:[]})
+      snapshot:()=>({restBlockers:[],inventory:{"金钱":15}})
     },
     runner:{getCarryNodes:()=>[],performSlots:async(name,slots)=>{
       assert.equal(name,"work");assert.deepEqual(slots,[{type:"die",actorId:"player",slotId:0}]);
