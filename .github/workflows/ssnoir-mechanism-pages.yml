@@ -103,6 +103,9 @@ jobs:
           cp -R Game/dist/web/. pages-dist/game/
           test -s pages-dist/game/index.html
           test -d pages-dist/game/assets
+          # A release marker must travel in the same Pages artifact as the game.
+          # This distinguishes a successful build from a stale live deployment.
+          printf '{"commit":"%s"}\n' "$GITHUB_SHA" > pages-dist/game/version.json
           touch pages-dist/.nojekyll
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
@@ -113,3 +116,21 @@ jobs:
       - name: Deploy research webpage
         uses: actions/deploy-pages@v4
         id: deployment
+      - name: Verify public game release matches this commit
+        env:
+          LIVE_GAME_URL: https://guopanqi.github.io/ssnoir/game
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 30); do
+            if curl --fail --location --silent --show-error --max-time 15               "$LIVE_GAME_URL/?rev=$GITHUB_SHA" -o /tmp/ssnoir-live-game.html &&
+              curl --fail --location --silent --show-error --max-time 15               "$LIVE_GAME_URL/version.json?rev=$GITHUB_SHA" -o /tmp/ssnoir-live-version.json &&
+              node -e 'const fs=require("node:fs"); const data=JSON.parse(fs.readFileSync("/tmp/ssnoir-live-version.json","utf8")); if(data.commit!==process.env.GITHUB_SHA) process.exit(1);' &&
+              grep -q 'assets/' /tmp/ssnoir-live-game.html; then
+              echo "Verified public /game/ for $GITHUB_SHA"
+              exit 0
+            fi
+            echo "Public game has not propagated yet (attempt $attempt/30)"
+            sleep 4
+          done
+          echo "::error::Pages artifact deployed, but the public /game/ does not match $GITHUB_SHA"
+          exit 1
