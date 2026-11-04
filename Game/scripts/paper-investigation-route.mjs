@@ -76,8 +76,28 @@ try{
       await settled();await story();
     }
     view=await read();
-    const rest=view.entries.find(x=>["睡觉","蜷缩在门口"].includes(x.id)&&!x.disabled);
-    assert(rest,"The real city must provide an affordable sleep action on "+view.day);
+    let rest=view.entries.find(x=>["睡觉","蜷缩在门口"].includes(x.id)&&!x.disabled);
+    if(!rest&&!view.restBlocked){
+      // A day already slept cannot be slept again without leaving the house.
+      // Opening the home while already inside is not an exit. Follow the
+      // author's explicit "出门后才能再睡" rule through the actual map.
+      console.log("REST REQUIRES OUTING",JSON.stringify({day:view.day,
+        path:view.path,money:view.money,restReasons:view.restReasons,
+        lodging:view.entries.map(x=>[x.id,x.disabled,x.subtitle])}));
+      await page.locator(".city-map-art").click({position:{x:600,y:300}});
+      await settled();await story();
+      const city=await read();
+      assert.deepEqual(city.path,[],"The map outing must return to city");
+      view=await visit("家");
+      await page.locator('[data-testid="game-entry"][data-node-id="住宿"]')
+        .click({timeout:90000});
+      await settled();await story();
+      view=await read();
+      rest=view.entries.find(x=>["睡觉","蜷缩在门口"].includes(x.id)&&!x.disabled);
+    }
+    assert(rest,"The real city must provide an affordable sleep action on "+
+      view.day+" "+JSON.stringify({restBlocked:view.restBlocked,restReasons:view.restReasons,
+        money:view.money,path:view.path,entries:view.entries.map(x=>[x.id,x.disabled,x.subtitle])}));
     const day=view.day;
     view=await perform(rest.id);
     assert.equal(view.day,day+1,"Only native Scheme end-of-day changes the date");
