@@ -234,6 +234,9 @@ export class WebGameSession {
   }
   async importSave(text: string): Promise<void> {
     return this.command(async () => {
+      // Yield one macrotask so the browser can acknowledge the click and
+      // present its busy state before the full Scheme VM reconstruction.
+      await new Promise<void>(resolve => setTimeout(resolve, 25));
       await this.host.load(text);
       this.path = []; this.pending = null; this.message = "存档已载入";
       this.story = new StoryPlaybackQueue();

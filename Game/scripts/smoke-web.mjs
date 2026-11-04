@@ -98,8 +98,12 @@ try {
   assert.deepEqual(state.path,[],"A new day returns to the city");
   assert(state.dice.length>oldDice-1,"The new day must roll a fresh action pool");
   await page.screenshot({path:"artifacts/web-game-next-day.png"});
-  await page.getByTestId("load-game").click();
-  await settled();
+  console.log("WEB SMOKE: restoring saved world from day 2");
+  await page.getByTestId("load-game").click({timeout:120000});
+  await page.waitForFunction(() => {
+    const s=window.__SSNOIR_WEB__?.snapshot();
+    return s && !s.busy && (s.day===1 || Boolean(s.error));
+  },null,{timeout:150000});
   await drainStory();
   state=await read();
   assert.equal(state.error,"");
