@@ -90,9 +90,33 @@ try{
     assert.deepEqual(s.path,["家"]);
     await click("住宿");
     s=await read();
-    const rest=["睡觉","蜷缩在门口"].find(id=>
+    let rest=["睡觉","蜷缩在门口"].find(id=>
       s.entries.some(x=>x.id===id&&!x.disabled));
-    assert(rest,"The world must offer legal sleep or outdoor lodging");
+    if(!rest&&!s.restBlocked){
+      // The authored lodging deliberately prevents two consecutive sleeps
+      // without going outside. A successful night clears the UI path, but
+      // this is not necessarily an actual leave-place event in Scheme.
+      // Travel out via the real back controls, then come back, so the
+      // entrance rule sees a genuine departure rather than a test bypass.
+      assert(s.entries.some(x=>x.id==="睡觉"&&x.disabled),
+        "Expected an authored just-slept lock, not missing rest content: "+JSON.stringify({
+          day:s.day,path:s.path,restReasons:s.restReasons,entries:s.entries.map(x=>[x.id,x.disabled])}));
+      await back(); // 住宿 -> 家
+      await back(); // 家 -> 世界; triggers the native leave-place rule
+      s=await read();
+      assert.deepEqual(s.path,[]);
+      assert.equal(s.error,"");
+      s=await click("家");
+      await click("住宿");
+      s=await read();
+      rest=["睡觉","蜷缩在门口"].find(id=>
+        s.entries.some(x=>x.id===id&&!x.disabled));
+      assert(rest,"A genuine trip out must release only the just-slept lock: "+JSON.stringify({
+        day:s.day,path:s.path,restReasons:s.restReasons,entries:s.entries.map(x=>[x.id,x.disabled])}));
+    }
+    assert(rest,"The world must offer legal sleep or outdoor lodging: "+JSON.stringify({
+      day:s.day,path:s.path,restBlocked:s.restBlocked,restReasons:s.restReasons,
+      entries:s.entries.map(x=>[x.id,x.disabled])}));
     const before=s.day;
     s=await click(rest);
     assert.equal(s.day,before+1,"Only original lodging advances the world day");
