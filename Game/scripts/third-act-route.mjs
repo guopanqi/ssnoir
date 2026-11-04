@@ -113,6 +113,42 @@ try{
   assert.equal(state.mode,"world");assert.equal(state.day,14);
   assert.deepEqual(state.path,[]);
   assert(state.entries.some(x=>x.id==="剧院"));
+
+  // Independent optional-life path from the SAME authored city save.
+  // Work in the café with a real die, verify its wage and subsequent restore,
+  // then load the original save before starting the manager case.
+  const cafeBefore={day:state.day,money:state.money,dice:state.dice};
+  assert(state.entries.some(x=>x.id==="街角咖啡馆"&&!x.disabled),
+    "Day-fourteen city must contain the ordinary café workplace");
+  state=await node("街角咖啡馆");
+  const cafeCard=state.entries.find(x=>x.id==="咖啡馆帮工");
+  assert(cafeCard&&!cafeCard.disabled&&cafeCard.requires.some(x=>x.type==="die"),
+    "Actual café shift must be exposed as a roll that uses a die");
+  state=await action("咖啡馆帮工");
+  assert.equal(state.day,cafeBefore.day,"An ordinary café shift must not advance the world day");
+  assert.equal(state.dice.length,cafeBefore.dice.length-1);
+  assert.equal(state.money,cafeBefore.money+10,
+    "The original favorable café work outcome pays exactly ten");
+  await page.getByTestId("save-game").click({timeout:90000});
+  await settled();
+  const cafeSave=await page.evaluate(()=>localStorage.getItem("ssnoir-web-v1"));
+  assert(cafeSave&&cafeSave!==day14Save,"Real café earnings must appear in the portable save");
+  await page.getByTestId("load-game").click({timeout:90000});
+  await settled();await story();
+  state=await read();
+  assert.equal(state.money,cafeBefore.money+10,
+    "Café wages must survive an isolated VM restore");
+  assert.equal(state.dice.length,cafeBefore.dice.length-1,
+    "The spent café die must not reappear after restoring");
+  await page.evaluate(text=>localStorage.setItem("ssnoir-web-v1",text),day14Save);
+  await page.getByTestId("load-game").click({timeout:90000});
+  await settled();await story();
+  state=await read();
+  assert.equal(state.money,cafeBefore.money);
+  assert.deepEqual(state.dice,cafeBefore.dice);
+  assert.equal(state.day,cafeBefore.day);
+  console.log("PASS: authentic day-fourteen cafe shift -> wage + die cost -> new VM restore -> original city branch unchanged");
+
   await node("剧院");
   state=await action("等待黑衣人");
   assert.equal(state.mode,"scenario");
