@@ -64,6 +64,24 @@ try {
   assert(await mapPin.isVisible(),"The actual hotel must be visible on the board");
   assert(await mapPin.evaluate(el=>el.classList.contains("urgent")),
     "The required first-morning visit is visibly marked on the map");
+  async function assertStationaryDock(label){
+    const layout=await page.evaluate(()=>{
+      const dice=document.querySelector(".hud-dice")?.getBoundingClientRect();
+      const map=document.querySelector(".city-map")?.getBoundingClientRect();
+      return {scrollY:window.scrollY,scrollHeight:document.documentElement.scrollHeight,
+        viewport:window.innerHeight,
+        dice:dice?{top:dice.top,bottom:dice.bottom}:null,
+        map:map?{top:map.top,bottom:map.bottom}:null};
+    });
+    assert.equal(layout.scrollY,0,label+": normal gameplay must not scroll the page");
+    assert(layout.scrollHeight<=layout.viewport+3,
+      label+": scroll the action rail, not the entire page "+JSON.stringify(layout));
+    assert(layout.dice&&layout.dice.top>=0&&layout.dice.bottom<=layout.viewport+1,
+      label+": draggable action dice must remain on-screen");
+    assert(layout.map&&layout.map.top>=0&&layout.map.bottom<=layout.viewport+1,
+      label+": map remains on-screen");
+  }
+  await assertStationaryDock("first city");
   const diceLayout=await page.locator(".hud-dice").boundingBox();
   const mapLayout=await page.locator(".city-map").boundingBox();
   const inventoryLayout=await page.locator(".hud-inventory").boundingBox();
@@ -128,6 +146,7 @@ try {
   await page.locator(".die:not([disabled])").first().dragTo(diceSlot);
   await settled();
   state=await read();
+  await assertStationaryDock("after dragging a die");
   assert.equal(state.selectedAction,"看场子","Drag stages directly without opening the action card");
   assert.equal(state.requiredDice,1);
   assert.equal(state.selectedSlots[0]?.type,"die");
@@ -181,6 +200,7 @@ try {
   await page.locator('[data-testid="inventory-resource"][data-item-id="金钱"]').dragTo(drinkSlot);
   await settled();
   state=await read();
+  await assertStationaryDock("after dragging an item");
   assert.equal(state.selectedAction,"点一杯酒");
   assert.deepEqual(state.selectedSlots,[{type:"item",itemId:"金钱",qty:drinkCost}]);
   assert.equal(state.money,beforeDrink.money,"Dragging money must not pay yet");

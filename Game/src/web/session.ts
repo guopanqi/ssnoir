@@ -46,13 +46,19 @@ function descend(nodes:RuntimeNode[],id:string):RuntimeNode|undefined{
     if(child)return child;
   }
 }
-function flattenCards(nodes:RuntimeNode[],groupPath:string[]=[]):ViewNode[]{
+function flattenCards(nodes:RuntimeNode[],groupPath:string[]=[],
+  seen=new Set<string>()):ViewNode[]{
   const result:ViewNode[]=[];
   for(const node of nodes){
     if(node.isPlace)continue;
-    result.push({...viewNode(node),groupPath:[...groupPath]});
+    // ActionRunner selects authored actions by stable node ID, not by visual
+    // index. A duplicate card cannot address a distinct second effect.
+    if(!seen.has(node.name)){
+      result.push({...viewNode(node),groupPath:[...groupPath]});
+      seen.add(node.name);
+    }
     if(node.children.length)result.push(...flattenCards(node.children,
-      [...groupPath,node.title]));
+      [...groupPath,node.title],seen));
   }
   return result;
 }

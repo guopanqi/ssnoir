@@ -232,3 +232,30 @@
   .result-sheet{padding:23px 20px}
 }
 @media(prefers-reduced-motion:reduce){.outcome-segment,.resource-slot{transition:none}}
+
+
+/* Drag ergonomics: map and resource hand stay fixed; action cards scroll alone. */
+@media(min-width:681px){
+  html,body,#app{height:100%;overflow:hidden}
+  .game-app{height:100dvh;min-height:0;overflow:hidden}
+  .workspace{flex:1;min-height:0;max-height:none;height:auto;
+    grid-template-rows:minmax(0,1fr) auto;overflow:hidden}
+  .scene-panel{min-height:0;height:100%}
+  .actions-panel{height:100%;min-height:0;overflow:hidden}
+  .panel-heading{flex:0 0 auto;padding:17px 19px}
+  .entries{flex:1;min-height:0;max-height:none;overflow-y:auto;
+    overscroll-behavior:contain;scrollbar-color:#69706a #202729}
+  .sidebar{grid-row:2;position:relative;max-height:min(42vh,230px);
+    overflow:visible;align-content:start}
+  .sidebar .hud-events{
+    grid-column:1/-1;position:absolute;bottom:calc(100% + 1px);
+    right:0;width:min(430px,40vw);max-height:145px;overflow-y:auto;z-index:7;
+    background:#121b1ddf;border:1px solid #495252;
+    box-shadow:0 -12px 35px #0007;padding:9px 13px;
+  }
+  .hud-events>.notice,.hud-events>.action-result,.hud-events>.error{flex-basis:100%}
+}
+@media(max-width:680px){
+  html,body,#app{height:auto;overflow:visible}
+  .game-app{height:auto;overflow:visible}
+}
