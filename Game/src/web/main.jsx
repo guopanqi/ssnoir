@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { createWorldHostRuntime } from "../runtime/world-host";
 import { WebGameSession, seededRandom } from "./session";
 import { CityScene } from "./city-scene";
+import { CityMap } from "./city-map";
 import "./styles.css";
 
 const SAVE_KEY = "ssnoir-web-v1";
@@ -137,7 +138,9 @@ function App() {
     </header>
     <main className="workspace">
       <section className="scene-panel" aria-label="城市舞台">
-        <CityScene />
+        {state.mode === "world" && state.path.length === 0 ?
+          <CityMap places={state.entries.filter(entry=>entry.isPlace)} locked={navigationLocked}
+            onOpen={id=>session.open(id)}/> : <CityScene />}
         <div className="scene-label">
           <div className="eyebrow">{state.mode === "world" ? "THE CITY" : "ENCOUNTER"}</div>
           <h1>{state.path.length ? state.title : state.mode === "world" ? "贝尔维尔" : state.title}</h1>
@@ -158,42 +161,57 @@ function App() {
               onOpen={id => session.open(id)} />)}
         </div>
       </section>
-      <aside className="sidebar">
-        <div className="eyebrow">PEOPLE & RESOURCES</div>
-        <h2>你与同伴</h2>
-        {state.actors.map(actor => <div key={actor.id} className="actor">
-          <span>{actor.name}</span><span>{actor.status === "active" ? "冷静 " + actor.composure : "暂时离队"}</span>
-        </div>)}
-        <div className="sidebar-rule" />
-        <h2>行动骰</h2>
-        {state.dice.length ? <div className="dice">
-          {state.dice.map(die => <button className={"die " + (picked.has(die.actorId + ":" + die.slotId) ? "picked" : "")}
-            key={die.actorId + ":" + die.slotId}
-            disabled={!state.selectedAction || locked || picked.has(die.actorId + ":" + die.slotId)}
-            title={die.actorName + " · " + die.value}
-            onClick={() => session.pickDie(die.actorId, die.slotId)}>
-            <strong>{die.value}</strong><small>{die.actorName}</small>
-          </button>)}
-        </div> : <p className="muted">骰子已用完，可以考虑结束今天。</p>}
-        {state.selectedAction && <p className="dice-prompt" data-testid="dice-prompt">
-          为「{state.entries.find(x => x.id === state.selectedAction)?.title || state.selectedAction}」选择骰子：
-          {state.selectedDice.length} / {state.requiredDice}
-        </p>}
-        {state.restBlocked && state.mode === "world" &&
-          <div className="notice" data-testid="rest-blockers"><b>今天还有必须处理的事情</b>
-            {state.restReasons.map(item => <p key={item.id}>{item.reason}</p>)}
-          </div>}
-        {state.lastAction && <div className="action-result" data-testid="action-result">
-          <strong>{state.lastAction.title} · {state.lastAction.result}</strong>
-          {state.lastAction.changes.map((c,i)=>
-            <div key={c.label+":"+i} className="action-change">
-              <span>{c.label}</span><b>{c.delta>0?"+":""}{c.delta}</b>
+      <aside className="sidebar" aria-label="行动资源与状态">
+        <section className="hud-dice">
+          <div className="eyebrow">ACTION DICE / 行动资源</div>
+          <div className="hud-section-head"><h2>行动骰</h2><span>{state.dice.length} 枚可用</span></div>
+          {state.dice.length ? <div className="dice">
+            {state.dice.map(die => <button className={"die " + (picked.has(die.actorId + ":" + die.slotId) ? "picked" : "")}
+              key={die.actorId + ":" + die.slotId}
+              disabled={!state.selectedAction || locked || picked.has(die.actorId + ":" + die.slotId)}
+              title={die.actorName + " · " + die.value}
+              onClick={() => session.pickDie(die.actorId, die.slotId)}>
+              <strong>{die.value}</strong><small>{die.actorName}</small>
+            </button>)}
+          </div> : <p className="muted">今天的骰子已用完。</p>}
+          {state.selectedAction && <p className="dice-prompt" data-testid="dice-prompt">
+            为「{state.entries.find(x => x.id === state.selectedAction)?.title || state.selectedAction}」投入骰子：
+            {state.selectedDice.length} / {state.requiredDice}
+          </p>}
+        </section>
+        <section className="hud-actors">
+          <div className="eyebrow">CONDITION / 人物状态</div>
+          <div className="hud-section-head"><h2>你与同伴</h2><span>伤势 {state.health}</span></div>
+          {state.actors.map(actor => <div key={actor.id} className="actor">
+            <span>{actor.name}</span><span>{actor.status === "active" ? "冷静 " + actor.composure : "暂时离队"}</span>
+          </div>)}
+        </section>
+        <section className="hud-inventory">
+          <div className="eyebrow">INVENTORY / 物品栏</div>
+          <div className="hud-section-head"><h2>随身物品</h2><span>{state.inventory.length} 类</span></div>
+          {state.inventory.length ? <div className="inventory-items">
+            {state.inventory.map(item=><div className="inventory-item" key={item.id}>
+              <span>{item.id}</span><b>× {item.quantity}</b>
             </div>)}
-        </div>}
-        {state.message && !redundantResult && <p className="notice" data-testid="game-message">{state.message}</p>}
-        {state.error && <p className="error" role="alert">{state.error}</p>}
-        {toast && <p className="notice">{toast}</p>}
-        <div className="sidebar-footer">WEB EXPERIMENT · {seed}</div>
+          </div> : <p className="muted">背包里没有物品。</p>}
+        </section>
+        {(state.restBlocked || state.lastAction || state.message || state.error || toast) &&
+        <section className="hud-events" aria-live="polite">
+          {state.restBlocked && state.mode === "world" &&
+            <div className="notice" data-testid="rest-blockers"><b>今天还有必须处理的事情</b>
+              {state.restReasons.map(item => <p key={item.id}>{item.reason}</p>)}
+            </div>}
+          {state.lastAction && <div className="action-result" data-testid="action-result">
+            <strong>{state.lastAction.title} · {state.lastAction.result}</strong>
+            {state.lastAction.changes.map((c,i)=>
+              <div key={c.label+":"+i} className="action-change">
+                <span>{c.label}</span><b>{c.delta>0?"+":""}{c.delta}</b>
+              </div>)}
+          </div>}
+          {state.message && !redundantResult && <p className="notice" data-testid="game-message">{state.message}</p>}
+          {state.error && <p className="error" role="alert">{state.error}</p>}
+          {toast && <p className="notice">{toast}</p>}
+        </section>}
       </aside>
     </main>
     {state.dossierOpen && <DossierPanel entries={state.dossiers} close={()=>session.toggleDossier()} />}
