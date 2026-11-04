@@ -321,6 +321,103 @@ try{
   await page.screenshot({path:"artifacts/web-game-banquet-finished.png"});
   assert.deepEqual(errors,[],"Chapter-two opening and banquet produced no browser errors");
   console.log("PASS: chapter-two natural countdown -> banquet six real rounds -> callback dossier settlement -> save/restore",JSON.stringify(banquetRounds));
+  // The next mainline beat is the leaked newspaper, not a debug preset or
+  // an automatic dossier completion. The player must attend at the theater.
+  state=await sleep();
+  assert.equal(state.day,chapterTwoStart+3,"The cover story appears on chapter-two day four");
+  assert(state.restReasons.some(x=>x.node==="见夜莺"),
+    "The leaked newspaper must create a real before-rest obligation");
+  state=await node("剧院");
+  assert(state.entries.some(x=>x.id==="见夜莺"&&!x.disabled),
+    "The event must be playable at the authored location");
+  state=await action("见夜莺");
+  assert.equal(state.mode,"world");
+  assert(!state.restReasons.some(x=>x.node==="见夜莺"),
+    "Talking to Nightingale must release the author's rest requirement");
+  await page.getByTestId("dossier-toggle").click({timeout:90000});
+  await settled();
+  state=await read();
+  assert.equal(state.dossiers.find(x=>x.id==="封面上的夜莺")?.status,"了结",
+    "The printed cover story must be marked settled only after the scene");
+  const inquiry=state.dossiers.find(x=>x.id.includes("追查")||x.id.includes("泄密"));
+  assert(inquiry,"The paper leak must unlock an independently playable investigation");
+  await page.getByTestId("dossier-close").click({timeout:90000});
+  await settled();
+  console.log("PASS: chapter-two fourth-day newspaper -> authored theater confrontation -> separate investigation opened");
+
+  // The new harbor plan is a public calendar event independent of whether
+  // the player pursues the optional investigation or supporting cast.
+  for(let index=4;index<=8;index++){
+    state=await sleep();
+    assert.equal(state.day,chapterTwoStart+index,
+      "Each new chapter-two date must arise from a legitimate night");
+  }
+  await page.getByTestId("dossier-toggle").click({timeout:90000});
+  await settled();
+  state=await read();
+  assert.equal(state.dossiers.find(x=>x.id==="机器进入老街")?.status,"进行中",
+    "Phase B must publish the real machine-arrival mainline dossier");
+  await page.getByTestId("dossier-close").click({timeout:90000});
+  await settled();
+  state=await node("码头");
+  assert(state.displayCards.some(x=>x.id==="标注：码头施工"),
+    "Phase B city must visually show the published construction, not only a hidden flag");
+  console.log("PASS: natural chapter-two day nine -> public new-harbor plan -> city visibly changes");
+
+  // The chapter's current climax happens exactly six ordinary days after
+  // phase B. A visit alone must NOT settle the day; the player must actively
+  // choose when to stop intervening at the gangway.
+  for(let index=9;index<=14;index++){
+    state=await sleep();
+    assert.equal(state.day,chapterTwoStart+index);
+  }
+  assert(state.restReasons.some(x=>x.node==="到跳板去"),
+    "Machine arrival must block the day until the player handles its scenes");
+  state=await node("码头");
+  state=await action("到跳板去");
+  assert.equal(state.mode,"world","Gangway is an authored city event, not a debug scenario");
+  assert(state.restReasons.some(x=>x.node==="看着这一天过完"),
+    "Arrival alone cannot silently bypass the rest of the machine-day choices");
+  const availableInterventions=["拦住艾迪","跟林停机","自己查设备","劝人群退"]
+    .filter(id=>state.entries.some(x=>x.id===id&&!x.disabled));
+  if(availableInterventions.length&&state.dice.length){
+    const id=availableInterventions[0];
+    const before=state.dice.length;
+    state=await action(id);
+    assert.equal(state.dice.length,before-1,
+      "A selected optional intervention has a real opportunity cost");
+  }
+  assert(state.entries.some(x=>x.id==="看着这一天过完"&&!x.disabled));
+  state=await action("看着这一天过完");
+  assert.equal(state.mode,"world");
+  assert.equal(state.day,chapterTwoStart+14);
+  assert(!state.restReasons.some(x=>x.node==="看着这一天过完"),
+    "The player-chosen ending must release the machine-day rest blocker");
+  await page.getByTestId("dossier-toggle").click({timeout:90000});
+  await settled();
+  state=await read();
+  const machines=state.dossiers.find(x=>x.id==="机器进入老街");
+  assert.equal(machines?.status,"了结",
+    "Machine-day resolution must settle the authored chapter climax");
+  assert(machines?.log?.length>0,"Scheme must record what occurred at the dock");
+  await page.getByTestId("dossier-close").click({timeout:90000});
+  await settled();
+  await page.getByTestId("save-game").click({timeout:90000});
+  await settled();
+  await page.getByTestId("load-game").click({timeout:90000});
+  await settled();await story();
+  state=await read();
+  assert.equal(state.day,chapterTwoStart+14);
+  await page.getByTestId("dossier-toggle").click({timeout:90000});
+  await settled();
+  state=await read();
+  assert.equal(state.dossiers.find(x=>x.id==="机器进入老街")?.status,"了结",
+    "The chapter ending must survive a full isolated VM restore");
+  await page.getByTestId("dossier-close").click({timeout:90000});
+  await settled();
+  await page.screenshot({path:"artifacts/web-game-machine-arrival-resolved.png"});
+  assert.deepEqual(errors,[],"No browser errors from the beginning through the machine climax");
+  console.log("PASS: natural day-four leak -> phase B -> six-day deployment -> optional intervention -> machine-day finish -> restore");
 }finally{
   await browser?.close();await server.close();
 }
