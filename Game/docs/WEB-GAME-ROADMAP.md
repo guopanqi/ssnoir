@@ -164,3 +164,7 @@ Web StoryPlaybackQueue 现在识别现行 `engine.scm` 的 `line` 七字段结�
 - 首次 [Web CI #41776575103](https://github.com/guopanqi/ssnoir/actions/runs/41776575103) 实测：第 2 天再次进入旅馆，「睡觉」仍 disabled。原因是新日仅刷新世界节点，未执行 `on-enter-place \"世界\"`，未解除原脚本的「出门才能再睡」锁；这是真实客户端缺陷。
 - 修复沿用 Engine `SceneManager.EnterPlace` 的现有契约：世界根与地点共用入场动作，自然醒来和返回地图均执行 root arrival，使连睡锁正确解除，同时播放第 5 日一次性告别公告。
 - 若房租不足，长通路使用原脚本提供的「蜷缩在门口」合法过夜，不注入金钱、跳日或篡改 Scheme。
+
+### P2 气泡展示时才恢复冷静
+
+Web NativeBridge 正式承接原脚本的 `__bubble-restore-composure`：仅将冷静恢复的角色、数值、通知、生成世界日及唯一标识附加于一条七／八字段台词的序列化元数据，不在执行 Scheme 时直接修改冷静。Web 叙事队列将非阻塞气泡保留至阻塞对白完成，再在该句被当前界面呈现时兑现；跨日丢弃、同标识只结算一次，场景出错或存档恢复不会提前补发。与 C# 保持同一关键语义：不展示就不兑现，尽管当前 Web 尚未实现逐句定时气泡的空间表现。

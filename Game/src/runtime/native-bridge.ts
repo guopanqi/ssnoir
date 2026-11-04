@@ -1,4 +1,4 @@
-import { unbox } from "lips";
+import { Pair, nil, unbox } from "lips";
 import { GameRuntimeState } from "./game-state.ts";
 import { schemeList } from "./node-converter.ts";
 import { storyArguments, type StoryKind } from "./story-events.ts";
@@ -36,6 +36,14 @@ function portableScalar(value: unknown): string | number | boolean {
   }
   throw new Error("not a portable Scheme scalar: " + typeof raw);
 }
+
+function schemePairList(values:unknown[]):unknown {
+  let list:unknown=nil;
+  for(let i=values.length-1;i>=0;i--)list=new Pair(values[i],list);
+  return list;
+}
+
+let nextBubbleRecovery=0;
 
 /** Names and argument expectations ported from NativeFunctions.Register, not a new DSL. */
 export function createNativeBridge(state: GameRuntimeState, random:()=>number=Math.random): NativeBridge {
@@ -268,6 +276,22 @@ export function createNativeBridge(state: GameRuntimeState, random:()=>number=Ma
     "__play-narration!":story("narration",true,1),
     "__spotlight!":story("spotlight",true,2),
     "__play-dialogue!":story("dialogue",true,1),
+    "__bubble-restore-composure": (...args) => {
+      arity("__bubble-restore-composure",args,4);
+      const fields=schemeList(args[0],"bubble recovery line");
+      if((fields.length!==7 && fields.length!==8) ||
+        (fields.length===8 && typeof unbox(fields[7])!=="string"))
+        throw new Error("bubble recovery requires an authored seven/eight-field line");
+      const actor=id(args[1]),amount=integer(args[2]),notice=string(args[3]);
+      if(amount<=0 || !state.team.find(actor) || !notice.trim())
+        throw new Error("bubble recovery requires an existing actor, positive amount and notice");
+      const day=state.getGlobal("世界日");
+      const createdDay=typeof day==="number"&&Number.isSafeInteger(day)&&day>=1?day:1;
+      // Data only: no composure change until the actual banter line is shown.
+      // The id is scoped to this VM and allows a display queue to pay only once.
+      const metadata=schemePairList(["ssnoir-bubble-recovery",actor,amount,notice,createdDay,++nextBubbleRecovery]);
+      return schemePairList([...fields,metadata]);
+    },
     "__play-theatre!":story("theatre",true,2),
     "__play-stage!":story("stage",true,1),
     "__play-banter!":story("banter",false,1),

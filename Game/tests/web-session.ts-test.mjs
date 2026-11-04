@@ -164,3 +164,38 @@ test("action result reports actual resource, composure, and clock effects in Chi
   ]);
   assert.equal(session.getSnapshot().message,"打零工 · 失败");
 });
+
+
+test("bubble recovery pays only on visible same-day banter, once; queued during dialogue waits",()=>{
+  const host=fakeHost();
+  let composure=2,paid=0;
+  host.state.team.find=()=>({id:"player"});
+  host.state.team.restoreComposure=(_actor,amount)=>{composure+=amount;paid++;};
+  host.state.notify=()=>{};
+  const wrapped=(id,day)=>["player","休息一下吧。","",0,[],"尼尔","",
+    ["ssnoir-bubble-recovery","player",2,"冷静+2",day,id]];
+  host.state.takeStoryEvents=()=>[
+    {kind:"dialogue",blocking:true,immediate:true,args:[[["line","夜莺","先听我说。"]]]},
+    {kind:"banter",blocking:false,immediate:true,args:[[wrapped(11,1)]]},
+    {kind:"banter",blocking:false,immediate:true,args:[[wrapped(11,1)]]}
+  ];
+  const game=new WebGameSession(host);
+  assert.equal(composure,2,"not paid while dialogue covers the bubble");
+  game.continueStory();
+  assert.equal(composure,4,"paid once the bubble becomes visible");
+  assert.equal(paid,1);
+  assert.match(game.getSnapshot().message,/冷静\+2/);
+  game.continueStory();
+  assert.equal(paid,1);
+  const other=fakeHost();
+  let stalePaid=0;
+  other.state.team.find=()=>({id:"player"});
+  other.state.team.restoreComposure=()=>{stalePaid++;};
+  other.state.notify=()=>{};
+  other.state.getGlobal=key=>key==="世界日"?2:false;
+  other.state.takeStoryEvents=()=>[
+    {kind:"banter",blocking:false,immediate:true,args:[[wrapped(12,1)]]}
+  ];
+  new WebGameSession(other);
+  assert.equal(stalePaid,0,"next-day discarded banter never heals");
+});

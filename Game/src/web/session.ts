@@ -92,6 +92,8 @@ export class WebGameSession {
   private readonly host: WorldHost;
   private readonly listeners = new Set<() => void>();
   private story = new StoryPlaybackQueue();
+  private pendingBanter:StoryFrame[]=[];
+  private redeemedBubbles=new Set<number>();
   private path: string[] = [];
   private pending: { node: RuntimeNode; dice: DieChoice[] } | null = null;
   private busy = false;
@@ -111,8 +113,28 @@ export class WebGameSession {
   private emit(): void { for (const listener of this.listeners) listener(); }
   private feed(events: StoryEvent[]): void {
     this.story.push(events);
-    const banter = this.story.takeBanter();
-    if (banter.length) this.message = banter.map(x => x.text).filter(Boolean).join(" / ").slice(0, 500);
+    this.pendingBanter.push(...this.story.takeBanter());
+    this.presentBanter();
+  }
+  /** Recovery is paid only when this Web client actually shows the bubble.
+   * Blocking story frames postpone it; crossing a day discards the reward.
+   */
+  private presentBanter():void{
+    if(this.story.blocked||!this.pendingBanter.length)return;
+    const shown=this.pendingBanter.splice(0);
+    const notices:string[]=[];
+    const day=this.host.state.getGlobal("世界日");
+    for(const frame of shown){
+      const recovery=frame.recovery;
+      if(!recovery||this.redeemedBubbles.has(recovery.id))continue;
+      this.redeemedBubbles.add(recovery.id);
+      if(day!==recovery.worldDay||!this.host.state.team.find(recovery.actorId))continue;
+      this.host.state.team.restoreComposure(recovery.actorId,recovery.amount);
+      this.host.state.notify(recovery.notice);
+      notices.push(recovery.notice);
+    }
+    this.message=[shown.map(x=>x.text).filter(Boolean).join(" / "),...notices]
+      .filter(Boolean).join(" · ").slice(0,500);
   }
   private focus(): RuntimeNode {
     let node = this.host.root;
@@ -230,6 +252,7 @@ export class WebGameSession {
   }
   async back(): Promise<void> {
     return this.command(async () => {
+      this.message="";
       if (this.pending) this.pending = null;
       else if (this.path.length === 1 && this.host.mode === "world") {
         await this.host.leavePlace();
@@ -237,7 +260,6 @@ export class WebGameSession {
         this.feed(this.host.state.takeStoryEvents());
       }
       else if (this.path.length) this.path.pop();
-      this.message = "";
     });
   }
   /** Read the authoritative, current Scheme dossier on demand. Never reveal future steps. */
@@ -268,6 +290,7 @@ export class WebGameSession {
   continueStory(): void {
     if (!this.story.blocked) return;
     this.story.advance();
+    this.presentBanter();
     this.emit();
   }
   async endTurn(): Promise<void> {
@@ -277,8 +300,8 @@ export class WebGameSession {
       this.pending = null;
       const frames = await this.host.director.endRound();
       await this.host.refresh();
-      this.feed([...frames.flatMap(x => x.events), ...this.host.state.takeStoryEvents()]);
       this.message = "交锋进入下一回合";
+      this.feed([...frames.flatMap(x => x.events), ...this.host.state.takeStoryEvents()]);
       this.lastAction=null;
       this.path = [];
     });
@@ -296,6 +319,7 @@ export class WebGameSession {
       this.path = []; this.pending = null; this.message = "存档已载入";
       this.lastAction=null;this.dossierOpen=false;this.dossiers=[];
       this.story = new StoryPlaybackQueue();
+      this.pendingBanter=[];this.redeemedBubbles.clear();
       this.feed(this.host.state.takeStoryEvents());
     });
   }

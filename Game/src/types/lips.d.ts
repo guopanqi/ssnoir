@@ -11,6 +11,7 @@ declare module "lips" {
   export function type(value: unknown): string;
   export const nil: unknown;
   export class Pair {
+    constructor(car:unknown,cdr:unknown);
     car: unknown;
     cdr: unknown;
   }

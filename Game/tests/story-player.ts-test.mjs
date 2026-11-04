@@ -82,3 +82,18 @@ test("authored banter does not show raw voice, stage and anchor metadata", () =>
   assert.equal(chatter[0].text,"今天看上去不太妙。");
   assert.equal(q.takeBanter().length,0);
 });
+
+
+test("recovery is metadata on its exact banter frame, never on blocking dialogue",()=>{
+  const line=["player","说完才恢复。","",0,[],"尼尔","",
+    ["ssnoir-bubble-recovery","player",2,"冷静+2",5,17]];
+  const q=new StoryPlaybackQueue();
+  q.push([{kind:"banter",args:[[line]],blocking:false,immediate:false}]);
+  const frames=q.takeBanter();
+  assert.equal(frames[0].text,"说完才恢复。");
+  assert.deepEqual(frames[0].recovery,
+    {actorId:"player",amount:2,notice:"冷静+2",worldDay:5,id:17});
+  assert.throws(()=>new StoryPlaybackQueue().push([
+    {kind:"dialogue",args:[[line]],blocking:true,immediate:false}
+  ]),/only permitted in banter/);
+});
