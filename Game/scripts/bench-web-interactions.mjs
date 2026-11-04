@@ -44,7 +44,20 @@ try{
     timings.push({label,ms:Math.round(elapsed)});snapshots.push({label,state:stable(state)});
     console.log('WEB_INTERACTION '+JSON.stringify(timings.at(-1)));return state;
   }
-  const node=id=>page.locator('[data-testid="game-entry"][data-node-id='+JSON.stringify(id)+']').click({timeout:180000});
+  // World locations are now spatial map pins; only actions remain game-entry
+  // cards in the right rail. Inspect the authoritative UI snapshot rather
+  // than benchmarking a stale selector for three minutes.
+  async function node(id){
+    const state=await read();
+    const isWorldPlace=state.mode==='world'&&state.path.length===0&&
+      state.entries.some(x=>x.id===id&&x.isPlace);
+    const selector=isWorldPlace?'map-place':'game-entry';
+    const locator=page.locator('[data-testid="'+selector+'"][data-node-id='+JSON.stringify(id)+']');
+    await locator.waitFor({state:'visible',timeout:15000});
+    assert.equal(await locator.count(),1,
+      'One UI target per authored node: '+JSON.stringify({id,selector,path:state.path}));
+    await locator.click({timeout:30000});
+  }
   await page.goto(`http://127.0.0.1:${port}/?seed=42`,{waitUntil:'domcontentloaded'});
   await page.getByTestId('game-ready').waitFor({timeout:180000});await settled();await story();
   await timed('hotel-first',()=>node('家'));
