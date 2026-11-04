@@ -149,20 +149,27 @@ try{
     console.log("CARGO ATTEMPT",attempt,JSON.stringify({day:state.day,health:initialHealth,dice:state.dice.length}));
     // The original injury and time rules can cause a hospital collapse.
     // Never force the stage or heal. A failed attempt remains retryable.
-    for(const id of ["破解门铃","小心翼翼地打开铁门",
-      "小心翼翼地打开铁门","混进装卸队",
-      "抢搬重货","抢搬重货"]){
-      if(state.mode!=="scenario")break;
-      state=await action(id);
-    }
+    const hasCard=id=>state.mode==="scenario"&&
+      state.entries.some(x=>x.id===id&&!x.disabled);
+    // Clock progress belongs to the authored Scheme roll outcome. A low or
+    // neutral roll can advance only one point: do not assume two rolls can
+    // complete a six-point cargo stage, and do not skip the actual time tax.
+    for(let n=0;n<6&&hasCard("破解门铃")&&!hasCard("小心翼翼地打开铁门");n++)
+      state=await action("破解门铃");
+    for(let n=0;n<7&&hasCard("小心翼翼地打开铁门")&&!hasCard("混进装卸队");n++)
+      state=await action("小心翼翼地打开铁门");
+    if(hasCard("混进装卸队"))state=await action("混进装卸队");
+    for(let n=0;n<12&&hasCard("抢搬重货");n++)
+      state=await action("抢搬重货");
     if(state.mode==="scenario"){
       assert(state.entries.some(x=>x.id==="文件柜"),
-        "Legitimate cargo work must lead to the archives");
+        "The six-point cargo Clock must eventually open the real archives: "+
+        JSON.stringify(state.entries.map(x=>x.id)));
       for(const container of ["文件柜","办公桌","外寄纸箱"]){
-        if(state.mode!=="scenario"||state.entries.some(x=>x.id==="与罗科谈判"))break;
-        state=await action(container);
-        if(state.mode!=="scenario")break;
-        state=await action(container);
+        for(let tries=0;tries<7&&hasCard(container)&&
+            !hasCard("与罗科谈判");tries++)
+          state=await action(container);
+        if(state.mode!=="scenario"||hasCard("与罗科谈判"))break;
       }
     }
     if(state.mode==="scenario"){
