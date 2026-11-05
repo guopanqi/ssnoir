@@ -64,6 +64,22 @@ try {
   assert(await mapPin.isVisible(),"The actual hotel must be visible on the board");
   assert(await mapPin.evaluate(el=>el.classList.contains("urgent")),
     "The required first-morning visit is visibly marked on the map");
+  assert.equal(await page.locator(".map-paper-card").count(),worldPlaces.length,
+    "Every authored place must have exactly one paper card");
+  assert.equal(await page.locator(".map-district-label").count(),3,
+    "The desk map must display its three illustrative city districts");
+  assert.equal(await page.locator(".map-masthead").count(),1);
+  assert.equal(await page.locator(".map-task-stamp").count(),
+    worldPlaces.filter(p=>initial.restReasons.some(r=>r.location===p.id)).length,
+    "Task stamps are driven only by the Scheme rest blockers");
+  const cardMaterials=await mapPin.locator(".map-location-paper").evaluate(el=>({
+    background:getComputedStyle(el).backgroundImage,
+    text:getComputedStyle(el.querySelector(".map-location-name")).color
+  }));
+  assert.match(cardMaterials.background,/gradient/i,
+    "Place cards must have the illustrated paper treatment");
+  assert.notEqual(cardMaterials.text,"rgb(255, 255, 255)",
+    "Ink on paper must use a legible dark tone");
   async function assertStationaryDock(label){
     const layout=await page.evaluate(()=>{
       const dice=document.querySelector(".hud-dice")?.getBoundingClientRect();
@@ -101,6 +117,12 @@ try {
   assert(state.entries.some(x=>x.id==="旅馆清晨"));
   assert(await page.locator(".city-map .map-location.is-current").isVisible(),
     "Entered location remains identifiable on the city map");
+  assert.equal((await page.locator(".map-breadcrumb strong").innerText()).trim(),"家",
+    "The map must visibly identify its selected location");
+  assert.equal(await page.locator(".map-selection-thread").count(),1,
+    "A selected map card must connect visually to the side dossier");
+  assert.equal(await page.locator(".map-paper-card").count(),state.mapPlaces.length,
+    "Selecting a location cannot create or remove authored map places");
   assert(await page.locator('[data-testid="map-place"][data-node-id="家"]').isEnabled(),
     "Map pins remain usable when a place is open, without consuming resources");
   await page.screenshot({path:"artifacts/web-game-place.png"});
