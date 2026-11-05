@@ -257,6 +257,92 @@ try{
     "Relationship milestone and logs must survive isolated VM restore");
   writeFileSync("artifacts/web-game-walter-reimbursement-save.json",patronageSave,"utf8");
   console.log("PASS: genuine Walter mercy verdict -> two real paid assignments -> blank expense form -> restored character dossier");
+
+  // Continue from the earned reimbursement form, not a debug-injected Walter
+  // relationship. Further real fieldwork gradually unlocks consulting money,
+  // then an optional contract. Leaving the contract unsigned must remain a
+  // valid player choice, with measurably different money on the same job.
+  const work=async()=>{
+    let current=await state();
+    if(!current.dice.length)current=await sleep();
+    if(current.path[0]!=="格兰德酒店")current=await go("格兰德酒店");
+    const oldMoney=current.money;
+    current=await act("替沃尔特跑外勤");
+    assert(current.money>=oldMoney,
+      "Walter's light mercy work does not charge the player");
+    return {view:current,delta:current.money-oldMoney,
+      grade:current.lastAction?.result};
+  };
+  let consultantSeen=false,advisorJobs=0;
+  for(let job=0;job<14;job++){
+    const before=(await dossiers()).find(x=>x.id==="跑沃尔特的外勤");
+    assert(before&&before.status==="进行中");
+    const contactReady=before.steps[1]?.done;
+    if(contactReady)break;
+    const performed=await work();advisorJobs++;
+    const next=(await dossiers()).find(x=>x.id==="跑沃尔特的外勤");
+    assert(next?.steps[0]?.done,
+      "The reimbursement milestone cannot disappear after more paid work");
+    if(!consultantSeen&&next.log.some(x=>x.text.includes("外部顾问"))){
+      consultantSeen=true;
+      assert(next.steps[1]?.done===false,
+        "Consulting income opens before the optional long-term contract");
+    }
+    if(consultantSeen&&performed.grade==="成功"){
+      assert(performed.delta>=22,
+        "Legitimate successful mercy work must pay its native wage");
+    }
+  }
+  assert(consultantSeen,
+    "Repeated real work must unlock the distinct consultant-fee stage");
+  const contractDossier=(await dossiers()).find(x=>x.id==="跑沃尔特的外勤");
+  assert(contractDossier?.steps[1]?.done,
+    "Actual fieldwork must meet the project threshold before signing");
+  assert.equal(contractDossier.steps[2]?.done,false,
+    "A project invitation cannot automatically sign a binding agreement");
+  if((await state()).path[0]!=="格兰德酒店")s=await go("格兰德酒店");
+  assert((await state()).displayCards.some(x=>x.id==="签沃尔特的协议"&&!x.disabled),
+    "Original signature card must appear as a separate optional action");
+  const unsignedSource=await save();
+  const unsignedJob=await work();
+  const unsignedDossier=(await dossiers()).find(x=>x.id==="跑沃尔特的外勤");
+  assert.equal(unsignedDossier.steps[2].done,false,
+    "Declining to sign must remain possible even after another paid job");
+  assert(!unsignedDossier.log.some(x=>x.text.includes("签了字")),
+    "Unsigned work must not forge the actual contract");
+  await load(unsignedSource);
+  s=await state();
+  if(s.path[0]!=="格兰德酒店")s=await go("格兰德酒店");
+  const beforeSignDice=s.dice.length;
+  s=await act("签沃尔特的协议");
+  assert.equal(s.dice.length,beforeSignDice,
+    "Choosing a contract must not masquerade as a die-consuming field job");
+  const signedDossier=(await dossiers()).find(x=>x.id==="跑沃尔特的外勤");
+  assert(signedDossier?.steps.every(x=>x.done),
+    "The three actual Walter relationship milestones must all be visible");
+  assert(signedDossier.log.some(x=>x.text.includes("签了字")),
+    "The original signature event must enter the person's lasting journal");
+  const signedJob=await work();
+  // The signed project always distributes +20 and returns 8 to Walter:
+  // +12 on top of whichever normal wage/result this actual job produced.
+  const wage=grade=>grade==="成功"?22:grade==="一般"?15:0;
+  const expectedSigned=wage(signedJob.grade)+12+
+    (signedJob.grade==="失败"?12:0);
+  assert.equal(signedJob.delta,expectedSigned,
+    "Signed projects must add their native 12 after Walter's 8-share deduction");
+  const signedSave=await save();
+  await load(signedSave);
+  const restoredAgreement=(await dossiers()).find(x=>x.id==="跑沃尔特的外勤");
+  assert.deepEqual(restoredAgreement,(await dossiers()).find(x=>x.id==="跑沃尔特的外勤"));
+  assert(restoredAgreement.steps.every(x=>x.done));
+  assert(restoredAgreement.log.some(x=>x.text.includes("签了字")));
+  writeFileSync("artifacts/web-game-walter-project-signed-save.json",signedSave,"utf8");
+  console.log("PASS: real repeatable Walter jobs -> advisor threshold -> optional unsigned work "+
+    "vs signed project share -> durable agreement",JSON.stringify({
+      advisorJobs,unsigned:unsignedJob.delta,gradeUnsigned:unsignedJob.grade,
+      signed:signedJob.delta,gradeSigned:signedJob.grade,
+      day:(await state()).day}));
+
   assert.deepEqual(errors,[],"No console/page errors along either Walter route");
   await page.screenshot({path:"artifacts/web-game-walter-claim.png"});
   console.log("PASS: authentic banquet Walter relationship -> delayed hotel meeting -> "+
