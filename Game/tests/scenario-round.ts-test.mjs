@@ -60,3 +60,25 @@ test("authored banquet changes from group mingling into four real guests after t
  for(let turn=4;turn<=6;turn++)await director.endRound();
  assert.equal(director.mode,"world","The sixth dance ends through the original authored countdown");
 });
+
+test("original dock trial stability countdown crashes without inventing a hospital day",async()=>{
+  const director=await GameSceneDirector.create(sources,()=>0.999);
+  director.state.setGlobal("世界日",25);
+  let tree=await director.start("码头试运行");
+  assert.equal(director.mode,"scenario");
+  assert(tree.children.some(x=>x.name==="处理偏载货箱"));
+  // All three unresolved alarms drain three stability per real opponent turn.
+  // With 8 total stability, the third transition must end the experiment.
+  for(let round=1;round<=3;round++){
+    const frames=await director.endRound();
+    assert(frames.some(x=>x.phase==="opponent-rule"),
+      "Original concurrent hazards must resolve every round");
+    if(round<3)assert.equal(director.mode,"scenario");
+  }
+  assert.equal(director.mode,"world",
+    "An empty system-stability clock ends the original Scenario normally");
+  assert.equal(director.state.getGlobal("世界日"),25,
+    "System failure is not a hospitalization or a world-day transition");
+  assert.equal(director.state.hasPendingHospitalization(),false,
+    "No injury collapse is pending when the controller crashes");
+});

@@ -542,10 +542,12 @@ try{
         safety:qualifiedHumane?"跟林停机":"自己查设备"}));
   }
   if(combined){
-    // Counterfactual, from the *identical* evidence save: deliberately skip
-    // the paid drink and attack all three alarms with zero composure. The
-    // trial is genuinely lost to injury; no test may mislabel hospitalization
-    // as a successful clock clear or erase the resulting calendar advance.
+    // Counterfactual from the identical evidence save: skip the recovery
+    // purchase and enter with zero composure. There are two real failure
+    // mechanisms: the system-stability clock can crash the controller while
+    // the protagonist remains standing; an injury reaching seven instead
+    // causes clinic hospitalization and advances the calendar. Validate the
+    // original outcome, never infer hospitalization from any failed trial.
     let unsafe=await load();
     while(unsafe.day<25)unsafe=await sleep();
     assert.equal(unsafe.day,25);
