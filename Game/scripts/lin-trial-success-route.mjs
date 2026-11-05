@@ -541,6 +541,73 @@ try{
       JSON.stringify({route:scenario.route,trainingPlace,trainingRolls,machineDay,
         safety:qualifiedHumane?"跟林停机":"自己查设备"}));
   }
+  if(combined){
+    // Counterfactual, from the *identical* evidence save: deliberately skip
+    // the paid drink and attack all three alarms with zero composure. The
+    // trial is genuinely lost to injury; no test may mislabel hospitalization
+    // as a successful clock clear or erase the resulting calendar advance.
+    let unsafe=await load();
+    while(unsafe.day<25)unsafe=await sleep();
+    assert.equal(unsafe.day,25);
+    unsafe=await click("三号货栈工棚");
+    await page.locator('[data-testid="map-place"][data-node-id="码头"]')
+      .click({timeout:90000});
+    await settled();await story();
+    unsafe=await click("开始试运行");
+    const unsafeInitialComposure=unsafe.actors.find(x=>x.id==="player").composure;
+    assert.equal(unsafeInitialComposure,0,
+      "The original unprepared evidence save must genuinely be exhausted");
+    let unsafeDice=0,unsafeRounds=0;
+    const hazards=[
+      ["处理偏载货箱","重算货箱配重"],
+      ["处理钢索异响","检查张力曲线"],
+      ["处理混装货物","重做货物分类"]
+    ];
+    for(const [group,work] of hazards){
+      for(let tryNo=0;tryNo<8&&unsafe.mode==="scenario";tryNo++){
+        while(unsafe.mode==="scenario"&&!unsafe.dice.length){
+          unsafe=await endRound();unsafeRounds++;
+        }
+        if(unsafe.mode!=="scenario")break;
+        if(unsafe.path.length)await back();
+        unsafe=await read();
+        if(!unsafe.entries.some(x=>x.id===group&&!x.disabled))break;
+        unsafe=await click(group);
+        if(!unsafe.entries.some(x=>x.id===work&&!x.disabled))break;
+        unsafe=await roll(work);
+        unsafeDice++;
+      }
+      if(unsafe.mode!=="scenario")break;
+    }
+    assert.equal(unsafe.mode,"world","The authored hospitalization must leave the Scenario");
+    assert.equal(unsafe.day,26,"Collapse, not an action success, must advance one hospital day");
+    assert.equal(unsafe.health,0,"Hospitalization restores health but leaves a scar");
+    const failed=(await records()).find(x=>x.id==="林与新机器");
+    assert(failed,"Failed trial retains the actual worker dossier");
+    assert.equal(failed.steps[1].done,true,
+      "A genuine failed trial finishes the test step, not the training step");
+    assert.equal(failed.steps[2].done,false,
+      "Hospitalization cannot forge Joe's qualification");
+    assert(failed.log.some(x=>/崩溃|失败/.test(x.text)),
+      "The original controller-collapse outcome must be preserved in the journal");
+    assert(!failed.log.some(x=>x.text.includes("试运行成功")),
+      "An injury-driven exit must not create a successful trial history");
+    const failedJournal=failed.log;
+    await page.getByTestId("save-game").click({timeout:90000});
+    await settled();
+    await page.getByTestId("load-game").click({timeout:90000});
+    await settled();await story();
+    unsafe=await read();
+    assert.equal(unsafe.day,26);
+    assert.deepEqual((await records()).find(x=>x.id==="林与新机器").log,failedJournal,
+      "Hospitalized failure, its date and narrative must survive VM restoration");
+    assert.equal((await records()).find(x=>x.id==="查早报供稿人")?.status,"了结",
+      "The independent 11:07 evidence remains solved even if trial collapses");
+    console.log("PASS: identical evidence save without tavern recovery -> "+
+      "real three-alarm collapse -> hospital day 26 -> failed trial history persists",
+      JSON.stringify({unsafeInitialComposure,unsafeDice,unsafeRounds,
+        day:unsafe.day,health:unsafe.health}));
+  }
   assert.notDeepEqual(outcomes[0].journal,outcomes[1].journal,
     "Different ways of saving the trial must produce different durable stories");
   assert.notEqual(outcomes[0].safety,outcomes[1].safety,
