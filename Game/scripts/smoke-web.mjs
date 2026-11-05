@@ -80,6 +80,8 @@ try {
     "Place cards must have the illustrated paper treatment");
   assert.notEqual(cardMaterials.text,"rgb(255, 255, 255)",
     "Ink on paper must use a legible dark tone");
+  assert.equal(cardMaterials.text,"rgb(33, 29, 22)",
+    "Required-place paper cards must retain dark ink, not the legacy pale urgency color");
   async function assertStationaryDock(label){
     const layout=await page.evaluate(()=>{
       const dice=document.querySelector(".hud-dice")?.getBoundingClientRect();

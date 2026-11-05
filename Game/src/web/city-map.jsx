@@ -21,9 +21,9 @@ const LANDMARKS = {
   "试验工棚": [60, 84, "port"]
 };
 const DISTRICTS = {
-  old: {title:"旧街区",en:"OLD QUARTER",x:14,y:10,hub:[27,51]},
-  theatre: {title:"剧院街",en:"THEATRE QUARTER",x:52,y:10,hub:[60,37]},
-  port: {title:"码头区",en:"HARBOR / DOCKS",x:77,y:61,hub:[76,69]}
+  old: {title:"旧街区",en:"OLD QUARTER",x:27,y:51,hub:[27,51]},
+  theatre: {title:"剧院街",en:"THEATRE QUARTER",x:60,y:37,hub:[60,37]},
+  port: {title:"码头区",en:"HARBOR / DOCKS",x:76,y:69,hub:[76,69]}
 };
 function stableHash(text) {
   let hash=2166136261;

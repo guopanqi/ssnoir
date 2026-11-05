@@ -550,3 +550,39 @@
 @media(prefers-reduced-motion:reduce){
   .detective-map .map-location,.hud-dice .die,.inventory-item{transition:none;animation:none}
 }
+
+
+/* Visual districts are desk labels, never additional playable world nodes. */
+.detective-map .city-map-art{filter:brightness(1.16)}
+.detective-map .map-district-label{
+  z-index:3;display:grid;gap:4px;min-width:132px;
+  padding:10px 15px 12px;pointer-events:none;
+  background:#15171c;border:1px solid #8e7956;
+  box-shadow:inset 0 0 0 4px #24252a,0 3px 0 #090c0e,0 8px 21px #000a;
+  color:#e2ce9f;opacity:1;
+  transform:translate(-50%,-50%) rotate(-1.2deg);
+  text-shadow:none
+}
+.detective-map .map-district-theatre{transform:translate(-50%,-50%) rotate(1.1deg)}
+.detective-map .map-district-port{transform:translate(-50%,-50%) rotate(-.8deg)}
+.detective-map .map-district-label strong{
+  font:800 18px/1.25 var(--desk-display);letter-spacing:.14em;color:#ddceac
+}
+.detective-map .map-district-label small{
+  font:10px var(--desk-mono);letter-spacing:.16em;color:#ac9770
+}
+.detective-map .map-location.urgent .map-location-name{
+  color:#211d16; /* urgent means a red task stamp, not pale ink on pale paper */
+}
+.detective-map .map-location.is-current .map-location-name{color:#211d16}
+@media(max-width:1120px){
+  .detective-map .map-district-label{min-width:108px;padding:7px 9px}
+  .detective-map .map-district-label strong{font-size:15px}
+  .detective-map .map-district-label small{font-size:8px}
+}
+@media(max-width:680px){
+  .detective-map .map-district-label{min-width:73px;padding:5px 7px}
+  .detective-map .map-district-label strong{font-size:11px}
+  .detective-map .map-district-label small{font-size:7px;display:block}
+  .detective-map .map-caption{display:none}
+}
