@@ -117,6 +117,10 @@ try {
   let state=await clickNode("家");
   assert.deepEqual(state.path,["家"]);
   assert(state.entries.some(x=>x.id==="旅馆清晨"));
+  const authoredCafe=page.locator('[data-testid="map-place"][data-node-id="街角咖啡馆"]');
+  if((await read()).mapPlaces.some(x=>x.id==="街角咖啡馆"))
+    assert.equal(await authoredCafe.getAttribute("data-map-district"),"old",
+      "The authentic cafe ID must keep a stable old-quarter position, not random fallback");
   assert(await page.locator(".city-map .map-location.is-current").isVisible(),
     "Entered location remains identifiable on the city map");
   assert.equal((await page.locator(".map-breadcrumb strong").innerText()).trim(),

@@ -14,11 +14,15 @@ const LANDMARKS = {
   "报社": [69, 39, "theatre"],
   "警察局": [49, 53, "theatre"],
   "咖啡馆": [43, 71, "old"],
+  "街角咖啡馆": [43, 71, "old"],
   "居民区": [13, 50, "old"],
+  "码头居民区": [12, 48, "old"],
   "格兰德酒店": [77, 15, "theatre"],
   "货运公司": [88, 52, "port"],
   "港务技术区": [88, 88, "port"],
-  "试验工棚": [60, 84, "port"]
+  "试验工棚": [60, 84, "port"],
+  "三号货栈工棚": [60, 84, "port"],
+  "夜总会": [83, 32, "theatre"]
 };
 const DISTRICTS = {
   old: {title:"旧街区",en:"OLD QUARTER",x:27,y:51,hub:[27,51]},
@@ -134,7 +138,7 @@ export function CityMap({places,activePlace=null,restReasons=[],onOpen,onBackgro
         disabled={locked||place.disabled}
         aria-current={isCurrent?"location":undefined}
         onClick={event=>{event.stopPropagation();onOpen(place.id);}}
-        data-testid="map-place" data-node-id={place.id}
+        data-testid="map-place" data-node-id={place.id} data-map-district={district}
         title={place.subtitle?place.title+" — "+place.subtitle:place.title}>
         <span className="map-pin" aria-hidden="true"/>
         {needsVisit&&<span className="map-task-stamp">待办</span>}
