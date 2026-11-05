@@ -552,11 +552,10 @@ try{
   }
   if(combined){
     // Counterfactual from the identical evidence save: skip the recovery
-    // purchase and enter with zero composure. There are two real failure
-    // mechanisms: the system-stability clock can crash the controller while
-    // the protagonist remains standing; an injury reaching seven instead
-    // causes clinic hospitalization and advances the calendar. Validate the
-    // original outcome, never infer hospitalization from any failed trial.
+    // purchase AND decline to use any dice on the three simultaneous alarms.
+    // This deliberately exercises the stability-clock failure, distinct from
+    // seven injury points causing hospitalization. Do not conflate either
+    // result with a successfully completed trial.
     let unsafe=await load();
     while(unsafe.day<25)unsafe=await sleep();
     assert.equal(unsafe.day,25);
@@ -568,28 +567,27 @@ try{
     const unsafeInitialComposure=unsafe.actors.find(x=>x.id==="player").composure;
     assert.equal(unsafeInitialComposure,0,
       "The original unprepared evidence save must genuinely be exhausted");
+    // Explicit, legitimate non-intervention: the player observes instead of
+    // spending a die. Three concurrent unresolved alarms drain the original
+    // 8-point system-stability countdown by 3 each opponent round.
+    // High rolls could otherwise CLEAR all the alarms even at zero mood,
+    // so "didn't buy a drink" alone is not a valid failure oracle.
     let unsafeDice=0,unsafeRounds=0;
-    const hazards=[
-      ["处理偏载货箱","重算货箱配重"],
-      ["处理钢索异响","检查张力曲线"],
-      ["处理混装货物","重做货物分类"]
-    ];
-    for(const [group,work] of hazards){
-      for(let tryNo=0;tryNo<8&&unsafe.mode==="scenario";tryNo++){
-        while(unsafe.mode==="scenario"&&!unsafe.dice.length){
-          unsafe=await endRound();unsafeRounds++;
-        }
-        if(unsafe.mode!=="scenario")break;
-        if(unsafe.path.length)await back();
-        unsafe=await read();
-        if(!unsafe.entries.some(x=>x.id===group&&!x.disabled))break;
-        unsafe=await click(group);
-        if(!unsafe.entries.some(x=>x.id===work&&!x.disabled))break;
-        unsafe=await roll(work);
-        unsafeDice++;
-      }
-      if(unsafe.mode!=="scenario")break;
+    for(let round=1;round<=3;round++){
+      assert.equal(unsafe.mode,"scenario",
+        "The three unhandled anomalies must remain active before countdown expiry");
+      assert(unsafe.entries.some(x=>x.id==="处理偏载货箱"&&!x.disabled));
+      assert(unsafe.entries.some(x=>x.id==="处理钢索异响"&&!x.disabled));
+      assert(unsafe.entries.some(x=>x.id==="处理混装货物"&&!x.disabled));
+      unsafe=await endRound();
+      unsafeRounds++;
+      if(round<3)assert.equal(unsafe.mode,"scenario",
+        "The original eight-point system clock must not expire early");
     }
+    assert.equal(unsafeDice,0,
+      "Choosing not to intervene must never consume a die or forge a resolution");
+    assert.equal(unsafeRounds,3,
+      "Three original concurrent-alarms opponent turns must empty stability");
     // Two distinct exits exist in the authoritative trial: the countdown
     // reaching zero returns a '崩溃' result on the SAME city day; only a player
     // injury reaching seven triggers clinic hospitalization and a new day.
