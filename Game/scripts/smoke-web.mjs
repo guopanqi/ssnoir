@@ -114,6 +114,45 @@ try {
     "The inventory HUD must reflect native item quantities");
 
   await page.screenshot({path:"artifacts/web-game-city.png"});
+  // A real narrow viewport: the reference is a desk of cards, not a fixed
+  // desktop bitmap. Check overflow and map navigation with live Scheme data.
+  const phone=await browser.newPage({viewport:{width:390,height:844}});
+  const phoneErrors=[];
+  phone.on("pageerror",error=>phoneErrors.push(String(error)));
+  try {
+    await phone.goto(gameUrl,{waitUntil:"domcontentloaded"});
+    await phone.getByTestId("game-ready").waitFor({timeout:90000});
+    for(let i=0;i<250;i++){
+      const snapshot=await phone.evaluate(()=>window.__SSNOIR_WEB__?.snapshot());
+      if(!snapshot?.story)break;
+      await phone.getByTestId("story-continue").click({timeout:90000});
+    }
+    const mobileGeometry=await phone.evaluate(()=>{
+      const map=document.querySelector(".city-map")?.getBoundingClientRect();
+      const card=document.querySelector('[data-testid="map-place"][data-node-id="家"]')
+        ?.getBoundingClientRect();
+      return {pageWidth:document.documentElement.scrollWidth,viewport:innerWidth,
+        map:map?{left:map.left,right:map.right,height:map.height}:null,
+        card:card?{left:card.left,right:card.right}:null};
+    });
+    assert(mobileGeometry.pageWidth<=mobileGeometry.viewport+3,
+      "Mobile detective desk cannot introduce horizontal document scrolling "+
+      JSON.stringify(mobileGeometry));
+    assert(mobileGeometry.map&&mobileGeometry.map.height>=300,
+      "The mobile map must remain an actual spatial canvas, not collapse to a header");
+    assert(mobileGeometry.card&&mobileGeometry.card.left>=0&&
+      mobileGeometry.card.right<=mobileGeometry.viewport+1,
+      "The authored first location card must remain fully on-screen");
+    await phone.locator('[data-testid="map-place"][data-node-id="家"]').click();
+    await phone.waitForFunction(()=>{
+      const state=window.__SSNOIR_WEB__?.snapshot();
+      return state&&!state.busy&&state.path[0]==="家";
+    },null,{timeout:90000});
+    assert.equal(await phone.locator(".map-selection-thread").count(),1,
+      "Mobile selection must retain the map-to-dossier visual thread");
+    await phone.screenshot({path:"artifacts/web-game-mobile-desk.png",fullPage:true});
+    assert.deepEqual(phoneErrors,[],"No browser crashes on the narrow map layout");
+  } finally {await phone.close();}
   let state=await clickNode("家");
   assert.deepEqual(state.path,["家"]);
   assert(state.entries.some(x=>x.id==="旅馆清晨"));
