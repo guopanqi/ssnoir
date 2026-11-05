@@ -222,6 +222,48 @@ try{
       s=await read();
       assert.deepEqual(s.path,["码头"],
         "The same city day must allow a genuine map journey from Lin's workshop to the dock");
+      // A completed evidence investigation has left Neil exhausted.
+      // The original Scenario taxes one composure per round, spilling into
+      // health. The previous direct entrance hospitalised him in round four
+      // without completing all three alarms. Restore composure first by
+      // spending today's *real* world dice on the authored home recovery
+      // action. No roll, date, task, or clock is injected by the test.
+      const exhaustionBefore=s.actors.find(x=>x.id==="player")?.composure;
+      assert.equal(s.day,25);
+      await page.locator('[data-testid="map-place"][data-node-id="家"]')
+        .click({timeout:90000});
+      await settled();await story();
+      s=await read();
+      const healthBeforePreparation=s.health,cityDiceBefore=s.dice.length;
+      let recoveryRolls=0;
+      while((s.actors.find(x=>x.id==="player")?.composure??0)<4&&
+        s.dice.some(x=>x.actorId==="player")){
+        const oldComposure=s.actors.find(x=>x.id==="player").composure;
+        s=await roll("静坐");
+        recoveryRolls++;
+        assert.equal(s.day,25,"Preparing at home must not skip the trial calendar");
+        assert(s.actors.find(x=>x.id==="player").composure>oldComposure,
+          "A real recovery-roll must actually restore composure");
+      }
+      const preparedComposure=s.actors.find(x=>x.id==="player")?.composure;
+      assert(preparedComposure>=4,
+        "The injured evidence investigator needs four safe scenario rounds, "+
+        JSON.stringify({exhaustionBefore,preparedComposure,
+          cityDiceBefore,recoveryRolls,remainingDice:s.dice,health:s.health}));
+      assert.equal(s.dice.length,cityDiceBefore-recoveryRolls,
+        "Recovery requires one genuine city die per attempt");
+      assert.equal(s.health,healthBeforePreparation,
+        "A composure recovery must not silently heal an injury or scar");
+      await page.locator('[data-testid="map-place"][data-node-id="码头"]')
+        .click({timeout:90000});
+      await settled();await story();
+      s=await read();
+      assert.deepEqual(s.path,["码头"]);
+      console.log("LIN CROSS-ROUTE AUTHORED RECOVERY",JSON.stringify({
+        route:scenario.route,exhaustionBefore,preparedComposure,
+        cityDiceBefore,recoveryRolls,remainingDice:s.dice.length,
+        day:s.day,health:s.health}));
+
       // The source evidence save is day 23. The required tavern brawl
       // may hospitalize the player and legitimately advance to day 24.
       // The authored trial is not started until day 25. Establish the
