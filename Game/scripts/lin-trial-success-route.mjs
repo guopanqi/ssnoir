@@ -579,32 +579,40 @@ try{
       }
       if(unsafe.mode!=="scenario")break;
     }
-    assert.equal(unsafe.mode,"world","The authored hospitalization must leave the Scenario");
-    assert.equal(unsafe.day,26,"Collapse, not an action success, must advance one hospital day");
-    assert.equal(unsafe.health,0,"Hospitalization restores health but leaves a scar");
+    // Two distinct exits exist in the authoritative trial: the countdown
+    // reaching zero returns a '崩溃' result on the SAME city day; only a player
+    // injury reaching seven triggers clinic hospitalization and a new day.
+    // This unprepared route exhausts system stability first. Do not
+    // reinterpret the original controller failure as an injury hospitalization.
+    assert.equal(unsafe.mode,"world","The controller crash must leave the Scenario");
+    assert.equal(unsafe.day,25,
+      "System stability collapsing before player injury must not invent a hospital day");
+    assert(unsafe.health>=0&&unsafe.health<7,
+      "The native injury threshold must not be forged by a system-clock failure");
     const failed=(await records()).find(x=>x.id==="林与新机器");
     assert(failed,"Failed trial retains the actual worker dossier");
     assert.equal(failed.steps[1].done,true,
       "A genuine failed trial finishes the test step, not the training step");
     assert.equal(failed.steps[2].done,false,
-      "Hospitalization cannot forge Joe's qualification");
+      "A failed system trial cannot forge Joe's qualification");
     assert(failed.log.some(x=>/崩溃|失败/.test(x.text)),
       "The original controller-collapse outcome must be preserved in the journal");
     assert(!failed.log.some(x=>x.text.includes("试运行成功")),
-      "An injury-driven exit must not create a successful trial history");
+      "A system-clock failure must not create a successful trial history");
     const failedJournal=failed.log;
     await page.getByTestId("save-game").click({timeout:90000});
     await settled();
     await page.getByTestId("load-game").click({timeout:90000});
     await settled();await story();
     unsafe=await read();
-    assert.equal(unsafe.day,26);
+    assert.equal(unsafe.day,25,
+      "System-crash exit stays on the same date across isolated-VM restore");
     assert.deepEqual((await records()).find(x=>x.id==="林与新机器").log,failedJournal,
-      "Hospitalized failure, its date and narrative must survive VM restoration");
+      "System failure and its narrative must survive VM restoration");
     assert.equal((await records()).find(x=>x.id==="查早报供稿人")?.status,"了结",
       "The independent 11:07 evidence remains solved even if trial collapses");
     console.log("PASS: identical evidence save without tavern recovery -> "+
-      "real three-alarm collapse -> hospital day 26 -> failed trial history persists",
+      "real stability-clock collapse on day 25 -> failed trial history persists",
       JSON.stringify({unsafeInitialComposure,unsafeDice,unsafeRounds,
         day:unsafe.day,health:unsafe.health}));
   }
