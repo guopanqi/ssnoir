@@ -222,47 +222,58 @@ try{
       s=await read();
       assert.deepEqual(s.path,["码头"],
         "The same city day must allow a genuine map journey from Lin's workshop to the dock");
-      // A completed evidence investigation has left Neil exhausted.
-      // The original Scenario taxes one composure per round, spilling into
-      // health. The previous direct entrance hospitalised him in round four
-      // without completing all three alarms. Restore composure first by
-      // spending today's *real* world dice on the authored home recovery
-      // action. No roll, date, task, or clock is injected by the test.
-      const exhaustionBefore=s.actors.find(x=>x.id==="player")?.composure;
-      assert.equal(s.day,25);
-      await page.locator('[data-testid="map-place"][data-node-id="家"]')
+      // The successful 11:07 investigation also cost Neil his rent.
+      // Home no longer has an accessible room: "静坐" is not available
+      // when evicted. Do not use a debug recovery or forgive the rent.
+      // Buy an actual drink from the city tavern (15 money, +3 composure),
+      // earning the difference with a real shift if necessary. This
+      // is a materially different resource-allocation choice before trial.
+      const originalComposure=s.actors.find(x=>x.id==="player").composure;
+      const originalHealth=s.health,originalMoney=s.money;
+      const originalDice=s.dice.length;
+      await page.locator('[data-testid="map-place"][data-node-id="老街酒馆"]')
         .click({timeout:90000});
       await settled();await story();
       s=await read();
-      const healthBeforePreparation=s.health,cityDiceBefore=s.dice.length;
-      let recoveryRolls=0;
-      while((s.actors.find(x=>x.id==="player")?.composure??0)<4&&
-        s.dice.some(x=>x.actorId==="player")){
-        const oldComposure=s.actors.find(x=>x.id==="player").composure;
-        s=await roll("静坐");
-        recoveryRolls++;
-        assert.equal(s.day,25,"Preparing at home must not skip the trial calendar");
-        assert(s.actors.find(x=>x.id==="player").composure>oldComposure,
-          "A real recovery-roll must actually restore composure");
+      const purchase=s.entries.find(x=>x.id==="点一杯酒");
+      assert(purchase&&!purchase.disabled,
+        "The unprepared investigator must have an authored tavern recovery option");
+      assert.deepEqual(purchase.requires,[{type:"item",itemId:"金钱",qty:15}],
+        "Recovery price must be the actual authored item cost");
+      let shifts=0;
+      while(s.money<15){
+        assert(s.dice.some(x=>x.actorId==="player"),
+          "Cannot afford the original drink without genuine work dice");
+        assert(s.entries.some(x=>x.id==="看场子"&&!x.disabled),
+          "Insufficient cash: a legal paying shift must remain available");
+        const before=s.money,beforeDice=s.dice.length;
+        s=await roll("看场子");
+        shifts++;
+        assert(s.money>before,"The tavern shift must actually earn money");
+        assert.equal(s.dice.length,beforeDice-1,"Working consumes a real die");
       }
-      const preparedComposure=s.actors.find(x=>x.id==="player")?.composure;
-      assert(preparedComposure>=4,
-        "The injured evidence investigator needs four safe scenario rounds, "+
-        JSON.stringify({exhaustionBefore,preparedComposure,
-          cityDiceBefore,recoveryRolls,remainingDice:s.dice,health:s.health}));
-      assert.equal(s.dice.length,cityDiceBefore-recoveryRolls,
-        "Recovery requires one genuine city die per attempt");
-      assert.equal(s.health,healthBeforePreparation,
-        "A composure recovery must not silently heal an injury or scar");
+      const moneyBeforeDrink=s.money;
+      const composureBeforeDrink=s.actors.find(x=>x.id==="player").composure;
+      s=await click("点一杯酒");
+      const restoredComposure=s.actors.find(x=>x.id==="player").composure;
+      assert.equal(s.money,moneyBeforeDrink-15,
+        "The tavern must actually charge the authored fifteen");
+      assert(restoredComposure>composureBeforeDrink,
+        "The original tavern drink must genuinely restore composure");
+      assert(restoredComposure>=3,
+        "An exhaustion-free trial path needs actual recovery before acting");
+      assert.equal(s.day,25,"City work and a drink must not skip the trial date");
+      assert.equal(s.health,originalHealth,
+        "Restoring mood must never secretly heal actual injuries or scars");
       await page.locator('[data-testid="map-place"][data-node-id="码头"]')
         .click({timeout:90000});
       await settled();await story();
       s=await read();
       assert.deepEqual(s.path,["码头"]);
-      console.log("LIN CROSS-ROUTE AUTHORED RECOVERY",JSON.stringify({
-        route:scenario.route,exhaustionBefore,preparedComposure,
-        cityDiceBefore,recoveryRolls,remainingDice:s.dice.length,
-        day:s.day,health:s.health}));
+      console.log("LIN CROSS-ROUTE AUTHORED PREPARATION",JSON.stringify({
+        route:scenario.route,originalComposure,restoredComposure,
+        originalHealth,originalMoney,originalDice,shifts,
+        remainingMoney:s.money,remainingDice:s.dice.length,day:s.day}));
 
       // The source evidence save is day 23. The required tavern brawl
       // may hospitalize the player and legitimately advance to day 24.
