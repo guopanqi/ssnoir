@@ -305,6 +305,11 @@ try{
     "Original signature card must appear as a separate optional action");
   const unsignedSource=await save();
   const unsignedJob=await work();
+  const wage=grade=>grade==="成功"?22:grade==="一般"?15:0;
+  const expectedUnsigned=wage(unsignedJob.grade)+
+    (unsignedJob.grade==="成功"?10:unsignedJob.grade==="失败"?12:0);
+  assert.equal(unsignedJob.delta,expectedUnsigned,
+    "An unsigned stage-two relationship pays only actual wage, consultant fee and any failure reimbursement");
   const unsignedDossier=(await dossiers()).find(x=>x.id==="跑沃尔特的外勤");
   assert.equal(unsignedDossier.steps[2].done,false,
     "Declining to sign must remain possible even after another paid job");
@@ -325,15 +330,16 @@ try{
   const signedJob=await work();
   // The signed project always distributes +20 and returns 8 to Walter:
   // +12 on top of whichever normal wage/result this actual job produced.
-  const wage=grade=>grade==="成功"?22:grade==="一般"?15:0;
   const expectedSigned=wage(signedJob.grade)+12+
     (signedJob.grade==="失败"?12:0);
   assert.equal(signedJob.delta,expectedSigned,
     "Signed projects must add their native 12 after Walter's 8-share deduction");
+  const completedAgreement=(await dossiers()).find(x=>x.id==="跑沃尔特的外勤");
   const signedSave=await save();
   await load(signedSave);
   const restoredAgreement=(await dossiers()).find(x=>x.id==="跑沃尔特的外勤");
-  assert.deepEqual(restoredAgreement,(await dossiers()).find(x=>x.id==="跑沃尔特的外勤"));
+  assert.deepEqual(restoredAgreement,completedAgreement,
+    "The native signed contract and its completed steps survive a fresh isolated Scheme VM");
   assert(restoredAgreement.steps.every(x=>x.done));
   assert(restoredAgreement.log.some(x=>x.text.includes("签了字")));
   writeFileSync("artifacts/web-game-walter-project-signed-save.json",signedSave,"utf8");
