@@ -117,8 +117,9 @@ try {
   assert(state.entries.some(x=>x.id==="旅馆清晨"));
   assert(await page.locator(".city-map .map-location.is-current").isVisible(),
     "Entered location remains identifiable on the city map");
-  assert.equal((await page.locator(".map-breadcrumb strong").innerText()).trim(),"家",
-    "The map must visibly identify its selected location");
+  assert.equal((await page.locator(".map-breadcrumb strong").innerText()).trim(),
+    state.mapPlaces.find(x=>x.id==="家")?.title,
+    "Map breadcrumb must show the authored display title, not an internal node ID");
   assert.equal(await page.locator(".map-selection-thread").count(),1,
     "A selected map card must connect visually to the side dossier");
   assert.equal(await page.locator(".map-paper-card").count(),state.mapPlaces.length,
