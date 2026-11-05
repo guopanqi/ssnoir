@@ -1,85 +1,173 @@
 import React from "react";
 
 /**
- * Illustrated, presentation-only city board. The authoritative list of places
- * comes from the current Scheme node tree; coordinates are visual landmarks.
- * This component never unlocks places or applies game rules.
+ * The detective's desk is strictly a view of authored world places.
+ * Coordinates, districts and connecting thread are illustrative only:
+ * no independent location flags, game clocks, unlocks or transitions.
  */
-const landmarks = {
-  "家": [24, 68],
-  "老街酒馆": [35, 43],
-  "剧院": [57, 28],
-  "码头": [77, 75],
-  "诊所": [32, 22],
-  "报社": [70, 35],
-  "警察局": [52, 53],
-  "咖啡馆": [42, 66],
-  "居民区": [20, 33],
-  "格兰德酒店": [64, 16],
-  "货运公司": [84, 51],
-  "港务技术区": [87, 83],
-  "试验工棚": [70, 86]
+const LANDMARKS = {
+  "家": [22, 68, "old"],
+  "老街酒馆": [28, 42, "old"],
+  "剧院": [57, 29, "theatre"],
+  "码头": [77, 75, "port"],
+  "诊所": [22, 22, "old"],
+  "报社": [69, 39, "theatre"],
+  "警察局": [49, 53, "theatre"],
+  "咖啡馆": [43, 71, "old"],
+  "居民区": [13, 50, "old"],
+  "格兰德酒店": [77, 15, "theatre"],
+  "货运公司": [88, 52, "port"],
+  "港务技术区": [88, 88, "port"],
+  "试验工棚": [60, 84, "port"]
 };
-function position(id,index) {
-  if (landmarks[id]) return landmarks[id];
-  const angle = index * 2.399963229728653;
-  return [50 + 33*Math.cos(angle),50 + 30*Math.sin(angle)];
+const DISTRICTS = {
+  old: {title:"旧街区",en:"OLD QUARTER",x:14,y:10,hub:[27,51]},
+  theatre: {title:"剧院街",en:"THEATRE QUARTER",x:52,y:10,hub:[60,37]},
+  port: {title:"码头区",en:"HARBOR / DOCKS",x:77,y:61,hub:[76,69]}
+};
+function stableHash(text) {
+  let hash=2166136261;
+  for(const char of text)hash=Math.imul(hash^char.codePointAt(0),16777619);
+  return hash>>>0;
 }
-export function CityMap({places,activePlace=null,restReasons,onOpen,onBackground,locked}) {
-  const urgent=new Set(restReasons.map(reason => reason.location));
-  return <div className="city-map"
+function layoutFor(id) {
+  if(LANDMARKS[id])return LANDMARKS[id];
+  // Unknown future authored locations keep a position independent of list order.
+  const hash=stableHash(id);
+  const district=["old","theatre","port"][hash%3];
+  const anchor=DISTRICTS[district].hub;
+  const theta=((hash>>>4)%360)*Math.PI/180;
+  const radius=11+((hash>>>13)%10);
+  return [
+    Math.max(11,Math.min(89,anchor[0]+radius*Math.cos(theta))),
+    Math.max(17,Math.min(85,anchor[1]+radius*Math.sin(theta))),
+    district
+  ];
+}
+function connection(x,y,hub) {
+  const mx=(x+hub[0])/2;
+  return "M"+hub[0]+" "+hub[1]+" Q"+mx+" "+(Math.min(y,hub[1])-7)+" "+x+" "+y;
+}
+export function CityMap({places,activePlace=null,restReasons=[],onOpen,onBackground,locked}) {
+  const urgent=new Set(restReasons.map(reason=>reason.location));
+  const positioned=places.map(place=>{
+    const [x,y,district]=layoutFor(place.id);
+    return {place,x,y,district};
+  });
+  const current=positioned.find(({place})=>place.id===activePlace);
+  const currentName=current?.place.title??activePlace;
+  return <div className={"city-map detective-map"+(current?" has-focus":"")}
+    role="region" aria-label="城市地图"
     onClick={event=>{
-      if(event.target.closest(".map-location"))return;
+      if(event.target.closest(".map-location")||event.target.closest(".map-return"))return;
       if(!locked)onBackground?.();
-    }} title="点击地图空白处返回城市总览">
-    <svg className="city-map-art" viewBox="0 0 1000 700" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    }}>
+    <svg className="city-map-art" viewBox="0 0 100 100" preserveAspectRatio="none"
+      aria-hidden="true">
       <defs>
-        <pattern id="blocks" width="83" height="71" patternUnits="userSpaceOnUse" patternTransform="rotate(-13)">
-          <path d="M0 0H83V71H0Z M8 12H33V31H8Z M43 9H74V37H43Z M9 43H37V64H9Z M45 46H74V65H45Z" fill="none" stroke="#9a9582" strokeWidth="1.8" opacity=".24"/>
+        <pattern id="desk-blocks" width="8.5" height="10.5" patternUnits="userSpaceOnUse">
+          <rect width="8.5" height="10.5" fill="#151920"/>
+          <path d="M.4 1.2H3.8V4.7H.4Z M4.5 1H8V5.8H4.5Z M1 6H4V9.6H1Z M4.8 6.6H8V9.8H4.8Z"
+            fill="#1b2027" stroke="#333235" strokeWidth=".08"/>
+          <path d="M0 5.6H8.5M4.2 0V10.5" stroke="#272a30" strokeWidth=".17"/>
         </pattern>
-        <pattern id="riverlines" width="22" height="22" patternUnits="userSpaceOnUse">
-          <path d="M0 12 Q5 7 11 12 T22 12" stroke="#e6dfc9" strokeWidth="1" fill="none" opacity=".27"/>
+        <pattern id="desk-water" width="4.6" height="3.3" patternUnits="userSpaceOnUse">
+          <path d="M.2 1.3Q1 1 1.9 1.3T3.7 1.3" fill="none"
+            stroke="#44606b" opacity=".5" strokeWidth=".13"/>
         </pattern>
+        <radialGradient id="desk-vignette">
+          <stop offset="0" stopColor="#333337" stopOpacity="0"/>
+          <stop offset="1" stopColor="#07090d" stopOpacity=".8"/>
+        </radialGradient>
       </defs>
-      <rect width="1000" height="700" fill="#1b2527"/>
-      <path d="M0 0H1000V700H0Z" fill="url(#blocks)"/>
-      <path d="M-35 568 C170 510 230 605 405 536 S680 340 798 414 S937 605 1030 558" fill="none" stroke="#6f7771" strokeWidth="94" opacity=".32"/>
-      <path d="M-35 568 C170 510 230 605 405 536 S680 340 798 414 S937 605 1030 558" fill="none" stroke="#a3a18b" strokeWidth="6" strokeDasharray="8 18" opacity=".44"/>
-      <path d="M-60 665 C175 618 261 720 435 645 S675 450 821 523 S950 690 1040 652 L1040 750H-60Z" fill="#304b50" stroke="#829798" strokeWidth="3"/>
-      <path d="M-60 665 C175 618 261 720 435 645 S675 450 821 523 S950 690 1040 652 L1040 750H-60Z" fill="url(#riverlines)"/>
-      <g fill="none" stroke="#e5d5ad" strokeWidth="2" opacity=".3">
-        <path d="M87 135L300 110L485 219L780 165L954 90"/>
-        <path d="M104 388L307 301L482 407L719 321L915 381"/>
-        <path d="M185 30L163 525M492 32L504 621M809 10L760 585"/>
+      <rect width="100" height="100" fill="url(#desk-blocks)"/>
+      <path d="M0 31Q18 34 36 29T66 34T100 27 M2 79Q25 71 45 61T100 43
+        M40 -8Q44 28 49 45T64 104 M86 -6Q78 30 74 55T67 103"
+        stroke="#13151a" strokeWidth="4" fill="none" opacity=".93"/>
+      <path d="M0 31Q18 34 36 29T66 34T100 27 M2 79Q25 71 45 61T100 43
+        M40 -8Q44 28 49 45T64 104 M86 -6Q78 30 74 55T67 103"
+        stroke="#5e5544" strokeWidth=".19" strokeDasharray=".8 1.2" fill="none" opacity=".6"/>
+      <path d="M96 38Q84 43 87 60T81 78L92 100H100V37Z
+        M51 100Q66 87 75 89T100 83V100Z"
+        fill="#10212a" stroke="#566878" strokeWidth=".3"/>
+      <path d="M96 38Q84 43 87 60T81 78L92 100H100V37Z
+        M51 100Q66 87 75 89T100 83V100Z"
+        fill="url(#desk-water)"/>
+      <path d="M6 55Q26 47 60 37T77 69 M60 37Q69 39 76 69"
+        fill="none" stroke="#0b0f14" strokeWidth="2.2"/>
+      <path d="M6 55Q26 47 60 37T77 69 M60 37Q69 39 76 69"
+        fill="none" stroke="#a27d45" strokeDasharray=".7 1.35"
+        strokeWidth=".19" opacity=".72"/>
+      <g className="map-thread">
+        {positioned.map(({place,x,y,district})=>
+          <path key={place.id} d={connection(x,y,DISTRICTS[district].hub)}/>)}
       </g>
-      <g fill="#e7dcc3" opacity=".14">
-        <path d="M516 131l38 -27 39 18 10 43 -31 22 -51 -15z"/>
-        <path d="M285 231l53 -16 28 29 -6 51 -66 7 -19 -35z"/>
-        <path d="M700 487l66 -28 41 39 -24 45 -73 -4z"/>
-      </g>
-      <text x="108" y="95" className="map-district">旧街区 / OLD QUARTER</text>
-      <text x="645" y="93" className="map-district">剧院区 / THEATRE</text>
-      <text x="755" y="642" className="map-district">第七码头 / DOCKS</text>
-      <path d="M48 44H92 M70 22V66" stroke="#dbc49a" strokeWidth="2"/>
-      <text x="70" y="18" textAnchor="middle" fill="#dbc49a" fontSize="14">N</text>
+      {Object.entries(DISTRICTS).map(([id,entry])=>
+        <g key={id} className="map-hub">
+          <circle cx={entry.hub[0]} cy={entry.hub[1]} r=".85"/>
+          <circle cx={entry.hub[0]} cy={entry.hub[1]} r="2.3" className="map-hub-ring"/>
+        </g>)}
+      {current&&<path className="map-selection-thread"
+        d={"M"+current.x+" "+current.y+" C"+Math.min(current.x+17,92)+" "+
+           current.y+" 91 48 100 48"}/>}
+      <rect width="100" height="100" fill="url(#desk-vignette)" pointerEvents="none"/>
     </svg>
     <div className="map-paper-grain" aria-hidden="true"/>
-    {places.map((place,index)=>{
-      const [x,y]=position(place.id,index);
+    <div className="map-masthead" aria-hidden="true">
+      <span>SSNOIR / CITY FILE</span>
+      <strong>城市调查图</strong>
+      <small>LOCATIONS &amp; LEADS</small>
+    </div>
+    {Object.entries(DISTRICTS).map(([key,district])=>
+      <div key={key} className={"map-district-label map-district-"+key}
+        style={{left:district.x+"%",top:district.y+"%"}} aria-hidden="true">
+        <strong>{district.title}</strong><small>{district.en}</small>
+      </div>)}
+    {positioned.map(({place,x,y,district})=>{
+      const isCurrent=place.id===activePlace;
+      const needsVisit=urgent.has(place.id);
+      const angle=(stableHash(place.id)%7-3)*.42;
       return <button key={place.id} type="button"
-        className={"map-location"+(place.disabled?" unavailable":"")+(urgent.has(place.id)?" urgent":"")+(activePlace===place.id?" is-current":"")}
-        style={{left:x+"%",top:y+"%"}}
+        className={"map-location map-paper-card"+(place.disabled?" unavailable":"")+
+          (needsVisit?" urgent":"")+(isCurrent?" is-current":"")}
+        style={{left:x+"%",top:y+"%","--paper-rotation":angle+"deg"}}
         disabled={locked||place.disabled}
-        aria-current={activePlace===place.id?"location":undefined}
+        aria-current={isCurrent?"location":undefined}
         onClick={event=>{event.stopPropagation();onOpen(place.id);}}
         data-testid="map-place" data-node-id={place.id}
-        title={place.subtitle ? place.title+" — "+place.subtitle : place.title}>
+        title={place.subtitle?place.title+" — "+place.subtitle:place.title}>
         <span className="map-pin" aria-hidden="true"/>
-        <span className="map-location-name">{place.title}</span>
+        {needsVisit&&<span className="map-task-stamp">待办</span>}
+        <span className="map-location-paper">
+          <span className="map-location-eyebrow">
+            {isCurrent?"当前位置":DISTRICTS[district].title}
+          </span>
+          <span className="map-location-name">{place.title}</span>
+          {place.clocks?.length>0&&<span className="map-place-progress"
+            title={place.clocks[0].displayLabel}>
+            <span className="map-mini-clock" aria-hidden="true"/>
+            {place.clocks[0].current}/{place.clocks[0].max}
+          </span>}
+        </span>
       </button>;
     })}
-    <div className="map-caption">BELLEVILLE <span>{activePlace
-      ? "当前位置 · "+(places.find(x=>x.id===activePlace)?.title??activePlace)
-      : "城市地图 · 选择地点"}</span></div>
+    <nav className="map-breadcrumb" aria-label="地图位置">
+      <button type="button" className="map-return"
+        disabled={locked} onClick={event=>{event.stopPropagation();onBackground?.();}}>
+        城市
+      </button>
+      {current&&<><span aria-hidden="true">/</span>
+        <strong>{currentName}</strong></>}
+    </nav>
+    <div className="map-compass" aria-hidden="true">N<span>✦</span></div>
+    <div className="map-legend" aria-hidden="true">
+      <span><i className="legend-place"/>地点</span>
+      <span><i className="legend-now"/>当前</span>
+      <span><i className="legend-urgent"/>待办</span>
+    </div>
+    <div className="map-caption" aria-live="polite">
+      {current?"正在调查":"城市地图"}
+      <span>{current?"其他纸卡可直接切换地点":"选取地点查看行动"}</span>
+    </div>
   </div>;
 }
