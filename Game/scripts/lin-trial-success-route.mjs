@@ -613,8 +613,44 @@ try{
       "System failure and its narrative must survive VM restoration");
     assert.equal((await records()).find(x=>x.id==="查早报供稿人")?.status,"了结",
       "The independent 11:07 evidence remains solved even if trial collapses");
+    // A controller crash is not a game-over and is not a free hospital day.
+    // The player must actually lodge overnight before Joe's ordinary training
+    // can start; an unsuccessful machine experiment cannot manufacture his
+    // certificate or destroy the pre-existing evidence case.
+    unsafe=await sleep();
+    assert.equal(unsafe.day,26,
+      "Following a day-25 controller crash, only legitimate sleep advances to day 26");
+    const recoveryDossier=(await records()).find(x=>x.id==="林与新机器");
+    assert(recoveryDossier&&recoveryDossier.status!=="了结",
+      "Failed trial must leave Joe's real next-day training unfinished");
+    assert(["码头","港务技术区"].includes(recoveryDossier.where),
+      "The worker training location must still come from Lin's authored status");
+    unsafe=await click(recoveryDossier.where);
+    assert(unsafe.displayCards.some(x=>x.id==="陪老乔培训"&&!x.disabled),
+      "Original failed trial must not strand the next-day worker training");
+    unsafe=await click("陪老乔培训");
+    const trainingMoves=["逐项解释按钮","拿码头设备作比",
+      "拆开系统缩写","按真实货物还原",
+      "陪他核对步骤","让他按习惯做"];
+    const trainingChoice=trainingMoves.find(id=>unsafe.entries.some(x=>x.id===id&&!x.disabled));
+    assert(trainingChoice,"The player must have a real training action after system failure");
+    const diceBeforeTraining=unsafe.dice.length;
+    unsafe=await roll(trainingChoice);
+    assert.equal(unsafe.dice.length,diceBeforeTraining-1,
+      "Recovery training must spend one real world die");
+    const resumedTraining=(await records()).find(x=>x.id==="林与新机器");
+    assert.equal(resumedTraining.steps[1].done,true);
+    assert.equal(resumedTraining.steps[2].done,false);
+    assert.equal((await records()).find(x=>x.id==="查早报供稿人")?.status,"了结");
+    await page.getByTestId("save-game").click({timeout:90000});
+    await settled();
+    await page.getByTestId("load-game").click({timeout:90000});
+    await settled();await story();
+    assert.equal((await read()).day,26);
+    assert.equal((await records()).find(x=>x.id==="林与新机器")?.steps[2].done,false,
+      "Day-26 partial training must remain partial after a new VM restore");
     console.log("PASS: identical evidence save without tavern recovery -> "+
-      "real stability-clock collapse on day 25 -> failed trial history persists",
+      "day-25 stability crash -> natural day-26 training -> unfinished qualification and solved evidence persist",
       JSON.stringify({unsafeInitialComposure,unsafeDice,unsafeRounds,
         day:unsafe.day,health:unsafe.health}));
   }
