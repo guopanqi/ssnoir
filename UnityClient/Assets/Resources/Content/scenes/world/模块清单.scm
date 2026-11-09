@@ -6,11 +6,12 @@
 ;; 表是显式的：不做自动扫描，不做事件总线，也没有插件。谁在往世界里放东西，
 ;; 读这一页就该看得全；少了一样东西，第一个该看的地方也是这里。
 ;;
-;; 角色只有四个：
+;; 模块按所承担的职责登记：
 ;;   存档  它有自己的状态，要进存档（键名就是第一列，改键名＝换一份存档）
 ;;   卷宗  它有一条故事线要摆进卷宗
 ;;   节点  它往地点投卡片，答得了 'nodes-at
 ;;   入场  它有走进某个地点时的一拍叙事，答得了 'arrivals-at
+;;   互动  它提供旁侧条件互动对象，答得了 'interactions
 ;; 没有的角色就不写。**不要求任何模块实现它用不上的空接口。**
 ;;
 ;; 顺序＝这张表的顺序＝卡片在地点里的先后。它是稳定的登记顺序，不按章节排：
@@ -28,19 +29,28 @@
   (list
     ;;    存档键                  模块                  角色
     (list "first-act" 第一幕 '(存档 卷宗 节点 入场))
-    (list "first-act-walk" first-act-walk '(存档 节点))
+    (list "nightingale-life" 夜莺生活 '(存档 节点 卷宗 互动))
+    (list "lucy-start" 露西起步 '(存档))
+    (list "dock-career" 码头工作 '(存档 节点 卷宗))
+    (list "detective-career" 调查职业 '(存档 节点 卷宗 入场))
+    (list "tavern-start" 酒馆起步 '(存档 节点 入场))
+    (list "ship-work" 大船靠岸 '(存档 节点 卷宗 入场))
+    (list "neighborhood-life" 居民区相识 '(存档 节点 卷宗 入场))
+    (list "neighborhood-fire" 院里的炉火 '(存档 节点 互动))
+    (list "first-act-walk" first-act-walk '(存档 节点 入场))
     (list "act-two" 第二幕 '(存档 卷宗 节点 入场))
-    (list "city-events" 城市事件 '(存档 卷宗 节点))
-    (list "act-two-city" 第二幕生活 '(存档 卷宗 节点 入场))
+    (list "manager-first-job" 经理的首单 '(存档 卷宗 节点 入场))
+    (list "tommy-debt" Tommy收账 '(存档 卷宗 节点 入场))
+    (list "city-events" 城市事件 '(存档 卷宗 节点 入场))
+    (list "act-two-city" 第二幕生活 '(存档 节点 入场))
     (list "act-two-rhythm" 第二幕节奏 '(存档 卷宗 节点 入场))
-    (list "black-gull" black-gull '(存档 卷宗))
     (list "act-two-theater" 第二幕剧院 '(存档 卷宗 节点 入场))
-    (list "act-two-aftermath" 第二幕余波 '(存档 入场))
-    (list "act-two-announcement" 第二幕公告 '(存档 节点))
+
     (list "act-three" 第三幕 '(存档 卷宗 节点 入场))
-    (list "eddie-life" 艾迪生活 '(存档 卷宗 节点 入场))
-    (list "two-cups" 两杯咖啡 '(存档 节点))
-    (list "cafe-work" cafe-work '(存档 节点))
+    (list "eddie-life" 艾迪生活 '(存档 卷宗 节点 入场 互动))
+    (list "eddie-room" 艾迪的房间 '(存档 卷宗 节点 入场))
+    (list "two-cups" 两杯咖啡 '(存档))
+    (list "cafe-work" cafe-work '(存档))
     ;; 人物支线暂不投射节点、入场与卷宗；状态保留供主线及后续排布。
     (list "eddie"                eddie                '(存档))
     (list "frank"                frank                '(存档))
@@ -52,7 +62,7 @@
     (list "home"                 home                 '(存档 卷宗 入场))
     (list "dock"                 dock                 '(存档))
     (list "old-street-tavern"    old-street-tavern    '(存档))
-    (list "clinic"               clinic               '(存档))
+    (list "clinic"               clinic               '(存档 入场))
     (list "police-station"       police-station       '(存档))
     (list "freight-company"      freight-company      '(存档))
     (list "residential-district" residential-district '(存档))
@@ -89,7 +99,10 @@
                                   " \"" location "\"。它要么实现这条消息（没有内容就回 '()），"
                                   "要么在表里去掉对应的角色。"))))))
 
-(define (地点节点 location) (收集内容 (担任 '节点) 'nodes-at location))
+(define (地点节点 location)
+  (append (收集内容 (担任 '节点) 'nodes-at location)
+    (interaction-nodes-at
+      (apply append (map (lambda (module) (module 'interactions)) (担任 '互动))) location)))
 (define (地点入场 location) (收集内容 (担任 '入场) 'arrivals-at location))
 
 ;; ── 只负责投射的地点 ─────────────────────────────

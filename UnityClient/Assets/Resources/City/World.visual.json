@@ -665,6 +665,127 @@
       "mode": "realtime"
     },
     {
+      "name": "西桌吊灯照明",
+      "profile": "醉客互相叫骂",
+      "type": "POINT",
+      "energy": 360.0,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "东桌吊灯照明",
+      "profile": "醉客互相叫骂",
+      "type": "POINT",
+      "energy": 360.0,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "顶面贴地柔光",
+      "profile": "醉客互相叫骂",
+      "type": "SUN",
+      "energy": 0.550000011920929,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "冷白",
+      "mode": "realtime"
+    },
+    {
+      "name": "吧台灯1照明",
+      "profile": "醉客互相叫骂",
+      "type": "POINT",
+      "energy": 130.0,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "吧台灯2照明",
+      "profile": "醉客互相叫骂",
+      "type": "POINT",
+      "energy": 130.0,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "吧台灯3照明",
+      "profile": "醉客互相叫骂",
+      "type": "POINT",
+      "energy": 130.0,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "台面灯照明",
+      "profile": "醉客互相叫骂",
+      "type": "POINT",
+      "energy": 150.0,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "暖白",
+      "mode": "realtime"
+    },
+    {
+      "name": "窗外冷光1",
+      "profile": "醉客互相叫骂",
+      "type": "POINT",
+      "energy": 90.0,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "冷白",
+      "mode": "realtime"
+    },
+    {
+      "name": "窗外冷光2",
+      "profile": "醉客互相叫骂",
+      "type": "POINT",
+      "energy": 90.0,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "冷白",
+      "mode": "realtime"
+    },
+    {
+      "name": "窗外冷光3",
+      "profile": "醉客互相叫骂",
+      "type": "POINT",
+      "energy": 90.0,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "冷白",
+      "mode": "realtime"
+    },
+    {
+      "name": "门缝冷光",
+      "profile": "醉客互相叫骂",
+      "type": "POINT",
+      "energy": 40.0,
+      "size": 0,
+      "spotAngle": 160,
+      "spotBlend": 0.5,
+      "palette": "冷白",
+      "mode": "realtime"
+    },
+    {
       "name": "门前暖光",
       "profile": "街角咖啡馆",
       "type": "POINT",
@@ -1138,127 +1259,6 @@
       "mode": "realtime"
     },
     {
-      "name": "西桌吊灯照明",
-      "profile": "醉客互相叫骂",
-      "type": "POINT",
-      "energy": 360.0,
-      "size": 0,
-      "spotAngle": 160,
-      "spotBlend": 0.5,
-      "palette": "暖白",
-      "mode": "realtime"
-    },
-    {
-      "name": "东桌吊灯照明",
-      "profile": "醉客互相叫骂",
-      "type": "POINT",
-      "energy": 360.0,
-      "size": 0,
-      "spotAngle": 160,
-      "spotBlend": 0.5,
-      "palette": "暖白",
-      "mode": "realtime"
-    },
-    {
-      "name": "顶面贴地柔光",
-      "profile": "醉客互相叫骂",
-      "type": "SUN",
-      "energy": 0.550000011920929,
-      "size": 0,
-      "spotAngle": 160,
-      "spotBlend": 0.5,
-      "palette": "冷白",
-      "mode": "realtime"
-    },
-    {
-      "name": "吧台灯1照明",
-      "profile": "醉客互相叫骂",
-      "type": "POINT",
-      "energy": 130.0,
-      "size": 0,
-      "spotAngle": 160,
-      "spotBlend": 0.5,
-      "palette": "暖白",
-      "mode": "realtime"
-    },
-    {
-      "name": "吧台灯2照明",
-      "profile": "醉客互相叫骂",
-      "type": "POINT",
-      "energy": 130.0,
-      "size": 0,
-      "spotAngle": 160,
-      "spotBlend": 0.5,
-      "palette": "暖白",
-      "mode": "realtime"
-    },
-    {
-      "name": "吧台灯3照明",
-      "profile": "醉客互相叫骂",
-      "type": "POINT",
-      "energy": 130.0,
-      "size": 0,
-      "spotAngle": 160,
-      "spotBlend": 0.5,
-      "palette": "暖白",
-      "mode": "realtime"
-    },
-    {
-      "name": "台面灯照明",
-      "profile": "醉客互相叫骂",
-      "type": "POINT",
-      "energy": 150.0,
-      "size": 0,
-      "spotAngle": 160,
-      "spotBlend": 0.5,
-      "palette": "暖白",
-      "mode": "realtime"
-    },
-    {
-      "name": "窗外冷光1",
-      "profile": "醉客互相叫骂",
-      "type": "POINT",
-      "energy": 90.0,
-      "size": 0,
-      "spotAngle": 160,
-      "spotBlend": 0.5,
-      "palette": "冷白",
-      "mode": "realtime"
-    },
-    {
-      "name": "窗外冷光2",
-      "profile": "醉客互相叫骂",
-      "type": "POINT",
-      "energy": 90.0,
-      "size": 0,
-      "spotAngle": 160,
-      "spotBlend": 0.5,
-      "palette": "冷白",
-      "mode": "realtime"
-    },
-    {
-      "name": "窗外冷光3",
-      "profile": "醉客互相叫骂",
-      "type": "POINT",
-      "energy": 90.0,
-      "size": 0,
-      "spotAngle": 160,
-      "spotBlend": 0.5,
-      "palette": "冷白",
-      "mode": "realtime"
-    },
-    {
-      "name": "门缝冷光",
-      "profile": "醉客互相叫骂",
-      "type": "POINT",
-      "energy": 40.0,
-      "size": 0,
-      "spotAngle": 160,
-      "spotBlend": 0.5,
-      "palette": "冷白",
-      "mode": "realtime"
-    },
-    {
       "name": "码头冷日光",
       "profile": "码头",
       "type": "SUN",
@@ -1670,6 +1670,18 @@
       "fogEnd": 180.0
     },
     {
+      "name": "醉客互相叫骂",
+      "worldLinear": {
+        "r": 0.042,
+        "g": 0.046,
+        "b": 0.058,
+        "a": 1.0
+      },
+      "fog": false,
+      "fogStart": 180.0,
+      "fogEnd": 420.0
+    },
+    {
       "name": "街角咖啡馆",
       "worldLinear": {
         "r": 0.012,
@@ -1723,18 +1735,6 @@
         "r": 0.018,
         "g": 0.022,
         "b": 0.028,
-        "a": 1.0
-      },
-      "fog": false,
-      "fogStart": 180.0,
-      "fogEnd": 420.0
-    },
-    {
-      "name": "醉客互相叫骂",
-      "worldLinear": {
-        "r": 0.042,
-        "g": 0.046,
-        "b": 0.058,
         "a": 1.0
       },
       "fog": false,
@@ -1841,131 +1841,131 @@
   "placeHashes": [
     {
       "name": "上午十一点零七分",
-      "hash": "e73c9d11062636bf50be60c4edaf03718cd286775a1ce97b70bf82c7d914bb03"
+      "hash": "a1b9b4a7156a3c22f3db286ddb15cf981983289a9c72e2487ef118ba5b9df05b"
     },
     {
       "name": "修理棚",
-      "hash": "2b261528f0bf8a19201192be572d9a237e4dec1f399294742da211c2d161fdea"
+      "hash": "179e5a090be10df2aebdb24cfcc70eb4a79ae09797a16955b81c3c482a3122c4"
     },
     {
       "name": "公园",
-      "hash": "fea44553aa1ce98d6892e55031373fb43ef77e22fb191faeb4cff8e0b8bbbbfc"
+      "hash": "f5f1d2a4298e5c4bea751201cf6df3d89578261d60cf26a3832919cea95c62f1"
     },
     {
       "name": "别给他们想要的",
-      "hash": "68e92783117a254ce4866ff518b3ff769ce3b8a617cc8c75c0dc848abb7b92dc"
+      "hash": "18a3a0ce708e6eae2ed0657a7aefac2ba8d6ffc055cd5ea04d9ebb78ed74a708"
     },
     {
       "name": "剧院",
-      "hash": "529ddb4ece45f430c21fd3202b9b38e628861f6b30f267c34e62e2872523f02f"
+      "hash": "bb6298aac0f43af85bbbaaff0765c7e1f35eac3bf48d020c934a44e3ae218f04"
     },
     {
       "name": "双目标跟拍",
-      "hash": "fa915ac0c43bebf2497a4214667e90d6ca0b8c17f9752abc9ed098d7f86db6ed"
+      "hash": "8a49e59d531756ab8b45a94b405fdfe600fd0ef333c950040bb3bfccac05bde4"
     },
     {
       "name": "家",
-      "hash": "acae6fbe0496833cdf15546724986c8a1d40814e0483b9be70275e96b387ae22"
+      "hash": "75491f5036f931283316526a33294dd55a2bb64626cae6031af9ade4d44e61e4"
     },
     {
       "name": "尾随取件人",
-      "hash": "8b153372aac7da15d7a77f256d1551b121adcb4797b0c04ac5fbb82011db770f"
+      "hash": "7c61b164f3e45e301226e3b8250321669ad8a1a43c02f9e5eedbae533aa10177"
     },
     {
       "name": "巷子",
-      "hash": "f5a6235afa83b597486fc12482558125e490ead8f6622ff57ea86f1538eca8f5"
+      "hash": "85a38c7b484ea6cf07a28a6ab267e991ea66cd597f2c849b2afe89daf6fb7df9"
     },
     {
       "name": "巷子里在打人",
-      "hash": "49df97bfd0a966d0a8095cd24607730969f0c21a46a3ad0bc47c759727e373cc"
+      "hash": "e717dcf6d5a6f33f78aa6f6cd5581cf1ef6f8dadce9e0c9c77b759b8375128f1"
     },
     {
       "name": "布告栏",
-      "hash": "f27bd8f64fe477d2bed94e836195b5d4c2b30f97cc6f91b2f6271b33f553eeeb"
+      "hash": "7e7e00b4b646690d90860dd26da1e0eb0f382f913305582604f1cee6e85b444c"
     },
     {
       "name": "报社",
-      "hash": "abd8f65d25a433a31fee8ffabefc4715f3f1b441e0a58d4e6770740626780e62"
+      "hash": "d17cd49d3d30551ec1630255f95fc429660671b95d71e3e0c64ee0220f233e6e"
     },
     {
       "name": "晚宴",
-      "hash": "cfaea5334594f5a0159c6cbe992636c16d68a72427c00efe1aeefb1e267e3943"
+      "hash": "e7a95b5ff750414904751eb2e4bb7da77c2a4aa6add5285139eeaf8a7e34fbc8"
     },
     {
       "name": "格兰德酒店",
-      "hash": "42df347d39847da395c8ff9563937a38304b99b9c4059266875d580ab43eac30"
+      "hash": "e614cb256a144f183e6edd3f163cfc04de07dee7c69f1412241eead6281beb90"
     },
     {
       "name": "照相馆交涉",
-      "hash": "e72764564e080e835bca1f86e99278132d7e830fd2fb6b6dd37665c1432ce8e8"
+      "hash": "e97bdb0330e1dd2b97d352354ea8cf8427d6b4ab229042b520f258e349704d64"
     },
     {
       "name": "球形剧场",
-      "hash": "0bb421b14cc49af1bf153fb5804f11e4557baa1ba9d04717f4ae95d182ff29ef"
+      "hash": "5b4d13ea1d2d1492f67913e8485d3e8110d7f5c6db2ec0e4f7c6a0ba9f6cec1b"
     },
     {
       "name": "码头",
-      "hash": "c51fd9a03fb419debce8a4111f861b5cc84d24491d5a545ae712fa22bd8092a1"
+      "hash": "67433ec49c05106b572cb64cafc7e56e465d2847413be597cbd93287bf94e0a2"
     },
     {
       "name": "码头居民区",
-      "hash": "ff509b9be2a71d6a3a572a4ff8fbb08667ff789157f704e4774d3e90ac006a52"
+      "hash": "bd1ae9872481eaabe77134120e7eedbcb209ea9b546040c25db23ca333b607a0"
     },
     {
       "name": "租屋",
-      "hash": "755cd5f84e447eae0d4401793daa1ab48da3feed146f2c7f13192e31ac1ad44c"
+      "hash": "9607af81c1be25f881fd005c7b988a81c99529b3621675b21dab6572492eaec1"
     },
     {
       "name": "老街酒馆",
-      "hash": "0096b3c382fc1badc229619a58ab186e940ebfec5f78b5af1300a0b613c00903"
+      "hash": "3d3488e4be7b8671c9e6e2433c7afad3842f20717423d89e9c9a5cf10463ba3a"
     },
     {
       "name": "联合起吊",
-      "hash": "47f039dc81131c2ac55ecf7c594c8eb9f54a070bf6a14beba78f2ded9bc16f8e"
+      "hash": "2474cf0caf3a838de0f963d9c66a07be87f5092538cc4921b05d0ac5e8ce8580"
     },
     {
       "name": "街角咖啡馆",
-      "hash": "8e2e4f8c9c933403f0e491a28648ff416802b99c1d915327995e33bbb78bba2c"
+      "hash": "711f9e69368c061b27c3cbd03192bb5e57c67146be4ac1933a5a45c8efd2fbfc"
     },
     {
       "name": "警察局",
-      "hash": "4be05cceeefe9a44d65219ab1552eb1d343770f177f53d36b8348ae24f9ba02b"
+      "hash": "2ba4eecc8abd9b0e30f36dff0dc9d14f765a0bd736b9f96e6c61d60632054b14"
     },
     {
       "name": "让他们安静",
-      "hash": "3a1f1cd9c0db7e786a3528f7f6f33e56cd35ee89dbd785f070433a8a4c2377d5"
+      "hash": "91678490d1af64a87a86709ce7c6994c105763de61031a6bb935ac2caa03adfa"
     },
     {
       "name": "诊所",
-      "hash": "f69fdaa45e035859507bf78ffc346f0d88b5b45c4c4a1967445a303e97fc9730"
+      "hash": "2135ecb761da8c486e063333d9423fd47186f809f672fb888f3c20d38b864954"
     },
     {
       "name": "货运公司",
-      "hash": "ec1eddcecc67d9b615c0bbc84bf50a167bb57e6b178b064b99e729641648e1a8"
+      "hash": "67c607872c0baf4430bbab353d14a20c204ab90b2187b10d1348cf0a426fde30"
     },
     {
       "name": "货运大楼潜入",
-      "hash": "72bc9078bab5041ca0643ef6edc1fadb6ddbac281aee8b97ba5d57d092863b68"
+      "hash": "b1c1e341dd9081d9ca3854c28d13060ac6c5aff227c3a9ed1431e7a5c0244d5f"
     },
     {
       "name": "醉客互相叫骂",
-      "hash": "f0b358e44fd93d8a14402cca73c9f6b1b931bcbdd2c2a6689706ad821babb3c8"
+      "hash": "7af32cccae026845f866a32bc45e85bc10aea836f76a404d45a3a364736fc49d"
     },
     {
       "name": "雕像",
-      "hash": "58542ec60ff4d6f8b75a39c2eab93617c64f0b6b541226012864590c93c57785"
+      "hash": "c6d3bf2db6d041a746ef9a6527fd2314996bd11f720c3f6503114f3bf227281d"
     },
     {
       "name": "雨夜同行",
-      "hash": "baab9cd1f300bf8e721f5358408ba2b17632254eae387633b510201782561d2e"
+      "hash": "43f8b8941841f0437d3fdb67967a78f9b806533169821a2e98f9d3f567bd24a9"
     },
     {
       "name": "雨夜追车",
-      "hash": "69bcf5313f655ba1c92b658b14651525a385d79e2091bf5fe8931b9f27eea945"
+      "hash": "523f9ca2b83f9b4e96efb97b9ff9fc440925105da475dc94c1e49e884de2d4ae"
     },
     {
       "name": "首演之夜",
-      "hash": "eacb1111a4d520b4f4a8429be32575a945d2a0b1806a1297ec0333ab3a42050e"
+      "hash": "c68d8e8d9f5902df88cc85c15db9ce2227aa9ef65dc86bf69e5b3786b99fbe31"
     }
   ]
 }

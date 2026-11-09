@@ -8,6 +8,7 @@
     ;; 玩家正好需要它，于是它是答案，不是背景。
     ;; 一旦露过面就不再收回：那条街你已经走过了。
     (define discovered? #f)
+    (define introduction-seen? #f)
 
     (define (visible?)
       (if discovered?
@@ -40,8 +41,15 @@
           ((equal? msg 'render-data)
            (list (place "诊所"
                    :children (list (node-treatment)))))
+          ((equal? msg 'arrivals-at)
+           (if (and (visible?) (not introduction-seen?) (member? (cadr args) '("世界" "诊所")))
+             (list (arrival "第一次受伤后得知诊所"
+               (lambda () (set! introduction-seen? #t)
+                 (play-dialogue! (line "世界" "尼尔按住伤处，停下来缓了口气。路人朝街角的门牌指了指。")
+                   (line "世界" "那边有家诊所。看医生要二十美元，还得留出一点时间。"))))) '()))
           ((equal? msg 'visible?) (visible?))
-          ((equal? msg 'save) (list (list "discovered" (if discovered? 1 0))))
+          ((equal? msg 'save) (list (list "discovered" (if discovered? 1 0)) (list "introduction-seen" introduction-seen?)))
           ((equal? msg 'load!)
-           (set! discovered? (= (assoc-get (cadr args) "discovered" 0) 1)))
+           (set! discovered? (= (assoc-get (cadr args) "discovered" 0) 1))
+           (set! introduction-seen? (assoc-get (cadr args) "introduction-seen" discovered?)))
           (#t #f))))))

@@ -1,0 +1,8 @@
+00:02.705  blend            | Read blend: "/Users/usr/Documents/play/ssnoir/city-box/prefabs/码头.blend"
+Info: Read library: '/Users/usr/Documents/play/ssnoir/city-box/prefabs/三号货栈工棚.blend', '//三号货栈工棚.blend', parent '<direct>'
+Info: Read library: '/Users/usr/Documents/play/ssnoir/city-box/prefabs/勒索信.blend', '//勒索信.blend', parent '<direct>'
+Info: Saved as "码头.blend"
+OVERVIEW {"before": {"position": [-21.999996185302734, 77.99998474121094, 80.0], "rotation": [0.7206445336341858, 7.28792741711004e-08, -3.0560874938964844], "properties": {"drag": "pan"}}, "after": [-28.29452133178711, 151.87132263183594, 205.91493225097656], "target": [-28.29452133178711, 24.67156410217285, 2.3953444957733154], "anchors": {"Anchor_码头-岸口": [0.8146139979362488, 0.453519731760025, 237.08718872070312], "Anchor_码头-账房": [0.29164576530456543, 0.3052511215209961, 228.60720825195312], "Anchor_码头-货堆": [0.44973716139793396, 0.6234462857246399, 247.02789306640625], "Anchor_艾迪@码头": [0.4411862790584564, 0.6012876033782959, 247.27774047851562]}}
+Blender 5.2.3 LTS (hash e13b728c6880 built 2026-10-22 01:31:22)
+
+Blender quit

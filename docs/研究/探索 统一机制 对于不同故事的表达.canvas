@@ -1,0 +1,17 @@
+{
+	"nodes":[
+		{"id":"869bd8ed5c603f06","type":"text","text":"这也是一个指导我们进行故事写作的好文章","authoringStyle":"annotation","fontColor":"1","x":380,"y":240,"width":260,"height":120,"color":"transparent"},
+		{"id":"e4d87ed652634633","type":"text","text":"CitizenSleeper 2","x":-400,"y":-197,"width":250,"height":60},
+		{"id":"5f3d6631ecdbed5a","type":"text","text":"CitizenSleeper","x":-400,"y":-280,"width":250,"height":60},
+		{"id":"87a29a64f852499a","type":"text","text":"密教模拟器","x":-400,"y":20,"width":250,"height":60},
+		{"id":"523d034ac4df4f5a","type":"text","text":"苏丹的游戏","x":-400,"y":-57,"width":250,"height":57},
+		{"id":"da8faeb2b2e048c3","type":"text","text":"预言奇谈","x":-720,"y":-60,"width":250,"height":60},
+		{"id":"fdef06a0da47a470","type":"text","text":"# Fallen London Writer Guidelines\n\nFailbetter Games 官方写作指南（2015）：\n- [[统一机制与故事表达/Part 1 - Pitching and writing in-game content]]\n- [[统一机制与故事表达/Part 2 - Designing for Fallen London]]\n- [[统一机制与故事表达/Part 3 - Writing for Fallen London]]\n\n原文出处：[failbettergames.com/news](https://www.failbettergames.com/news/fallen-london-writer-guidelines-part-i)。","x":-20,"y":80,"width":400,"height":320},
+		{"id":"04bda5a275c64d92","type":"text","text":"QuestFlags，ContractFlags","x":-90,"y":-280,"width":250,"height":60},
+		{"id":"2d9cef10336d2c9c","type":"text","text":"rimworld\nTheSims\nSimCity\n苏丹的游戏\n\n其实我们现在学习游戏已经不需要去看它的每一个地方的实现，一些核心片段，一些结构是如何组织起来的，一些想法其实是最重要的。\n\n另外，其实我们现在已经懂了游戏的基本结构，我觉得就比如说苏丹的游戏的组织方式，比如说《密教模拟器》的代码的组织方式，这些东西其实对我们的意义更大，或者是那个《寓言奇谈》如何兼容这种多克。","x":-90,"y":-760,"width":320,"height":402}
+	],
+	"edges":[
+		{"id":"48cc88e405436029","fromNode":"87a29a64f852499a","fromSide":"right","toNode":"fdef06a0da47a470","toSide":"left","toEnd":"none"},
+		{"id":"9f9f40f03a252cdd","fromNode":"da8faeb2b2e048c3","fromSide":"left","toNode":"523d034ac4df4f5a","toSide":"right","toEnd":"none"}
+	]
+}

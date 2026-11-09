@@ -18,6 +18,7 @@ namespace SSNoir.Core
         /// <summary>同一节点值得重新提醒的内容阶段；普通数值变化不修改它。</summary>
         public string NoticeVersion { get; set; } = string.Empty;
         public string Subtitle { get; set; } = string.Empty;
+        public string InteractionActivity { get; set; } = string.Empty;
         /// <summary>Design-time risk preview; actual effects are authored in roll outcomes.</summary>
         public ActionRisk? Risk { get; set; }
         // Effects belong to any action, including deterministic payments; risk only describes rolls.

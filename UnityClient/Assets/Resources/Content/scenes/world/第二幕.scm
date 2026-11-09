@@ -193,7 +193,7 @@
             ((not (lucy-at-cafe?)) #f)
             ((and (followup-active?) (> lucy-enrolled-day 0)
                   (>= world-day (+ lucy-enrolled-day 3)) (not lucy-class-talk?)) (class-talk!))
-            ((and (lucy-open?) (第一幕 'lucy-met?)
+            ((and (lucy-open?) (露西起步 'met?)
                    (not (第三幕 'lucy-writing-known?)) (not lucy-introduced?)) (tell-lucy!))
             ((and (followup-active?) (equal? lucy-state "延后") (not lucy-result-known?)) (lucy-missed!))
             (else #f)))

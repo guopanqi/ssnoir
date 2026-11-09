@@ -261,7 +261,7 @@ namespace SSNoir.IMGUI
             var preferences = PinOverrides(gameManager);
             if (preferences.Contains("+" + e.Id)) return true;
             if (preferences.Contains(e.Id)) return false;
-            return e.IsPrimary;
+            return true;
         }
 
         public static List<DossierEntry> PinnedEntries(SSNoirGameManager gameManager)

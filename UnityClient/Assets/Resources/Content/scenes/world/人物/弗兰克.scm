@@ -569,6 +569,15 @@
           ((equal? msg 'met?) met?)
           ((equal? msg 'repair-state) repair-state)
           ((equal? msg 'hold-state) hold-state)
+          ((equal? msg 'presence-at)
+            (cond
+              ((and met? (人物线开放? "弗兰克") (equal? (cadr args) "码头居民区"))
+                (list (at-anchor "码头居民区-东侧门廊" (note-node "弗兰克·居民区" "弗兰克"
+                  (if (in-tavern?) "他去了老街酒馆后屋，可以到那里找他。"
+                    "他在食堂桌边对账，时不时替进门的人腾出一个位置。")))))
+              ((and met? (人物线开放? "弗兰克") (in-tavern?) (equal? (cadr args) "老街酒馆"))
+                (list (at-anchor "老街酒馆" (note-node "弗兰克·酒馆" "弗兰克" "他坐在后屋，面前摊着老街的账单和名单。"))))
+              (else '())))
           ((equal? msg 'meet!) (meet!))
           ((equal? msg 'on-alley-result!) (on-alley-result! (cadr args)))
           ((equal? msg 'validate!) (validate-state!))

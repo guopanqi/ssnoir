@@ -26,7 +26,11 @@ public static class FirstActChecks
         var slots = new List<SlottedResource?>();
         foreach (var cost in node.Requires)
         {
-            if (cost.Type != "die") throw new Exception("本检查只投真实行动骰");
+            if (cost.Type == "item") {
+                slots.Add(new SlottedResource { Type = "item", ItemId = cost.ItemId, Qty = cost.Qty });
+                continue;
+            }
+            if (cost.Type != "die") throw new Exception("未知资源类型：" + cost.Type);
             var player = scenes.GameState.Team.FindActor("player")!;
             int index = player.ActionDice.IndexOf(player.ActionDice.Max());
             slots.Add(new SlottedResource { Type = "die", ActorId = "player",
@@ -55,29 +59,38 @@ public static class FirstActChecks
             "首次酒馆入场对白不标成必须处理，不留下空的强制入口");
         Assert(Lines(scenes.EnterPlace("老街酒馆")).Any(), "首次进酒馆仍自动播放入场对白");
         Assert(scenes.EnterPlace("老街酒馆") == null, "酒馆入场对白播完不重复出现");
-        Assert(Has(scenes, "搬运") && Has(scenes, "咖啡馆帮工") && Has(scenes, "看场子"),
-            "固定亮相后直接开放三份工作");
+        Assert(Has(scenes, "搬运") && !Has(scenes, "咖啡馆帮工") && !Has(scenes, "看场子"),
+            "固定亮相后开放码头，咖啡馆暂隐，酒馆看场等待闹事收场");
         Assert(!Has(scenes, "探索码头") && !Has(scenes, "醉酒的尼尔"), "没有旧探索前置与旧开场");
         return scenes;
     }
     public static void Run()
     {
-        var tavern = Start(); Act(tavern, "看场子");
-        Assert(!Has(tavern, "醉客互相叫骂"), "第一次看场不提前触发两桌争吵");
-        Act(tavern, "看场子");
-        Assert(Has(tavern, "醉客互相叫骂"), "看场后进入两桌争吵的检查场景");
-        Assert(Find(tavern, "看场子").Disabled && Find(tavern, "睡觉").Disabled,
-            "争吵必须处理，不能继续看场或睡觉跳过");
+        var tavern = Start();
+        tavern.GameState.Inventory.SetCount("金钱", 100);
+        Act(tavern, "点一杯酒");
+        Assert(!Has(tavern, "醉客互相叫骂"), "喝酒一次不提前触发两桌争吵");
+        Act(tavern, "点一杯酒");
+        Assert(Has(tavern, "醉客互相叫骂"), "消息两格后进入两桌争吵");
+        Assert(!Has(tavern, "看场子") && !Find(tavern, "睡觉").Disabled,
+            "闹事是手动行动，未处理不开放看场，但未标必须处理就不阻止休息");
         string troubleSave = Path.Combine(Path.GetTempPath(), "ssnoir-trouble-save.json");
         try
         {
             tavern.SaveGame(troubleSave);
             var restored = new SceneManager(new GameState(), new LocalScriptLoader()); restored.LoadGame(troubleSave);
-            Assert(Find(restored, "睡觉").Disabled && Has(restored, "醉客互相叫骂"), "读档恢复必须处理事件与休息阻塞");
+            Assert(!Find(restored, "睡觉").Disabled && Has(restored, "醉客互相叫骂"), "读档恢复闹事行动，不额外添加休息阻塞");
         }
         finally { if (File.Exists(troubleSave)) File.Delete(troubleSave); }
         Act(tavern, "醉客互相叫骂");
         Assert(!Has(tavern, "交给酒保"), "酒馆Scenario没有主动失败按钮");
+        tavern.ActiveInterpreter.Eval("(set! 回合 3) (set! 上次起身回合 2)");
+        Assert(!(bool)tavern.ActiveInterpreter.Eval("(本回合起身?)")!, "新叫骂者不会在上次起身的下一回合出现");
+        tavern.ActiveInterpreter.Eval("(set! 回合 8) (set! 连续未出现 4)");
+        Assert((bool)tavern.ActiveInterpreter.Eval("(本回合起身?)")!, "伪随机连续四次未出现后第五次保底");
+        tavern.ActiveInterpreter.Eval("(set! 骂人位置 \"东边\")");
+        Assert(!(bool)tavern.ActiveInterpreter.Eval("(本回合起身?)")!, "已有叫骂者时不再产生第二人");
+        tavern.ActiveInterpreter.Eval("(set! 骂人位置 \"\") (set! 回合 1) (set! 上次起身回合 0) (set! 连续未出现 0)");
         var beforeRise = tavern.CurrentRootNode;
         var frame = tavern.BeginRoundTransition();
         bool sawRise = false;
@@ -87,8 +100,8 @@ public static class FirstActChecks
             {
                 sawRise = true;
                 Assert(frame.Report.BlockingStorySteps.Select(s => s.Kind).SequenceEqual(
-                    new[] { BlockingStoryStepKind.Dialogue, BlockingStoryStepKind.FocusNode }),
-                    "醉客起身报告先说明，再声明导航落点");
+                    new[] { BlockingStoryStepKind.Motion, BlockingStoryStepKind.Dialogue, BlockingStoryStepKind.FocusNode }),
+                    "醉客起身报告先动作与说明，再声明导航落点");
                 Assert(frame.Report.BlockingStorySteps.Last().TargetNodeId == "醉客互相叫骂",
                     "醉客起身明确回到Scenario总览");
                 Assert(!Nodes(beforeRise!).Any(n => n.Id == "破口大骂的人")

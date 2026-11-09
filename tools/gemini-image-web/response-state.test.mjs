@@ -6,6 +6,7 @@ test('区分可重试服务故障与生成失败', () => {
   assert.equal(classifyResponse("I can't create images right now.").kind, 'generation-error');
   assert.equal(classifyResponse("I'm having a hard time fulfilling your request. Can I help you with something else instead?").kind, 'generation-error');
   assert.equal(classifyResponse("I can't generate the image you requested right now due to interests of third-party content providers. Please edit your prompt and try again.").kind, 'generation-error');
+  assert.equal(classifyResponse('I encountered an error doing what you asked. Could you try again?').kind, 'transient-error');
   assert.equal(classifyResponse('正在为你生成图片').kind, 'pending');
 });
 

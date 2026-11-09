@@ -197,9 +197,10 @@ namespace SSNoir.IMGUI
         private static Rect PortraitFrame(StageActor actor, float now, out float restingX)
         {
             float dialogueTop = UIScale.VH - Mathf.Min(230f, UIScale.VH * DialogueBoxDrawer.BoxHeightRatio) - DialogueBoxDrawer.BoxBottomMargin;
-            const float portraitTop = 28f;
+            float portraitTop = NeonPortraitLibrary.UseNeon ? 28f : UIScale.VH * 0.015f;
             float height = Mathf.Clamp(dialogueTop + 42f - portraitTop, UIScale.VH * 0.55f, UIScale.VH * 0.92f);
-            float width = height * (LampPainter.CropWidth / LampPainter.CropHeight);
+            if (!NeonPortraitLibrary.UseNeon) height = UIScale.VH * 0.97f;
+            float width = height * (NeonPortraitLibrary.UseNeon ? LampPainter.CropWidth / LampPainter.CropHeight : actor.Texture != null ? (float)actor.Texture.width / actor.Texture.height : 0.56f);
             restingX = actor.OnLeft ? 64f : UIScale.VW - width - 64f;
             float towardCenter = actor.OnLeft ? 1f : -1f;
             float x = restingX + actor.CurrentOffset(now) * towardCenter + StageState.ShakeOffset(actor, now);
@@ -292,15 +293,23 @@ namespace SSNoir.IMGUI
                     bool isSpeaker = actor.Name == speaker;
                     if (isSpeaker != drawSpeaker) continue;
 
+                    var selected = actor.Pose == StageState.BasePose ? NeonPortraitLibrary.Load(actor.AssetName)
+                        : NeonPortraitLibrary.LoadPose(actor.AssetName, actor.Pose) ?? NeonPortraitLibrary.Load(actor.AssetName);
+                    actor.RefreshPortrait(selected);
                     var rect = PortraitFrame(actor, now, out float restingX);
                     float enter = StageState.EaseOut(actor.EnteredAt, StageState.EnterDuration, now);
                     if (actor.Missing)
                     {
-                        DialogueBoxDrawer.DrawMissingPortrait(
-                            new Rect(restingX, rect.y, rect.height * 0.68f, rect.height), actor.Name, enter);
+                        // 基础画像尚未制作的人物暂不显示。
                         continue;
                     }
 
+                    if (!NeonPortraitLibrary.UseNeon)
+                    {
+                        float portraitLevel = (speaker.Length == 0 || isSpeaker ? 1f : 0.65f) * blackout;
+                        CharacterPortraitVisuals.Paint(rect, actor.Texture!, actor.OnLeft, enter, portraitLevel);
+                        continue;
+                    }
                     actor.TargetAccent(AccentTargetOf(actor), now);
                     float glow = actor.CurrentGlow(now);
                     float flicker = StageState.FlickerLevel(actor, now);
@@ -342,6 +351,7 @@ namespace SSNoir.IMGUI
                         }
                     }
                     LampPainter.Paint(rect, actor.Texture!, look);
+
                 }
             }
         }

@@ -8,15 +8,15 @@
     (define transport-clock (make-clock "查清运输去向" 2 'gauge "核对送货人与实际交接地点，查明衣箱停在哪里。" :beneficial-direction 'increase))
     (define (clue-clocks) (list (record-clock 'render-data) (transport-clock 'render-data)))
     (define (offer!)
-      (if (and (active?) (<= world-day 13) (equal? contract-state "未提起"))
+      (if (and (active?) (<= world-day (第一幕 'trial-day)) (equal? contract-state "未提起"))
         (begin (set! contract-state "待介绍") (set! 出现日 world-day)) #f))
     (define (completed?) (equal? contract-state "完成"))
     (define (contract-open?)
-      (and (active?) (<= world-day 13)
+      (and (active?) (<= world-day (第一幕 'trial-day))
         (member? contract-state '("待答复" "已接下"))))
     (define (offer-available?)
-      (and (active?) (<= world-day 13) (equal? contract-state "待介绍")))
-    (define (期限) (list (clock-priority (list 'clock "演出服交付期限" (max 0 (- 14 world-day)) (max 1 (- 14 出现日)) 'countdown "试演当天收工前交付；到期经理另找他人。") 'secondary)))
+      (and (active?) (<= world-day (第一幕 'trial-day)) (equal? contract-state "待介绍")))
+    (define (期限) (list (clock-priority (list 'clock "演出服交付期限" (max 0 (- (+ (第一幕 'trial-day) 1) world-day)) (max 1 (- (+ (第一幕 'trial-day) 1) 出现日)) 'countdown "试演当天收工前交付；到期经理另找他人。") 'secondary)))
     (define (offer-lines!)
       (if (offer-available?)
         (begin
@@ -30,7 +30,7 @@
         (error "演出服：当前不可接下委托"))
       (set! contract-state "已接下")
       (play-dialogue! (line "尼尔" "我去把它找回来。")
-        (line "经理" (string-append (第二幕-日期 13) "试演收工前，把衣箱带回住处，我派人来取。"))))
+        (line "经理" (string-append (第二幕-日期 (第一幕 'trial-day)) "试演收工前，把衣箱带回住处，我派人来取。"))))
     (define (decline-contract!)
       (if (and (contract-open?) (equal? contract-state "待答复")) #t
         (error "演出服：当前不可婉拒委托"))
@@ -68,8 +68,7 @@
         #t (error "演出服委托：需要实际交付演出服"))
       ;; 演出服由交付节点的资源槽扣除，不在效果中重复扣除。
       (set! contract-state "完成")
-      (set-global! '身份 "侦探")
-      (set-global! '侦探入行日 world-day)
+      (调查职业 'recognize!)
       (add-item! "金钱" 45)
       (play-dialogue!
         (line "世界" "经理带着运货人来到尼尔的住处。他打开衣箱，照着清单点过戏服，让运货人把箱子抬走。")
@@ -84,15 +83,15 @@
               :now (cond
                 ((equal? contract-state "待介绍") "经理上门，有一件演出服的差事想谈，试演收工前有效。")
                 ((equal? contract-state "婉拒") "你婉拒了演出服调查，经理会另找人。")
-                ((and (> world-day 13) (member? contract-state '("待答复" "已接下")))
+                ((and (> world-day (第一幕 'trial-day)) (member? contract-state '("待答复" "已接下")))
                   "试演已经结束，这项委托过期了。")
                 ((equal? contract-state "待答复")
-                  (string-append "经理提出45美元的演出服调查，" (第二幕-日期 13) "试演收工前交付。还没答应，可以接下或婉拒。"))
+                  (string-append "经理提出45美元的演出服调查，" (第二幕-日期 (第一幕 'trial-day)) "试演收工前交付。还没答应，可以接下或婉拒。"))
                 ((equal? contract-state "完成") "演出服已交付，收到45美元。经理愿意介绍客户，你开始以无名侦探的身份承接调查。")
                 ((equal? contract-state "另找他人") "期限到了，经理已另派人找回衣服。这次差事结束了。")
                 ((>= (item-count "演出服") 1)
-                  (string-append "衣箱已经找到，" (第二幕-日期 13) "收工前带回家交给经理。"))
-                (else (string-append (第二幕-日期 13)
+                  (string-append "衣箱已经找到，" (第二幕-日期 (第一幕 'trial-day)) "收工前带回家交给经理。"))
+                (else (string-append (第二幕-日期 (第一幕 'trial-day))
                   "收工前带回一批演出服。可以搜找后台，或向运货人查问。")))
               :clocks (append (if (or (offer-available?) (contract-open?)) (期限) '()) (if (finding?) (clue-clocks) '())) :where "家")))
           )))
@@ -103,10 +102,6 @@
           ((equal? location "家")
             (let ((children
               (append
-                (if (offer-available?)
-                  (list (node "经理有话想说" :name "听取委托" :button-text "交谈"
-                    :subtitle "经理上门，似乎有件事想谈"
-                    :resolve (instant (outcome offer-lines!)))) '())
                 (if (and (contract-open?) (equal? contract-state "待答复"))
                   (list (node "接下演出服调查" :name "接受委托" :button-text "接受" :resolve (instant (outcome accept-contract!)))
                         (node "婉拒演出服调查" :name "拒绝委托" :button-text "拒绝" :resolve (instant (outcome decline-contract!)))) '())
@@ -117,10 +112,14 @@
                 (list (node "城市事件-经理" :name "经理：丢失的演出服" :notice-version contract-state :display 'inline :anchor "家"
                   :clocks (期限) :children children)))))
           ((equal? location "剧院")
+            (append
+              (if (offer-available?)
+                (list (node "经理有话想说" :name "和经理聊聊" :anchor "剧院-后台" :button-text "交谈"
+                  :clocks (期限) :resolve (instant (outcome offer-lines!)))) '())
             (if (and (finding?) (not (record-clock 'full?)))
               (list (node "演出服-后台搜寻组" :name "核对签收" :display 'inline :anchor "剧院-后台"
                 :clocks (cons (record-clock 'render-data) (期限))
-                :children (list (costume-action "旧库房找衣箱" "核对收货单" 'sharpness "剧院-后台" record-clock)))) '()))
+                :children (list (costume-action "旧库房找衣箱" "核对收货单" 'sharpness "剧院-后台" record-clock)))) '())))
           ((equal? location "码头")
             (if (and (finding?) (not (transport-clock 'full?)))
               (list (node "演出服-码头搜寻组" :name "追查衣箱" :display 'inline :anchor "码头-账房"
@@ -132,7 +131,7 @@
                       :progress-target (list 'clock "查清运输去向")
                       :requires (list (req-item "金钱" 15))
                       :resolve (instant (outcome (lambda () (clue-progress! transport-clock 2))))))
-                  (if (>= (第一幕 'dock-work-count) 3)
+                  (if (码头工作 'familiar?)
                     (list (node "向熟识搬运工核实" :name "找搬运熟人" :anchor "码头-货堆"
                       :subtitle "过去一起干过活的人能帮你查清去向"
                       :progress-target (list 'clock "查清运输去向")
@@ -143,15 +142,11 @@
       (cond
         ((eq? msg 'offer!) (offer!))
         ((eq? msg 'completed?) (completed?))
-        ((eq? msg 'career-next)
-          (if (or (> world-day 13) (member? contract-state '("婉拒" "另找他人")))
-            "没能接住演出服这次机会。继续寻找愿意付钱的客户，经理的正式调查仍可能到来。"
-            "经理给了你一次调查机会。查清演出服去向，交出第一份成果。"))
-        ((eq? msg 'eligible?) (and (active?) (<= world-day 13) (equal? contract-state "未提起")))
+        ((eq? msg 'eligible?) (and (active?) (<= world-day (第一幕 'trial-day)) (equal? contract-state "未提起")))
         ((eq? msg 'activate!)
           (if (equal? contract-state "未提起") (begin (set! contract-state "待介绍") (set! 出现日 world-day)) (error "演出服：重复出现")))
         ((eq? msg 'on-day-start!)
-          (if (and (> world-day 13) (member? contract-state '("待介绍" "待答复" "已接下")))
+          (if (and (> world-day (第一幕 'trial-day)) (member? contract-state '("待介绍" "待答复" "已接下")))
             (set! contract-state "另找他人") #f))
         ((eq? msg 'nodes-at) (nodes-at (car args)))
         ((eq? msg 'dossier) (dossier-at))

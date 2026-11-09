@@ -23,6 +23,24 @@ namespace SSNoir.Core
         public IReadOnlyList<PresentationHint> PresentationHints { get; set; } = new List<PresentationHint>();
         public List<ActionEffectRecord> Effects { get; } = new List<ActionEffectRecord>();
 
+        // 单页结算作用域：同名 Clock 也不能与作用域外的结果合并。
+        private int? _effectCaptureStart;
+        public int BeginEffectCapture()
+        {
+            if (_effectCaptureStart.HasValue) throw new System.InvalidOperationException("nested spotlight effect scope");
+            _effectCaptureStart = Effects.Count;
+            return Effects.Count;
+        }
+        public List<ActionEffectRecord> EndEffectCapture(int start)
+        {
+            if (_effectCaptureStart != start || start < 0 || start > Effects.Count)
+                throw new System.ArgumentException("invalid spotlight effect scope");
+            var captured = Effects.GetRange(start, Effects.Count - start);
+            Effects.RemoveRange(start, Effects.Count - start);
+            _effectCaptureStart = null;
+            return captured;
+        }
+
         /// <summary>
         /// 这一手里时间真的翻了一页——Scenario里按下休息，或者在家里睡了一觉。
         /// 由 <c>SceneManager.EndTurn</c> 打上；脚本调 <c>end-turn!</c> 时那次 EndTurn
@@ -67,7 +85,7 @@ namespace SSNoir.Core
             if (delta == 0)
                 return;
 
-            int existingIndex = Effects.FindIndex(effect =>
+            int existingIndex = Effects.FindIndex(_effectCaptureStart ?? 0, effect =>
                 effect.Kind == ActionEffectKind.Clock && effect.Label == label);
             int totalDelta = delta;
             if (existingIndex >= 0)

@@ -1,0 +1,110 @@
+{
+  "backgroundRemoval": "key only the detected neutral-gray field; derive partial alpha only in the one-pixel antialiased boundary ring using each figure palette",
+  "canvas": "source 1536x2752 retained; no crop or rescale; source files preserved",
+  "items": [
+    {
+      "name": "汤米",
+      "source": "experiments/统一限色人物设计/新版表演瞬间/CLI候选/v9/其他五人/汤米-v9-站稳修订.jpeg",
+      "output": "experiments/统一限色人物设计/新版表演瞬间/CLI候选/v9/透明底预览/汤米.png",
+      "width": 1536,
+      "height": 2752,
+      "backgroundEstimate": [
+        127,
+        127,
+        128
+      ],
+      "removedPixels": 2794381,
+      "partialAlphaPixels": 5032
+    },
+    {
+      "name": "尼尔",
+      "source": "experiments/统一限色人物设计/新版表演瞬间/CLI候选/v9/其他五人/尼尔-v9-站立抽烟线状眼睛.jpeg",
+      "output": "experiments/统一限色人物设计/新版表演瞬间/CLI候选/v9/透明底预览/尼尔.png",
+      "width": 1536,
+      "height": 2752,
+      "backgroundEstimate": [
+        127,
+        128,
+        127
+      ],
+      "removedPixels": 2680401,
+      "partialAlphaPixels": 5718
+    },
+    {
+      "name": "夜莺",
+      "source": "experiments/统一限色人物设计/新版表演瞬间/CLI候选/v9/夜莺/夜莺-v9-亮绿修订.jpeg",
+      "output": "experiments/统一限色人物设计/新版表演瞬间/CLI候选/v9/透明底预览/夜莺.png",
+      "width": 1536,
+      "height": 2752,
+      "backgroundEstimate": [
+        129,
+        129,
+        129
+      ],
+      "removedPixels": 3031171,
+      "partialAlphaPixels": 6140
+    },
+    {
+      "name": "经理",
+      "source": "experiments/统一限色人物设计/新版表演瞬间/CLI候选/v9/其他五人/经理-v9-墨稿亮边.jpeg",
+      "output": "experiments/统一限色人物设计/新版表演瞬间/CLI候选/v9/透明底预览/经理.png",
+      "width": 1536,
+      "height": 2752,
+      "backgroundEstimate": [
+        127,
+        128,
+        127
+      ],
+      "removedPixels": 2556727,
+      "partialAlphaPixels": 6022
+    },
+    {
+      "name": "艾迪",
+      "source": "experiments/统一限色人物设计/新版表演瞬间/CLI候选/v9/其他五人/艾迪-v9-墨稿亮边.jpeg",
+      "output": "experiments/统一限色人物设计/新版表演瞬间/CLI候选/v9/透明底预览/艾迪.png",
+      "width": 1536,
+      "height": 2752,
+      "backgroundEstimate": [
+        129,
+        129,
+        129
+      ],
+      "removedPixels": 2302676,
+      "partialAlphaPixels": 5000
+    },
+    {
+      "name": "罗科",
+      "source": "experiments/统一限色人物设计/新版表演瞬间/CLI候选/v9/其他五人/罗科-v9-墨稿亮边.jpeg",
+      "output": "experiments/统一限色人物设计/新版表演瞬间/CLI候选/v9/透明底预览/罗科.png",
+      "width": 1536,
+      "height": 2752,
+      "backgroundEstimate": [
+        128,
+        128,
+        128
+      ],
+      "removedPixels": 2820630,
+      "partialAlphaPixels": 5811
+    }
+  ],
+  "nightingaleReplacement": {
+    "source": "夜莺-新稿-原图.jpeg",
+    "output": "夜莺.png",
+    "sourceSize": [
+      1536,
+      2752
+    ],
+    "outputSize": [
+      937,
+      1678
+    ],
+    "estimatedBackgroundRGB": [
+      15,
+      17,
+      32
+    ],
+    "method": "remove dark navy key pixels; estimate antialiased edge alpha against local ink/white/paper palette; resize to match existing Characters/Nightingale source dimensions",
+    "replacedAsset": "UnityClient/Assets/Resources/Portraits/Characters/夜莺.png",
+    "backup": "UnityClient/Assets/Resources/Portraits/Characters/夜莺-备份.png"
+  }
+}

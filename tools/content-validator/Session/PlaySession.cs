@@ -79,7 +79,7 @@ public sealed class PlaySession
         state.DialogueCenter.OnStageRequested -= OnStage;
         if (state.SpotlightCenter.Current != null)
             opening.Add(new SessionEvent("入场聚光",
-                $"【{state.SpotlightCenter.Current.Title}】{state.SpotlightCenter.Current.Subtitle}"));
+                $"【{state.SpotlightCenter.Current.Title}】{state.SpotlightCenter.Current.Body}"));
         var session = new PlaySession(scenes) { OpeningEvents = opening.ToArray() };
         session.Refresh();
         return session;
@@ -344,7 +344,7 @@ public sealed class PlaySession
         foreach (var step in report.BlockingStorySteps.Concat(report.PostSceneBlockingSteps))
         {
             if (step.Spotlight != null)
-                events.Add(new SessionEvent(phase, $"【{step.Spotlight.Title}】{step.Spotlight.Subtitle}"));
+                events.Add(new SessionEvent(phase, $"【{step.Spotlight.Title}】{step.Spotlight.Body}"));
             if (step.Dialogue != null)
                 foreach (var line in step.Dialogue.Lines)
                     events.Add(new SessionEvent(phase, $"{line.Speaker}：{line.Text}"));

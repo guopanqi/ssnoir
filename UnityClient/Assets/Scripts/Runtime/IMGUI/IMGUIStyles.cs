@@ -444,7 +444,7 @@ namespace SSNoir.IMGUI
                 return;
 
             _missingSemiboldFontLogged = true;
-            Debug.LogError("[SSNoir] MiSans-Semibold font is not assigned. Strong IMGUI text will use the regular font without Unity faux-bold.");
+            Debug.LogError("[SSNoir] SourceHanSerifCN-SemiBold font is not assigned. Strong IMGUI text will use the regular font without Unity faux-bold.");
         }
 
         public static GUIStyle BoxStyle(Color bg, Color border, int borderWidth = 1)

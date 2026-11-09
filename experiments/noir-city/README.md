@@ -14,3 +14,5 @@ CI 截图工作流（`.github/workflows/noir-*.yml`）的工作目录已指向�
 | [noir-world-kernel/](noir-world-kernel/) | Genesis Noir 式可漫游局部 3D 空间：FacadeGrammar + VectorStroke + SVG 人物/道具 + 源驱动反射 |
 
 | [noir-line-lab/](noir-line-lab/) | 长期描线设计工具：真实诊所/咖啡馆样本，屏幕笔触调参、预设与同步对照 |
+| [noir-fog-neon-lab/](noir-fog-neon-lab/) | 雾与霓虹：独立城市视角渲染与场景内交互 UI 实验 |
+| [noir-residence-lab/](noir-residence-lab/) | 住所：公寓街角、门厅与侦探租屋的程序化空间和受光研究 |

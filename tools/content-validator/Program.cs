@@ -10,6 +10,16 @@ namespace SSNoir
         {
             try
             {
+                if (args.Length == 1 && args[0] == "--test-life-events")
+                {
+                    LifeEventChecks.Run();
+                    return;
+                }
+                if (args.Length == 1 && args[0] == "--test-interactions")
+                {
+                    InteractionChecks.Run();
+                    return;
+                }
                 if (args.Length == 1 && args[0] == "--test-inline-containers")
                 {
                     InlineContainerChecks.Run();
@@ -43,6 +53,12 @@ namespace SSNoir
                 if (args.Length == 1 && args[0] == "--test-second-act-v02")
                 {
                     SecondActV02Checks.Run();
+                    return;
+                }
+
+                if (args.Length == 1 && args[0] == "--test-prelude")
+                {
+                    PreludeContentChecks.Run();
                     return;
                 }
 
@@ -138,7 +154,7 @@ namespace SSNoir
                 }
 
                 Console.Error.WriteLine(
-                    "用法：./run --validate | --test-inline-containers | --test-world-content | --test-required-before-rest | --test-first-act | --test-node-identity | --test-action-risk | --test-dice-reset | --test-saveload | --test-odds | --test-round-transition | --test-theatre | " +
+                    "用法：./run --validate | --test-prelude | --test-inline-containers | --test-world-content | --test-required-before-rest | --test-first-act | --test-node-identity | --test-action-risk | --test-dice-reset | --test-saveload | --test-odds | --test-round-transition | --test-theatre | " +
                     "--playtest <入场表达式或场景名> [选项] | --session <world|场景名|入场表达式> [选项] " +
                     "| --session-baseline <Scenario入口> --output <记录.json> | --session-report <记录.json> [...] | --replay <记录.json> " +
                     "| --theatre-export <Scheme 表达式> <输出.json> | --stage-export <Scheme 表达式> <输出.json>");

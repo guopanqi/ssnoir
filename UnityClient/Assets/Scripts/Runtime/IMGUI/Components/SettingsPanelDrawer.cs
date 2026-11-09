@@ -109,10 +109,13 @@ namespace SSNoir.IMGUI
 
             // 缓动单独占一行；镜头速度固定为较快档，保持运镜节奏一致。
             int pickedCurve = DrawSetting(
-                new Rect(contentX, y, contentW, BlockH), "镜头缓动",
+                new Rect(contentX, y, halfW, BlockH), "镜头缓动",
                 new[] { "起止", "终点" }, MotionSettings.FocusEaseOut ? 1 : 0, ui);
             if (pickedCurve >= 0)
                 MotionSettings.FocusEaseOut = pickedCurve == 1;
+            int portrait = DrawSetting(new Rect(contentX + halfW + 16f, y, halfW, BlockH),
+                "人物画像", new[] { "正常", "Neon" }, NeonPortraitLibrary.UseNeon ? 1 : 0, ui);
+            if (portrait >= 0) NeonPortraitLibrary.UseNeon = portrait == 1;
             y += BlockH + BlockGap;
 
             // ── 背景音乐 / 音效 / 对白 ──

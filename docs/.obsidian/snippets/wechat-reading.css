@@ -34,14 +34,6 @@ body {
 
     /* Code surface: a distinct inset, clearly off the reading panel */
     --wr-code-bg: #eeedea;
-
-    /* Map our palette onto Obsidian's own theme variables, so code blocks
-       and blockquotes pick it up in BOTH reading and live-preview modes
-       (this is what recolors the base theme's blue blockquote bar). */
-    --code-background: var(--wr-code-bg);
-    --code-normal: var(--wr-ink);
-    --blockquote-border-color: var(--wr-faint);
-    --blockquote-color: var(--wr-ink-soft);
 }
 
 .theme-dark body,
@@ -58,29 +50,41 @@ body.theme-dark {
     --wr-code-bg: #202023;       /* elevated surface, lighter than the panel */
 }
 
+/* Reading styles belong to Markdown leaves, never Canvas cards.
+   The :not(.canvas-node *) guards also cover canvases embedded inside a note. */
+.workspace-leaf-content[data-type="markdown"]:not(.canvas-node *) {
+    /* Map our palette onto Obsidian's own theme variables, so code blocks
+       and blockquotes pick it up in BOTH reading and live-preview modes
+       (this is what recolors the base theme's blue blockquote bar). */
+    --code-background: var(--wr-code-bg);
+    --code-normal: var(--wr-ink);
+    --blockquote-border-color: var(--wr-faint);
+    --blockquote-color: var(--wr-ink-soft);
+}
+
 /* ---- The flat field ------------------------------------------------- */
 
-.workspace-leaf-content[data-type="markdown"] .view-content {
+.workspace-leaf-content[data-type="markdown"] .view-content:not(.canvas-node *) {
     background: var(--wr-page) !important;
     height: 100%;
     padding: 0 !important;
 }
 
-.markdown-preview-view,
-.markdown-source-view.mod-cm6,
-.markdown-source-view.mod-cm6 .cm-scroller {
+.workspace-leaf-content[data-type="markdown"] .markdown-preview-view:not(.canvas-node *),
+.workspace-leaf-content[data-type="markdown"] .markdown-source-view.mod-cm6:not(.canvas-node *),
+.workspace-leaf-content[data-type="markdown"] .markdown-source-view.mod-cm6:not(.canvas-node *) .cm-scroller:not(.canvas-node *) {
     background: transparent !important;
 }
 
 /* Chrome dissolves into the field — flat, borderless toolbar */
-.workspace-leaf-content[data-type="markdown"] .view-header {
+.workspace-leaf-content[data-type="markdown"] .view-header:not(.canvas-node *) {
     background: transparent;
     border-bottom: none;
     box-shadow: none;
     min-height: 40px;
 }
 
-.workspace-leaf-content[data-type="markdown"] .view-header-title {
+.workspace-leaf-content[data-type="markdown"] .view-header-title:not(.canvas-node *) {
     font-family: var(--wr-font-body);
     font-size: 13px;
     font-weight: 500;
@@ -89,8 +93,8 @@ body.theme-dark {
 
 /* ---- The reading column (no paper, just a centered measure) --------- */
 
-.markdown-source-view.mod-cm6 .cm-sizer,
-.markdown-preview-view .markdown-preview-sizer {
+.workspace-leaf-content[data-type="markdown"] .markdown-source-view.mod-cm6:not(.canvas-node *) .cm-sizer:not(.canvas-node *),
+.workspace-leaf-content[data-type="markdown"] .markdown-preview-view:not(.canvas-node *) .markdown-preview-sizer:not(.canvas-node *) {
     box-sizing: border-box;
     max-width: calc(var(--wr-column) + 2 * var(--wr-gutter)) !important;
     margin: 0 auto !important;
@@ -112,15 +116,15 @@ body.theme-dark {
    text-indent. Overriding that padding makes every indentation guide move
    one level farther left, eventually outside the reading panel. */
 
-.markdown-source-view.mod-cm6 .cm-gutters {
+.workspace-leaf-content[data-type="markdown"] .markdown-source-view.mod-cm6:not(.canvas-node *) .cm-gutters:not(.canvas-node *) {
     background: transparent !important;
     border-right: 0 !important;
 }
 
 /* ---- Typography — the airy, e-reader feel -------------------------- */
 
-.markdown-preview-view,
-.markdown-source-view.mod-cm6 .cm-content {
+.workspace-leaf-content[data-type="markdown"] .markdown-preview-view:not(.canvas-node *),
+.workspace-leaf-content[data-type="markdown"] .markdown-source-view.mod-cm6:not(.canvas-node *) .cm-content:not(.canvas-node *) {
     font-family: var(--wr-font-body) !important;
     font-size: 18px !important;
     line-height: 1.9 !important;            /* the signature generous leading */
@@ -129,19 +133,19 @@ body.theme-dark {
     letter-spacing: 0.2px;
 }
 
-.markdown-preview-view p,
-.markdown-source-view.mod-cm6 .cm-line {
+.workspace-leaf-content[data-type="markdown"] .markdown-preview-view:not(.canvas-node *) p:not(.canvas-node *),
+.workspace-leaf-content[data-type="markdown"] .markdown-source-view.mod-cm6:not(.canvas-node *) .cm-line:not(.canvas-node *) {
     margin-block: 0.9em;
 }
 
 /* Headings: lighter weight, centered chapter titles like a reader */
-.markdown-preview-view h1,
-.markdown-preview-view h2,
-.markdown-preview-view h3,
-.markdown-preview-view h4,
-.markdown-preview-view h5,
-.markdown-preview-view h6,
-.markdown-source-view.mod-cm6 .HyperMD-header {
+.workspace-leaf-content[data-type="markdown"] .markdown-preview-view:not(.canvas-node *) h1:not(.canvas-node *),
+.workspace-leaf-content[data-type="markdown"] .markdown-preview-view:not(.canvas-node *) h2:not(.canvas-node *),
+.workspace-leaf-content[data-type="markdown"] .markdown-preview-view:not(.canvas-node *) h3:not(.canvas-node *),
+.workspace-leaf-content[data-type="markdown"] .markdown-preview-view:not(.canvas-node *) h4:not(.canvas-node *),
+.workspace-leaf-content[data-type="markdown"] .markdown-preview-view:not(.canvas-node *) h5:not(.canvas-node *),
+.workspace-leaf-content[data-type="markdown"] .markdown-preview-view:not(.canvas-node *) h6:not(.canvas-node *),
+.workspace-leaf-content[data-type="markdown"] .markdown-source-view.mod-cm6:not(.canvas-node *) .HyperMD-header:not(.canvas-node *) {
     font-family: var(--wr-font-body) !important;
     color: var(--wr-ink) !important;
     font-weight: 600 !important;
@@ -149,43 +153,43 @@ body.theme-dark {
     line-height: 1.4 !important;
 }
 
-.markdown-preview-view h1 {
+.workspace-leaf-content[data-type="markdown"] .markdown-preview-view:not(.canvas-node *) h1:not(.canvas-node *) {
     font-size: 1.9em !important;
     font-weight: 500 !important;
     text-align: center;
     margin: 0.4em 0 1.4em;
 }
 
-.markdown-preview-view h2 { font-size: 1.4em !important; margin: 1.6em 0 0.5em; }
-.markdown-preview-view h3 { font-size: 1.18em !important; margin: 1.3em 0 0.4em; }
-.markdown-preview-view h4 { font-size: 1.05em !important; }
+.workspace-leaf-content[data-type="markdown"] .markdown-preview-view:not(.canvas-node *) h2:not(.canvas-node *) { font-size: 1.4em !important; margin: 1.6em 0 0.5em; }
+.workspace-leaf-content[data-type="markdown"] .markdown-preview-view:not(.canvas-node *) h3:not(.canvas-node *) { font-size: 1.18em !important; margin: 1.3em 0 0.4em; }
+.workspace-leaf-content[data-type="markdown"] .markdown-preview-view:not(.canvas-node *) h4:not(.canvas-node *) { font-size: 1.05em !important; }
 
-.markdown-preview-view a,
-.markdown-source-view.mod-cm6 .cm-link,
-.markdown-source-view.mod-cm6 .cm-url {
+.workspace-leaf-content[data-type="markdown"] .markdown-preview-view:not(.canvas-node *) a:not(.canvas-node *),
+.workspace-leaf-content[data-type="markdown"] .markdown-source-view.mod-cm6:not(.canvas-node *) .cm-link:not(.canvas-node *),
+.workspace-leaf-content[data-type="markdown"] .markdown-source-view.mod-cm6:not(.canvas-node *) .cm-url:not(.canvas-node *) {
     color: var(--wr-accent) !important;
     text-decoration: none;
 }
-.markdown-preview-view a:hover { text-decoration: underline; }
+.workspace-leaf-content[data-type="markdown"] .markdown-preview-view:not(.canvas-node *) a:hover:not(.canvas-node *) { text-decoration: underline; }
 
 /* Footnote / reference markers like [1] — keep them quiet and on-ink,
    not accent-colored, so they don't pull the eye away while reading. */
-.markdown-preview-view .footnote-ref a,
-.markdown-preview-view sup a.footnote-link,
-.markdown-source-view.mod-cm6 .cm-footref,
-.markdown-source-view.mod-cm6 .cm-blockid,
+.workspace-leaf-content[data-type="markdown"] .markdown-preview-view:not(.canvas-node *) .footnote-ref a:not(.canvas-node *),
+.workspace-leaf-content[data-type="markdown"] .markdown-preview-view:not(.canvas-node *) sup a.footnote-link:not(.canvas-node *),
+.workspace-leaf-content[data-type="markdown"] .markdown-source-view.mod-cm6:not(.canvas-node *) .cm-footref:not(.canvas-node *),
+.workspace-leaf-content[data-type="markdown"] .markdown-source-view.mod-cm6:not(.canvas-node *) .cm-blockid:not(.canvas-node *),
 /* Bare bracket markers like [1] (no link target): in live-preview these
    are tokenized as bare links and would otherwise take the accent color. */
-.markdown-source-view.mod-cm6 .cm-hmd-barelink,
-.markdown-source-view.mod-cm6 .cm-formatting-link {
+.workspace-leaf-content[data-type="markdown"] .markdown-source-view.mod-cm6:not(.canvas-node *) .cm-hmd-barelink:not(.canvas-node *),
+.workspace-leaf-content[data-type="markdown"] .markdown-source-view.mod-cm6:not(.canvas-node *) .cm-formatting-link:not(.canvas-node *) {
     color: var(--wr-ink-soft) !important;
     text-decoration: none;
 }
-.markdown-preview-view .footnote-ref a:hover { color: var(--wr-ink) !important; }
+.workspace-leaf-content[data-type="markdown"] .markdown-preview-view:not(.canvas-node *) .footnote-ref a:hover:not(.canvas-node *) { color: var(--wr-ink) !important; }
 
 /* Blockquote — a calm gray bar (never the base theme's blue), held away
    from the text so the line doesn't crowd it. */
-.markdown-preview-view blockquote {
+.workspace-leaf-content[data-type="markdown"] .markdown-preview-view:not(.canvas-node *) blockquote:not(.canvas-node *) {
     border-left: 3px solid var(--wr-faint) !important;
     color: var(--wr-ink-soft) !important;
     margin-left: 0;
@@ -194,13 +198,13 @@ body.theme-dark {
 }
 /* Live-preview: just recolor the bar/text; let Obsidian keep its native
    quote spacing (the earlier crowding was the padding:0 bug, now fixed). */
-.markdown-source-view.mod-cm6 .cm-blockquote,
-.markdown-source-view.mod-cm6 .HyperMD-quote {
+.workspace-leaf-content[data-type="markdown"] .markdown-source-view.mod-cm6:not(.canvas-node *) .cm-blockquote:not(.canvas-node *),
+.workspace-leaf-content[data-type="markdown"] .markdown-source-view.mod-cm6:not(.canvas-node *) .HyperMD-quote:not(.canvas-node *) {
     border-left-color: var(--wr-faint) !important;
     color: var(--wr-ink-soft) !important;
 }
 
-.markdown-preview-view hr {
+.workspace-leaf-content[data-type="markdown"] .markdown-preview-view:not(.canvas-node *) hr:not(.canvas-node *) {
     border: none;
     border-top: 1px solid var(--wr-faint);
     margin: 2.4em auto;
@@ -208,8 +212,8 @@ body.theme-dark {
 }
 
 /* Inline code — a small chip, distinct from the surrounding text. */
-.markdown-preview-view :not(pre) > code,
-.markdown-source-view.mod-cm6 .cm-inline-code {
+.workspace-leaf-content[data-type="markdown"] .markdown-preview-view:not(.canvas-node *) :not(pre) > code:not(.canvas-node *),
+.workspace-leaf-content[data-type="markdown"] .markdown-source-view.mod-cm6:not(.canvas-node *) .cm-inline-code:not(.canvas-node *) {
     font-family: "SF Mono", "Menlo", monospace;
     font-size: 0.86em;
     background: var(--wr-code-bg);
@@ -219,13 +223,13 @@ body.theme-dark {
 }
 
 /* Fenced code block — a clearly visible inset surface (reading view). */
-.markdown-preview-view pre {
+.workspace-leaf-content[data-type="markdown"] .markdown-preview-view:not(.canvas-node *) pre:not(.canvas-node *) {
     background: var(--wr-code-bg) !important;
     border: 1px solid var(--wr-faint);
     border-radius: 8px;
     padding: 0.9em 1.1em;
 }
-.markdown-preview-view pre > code {
+.workspace-leaf-content[data-type="markdown"] .markdown-preview-view:not(.canvas-node *) pre > code:not(.canvas-node *) {
     background: transparent !important;
     border: 0;
     padding: 0;
@@ -233,16 +237,16 @@ body.theme-dark {
 }
 
 /* Fenced code block — live-preview: a continuous boxed surface. */
-.markdown-source-view.mod-cm6 .HyperMD-codeblock {
+.workspace-leaf-content[data-type="markdown"] .markdown-source-view.mod-cm6:not(.canvas-node *) .HyperMD-codeblock:not(.canvas-node *) {
     background: var(--wr-code-bg) !important;
     border-left: 1px solid var(--wr-faint);
     border-right: 1px solid var(--wr-faint);
 }
-.markdown-source-view.mod-cm6 .HyperMD-codeblock-begin {
+.workspace-leaf-content[data-type="markdown"] .markdown-source-view.mod-cm6:not(.canvas-node *) .HyperMD-codeblock-begin:not(.canvas-node *) {
     border-top: 1px solid var(--wr-faint);
     border-radius: 8px 8px 0 0;
 }
-.markdown-source-view.mod-cm6 .HyperMD-codeblock-end {
+.workspace-leaf-content[data-type="markdown"] .markdown-source-view.mod-cm6:not(.canvas-node *) .HyperMD-codeblock-end:not(.canvas-node *) {
     border-bottom: 1px solid var(--wr-faint);
     border-radius: 0 0 8px 8px;
 }
@@ -256,8 +260,8 @@ body.theme-dark {
         --wr-pad-top: 40px;
         --wr-pad-bottom: 64px;
     }
-    .markdown-preview-view,
-    .markdown-source-view.mod-cm6 .cm-content {
+    .workspace-leaf-content[data-type="markdown"] .markdown-preview-view:not(.canvas-node *),
+    .workspace-leaf-content[data-type="markdown"] .markdown-source-view.mod-cm6:not(.canvas-node *) .cm-content:not(.canvas-node *) {
         font-size: 17px !important;
     }
 }

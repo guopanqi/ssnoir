@@ -15,7 +15,7 @@
             (restore-actor-composure! 'player calm))
           #f)
       (let ((story-played? (if (第二幕 'lucy-at-cafe?)
-              (第一幕 'on-work! "街角咖啡馆" grade) #f)))
+              (露西起步 'on-work!) #f)))
         (if story-played? #f (第二幕 'on-cafe-work!))))
 
     (define (nodes-at location)

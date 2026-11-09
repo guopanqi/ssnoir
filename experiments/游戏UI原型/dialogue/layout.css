@@ -1,64 +1,142 @@
-.dialogue-preview{position:absolute;inset:0;z-index:20;display:grid;grid-template-columns:minmax(0,1fr) minmax(440px,46%);background:linear-gradient(90deg,#03060966,#03060933 50%,#030609)}
-.dialogue-stage{position:relative;overflow:hidden;display:flex;align-items:flex-end;justify-content:center;gap:0;padding:95px 0 0}
-.dialogue-location{position:absolute;left:24px;top:24px;color:#aaa99e;font:14px Georgia,"Songti SC",serif;letter-spacing:2px}
-.dialogue-figure{height:555px;width:46%;position:relative;overflow:hidden;opacity:.72;transition:opacity .25s;flex-shrink:0}
-.dialogue-figure.active{opacity:1}
-.dialogue-figure::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 55%,#030609ee,transparent 72%)}
-.dialogue-figure::after{content:'';position:absolute;width:700px;height:700px;left:50%;top:-86px;transform:translateX(-50%);background:#e9e6dc;mask-image:var(--portrait);mask-mode:luminance;mask-size:100% 100%;mask-repeat:no-repeat}
-.dialogue-figure.neil{--portrait:url('../assets/尼尔_抱臂_lines.png')}
-.dialogue-figure.nightingale{--portrait:url('../assets/夜莺_lines.png')}
-.dialogue-panel{position:relative;display:flex;flex-direction:column;min-width:0;min-height:0;background:#0b0e12f5;border-left:1px solid #b8b09a;padding:0 28px 0 34px;box-shadow:-12px 0 25px #0005}
-.dialogue-panel::before{content:'';position:absolute;left:5px;top:0;bottom:0;border-left:1px solid #a49b783d}
-.dialogue-panel-top{display:flex;justify-content:space-between;align-items:center;padding:19px 0 16px;border-bottom:1px solid #aaa79844;color:#96978f;font:12px sans-serif;letter-spacing:2px}
-.dialogue-panel-top button{font:14px Georgia,"Songti SC",serif;padding:5px 12px;background:transparent;border-color:#aaa79855}
-.dialogue-log{flex:1;overflow-y:auto;min-height:0;padding:24px 10px 24px 0;scrollbar-width:thin;scrollbar-color:#a39c88 #14181c;overscroll-behavior:contain}
-.dialogue-turn{margin:0 0 27px;position:relative;padding-left:17px;border-left:1px solid #66685f55}
-.dialogue-speaker{display:inline-block;font:17px/1.4 Georgia,"Songti SC",serif;letter-spacing:2px;color:#c1bdafff;margin-bottom:9px;padding:1px 11px 2px 0}
-.dialogue-turn p{color:#bbbcb6;font:20px/1.85 Georgia,"Songti SC","STSong",serif;white-space:pre-line;margin:0;overflow-wrap:anywhere}
-.dialogue-turn.current{border-left:2px solid var(--gold)}
-.dialogue-turn.current .dialogue-speaker{color:var(--gold)}
-.dialogue-turn.current p{color:#eee9de}
-.dialogue-turn.narration{border:0;padding:0 17px}
-.dialogue-turn.narration p{font-size:16px;color:#999d99;line-height:1.8}
-.dialogue-end-rule{height:1px;margin:30px 0 10px;background:linear-gradient(90deg,#aaa79888,#aaa79811)}
-.dialogue-footer{border-top:1px solid #aaa79855;padding:14px 0 20px;flex-shrink:0}
-.dialogue-next{width:100%;display:flex;align-items:center;justify-content:space-between;text-align:left;background:none;border:0;padding:6px 0;color:#ddd7c7;font:16px/1.5 Georgia,"Songti SC",serif}
-.dialogue-next small{font:12px sans-serif;letter-spacing:1px;color:#8e938d}
-.dialogue-next b{font-weight:400;color:var(--gold)}
-.dialogue-choices{display:flex;flex-direction:column;gap:8px}
-.dialogue-choices button{font:17px/1.6 Georgia,"Songti SC",serif;text-align:left;background:#14191e;border-color:#a29c8055;padding:10px 13px}
-.dialogue-choices button:hover,.dialogue-choices button:focus-visible{border-color:var(--gold);color:var(--gold)}
-@media(prefers-reduced-motion:reduce){.dialogue-figure{transition:none}}
+/* 一套 1280 × 720 舞台；缩放沿用工作台 fit，不按设备分支。 */
+.dialogue-preview{position:absolute;inset:0;z-index:20;display:grid;grid-template-columns:minmax(0,56%) minmax(0,44%);color:#e7e1d4;isolation:isolate}
+.dialogue-preview button{font-family:inherit;cursor:pointer}
+.dialogue-preview button:disabled{cursor:default;opacity:.45}
+.dialogue-preview button:focus-visible{outline:1px solid #e8c35a;outline-offset:4px}
+.dialogue-preview [hidden]{display:none!important}
 .game.dialogue-open > :not(.dialogue-preview){visibility:hidden}
-/* 游戏画布由统一 fit 缩放，内部不再产生第二条画布滚动条。 */
 #viewport:has(.dialogue-preview){overflow:clip}
-
-/* 底部版：对白轻叠在完整人物舞台上，不再切出独立面板空间。 */
-.dialogue-tools{display:flex;gap:10px}
-.dialogue-bottom{display:block;background:linear-gradient(180deg,#03060911,#03060922)}
-.dialogue-bottom .dialogue-stage{position:absolute;inset:0;padding:30px 80px 0;justify-content:space-between;align-items:flex-end;overflow:hidden}
-.dialogue-bottom .dialogue-figure{width:32%;height:580px;transition:opacity .3s,transform .4s;transform:translateY(8px)}
-.dialogue-bottom .dialogue-figure.active{transform:translateY(0)}
-.dialogue-bottom .dialogue-figure::after{width:740px;height:740px;top:-55px}
-.dialogue-bottom .dialogue-panel{position:absolute;left:12%;right:12%;bottom:18px;min-height:110px;max-height:210px;padding:22px 30px 26px;display:flex;border:0;background:linear-gradient(90deg,#080c10a8,#080c10c9 20%,#080c10c9 80%,#080c10a8);box-shadow:none}
-.dialogue-bottom .dialogue-panel::before{display:none}
-.dialogue-bottom .dialogue-panel-top{position:fixed;right:24px;top:20px;padding:0;border:0}
-.dialogue-bottom .dialogue-panel-top>span{display:none}
-.dialogue-bottom .dialogue-panel-top button{font-size:12px;padding:5px 10px;border:0;color:#aaa99e;background:#080c1066}
-.dialogue-bottom .dialogue-log{padding:0 20px 0 0;overflow-y:auto}
-.dialogue-bottom .dialogue-turn{display:none;margin:0;padding:0;border:0}
-.dialogue-bottom .dialogue-turn.current{display:grid;grid-template-columns:74px minmax(0,1fr);gap:16px;border:0}
-.dialogue-bottom .dialogue-speaker{font-size:20px;margin:0;line-height:1.7;letter-spacing:3px}
-.dialogue-bottom .dialogue-turn p{font-size:22px;line-height:1.7;text-shadow:0 1px 3px #000}
+.dialogue-sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.dialogue-stage{position:relative;min-width:0;overflow:hidden;grid-area:1/1;isolation:isolate}
+.dialogue-atmosphere{position:absolute;inset:0;background:linear-gradient(180deg,#03070c45,transparent 42%,#03070c9c),radial-gradient(ellipse at 50% 65%,transparent 30%,#02070b88);animation:dialogue-dim .6s ease both}
+.dialogue-figure{position:absolute;inset-block:0;width:49%;will-change:transform,opacity;pointer-events:none}
+.dialogue-figure.left{left:0}
+.dialogue-figure.right{right:0}
+.portrait-pose{position:absolute;inset:0;opacity:1;filter:brightness(.55);transform:translateY(5px);transition:filter .35s ease,transform .4s ease}
+.dialogue-figure.active .portrait-pose{filter:brightness(1);transform:translateY(0)}
+.dialogue-figure.narrating .portrait-pose{filter:brightness(.8);transform:translateY(0)}
+.portrait-surface{position:absolute;width:720px;height:720px;bottom:-5px;left:50%;transform-origin:50% 96%;transform:translateX(-50%) translateY(var(--portrait-offset,0px)) scale(var(--portrait-scale,1)) scaleX(var(--portrait-flip,1));transition:transform .22s ease}
+.portrait-surface img,.portrait-lines{display:block;width:100%;height:100%;object-fit:contain;object-position:center bottom;user-select:none}
+.portrait-lines{background:#e9e6dc;mask-image:var(--portrait-url);mask-mode:luminance;mask-size:contain;mask-position:center bottom;mask-repeat:no-repeat}
+.dialogue-topbar{position:absolute;inset:27px 32px auto;z-index:4;display:flex;justify-content:space-between;align-items:flex-start;gap:20px;animation:dialogue-toolbar .5s .25s ease both}
+.dialogue-location{display:flex;flex-direction:column;gap:7px;line-height:1.4}
+.dialogue-location>span{font-size:16px;letter-spacing:3px;color:#d6cdbb}
+.dialogue-location small{font:11px/1.4 -apple-system,sans-serif;letter-spacing:3px;color:#858f94}
+.dialogue-tools{display:flex;gap:5px;padding:4px;background:#080d12b3;border:1px solid #d2c3a521}
+.dialogue-tools button{background:transparent;border:0;padding:9px 13px;color:#a6aaa5;font-size:14px;letter-spacing:1px;transition:background .2s,color .2s}
+.dialogue-tools button:hover,.dialogue-tools button[aria-pressed=true],.dialogue-tools button[aria-expanded=true]{color:#ead6a1;background:#e8c35a0d}
+.dialogue-tools button+button{border-left:1px solid #b9b4a025}
+.dialogue-panel{position:relative;grid-area:1/2;display:flex;flex-direction:column;min-width:0;min-height:0;padding:95px 32px 22px;background:linear-gradient(90deg,#080d12f7,#0b1015fa);border-left:1px solid #bdb39b50;box-shadow:-18px 0 38px #0003}
+.dialogue-panel-top{flex-shrink:0;display:flex;justify-content:space-between;gap:16px;border-bottom:1px solid #bdb39b35;padding-bottom:16px;color:#b8b09e;font-size:14px;letter-spacing:2px}
+.dialogue-panel-top span{font:11px -apple-system,sans-serif;color:#737f85;letter-spacing:1px}
+.dialogue-log{flex:1;min-height:0;overflow:auto;padding:25px 8px 8px 0;scrollbar-width:thin;scrollbar-color:#717367 #12191e;overscroll-behavior:contain;scroll-behavior:smooth}
+.dialogue-turn{margin-bottom:26px;padding-left:18px;border-left:1px solid #b8b09a26;animation:dialogue-turn-in .3s ease both}
+.dialogue-speaker{font-size:17px;line-height:1.5;letter-spacing:2px;margin-bottom:8px;color:#a8a99f}
+.dialogue-turn p{margin:0;font:22px/1.8 Georgia,"Songti SC","STSong",serif;color:#919b99;white-space:pre-line;overflow-wrap:anywhere}
+.dialogue-turn.current{border-left:2px solid #c9af70}
+.dialogue-turn.current .dialogue-speaker{color:#e2c98b}
+.dialogue-turn.current p{color:#eee9dd}
+.dialogue-turn.narration{border:0;padding-left:18px}
+.dialogue-turn.narration p{font-size:19px;color:#acb0aa;line-height:1.8;font-style:normal}
+.dialogue-footer{flex-shrink:0;padding-top:14px;border-top:1px solid #bdb39b30}
+.dialogue-next{display:flex;justify-content:flex-end;gap:18px;align-items:center;width:100%;padding:10px 2px;background:none;border:0;color:#e4cf9b;min-height:40px;font-size:17px;letter-spacing:1px}
+.dialogue-next small{font:11px -apple-system,sans-serif;color:#78878a;letter-spacing:1px}
+.dialogue-next>span::after{content:' ›';display:inline-block;margin-left:6px}
+.dialogue-preview[data-phase=reading] .dialogue-next>span::after{animation:dialogue-ready 1.8s ease-in-out infinite}
+.dialogue-choices{display:flex;flex-direction:column;gap:10px}
+.dialogue-choices button{display:flex;gap:13px;align-items:baseline;width:100%;padding:13px 15px;text-align:left;font:20px/1.5 Georgia,"Songti SC",serif;border:1px solid #b9b4a044;background:#15202799;color:#e0ddcf;transition:background .18s,border-color .18s,transform .18s}
+.choice-number{flex-shrink:0;color:#c8b17d;font:12px/1.5 ui-monospace,monospace;border-right:1px solid #b9b4a03d;padding-right:12px}
+.dialogue-choices button:hover,.dialogue-choices button:focus-visible,.dialogue-choices button.chosen{border-color:#d4bb7c;background:#c4a65a13;transform:translateX(3px)}
+/* 底部布局将对白叠在舞台上；字号与角色画幅保持同一套数值。 */
+.dialogue-bottom{display:block}
+.dialogue-bottom .dialogue-stage{position:absolute;inset:0}
+.dialogue-bottom .dialogue-figure{width:40%}
+.dialogue-bottom .dialogue-figure.left{left:3%}
+.dialogue-bottom .dialogue-figure.right{right:3%}
+.dialogue-bottom .dialogue-panel{position:absolute;left:14%;right:14%;bottom:24px;min-height:126px;max-height:310px;padding:21px 28px 12px;border:0;border-top:1px solid #bcb39a40;box-shadow:0 10px 35px #0002;background:linear-gradient(90deg,#080e14a8,#080e14e8 18%,#080e14e8 82%,#080e14a8);cursor:pointer}
+.dialogue-bottom .dialogue-panel-top{display:none}
+.dialogue-bottom .dialogue-log{padding:0 4px 0 0;max-height:170px;flex:0 1 auto;scroll-behavior:auto}
+.dialogue-bottom .dialogue-turn{display:none;margin:0;padding:0;border:0;animation:dialogue-turn-in .22s ease both}
+.dialogue-bottom .dialogue-turn.current{display:grid;grid-template-columns:76px minmax(0,1fr);gap:20px}
+.dialogue-bottom .dialogue-speaker{font-size:21px;line-height:1.7;margin:0;letter-spacing:3px;padding-top:2px}
+.dialogue-bottom .dialogue-turn p{font-size:24px;line-height:1.65;text-shadow:0 1px 3px #000}
 .dialogue-bottom .dialogue-turn.narration{grid-template-columns:minmax(0,1fr)}
-.dialogue-bottom .dialogue-footer{padding:0;border:0}
-.dialogue-bottom .dialogue-next{position:absolute;inset:0;width:100%;padding:0;border:0;background:none;align-items:flex-end;justify-content:flex-end}
-.dialogue-bottom .dialogue-next span,.dialogue-bottom .dialogue-next small{display:none}
-.dialogue-bottom .dialogue-next b{font-size:0;padding:10px 14px;color:#b9b09a}
-.dialogue-bottom .dialogue-next b::after{content:'▾';font-size:16px}
-.dialogue-bottom .dialogue-next:focus-visible{outline:1px solid #b9b09a77;outline-offset:3px}
-.dialogue-bottom .dialogue-panel:has(.dialogue-choices){padding-bottom:16px}
-.dialogue-bottom .dialogue-choices{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:12px 0 0 90px}
-.dialogue-bottom .dialogue-choices button{padding:6px 10px;font-size:17px;border:0;border-left:1px solid #b9b09a66;background:#0b0e1244}
-.dialogue-bottom .dialogue-end-rule{display:none}
-@media(prefers-reduced-motion:reduce){.dialogue-bottom .dialogue-figure{transition:none}}
+.dialogue-bottom .dialogue-turn.narration p{font-size:21px;letter-spacing:1px}
+.dialogue-bottom .dialogue-footer{border:0;padding-top:6px}
+.dialogue-bottom .dialogue-next{padding:5px 0;min-height:28px;font-size:14px}
+.dialogue-bottom .dialogue-choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding-top:12px}
+.dialogue-bottom .dialogue-choices button{font-size:19px;padding:11px 12px;background:#14202980}
+/* 回看是画布内的局部浮层；不打断外部实验切换和画像设置。 */
+.dialogue-history{position:absolute;inset:0;z-index:8;display:grid;place-items:center}
+.history-backdrop{position:absolute;inset:0;background:#02070bd6;backdrop-filter:blur(5px)}
+.history-sheet{position:relative;display:flex;flex-direction:column;width:72%;max-height:82%;background:#0c141bf5;border:1px solid #c3b18b55;padding:22px 30px;box-shadow:0 30px 90px #0008;animation:dialogue-turn-in .22s ease}
+.history-sheet header{display:flex;justify-content:space-between;align-items:center;padding-bottom:18px;border-bottom:1px solid #c3b18b35;font-size:18px;letter-spacing:2px}
+.history-sheet header button{padding:8px 14px;background:transparent;border-color:#c3b18b44;font-size:15px;color:#d5c9ae}
+.history-entries{min-height:0;overflow:auto;padding:22px 8px;scrollbar-width:thin;scrollbar-color:#717367 #12191e;overscroll-behavior:contain}
+.history-turn{display:grid;grid-template-columns:90px minmax(0,1fr);gap:18px;margin-bottom:24px}
+.history-turn strong{color:#d3bd87;font-size:17px;font-weight:400;line-height:1.8;letter-spacing:2px}
+.history-turn p{margin:0;font:21px/1.8 Georgia,"Songti SC",serif;color:#d4d9d1}
+.history-turn.narration p{color:#919e9e;font-size:18px}
+.history-sheet>small{padding-top:16px;border-top:1px solid #c3b18b25;font:12px -apple-system,sans-serif;color:#83928e;letter-spacing:1px}
+/* 编辑工具位于画布外，实际游戏画面不混入资源参数。 */
+#dialogue-lab>.toolbar{justify-content:space-between;flex-wrap:wrap;align-items:center}
+.dialogue-speed-label{display:flex;align-items:center;gap:8px;font-size:12px;color:#919c9e}
+.dialogue-speed-label select{font-size:12px;padding:8px;color:#c4c7bb}
+.dialogue-lab-note{font-size:11px;color:#6e7d83;white-space:nowrap}
+.portrait-settings{margin-bottom:18px;border:1px solid #78858d38;background:#10171b70}
+.portrait-settings>summary{padding:13px 16px;cursor:pointer;font-size:13px;color:#c6c6b9}
+.portrait-settings>summary span{font-size:11px;color:#6f828a;margin-left:12px}
+.portrait-help{font-size:12px;line-height:1.7;color:#8f9c9d;padding:0 18px;margin:2px 0 14px}
+.portrait-editors{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,290px),1fr));gap:16px;padding:0 16px 16px}
+.portrait-editor{min-width:0;border:1px solid #9aa79a25;padding:14px 16px 10px;margin:0;display:flex;flex-direction:column;gap:12px;color:#bfc6bd}
+.portrait-editor legend{padding:0 8px;font-size:12px;letter-spacing:2px;color:#cbb98a}
+.portrait-editor label{display:flex;align-items:center;gap:10px;font-size:12px;color:#99a7a8;min-width:0}
+.portrait-editor input[type=text],.portrait-editor select{flex:1;min-width:0;padding:8px 10px;background:#0b1116;border:1px solid #9aa79a35;color:#e1e1d6;font:13px -apple-system,sans-serif}
+.portrait-editor button,.portrait-editor .portrait-file-button{padding:8px 11px;font-size:12px;background:transparent;border:1px solid #9aa79a50;color:#d0ccb9;cursor:pointer}
+.portrait-editor button:hover,.portrait-file-button:hover{border-color:#c3b18b}
+.portrait-editor-top{display:flex;align-items:center;gap:15px}
+.portrait-thumb{width:68px;height:76px;flex-shrink:0;overflow:hidden;border:1px solid #7d89932b;background:repeating-conic-gradient(#19242c 0% 25%,#111c24 0% 50%) 50%/12px 12px}
+.portrait-thumb img{width:100%;height:100%;object-fit:contain}
+.portrait-file-actions{display:flex;align-items:center;flex-wrap:wrap;gap:8px}
+.portrait-file-actions small{flex-basis:100%;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px;color:#72828b}
+.portrait-file-button{position:relative;overflow:hidden}
+.portrait-file-button input{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer}
+.portrait-file-button:focus-within{outline:1px solid #d4bb7c;outline-offset:3px}
+.portrait-path{display:flex;gap:8px}
+.portrait-path label{flex:1}
+.portrait-range input{flex:1;min-width:0;accent-color:#b9a273}
+.portrait-range output{width:40px;text-align:right;font:11px ui-monospace,monospace;color:#c5c6b7}
+.portrait-editor .portrait-flip{align-self:flex-start}
+.portrait-flip input{accent-color:#b9a273}
+.portrait-error{font-size:11px;line-height:1.6;color:#d2a284;min-height:0;margin:0}
+.portrait-error:empty{display:none}
+@keyframes dialogue-dim{from{opacity:0}to{opacity:1}}
+@keyframes dialogue-toolbar{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
+@keyframes dialogue-turn-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes dialogue-ready{0%,100%{opacity:.5;transform:translateX(0)}50%{opacity:1;transform:translateX(3px)}}
+@media(prefers-reduced-motion:reduce){.dialogue-preview *,.dialogue-preview *::after{animation:none!important;transition:none!important}.dialogue-log{scroll-behavior:auto}}
+/* 描线源图的黑色负空间压住身后的建筑线条，保持人物轮廓可读。 */
+.portrait-surface[data-mode=lines]::before{content:'';position:absolute;left:35%;right:35%;top:16%;bottom:1%;background:radial-gradient(ellipse,#03070cf5 20%,#03070cd9 48%,transparent 73%);pointer-events:none}
+.portrait-lines{position:relative}
+.portrait-filter-definitions{position:absolute;overflow:hidden;pointer-events:none}
+.portrait-visual{position:relative;width:100%;height:100%;mask-size:100% 100%;mask-repeat:no-repeat}
+.dialogue-reference{position:absolute;inset:0;background:var(--portrait-reference-bg,transparent);pointer-events:none}
+#portrait-effects{border:1px solid #78858d38;background:#10171b70;margin-bottom:18px;padding:13px 16px;color:#aab4b4}
+.portrait-look-bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.portrait-look-bar>strong{font-size:12px;font-weight:500;letter-spacing:2px;color:#c9c6b5;margin-right:5px}
+.portrait-look-bar label,.portrait-look-subbar label{display:flex;align-items:center;gap:8px;font-size:11px;white-space:nowrap}
+.portrait-look-bar select,.portrait-look-subbar select{padding:7px;background:#0b1116;border:1px solid #9aa79a35;color:#d6d7cc;font-size:12px}
+.portrait-look-presets{display:flex;flex-wrap:wrap;gap:5px}
+.portrait-look-bar button{padding:8px 11px;font-size:12px;background:#0c141a;border:1px solid #9aa79a38;color:#bbc4c1;cursor:pointer}
+.portrait-look-bar button:hover,.portrait-look-bar button[aria-pressed=true]{border-color:#cbb887;color:#e2c98b;background:#cbb8870d}
+.portrait-look-bar button:focus-visible{outline:1px solid #e2c98b;outline-offset:3px}
+.portrait-look-subbar{display:flex;flex-wrap:wrap;align-items:center;gap:14px;margin-top:10px;font-size:11px;color:#839599}
+.portrait-look-subbar>[data-look-status]{color:#b7bbac}
+.portrait-look-subbar>small{font-size:10px;color:#6e8087}
+.portrait-look-details{margin-top:10px;border-top:1px solid #78858d25;padding-top:9px}
+.portrait-look-details summary{font-size:11px;cursor:pointer;color:#92a1a4}
+.portrait-look-ranges{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:16px 25px;padding-top:16px}
+.portrait-look-ranges label{display:flex;align-items:center;gap:10px;font-size:12px;min-width:0}
+.portrait-look-ranges input{flex:1;min-width:0;accent-color:#b9a273}
+.portrait-look-ranges output{min-width:48px;text-align:right;font:11px ui-monospace,monospace;color:#d1d3c5}
+.portrait-look-details p{font-size:10px;color:#72858d;line-height:1.7;margin:14px 0 0}

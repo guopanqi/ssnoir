@@ -491,11 +491,39 @@ namespace SSNoir.Scripting
                 if (!(args[1] is string subtitle)) throw new ArgumentException("__spotlight! subtitle must be a string");
                 if (gameState.CurrentActionReport != null)
                     gameState.CurrentActionReport.BlockingStorySteps.Add(
-                        BlockingStoryStep.ForSpotlight(new SpotlightCard { Title = title, Subtitle = subtitle }));
+                        BlockingStoryStep.ForSpotlight(SpotlightCard.Notice(title, subtitle)));
                 else
-                    gameState.SpotlightCenter.Show(title, subtitle);
+                    gameState.SpotlightCenter.Show(SpotlightCard.Notice(title, subtitle));
                 return new None();
             }, "__spotlight!"));
+
+            // 作用域内的真实效果转交给单页，不重复留在外层行动结果里。
+            interpreter.DefineGlobal(Symbol.FromString("__spotlight-effect-start"), new NativeProcedure(args =>
+            {
+                if (args.Count != 0 || gameState.CurrentActionReport == null)
+                    throw new ArgumentException("spotlight effects require an action report");
+                return gameState.CurrentActionReport.BeginEffectCapture();
+            }, "__spotlight-effect-start"));
+            interpreter.DefineGlobal(Symbol.FromString("__spotlight-page!"), new NativeProcedure(args =>
+            {
+                if (args.Count != 3 || args[0] is not string title || args[1] is not List<object> raw)
+                    throw new ArgumentException("spotlight-page requires title, paragraphs and effect start");
+                if (raw.Count < 1 || raw.Count > 3) throw new ArgumentException("spotlight-page requires 1–3 paragraphs");
+                var paragraphs = new List<SpotlightParagraph>();
+                foreach (var value in raw)
+                {
+                    if (value is not List<object> row || row.Count != 2 || row[0] is not string text ||
+                        string.IsNullOrWhiteSpace(text) || row[1] is not string image)
+                        throw new ArgumentException("spotlight paragraph requires nonempty text and image path (or empty string)");
+                    paragraphs.Add(new SpotlightParagraph { Text = text, Image = image });
+                }
+                var report = gameState.CurrentActionReport ?? throw new InvalidOperationException("spotlight-page requires action report");
+                int start = SchemeValue.ToInt(args[2]);
+                var effects = report.EndEffectCapture(start);
+                report.BlockingStorySteps.Add(BlockingStoryStep.ForSpotlight(new SpotlightCard
+                    { Title = title, Paragraphs = paragraphs, Effects = effects }));
+                return new None();
+            }, "__spotlight-page!"));
 
             // 阻塞对话:动作内排入有序剧情步骤(adopt 前播放),动作外即时广播。
             interpreter.DefineGlobal(Symbol.FromString("__play-dialogue!"), new NativeProcedure(args =>
@@ -697,6 +725,18 @@ namespace SSNoir.Scripting
                 return SchemeValue.ToInt(args[0]) % 2 != 0;
             }, "odd?"));
 
+            interpreter.DefineGlobal(Symbol.FromString("__interaction-allowed?"), new NativeProcedure(args =>
+            {
+                if (args.Count != 0) throw new ArgumentException("interaction eligibility takes no arguments");
+                var report = gameState.CurrentActionReport;
+                return report != null && report.BlockingStorySteps.Count == 0 &&
+                    report.PostSceneBlockingSteps.Count == 0 && !gameState.HasPendingHospitalization;
+            }, "__interaction-allowed?"));
+            interpreter.DefineGlobal(Symbol.FromString("__interaction-random-100"), new NativeProcedure(args =>
+            {
+                if (args.Count != 0) throw new ArgumentException("interaction random takes no arguments");
+                return GameRandom.Instance.Next(100);
+            }, "__interaction-random-100"));
             var rand = GameRandom.Instance;
             interpreter.DefineGlobal(Symbol.FromString("random-choice"), new NativeProcedure(args =>
             {

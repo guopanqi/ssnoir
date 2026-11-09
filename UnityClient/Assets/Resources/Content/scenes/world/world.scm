@@ -1,3 +1,4 @@
+(load-file "scripts/triggered-events.scm")
 ;; scenes/world/world.scm - 世界协调器（城市生活第一版）
 ;; 世界拥有日期与强制公共事件；地点只拥有自己的生活内容。
 
@@ -15,17 +16,27 @@
 (load-file "world/老街酒馆.scm")
 (load-file "world/咖啡馆.scm")
 (load-file "world/第一幕.scm")
+(load-file "world/人物/夜莺生活.scm")
+(load-file "world/人物/露西起步.scm")
+(load-file "world/成长/码头工作.scm")
+(load-file "world/成长/调查职业.scm")
+(load-file "world/事件/酒馆起步.scm")
+(load-file "world/事件/大船靠岸.scm")
+(load-file "world/事件/居民区相识.scm")
+(load-file "world/事件/院里的炉火.scm")
 (load-file "world/第一幕同行.scm")
 (load-file "world/第二幕.scm")
 (load-file "world/第二幕生活.scm")
 (load-file "world/城市事件/城市事件.scm")
+(load-file "world/城市事件/经理的首单.scm")
+(load-file "world/城市事件/Tommy收账.scm")
 (load-file "world/第二幕节奏.scm")
-(load-file "world/黑鸥号.scm")
+
 (load-file "world/第二幕剧院.scm")
-(load-file "world/第二幕余波.scm")
-(load-file "world/第二幕公告.scm")
+
 (load-file "world/第三幕.scm")
-(load-file "world/艾迪生活.scm")
+(load-file "world/人物/艾迪生活.scm")
+(load-file "world/人物/艾迪的房间.scm")
 (load-file "world/两杯咖啡.scm")
 (load-file "world/艾迪.scm")
 (load-file "world/诊所.scm")
@@ -40,6 +51,7 @@
 (load-file "world/报社.scm")
 ;; 章节只暴露一个入口；它自己的事件由它自己加载。
 (load-file "world/第二章/第二章.scm")
+(load-file "world/前期存档迁移.scm")
 
 ;; ── 世界级状态 ───────────────────────────────────
 (define world-day 1)
@@ -56,7 +68,7 @@
 ;; 没有「圈子声誉」这一层：你和一个人的关系就是你和那一片的关系
 ;; （艾迪＝码头，弗兰克＝老街，沃尔特＝上城），各写在人物模块里。
 
-;; 第一幕拥有五天生活与彩排日程，同行模块拥有彩排后的邀请及Scenario余波。
+;; 第一幕拥有公共演出日程；人物生活、工作成长、口碑和具体事件各有自己的拥有者。
 ;; 世界只负责日历、地点可见性与存档转发。
 ;; demo 短篇的三次逼近（夜莺 / 萨姆 / 陌生人藏身处）已经搬进 docs/归档/Content/，
 ;; 见那里的 README：留作写法参考，不进游戏，也不再被 --validate 解析。
@@ -75,11 +87,15 @@
 
 (define-turn-start-rule "城市事件新日"
   (lambda () #t)
-  (lambda () (城市事件 'on-day-start!)))
+  (lambda () (调查职业 'on-day-start!) (城市事件 'on-day-start!)))
 
 (define-turn-start-rule "第二章新日"
   (lambda () #t)
   (lambda () (第二章 'on-day-start!)))
+
+(define-turn-start-rule "人物新日互动"
+  (lambda () #t)
+  (lambda () (dispatch-interactions! (list (list "timing" "新日开始")))))
 
 ;; ── 调试台：跳章 ─────────────────────────────────
 ;;
@@ -138,7 +154,7 @@
   (node "世界"
     :arrivals (地点入场 "世界")
     :children
-      (apply append (map (lambda (loc) (loc 'render-data)) (current-locations)))))
+      (append (地点节点 "世界") (apply append (map (lambda (loc) (loc 'render-data)) (current-locations))))))
 
 ;; ── 卷宗 ─────────────────────────────────────────
 ;; 谁有一条线要摆进卷宗，写在 world/模块清单.scm；世界只收集与排序，不解释故事。
@@ -156,24 +172,38 @@
   (set! world-day (assoc-get data "day" 1))
   (set-global! '世界日 world-day)
   (模块读档! data)
-  ;; V0.2前手套曾绑定在D13艾迪公告中；已看过就不重复送一次。
-  (let ((old-aftermath (assoc-get data "act-two-aftermath" '()))
-        (old-announcement (assoc-get data "act-two-announcement" '())))
-    (if (and (equal? (assoc-get old-aftermath "gloves" 'missing) 'missing)
-             (assoc-get old-announcement "eddie" #f))
-      (第二幕余波 'mark-gloves-seen!) #f))
-  ;; 城市事件拆分前的演出服存档只在这里迁移一次，避免丢失已完成和已收款事实。
-  (if (assoc-get data "city-events" #f) #t
-    (let* ((old (assoc-get data "act-two-city" '()))
-           (stage (assoc-get old "contract" "未提起")))
-      (经理的演出服 'load! (list (list "stage" (if (equal? stage "退回") "另找他人" stage))
-        (list "progress" (assoc-get old "progress" 0))))))
-  ;; 职业资格来自交付成果；旧档仅认识经理不再视为入行。
-  (if (经理的演出服 'completed?)
+  (前期存档迁移! data)
+
+  ;; 退役演出服只迁移已入行事实，不恢复入口、不重发报酬。
+  (if (assoc-get data "manager-first-job" #f) #t
+    (let* ((events (assoc-get (assoc-get data "city-events" '()) "events" '()))
+           (old-stage (assoc-get (assoc-get events "经理的演出服" '()) "stage"
+             (assoc-get (assoc-get data "act-two-city" '()) "contract" "未提起"))))
+      (if (equal? old-stage "完成")
+        (经理的首单 'load! (list (list "stage" "已交差") (list "result" "成功"))) #f)))
+  (if (or (equal? (assoc-get (经理的首单 'save) "stage" "") "已交差")
+          (equal? (assoc-get (乔的手提箱 'save) "stage" "") "完成"))
     (begin (set-global! '身份 "侦探")
-      (if (get-global '侦探入行日) #t (set-global! '侦探入行日 world-day)))
+      (if (and (get-global '侦探入行日) (> (get-global '侦探入行日) 0)) #t (set-global! '侦探入行日 world-day)))
     (begin (set-global! '身份 "") (set-global! '侦探入行日 0)))
-  (if (第二幕生活 'manager-met?) (经理的演出服 'offer!) #f)
   ;; 涉及多个 owner 的不变量必须等各自状态都恢复后再校验。
   (frank 'validate!)
 )
+
+;; 声明顺序为稳定选择顺序；一处检查最多呈现一段旁侧互动。
+(define interaction-dispatching? #f)
+(define (dispatch-interactions! context)
+  (if interaction-dispatching? (error "触发事件：不允许递归派发") #t)
+  (set! interaction-dispatching? #t)
+  (let ((entries (apply append (map (lambda (module) (module 'interactions)) (担任 '互动)))))
+    (if (= (length entries) (length (unique-interaction-ids entries))) #t
+      (error "触发事件：重复Id"))
+    ;; 过期收尾不依赖今天是否有主线对白；选择与播放仍让主线优先。
+    (map (lambda (entry) (entry 'refresh!)) entries)
+    (let ((played? (if (__interaction-allowed?) (try-interactions! entries context) #f)))
+      (set! interaction-dispatching? #f) played?)))
+(define (unique-interaction-ids entries)
+  (if (null? entries) '()
+    (let ((id ((car entries) 'id)))
+      (cons id (filter (lambda (other) (not (equal? id other)))
+        (unique-interaction-ids (cdr entries)))))))

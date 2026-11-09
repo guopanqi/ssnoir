@@ -92,10 +92,10 @@ public static class DayArrivalChecks
             && actionCollapse.GameState.Get<int>("世界日") == 2, "动作中倒下同样只换日一次并在黑场送医");
 
         var ship = World();
-        ship.ActiveInterpreter.Eval("(set! world-day 8) (set-global! '世界日 8)"); ship.Refresh();
+        ship.ActiveInterpreter.Eval("(码头工作 'load! '((\"work\" 4) (\"ship-day\" 9))) (set! world-day 8) (set-global! '世界日 8)"); ship.Refresh();
         var morning = ship.EndTurn();
         Check(!Text(morning.TurnStartReport).Contains("大船"), "招工不在醒来时广播");
-        Check(Text(ship.EnterPlace("世界")).Contains("大船今天"), "当天出门才收到大船招工消息");
+        Check(ship.EnterPlace("世界")!.BlockingStorySteps.Any(step => step.Spotlight?.Title == "大船靠岸"), "当天出门以Spotlight收到大船招工消息");
         Check(ship.EnterPlace("世界") == null, "招工消息只播一次");
         var chapter = World();
         chapter.ActiveInterpreter.Eval("(第二章 'debug-start!) (set! world-day 9) (set-global! '世界日 9)");

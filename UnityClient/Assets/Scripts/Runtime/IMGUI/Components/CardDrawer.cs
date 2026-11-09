@@ -309,7 +309,7 @@ namespace SSNoir.IMGUI
             {
                 BeneficialDirection.Increase => IMGUIStyles.OddsSuccess,
                 BeneficialDirection.Decrease => IMGUIStyles.OddsFail,
-                _ => IMGUIStyles.Gold,
+                _ => IMGUIStyles.TextPrimary,
             };
 
         /// <summary>共享进度图形；空轨道保持低对比，实际进度按钟的语义着色。</summary>

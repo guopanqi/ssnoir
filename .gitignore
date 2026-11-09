@@ -81,6 +81,11 @@ __pycache__/
 
 /experiments/noir-engraving-lab/dist-heishui/
 
+/experiments/noir-city/noir-fog-neon-lab/dist/
+/experiments/noir-city/noir-residence-lab/dist/
+/experiments/noir-city/noir-residence-lab/captures/
+/experiments/noir-city/noir-engraving-lab/dist/
+
 # 黑水的城市几何快照（13 MB）：由 tools/heishui-export.py 从 CityBox 构建产物重烘
 /experiments/noir-engraving-lab/public/heishui/city.bin
 
@@ -91,3 +96,8 @@ __pycache__/
 # SSNoir TypeScript game generated distributions
 /Game/dist/
 /Game/artifacts/
+
+# Generated image outputs and macOS metadata
+/output/
+.DS_Store
+/Game/.generated/

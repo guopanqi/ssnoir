@@ -1,5 +1,5 @@
-;; 雨夜同行：酒馆生活中可选择的一次共同经历。
-;; 时间窗口第 3–5 天；拒绝/错过均不会阻断第一幕告别演出。
+;; 雨夜同行：看场四班后的求助与必须处理的共同经历。
+;; 工作满格时对白直接答应，随后出现必须处理的同行行动；结束后开放日常。
 (define first-act-walk
   (let ()
     (define status "未邀请")
@@ -9,73 +9,72 @@
     (define final-fear 0)
 
     (define (available?)
-      (and (= (第一幕 'act) 1) (>= world-day 3) (<= world-day 5)
-           ;; 仅听过歌还不是交情。至少一次在酒馆真正说过话。
-           (>= (第一幕 'singer-stage) 1)
+      (and (= (第一幕 'act) 1) (or (equal? status "已答应") (not (夜莺生活 'daily-open?))) (夜莺生活 'request-ready?)
            (not (第二章 'started?))))
     (define (invite!)
-      (if (not (equal? status "未邀请")) (error "雨夜：邀请已处理") #t)
+      (if (member? status '("未邀请" "婉拒" "错过")) #t (error "雨夜：邀请已处理"))
       (set! status "待答复")
       (play-dialogue!
-        (line "世界" "酒馆打烊了。夜莺站在后门檐下，迟迟没迈步。")
-        (line "尼尔" "还不走？")
-        (line "夜莺" "……尼尔，你顺路吗？这几天回去，街角总有个人跟着我。")
-        (line "尼尔" "报警了吗？")
-        (line "夜莺" "这片的巡警懒得管这些。我一个人心慌……能不能送我几步路？")))
+    (line "世界" "酒馆打烊了，后巷下着冷雨。夜莺换了便装站在铁皮雨棚下，手提包攥得很紧，没往外走。")
+    (line "尼尔" "没带伞？")
+    (line "夜莺" "带了。……尼尔，你住哪边？")
+    (line "尼尔" "老街旅馆。往南走二十分钟。")
+    (line "世界" "夜莺往巷子口看了一眼。杂货铺屋檐下站着个穿雨衣的男人，正低头点烟。")
+    (line "夜莺" "那个人前天也在。大概是顺路，但我今晚不想一个人走这条街。")))
     (define (accept!)
       (if (not (equal? status "待答复")) (error "雨夜：没有待答复的邀请") #t)
       (set! status "已答应")
       (play-dialogue!
-        (line "尼尔" "走吧，我刚好顺路。")
-        (line "夜莺" "太谢谢了。"))
-      (start-scenario "雨夜同行" on-result))
-    (define (decline!)
-      (if (not (equal? status "待答复")) (error "雨夜：没有可拒绝的邀请") #t)
-      (set! status "婉拒")
-      (play-dialogue!
-        (line "尼尔" "今晚不行，我手头还有事。")
-        (line "夜莺" "没事，我等厨房的人收拾完，跟他们一起走。")))
+    (line "尼尔" "走吧，我正好回去。")
+    (line "夜莺" "麻烦你了。")
+    (line "尼尔" "顺路的事。")
+    (line "世界" "尼尔走下台阶，站到靠巷口的外侧。夜莺撑开伞跟了上来。"))
+      #t)
     (define (on-result data)
       (if (and (list? data) (= (length data) 4)
                (member? (car data) '(抵达 叫车离开 倒下))
-               (member? (cadr data) '(#t #f))
-               (member? (caddr data) '(#t #f))
-               (member? (cadddr data) '(0 1 2 3)))
-        #t (error "雨夜：结果格式非法"))
+               (member? (cadr data) '(#t #f)) (member? (caddr data) '(#t #f))
+               (member? (cadddr data) '(0 1 2 3))) #t (error "雨夜：结果格式非法"))
       (set! status "已结束")
-      (set! result (cond ((eq? (car data) '抵达) "抵达")
-                         ((eq? (car data) '叫车离开) "叫车离开")
-                         (else "倒下")))
-      (set! ignored? (cadr data))
-      (set! cared? (caddr data))
-      (set! final-fear (cadddr data)))
+      (set! result (cond ((eq? (car data) '抵达) "抵达") ((eq? (car data) '叫车离开) "叫车离开") (else "倒下")))
+      (set! ignored? (cadr data)) (set! cared? (caddr data)) (set! final-fear (cadddr data))
+      (夜莺生活 'begin-daily!)
+      (cond ((equal? result "抵达") (play-dialogue!
+    (line "世界" "公寓门洞里亮着盏暗黄的灯。夜莺收了伞，把钥匙插进锁孔，回头看他。")
+    (line "夜莺" "到了。炉子上还有下午剩的咖啡，上来喝一杯暖暖身子吗？")
+    (line "世界" "尼尔看了看自己沾满泥水的皮鞋，又看了看窄小的木楼梯。")
+    (line "尼尔" "算了，一身泥，上去还得给你添乱。太晚了，你也早点歇着。")
+    (line "夜莺" "那行，我不留你了。明晚酒馆有新歌，不忙的话过来听，跟门口说一声就行，不收你票钱。")
+    (line "尼尔" "好。")
+    (line "世界" "夜莺推门上楼。尼尔转身走出几步，在雨水里回头看了一眼。二楼的窗户亮了，有人影在窗边往下看，他顿了顿，拉高衣领走了。")))
+        ((equal? result "叫车离开") (play-dialogue!
+    (line "世界" "路口驶过一辆空计程车，夜莺立刻抬手拦下。车在积水里刹住。")
+    (line "夜莺" "抱歉，尼尔，我还是坐车吧。这街上太静了。")
+    (line "尼尔" "上去吧，坐车稳妥。")
+    (line "世界" "尼尔替她拉开车门，记下了车牌号。夜莺坐进去，隔着半摇下的车窗看他，脸色还有点白。")
+    (line "夜莺" "车钱我有。今天谢谢你……明晚酒馆见。")
+    (line "尼尔" "明晚见。")))
+        (else (play-dialogue!
+    (line "世界" "巷子里只剩靴子踩水的声音，人影很快散进雨幕。夜莺蹲下来按住尼尔的肩膀，手在发抖，声音却压得很紧。")
+    (line "夜莺" "尼尔？醒醒，别在这儿睡。前面路口有灯，我叫人找大夫来……撑着点。")))))
 
     (define (nodes-at location)
       (if (not (equal? location "老街酒馆")) '()
         (cond
-          ((and (available?) (equal? status "未邀请"))
-            (list (anchored-instant-action "夜莺在犹豫" "夜莺@酒馆" invite!)))
-          ((and (available?) (equal? status "待答复"))
-            (list (node "夜莺的邀请" :display 'inline :anchor "夜莺@酒馆"
-              :children (list
-                (instant-action "陪她走回去" accept!)
-                (instant-action "今晚走不开" decline!)))))
           ;; 旧存档可能已经接受邀请、但还没点开Scenario卡；保留这条续接入口。
           ((and (available?) (equal? status "已答应"))
-            (list (node "雨夜同行" :anchor "夜莺@酒馆" :required-before-rest "先履行送夜莺回家的约定" :subtitle "陪她回家，别让恐惧失控"
+            (list (node "雨夜同行" :name "雨夜护送" :anchor "夜莺@酒馆" :required-before-rest "先履行送夜莺回家的约定" :subtitle "穿过湿冷的暗巷，送夜莺回住处。"
               :resolve (instant (outcome
                 (lambda () (start-scenario "雨夜同行" on-result)))))))
           (else '()))))
-    (define-turn-start-rule "雨夜邀请到期"
-      (lambda () #t)
-      (lambda ()
-        (if (and (> world-day 5)
-                 (member? status '("未邀请" "待答复" "已答应")))
-          (set! status (if (equal? status "已答应") "失约" "错过"))
-          #f)))
     (lambda args
       (let ((msg (car args)))
         (cond
+          ((eq? msg 'request!) (if (member? status '("未邀请" "婉拒" "错过")) (begin (invite!) (accept!)) #f))
+          ((eq? msg 'arrivals-at)
+            (if (and (equal? (cadr args) "老街酒馆") (available?)
+                     (member? status '("未邀请" "婉拒" "错过")))
+              (list (arrival "看场收工后的求助" (lambda () (invite!) (accept!)))) '()))
           ((eq? msg 'nodes-at) (nodes-at (cadr args)))
           ((eq? msg 'walked?) (equal? status "已结束"))
           ((eq? msg 'met?) (not (member? status '("未邀请" "错过"))))
@@ -90,6 +89,7 @@
           ((eq? msg 'load!)
            (let ((data (cadr args)))
              (set! status (assoc-get data "status" "未邀请"))
+             (if (equal? status "待答复") (set! status "已答应") #f)
              (set! result (assoc-get data "result" ""))
              (set! ignored? (assoc-get data "ignored?" #f))
              (set! cared? (assoc-get data "cared?" #f))

@@ -19,15 +19,6 @@ namespace SSNoir.IMGUI
         private const float InlinePad = 12f;
         private const float InlineGap = 18f;
         private const float InlineTitleHeight = 30f;
-        private float InlineAttachmentSpace(GameNode node, float width)
-        {
-            if (node.IsInlineGroup || AnnotationDrawer.IsAnnotation(node)) return 0f;
-            if (IsLocalRollOf(node.Id) || ActionNodeDrawer.IsConsoleArmed(node, SlotsForNode(node), GetExecutionState(node.Id).IsExecuting))
-                return ActionNodeDrawer.MeasureConsoleAttachmentSpace();
-            return _cardResidues.TryGetValue(node.Id, out var residue) && residue.DrawerRemaining01 > 0f
-                ? ActionNodeDrawer.MeasureResidueAttachmentSpace(width, residue) : 0f;
-        }
-
         private static float InlineOddsSpace(GameNode node) => node.Resolve?.Type == ResolveType.Roll ? 138f : 0f;
         private float InlinePreferredWidth(GameNode group)
         {
@@ -61,8 +52,7 @@ namespace SSNoir.IMGUI
                     : note ? AnnotationDrawer.MeasureHeight(child, width)
                     : CardDrawer.MeasureCardHeight(child, CardDrawer.Classify(child, false), width, _gameManager.DisplayedSnapshot.Actors, ClocksForCard(child));
                 result.Add((child, new Rect(rect.x + InlinePad, y + tags, width, height)));
-                float attachment = InlineAttachmentSpace(child, width);
-                y += tags + height + attachment + InlineGap;
+                y += tags + height + InlineGap;
             }
             return result;
         }
@@ -71,7 +61,7 @@ namespace SSNoir.IMGUI
         {
             // 子组在有限的内容树中递归测量，不涉及世界Anchor或导航。
             var children = InlineChildren(group, new Rect(0f, 0f, width, 0f));
-            return children.Max(c => c.rect.yMax + InlineAttachmentSpace(c.node, c.rect.width)) + InlinePad;
+            return children.Max(c => c.rect.yMax) + InlinePad;
         }
 
         private bool ContainsInlineDropSlot(GameNode node, Rect rect, Vector2 mouse)

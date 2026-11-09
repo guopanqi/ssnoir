@@ -4,61 +4,20 @@
   (let ()
     (define character-stories-open? #f) ; 人物支线等待重新排布
     (define opening-talk-heard? #f)
-    ;; 第二次看场固定遇到两桌醉客；之后的领班班次才开始随机出独立的城市闹事。
-    (define watch-first? #t)
-    (define watch-count 0)
-    (define watch-trouble-day 0)
-    (define watch-trouble "")
-
     (define (watch-work! pay bad?)
       (if (> pay 0) (add-item! "金钱" pay) #f)
       (if bad? (spend-composure! 1) #f)
-      (set! watch-count (min 3 (+ watch-count 1)))
-      (if (and (equal? watch-trouble "")
-               watch-first? (>= watch-count 2))
-        (begin
-          (set! watch-trouble "醉客互相叫骂")
-          (set! watch-trouble-day world-day)
-          (set! watch-first? #f)
-
-          (play-dialogue!
-            (line "世界" "两桌醉客隔桌骂起来，旁边的客人端着杯子让开。")
-            (line "调酒师" "尼尔，让他们都冷静下来。"))) #f)
-      ;; 她每天都在酒馆唱歌。打工后的相遇，不额外收一枚骰子。
-      (第一幕 'on-tavern-work! "看场"))
-    (define (on-watch-result result)
-      (if (member? result '(success fail)) #t (error "看场：未知Scenario结果"))
-      (set! watch-trouble "")
-
-      (if (eq? result 'success)
-        (play-dialogue! (line "调酒师" "行，省了一场麻烦。"))
-        (play-dialogue! (line "调酒师" "歇会儿吧，我来收拾。")))
-      (第一幕 'on-tavern-work! "看场"))
+      (酒馆起步 'on-work!)
+      #f)
     (define (watch-nodes)
-      (append
-        (list (node "看场子" :anchor "老街酒馆-工作"
-          :subtitle (if (equal? watch-trouble "") "在酒馆维持秩序。碰上有人闹事得出面摆平。" "先平息两桌争吵")
-          :disabled (not (equal? watch-trouble ""))
-          :requires (list (req-die))
-          :resolve (roll 'social
-            (outcome (lambda () (watch-work! 0 #t)))
-            (outcome (lambda () (watch-work! 5 #f)))
-            (outcome (lambda () (watch-work! 14 #f))))))
-        (if (equal? watch-trouble "") '()
-          (list (node "醉客互相叫骂" :anchor "老街酒馆"
-            :subtitle "让两桌人都冷静下来"
-            :required-before-rest "先平息两桌醉客的争吵"
-            :resolve (instant (outcome (lambda ()
-              (start-scenario "醉客互相叫骂" on-watch-result)))))))))
-    ;; Scenario超时后两桌醉客自然散场。
-    (define-turn-start-rule "酒馆闹事自然散场"
-      (lambda () (not (equal? watch-trouble "")))
-      (lambda ()
-        (if (>= (- world-day watch-trouble-day) 2)
-          (begin
-            (set! watch-trouble "")
-            (notify! "那两桌醉客已经散了。"))
-          #f)))
+      (if (not (酒馆起步 'settled?)) '()
+      (list (node "看场子" :interaction-activity "酒馆看场" :name "酒馆看场" :anchor "老街酒馆-工作" :tags (list "工作")
+        :subtitle (if (酒馆起步 'pending?) "先平息两桌争吵" "维持店里秩序，应付喝高的酒客。")
+        :disabled (酒馆起步 'pending?) :requires (list (req-die))
+        :resolve (roll 'social
+          (outcome (lambda () (watch-work! 0 #t)))
+          (outcome (lambda () (watch-work! 5 #f)))
+          (outcome (lambda () (watch-work! 14 #f))))))))
     (define closed-days 0)
     (define closed-days-max 2)
 
@@ -202,7 +161,7 @@
           #f))
 
     (define (maybe-start-tavern-trouble!)
-      (if (and (not watch-first?) (equal? tavern-trouble "无")
+      (if (and (酒馆起步 'settled?) (equal? tavern-trouble "无")
                (random-choice tavern-trouble-roll))
           (start-tavern-trouble!)
           #f))
@@ -521,7 +480,7 @@
     ;; 买东西的卡不写副标题：标题已经说了买的是什么，价钱由需求格显示，
     ;; 烟能干什么在Scenario里那张卡上写。这里再写一遍只是把两张购买卡撑成两段话。
     (define (node-buy-cigarettes)
-      (node "买烟"
+      (node "买烟" :interaction-activity "酒馆买烟"
         :anchor "老街酒馆-购买"
         ;; 兜里揣不下第六包（见 engine.scm 的 item-capacities）。满了就灰掉，
         ;; 别让玩家付完 20 美元才知道多买的那根凭空没了。
@@ -531,14 +490,14 @@
         :resolve (instant
           (outcome (lambda ()
             (add-item! "香烟" 1)
-            (第一幕 'on-tavern-work! "买烟"))))))
+            #f)))))
 
     ;; 当场点酒不限次数；drank-today? 只记录当天首次喝酒，供招待和特殊表现使用。
     ;; :resolve 用 outcome 包一层，结果才会像判定一样以锚定卡片弹出，而不是只飘过一条 notify!。
     (define (drink-subtitle)
       "恢复3点心情")
     (define (node-drink-here)
-      (node "点一杯酒" :name "喝杯啤酒"
+      (node "点一杯酒" :interaction-activity "酒馆喝酒" :name "喝杯啤酒"
         :anchor "老街酒馆-购买"
         :subtitle (drink-subtitle)
         :progress-target (list 'composure "player")
@@ -547,7 +506,7 @@
           (outcome (lambda ()
               (let ((ruth-offers-now? (and character-stories-open? (= ruth-stage 0))))
                 (home 'drink!)
-                (第一幕 'on-tavern-work! "喝酒")
+                (夜莺生活 'on-tavern-work! "喝酒")
                 (if ruth-offers-now? (offer-special-drink!) #f)
                 ;; 露丝第一次推酒已经占了这杯的表现，别再叠一段闲话。
                 (if (and character-stories-open? (not ruth-offers-now?)) (meet-or-echo!) #f)))))))
@@ -651,13 +610,14 @@
       (cond
         ((> closed-days 0) (list (node-closed)))
         ((not character-stories-open?)
-         (append (地点节点 "老街酒馆") (watch-nodes) (list (node-drink-here))))
+         (append (地点节点 "老街酒馆") (frank 'presence-at "老街酒馆") (watch-nodes) (list (node-drink-here))))
         (else (append
             ;; 麻烦的死线钟挂在那张卡上，这里不再另立一条标注：同一件事说两遍，
             ;; 玩家还要自己认出它们是一件事。
             (list (node-tavern-rank))
             (regular-notes)
             (地点节点 "老街酒馆")
+            (frank 'presence-at "老街酒馆")
             ;; 麻烦留着时暂停新一班：玩家可以立刻处理，也可以离开、
             ;; 在日终承担后果，但不能无视问题继续刷领班班次。
             (list (cond
@@ -724,9 +684,7 @@
            (set! closed-days (cadr args))
            (set! closed-days-max (max closed-days-max closed-days)))
           ((equal? msg 'save)
-           (list (list "watch-first?" watch-first?)
-                 (list "watch-count" watch-count)
-                 (list "watch-trouble-day" watch-trouble-day) (list "watch-trouble" watch-trouble)
+           (list
                  (list "opening-talk-heard?" opening-talk-heard?)
                  (list "closed-days" closed-days)
                  (list "closed-days-max" closed-days-max)
@@ -745,15 +703,6 @@
                  (list "ate-day" ate-day)))
           ((equal? msg 'load!)
            (let ((data (cadr args)))
-             (set! watch-first? (assoc-get data "watch-first?" #t))
-             ;; 旧存档中首次Scenario发生在第一次看场；将其视为已介绍，避免重新强制播放。
-             (set! watch-count (assoc-get data "watch-count" (if watch-first? 0 3)))
-             (if (member? watch-count '(0 1 2 3)) #t
-               (error "看场存档：看场次数非法"))
-             (set! watch-trouble-day (assoc-get data "watch-trouble-day" 0))
-             (set! watch-trouble (assoc-get data "watch-trouble" ""))
-             (if (member? watch-trouble '("" "醉客互相叫骂")) #t
-               (error "看场存档：麻烦类型非法；旧版请使用归档版本读取"))
              (set! opening-talk-heard? (assoc-get data "opening-talk-heard?" #f))
              (set! closed-days (assoc-get data "closed-days" 0))
              (set! closed-days-max (assoc-get data "closed-days-max" 2))

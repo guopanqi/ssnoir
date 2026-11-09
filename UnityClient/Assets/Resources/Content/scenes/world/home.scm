@@ -63,21 +63,29 @@
     ;; 到期是时间事实，收款是回旅馆时发生的同一场事件；不预扣，不在世界地图通知。
     (define (collect-rent!)
       (if (rent-due?) #t (error "收租：房费尚未到期"))
-      (set! 老板来过? #t)
-      (if (rent-money-ready?)
-        (begin
+      (let ((first? (not 老板来过?)))
+        (set! 老板来过? #t)
+        (if first?
           (play-dialogue!
-            (line "旅馆老板" "尼尔，房费到期了。续住四天，四十美元。")
-            (line "尼尔" "给你。")
-            (line "世界" "老板点清四十美元，把钥匙递回来。房间还能住四天。"))
-          (remove-item! "金钱" rent-amount)
-          (reset-rent-cycle!))
-        (begin
-          (play-dialogue!
-            (line "旅馆老板" "房费到期了。四十美元，尼尔。")
-            (line "尼尔" "我现在不够。")
-            (line "旅馆老板" "那房间先锁着。凑齐了再来，东西我替你留着。"))
-          (evict!))))
+            (line "旅馆老板" "尼尔，头四天住满了。还住的话，四十美元。往后也是每四天结一次。")
+            (line "旅馆老板" "钱不够，房间就先锁着。东西给你留着，凑齐了再回来。")) #f)
+        (if (rent-money-ready?)
+          (if first?
+            (begin
+              (play-dialogue!
+                (line "尼尔" "四十，点点。")
+                (line "旅馆老板" "收到了，再住四天。"))
+              (remove-item! "金钱" rent-amount)
+              (reset-rent-cycle!))
+            (spotlight-page! ""
+              (list (list "房东数过钞票，在账本上划了一笔。" "EventSheets/房租/收据")
+                    (list "你收好钥匙。楼上的那间房，还能再住四天。" ""))
+              (lambda ()
+                (remove-item! "金钱" rent-amount)
+                (reset-rent-cycle!))))
+          (begin
+            (play-dialogue! (line "旅馆老板" "还差房钱。四十美元凑齐了，我给你开门。"))
+            (evict!)))))
     (define (rent-arrivals location)
       (if (and (equal? location "家") (rent-due?)
                (or (not evicted?) (rent-money-ready?)))
@@ -199,6 +207,7 @@
           (outcome (lambda ()
               ;; 睡眠只推进日历，不恢复冷静，也不恢复伤势。
               (set! 刚睡过? #t)
+              (dispatch-interactions! (list (list "timing" "房间睡前") (list "place" "家")))
               (end-turn!))))))
 
     (define (node-sleep-at-door)
@@ -218,11 +227,11 @@
         :requires (list (req-item "金钱" rent-amount))
         :resolve (instant
           (outcome (lambda ()
-              (play-dialogue!
-                (line "尼尔" "钱。开门。")
-                (line "世界" "他数完，把门上那把锁摘了下来。")
-                (line "旅馆老板" "东西都还在里头。别让我锁第二次。"))
-              (reset-rent-cycle!))))))
+              (spotlight-page! ""
+                (list
+                  (list "房东点清了补交的房钱，在账本上划掉欠款。" "EventSheets/房租/收据")
+                  (list "钥匙重新交到你手里。房间给你留着，还能再住四天。" ""))
+                (lambda () (reset-rent-cycle!))))))))
 
     ;; 买东西的卡全挂在屋里的书桌上（翻着报纸广告页下单）。**不能挂在买回来的东西自己的
     ;; 锚点上**：花盆、唱片机按 presence 契约"有卡挂着就出现"，买之前把卡挂过去，东西就提前长出来了。
@@ -369,10 +378,8 @@
         (if has-mattress? '() (list (node-buy-mattress)))
         (if has-gramophone? '() (list (node-buy-gramophone)))))
 
-    (define (order-nodes)
-      (if (or (not 老板来过?) (null? (order-children)))
-          '()
-          (list (node "添置家具" :anchor "租屋-书桌" :children (order-children)))))
+    ;; 暂隐添置家具入口，已购家具与存档保持原状。
+    (define (order-nodes) '())
 
     (define (things-nodes)
       (append (if has-flower? (list (node-water-plant)) '())
@@ -422,7 +429,7 @@
         (cond
           ((equal? msg 'arrivals-at) (rent-arrivals (cadr args)))
           ((equal? msg 'dossier)
-           (if (renting?)
+           (if (and (renting?) (not (get-global '首次房租已交)))
                (list (dossier "旅馆房费"
                  :kind '城市 :primary #t
                  :status '进行中

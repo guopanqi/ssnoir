@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "formalMain": true,
+  "playVerified": false,
+  "inputSha256": "90afbc3c20fedd7af8ed4994aa88a8520403498a1bb8d48790f66a3895a62f87",
+  "scenes": [
+    "码头"
+  ],
+  "files": [
+    {
+      "file": "editor-码头.png",
+      "sha256": "5f67dbe3ed06976be3d2de2214322c4e61c2ad38df1754d6c8a3c2317ba0c373"
+    },
+    {
+      "file": "editor-码头.json",
+      "sha256": "4e7ba2b971c752480172072cf0764bd6d87d3d03f7e31544dbecc4ad053de67a"
+    }
+  ],
+  "configurationDifferences": {},
+  "seconds": 90.5,
+  "project": "/Users/usr/Documents/play/ssnoir/.cache/citybox-unity-preview-formal"
+}

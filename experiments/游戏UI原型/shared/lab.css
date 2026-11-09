@@ -10,8 +10,5 @@
 .lab-settings summary{cursor:pointer;color:#aaa99e;padding:8px 0 12px}
 .lab-settings .toolbar{padding-top:10px}
 #viewport{overflow:clip}
-.dialogue-mode .dialogue-panel-top{display:none}
-.dialogue-mode .dialogue-panel{padding-top:16px}
-.dialogue-mode .dialogue-bottom .dialogue-panel{padding-top:22px}
 
 .lab-nav a[aria-current="page"]{color:var(--gold);border-bottom:1px solid var(--gold)}

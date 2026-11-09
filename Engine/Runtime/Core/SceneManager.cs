@@ -372,9 +372,9 @@ namespace SSNoir.Core
             report.TurnEnded = true;
             report.WakePlaceName = "诊所";
             report.BlockingStorySteps.Add(BlockingStoryStep.ForSpotlight(
-                new SpotlightCard { Title = "你倒下了", Subtitle = "身体再也撑不住了。眼前的街灯和人影渐渐模糊，你失去了意识。" }));
+                SpotlightCard.Notice("你倒下了", "身体再也撑不住了。眼前的街灯和人影渐渐模糊，你失去了意识。")));
             report.PostSceneBlockingSteps.Insert(0, BlockingStoryStep.ForSpotlight(
-                new SpotlightCard { Title = "在诊所醒来", Subtitle = "已经是第二天了。伤口经过处理，身体恢复了，但这次倒下留下了疤痕。\n" + hospitalization.Text }));
+                SpotlightCard.Notice("在诊所醒来", "已经是第二天了。伤口经过处理，身体恢复了，但这次倒下留下了疤痕。\n" + hospitalization.Text)));
 
             _stashedWorldDice = null;
             if (advanceWorldTurnRules)
@@ -1391,11 +1391,6 @@ namespace SSNoir.Core
             // 有些卡的可用性只看你去过哪儿（家里的睡觉锁）。没有节拍也要重建，
             // 客户端拿到 null 后自己采纳最新快照。
             ActiveInterpreter.Eval($"(on-enter-place \"{placeName}\")");
-            if (place.Arrivals.Count == 0)
-            {
-                RebuildRenderTree();
-                return null;
-            }
 
             var report = new ActionReport { Type = ActionType.Instant };
             _gameState.CurrentActionReport = report;
@@ -1409,6 +1404,7 @@ namespace SSNoir.Core
                 {
                     beat.Effect();
                 }
+                DispatchInteractions(ActiveInterpreter, "进入地点", string.Empty, string.Empty, placeName, report);
             }
             catch (Exception ex)
             {
@@ -1438,12 +1434,41 @@ namespace SSNoir.Core
                     $"地点 \"{placeName}\" 的入场节拍把玩家刚走进来的地点从世界里移掉了。");
 
             // 故意不填 PresentationHints：那是动作的「执行中…」进度条与投骰动画，
-            // 走进一个地点没有这两样。空 hints 让播放器直接进阻塞剧情步骤。
-            return report;
+            // 走进一个地点没有这两样。没有互动命中时保持普通入场，不制造空的表现流程。
+            return HasVisibleResult(report) ? report : null;
+        }
+
+        private void DispatchInteractions(SchemeInterpreter interpreter, string timing, string activity,
+            string result, string place, ActionReport report)
+        {
+            // 主线演出和换场优先；普通互动不排在它们后面争抢一次表现。
+            if (report.TurnEnded || report.BlockingStorySteps.Count > 0 ||
+                report.PostSceneBlockingSteps.Count > 0 || !IsWorldScene(CurrentSceneName)) return;
+            string Q(string value) => "\"" + value.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\"";
+            interpreter.Eval("(dispatch-interactions! (list " +
+                "(list \"timing\" " + Q(timing) + ") " +
+                "(list \"activity\" " + Q(activity) + ") " +
+                "(list \"result\" " + Q(result) + ") " +
+                "(list \"place\" " + Q(place) + ")))");
+        }
+
+        private static string InteractionPlace(GameNode? node, string actionId, string place = "世界")
+        {
+            if (node == null) return string.Empty;
+            if (node.IsPlace) place = node.Id;
+            if (node.Id == actionId) return place;
+            foreach (var child in node.Children)
+            {
+                var found = InteractionPlace(child, actionId, place);
+                if (found.Length > 0) return found;
+            }
+            return string.Empty;
         }
 
         public ActionReport ExecuteAction(GameNode node, List<SlottedResource?> slots)
         {
+            bool interactionWorld = IsWorldScene(CurrentSceneName);
+            string interactionPlace = InteractionPlace(CurrentRootNode, node.Id);
             int? limitedActionDay = null;
             if (node.UseLimit.HasValue)
             {
@@ -1538,6 +1563,9 @@ namespace SSNoir.Core
                             throw new InvalidOperationException($"Requirement {i} requires a die, but slot contains '{slot.Type}'.");
                         }
                         
+                        if (req.DieValue.HasValue && slot.Value != req.DieValue.Value)
+                            throw new InvalidOperationException($"Requirement {i} needs die face {req.DieValue.Value}, got {slot.Value}.");
+
                         string actorId = string.IsNullOrEmpty(slot.ActorId) ? "player" : slot.ActorId;
                         var a = _gameState.Team.FindActor(actorId);
                         if (a == null)
@@ -1728,6 +1756,11 @@ namespace SSNoir.Core
                     throw new InvalidOperationException($"Unsupported resolve type: {node.Resolve.Type}");
                 }
 
+                if (interactionWorld && !string.IsNullOrEmpty(node.InteractionActivity))
+                    DispatchInteractions(actionInterpreter, "行动结算", node.InteractionActivity,
+                        node.Resolve.Type == ResolveType.Instant ? "即时" :
+                        report.Outcome == RollOutcome.Success ? "好" : report.Outcome == RollOutcome.Neutral ? "中" : "坏",
+                        interactionPlace, report);
                 if (!_turnEndedDuringAction)
                 {
                     if (_gameState.HasPendingHospitalization)

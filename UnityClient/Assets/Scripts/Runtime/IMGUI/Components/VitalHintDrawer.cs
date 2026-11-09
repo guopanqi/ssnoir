@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace SSNoir.IMGUI
 {
-    /// <summary>生命状态的图例浮层。悬停查看，点按固定；只读取当前显示快照。</summary>
+    /// <summary>生命状态的图例浮层。点按查看，再次点按或点到别处关闭；只读取当前显示快照。</summary>
     public static class VitalHintDrawer
     {
         private static readonly List<Rect> Sources = new();
@@ -21,20 +21,18 @@ namespace SSNoir.IMGUI
             if (IsVisible) stack.Register(new IMGUIWindowBlocker { Id=IMGUIWindowId.VitalHint, Bounds=Bounds,
                 Layer=IMGUIWindowLayer.HudHint, BlockMode=IMGUIBlockMode.Bounds });
         }
-        private static string? _actorId, _pinnedActor;
-        private static Rect _source, _pinnedSource;
-        private static float _hoverUntil;
+        private static string? _pinnedActor;
+        private static Rect _pinnedSource;
         public static Rect Bounds { get; private set; }
         public static bool IsVisible => Bounds.width > 0f;
 
-        public static void Close() { _actorId = _pinnedActor = null; Bounds = Rect.zero; }
+        public static void Close() { _pinnedActor = null; Bounds = Rect.zero; }
 
         public static void Begin(IMGUIInteractionContext ui)
         {
             ui = Interaction;
             Sources.Clear();
             if (Suppressed) { Close(); return; }
-            if (!IMGUIInteractionContext.HoverAvailable || (!Bounds.Contains(ui.Mouse) && Time.unscaledTime > _hoverUntil)) _actorId = null;
             if (ui.IsLocked || ui.IsOccluded) { Close(); return; }
             if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Escape)
             {
@@ -49,14 +47,12 @@ namespace SSNoir.IMGUI
             if (Suppressed) return;
             ui = Interaction;
             Sources.Add(rect);
-            if (ui.CanHover(rect)) { _actorId = actor.Id; _source = rect; _hoverUntil = Time.unscaledTime + .2f; }
             if (ui.WasClicked(rect))
             {
                 bool same = _pinnedActor == actor.Id;
                 _pinnedActor = same ? null : actor.Id;
                 _pinnedSource = rect;
-                // 点按再次关闭后，本帧也不由悬停立即重新打开。
-                if (same) _actorId = null;
+                // 再次点按同一条读数时关闭浮层。
                 Event.current.Use();
             }
         }
@@ -64,11 +60,11 @@ namespace SSNoir.IMGUI
         public static void Draw(PresentationSnapshot snapshot, IMGUIInteractionContext ui)
         {
             if (Suppressed || ui.IsLocked || ui.IsOccluded) { Close(); return; }
-            string? id = _pinnedActor ?? _actorId;
+            string? id = _pinnedActor;
             var actor = snapshot.Actors.FirstOrDefault(a => a.Id == id && a.OnStage);
             if (actor == null) { Close(); return; }
             var player = snapshot.Actors.First(a => a.Role == "protagonist");
-            Rect source = _pinnedActor != null ? _pinnedSource : _source;
+            Rect source = _pinnedSource;
             Rect safe = UIScale.SafeArea;
             float w = Mathf.Min(420f, safe.width-24f), inner = w-32f;
             int count = player.ActionSlotCount;

@@ -31,12 +31,13 @@ SSNoir 的独立 Three.js 长期视觉研究工程。只把经过验证的视觉
 | 实验 | 入口 | 记录 | 独立构建 |
 |---|---|---|---|
 | 桥头 | `/bridge.html` | [BRIDGE-STUDY.md](BRIDGE-STUDY.md) | `dist-bridge/` |
-| 住所 | `/residence.html` | [RESIDENCE-STUDY.md](RESIDENCE-STUDY.md) | `dist-residence/` |
 | 黑水 · 城市视角 | `/heishui.html` | [HEISHUI-STUDY.md](HEISHUI-STUDY.md) | `dist-heishui/` |
 | 灯岸 · 城市视角 — by Spark | `/lantern-spark.html` | [LANTERN-STUDY.md](LANTERN-STUDY.md) | `dist-lantern-spark/` |
 | 剪影夜城 · 城市视角 — by GLM | `/skyline-noir-glm.html` | [SKYLINE-NOIR-GLM-STUDY.md](SKYLINE-NOIR-GLM-STUDY.md) | `dist-skyline-noir-glm/` |
 | 逆光 · 城市视角 — by opencode | `/backlight.html` | [BACKLIGHT-STUDY.md](BACKLIGHT-STUDY.md) | `dist-backlight/` |
-| 雾与霓虹 · 城市视角 — 交互 UI | `/fog-neon.html` | [FOG-NEON-STUDY.md](FOG-NEON-STUDY.md) | `dist-fog-neon/` |
+
+雾与霓虹已拆为独立工程 [noir-fog-neon-lab](../noir-fog-neon-lab/)。
+住所已拆为独立工程 [noir-residence-lab](../noir-residence-lab/)。
 
 黑水、灯岸与逆光**消费外部几何**：各自把 CityBox 构建产物一次性烘焙成
 `public/<实验>/city.{json,bin}` 快照（逆光是自己的一份，见 `tools/export-backlight.py`），

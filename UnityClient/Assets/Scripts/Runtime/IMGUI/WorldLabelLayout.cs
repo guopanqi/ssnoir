@@ -229,6 +229,12 @@ namespace SSNoir.IMGUI
                         : center.y + entry.Size.y / 2f - request.Size.y;
                     rect = new Rect(center.x - request.Size.x / 2f, y,
                         request.Size.x, request.Size.y);
+                    // 运镜可能使旧气泡整体出画；此时旧的相对偏移不再是有效排版。
+                    if (!new Rect(0, 0, UIScale.VW, UIScale.VH).Overlaps(rect))
+                    {
+                        _entries.Remove(request.Key);
+                        return SolveNew(space, request);
+                    }
                     space.Reserve(rect, ZoneKind.Hard);
                     return rect;
                 }

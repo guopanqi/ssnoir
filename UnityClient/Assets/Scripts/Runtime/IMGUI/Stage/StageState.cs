@@ -373,7 +373,7 @@ namespace SSNoir.IMGUI.Stage
         public string StageLayer { get; set; } = "middle";
         public bool UsesStageX { get; private set; }
         public bool OnLeft { get; }
-        public bool Missing { get; }         // 连基础立绘都没有：画缺图人物牌
+        public bool Missing { get; private set; }         // 连基础立绘都没有：画缺图人物牌
         public float EnteredAt;
 
         public Texture2D? Texture { get; private set; }           // 当前姿势的灯管
@@ -403,6 +403,14 @@ namespace SSNoir.IMGUI.Stage
             EnteredAt = now;
             Texture = baseTexture;
             Missing = baseTexture == null;
+        }
+
+        public void RefreshPortrait(Texture2D? texture)
+        {
+            if (Texture == texture) return;
+            Texture = texture;
+            PreviousTexture = null;
+            Missing = texture == null;
         }
 
         public void SetStageX(float target, float seconds, float now)

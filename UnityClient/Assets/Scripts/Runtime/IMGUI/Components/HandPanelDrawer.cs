@@ -35,7 +35,9 @@ namespace SSNoir.IMGUI
         private const float StatusRightPadding = 10f;
         private const float StatusPlateHeight = 64f;
         // 与网页中 410px 原图、116×188px 窗口的裁切一致；Unity UV 从底边起算。
-        private static readonly Rect HudBustCrop = new Rect(146f / 410f, 164f / 410f, 116f / 410f, 188f / 410f);
+        private static Rect HudBustCrop => NeonPortraitLibrary.UseNeon
+            ? new Rect(146f / 410f, 164f / 410f, 116f / 410f, 188f / 410f)
+            : NeonPortraitLibrary.BustCrop;
         private static float DiceRowY(float baseline) => baseline - VitalRowH * 2f - 12f - TokenSize;
 
         /// <summary>
@@ -460,6 +462,18 @@ namespace SSNoir.IMGUI
                 PortraitCondition.SevereInjury => 0.50f,
                 _ => 1f,
             };
+            if (!NeonPortraitLibrary.UseNeon)
+            {
+                var saved = GUI.color;
+                GUI.color = new Color(conditionLevel, conditionLevel, conditionLevel, 1f);
+                float aspect = neon.width * uv.width / (neon.height * uv.height);
+                float width = Mathf.Min(rect.width, rect.height * aspect);
+                float height = width / aspect;
+                var fitted = new Rect(rect.center.x - width * 0.5f, rect.yMax - height, width, height);
+                GUI.DrawTextureWithTexCoords(fitted, CharacterPortraitVisuals.Adjust(neon), uv, true);
+                GUI.color = saved;
+                return;
+            }
             // 常驻状态只改变亮度；只有真实受击后的短窗口才走接触不良节奏。
             float level = conditionLevel
                 * Mathf.Clamp(StageState.FlickerLevelAt(damageAge), 0.05f, 1.35f);

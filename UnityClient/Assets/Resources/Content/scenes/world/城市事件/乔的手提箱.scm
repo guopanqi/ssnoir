@@ -3,36 +3,46 @@
 (define 乔的手提箱
   (let ()
     (define 阶段 "未出现")
-    (define 搜寻 (make-clock "寻找乔的手提箱" 4 'gauge "搜寻填满后取得手提箱，交还乔可得20美元。" :beneficial-direction 'increase))
+    (define 搜寻 (make-clock "寻找乔的手提箱" 8 'gauge "翻找卸货棚里的货堆，寻找提手缠着胶布的棕皮箱。" :beneficial-direction 'increase))
     (define (交谈!)
       (if (equal? 阶段 "待交谈") #t (error "手提箱：当前不可交谈"))
       (set! 阶段 "寻找中")
       (play-dialogue!
-        (line 手提箱的乔 "我把手提箱落在码头卸货棚了。棕色皮的，提手上缠着胶布。")
-        (line 手提箱的乔 "里头是我的推销样品。替我找回来，我付你二十块。你找到了就带回住处，我过来取。")))
+    (line "世界" "门外的男人摘下帽子，帽檐在手里转了半圈。")
+    (line 手提箱的乔 "尼尔先生？酒馆介绍我来的。我叫乔，做推销的。")
+    (line "尼尔" "进来吧。什么事？")
+    (line 手提箱的乔 "样品箱丢了。棕皮的，提手缠着黑胶布，里头是纽扣、拉链和刀片样品。昨天在码头卸货棚歇过脚，走时没带上。")
+    (line "尼尔" "回去找过？")
+    (line 手提箱的乔 "工头不让外人进去翻。我明天还得靠它做生意。找回来，我付二十美元。")
+    (line "尼尔" "行。我去找找，找到了带回这里。")))
     (define (推进! n)
       (if (equal? 阶段 "寻找中") #t (error "手提箱：当前不可寻找"))
       (搜寻 'advance! n)
       (if (搜寻 'full?)
         (begin (set! 阶段 "已找到") (add-item! "乔的手提箱" 1)
-          (play-dialogue! (line "世界" "卸货棚的空木箱后面，露出一只缠着胶布的提手。箱子上的姓名是乔。"))) #f))
+          (play-dialogue!
+    (line "世界" "在码头卸货棚潮湿的帆布堆底下，你摸到了一个硬邦邦的皮角。用力拽出来一看，正是那只提手缠着黑胶布的棕皮手提箱。搭扣完好，里面的五金样品还在哗啦作响。"))) #f))
     (define (归还!)
       (if (and (equal? 阶段 "已找到") (> (item-count "乔的手提箱") 0)) #t (error "手提箱：需要找到并交付手提箱"))
       (set! 阶段 "完成")
       (add-item! "金钱" 20)
-      (play-dialogue! (line 手提箱的乔 "就是它！我明天总算不用空着手上门了。")
-        (line "世界" "乔检查了箱扣，把约好的二十美元交给尼尔。")))
+      (调查职业 'recognize!)
+      (play-dialogue!
+    (line "世界" "乔打开箱子，逐盒看过，把搭扣重新扣紧。")
+    (line 手提箱的乔 "一盒没少。二十美元，说好的。")
+    (line "世界" "他把钱递过来，却又伸手摸了摸箱把。")
+    (line 手提箱的乔 "同行要是有人找东西，我让他来找您。")))
     (define (nodes-at 地点)
       (cond
-        ((and (equal? 地点 "家") (member? 阶段 '("待交谈" "寻找中" "已找到")))
-          (list (node "城市事件-乔" :display 'inline :name "乔：丢失的手提箱" :anchor "家" :children
+        ((and (or (not (equal? 阶段 "待交谈")) (第三幕 'reported?)) (equal? 地点 "家") (member? 阶段 '("待交谈" "寻找中" "已找到")))
+          (list (node "城市事件-乔" :display 'inline :notice-version 阶段 :name "乔的样品箱" :anchor "家" :children
             (if (equal? 阶段 "待交谈")
               (list (node "询问乔的手提箱" :button-text "交谈" :resolve (instant (outcome 交谈!))))
-              (list (node "归还乔的手提箱" :button-text "交付" :name "归还手提箱" :subtitle "交还手提箱，领取20美元"
+              (list (node "归还乔的手提箱" :button-text "交付" :name "归还皮箱" :subtitle "把样品箱交还乔，领取20美元。"
                 :requires (list (req-item "乔的手提箱" 1)) :resolve (instant (outcome 归还!))))))))
         ((and (equal? 地点 "码头") (equal? 阶段 "寻找中"))
-          (list (node "搜寻乔的手提箱" :name "卸货棚：寻找手提箱" :anchor "码头-货堆"
-            :subtitle "检查卸货棚；坏结果损失1心情。找到后交还乔，可得20美元。"
+          (list (node "搜寻乔的手提箱" :name "搜寻货棚" :anchor "码头-货堆"
+            :subtitle "寻找样品箱；失手损失1心情，归还得20美元。"
             :clocks (list (搜寻 'render-data)) :risk '冒险
             :risk-target (list 'composure "player") :progress-target (list 'clock "寻找乔的手提箱")
             :requires (list (req-die)) :resolve (roll 'sharpness
@@ -41,18 +51,21 @@
         (else '())))
     (lambda (msg . args)
       (cond
+        ((eq? msg 'awaiting-intro?) (equal? 阶段 "待交谈"))
+        ((eq? msg 'intro!) (交谈!))
         ((eq? msg 'eligible?) (equal? 阶段 "未出现"))
         ((eq? msg 'activate!) (if (equal? 阶段 "未出现") (set! 阶段 "待交谈") (error "手提箱：重复出现")))
         ((eq? msg 'on-day-start!) #t)
         ((eq? msg 'nodes-at) (nodes-at (car args)))
         ((eq? msg 'dossier)
-          (if (equal? 阶段 "未出现") '()
-            (list (dossier "乔：丢失的手提箱" :kind '委托 :where "家"
+          (if (or (equal? 阶段 "未出现") (and (equal? 阶段 "待交谈") (not (第三幕 'reported?)))) '()
+            (list (dossier "乔：丢失的手提箱" :kind '委托 :where (if (equal? 阶段 "寻找中") "码头" "家")
+              :clocks (if (equal? 阶段 "寻找中") (list (搜寻 'render-data)) '())
               :status (if (equal? 阶段 "完成") '了结 '进行中)
-              :now (cond ((equal? 阶段 "待交谈") "乔上门打听一只丢失的手提箱，可以问问。")
-                         ((equal? 阶段 "寻找中") "去码头卸货棚寻找棕色手提箱，交还乔可得20美元。这件事没有期限。")
-                         ((equal? 阶段 "已找到") "手提箱已找到，带回家交还乔可得20美元。")
-                         (else "手提箱已归还，收到20美元。"))))))
+              :now (cond ((equal? 阶段 "待交谈") "酒馆介绍来一位叫乔的推销员，想请你找只丢失的样品箱。")
+                         ((equal? 阶段 "寻找中") "去码头卸货棚寻找棕皮样品箱。乔愿付20美元，没有约定期限。")
+                         ((equal? 阶段 "已找到") "棕皮样品箱找到了。回旅馆交还乔，领20美元酬劳。")
+                         (else "乔拿回了谋生用的样品箱。你收到20美元，也多了一位愿推荐你的客户。"))))))
         ((eq? msg 'save) (list (list "stage" 阶段) (list "progress" (搜寻 'save))))
         ((eq? msg 'load!) (let ((data (car args)))
           (set! 阶段 (assoc-get data "stage" "未出现"))

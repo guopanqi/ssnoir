@@ -1,0 +1,56 @@
+.canvas-authoring-controls { position: absolute; inset: 0; pointer-events: none; z-index: 20; }
+.canvas-authoring-add.canvas-authoring-add {
+  position: absolute; width: 24px; height: 24px; min-width: 0; padding: 0;
+  border-radius: 50%; border: 2px solid var(--background-primary);
+  background: #36835b; color: white; font: 20px/20px sans-serif;
+  pointer-events: auto; cursor: pointer !important; touch-action: none; box-shadow: 0 1px 4px #0004;
+}
+.canvas-authoring-add:hover { background: #246844; }
+.canvas-authoring-add:focus-visible { outline: 2px solid var(--text-normal); outline-offset: 2px; }
+/* Offset along the edge so native midpoint connection handles stay accessible. */
+.canvas-authoring-top { top: -34px; left: 70%; }
+.canvas-authoring-bottom { bottom: -34px; left: 70%; }
+.canvas-authoring-left { left: -34px; top: 70%; }
+.canvas-authoring-right { right: -34px; top: 70%; }
+.canvas-node.is-editing .canvas-authoring-controls { display: none; }
+/* Edge captions share card body typography; do not enlarge them at low zoom. */
+.canvas-wrapper .canvas-path-label {
+  background: transparent;
+  font-family: var(--font-text);
+  font-size: var(--font-text-size);
+  line-height: var(--line-height-normal);
+  padding: 2px 4px;
+}
+
+/* Independent card surface and text colors. */
+.canvas-node.canvas-authoring-transparent .canvas-node-container,
+.canvas-node.canvas-authoring-transparent .canvas-node-content {
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+.canvas-node.canvas-authoring-font-color .canvas-node-content {
+  --text-normal: var(--authoring-font-color);
+  --text-muted: var(--authoring-font-color);
+  --text-faint: var(--authoring-font-color);
+  --h1-color: var(--authoring-font-color);
+  --h2-color: var(--authoring-font-color);
+  --h3-color: var(--authoring-font-color);
+  color: var(--authoring-font-color);
+}
+.canvas-node.canvas-authoring-font-color .markdown-rendered,
+.canvas-node.canvas-authoring-font-color .cm-content { color: var(--authoring-font-color); }
+/* A transparent surface still needs the native selection/focus affordance.
+   Override only the outer frame; the text surface remains transparent. */
+.canvas-node.canvas-authoring-transparent.is-selected .canvas-node-container,
+.canvas-node.canvas-authoring-transparent.is-focused .canvas-node-container {
+  border-color: var(--color-accent) !important;
+  box-shadow: 0 0 0 1px var(--color-accent) !important;
+}
+.canvas-authoring-transparent-choice {
+  background: repeating-conic-gradient(var(--background-modifier-border) 0% 25%, transparent 0% 50%) 50% / 8px 8px;
+}
+.canvas-color-picker-item.canvas-authoring-transparent-choice {
+  --canvas-color: var(--text-muted);
+  border: 1px solid var(--background-modifier-border);
+}

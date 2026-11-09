@@ -1055,7 +1055,7 @@ namespace SSNoir
 
             if (req.Type == "die")
             {
-                return _selectedResource.Type == "die";
+                return _selectedResource.Type == "die" && (!req.DieValue.HasValue || _selectedResource.Value == req.DieValue.Value);
             }
 
             if (req.Type == "item")
@@ -1111,7 +1111,7 @@ namespace SSNoir
             {
                 ShowNotification(CanMatchRequirement(req)
                     ? $"缺少数量，需要 {req.Qty} 个 {req.ItemId}"
-                    : $"槽位需要: {(req.Type == "die" ? "骰子" : req.ItemId)}");
+                    : $"槽位需要: {(req.Type == "die" ? (req.DieValue.HasValue ? $"{req.DieValue.Value}点骰子" : "骰子") : req.ItemId)}");
                 return false;
             }
 
@@ -1870,6 +1870,7 @@ namespace SSNoir
                 _sceneManager.Settings.Remove("doubleFocusSpeed");
                 _sceneManager.Settings[ReduceMotionSettingKey] = MotionSettings.ReduceMotion;
                 _sceneManager.Settings[FocusEaseOutSettingKey] = MotionSettings.FocusEaseOut;
+                _sceneManager.Settings["neonPortraits"] = NeonPortraitLibrary.UseNeon;
                 _sceneManager.Settings[DicePipsOnlySettingKey] = HandPanelDrawer.ColorDicePipsOnly;
                 // Settings 只认 string/int/long/double/bool（见 SaveManager.WritePrimitive），
                 // 音量存 double，读出来也一定是 double。
@@ -1912,6 +1913,7 @@ namespace SSNoir
                     MotionSettings.ReduceMotion = MotionSettings.DefaultReduceMotion;
                 }
                 MotionSettings.FocusEaseOut = ReadBoolSetting(FocusEaseOutSettingKey, false);
+                NeonPortraitLibrary.UseNeon = ReadBoolSetting("neonPortraits", false);
                 if (_sceneManager.Settings.TryGetValue(DicePipsOnlySettingKey, out object savedDicePipsOnly))
                 {
                     if (savedDicePipsOnly is not bool dicePipsOnly)
@@ -1947,6 +1949,7 @@ namespace SSNoir
             _sceneManager.ResetForNewGame();
             MotionSettings.ReduceMotion = MotionSettings.DefaultReduceMotion;
             MotionSettings.FocusEaseOut = false;
+            NeonPortraitLibrary.UseNeon = false;
             HandPanelDrawer.ColorDicePipsOnly = true;
             AudioVolumes.ResetToDefaults();
             _stateTainted = false;

@@ -1,0 +1,19 @@
+{
+  "name": "ssnoir-noir-fog-neon-lab",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "vite build",
+    "preview": "vite preview --host 0.0.0.0",
+    "export:city": "blender -b ../../city-box/build/city/city_build.blend --python tools/export-city.py",
+    "export:roads": "blender -b ../../city-box/prefabs/世界.blend --python tools/export-roads.py"
+  },
+  "dependencies": {
+    "three": "0.186.1"
+  },
+  "devDependencies": {
+    "vite": "8.3.2"
+  }
+}

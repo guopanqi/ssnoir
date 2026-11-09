@@ -22,14 +22,15 @@ namespace SSNoir.IMGUI
 
     public static class NeonPortraitLibrary
     {
-        private const string ResourceRoot = "Portraits/Neon/";
+        public static bool UseNeon { get; set; }
+        private static string ResourceRoot => UseNeon ? "Portraits/Neon/" : "Portraits/Characters/";
 
         // 全身招牌里头到腰那一块，给 HUD 上立起来的半身像用。
         // 方画布上人物只占中间一条；换构图不同的立绘时调这里。
-        public static readonly Rect BustCrop = new Rect(0.28f, 0.50f, 0.44f, 0.48f);
+        public static Rect BustCrop => UseNeon ? new Rect(0.28f, 0.50f, 0.44f, 0.48f) : new Rect(0.16f, 0.55f, 0.70f, 0.43f);
         // 半身像再往上取的那一小块：只剩头和肩线，给 banter 气泡里的头像用。
         // 头像很小，肩以下的东西进来只会糊成一团。
-        public static readonly Rect HeadCrop = new Rect(0.33f, 0.66f, 0.30f, 0.30f);
+        public static Rect HeadCrop => UseNeon ? new Rect(0.33f, 0.66f, 0.30f, 0.30f) : new Rect(0.30f, 0.72f, 0.42f, 0.26f);
 
         private static readonly Dictionary<string, Texture2D?> Cache = new();
         private static Texture2D? _radialFalloff;
@@ -52,7 +53,8 @@ namespace SSNoir.IMGUI
                 return;
             }
             Appearances.Add(identity, appearance);
-            Cache.Remove(identity);
+            Cache.Remove("Portraits/Neon/" + identity);
+            Cache.Remove("Portraits/Characters/" + identity);
         }
 
         private static string GenericAsset(string identity)
@@ -87,15 +89,16 @@ namespace SSNoir.IMGUI
 
         public static Texture2D? Load(string characterName)
         {
-            if (Cache.TryGetValue(characterName, out var cached)) return cached;
+            string key = ResourceRoot + characterName;
+            if (Cache.TryGetValue(key, out var cached)) return cached;
             var texture = LoadAsset(characterName);
-            if (texture == null)
+            if (texture == null && UseNeon)
             {
                 string generic = GenericAsset(characterName);
                 texture = LoadAsset(generic)
                     ?? throw new System.InvalidOperationException("通用肖像不存在：" + generic);
             }
-            Cache[characterName] = texture;
+            Cache[key] = texture;
             return texture;
         }
 
@@ -103,7 +106,7 @@ namespace SSNoir.IMGUI
         // 缺图返回 null，由调用方决定退回基础立绘并报警——内容里写了姿势就该有图。
         public static Texture2D? LoadPose(string characterName, string pose)
         {
-            return LoadAsset(characterName + "_" + pose);
+            return UseNeon ? LoadAsset(characterName + "_" + pose) : Load(characterName);
         }
 
         // 离线加工出来的分层与骨架（tools/portrait-neon/process.py）：
@@ -115,11 +118,12 @@ namespace SSNoir.IMGUI
 
         public static PortraitLayers LayersOf(Texture2D portrait)
         {
+            if (!UseNeon) return new PortraitLayers(null, null, null);
             if (Layers.TryGetValue(portrait, out var cached))
                 return cached;
             string name = portrait.name;
-            var lines = Load(name + "_lines");
-            var accent = Load(name + "_accent");
+            var lines = Resources.Load<Texture2D>("Portraits/Neon/" + name + "_lines");
+            var accent = Resources.Load<Texture2D>("Portraits/Neon/" + name + "_accent");
             var json = Resources.Load<TextAsset>(ResourceRoot + name + ".neon");
             var skeleton = json != null ? Stage.PortraitSkeleton.Parse(json.text) : null;
             var layers = new PortraitLayers(lines, accent, skeleton);

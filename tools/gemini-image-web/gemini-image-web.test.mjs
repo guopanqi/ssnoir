@@ -98,3 +98,29 @@ test('上传入口首次点击未生效时重新等待，并保留全部参考�
     assert.deepEqual(await page.locator('img').evaluateAll(es => es.map(e => e.dataset.filename)), ['a.png', 'b.png']);
   } finally { await browser.close(); }
 });
+
+
+test("折叠后的用户气泡确认提交，不在生成中重复发送", async () => {
+  const { chromium } = await import("playwright");
+  const { submitPrompt } = await import("./gemini-image-web.mjs");
+  const browser = await chromium.launch({ channel: "chrome", headless: true });
+  try {
+    const page = await browser.newPage();
+    const prompt = "Create a noir illustration. ".repeat(30);
+    await page.setContent(`<button aria-label="Deselect Images">Images</button><div class="ql-editor" aria-label="Enter a prompt" contenteditable="true"></div><button aria-label="Send message">Send</button>`);
+    await page.locator(".ql-editor").fill(prompt);
+    await page.evaluate(() => {
+      document.querySelector("button[aria-label='Send message']").onclick = event => {
+        const editor = document.querySelector(".ql-editor");
+        const query = document.createElement("user-query");
+        query.textContent = editor.textContent.slice(0, 190) + "…";
+        document.body.append(query);
+        editor.textContent = "";
+        event.target.remove();
+      };
+    });
+    await submitPrompt(page, prompt, 0);
+    assert.equal(await page.locator("user-query").count(), 1);
+    assert.equal(await page.locator(".ql-editor").innerText(), "");
+  } finally { await browser.close(); }
+});

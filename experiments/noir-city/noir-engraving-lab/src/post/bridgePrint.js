@@ -1,7 +1,7 @@
 import * as T from 'three';
 import {ShaderPass} from 'three/addons/postprocessing/ShaderPass.js';
 
-// 桥头与住所共用同一明暗映射，避免两个实验的风格参数漂移。
+// 桥头实验使用的明暗映射与刻线后处理。
 export function createBridgePrint(){
 return new ShaderPass({
   uniforms:{tDiffuse:{value:null},uMode:{value:1},uResolution:{value:new T.Vector2()}},

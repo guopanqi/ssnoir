@@ -62,6 +62,7 @@ namespace SSNoir.Scripting
             string noticeVersion = string.Empty;
             string name = id;
             string? buttonText = null;
+            string interactionActivity = string.Empty;
             string? requiredBeforeRest = null;
             bool disabled = false;
             ActionUseLimit? useLimit = null;
@@ -86,7 +87,13 @@ namespace SSNoir.Scripting
                 string kwStr = kw.AsString.ToLowerInvariant();
                 object val = nodeExpr[i + 1];
 
-                if (kwStr == ":clocks")
+                if (kwStr == ":interaction-activity")
+                {
+                    interactionActivity = val as string ?? throw new InvalidOperationException("interaction-activity must be a string.");
+                    if (string.IsNullOrWhiteSpace(interactionActivity))
+                        throw new InvalidOperationException("interaction-activity cannot be empty.");
+                }
+                else if (kwStr == ":clocks")
                 {
                     clocks = ParseClocks(val);
                 }
@@ -229,6 +236,8 @@ namespace SSNoir.Scripting
 
             if (useLimit.HasValue && (resolve == null || (resolve.Type != ResolveType.Instant && resolve.Type != ResolveType.Roll)))
                 throw new InvalidOperationException($"Node '{id}' :use-limit requires an Instant or Roll action.");
+            if (interactionActivity.Length > 0 && (resolve == null || resolve.Type == ResolveType.Note))
+                throw new InvalidOperationException("interaction-activity is only valid on actions.");
             if (buttonText != null && (resolve == null || resolve.Type == ResolveType.Note))
                 throw new InvalidOperationException($"Node '{id}' :button-text requires an actionable resolve.");
 
@@ -260,6 +269,7 @@ namespace SSNoir.Scripting
                 RiskTarget = riskTarget,
                 ProgressTarget = progressTarget,
                 ButtonText = buttonText,
+                InteractionActivity = interactionActivity,
                 RequiredBeforeRest = requiredBeforeRest,
                 Disabled = disabled,
                 UseLimit = useLimit,
@@ -375,7 +385,11 @@ namespace SSNoir.Scripting
                             var firstStr = firstSym.AsString.ToLowerInvariant();
                             if (firstStr == "die" && costExpr.Count >= 1)
                             {
-                                requires.Add(new ActionCost { Type = "die" });
+                                if (costExpr.Count > 2) throw new InvalidOperationException("Die requirement accepts at most one face.");
+                                int? face = costExpr.Count == 2 ? SchemeValue.ToInt(costExpr[1]) : (int?)null;
+                                if (face.HasValue && (face.Value < 1 || face.Value > 6))
+                                    throw new InvalidOperationException("Required die face must be between 1 and 6.");
+                                requires.Add(new ActionCost { Type = "die", DieValue = face });
                             }
                             else if (firstStr == "item" && costExpr.Count >= 3)
                             {

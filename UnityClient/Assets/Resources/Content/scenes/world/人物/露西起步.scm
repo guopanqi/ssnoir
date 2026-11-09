@@ -1,0 +1,27 @@
+;; 咖啡馆的早期相识。后续上学和写作归各自事件，不由章节文件代管相识次数。
+(define 露西起步
+  (let ()
+    (define stage 0)
+    (define last-day 0)
+    (define 工作 (make-clock "熟悉咖啡馆" 3 'gauge "做熟咖啡馆的工作，认识同在这里做事的露西。" :beneficial-direction 'increase))
+    (define (on-work!)
+      (工作 'advance! 1)
+      (if (= last-day world-day) #f
+        (begin (set! last-day world-day)
+          (cond ((= stage 0) (set! stage 1) (第一幕-露西初识) #t)
+            ((and (= (第一幕 'act) 1) (= stage 1) (工作 'full?))
+              (set! stage 2) (第一幕-露西打字) #t)
+            (else #f)))))
+    (lambda (msg . args)
+      (cond
+        ((eq? msg 'on-work!) (on-work!))
+        ((eq? msg 'met?) (> stage 0))
+        ((eq? msg 'nodes-at)
+          (if (and (equal? (car args) "街角咖啡馆") (第一幕 'work-open?) (not (工作 'full?)))
+            (list (at-anchor "露西@咖啡馆" (clock-node "咖啡馆工作目标" (工作 'render-data)))) '()))
+        ((eq? msg 'save) (list (list "stage" stage) (list "last-day" last-day) (list "work" (工作 'save))))
+        ((eq? msg 'load!) (let ((data (car args)))
+          (set! stage (assoc-get data "stage" 0)) (set! last-day (assoc-get data "last-day" 0))
+          (工作 'load! (assoc-get data "work" 0))
+          (if (and (member? stage '(0 1 2)) (>= last-day 0)) #t (error "露西起步：非法阶段"))))
+        (else (error "露西起步：未知消息"))))))

@@ -78,6 +78,8 @@ namespace SSNoir.IMGUI
                         throw new System.InvalidOperationException("banter 世界锚点投影需要主相机");
                     var headScreen = camera.WorldToScreenPoint(
                         worldAnchor.transform.position + Vector3.up * DialogueAnchors.BanterHeadHeight);
+                    // 背后与出画的说话人不能投射屏幕气泡，更不能用负深度拉出长尾。
+                    if (headScreen.z <= camera.nearClipPlane) continue;
                     var headPoint = UIScale.WorldPointToVirtual(headScreen);
                     var anchorRect = new Rect(headPoint.x - 12f, headPoint.y - 12f, 24f, 24f);
                     usedRemoteFallback = false;  // 行级锚点已明确落点，不存在降级
@@ -166,6 +168,9 @@ namespace SSNoir.IMGUI
             string bubbleKey,
             bool showAvatar = true, BanterPlayer.Bubble? previous = null, float age = 0f)
         {
+            var viewport = new Rect(0, 0, UIScale.VW, UIScale.VH);
+            if (!float.IsFinite(anchor.center.x) || !float.IsFinite(anchor.center.y) || !viewport.Overlaps(anchor))
+                return;
             // 对话气泡是"递到面前的一张纸"：Paper 底 + PaperInk 字 + 硬投影
             var bodyStyle = new GUIStyle(IMGUIStyles.ModalBody)
             {
@@ -220,6 +225,8 @@ namespace SSNoir.IMGUI
         {
             var savedColor = GUI.color;
             GetTail(anchor, rect, out var tailBaseA, out var tailBaseB, out var tailTip);
+            // 气泡尾巴是近距离指示，不是跨屏连线；避让过远时只保留署名纸卡。
+            tail = tail && Vector2.Distance((tailBaseA + tailBaseB) * .5f, tailTip) <= 120f;
             var shadowOffset = new Vector2(5f, 6f);
             IMGUIStyles.DrawShadow(rect, shadowOffset, .5f * alpha);
             if (tail) DrawTriangle(tailBaseA + shadowOffset, tailBaseB + shadowOffset,

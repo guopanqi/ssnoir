@@ -24,6 +24,7 @@
 (define :carry-item ':carry-item)
 (define :support ':support)
 (define :beneficial-direction ':beneficial-direction)
+(define :interaction-activity ':interaction-activity)
 (define :arrivals ':arrivals)
 (define :kind ':kind)
 (define :primary ':primary)
@@ -64,6 +65,7 @@
         (is-place    (get-kwarg kwargs ':place #f))
         (carry-item  (get-kwarg kwargs ':carry-item #f))
         (support     (get-kwarg kwargs ':support #f))
+        (interaction-activity (get-kwarg kwargs ':interaction-activity #f))
         (arrivals    (get-kwarg kwargs ':arrivals '())))
     (append
       (list 'node
@@ -99,6 +101,7 @@
       (if (equal? support #f)
           '()
           (list :support support))
+      (if interaction-activity (list :interaction-activity interaction-activity) '())
       (if (null? arrivals)
           '()
           (list :arrivals arrivals)))))
@@ -258,8 +261,11 @@
        clock-datas))
 
 ;; Cost/Requirement constructors
-(define (req-die)
-  (list 'die))
+(define (req-die . face)
+  (if (null? face) (list 'die)
+    (if (and (= (length face) 1) (member? (car face) '(1 2 3 4 5 6)))
+      (list 'die (car face))
+      (error "req-die：可选点数必须为1至6"))))
 
 (define (req-item name qty)
   (list 'item name qty))
@@ -1204,6 +1210,14 @@
 (define (spotlight! title subtitle)
   (__spotlight! title subtitle))
 
+;; 段落格式：(正文 图片Resources路径)，无图填空字符串。
+;; 只收集 effect 内的真实效果；状态结算不依赖客户端播放。
+(define (spotlight-page! title paragraphs effect)
+  (let ((start (__spotlight-effect-start)))
+    (effect)
+    (__spotlight-page! title paragraphs start)))
+
+
 (define (play-intertitle! hold-black . pages) (__play-intertitle! hold-black pages))
 ;; place 为空只运镜；非空在运镜结束后进入地点。
 ;; 剧情落点：在该步骤采用新快照，进入节点（允许Scenario根），等镜头到位后继续。
@@ -1442,3 +1456,8 @@
 (define (advance-chapter!)
   (let ((current (get-global 'chapter)))
     (set-global! 'chapter (if current (+ current 1) 1))))
+
+;; 世界装配后覆盖；Scenario解释器不拥有城市人物互动。
+(define (dispatch-interactions! context) #f)
+(define (with-interaction activity action-data)
+  (append action-data (list :interaction-activity activity)))

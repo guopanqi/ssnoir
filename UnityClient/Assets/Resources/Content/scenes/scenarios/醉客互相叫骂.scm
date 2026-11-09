@@ -3,7 +3,8 @@
 (define 西边 (make-clock "西桌愤怒值" 5 'countdown "两桌同时心情才结束。" :beneficial-direction 'decrease))
 (define 骂人者 (make-clock "叫骂者愤怒值" 2 'countdown "每回合让对方愤怒值加1。" :beneficial-direction 'decrease))
 (define 骂人位置 "")
-(define 出现次数 0)
+(define 上次起身回合 0)
+(define 连续未出现 0)
 (define 回合 1)
 (define 已结束? #f)
 ;; 视觉状态直接取自两桌Clock和当前叫骂者，不额外记录一份动画状态。
@@ -26,10 +27,10 @@
   (end-scenario result))
 (define (检查!)
   (if (and (东边 'empty?) (西边 'empty?)) (结束! 'success) #f))
-(define (on-scenario-collapse) (collapse-result 'fail))
+(define (on-scenario-collapse) (collapse-result '倒下))
 (define (on-scenario-enter)
   (东边 'load! 5) (西边 'load! 5) (骂人者 'load! 2)
-  (set! 骂人位置 "") (set! 出现次数 0) (set! 回合 1) (set! 已结束? #f)
+  (set! 骂人位置 "") (set! 上次起身回合 0) (set! 连续未出现 0) (set! 回合 1) (set! 已结束? #f)
   ;; 每次正常进入都从当前局面恢复两桌姿态，包括同一舞台再次进入。
   (醉客动作! "东边" "吵嚷")
   (醉客动作! "西边" "吵嚷")
@@ -78,7 +79,7 @@
       (at-anchor anchor
         (note-node "骂人者：回合规则" "回合结束"
           (string-append "骂向" (if (equal? 骂人位置 "东边") "西边" "东边") "这桌，令其愤怒+1")))
-      (node "羞辱他" :anchor anchor :requires (list (req-die))
+      (node "羞辱他" :name "斥责他" :anchor anchor :requires (list (req-die))
         :risk '冒险 :risk-target (list 'composure "player")
         :progress-target (list 'clock "叫骂者愤怒值")
         :subtitle "好降2，中降1；坏心情-1"
@@ -86,12 +87,12 @@
           (outcome (lambda () (spend-composure! 1)))
           (outcome (lambda () (压住! 1))) (outcome (lambda () (压住! 2)))))
       (node "拦住他" :anchor anchor :requires (list (req-die))
-        :risk '危险 :risk-target (list 'composure "player")
+        :risk '稳妥
         :progress-target (list 'clock "叫骂者愤怒值")
-        :subtitle "好降2，中降1且心情-1；坏心情-2"
+        :subtitle "好降2，中降1；坏无进展"
         :resolve (roll 'violence
-          (outcome (lambda () (spend-composure! 2)))
-          (outcome (lambda () (spend-composure! 1) (压住! 1)))
+          (outcome (lambda () #f))
+          (outcome (lambda () (压住! 1)))
           (outcome (lambda () (压住! 2)))))))))
 (define (选择起身位置)
   (cond
@@ -115,18 +116,25 @@
         (random-choice (list "你再说一遍试试！" "别装没听见，我说的就是你！" "有胆子就站起来说！"))
         :at (if (equal? 骂人位置 "东边") "醉客互相叫骂-东桌" "醉客互相叫骂-西桌")))))
 ;; 先处理旧麻烦，再生成新麻烦，保证新出现者有完整一回合的处理窗口。
-;; 第一位在第二回合必定起身；压住后，第二位每个空档回合有 1/3 概率起身。
+(define (本回合起身?)
+  (cond
+    ((or (not (equal? 骂人位置 "")) (<= (- 回合 上次起身回合) 1)
+         (and (东边 'empty?) (西边 'empty?))) #f)
+    ((= 回合 2) #t)
+    (else
+      (if (<= (random-choice (list 1 2 3 4 5)) (+ 连续未出现 1))
+        #t
+        (begin (set! 连续未出现 (+ 连续未出现 1)) #f)))))
 (define-opponent-rule "醉客起身"
   (lambda () (not 已结束?))
   (lambda ()
     (set! 回合 (+ 回合 1))
-    (if (and (equal? 骂人位置 "") (< 出现次数 2)
-             (or (= 回合 2) (random-choice (list #t #f #f))))
+    (if (本回合起身?)
       (let ((位置 (选择起身位置)))
         (if (equal? 位置 "") #f
           (begin
             (set! 骂人位置 位置)
-            (set! 出现次数 (+ 出现次数 1)) (骂人者 'load! 2)
+            (set! 上次起身回合 回合) (set! 连续未出现 0) (骂人者 'load! 2)
             (醉客动作! 骂人位置 "起身")
             (play-dialogue! (line "世界" (string-append 骂人位置 "这桌一个醉客站起来，朝对桌挥着手叫骂。")))
             (focus-node! "醉客互相叫骂")
@@ -141,6 +149,8 @@
   ;; 根名 = Camera_醉客互相叫骂 / Anchor_醉客互相叫骂：独立 Stage 经 老街酒馆 的门进来。
   (node "醉客互相叫骂" :anchor "醉客互相叫骂"
     :children (append (list (note-node "对骂：Scenario目标" "目标" "让两桌人都冷静下来")
+                  (note-node "对骂：起身规则" "随机起身"
+                    "第二回合固定起身；此后仍愤怒的桌子可能再有人起身。同时最多一人，新起身不会连续两回合出现。有效抽取从20%起，未出现则下次加20%，出现后重置；有人站着或间隔回合不抽取。")
                   (桌子 "东边这桌" 东边 "醉客互相叫骂-东桌" "东边")
                   (桌子 "西边这桌" 西边 "醉客互相叫骂-西桌" "西边"))
       (if (equal? 骂人位置 "") '() (list (麻烦节点))))))

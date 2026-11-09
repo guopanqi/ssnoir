@@ -1,0 +1,9 @@
+Edit the referenced original character illustration into a clean isolated full-body game character asset. Keep Nightingale recognizable as the same young adult jazz singer: dark soft curly hair, slender adult proportions, simple black mid-calf dress, short cardigan, low-heeled pumps and music pages. Keep Darwyn Cooke's economical brush-ink drawing and Parker: The Outfit's black / paper-white / steel-cyan flat printing palette.
+
+Change her expression and body language: she is a little shy and exposed, quietly hoping this person will stay with her. A small tentative closed-mouth smile, attentive eyes looking slightly upward toward a trusted companion, relaxed fine eyebrows. Preserve youthful softness in the cheeks; remove the cheek crease and all face shadow patches. Her appeal comes from warmth, openness and a trace of uncertainty.
+
+Both hands gently hold the folded music pages close against her upper torso. Elbows stay near her body, shoulders slightly drawn in, head subtly tilted toward the companion. Comfortable narrow stance, weight lightly resting on one leg. Keep her an elegant grown woman with natural adult proportions and normal-sized eyes. The gesture should be intimate and understated, with no theatrical pleading or tears.
+
+Use only flat black, paper-white and muted steel-cyan color areas. Paper-white skin, black curls and dress, steel-cyan cardigan with a few economical black contour marks. NO shading or shadow shapes anywhere: no cyan face shadow, no cast shadow, no contact shadow, no ground shadow, no gradients, no rim light or glow.
+
+Remove the entire paper background, cyan rectangle, texture and floor. Deliver ONLY the complete woman on a truly transparent alpha background, with both shoes fully visible and a little clear margin on all sides. No background color, checkerboard illustration, scenery, lettering or decorative elements.

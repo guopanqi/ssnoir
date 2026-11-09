@@ -20,8 +20,8 @@ MonoBehaviour:
     Material: {fileID: 2100000, guid: 355ceda7c822442b8ac844b20ec98bcb, type: 2}
   - Name: "\u4E3B\u4F53"
     ImportNames:
-    - "M_世界_主体"
-    - "M_港口机械"
+    - "M_\u4E16\u754C_\u4E3B\u4F53"
+    - "M_\u6E2F\u53E3\u673A\u68B0"
     Material: {fileID: 2100000, guid: 1fa23622662d04e21b9cae5ecebaed9f, type: 2}
   - Name: "\u5730\u9762"
     ImportNames: []
@@ -237,6 +237,6 @@ MonoBehaviour:
     AmbientMultiplier: 1.2
     LightMultiplier: 1
   NightGlowShader: {fileID: 4800000, guid: ad4c2f8e2a9446e39aa88178a1f62111, type: 3}
+  OutlineFadeShader: {fileID: 4800000, guid: 5180f187ff334d31900a7f45051855fa, type: 3}
   BakedAreaScale: 0.35
   FloorHighlight: 0.12
-  OutlineFadeShader: {fileID: 4800000, guid: 5180f187ff334d31900a7f45051855fa, type: 3}

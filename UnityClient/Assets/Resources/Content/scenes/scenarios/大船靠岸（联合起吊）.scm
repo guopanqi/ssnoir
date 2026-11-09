@@ -121,8 +121,8 @@
   (collapse-result '延期卸载))
 
 ;; outcome 的顺序始终是失败、中立、成功。
-(define (准备节点 id 钟 技能)
-  (node id :risk '稳妥 :disabled (钟 'full?)
+(define (准备节点 id 钟 技能 锚点)
+  (node id :anchor 锚点 :risk '稳妥 :disabled (钟 'full?)
     :subtitle "坏无进展，中推进1，好推进2。"
     :progress-target (list 'clock (cadr (钟 'render-data)))
     :requires (list (req-die))
@@ -145,8 +145,8 @@
   (if (eq? 阶段 '卸货) #t (error "联合起吊：普通卸货已经结束"))
   (普通货物 'advance! 数量)
   (if (普通货物 'full?) (进入准备!) #f))
-(define (普通卸货行动 id 技能)
-  (node id :risk '稳妥
+(define (普通卸货行动 id 技能 锚点)
+  (node id :anchor 锚点 :risk '稳妥
     :subtitle "坏无进展，中卸1格，好卸2格。"
     :progress-target (list 'clock "卸下普通货物")
     :requires (list (req-die))
@@ -159,22 +159,22 @@
     (clock-nodes (普通货物 'render-data))
     (list
       (note-node "普通卸货说明" "普通劳动" "两种行动都卸同一批货，满4格进入下一阶段。此阶段不计工作时限，回合结束仍支付通常心情代价。")
-      (普通卸货行动 "搬运货箱" 'violence)
-      (普通卸货行动 "协助挂索" 'sharpness))))
+      (普通卸货行动 "搬运货箱" 'violence "联合起吊")
+      (普通卸货行动 "协助挂索" 'sharpness "联合起吊"))))
 (define (准备盘面)
   (append
     (clock-nodes (吊具 'render-data) (落点 'render-data) (防摆 'render-data))
     (list
       (note-node "准备规则" "起吊条件" "两项必要准备满格即起吊；可选防摆须在此之前完成，允许差由1格增至2格。")
-      (准备节点 "协助检查吊具" 吊具 'sharpness)
-      (准备节点 "整理落货区域" 落点 'violence)
-      (准备节点 "布置辅助防摆" 防摆 'sharpness))))
+      (准备节点 "协助检查吊具" 吊具 'sharpness "联合起吊")
+      (准备节点 "整理落货区域" 落点 'violence "联合起吊")
+      (准备节点 "布置辅助防摆" 防摆 'sharpness "联合起吊"))))
 (define (停吊盘面)
   (append
     (clock-nodes (前端 'render-data) (后端 'render-data) (摆动 'render-data) (危机 'render-data))
     (list
       (note-node "停吊规则" "紧急停吊" "原吊运行动暂停；稳定工作满3格后摆动降至1，恢复原进度。时限照常消耗。")
-      (node "重新稳定吊运" :risk '稳妥 :subtitle "坏无进展，中推进1，好推进2。"
+      (node "重新稳定吊运" :anchor "联合起吊悬吊状态" :risk '稳妥 :subtitle "坏无进展，中推进1，好推进2。"
         :progress-target (list 'clock "重新稳定吊运") :requires (list (req-die))
         :resolve (roll 'sharpness
           (outcome (lambda () (稳定危机! 0)))

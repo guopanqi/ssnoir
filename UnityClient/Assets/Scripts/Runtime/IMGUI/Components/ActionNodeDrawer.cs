@@ -626,7 +626,10 @@ namespace SSNoir.IMGUI
                 }
                 else
                 {
-                    if (!judged || !DrawPreparedDie(rect, node, slotIndex, null, disabled, gameManager))
+                    if (req.DieValue.HasValue)
+                        HandPanelDrawer.DrawDieFace(rect, req.DieValue.Value, true,
+                            borderOverride: border, octagon: !judged);
+                    else if (!judged || !DrawPreparedDie(rect, node, slotIndex, null, disabled, gameManager))
                         ItemIconLibrary.DrawDiePlaceholder(rect, content, 0.56f);
                 }
             }
@@ -778,7 +781,7 @@ namespace SSNoir.IMGUI
         // 判定骰左侧的技能列：技能名是有底、有框的主标签；人物姓名与能力值在下面左右分列，
         // 使用白字提高可读性，同时保持无底，避免和技能名标签混为一体。
 
-        // 姓名和数值加大后仍保留足够行高，避免 MiSans 字形被 IMGUI 基线裁切。
+        // 姓名和数值加大后仍保留足够行高，避免字体字形被 IMGUI 基线裁切。
 
 
 

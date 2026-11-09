@@ -1,0 +1,9 @@
+Edit the provided illustration as a restrained scene-color integration pass. Keep Nightingale's exact identity, pose, proportions, full-body framing, flowing S-shaped gown, hair silhouette, glove, ink brush marks, and clean neutral gray background. Do not redraw or redesign her.
+
+Recolor the near-black ink and solid-black shapes to a very deep cool blue-black #0f141b, preserving every dark shape and the hand-drawn edge texture. Recolor the warm paper areas of skin, shoes, and fabric highlights to a cool paper white #dfe4e8. Keep the face slightly warmer than the shirt and glove, around #e6e1da, with only the slightest warmth.
+
+Add a restrained, one-layer, dry-brush wash of muted desaturated blue-green #5f7f80 to a few broad areas of the gown, similar in value to a subdued midtone blue-gray. Preserve black silhouette masses and leave clear paper gaps; no uniform fill and no extra hues. Keep amber limited to one tiny earring accent only.
+
+Add a delicate cold-white rim line, about 1–2 pixels wide at final image size, tracing the outer silhouette with tiny breaks where the ink contour naturally opens. Add very subtle cool light from one side, affecting only a few lit planes and retaining the flat printed look. Add a small soft elliptical contact shadow directly beneath both shoes, low contrast, no floor line. Keep the gray background flat and neutral except for a barely perceptible cool environmental tint immediately behind the figure; no scene, no props, no visible gradient field, no heavy vignette.
+
+Preserve the confident, variable brush and dry-brush linework, solid shapes, economical folds, and minimal face. No glossy rendering, no soft airbrush, no 3D, no photorealism, no new objects, no text, no logo, no watermark.

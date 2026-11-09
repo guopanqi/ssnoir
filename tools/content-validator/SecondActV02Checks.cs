@@ -33,6 +33,7 @@ internal static class SecondActV02Checks
             var s = new SceneManager(new GameState(), new LocalScriptLoader());
             s.LoadScene("world");
             Eval(s, "(第一幕 'load! (list (list \"opened\" #t) (list \"tavern\" #t) (list \"act\" 2) (list \"singer\" 2) (list \"lucy\" 1) (list \"eddie\" 2))) (set! world-day " + day + ") (set-global! '世界日 world-day) (add-item! \"金钱\" 200)");
+            Eval(s, "(夜莺生活 'load! '((\"singer\" 2))) (露西起步 'load! '((\"stage\" 1))) (码头工作 'load! '((\"work\" 2)))");
             return s;
         }
         static ActionReport Act(SceneManager s, string id)
@@ -95,9 +96,9 @@ internal static class SecondActV02Checks
         foreach (int familiar in new[] { 0, 1 })
         {
             var opening = Start(6);
-            Eval(opening, "(第一幕 'load! '((\"opened\" #t) (\"tavern\" #t) (\"act\" 1) (\"singer\" " + familiar + ")))" );
+            Eval(opening, "(夜莺生活 'load! '((\"singer\" " + familiar + "))) (第一幕 'load! '((\"opened\" #t) (\"tavern\" #t) (\"act\" 1) (\"singer\" " + familiar + ")))" );
             Act(opening, "夜莺最后一场演出");
-            Check((int)Get(opening, "(第一幕 'act)")! == 2 && (int)Get(opening, "(第一幕 'singer-stage)")! >= 1, "D6不论此前相识与否都建立夜莺关系");
+            Check((int)Get(opening, "(第一幕 'act)")! == 2 && (int)Get(opening, "(夜莺生活 'stage)")! >= 1, "D6不论此前相识与否都建立夜莺关系");
             Eval(opening, "(end-turn!) (end-turn!)");
             Act(opening, "观看正式彩排");
             Check(Has(opening, "接下演出服调查"), "D6到D8保留固定赴约并自然出现经理机会");

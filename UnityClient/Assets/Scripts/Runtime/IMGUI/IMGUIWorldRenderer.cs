@@ -119,6 +119,7 @@ namespace SSNoir.IMGUI
         private readonly List<GameNode> _sceneBandNotes = new List<GameNode>();
         private readonly Queue<DialogueSequence> _pendingImmediateDialogues = new Queue<DialogueSequence>();
         private SpotlightCard? _activeActionSpotlight;
+        private readonly SpotlightSheetPlayer _spotlightSheet = new();
         private ActionReport? _completionReport;
         private string _completionActionNodeId = string.Empty;
         private Action? _completionDone;
@@ -288,9 +289,10 @@ namespace SSNoir.IMGUI
             bool spoken = speech.Count > 0
                 || report.Effects.Any(effect => effect.Kind == ActionEffectKind.Composure || effect.Kind == ActionEffectKind.Injury);
             float now = Time.unscaledTime;
-            float dwell = speech.Count > 0 ? _banterPlayer.ShowBeatLines(speech) : 0f;
+            if (speech.Count > 0) _banterPlayer.ShowBeatLines(speech);
             _activeBeat = true;
-            _activeBeatUntil = now + Mathf.Max(spoken ? SpokenBeatSeconds : SilentBeatSeconds, dwell);
+            // 气泡是非阻塞反馈，阅读时长不延长对方回合的输入锁。
+            _activeBeatUntil = now + (spoken ? SpokenBeatSeconds : SilentBeatSeconds);
             _actingSince = now;
             _actingUntil = _activeBeatUntil + ActingFadeSeconds;
         }
@@ -835,6 +837,9 @@ namespace SSNoir.IMGUI
         // 动作内 Spotlight 与全局 Spotlight 都是“确认后继续”的阻塞层。
         public bool TryAdvanceSpotlight()
         {
+            var current = _activeActionSpotlight ?? _gameManager.GameState.SpotlightCenter.Current;
+            if (current != null && !_spotlightSheet.Advance(current)) return true;
+            _spotlightSheet.Reset();
             if (_activeActionSpotlight != null)
             {
                 ConfirmActionSpotlight();
@@ -3078,69 +3083,12 @@ namespace SSNoir.IMGUI
                 return;
             }
 
-            GUI.color = IMGUIStyles.Blocker;
-            GUI.DrawTexture(new Rect(0, 0, UIScale.VW, UIScale.VH), Texture2D.whiteTexture);
-            GUI.color = Color.white;
-
-            // 聚光弹窗是「一封信 / 一条通告」，正文长度完全由内容决定：先量出正文换行后要多高，
-            // 弹窗再照这个高度长。以前是固定 220 高 + 固定 72 高的正文框，长信要么被挤到按钮上，
-            // 要么直接被裁掉。
-            const float modalW = 600f;
-            const float titleTop = 42f;
-            const float titleH = 42f;
-            const float bodyTop = 14f;      // 标题与正文之间
-            const float bodyToButton = 22f; // 正文与按钮之间
-            const float buttonH = 34f;
-            const float bottomPad = 26f;
-            float bodyWidth = modalW - 104f;
-
-            var subtitleStyle = new GUIStyle(IMGUIStyles.ModalBody)
-            {
-                wordWrap = true,
-                alignment = TextAnchor.UpperCenter,
-                fontSize = IMGUIStyles.FontSize(20)
-            };
-            bool hasBody = !string.IsNullOrWhiteSpace(spotlight.Subtitle);
-            float bodyH = hasBody
-                ? subtitleStyle.CalcHeight(new GUIContent(spotlight.Subtitle), bodyWidth)
-                : 0f;
-
-            float modalH = titleTop + titleH
-                + (hasBody ? bodyTop + bodyH : 0f)
-                + bodyToButton + buttonH + bottomPad;
-            var modal = UIScale.CenteredModal(modalW, modalH);
-
-            IMGUIStyles.DrawShadow(modal, new Vector2(5f, 6f), 0.50f);
-            GUI.color = IMGUIStyles.ModalBg;
-            GUI.DrawTexture(modal, Texture2D.whiteTexture);
-            GUI.color = Color.white;
-
-            var titleStyle = new GUIStyle(IMGUIStyles.ModalTitle)
-            {
-                alignment = TextAnchor.MiddleCenter,
-                fontSize = IMGUIStyles.FontSize(28)
-            };
-            IMGUIStyles.DrawLabel(new Rect(modal.x + 28f, modal.y + titleTop, modal.width - 56f, titleH), spotlight.Title, titleStyle);
-
-            if (hasBody)
-            {
-                IMGUIStyles.DrawLabel(new Rect(modal.x + 44f, modal.y + titleTop + titleH + bodyTop, bodyWidth, bodyH),
-                    spotlight.Subtitle, subtitleStyle);
-            }
-
-            var btnRect = new Rect(modal.x + (modal.width - 112f) / 2f, modal.yMax - bottomPad - buttonH, 112f, buttonH);
-            var mouse = Event.current.mousePosition;
-            bool hovered = btnRect.Contains(mouse);
-            bool clicked = hovered && Event.current.type == EventType.MouseDown && Event.current.button == 0;
-            if (IMGUIStyles.DrawTechnicalButton(btnRect, "确 定", hovered, clicked, IMGUIStyles.PaperInk, new Color(IMGUIStyles.PaperInk.r, IMGUIStyles.PaperInk.g, IMGUIStyles.PaperInk.b, 0.08f), IMGUIStyles.ExecuteLabel))
+            if (_spotlightSheet.Draw(spotlight))
             {
                 TryAdvanceSpotlight();
                 Event.current.Use();
             }
-            else
-            {
-                UsePointerEventForModal();
-            }
+            else UsePointerEventForModal();
         }
 
         // 非阻塞:把当前可见的 banter 气泡画在各说话人锚点上方(不消费点击,游戏照常)。
