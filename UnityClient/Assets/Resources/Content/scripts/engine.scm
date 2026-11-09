@@ -686,6 +686,12 @@
 
 ;; Scenario载入完成后的显式入口。Scenario脚本可重定义它来安排开场演出；
 ;; 世界动作的 on-action 仍属于世界自己，不能借场景切换的时机去跑Scenario规则。
+;; The common Scenario round costs one composure unless the authored scene
+;; explicitly opts out. Research scenes without a countdown can be safely
+;; multi-round without turning every paper-sorting action into an injury.
+;; Only nonnegative small integers are accepted by the host.
+(define (scenario-time-cost) 1)
+
 (define (on-scenario-enter) #t)
 
 (define turn-rules '())

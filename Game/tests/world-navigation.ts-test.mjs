@@ -12,10 +12,9 @@ function walk(p){for(const d of readdirSync(join(base,p),{withFileTypes:true})){
  if(d.isDirectory())walk(file);else if(file.endsWith(".scm"))sources[file]=readFileSync(join(base,file),"utf8");
 }}
 walk("scripts");walk("scenes");
-const std=readFileSync("node_modules/lips/dist/std.xcb");
 test("world place entry invokes authored on-enter-place rules without spending dice",async()=>{
  const state=new GameRuntimeState();
- const session=await GameScriptSession.create("world-navigation",state,sources,std);
+ const session=await GameScriptSession.create("world-navigation",state,sources);
  await session.loadFile("scenes/world/world.scm");
  const runner=await GameActionRunner.create(session,state,new ActionTurnState(()=>0.5));
  const root=await runner.prepare();
@@ -29,7 +28,7 @@ test("world place entry invokes authored on-enter-place rules without spending d
 
 test("ordinary place entry reuses the post-entry render tree without redundant global render",async()=>{
  const state=new GameRuntimeState();
- const session=await GameScriptSession.create("world-navigation-cache",state,sources,std);
+ const session=await GameScriptSession.create("world-navigation-cache",state,sources);
  await session.loadFile("scenes/world/world.scm");
  const runner=await GameActionRunner.create(session,state,new ActionTurnState(()=>0.5));
  const root=await runner.prepare();

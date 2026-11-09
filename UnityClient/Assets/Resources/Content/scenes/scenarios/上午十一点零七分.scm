@@ -2,6 +2,11 @@
 ;; 没有倒计时和失败线。玩家付出的代价是回合：方向不对，调查就会拖得更久。
 ;; 结构不是并列搜四堆，而是把一个模糊概念逐层弄清：1 堆 → 2 类 → 4 堆。
 
+;; This is a patient investigation, not a chase. Each action costs a die,
+;; but completing the authored evidence must never depend on surviving an
+;; unrelated universal time tax. Other Scenarios retain the default 1.
+(define (scenario-time-cost) 0)
+
 (define 阶段 0) ; 0 混在一起 / 1 来件与成稿 / 2 四个具体纸堆
 (define 已结束? #f)
 (define 找到封套? #f)

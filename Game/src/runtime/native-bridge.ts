@@ -1,4 +1,4 @@
-import { Pair, nil, unbox } from "lips";
+import { Pair, nil, unbox } from "../scheme/values.ts";
 import { GameRuntimeState } from "./game-state.ts";
 import { schemeList } from "./node-converter.ts";
 import { storyArguments, type StoryKind } from "./story-events.ts";
@@ -21,7 +21,7 @@ function integer(value: unknown): number {
 }
 function string(value: unknown): string {
   // The npm ES module, Vite IIFE and TapTap converter may minify class names.
-  // Use LIPS's public unbox API, not constructor.name / instanceof names.
+  // Use the bridge value boundary, not constructor names.
   const raw = unbox(value);
   if (typeof raw === "string") return raw;
   throw new Error("expected Scheme string");
@@ -74,7 +74,7 @@ export function createNativeBridge(state: GameRuntimeState, random:()=>number=Ma
     },
     "set-global!": (...args) => {
       arity("set-global!", args, 2);
-      // Normalize LIPS's boxed Scheme strings and numbers at the native boundary.
+      // Validate portable scalar state at the native boundary.
       state.setGlobal(id(args[0]), portableScalar(args[1]));
       return undefined;
     },

@@ -31,6 +31,7 @@ on:
       - 'experiments/抽象决策关系研究/批次/2026-10-13-目标生成与生产性发现/试玩.html'
       - 'tools/content-validator/experiments/test_productive_discovery_prototype.js'
       - 'Game/**'
+      - 'UnityClient/Assets/Resources/Content/**'
 permissions:
   contents: read
   pages: write
@@ -41,7 +42,7 @@ concurrency:
 jobs:
   deploy:
     if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -103,6 +104,9 @@ jobs:
           cp -R Game/dist/web/. pages-dist/game/
           test -s pages-dist/game/index.html
           test -d pages-dist/game/assets
+          # A release marker must travel in the same Pages artifact as the game.
+          # This distinguishes a successful build from a stale live deployment.
+          printf '{"commit":"%s"}\n' "$GITHUB_SHA" > pages-dist/game/version.json
           touch pages-dist/.nojekyll
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
@@ -110,6 +114,78 @@ jobs:
         uses: actions/upload-pages-artifact@v4
         with:
           path: pages-dist
+      # One-time reconciliation for the old timed-out Pages deployment.
+      # Its workflow reported cancellation, but the Pages backend continued to
+      # reject newer releases as "in progress". Only touch this known stale SHA;
+      # never cancel whichever deployment happens to be running concurrently.
+      - name: Reconcile orphaned Pages deployment before publishing
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          old=ac4e82368e3e3264326636beeb8465f818bb3a13
+          api="repos/$GITHUB_REPOSITORY/pages/deployments/$old"
+          status="$(gh api "$api" --jq '.status' 2>/dev/null || true)"
+          case "$status" in
+            ""|succeed|success|cancelled|canceled|failed|error)
+              echo "Previous Pages deployment is no longer active: ${status:-not found}"
+              ;;
+            *)
+              echo "Canceling confirmed stale Pages deployment $old (status: $status)"
+              gh api --method POST "$api/cancel" >/dev/null
+              for attempt in $(seq 1 20); do
+                status="$(gh api "$api" --jq '.status' 2>/dev/null || true)"
+                case "$status" in
+                  ""|succeed|success|cancelled|canceled|failed|error)
+                    echo "Previous Pages deployment released: ${status:-not found}"
+                    break ;;
+                esac
+                sleep 3
+              done
+              ;;
+          esac
       - name: Deploy research webpage
         uses: actions/deploy-pages@v4
         id: deployment
+      - name: Verify public game release matches this commit
+        env:
+          LIVE_GAME_URL: https://guopanqi.github.io/ssnoir/game
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 30); do
+            if curl --fail --location --silent --show-error --max-time 15               "$LIVE_GAME_URL/?rev=$GITHUB_SHA" -o /tmp/ssnoir-live-game.html &&
+              curl --fail --location --silent --show-error --max-time 15               "$LIVE_GAME_URL/version.json?rev=$GITHUB_SHA" -o /tmp/ssnoir-live-version.json &&
+              node -e 'const fs=require("node:fs"); const data=JSON.parse(fs.readFileSync("/tmp/ssnoir-live-version.json","utf8")); if(data.commit!==process.env.GITHUB_SHA) process.exit(1);' &&
+              grep -q 'assets/' /tmp/ssnoir-live-game.html; then
+              echo "Verified public /game/ for $GITHUB_SHA"
+              exit 0
+            fi
+            echo "Public game has not propagated yet (attempt $attempt/30)"
+            sleep 4
+          done
+          echo "::error::Pages artifact deployed, but the public /game/ does not match $GITHUB_SHA"
+          exit 1
+      - name: Install Chromium for live game acceptance
+        working-directory: Game
+        run: npx playwright install --with-deps chromium
+      - name: Play fresh game, save, reject bad save and restore on public Pages
+        working-directory: Game
+        env:
+          SSNOIR_WEB_BASE_URL: https://guopanqi.github.io/ssnoir/game/
+        run: npm run smoke:web
+      - name: Measure real location navigation, save and restore on published Pages
+        working-directory: Game
+        env:
+          SSNOIR_BENCH_BASE_URL: https://guopanqi.github.io/ssnoir/game/
+          SSNOIR_BENCH_ASSERT_BUDGET: '1'
+          SSNOIR_BENCH_OUTPUT: artifacts/public-web-interactions.json
+        run: npm run bench:web
+      - name: Preserve public Pages interaction timings and snapshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ssnoir-public-pages-interaction-evidence
+          path: |
+            Game/artifacts/public-web-interactions.json
+            Game/artifacts/public-web-interactions.png
+          if-no-files-found: warn

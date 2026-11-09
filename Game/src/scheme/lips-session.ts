@@ -1,5 +1,6 @@
 import { Interpreter, env as lipsEnv, unserialize_bin } from "lips";
 import { accelerateAssociationLookup, accelerateMembershipLookup } from "./association-lookup.ts";
+import { accelerateKeywordLookup } from "./keyword-lookup.ts";
 
 /**
  * Stage-one Scheme candidate: a persistent per-scene LIPS VM.
@@ -8,6 +9,8 @@ import { accelerateAssociationLookup, accelerateMembershipLookup } from "./assoc
  */
 export class LipsSession {
   private readonly interpreter: ReturnType<typeof Interpreter>;
+  private keywordOriginal: ((...args:unknown[])=>unknown)|null=null;
+  private keywordFast: ((...args:unknown[])=>unknown)|null=null;
 
   constructor(name: string, globals: Record<string, unknown> = {}) {
     this.interpreter = Interpreter(name, globals);
@@ -33,6 +36,24 @@ export class LipsSession {
     const member = this.interpreter.get("member?");
     if (typeof member !== "function") throw new Error("Content member? helper is not initialized");
     this.interpreter.set("member?", accelerateMembershipLookup(member as (...args: unknown[]) => unknown));
+  }
+
+  /**
+   * Installed after engine.scm defines get-kwarg. The original function is
+   * retained so a paired same-VM benchmark can compare exact authored trees.
+   */
+  accelerateEngineKeywords():void {
+    const original=this.interpreter.get("get-kwarg");
+    if(typeof original!=="function")throw new Error("engine get-kwarg not initialized");
+    this.keywordOriginal=original as (...args:unknown[])=>unknown;
+    this.keywordFast=accelerateKeywordLookup(this.keywordOriginal);
+    this.setFastKeywordLookup(true);
+  }
+
+  setFastKeywordLookup(enabled:boolean):void {
+    if(!this.keywordOriginal||!this.keywordFast)
+      throw new Error("engine keyword helper has not been installed");
+    this.interpreter.set("get-kwarg",enabled?this.keywordFast:this.keywordOriginal);
   }
 
   async evaluateNumber(source: string): Promise<number> {

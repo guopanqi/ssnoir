@@ -15,9 +15,8 @@ function scan(dir){
  }
 }
 scan("scripts");scan("scenes");
-const std=readFileSync("node_modules/lips/dist/std.xcb");
 test("the new first-act tavern introduces a brief, optional trouble scenario",async()=>{
- const vm=await GameScriptSession.create("tavern-new",new GameRuntimeState(),sources,std);
+ const vm=await GameScriptSession.create("tavern-new",new GameRuntimeState(),sources);
  await vm.loadFile("scenes/world/world.scm");
  const script=sources["scenes/world/老街酒馆.scm"];
  assert.match(script,/第二次看场固定遇到两桌醉客/);

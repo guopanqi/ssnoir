@@ -7,12 +7,11 @@ import {GameActionRunner} from "../src/runtime/action-runner.ts";
 import {ActionTurnState} from "../src/runtime/turn-state.ts";
 const root="../UnityClient/Assets/Resources/Content/scripts/";
 const src=Object.fromEntries(["stdlib.scm","engine.scm","theatre.scm"].map(x=>["scripts/"+x,readFileSync(root+x,"utf8")]));
-const std=readFileSync("node_modules/lips/dist/std.xcb");
 test("multiple slotted dice and a companion resolve authentic outcome closure",async()=>{
  const state=new GameRuntimeState();
  state.team.recruit("lin","林",{violence:0,knowledge:2,sharpness:1,social:1});
  state.team.rollDice(()=>0.5);
- const vm=await GameScriptSession.create("multidie",state,src,std);
+ const vm=await GameScriptSession.create("multidie",state,src);
  const runner=await GameActionRunner.create(vm,state,new ActionTurnState(()=>0.99));
  await runner.prepare(`(node "世界" :children (list
   (node "并肩推车" :requires (list (req-die) (req-die))

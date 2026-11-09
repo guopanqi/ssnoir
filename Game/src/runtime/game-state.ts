@@ -72,6 +72,13 @@ export class GameRuntimeState {
 
   getItemCount(name: string): number { return this.inventory.get(GameRuntimeState.id(name))?.count ?? 0; }
 
+  /** UI read model; do not construct the full persistent world snapshot to show items. */
+  listInventory(): {id: string; quantity: number}[] {
+    return [...this.inventory.values()]
+      .filter(item => item.count > 0)
+      .map(item => ({id: item.name, quantity: item.count}));
+  }
+
   setItemCount(name: string, count: number): void {
     const key = GameRuntimeState.id(name);
     if (!Number.isSafeInteger(count) || count < 0) throw new Error("item count must be a non-negative integer");
@@ -172,6 +179,10 @@ export class GameRuntimeState {
   failGame(title: string, description: string): void {
     if (!title.trim() || !description.trim()) throw new Error("failure title/description must be non-empty");
     this.failure ??= { title, description };
+  }
+  /** A detached projection of the authored terminal state. */
+  getFailure(): RuntimeSnapshot["failure"] {
+    return this.failure ? {...this.failure} : null;
   }
 
   snapshot(): RuntimeSnapshot {

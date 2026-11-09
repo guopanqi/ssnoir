@@ -12,8 +12,7 @@ const scripts = {
   "scripts/engine.scm": source("scripts/engine.scm"),
   "scripts/theatre.scm": source("scripts/theatre.scm")
 };
-const binary = readFileSync("node_modules/lips/dist/std.xcb");
-const create = () => GameScriptSession.create("node-parse", new GameRuntimeState(), scripts, binary);
+const create = () => GameScriptSession.create("node-parse", new GameRuntimeState(), scripts);
 
 test("convert original node DSL with nested places, action costs and instant effect closure", async () => {
   const vm = await create();

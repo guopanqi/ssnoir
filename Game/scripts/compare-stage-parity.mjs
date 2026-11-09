@@ -12,8 +12,7 @@ function scan(dir){for(const entry of readdirSync(join(root,dir),{withFileTypes:
   else if(name.endsWith(".scm"))scripts[name]=readFileSync(join(root,name),"utf8");
 }}
 scan("scripts");scan("scenes");
-const std=readFileSync("node_modules/lips/dist/std.xcb");
-const runtime=await GameSceneDirector.create(scripts,std,()=>.42);
+const runtime=await GameSceneDirector.create(scripts,()=>.42);
 runtime.state.takeStoryEvents();
 await runtime.world.evaluate(source);
 const event=runtime.state.takeStoryEvents().find(e=>e.kind==="stage");

@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import {mkdirSync} from "node:fs";
+import {mkdirSync,writeFileSync} from "node:fs";
 import {chromium} from "playwright";
 import {createServer} from "vite";
 
@@ -38,7 +38,9 @@ try {
     if(card.disabled)throw new Error("Disabled authored node "+id+" at "+JSON.stringify({
       day:before.day,path:before.path,subtitle:card.subtitle,
       restReasons:before.restReasons}));
-    await page.locator('[data-testid="game-entry"][data-node-id='+JSON.stringify(id)+']')
+    const mapPlace=before.mode==="world"&&!before.path.length&&card.isPlace;
+    const testId=mapPlace?"map-place":"game-entry";
+    await page.locator('[data-testid="'+testId+'"][data-node-id='+JSON.stringify(id)+']')
       .click({timeout:90000});
     await settled();
     const lines=await story();
@@ -237,7 +239,10 @@ try {
   const route=evidence.includes("工作通道的窄门正在回摆")?"工作通道":
     evidence.includes("公共走廊的地毯上有新踩出的湿脚印")?"公共走廊":null;
   assert(route,"The authored route clue must be delivered before decisions");
-  const search=route==="工作通道"?"穿过工作通道":"沿走廊寻找";
+  // Authored :name supplies the player-visible title; action invocation uses
+  // the stable positional node ID. They are deliberately not interchangeable.
+  const search=route==="工作通道"?"工作通道搜寻":"公共走廊搜寻";
+  const searchTitle=route==="工作通道"?"穿过工作通道":"沿走廊寻找";
   for(let attempt=0;attempt<24;attempt++){
     state=await read();
     if(state.mode==="scenario"&&
@@ -253,6 +258,8 @@ try {
       assert.equal((await read()).error,"");
       continue;
     }
+    assert.equal(state.entries.find(x=>x.id===search)?.title,searchTitle,
+      "The authored pursuit must show the correct player-facing action title");
     const result=await node(search);
     assert.equal(result.s.selectedAction,search);
     const strongest=[...result.s.dice].sort((x,y)=>y.value-x.value)[0];
@@ -290,6 +297,182 @@ try {
   await page.screenshot({path:"artifacts/web-game-pursuit-missed.png"});
   assert.deepEqual(exceptions,[],"No browser errors during sponsor pursuit");
   console.log("PASS: day-thirteen sponsor performance -> evidence-directed search -> backstage deadline -> missed vehicle -> city and dossier");
+
+  // A missed plate is a legitimate outcome, not a terminal dead end.
+  // The next calendar day must still offer the manager's investigation.
+  await endDay(13);
+  state=await read();
+  assert.equal(state.day,14);
+  await node("剧院");
+  state=await read();
+  assert(state.entries.some(x=>x.id==="接下黑衣人调查"),
+    "The theatre manager must still offer the case after a failed pursuit");
+  ({s:state}=await node("接下黑衣人调查"));
+  assert.equal(state.mode,"world","Accepting a city contract must not enter a scenario yet");
+  assert(state.entries.some(x=>x.id==="等待黑衣人"),
+    "The authored third act must expose the next investigation action");
+  await page.getByTestId("dossier-toggle").click();
+  await settled();
+  state=await read();
+  const caseEntry=state.dossiers.find(x=>x.id==="银色打火机");
+  assert(caseEntry && caseEntry.status==="进行中",
+    "The accepted manager case must become an active Scheme dossier");
+  await page.getByTestId("dossier-close").click();
+  await settled();
+  const cityBeforeChase=await read();
+  await page.getByTestId("save-game").click({timeout:120000});
+  await page.waitForFunction(()=>{
+    const value=localStorage.getItem("ssnoir-web-v1");
+    return value && JSON.parse(value).state.globals["世界日"]===14;
+  },null,{timeout:90000});
+  ({s:state}=await node("等待黑衣人"));
+  assert.equal(state.mode,"scenario");
+  assert(state.entries.some(x=>x.id==="辨认车辆特征"),
+    "The original identification chase must have actionable observation cards");
+  assert(state.entries.some(x=>x.id==="钟：识别进度"),
+    "The identification clock must be visible during the new scenario");
+  const chaseDice=state.dice.length;
+  ({s:state}=await node("辨认车辆特征"));
+  assert.equal(state.selectedAction,"辨认车辆特征");
+  await page.locator(".die:not([disabled])").first().click({timeout:120000});
+  await settled();await story();
+  state=await read();
+  assert.equal(state.error,"","One genuine identification roll must resolve");
+  assert.equal(state.dice.length,chaseDice-1);
+  await page.screenshot({path:"artifacts/web-game-third-act-chase.png"});
+  // A corrupted city save must not tear down a LIVE scenario. The failed
+  // candidate interpreter is discarded, while the current chase remains
+  // playable with its original dice, nodes and clocks.
+  const goodDay14Save=await page.evaluate(()=>localStorage.getItem("ssnoir-web-v1"));
+  writeFileSync("artifacts/web-game-day14-save.json",goodDay14Save,
+    "utf8"); // Real chapter progress, never a hand-authored save fixture.
+  assert(goodDay14Save,"The accepted city investigation must have a valid save");
+  const beforeRejectedLoad=await read();
+  await page.evaluate(saved=>{
+    const broken=JSON.parse(saved);
+    broken.state.globals["世界日"]+=1;
+    localStorage.setItem("ssnoir-web-v1",JSON.stringify(broken));
+  },goodDay14Save);
+  const previousErrorCount=exceptions.length;
+  await page.getByTestId("load-game").click({timeout:180000});
+  await settled();
+  state=await read();
+  assert.notEqual(state.error,"","A calendar-corrupt city save must be refused");
+  assert.equal(state.mode,"scenario","Rejected city restore must preserve the chase scene");
+  assert.equal(state.day,beforeRejectedLoad.day);
+  assert.deepEqual(state.dice,beforeRejectedLoad.dice,
+    "Rejected restore cannot change live scenario dice");
+  assert.deepEqual(state.entries,beforeRejectedLoad.entries,
+    "Rejected restore cannot rebuild or leak cards from the candidate world");
+  const expectedErrors=exceptions.splice(previousErrorCount);
+  assert(expectedErrors.length>=1 && expectedErrors.every(x=>x.startsWith("console: [SSNoir web]")),
+    "Only the expected refused-save error may reach the browser console");
+  await page.evaluate(saved=>localStorage.setItem("ssnoir-web-v1",saved),goodDay14Save);
+  ({s:state}=await node("拉开距离"));
+  assert.equal(state.selectedAction,"拉开距离",
+    "Rejected restore must leave the original scenario actions interactive");
+  await page.locator(".die:not([disabled])").first().click({timeout:120000});
+  await settled();await story();
+  state=await read();
+  assert.equal(state.error,"","After rejected restore, the existing chase must still resolve a die");
+  assert.equal(state.dice.length,chaseDice-2);
+  await page.screenshot({path:"artifacts/web-game-third-act-rejected-load.png"});
+  console.log("PASS: rejected calendar-corrupt save during active chase leaves original dice and actions usable");
+  // Restore the legitimate city save afterwards, not a debug scene switch.
+  await page.getByTestId("load-game").click({timeout:180000});
+  await settled();await story();
+  state=await read();
+  assert.equal(state.error,"");
+  assert.equal(state.mode,"world");
+  assert.equal(state.day,14);
+  assert.equal(state.money,cityBeforeChase.money);
+  assert.deepEqual(state.dice,cityBeforeChase.dice);
+  assert(state.entries.some(x=>x.id==="剧院"),
+    "The restored case must return to the actual city map");
+  await page.screenshot({path:"artifacts/web-game-third-act-restored.png"});
+  assert.deepEqual(exceptions,[],"No browser error across the third-act scenario reset");
+  console.log("PASS: missed vehicle -> day-fourteen manager case -> chase work -> safe restore of accepted investigation");
+
+  // The failed sponsor pursuit cannot permanently trap the manager case.
+  // Enter the genuine city chase again, spend no dice and allow its authored
+  // four-round warning clock OR the protagonist's cumulative injury to end it.
+  // The latter uses the existing scenario collapse -> clinic -> next-day
+  // world path; neither result may leave a zombie scenario or consume a save.
+  await node("剧院");
+  ({s:state}=await node("等待黑衣人"));
+  assert.equal(state.mode,"scenario","The saved case must be re-enterable");
+  const chaseFailureDialogue=[];
+  for(let round=1;round<=4 && state.mode==="scenario";round++){
+    await page.getByTestId("end-turn").click({timeout:120000});
+    await settled();
+    chaseFailureDialogue.push(...await story());
+    state=await read();
+    assert.equal(state.error,"","Failed chase transition or collapse at round "+round);
+    console.log("FAILED CHASE ROUND",round,JSON.stringify({
+      mode:state.mode,day:state.day,health:state.health,
+      composure:state.actors.find(x=>x.id==="player")?.composure
+    }));
+  }
+  assert.equal(state.mode,"world",
+    "Four rounds without identification must exit via authored scenario timeout or collapse");
+  assert([14,15].includes(state.day),
+    "The failed chase must not jump the world calendar more than one day");
+  if(state.day===15)
+    assert(chaseFailureDialogue.some(x=>x.includes("在诊所醒来")),
+      "Forced clinic wake-up must be visible and authored before resuming");
+  else
+    assert(chaseFailureDialogue.some(x=>x.includes("线索不足")),
+      "The normal timeout must announce insufficient identifying evidence");
+  await page.getByTestId("dossier-toggle").click({timeout:120000});
+  await settled();
+  state=await read();
+  assert.equal(state.error,"");
+  const failedCase=state.dossiers.find(x=>x.id==="银色打火机");
+  assert(failedCase && failedCase.status==="进行中" &&
+    /跟车|守候|等待黑衣人/.test(failedCase.now),
+    "A failed chase must preserve an active, retryable investigation");
+  await page.getByTestId("dossier-close").click({timeout:120000});
+  await settled();
+  await page.screenshot({path:"artifacts/web-game-chase-failure.png"});
+
+  // The next legal day must reopen the actual chase. No debug clock
+  // increment, direct Scheme state edit, or local status substitution.
+  if(state.day===14) await endDay(14);
+  state=await read();
+  assert.equal(state.day,15);
+  await node("剧院");
+  state=await read();
+  assert(state.entries.some(x=>x.id==="等待黑衣人" && !x.disabled),
+    "The theatre must offer another genuine surveillance opportunity after failure");
+  ({s:state}=await node("等待黑衣人"));
+  assert.equal(state.mode,"scenario");
+  const retryDice=state.dice.length;
+  ({s:state}=await node("辨认车辆特征"));
+  assert.equal(state.selectedAction,"辨认车辆特征");
+  await page.locator(".die:not([disabled])").first().click({timeout:120000});
+  await settled();await story();
+  state=await read();
+  assert.equal(state.error,"","A new chase attempt must perform a genuine roll");
+  assert.equal(state.selectedAction,null);
+  assert.equal(state.dice.length,retryDice-1,
+    "An ordinary new attempt must spend a real scenario die");
+  await page.screenshot({path:"artifacts/web-game-chase-retry.png"});
+
+  // Even after a timeout or hospitalization and a fresh scenario start, the
+  // old day-fourteen city save must remain independently valid.
+  await page.getByTestId("load-game").click({timeout:180000});
+  await settled();await story();
+  state=await read();
+  assert.equal(state.error,"");
+  assert.equal(state.mode,"world");
+  assert.equal(state.day,14);
+  assert.deepEqual(state.dice,cityBeforeChase.dice);
+  assert.equal(state.money,cityBeforeChase.money);
+  assert(state.entries.some(x=>x.id==="剧院"));
+  assert.deepEqual(exceptions,[],
+    "A failed pursuit and a subsequent retry must leave no client errors");
+  console.log("PASS: genuine day-fourteen chase failure / clinic recovery -> day-fifteen retry -> new roll -> restore original city save");
+
 
 } finally {
   await browser?.close();

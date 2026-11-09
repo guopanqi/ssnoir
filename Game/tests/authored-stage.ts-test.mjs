@@ -16,7 +16,6 @@ function collect(path){
   }
 }
 collect("scripts");collect("scenes");
-const std=readFileSync("node_modules/lips/dist/std.xcb");
 
 /** Extracts the original source expression, accounting for strings and comments. */
 function balanced(source,start){
@@ -39,7 +38,7 @@ function balanced(source,start){
 }
 
 test("real Frank ship-completion play-stage! executes original authored dialogue and exit beat",async()=>{
-  const director=await GameSceneDirector.create(sources,std,()=>.42);
+  const director=await GameSceneDirector.create(sources,()=>.42);
   director.state.takeStoryEvents(); // Ignore unrelated startup story.
   const frank=sources["scenes/world/人物/弗兰克.scm"];
   const start=frank.indexOf("(play-stage!");

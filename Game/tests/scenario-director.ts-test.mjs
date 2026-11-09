@@ -10,9 +10,8 @@ function scan(p){for(const entry of readdirSync(join(base,p),{withFileTypes:true
  else if(key.endsWith(".scm"))sources[key]=readFileSync(join(base,key),"utf8");
 }}
 scan("scripts");scan("scenes");
-const std=readFileSync("node_modules/lips/dist/std.xcb");
-test("original chapter-one blackmail scenario opens in isolated LIPS VM and returns world dice",async()=>{
- const scene=await GameSceneDirector.create(sources,std,()=>0.5);
+test("original chapter-one blackmail scenario opens in isolated Scheme VM and returns world dice",async()=>{
+ const scene=await GameSceneDirector.create(sources,()=>0.5);
  assert.equal(scene.mode,"world");
  const stash=scene.state.team.diceSnapshot();
  const render=await scene.start("勒索信");
@@ -21,7 +20,7 @@ test("original chapter-one blackmail scenario opens in isolated LIPS VM and retu
  assert.equal(scene.state.getGlobal("location"),"scenario");
  assert.ok(scene.scenario);
  await scene.scenario.evaluate("(define only-scenario 42)");
- await assert.rejects(scene.world.evaluate("only-scenario"),/Unbound/);
+ await assert.rejects(scene.world.evaluate("only-scenario"),/unbound/i);
  scene.requestEnd("returned");
  await scene.flush();
  assert.equal(scene.mode,"world");
@@ -29,7 +28,7 @@ test("original chapter-one blackmail scenario opens in isolated LIPS VM and retu
  assert.deepEqual(scene.state.team.diceSnapshot(),stash);
 });
 test("scenario native callback receives real Scheme result without serializing closures",async()=>{
- const scene=await GameSceneDirector.create(sources,std,()=>0.5);
+ const scene=await GameSceneDirector.create(sources,()=>0.5);
  await scene.world.evaluate('(start-scenario "勒索信" (lambda (result) (set-global! \'scenario-returned result)))');
  await scene.flush();
  assert.equal(scene.mode,"scenario");
@@ -38,7 +37,7 @@ test("scenario native callback receives real Scheme result without serializing c
  assert.equal(scene.state.getGlobal("scenario-returned"),"线索");
 });
 test("no saving during scenario and no path escapes in start-scenario",async()=>{
- const scene=await GameSceneDirector.create(sources,std,()=>0.5);
+ const scene=await GameSceneDirector.create(sources,()=>0.5);
  await assert.rejects(scene.start("../evil"),/invalid/);
  assert.equal(scene.mode,"world");
  await scene.start("勒索信");

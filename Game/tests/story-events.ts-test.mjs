@@ -6,10 +6,9 @@ import {GameScriptSession} from "../src/runtime/script-session.ts";
 import {createNativeBridge} from "../src/runtime/native-bridge.ts";
 const root="../UnityClient/Assets/Resources/Content/scripts/";
 const sources=Object.fromEntries(["stdlib.scm","engine.scm","theatre.scm"].map(x=>["scripts/"+x,readFileSync(root+x,"utf8")]));
-const std=readFileSync("node_modules/lips/dist/std.xcb");
 test("Scheme story actions enqueue ordered, typed blocking and banter beats for platform UI",async()=>{
  const state=new GameRuntimeState();
- const vm=await GameScriptSession.create("story-queue",state,sources,std);
+ const vm=await GameScriptSession.create("story-queue",state,sources);
  state.beginActionReport();
  await vm.evaluate('(begin (play-dialogue! (line "尼尔" "有人吗？")) (__play-banter! (list (line "夜莺" "我在。"))) (play-video! "chandelier") (play-motion! "剧院/吊灯" "落下" "cam"))');
  state.takeActionReport();
@@ -21,7 +20,7 @@ test("Scheme story actions enqueue ordered, typed blocking and banter beats for 
 });
 test("transaction canceled after Scheme error does not leak ghost dialogue",async()=>{
  const state=new GameRuntimeState();
- const vm=await GameScriptSession.create("story-failed",state,sources,std);
+ const vm=await GameScriptSession.create("story-failed",state,sources);
  state.beginActionReport();
  await vm.evaluate('(play-dialogue! (line "尼尔" "永远不应该播放"))');
  state.cancelActionReport();
@@ -30,7 +29,7 @@ test("transaction canceled after Scheme error does not leak ghost dialogue",asyn
 });
 test("video outside action is intentionally ignored, but dialogue goes to immediate queue",async()=>{
  const state=new GameRuntimeState();
- const vm=await GameScriptSession.create("story-immediate",state,sources,std);
+ const vm=await GameScriptSession.create("story-immediate",state,sources);
  await vm.evaluate('(play-video! "ignored")');
  await vm.evaluate('(play-dialogue! (line "尼尔" "你好"))');
  const queue=state.takeStoryEvents();
@@ -57,7 +56,7 @@ test("bubble recovery wraps an authored line but never heals before display",asy
   const state=new GameRuntimeState();
   state.setGlobal("世界日",4);
   state.team.spend("player",3);
-  const vm=await GameScriptSession.create("bubble-recovery",state,sources,std);
+  const vm=await GameScriptSession.create("bubble-recovery",state,sources);
   await vm.evaluate('(play-bubble! (bubble-restore-composure (line "尼尔" "酒总得有人买。") "player" 2 "冷静恢复"))');
   assert.equal(state.team.composure("player"),2,"building the bubble does not heal");
   const events=state.takeStoryEvents();

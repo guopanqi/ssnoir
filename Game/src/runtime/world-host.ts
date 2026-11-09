@@ -1,5 +1,3 @@
-import compiledStdBase64 from "virtual:ssnoir-lips-stdlib";
-import { base64Bytes } from "./base64";
 import { GameScriptSession } from "./script-session";
 import { GameRuntimeState } from "./game-state";
 import { GameActionRunner } from "./action-runner";
@@ -50,8 +48,8 @@ export interface WorldHost {
 }
 export async function createWorldHostRuntime(random:()=>number=Math.random):Promise<WorldHost> {
   const bootstrapAt=performance.now();
-  const authored=sources(),stdlib=base64Bytes(compiledStdBase64);
-  let director=await GameSceneDirector.create(authored,stdlib,random);
+  const authored=sources();
+  let director=await GameSceneDirector.create(authored,random);
   // GameSceneDirector.create already materializes the initial world tree.
   let root=director.getPreparedRoot()??await director.render();
   console.info("[SSNoir] web world bootstrap",Math.round(performance.now()-bootstrapAt),"ms");
@@ -104,11 +102,14 @@ export async function createWorldHostRuntime(random:()=>number=Math.random):Prom
     },
     takeDayAdvance(){const advance=lastDayAdvance;lastDayAdvance=null;return advance;},
     async refresh(){
-      const woke=director.consumeWorldTurnRequest();
-      if(woke)
+      const hospitalized=director.state.hasPendingHospitalization();
+      const woke=!hospitalized&&director.consumeWorldTurnRequest();
+      if(hospitalized)
+        lastDayAdvance=await director.resolveHospitalization();
+      else if(woke)
         lastDayAdvance=await new WorldTurnController(director.state,director.world).endDay(random);
       await director.flush();
-      if(woke&&director.mode==="world"){
+      if((woke||hospitalized)&&director.mode==="world"){
         // Natural waking is a world-map arrival, not merely a render refresh.
         // One-shot authored notices must be delivered before the player acts.
         await director.worldActions.enterPlace("世界");
@@ -131,8 +132,16 @@ export async function createWorldHostRuntime(random:()=>number=Math.random):Prom
     },
     async save(){
       if(director.mode!=="world")throw new Error("cannot save inside a scenario");
+      const started=performance.now();
       const data=await new WorldSaveController(director.state,director.world).capture();
-      return WorldSaveController.encode(data);
+      const captured=performance.now();
+      const text=WorldSaveController.encode(data);
+      console.info("[SSNoir] web save stages",JSON.stringify({
+        captureMs:Math.round(captured-started),
+        encodeMs:Math.round(performance.now()-captured),
+        bytes:text.length
+      }));
+      return text;
     },
     async load(text:string){
       // Do not swap the active world until the fresh interpreter and every
@@ -140,7 +149,7 @@ export async function createWorldHostRuntime(random:()=>number=Math.random):Prom
       const t0=performance.now();
       const snapshot=WorldSaveController.parse(text);
       const t1=performance.now();
-      const candidate=await GameSceneDirector.create(authored,stdlib,random,false);
+      const candidate=await GameSceneDirector.create(authored,random,false);
       const t2=performance.now();
       await WorldSaveController.restore(snapshot,async()=>({
         state:candidate.state,session:candidate.world

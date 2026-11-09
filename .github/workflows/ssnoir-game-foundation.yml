@@ -29,12 +29,18 @@ jobs:
         run: npm ci --no-audit --no-fund
       - name: Typecheck, runtime tests and production Web build
         run: npm run verify
+      - name: Verify compiled VM materialization and save roundtrip
+        run: npm run bench:runtime
       - name: Install headless Chromium
         run: npx playwright install --with-deps chromium
       - name: Verify playable Web boot and capture
         run: npm run smoke:web
       - name: Verify full first-act route (day one through farewell)
         run: npm run test:route
+      - name: Measure real click-to-interactive navigation and restore
+        run: npm run bench:web
+        env:
+          SSNOIR_BENCH_ASSERT_BUDGET: '1'
       - name: Upload Web preview and screenshots
         if: always()
         uses: actions/upload-artifact@v4
@@ -43,4 +49,5 @@ jobs:
           path: |
             Game/dist/web
             Game/artifacts/web-game-*.png
+            Game/artifacts/web-interactions.*
           retention-days: 14

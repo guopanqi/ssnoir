@@ -31,8 +31,14 @@
     (地点 home)
     (地点 old-street-tavern (lambda () (第一幕 'opened?)))
     (地点 dock (lambda () (第一幕 'work-open?)))
-    (地点 cafe (lambda () #f))
-    (地点 test-workshop (lambda () (and (lin 'workshop-open?) (not (林的机器 'workshop-vacated?)))))
+    (地点 cafe (lambda () (第一幕 'work-open?)))
+    ;; 第一章未接触林的玩家也要能在第二章看见他搬离旧工棚。
+    ;; 新港计划之前的旧工棚不是临时 Debug 入口；第二章第一天起允许
+    ;; 真实进入并播放一次「工棚正在搬空」，次日仍由原模块撤销地点。
+    ;; 林是否进入项目核心、技术区是否开放仍由人物状态独立决定。
+    (地点 test-workshop (lambda () (and
+      (or (lin 'workshop-open?) (第二章 'started?))
+      (not (林的机器 'workshop-vacated?)))))
     (地点 clinic (lambda () (clinic 'visible?)))
     (地点 police-station (lambda () (第二章 'started?)))
     (地点 freight-company (lambda () (or (walter 'can-arrange-berth?) (第三幕 'rocco-building-open?))))

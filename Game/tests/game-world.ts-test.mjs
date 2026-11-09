@@ -16,11 +16,10 @@ function scan(dir, dst) {
   }
 }
 const sourceMap={};scan("scripts",sourceMap);scan("scenes",sourceMap);
-const std=readFileSync("node_modules/lips/dist/std.xcb");
 
 test("new first-act world.scm loads on LIPS runtime and materializes root",async()=>{
   const state=new GameRuntimeState();
-  const vm=await GameScriptSession.create("phase2-real-world",state,sourceMap,std);
+  const vm=await GameScriptSession.create("phase2-real-world",state,sourceMap);
   const loadResult=await vm.loadFile("scenes/world/world.scm");
   console.log("[PHASE2 WORLD DEBUG]",{
     loadResult:String(loadResult),

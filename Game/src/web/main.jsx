@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { createWorldHostRuntime } from "../runtime/world-host";
 import { WebGameSession, seededRandom } from "./session";
 import { CityScene } from "./city-scene";
+import { CityMap } from "./city-map";
 import "./styles.css";
 
 const SAVE_KEY = "ssnoir-web-v1";
@@ -23,13 +24,13 @@ function Clock({ value }) {
     {value.note && <p className="clock-note">{value.note}</p>}
   </div>;
 }
-function NodeCard({ node, locked, onOpen }) {
+function NodeCard({ node, locked, selected, onOpen }) {
   const type = node.isPlace ? "地点" : node.childCount ? "进入" :
     node.action === "roll" ? (node.risk || "检定") :
     node.action === "instant" ? "行动" : node.action ? "信息" : "事件";
   const cost = node.requires.map(req =>
     req.type === "die" ? "行动骰" : req.itemId + " × " + req.qty).join(" + ");
-  return <button type="button" className="node-card" disabled={locked || node.disabled}
+  return <button type="button" className={"node-card"+(selected?" selected":"")} disabled={locked || node.disabled}
     onClick={() => onOpen(node.id)} data-testid="game-entry" data-node-id={node.id}>
     <span className="node-icon">{node.isPlace ? "◆" : node.childCount ? "◇" : "·"}</span>
     <span className="node-main">
@@ -40,6 +41,133 @@ function NodeCard({ node, locked, onOpen }) {
     </span>
     <span className="node-type">{type}</span>
   </button>;
+}
+
+function ActionCard({node,state,session,locked,holding,setHolding}) {
+  const selected=state.selectedAction===node.id;
+  const inputs=selected?state.selectedSlots:[];
+  const preview=selected?state.actionPreview:null;
+  const resolved=selected&&state.canExecute;
+  const startLegacy=()=>{if(!locked&&!node.disabled&&!selected)session.open(node.id);};
+  const drop=(event,index)=>{
+    event.preventDefault();event.stopPropagation();
+    const data=event.dataTransfer.getData("application/x-ssnoir-resource")||
+      event.dataTransfer.getData("text/plain");
+    try{
+      const resource=JSON.parse(data);
+      if(resource?.type!=="die"&&resource?.type!=="item")return;
+      session.assignToSlot(node.id,index,resource);
+      setHolding(null);
+    }catch{
+      // Ignore non-game drags; the session validates all native slots.
+    }
+  };
+  const useHeld=(event,index)=>{
+    event.stopPropagation();
+    if(holding){
+      session.assignToSlot(node.id,index,holding);
+      setHolding(null);
+    }else if(inputs[index]){
+      session.clearSlot(node.id,index);
+    }else startLegacy(); // Also accommodates the previous click-to-allocate route.
+  };
+  return <article className={"action-card"+(selected?" allocated":"")}
+    data-testid="game-entry" data-node-id={node.id}
+    onClick={event=>{
+      if(event.target.closest("[data-action-control]"))return;
+      startLegacy(); // Optional shortcut; dragging never requires a preliminary click.
+    }}>
+    <div className="action-card-heading">
+      <div className="action-card-copy">
+        <div className="action-card-meta">
+          <span>{node.action==="roll"?"检定行动":"行动"}</span>
+          {node.risk && <span className="risk-label">风险 · {node.risk}</span>}
+        </div>
+        <h3>{node.title}</h3>
+        {node.subtitle && <p>{node.subtitle}</p>}
+      </div>
+      <span className="action-card-mark" aria-hidden="true">✦</span>
+    </div>
+    {node.clocks.map(c=><Clock key={c.label} value={c}/>)}
+    {node.requires.length>0 && <div className="action-inputs" data-action-control="true">
+      {node.requires.map((req,index)=>{
+        const assigned=inputs[index]??null;
+        const die=assigned?.type==="die"?
+          state.dice.find(d=>d.actorId===assigned.actorId&&d.slotId===assigned.slotId):null;
+        const resourceName=assigned?.type==="die"?
+          ((die?.value??"?")+" 点行动骰"):
+          assigned?.type==="item"?assigned.itemId+" × "+assigned.qty:null;
+        const compatible=holding?.type===req.type&&
+          (req.type==="die"||holding.itemId?.toLowerCase()===req.itemId?.toLowerCase());
+        return <div key={index} className={"resource-slot"+(assigned?" filled":"")+
+          (compatible?" compatible":"")} role="button" tabIndex={locked?-1:0}
+          aria-label={assigned?"移除已放入的"+resourceName:
+            req.type==="die"?"放入一枚行动骰":"放入"+req.itemId+"×"+req.qty}
+          data-testid="resource-slot" data-node-id={node.id} data-slot-index={index}
+          onClick={event=>useHeld(event,index)}
+          onKeyDown={event=>{
+            if(event.key==="Enter"||event.key===" "){
+              event.preventDefault();useHeld(event,index);
+            }
+          }}
+          onDragOver={event=>{if(!locked){event.preventDefault();event.dataTransfer.dropEffect="copy";}}}
+          onDrop={event=>{if(!locked)drop(event,index);}}>
+          <span className="slot-symbol" aria-hidden="true">{assigned?"◆":"+"}</span>
+          <span className="slot-copy">{resourceName||
+            (req.type==="die"?"拖入行动骰":"拖入 "+req.itemId+" × "+req.qty)}</span>
+          {assigned && <span className="slot-clear" aria-hidden="true">×</span>}
+        </div>;
+      })}
+    </div>}
+    {node.action==="roll" && <div className="risk-display" aria-label="成功率与风险">
+      <div className="risk-line">
+        <span>结果概率</span>
+        <span>{preview?"投入强度 "+preview.prepared:"投入骰子后显示实际概率"}</span>
+      </div>
+      <div className="outcome-track">
+        {[
+          {kind:"fail",label:"失败",value:preview?.fail},
+          {kind:"neutral",label:"一般",value:preview?.neutral},
+          {kind:"success",label:"成功",value:preview?.success}
+        ].map(part=><div key={part.kind}
+          className={"outcome-segment "+part.kind}
+          style={{width:preview?part.value+"%":"33.333%"}}/>)}
+      </div>
+      <div className="outcome-labels">
+        <span>失败 {preview?preview.fail+"%":"—"}</span>
+        <span>一般 {preview?preview.neutral+"%":"—"}</span>
+        <span>成功 {preview?preview.success+"%":"—"}</span>
+      </div>
+    </div>}
+    <div className="action-card-footer" data-action-control="true">
+      <span className="action-slot-hint">{node.requires.length?
+        (selected?inputs.filter(Boolean).length+" / "+inputs.length+" 已投入":
+          "无需点卡片 · 直接把资源拖入槽位"):
+        "无需投入资源"}</span>
+      <button type="button" className="execute-action" data-testid="execute-action"
+        data-node-id={node.id} disabled={locked||node.disabled||
+          (node.requires.length>0&&!resolved)}
+        onClick={event=>{event.stopPropagation();session.executeAction(node.id);}}>
+        执行
+      </button>
+    </div>
+  </article>;
+}
+function ResultDialog({result,close}) {
+  return <div className="result-screen" role="dialog" aria-modal="true" aria-label="行动结果">
+    <div className="result-sheet">
+      <div className="eyebrow">ACTION RESULT / 行动结算</div>
+      <h2>{result.title}</h2>
+      <div className="result-grade">{result.result}</div>
+      {result.changes.length>0?<div className="result-changes">
+        {result.changes.map((change,i)=><div key={change.label+":"+i}>
+          <span>{change.label}</span>
+          <strong>{change.delta>0?"+":""}{change.delta}</strong>
+        </div>)}
+      </div>:<p className="muted">行动已完成。</p>}
+      <button type="button" data-testid="result-dismiss" onClick={close}>继续</button>
+    </div>
+  </div>;
 }
 function DossierPanel({ entries, close }) {
   return <div className="dossier-screen">
@@ -76,26 +204,32 @@ function App() {
   const [fatal, setFatal] = useState("");
   const [seed, setSeed] = useState(null);
   const [toast, setToast] = useState("");
+  const [holding, setHolding] = useState(null);
   useEffect(() => {
     let disposed = false;
     let unlisten = null;
     const boot = async () => {
       const nextSeed = randomSeed();
-      const host = await createWorldHostRuntime(seededRandom(nextSeed));
+      // Gameplay Lab fixture: deterministic input, never present in the production build.
+      const fixture = import.meta.env.DEV &&
+        new URLSearchParams(location.search).get("fixture") === "max-roll";
+      const host = await createWorldHostRuntime(fixture ? () => 0.999 : seededRandom(nextSeed));
       if (disposed) return;
       const game = new WebGameSession(host);
       unlisten = game.subscribe(() => setState(game.getSnapshot()));
       setSession(game);
       setState(game.getSnapshot());
       setSeed(nextSeed);
-      if (import.meta.env.DEV) {
-        window.__SSNOIR_WEB__ = {
-          snapshot: () => game.getSnapshot(),
-          open: id => game.open(id),
-          endTurn: () => game.endTurn(),
-          seed: nextSeed
-        };
-      }
+      // Production acceptance reads the current, displayed projection only.
+      // Never expose native hosts, Scheme handles, or mutation commands on Pages.
+      window.__SSNOIR_WEB__ = import.meta.env.DEV ? {
+        snapshot: () => game.getSnapshot(),
+        open: id => game.open(id),
+        endTurn: () => game.endTurn(),
+        seed: nextSeed
+      } : Object.freeze({
+        snapshot: () => structuredClone(game.getSnapshot())
+      });
     };
     boot().catch(error => { if (!disposed) setFatal(String(error?.stack || error)); });
     return () => { disposed = true; unlisten?.(); delete window.__SSNOIR_WEB__; };
@@ -115,9 +249,15 @@ function App() {
   }
   if (fatal) return <main className="fatal"><h1>游戏启动失败</h1><pre>{fatal}</pre></main>;
   if (!state) return <main className="loading"><span>SSNoir</span><p>正在读取城市与故事…</p></main>;
-  const locked = state.busy || Boolean(state.story);
+  const locked = state.busy || Boolean(state.story) || Boolean(state.failure);
   const navigationLocked = locked || Boolean(state.selectedAction);
   const picked = new Set(state.selectedDice.map(x => x.actorId + ":" + x.slotId));
+  const beginDrag=(event,resource)=>{
+    event.dataTransfer.setData("application/x-ssnoir-resource",JSON.stringify(resource));
+    event.dataTransfer.setData("text/plain",JSON.stringify(resource));
+    event.dataTransfer.effectAllowed="copy";
+    setHolding(resource);
+  };
   const redundantResult = state.lastAction &&
     state.message === state.lastAction.title+" · "+state.lastAction.result;
   return <div className="game-app" data-testid="game-ready">
@@ -128,7 +268,7 @@ function App() {
         <button data-testid="dossier-toggle" disabled={navigationLocked || state.mode!=="world"}
           onClick={()=>session.toggleDossier()}>卷宗</button>
         <button data-testid="save-game" disabled={navigationLocked || state.mode !== "world"} onClick={save}>存档</button>
-        <button data-testid="load-game" disabled={navigationLocked} onClick={load}>读档</button>
+        <button data-testid="load-game" disabled={state.busy || Boolean(state.story) || Boolean(state.selectedAction)} onClick={load}>读档</button>
         <button className="end-turn" disabled={navigationLocked || (state.mode === "world" && state.path[0] === "家")}
           onClick={() => state.mode === "world" ? session.goHome() : session.endTurn()} data-testid="end-turn">
           {state.mode === "world" ? "回旅馆休息" : "下一回合"}
@@ -137,7 +277,11 @@ function App() {
     </header>
     <main className="workspace">
       <section className="scene-panel" aria-label="城市舞台">
-        <CityScene />
+        {state.mode === "world" ?
+          <CityMap places={state.mapPlaces} activePlace={state.path[0]??null}
+            restReasons={state.restReasons} locked={locked}
+            onOpen={id=>{setHolding(null);session.switchPlace(id);}}
+            onBackground={()=>{setHolding(null);session.closeLocation();}}/> : <CityScene />}
         <div className="scene-label">
           <div className="eyebrow">{state.mode === "world" ? "THE CITY" : "ENCOUNTER"}</div>
           <h1>{state.path.length ? state.title : state.mode === "world" ? "贝尔维尔" : state.title}</h1>
@@ -152,51 +296,105 @@ function App() {
             onClick={() => session.back()}>返回</button>
         </div>
         <div className="entries" data-testid="game-entries">
-          {state.clocks.map(c => <Clock key={c.label} value={c} />)}
-          {state.entries.length === 0 ? <p className="empty">这里暂时没有可以进行的行动。</p> :
-            state.entries.map(node => <NodeCard key={node.id} node={node} locked={navigationLocked}
-              onOpen={id => session.open(id)} />)}
+          {state.clocks.map(c=><Clock key={c.label} value={c}/>)}
+          {state.mode==="world"&&!state.path.length?
+            <div className="location-empty"><div className="eyebrow">THE CITY / 地点</div>
+              <h3>选择一个地点</h3><p>在地图上选择地点，这里会直接列出它的行动和所需资源槽。</p>
+            </div>:
+            state.displayCards.length===0?
+              <p className="empty">这里暂时没有可以进行的行动。</p>:
+              state.displayCards.map(node=>
+                node.action==="instant"||node.action==="roll"?
+                  <ActionCard key={node.id} node={node} state={state} session={session}
+                    locked={locked} holding={holding} setHolding={setHolding}/>:
+                  <div key={node.id} className={node.childCount?"container-heading":"passive-entry"}>
+                    {node.groupPath?.length>0&&<span className="group-breadcrumb">{node.groupPath.join(" / ")}</span>}
+                    <NodeCard node={node} selected={false} locked={navigationLocked}
+                      onOpen={id=>session.open(id)}/>
+                  </div>)}
         </div>
       </section>
-      <aside className="sidebar">
-        <div className="eyebrow">PEOPLE & RESOURCES</div>
-        <h2>你与同伴</h2>
-        {state.actors.map(actor => <div key={actor.id} className="actor">
-          <span>{actor.name}</span><span>{actor.status === "active" ? "冷静 " + actor.composure : "暂时离队"}</span>
-        </div>)}
-        <div className="sidebar-rule" />
-        <h2>行动骰</h2>
-        {state.dice.length ? <div className="dice">
-          {state.dice.map(die => <button className={"die " + (picked.has(die.actorId + ":" + die.slotId) ? "picked" : "")}
-            key={die.actorId + ":" + die.slotId}
-            disabled={!state.selectedAction || locked || picked.has(die.actorId + ":" + die.slotId)}
-            title={die.actorName + " · " + die.value}
-            onClick={() => session.pickDie(die.actorId, die.slotId)}>
-            <strong>{die.value}</strong><small>{die.actorName}</small>
-          </button>)}
-        </div> : <p className="muted">骰子已用完，可以考虑结束今天。</p>}
-        {state.selectedAction && <p className="dice-prompt" data-testid="dice-prompt">
-          为「{state.entries.find(x => x.id === state.selectedAction)?.title || state.selectedAction}」选择骰子：
-          {state.selectedDice.length} / {state.requiredDice}
-        </p>}
-        {state.restBlocked && state.mode === "world" &&
-          <div className="notice" data-testid="rest-blockers"><b>今天还有必须处理的事情</b>
-            {state.restReasons.map(item => <p key={item.id}>{item.reason}</p>)}
+      <aside className="sidebar" aria-label="行动资源与状态">
+        <section className="hud-dice">
+          <div className="eyebrow">ACTION DICE / 行动资源</div>
+          <div className="hud-section-head"><h2>行动骰</h2><span>{state.dice.length} 枚可用</span></div>
+          {state.dice.length ? <div className="dice">
+            {state.dice.map(die=><button className={"die "+(picked.has(die.actorId+":"+die.slotId)?"picked":"")}
+              key={die.actorId+":"+die.slotId}
+              draggable={!locked&&!picked.has(die.actorId+":"+die.slotId)}
+              disabled={locked||picked.has(die.actorId+":"+die.slotId)}
+              title={die.actorName+" · "+die.value}
+              onDragStart={event=>beginDrag(event,{type:"die",actorId:die.actorId,slotId:die.slotId})}
+              onDragEnd={()=>setHolding(null)}
+              onClick={()=>{
+                if(state.selectedAction)session.pickDie(die.actorId,die.slotId);
+                else setHolding({type:"die",actorId:die.actorId,slotId:die.slotId});
+              }}>
+              <strong>{die.value}</strong><small>{die.actorName}</small>
+            </button>)}
+          </div> : <p className="muted">今天的骰子已用完。</p>}
+          <p className="resource-help">{holding?.type==="die"?
+            "已拿起行动骰，点击或拖到右侧行动槽": "拖动骰子到右侧行动卡的空槽"}</p>
+        </section>
+        <section className="hud-actors">
+          <div className="eyebrow">CONDITION / 人物状态</div>
+          <div className="hud-section-head"><h2>你与同伴</h2><span>伤势 {state.health}</span></div>
+          {state.actors.map(actor => <div key={actor.id} className="actor">
+            <span>{actor.name}</span><span>{actor.status === "active" ? "冷静 " + actor.composure : "暂时离队"}</span>
+          </div>)}
+        </section>
+        <section className="hud-inventory">
+          <div className="eyebrow">INVENTORY / 物品栏</div>
+          <div className="hud-section-head"><h2>随身物品</h2><span>{state.inventory.length} 类</span></div>
+          {state.inventory.length ? <div className="inventory-items">
+            {state.inventory.map(item=><button className="inventory-item" key={item.id}
+              type="button" draggable={!locked} disabled={locked}
+              data-testid="inventory-resource" data-item-id={item.id}
+              title={"拖动 "+item.id+" 到需要它的行动"}
+              onDragStart={event=>beginDrag(event,{type:"item",itemId:item.id})}
+              onDragEnd={()=>setHolding(null)}
+              onClick={()=>setHolding({type:"item",itemId:item.id})}>
+              <span>{item.id}</span><b>× {item.quantity}</b>
+            </button>)}
+          </div> : <p className="muted">背包里没有物品。</p>}
+          <p className="resource-help">{holding?.type==="item"?
+            "已拿起 "+holding.itemId+"，点击右侧匹配物品槽":
+            "物品可直接拖入需要它的行动槽"}</p>
+        </section>
+        {(state.restBlocked || state.lastAction || state.message || state.error || toast) &&
+        <section className="hud-events" aria-live="polite">
+          {state.restBlocked && state.mode === "world" &&
+            <div className="notice" data-testid="rest-blockers"><b>今天还有必须处理的事情</b>
+              {state.restReasons.map(item => <p key={item.id}>{item.reason}</p>)}
+            </div>}
+          {state.lastAction && <div className="action-result" data-testid="action-result">
+            <strong>{state.lastAction.title} · {state.lastAction.result}</strong>
+            {state.lastAction.changes.map((c,i)=>
+              <div key={c.label+":"+i} className="action-change">
+                <span>{c.label}</span><b>{c.delta>0?"+":""}{c.delta}</b>
+              </div>)}
           </div>}
-        {state.lastAction && <div className="action-result" data-testid="action-result">
-          <strong>{state.lastAction.title} · {state.lastAction.result}</strong>
-          {state.lastAction.changes.map((c,i)=>
-            <div key={c.label+":"+i} className="action-change">
-              <span>{c.label}</span><b>{c.delta>0?"+":""}{c.delta}</b>
-            </div>)}
-        </div>}
-        {state.message && !redundantResult && <p className="notice" data-testid="game-message">{state.message}</p>}
-        {state.error && <p className="error" role="alert">{state.error}</p>}
-        {toast && <p className="notice">{toast}</p>}
-        <div className="sidebar-footer">WEB EXPERIMENT · {seed}</div>
+          {state.message && !redundantResult && <p className="notice" data-testid="game-message">{state.message}</p>}
+          {state.error && <p className="error" role="alert">{state.error}</p>}
+          {toast && <p className="notice">{toast}</p>}
+        </section>}
       </aside>
     </main>
     {state.dossierOpen && <DossierPanel entries={state.dossiers} close={()=>session.toggleDossier()} />}
+    {state.resultOpen&&state.lastAction&&!state.story&&
+      <ResultDialog result={state.lastAction} close={()=>session.dismissResult()}/>}
+    {state.failure && !state.story && <div className="failure-screen" role="dialog" aria-modal="true" aria-label="游戏结束">
+      <div className="failure-card">
+        <div className="eyebrow">THE END / 游戏结束</div>
+        <h2>{state.failure.title}</h2>
+        <p>{state.failure.description}</p>
+        {toast && <p className="failure-message" role="status">{toast}</p>}
+        <div className="failure-actions">
+          <button type="button" data-testid="failure-restart" onClick={()=>location.reload()}>重新开始</button>
+          <button type="button" data-testid="failure-load" onClick={load} disabled={state.busy}>读取存档</button>
+        </div>
+      </div>
+    </div>}
     {state.story && <div className="story-screen" role="dialog" aria-modal="true">
       <div className="story-card">
         <div className="eyebrow">STORY · {state.story.kind}</div>

@@ -10,7 +10,8 @@
     (define (require-workshop-anchor node-data)
       (if (member? :anchor node-data)
           node-data
-          (error "试验工棚：工作节点必须显式指定功能锚点")))
+          (error (string-append "试验工棚：节点「" (cadr node-data)
+            "」缺少 :anchor；工作行动需指定功能锚点，说明节点应挂在场景锚点。"))))
 
     (define (children)
       (map require-workshop-anchor (地点节点 "三号货栈工棚")))

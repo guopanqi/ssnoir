@@ -14,10 +14,9 @@ function scan(p){
  }
 }
 scan("scripts");scan("scenes");
-const std=readFileSync("node_modules/lips/dist/std.xcb");
 test("real world calendar on-turn-end and on-turn-start advance day once",async()=>{
  const state=new GameRuntimeState();
- const world=await GameScriptSession.create("day-world",state,src,std);
+ const world=await GameScriptSession.create("day-world",state,src);
  await world.loadFile("scenes/world/world.scm");
  const turn=new WorldTurnController(state,world);
  // The new first act advances by world date; no ransom letter blocks sleep.

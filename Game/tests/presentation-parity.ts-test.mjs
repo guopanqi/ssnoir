@@ -9,8 +9,7 @@ const root="../UnityClient/Assets/Resources/Content/";
 const sources=Object.fromEntries(["stdlib","engine","theatre"].map(x=>[
   "scripts/"+x+".scm",readFileSync(root+"scripts/"+x+".scm","utf8")
 ]));
-const std=readFileSync("node_modules/lips/dist/std.xcb");
-const vm=()=>GameScriptSession.create("presentation-contract",new GameRuntimeState(),sources,std);
+const vm=()=>GameScriptSession.create("presentation-contract",new GameRuntimeState(),sources);
 
 test("C#-equivalent clock display semantics are preserved in node and annotation",async()=>{
   const session=await vm();
